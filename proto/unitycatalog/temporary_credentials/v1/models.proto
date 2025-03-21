@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package unitycatalog.table_credentials.v1;
+package unitycatalog.temporary_credentials.v1;
+
+import "buf/validate/validate.proto";
 
 message AzureUserDelegationSas {
   // The signed URI (SAS Token) used to access blob services for a given path

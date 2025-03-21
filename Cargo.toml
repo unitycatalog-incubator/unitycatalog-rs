@@ -11,3 +11,32 @@ repository = "https://github.com/unitycatalog-incubator/unitycatalog-rs"
 readme = "README.md"
 rust-version = "1.85"
 version = "0.0.1"
+
+[workspace.dependencies]
+delta_kernel = { path = "../delta-kernel-rs/kernel", features = [
+  "tokio",
+  "developer-visibility",
+  "default-engine",
+  "arrow_54",
+] }
+
+async-trait = "0.1.83"
+bytes = { version = "1.1" }
+chrono = { version = "0.4.38, <0.4.40", features = ["serde"] }
+itertools = { version = "0.14.0" }
+object_store = { version = "0.11.1" }
+pbjson = { version = "0.7" }
+pbjson-types = "0.7"
+prost = { version = "0.13.3" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+strum = { version = "0.27", features = ["derive"] }
+thiserror = { version = "2" }
+tonic = { version = "0.12.3" }
+tower = { version = "0.5", features = ["limit", "filter", "util"] }
+tracing = { version = "0.1", features = ["log"] }
+url = { version = "2.5.2", features = [
+  "serde",
+  "std",
+], default-features = false }
+uuid = { version = "1", features = ["serde"] }

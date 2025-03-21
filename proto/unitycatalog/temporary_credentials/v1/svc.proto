@@ -3,7 +3,10 @@ syntax = "proto3";
 package unitycatalog.temporary_credentials.v1;
 
 import "buf/validate/validate.proto";
-import "delta_sharing/temporary_credentials/v1/models.proto";
+import "unitycatalog/temporary_credentials/v1/models.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // The operation performed against the table data, either READ or READ_WRITE.
 // If READ_WRITE is specified, the credentials returned will have write permissions,

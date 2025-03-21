@@ -3,7 +3,7 @@ syntax = "proto3";
 package unitycatalog.catalogs.v1;
 
 import "buf/validate/validate.proto";
-import "delta_sharing/catalogs/v1/models.proto";
+import "unitycatalog/catalogs/v1/models.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "gnostic/openapi/v3/openapiv3.proto";
 import "google/api/annotations.proto";
