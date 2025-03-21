@@ -1,0 +1,39 @@
+version: v2
+managed:
+  enabled: true
+  disable:
+    # Disables all go_package changes for this module only
+    - file_option: go_package
+      module: buf.build/googleapis/googleapis
+  override:
+    # Sets default go_package_prefix for all inputs
+    - file_option: go_package_prefix
+      value: github.com/delta-incubator/delta-sharing-rs/go
+plugins:
+  - remote: buf.build/community/neoeinstein-prost:v0.4.0
+    out: unitycatalog/common/src/gen
+    opt:
+      - bytes=.
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+      - file_descriptor_set=false
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[derive(::strum::EnumDiscriminants)]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(name(ObjectLabel))]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(derive(::strum::AsRefStr\, ::strum::Display\, ::strum::EnumIter\, ::strum::EnumString)\, strum(serialize_all = "snake_case"))]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(derive(::serde::Serialize\, ::serde::Deserialize\, Hash))]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(serde(rename_all = "snake_case"))]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(strum(ascii_case_insensitive))]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(cfg_attr(feature = "sqlx"\, derive(::sqlx::Type)))]
+      - type_attribute=.delta_sharing.internal.Resource.resource=#[strum_discriminants(cfg_attr(feature = "sqlx"\, sqlx(type_name = "object_label"\, rename_all = "snake_case")))]
+  - remote: buf.build/community/neoeinstein-prost-serde:v0.3.1
+    out: unitycatalog/common/src/gen
+    opt:
+      # useful to build reusable extractors for axum
+      - ignore_unknown_fields=true
+      # - preserve_proto_field_names=true
+  - remote: buf.build/community/neoeinstein-tonic:v0.4.1
+    out: unitycatalog/common/src/gen
+    opt:
+      - no_client=true
+      - extern_path=.google.protobuf=::pbjson_types
+      - no_include=true
