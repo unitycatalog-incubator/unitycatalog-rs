@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package unitycatalog.temporary_credentials.v1;
+
+import "buf/validate/validate.proto";
+import "delta_sharing/temporary_credentials/v1/models.proto";
+
+// The operation performed against the table data, either READ or READ_WRITE.
+// If READ_WRITE is specified, the credentials returned will have write permissions,
+// otherwise, it will be read only.
+enum Operation {
+  // The operation is not specified.
+  OPERATION_UNSPECIFIED = 0;
+
+  // The operation is read only.
+  READ = 1;
+
+  // The operation is read and write.
+  READ_WRITE = 2;
+}
+
+// Gebnerate a new set of credentials for a table.
+message GenerateTemporaryTableCredentialsRequest {
+  // The name of the table for which to generate credentials.
+  string table_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation to perform with the credentials.
+  Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Genearte a new set of credentials for a volume.
+message GenerateTemporaryVolumeCredentialsRequest {
+  // The name of the volume for which to generate credentials.
+  string volume_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation to perform with the credentials.
+  Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+service TemporaryCredentialsService {
+  // Generate a new set of credentials for a table.
+  rpc GenerateTemporaryTableCredentials(GenerateTemporaryTableCredentialsRequest) returns (TemporaryCredential) {
+    option (google.api.http) = {
+      post: "/temporary-table-credentials"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryTableCredentials"};
+  }
+
+  // Generate a new set of credentials for a volume.
+  rpc GenerateTemporaryVolumeCredentials(GenerateTemporaryVolumeCredentialsRequest) returns (TemporaryCredential) {
+    option (google.api.http) = {
+      post: "/temporary-volume-credentials"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryVolumeCredentials"};
+  }
+}

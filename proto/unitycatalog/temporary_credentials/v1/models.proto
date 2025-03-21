@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package unitycatalog.table_credentials.v1;
+
+message AzureUserDelegationSas {
+  // The signed URI (SAS Token) used to access blob services for a given path
+  string sas_token = 1;
+}
+
+message AzureAad {
+  // Opaque token that contains claims that you can use in Azure Active Directory to access cloud services.
+  string aad_token = 1;
+}
+
+message R2TemporaryCredentials {
+  // The access key ID that identifies the temporary credentials.
+  string access_key_id = 1;
+
+  // The secret access key associated with the access key.
+  string secret_access_key = 2;
+
+  // The generated JWT that users must pass to use the temporary credentials.
+  string session_token = 3;
+}
+
+message GcpOauthToken {
+  // The OAuth token used to access Google Cloud services.
+  string oauth_token = 1;
+}
+
+message AwsTemporaryCredentials {
+  // The access key ID that identifies the temporary credentials.
+  string access_key_id = 1;
+
+  // The secret access key that can be used to sign AWS API requests.
+  string secret_access_key = 2;
+
+  // The token that users must pass to AWS API to use the temporary credentials.
+  string session_token = 3;
+
+  // The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
+  string access_point = 4;
+}
+
+// The response to the GenerateTemporaryTableCredentialsRequest.
+message TemporaryCredential {
+  // Server time when the credential will expire, in epoch milliseconds.
+  // The API client is advised to cache the credential given this expiration time.
+  int64 expiration_time = 1 [(buf.validate.field).int64.gt = 0];
+
+  // The URL of the storage path accessible by the temporary credential.
+  string url = 2 [(buf.validate.field).string.uri = true];
+
+  // The credentials to access the table.
+  oneof credentials {
+    option (buf.validate.oneof).required = true;
+
+    // Credentials for Azure Blob Storage.
+    AzureUserDelegationSas azure_user_delegation_sas = 100;
+
+    // Credentials for Azure Active Directory.
+    AzureAad azure_aad = 101;
+
+    // Credentials for AWS S3.
+    AwsTemporaryCredentials aws_temp_credentials = 102;
+
+    // Credentials for Google Cloud Storage.
+    GcpOauthToken gcp_oauth_token = 103;
+
+    // Credentials for R2.
+    R2TemporaryCredentials r2_temp_credentials = 104;
+  }
+}
