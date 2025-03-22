@@ -1,0 +1,72 @@
+{
+  "$id": "unitycatalog.internal.Resource.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Dummy message to hold all resources.",
+  "patternProperties": {
+    "^(catalogInfo)$": {
+      "$ref": "unitycatalog.catalogs.v1.CatalogInfo.schema.json"
+    },
+    "^(columnInfo)$": {
+      "$ref": "unitycatalog.tables.v1.ColumnInfo.schema.json"
+    },
+    "^(credentialInfo)$": {
+      "$ref": "unitycatalog.credentials.v1.CredentialInfo.schema.json"
+    },
+    "^(externalLocationInfo)$": {
+      "$ref": "unitycatalog.external_locations.v1.ExternalLocationInfo.schema.json"
+    },
+    "^(recipientInfo)$": {
+      "$ref": "unitycatalog.recipients.v1.RecipientInfo.schema.json"
+    },
+    "^(schemaInfo)$": {
+      "$ref": "unitycatalog.schemas.v1.SchemaInfo.schema.json"
+    },
+    "^(shareInfo)$": {
+      "$ref": "unitycatalog.shares.v1.ShareInfo.schema.json"
+    },
+    "^(sharingSchemaInfo)$": {
+      "$ref": "unitycatalog.sharing.v1.SharingSchemaInfo.schema.json"
+    },
+    "^(sharingTable)$": {
+      "$ref": "unitycatalog.sharing.v1.SharingTable.schema.json"
+    },
+    "^(tableInfo)$": {
+      "$ref": "unitycatalog.tables.v1.TableInfo.schema.json"
+    }
+  },
+  "properties": {
+    "catalog_info": {
+      "$ref": "unitycatalog.catalogs.v1.CatalogInfo.schema.json"
+    },
+    "column_info": {
+      "$ref": "unitycatalog.tables.v1.ColumnInfo.schema.json"
+    },
+    "credential_info": {
+      "$ref": "unitycatalog.credentials.v1.CredentialInfo.schema.json"
+    },
+    "external_location_info": {
+      "$ref": "unitycatalog.external_locations.v1.ExternalLocationInfo.schema.json"
+    },
+    "recipient_info": {
+      "$ref": "unitycatalog.recipients.v1.RecipientInfo.schema.json"
+    },
+    "schema_info": {
+      "$ref": "unitycatalog.schemas.v1.SchemaInfo.schema.json"
+    },
+    "share_info": {
+      "$ref": "unitycatalog.shares.v1.ShareInfo.schema.json"
+    },
+    "sharing_schema_info": {
+      "$ref": "unitycatalog.sharing.v1.SharingSchemaInfo.schema.json"
+    },
+    "sharing_table": {
+      "$ref": "unitycatalog.sharing.v1.SharingTable.schema.json"
+    },
+    "table_info": {
+      "$ref": "unitycatalog.tables.v1.TableInfo.schema.json"
+    }
+  },
+  "title": "Resource",
+  "type": "object"
+}

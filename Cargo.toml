@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["unitycatalog/*"]
+members = ["unitycatalog/*", "app/src-tauri"]
 
 [workspace.package]
 edition = "2024"

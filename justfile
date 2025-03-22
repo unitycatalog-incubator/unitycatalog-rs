@@ -11,6 +11,9 @@ generate:
     mv tmp.yaml openapi/openapi.yaml
     cargo clippy --fix --allow-dirty --allow-staged
 
+generate-app:
+    just app/generate
+
 sqlx-prepare: start_pg
     # Wait for PostgreSQL to be ready
     sleep 1
@@ -45,3 +48,7 @@ rest-db:
 # Run local docker emvironment
 compose:
     docker-compose -p unitycatalog-rs -f compose/local.compose.yaml up -d
+
+# run local app
+app:
+  cd app && npm run tauri dev

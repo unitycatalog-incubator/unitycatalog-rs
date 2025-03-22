@@ -1,0 +1,16 @@
+{
+  "$id": "unitycatalog.external_locations.v1.GetExternalLocationRequest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Get an external location",
+  "properties": {
+    "name": {
+      "description": "Name of external location.",
+      "minLength": 3,
+      "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+      "type": "string"
+    }
+  },
+  "title": "Get External Location Request",
+  "type": "object"
+}
