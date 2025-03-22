@@ -18,6 +18,7 @@ unitycatalog-derive = { path = "../derive" }
 
 # workspace dependencies (in alphabetical order)
 async-trait = { workspace = true }
+bytes = { workspace = true }
 chrono = { workspace = true }
 itertools = { workspace = true }
 serde = { workspace = true }

@@ -1,0 +1,91 @@
+use bytes::Bytes;
+use unitycatalog_common::Result;
+use unitycatalog_common::services::SecretManager;
+use uuid::Uuid;
+
+use crate::GraphStore;
+
+const DUMMY: &str = "dummy";
+
+#[async_trait::async_trait]
+impl SecretManager for GraphStore {
+    async fn get_secret(&self, secret_name: &str) -> Result<(Uuid, Bytes)> {
+        #[derive(sqlx::FromRow)]
+        struct Secret {
+            id: Uuid,
+            value: Option<String>,
+        }
+        let res = sqlx::query_as!(
+            Secret,
+            r#"
+            SELECT id, pgp_sym_decrypt(value, $1) as value FROM secrets
+            WHERE name = $2
+            ORDER BY id DESC
+            LIMIT 1
+            "#,
+            DUMMY,
+            secret_name,
+        )
+        .fetch_one(&*self.pool)
+        .await
+        .map_err(crate::Error::from)?;
+        if res.value.is_none() {
+            return Err(crate::Error::entity_not_found(secret_name).into());
+        }
+        Ok((res.id, bytes::Bytes::from(res.value.unwrap())))
+    }
+
+    async fn get_secret_version(&self, secret_name: &str, version: Uuid) -> Result<Bytes> {
+        let value: Option<String> = sqlx::query_scalar!(
+            r#"
+            SELECT pgp_sym_decrypt(value, $2) FROM secrets
+            WHERE name = $1 AND id = $3
+            "#,
+            secret_name,
+            DUMMY,
+            version,
+        )
+        .fetch_one(&*self.pool)
+        .await
+        .map_err(crate::Error::from)?;
+        if let Some(value) = value {
+            return Ok(bytes::Bytes::from(value));
+        }
+        Err(crate::Error::entity_not_found(secret_name).into())
+    }
+
+    async fn create_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
+        let value = std::str::from_utf8(&secret_value).unwrap();
+        Ok(sqlx::query_scalar!(
+            r#"
+            INSERT INTO secrets(name, value)
+            VALUES ($1, pgp_sym_encrypt($2, $3, 'cipher-algo=aes256'))
+            RETURNING id
+            "#,
+            secret_name,
+            value,
+            DUMMY,
+        )
+        .fetch_one(&*self.pool)
+        .await
+        .map_err(crate::Error::from)?)
+    }
+
+    async fn update_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
+        self.create_secret(secret_name, secret_value).await
+    }
+
+    async fn delete_secret(&self, secret_name: &str) -> Result<()> {
+        let _ = sqlx::query!(
+            r#"
+            DELETE FROM secrets
+            WHERE name = $1
+            "#,
+            secret_name,
+        )
+        .execute(&*self.pool)
+        .await
+        .map_err(crate::Error::from)?;
+        Ok(())
+    }
+}

@@ -89,9 +89,9 @@ async fn get_db_handler() -> Result<ServerHandler> {
             Default::default(),
             policy.clone(),
         ),
+        secrets: store.clone(),
         store,
         policy,
-        secrets: Arc::new(InMemoryResourceStore::new()),
     };
     Ok(handler)
 }

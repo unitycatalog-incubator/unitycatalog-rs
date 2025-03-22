@@ -21,7 +21,7 @@ static MIGRATOR: Migrator = sqlx::migrate!();
 
 #[derive(Clone)]
 pub struct Store {
-    pool: Arc<PgPool>,
+    pub(crate) pool: Arc<PgPool>,
 }
 
 impl Store {

@@ -24,16 +24,16 @@ sqlx-prepare: start_pg
 # Start PostgreSQL container to prepare SQLx or to run tests
 start_pg:
     docker run -d \
-        --name postgres-sharing \
+        --name unitycatalog-pg \
         -e POSTGRES_PASSWORD=postgres \
         -e POSTGRES_USER=postgres \
         -e POSTGRES_DB=postgres \
         -p 5432:5432 \
-        postgres:14
+        postgres:16
 
 # Stop PostgreSQL container
 stop_pg:
-    docker stop postgres-sharing && docker rm postgres-sharing
+    docker stop unitycatalog-pg && docker rm unitycatalog-pg
 
 rest:
     @RUST_LOG=INFO cargo run --bin uc server --rest

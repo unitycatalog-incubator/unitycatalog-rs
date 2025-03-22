@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT pgp_sym_decrypt(value, $2) FROM secrets\n            WHERE name = $1 AND id = $3\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "pgp_sym_decrypt",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "544c020c8bb957f8cdaad1c5e15df059a7bf0395bb11bc0632ea910cfcefe124"
+}

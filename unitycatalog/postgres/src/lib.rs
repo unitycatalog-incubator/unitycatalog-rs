@@ -6,6 +6,7 @@ mod error;
 mod graph;
 mod pagination;
 mod resources;
+mod secrets;
 
 #[cfg(all(test, feature = "integration-pg"))]
 mod tests {
@@ -14,8 +15,8 @@ mod tests {
     use delta_sharing_common::memory::InMemoryResourceStore;
     use delta_sharing_common::rest::integration::{test_catalog_router, test_credentials_router};
     use delta_sharing_common::rest::{
-        get_catalog_router, get_credentials_router, get_external_locations_router,
-        get_schemas_router, AnonymousAuthenticator, AuthenticationLayer,
+        AnonymousAuthenticator, AuthenticationLayer, get_catalog_router, get_credentials_router,
+        get_external_locations_router, get_schemas_router,
     };
     use delta_sharing_common::{
         ConstantPolicy, Policy, ProvidesPolicy, ProvidesResourceStore, ProvidesSecretManager,
