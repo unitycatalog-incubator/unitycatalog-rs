@@ -54,6 +54,9 @@ http = { version = "1.2", optional = true }
 http-body-util = { version = "0.1.0", optional = true }
 mime = { version = "0.3", optional = true }
 
+# support kernel executors based on tokio runtime.
+tokio = { version = "1.40", optional = true, features = ["rt-multi-thread"] }
+
 # convenience for downstream crates that want to use certain types with sqlx
 sqlx = { version = "0.8", optional = true, features = [
   "uuid",
@@ -68,11 +71,12 @@ mime = "0.3"
 tokio = { version = "1", features = ["full"] }
 
 [features]
-default = ["grpc", "memory", "rest-client"]
+default = ["grpc", "memory", "rest-client", "tokio"]
 grpc = ["tonic"]
 axum = ["tower", "dep:axum", "http"]
 sqlx = ["dep:sqlx"]
 memory = ["dashmap", "uuid/v7"]
+tokio = ["dep:tokio"]
 
 rest-client = ["futures"]
 
