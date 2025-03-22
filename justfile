@@ -34,3 +34,14 @@ start_pg:
 # Stop PostgreSQL container
 stop_pg:
     docker stop postgres-sharing && docker rm postgres-sharing
+
+rest:
+    @RUST_LOG=INFO cargo run --bin uc server --rest
+
+rest-db:
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
+        cargo run --bin uc server --rest --use-db
+
+# Run local docker emvironment
+compose:
+    docker-compose -p unitycatalog-rs -f compose/local.compose.yaml up -d

@@ -11,7 +11,7 @@ use crate::error::{Error, Result};
 
 mod run;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct ServerArgs {
     #[clap(long, default_value = "0.0.0.0")]
     host: String,
@@ -24,6 +24,57 @@ pub struct ServerArgs {
 
     #[clap(long, help = "use database", default_value_t = false)]
     use_db: bool,
+
+    #[clap(long, help = "expose rest API", default_value_t = true)]
+    rest: bool,
+
+    #[clap(long, help = "expose rest gRPC", default_value_t = false)]
+    grpc: bool,
+}
+
+pub async fn handle_server(args: &ServerArgs) -> Result<()> {
+    if args.rest {
+        handle_rest(args).await
+    } else if args.grpc {
+        handle_grpc(args).await
+    } else {
+        Err(Error::Generic("No server protocol specified".to_string()))
+    }
+}
+
+/// Handle the rest server command.
+///
+/// This function starts a delta-sharing server using the REST protocol.
+async fn handle_rest(args: &ServerArgs) -> Result<()> {
+    init_tracing();
+
+    println!("{}", WELCOME.as_str());
+
+    if args.use_db {
+        let handler = get_db_handler().await?;
+        run::run_server_rest(
+            args.host.clone(),
+            args.port,
+            handler,
+            AnonymousAuthenticator,
+        )
+        .await
+        .map_err(|_| Error::Generic("Server failed".to_string()))
+    } else {
+        let handler = get_memory_handler().await;
+        run::run_server_rest(
+            args.host.clone(),
+            args.port,
+            handler,
+            AnonymousAuthenticator,
+        )
+        .await
+        .map_err(|_| Error::Generic("Server failed".to_string()))
+    }
+}
+
+async fn handle_grpc(_args: &ServerArgs) -> Result<()> {
+    unimplemented!()
 }
 
 async fn get_db_handler() -> Result<ServerHandler> {
@@ -77,49 +128,16 @@ fn init_tracing() {
         .init();
 }
 
-/// Handle the rest server command.
-///
-/// This function starts a delta-sharing server using the REST protocol.
-pub async fn handle_rest(args: &ServerArgs) -> Result<()> {
-    init_tracing();
-
-    println!("{}", WELCOME.as_str());
-
-    if args.use_db {
-        let handler = get_db_handler().await?;
-        run::run_server_rest(
-            args.host.clone(),
-            args.port,
-            handler,
-            AnonymousAuthenticator,
-        )
-        .await
-        .map_err(|_| Error::Generic("Server failed".to_string()))
-    } else {
-        let handler = get_memory_handler().await;
-        run::run_server_rest(
-            args.host.clone(),
-            args.port,
-            handler,
-            AnonymousAuthenticator,
-        )
-        .await
-        .map_err(|_| Error::Generic("Server failed".to_string()))
-    }
-}
-
 static WELCOME: LazyLock<String> = LazyLock::new(|| {
     format!(
         r#"
-     _____       _ _           _____ _                _                        _____   _____
-    |  __ \     | | |         / ____| |              (_)                      |  __ \ / ____|  v{}
-    | |  | | ___| | |_ __ _  | (___ | |__   __ _ _ __ _ _ __   __ _   ______  | |__) | (___
-    | |  | |/ _ \ | __/ _` |  \___ \| '_ \ / _` | '__| | '_ \ / _` | |______| |  _  / \___ \
-    | |__| |  __/ | || (_| |  ____) | | | | (_| | |  | | | | | (_| |          | | \ \ ____) |
-    |_____/ \___|_|\__\__,_| |_____/|_| |_|\__,_|_|  |_|_| |_|\__, |          |_|  \_\_____/
-                                                               __/ |
-                                                              |___/
-    "#,
+                     _ _                   _        _
+         _   _ _ __ (_) |_ _   _  ___ __ _| |_ __ _| | ___   __ _       _ __ ___  v{}
+        | | | | '_ \| | __| | | |/ __/ _` | __/ _` | |/ _ \ / _` |_____| '__/ __|
+        | |_| | | | | | |_| |_| | (_| (_| | || (_| | | (_) | (_| |_____| |  \__ \
+         \__,_|_| |_|_|\__|\__, |\___\__,_|\__\__,_|_|\___/ \__, |     |_|  |___/
+                           |___/                            |___/
+        "#,
         env!("CARGO_PKG_VERSION")
     )
 });
