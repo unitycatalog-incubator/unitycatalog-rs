@@ -5,6 +5,7 @@ pub use unitycatalog_derive as derive;
 
 pub mod api;
 pub mod error;
+pub mod kernel;
 #[cfg(feature = "memory")]
 pub mod memory;
 pub mod models;
