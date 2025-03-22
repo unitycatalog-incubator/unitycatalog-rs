@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use itertools::Itertools;
 
-use super::{AssociationLabel, ResourceIdent, ResourceName, ResourceRef};
+use super::{ResourceIdent, ResourceName, ResourceRef};
 use crate::Result;
-use crate::models::{ObjectLabel, PropertyMap, Resource};
+use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 
 /// Generic store that can be used to store and retrieve resources.
 ///

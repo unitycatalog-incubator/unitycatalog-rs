@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::Error;
-use crate::resources::{ResourceIdent, ResourceName, ResourceRef};
+use crate::resources::{ResourceIdent, ResourceRef};
+use crate::{Error, Result};
 
 pub use catalogs::v1::CatalogInfo;
 pub use credentials::v1::CredentialInfo;
@@ -113,29 +113,76 @@ impl ObjectLabel {
     }
 }
 
-pub trait ResourceExt {
-    /// Get the label for the resource
-    fn resource_label(&self) -> &ObjectLabel;
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Hash, Eq)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "sqlx", derive(sqlx::Type))]
+#[cfg_attr(
+    feature = "sqlx",
+    sqlx(type_name = "association_label", rename_all = "snake_case")
+)]
+pub enum AssociationLabel {
+    OwnedBy,
+    OwnerOf,
+    DependsOn,
+    DependencyOf,
+    ParentOf,
+    ChildOf,
+    HasPart,
+    PartOf,
+    References,
+    ReferencedBy,
+}
 
-    /// Get the name of the resource
-    fn resource_name(&self) -> ResourceName;
-
-    /// Get the reference for the resource
+impl AssociationLabel {
+    /// Get the inverse of the association label.
     ///
-    /// Depending on the resource type, this may be a UUID or a name.
-    /// If possible, implementations should prefer to use the UUID
-    /// as it is globally unique. However not all resource-like objects
-    /// have a UUID field, or the UUID field may be optional.
-    fn resource_ref(&self) -> ResourceRef;
-
-    /// Get the ident for the resource
-    fn resource_ident(&self) -> ResourceIdent {
-        self.resource_label().to_ident(self.resource_ref())
+    /// Associations may be bidirectional, either symmetric or asymmetric.
+    /// Symmetric types are their own inverse. Asymmetric types have a distinct inverse.
+    pub fn inverse(&self) -> Option<Self> {
+        match self {
+            AssociationLabel::HasPart => Some(AssociationLabel::PartOf),
+            AssociationLabel::PartOf => Some(AssociationLabel::HasPart),
+            AssociationLabel::DependsOn => Some(AssociationLabel::DependencyOf),
+            AssociationLabel::DependencyOf => Some(AssociationLabel::DependsOn),
+            AssociationLabel::ParentOf => Some(AssociationLabel::ChildOf),
+            AssociationLabel::ChildOf => Some(AssociationLabel::ParentOf),
+            AssociationLabel::References => Some(AssociationLabel::ReferencedBy),
+            AssociationLabel::ReferencedBy => Some(AssociationLabel::References),
+            AssociationLabel::OwnedBy => Some(AssociationLabel::OwnerOf),
+            AssociationLabel::OwnerOf => Some(AssociationLabel::OwnedBy),
+        }
     }
 }
 
-impl<T: ResourceExt> From<&T> for ResourceIdent {
-    fn from(resource: &T) -> Self {
-        resource.resource_ident()
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ErrorResponse {
+    pub error_code: String,
+    pub message: String,
+}
+
+/// Conversions from more specific types to reduced info sharing API types
+impl TryFrom<Resource> for Share {
+    type Error = Error;
+
+    fn try_from(resource: Resource) -> Result<Self, Self::Error> {
+        let info = ShareInfo::try_from(resource)?;
+        Ok(Share {
+            id: info.id,
+            name: info.name,
+        })
+    }
+}
+
+impl TryFrom<Resource> for SharingSchema {
+    type Error = Error;
+
+    fn try_from(resource: Resource) -> Result<Self, Self::Error> {
+        let info = SharingSchemaInfo::try_from(resource)?;
+        Ok(SharingSchema {
+            share: info.share,
+            name: info.name,
+            id: Some(info.id),
+        })
     }
 }

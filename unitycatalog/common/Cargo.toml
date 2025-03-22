@@ -10,6 +10,7 @@ version.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+cloud-client = { path = "../cloud-client" }
 unitycatalog-derive = { path = "../derive" }
 
 async-trait = { workspace = true }
@@ -32,8 +33,26 @@ url = { workspace = true }
 uuid = { workspace = true }
 
 futures-util = { version = "0.3.28" }
+reqwest = { version = "0.12", default-features = false, features = [
+  "rustls-tls-native-roots",
+  "http2",
+  "json",
+  "stream",
+] }
+
+# convenience for downstream crates that want to use certain types with sqlx
+sqlx = { version = "0.8", optional = true, features = [
+  "uuid",
+  "macros",
+  "chrono",
+  "json",
+] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
 
 [features]
 default = ["grpc"]
 grpc = ["tonic"]
 axum = ["tower"]
+sqlx = ["dep:sqlx"]
