@@ -4,13 +4,19 @@ members = ["unitycatalog/*"]
 
 [workspace.package]
 edition = "2024"
-homepage = "https://unitycatalog.io"
-keywords = ["deltalake", "delta", "datalake", "delta-sharing", "unitycatalog"]
 license = "Apache-2.0"
 repository = "https://github.com/unitycatalog-incubator/unitycatalog-rs"
 readme = "README.md"
 rust-version = "1.85"
 version = "0.0.1"
+homepage = "https://unitycatalog.io"
+keywords = [
+  "unitycatalog",
+  "deltalake",
+  "lakehouse",
+  "delta-sharing",
+  "governance",
+]
 
 [workspace.dependencies]
 delta_kernel = { path = "../delta-kernel-rs/kernel", features = [

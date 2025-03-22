@@ -5,7 +5,7 @@ use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, process_resources};
+use crate::services::policy::{Permission, Policy, Recipient, process_resources};
 use crate::{Error, Result};
 
 const MAX_RESULTS_TABLES: usize = 50;

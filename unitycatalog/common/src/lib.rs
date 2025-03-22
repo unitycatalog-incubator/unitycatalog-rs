@@ -8,4 +8,5 @@ pub mod error;
 pub mod memory;
 pub mod models;
 mod resources;
+pub mod rest;
 pub mod services;

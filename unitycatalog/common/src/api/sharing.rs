@@ -2,11 +2,11 @@ use itertools::Itertools;
 use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
-use crate::Result;
 use crate::models::sharing::v1::*;
 use crate::models::{AssociationLabel, ObjectLabel, Resource};
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, process_resources};
+use crate::services::policy::{Permission, Policy, Recipient, process_resources};
+use crate::{Error, Result};
 
 rest_handlers!(
     SharingDiscoveryHandler, "shares/schemas/tables", [

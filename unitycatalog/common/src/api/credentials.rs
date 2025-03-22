@@ -6,7 +6,7 @@ use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::credentials::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, process_resources};
+use crate::services::policy::{Permission, Policy, Recipient, process_resources};
 use crate::services::secrets::SecretManager;
 use crate::{Error, Result};
 

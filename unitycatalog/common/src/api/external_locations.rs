@@ -2,11 +2,11 @@ use itertools::Itertools;
 use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
-use crate::Result;
 use crate::models::ObjectLabel;
 use crate::models::external_locations::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, process_resources};
+use crate::services::policy::{Permission, Policy, Recipient, process_resources};
+use crate::{Error, Result};
 
 rest_handlers!(
     ExternalLocationsHandler, "external-locations",
