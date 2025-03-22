@@ -1,0 +1,46 @@
+[package]
+name = "unitycatalog-cli"
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+version.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "uc"
+path = "src/main.rs"
+
+[dependencies]
+# path dependencies (in alphabetical order)
+cloud-client = { path = "../cloud-client" }
+unitycatalog-common = { path = "../common", features = [
+  "axum",
+  "rest-client",
+  "tokio",
+] }
+unitycatalog-postgres = { path = "../postgres" }
+
+# workspace dependencies (in alphabetical order)
+axum = { workspace = true, features = ["tracing"] }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+# crates.io dependencies (in alphabetical order)
+clap = { version = "4.5", features = ["derive", "env"] }
+futures = "0.3"
+serde_yml = { version = "0.0.12" }
+swagger-ui-dist = { version = "5.18.3" }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["trace"] }
+tracing-subscriber = { version = "0.3", features = [
+  "tracing-log",
+  "fmt",
+  "env-filter",
+] }

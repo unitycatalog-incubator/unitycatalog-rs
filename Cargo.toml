@@ -20,13 +20,13 @@ keywords = [
 
 [workspace.dependencies]
 delta_kernel = { path = "../delta-kernel-rs/kernel", features = [
-  "tokio",
   "developer-visibility",
   "default-engine",
   "arrow_54",
 ] }
 
 async-trait = "0.1.83"
+axum = { version = "0.8" }
 bytes = { version = "1.1" }
 chrono = { version = "0.4.38, <0.4.40", features = ["serde"] }
 itertools = { version = "0.14.0" }

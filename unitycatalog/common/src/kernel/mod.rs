@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use delta_kernel::engine::default::executor::tokio::{
-    TokioBackgroundExecutor, TokioMultiThreadExecutor,
-};
 use delta_kernel::engine::default::{DefaultEngine, executor::TaskExecutor};
 use delta_kernel::snapshot::Snapshot;
 use delta_kernel::{Engine, Table};
@@ -83,11 +80,12 @@ impl KernelQueryHandler {
 
     /// Create a new instance of [`KernelQueryHandler`] with a background executor.
     #[cfg(feature = "tokio")]
-    pub fn new_background(
+    pub fn new_tokio_background(
         location_resolver: Arc<dyn TableLocationResolver>,
         storage_configs: HashMap<(String, String), HashMap<String, String>>,
         policy: Arc<dyn Policy>,
     ) -> Arc<Self> {
+        use delta_kernel::engine::default::executor::tokio::TokioBackgroundExecutor;
         let engine_factory = Arc::new(DefaultKernelEngineFactroy::new(
             Arc::new(TokioBackgroundExecutor::new()),
             storage_configs,
@@ -97,11 +95,12 @@ impl KernelQueryHandler {
 
     /// Create a new instance of [`KernelQueryHandler`] with a multi-threaded executor.
     #[cfg(feature = "tokio")]
-    pub async fn new_multi_thread(
+    pub fn new_tokio_multi_threaded(
         location_resolver: Arc<dyn TableLocationResolver>,
         storage_configs: HashMap<(String, String), HashMap<String, String>>,
         policy: Arc<dyn Policy>,
     ) -> Arc<Self> {
+        use delta_kernel::engine::default::executor::tokio::TokioMultiThreadExecutor;
         let engine_factory = Arc::new(DefaultKernelEngineFactroy::new(
             Arc::new(TokioMultiThreadExecutor::new(
                 tokio::runtime::Handle::current(),
