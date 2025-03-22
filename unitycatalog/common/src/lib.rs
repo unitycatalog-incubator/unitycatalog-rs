@@ -1,4 +1,5 @@
 pub use error::{Error, Result};
+pub use models::*;
 pub use resources::*;
 pub use unitycatalog_derive as derive;
 

@@ -8,6 +8,7 @@ pub use catalogs::v1::CatalogInfo;
 pub use credentials::v1::CredentialInfo;
 pub use external_locations::v1::ExternalLocationInfo;
 pub use internal::resource::{ObjectLabel, Resource};
+pub use object::Object;
 pub use profiles::v1::Profile;
 pub use recipients::v1::RecipientInfo;
 pub use schemas::v1::SchemaInfo;

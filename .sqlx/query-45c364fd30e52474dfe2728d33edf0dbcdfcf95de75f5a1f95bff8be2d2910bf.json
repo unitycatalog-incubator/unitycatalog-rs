@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                id,\n                label AS \"label: ObjectLabel\",\n                name,\n                properties,\n                created_at,\n                updated_at\n            FROM objects\n            WHERE label = $1\n                AND ( $2 = 0 OR name[1:$2] = $3)\n                AND ( id < $4 OR $4 IS NULL )\n            ORDER BY id DESC\n            LIMIT $5\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "label: ObjectLabel",
+        "type_info": {
+          "Custom": {
+            "name": "object_label",
+            "kind": {
+              "Enum": [
+                "share_info",
+                "catalog_info",
+                "schema_info",
+                "table_info",
+                "column_info",
+                "credential_info",
+                "external_location_info",
+                "recipient_info"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "properties",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "object_label",
+            "kind": {
+              "Enum": [
+                "share_info",
+                "catalog_info",
+                "schema_info",
+                "table_info",
+                "column_info",
+                "credential_info",
+                "external_location_info",
+                "recipient_info"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "TextArray",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "45c364fd30e52474dfe2728d33edf0dbcdfcf95de75f5a1f95bff8be2d2910bf"
+}
