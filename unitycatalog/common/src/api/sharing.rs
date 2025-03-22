@@ -5,8 +5,8 @@ use super::{RequestContext, SecuredAction};
 use crate::Result;
 use crate::models::sharing::v1::*;
 use crate::models::{AssociationLabel, ObjectLabel, Resource};
-use crate::policy::{Permission, Policy, process_resources};
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::services::policy::{Permission, Policy, process_resources};
 
 rest_handlers!(
     SharingDiscoveryHandler, "shares/schemas/tables", [

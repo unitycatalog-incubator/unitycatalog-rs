@@ -4,8 +4,8 @@ use unitycatalog_derive::rest_handlers;
 use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
-use crate::policy::{Permission, Policy, process_resources};
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::services::policy::{Permission, Policy, process_resources};
 use crate::{Error, Result};
 
 const MAX_RESULTS_TABLES: usize = 50;

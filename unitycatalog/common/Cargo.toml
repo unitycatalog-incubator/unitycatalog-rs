@@ -40,6 +40,9 @@ reqwest = { version = "0.12", default-features = false, features = [
   "stream",
 ] }
 
+# in-memory handler dependencies (in alphabetical order)
+dashmap = { version = "6", optional = true }
+
 # convenience for downstream crates that want to use certain types with sqlx
 sqlx = { version = "0.8", optional = true, features = [
   "uuid",
@@ -52,7 +55,8 @@ sqlx = { version = "0.8", optional = true, features = [
 tokio = { version = "1", features = ["full"] }
 
 [features]
-default = ["grpc"]
+default = ["grpc", "memory"]
 grpc = ["tonic"]
 axum = ["tower"]
 sqlx = ["dep:sqlx"]
+memory = ["dashmap", "uuid/v7"]

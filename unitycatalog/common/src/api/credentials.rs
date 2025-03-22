@@ -5,9 +5,9 @@ use unitycatalog_derive::rest_handlers;
 use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::credentials::v1::*;
-use crate::policy::{Permission, Policy, process_resources};
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::secrets::SecretManager;
+use crate::services::policy::{Permission, Policy, process_resources};
+use crate::services::secrets::SecretManager;
 use crate::{Error, Result};
 
 rest_handlers!(

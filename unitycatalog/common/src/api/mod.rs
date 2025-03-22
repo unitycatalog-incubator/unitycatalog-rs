@@ -16,8 +16,8 @@ pub use shares::SharesHandler;
 pub use sharing::{SharingDiscoveryHandler, SharingQueryHandler};
 pub use tables::TablesHandler;
 
-use crate::policy::{Permission, Recipient};
 use crate::resources::ResourceIdent;
+use crate::services::policy::{Permission, Recipient};
 
 #[derive(Debug, Clone)]
 pub struct RequestContext {

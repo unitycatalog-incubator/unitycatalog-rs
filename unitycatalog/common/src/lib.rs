@@ -1,9 +1,11 @@
 pub use error::{Error, Result};
+pub use resources::*;
 pub use unitycatalog_derive as derive;
 
 pub mod api;
 pub mod error;
+#[cfg(feature = "memory")]
+pub mod memory;
 pub mod models;
-pub mod policy;
 mod resources;
-pub mod secrets;
+pub mod services;
