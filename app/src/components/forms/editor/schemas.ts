@@ -13,6 +13,8 @@ import UpdateRecipientRequest from "../../../gen/jsonschema/unitycatalog.recipie
 import ShareInfo from "../../../gen/jsonschema/unitycatalog.shares.v1.ShareInfo.jsonschema.json";
 import CreateShareRequest from "../../../gen/jsonschema/unitycatalog.shares.v1.CreateShareRequest.jsonschema.json";
 import UpdateShareRequest from "../../../gen/jsonschema/unitycatalog.shares.v1.UpdateShareRequest.jsonschema.json";
+import DataObject from "../../../gen/jsonschema/unitycatalog.shares.v1.DataObject.jsonschema.json";
+import DataObjectUpdate from "../../../gen/jsonschema/unitycatalog.shares.v1.DataObjectUpdate.jsonschema.json";
 import CreateTableRequest from "../../../gen/jsonschema/unitycatalog.tables.v1.CreateTableRequest.jsonschema.json";
 // import UpdateShareRequest from "../../../gen/jsonschema/unitycatalog.shares.v1.UpdateShareRequest.jsonschema.json";
 
@@ -50,5 +52,7 @@ export default {
   AzureServicePrincipal,
   AzureManagedIdentity,
   AzureStorageKey,
+  DataObject,
+  DataObjectUpdate,
   Struct,
 };

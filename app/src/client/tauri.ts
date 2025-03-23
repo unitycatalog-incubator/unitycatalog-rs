@@ -10,7 +10,10 @@ import { CreateExternalLocationRequestJson } from "../gen/unitycatalog/external_
 import { RecipientInfoJson } from "../gen/unitycatalog/recipients/v1/models_pb";
 import { CreateRecipientRequestJson } from "../gen/unitycatalog/recipients/v1/svc_pb";
 import { ShareInfoJson } from "../gen/unitycatalog/shares/v1/models_pb";
-import { CreateShareRequestJson } from "../gen/unitycatalog/shares/v1/svc_pb";
+import {
+  CreateShareRequestJson,
+  UpdateShareRequestJson,
+} from "../gen/unitycatalog/shares/v1/svc_pb";
 import {
   TableInfoJson,
   TableSummaryJson,
@@ -124,6 +127,10 @@ export async function get_share(name: string, includeSharedData?: boolean) {
   });
 }
 
+export async function update_share(request: UpdateShareRequestJson) {
+  return await invoke<ShareInfoJson>("update_share", { request });
+}
+
 export async function delete_share(name: string) {
   return await invoke<void>("delete_share", { name });
 }
@@ -196,6 +203,7 @@ export default {
   list_shares,
   create_share,
   get_share,
+  update_share,
   delete_share,
   list_table_summaries,
   list_tables,

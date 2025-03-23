@@ -5,6 +5,6 @@ import Input from "./Input";
 export { CreateResource, Input };
 
 export type CreateFormState<T> = {
-    values: T;
-    setValues: Dispatch<SetStateAction<T>>;
+  values: T;
+  setValues: Dispatch<SetStateAction<T>>;
 };

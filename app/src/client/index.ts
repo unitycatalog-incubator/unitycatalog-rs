@@ -16,7 +16,10 @@ import {
 } from "../gen/unitycatalog/recipients/v1/models_pb";
 import { CreateRecipientRequestJson } from "../gen/unitycatalog/recipients/v1/svc_pb";
 import type { ShareInfoJson } from "../gen/unitycatalog/shares/v1/models_pb";
-import type { CreateShareRequestJson } from "../gen/unitycatalog/shares/v1/svc_pb";
+import type {
+  CreateShareRequestJson,
+  UpdateShareRequestJson,
+} from "../gen/unitycatalog/shares/v1/svc_pb";
 import type {
   TableInfoJson,
   TableSummaryJson,
@@ -38,6 +41,7 @@ export type {
   CreateRecipientRequestJson as CreateRecipientRequest,
   ShareInfoJson as ShareInfo,
   CreateShareRequestJson as CreateShareRequest,
+  UpdateShareRequestJson as UpdateShareRequest,
   TableInfoJson as TableInfo,
   TableSummaryJson as TableSummary,
   CreateTableRequestJson as CreateTableRequest,
@@ -145,12 +149,22 @@ export async function listShares(maxResults?: number) {
   return await tauri.list_shares(maxResults);
 }
 
-export async function getShare(name: string, includeSharedData?: boolean) {
+export async function getShare({
+  name,
+  includeSharedData,
+}: {
+  name: string;
+  includeSharedData?: boolean;
+}) {
   return await tauri.get_share(name, includeSharedData);
 }
 
 export async function createShare(request: CreateShareRequestJson) {
   return await tauri.create_share(request);
+}
+
+export async function updateShare(request: UpdateShareRequestJson) {
+  return await tauri.update_share(request);
 }
 
 export async function deleteShare(name: string) {
@@ -255,6 +269,7 @@ export default {
     get: getShare,
     create: createShare,
     delete: deleteShare,
+    update: updateShare,
   },
   tables: {
     listSummaries: listTableSummaries,
