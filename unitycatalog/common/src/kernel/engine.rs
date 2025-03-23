@@ -19,7 +19,6 @@ use crate::resources::ResourceStore;
 use crate::{Error, Result};
 
 pub trait RegistryHandler: ResourceStore + CredentialsHandler {}
-
 impl<T: ResourceStore + CredentialsHandler> RegistryHandler for T {}
 
 pub fn get_engine<E: TaskExecutor>(
@@ -67,7 +66,7 @@ impl<E: TaskExecutor> ObjectStoreRegistry for UnityStorageRegistry<E> {
                     .block_on(get_object_store(url, self.handler.clone()))
             })
             .map(|e| (e.value().clone(), true))
-            .map_err(|e| delta_kernel::Error::generic(e))
+            .map_err(delta_kernel::Error::generic)
     }
 }
 

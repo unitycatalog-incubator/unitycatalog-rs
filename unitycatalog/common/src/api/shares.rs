@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use unitycatalog_derive::rest_handlers;
 
@@ -128,14 +130,52 @@ impl<T: ResourceStore + Policy> SharesHandler for T {
     ) -> Result<ShareInfo> {
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
+        let current: ShareInfo = self.get(&ident).await?.0.try_into()?;
+
+        // update the data_objects according to the actions defined in request
+        let mut data_objects: HashMap<String, DataObject> = current
+            .data_objects
+            .into_iter()
+            .map(|d| (d.name.clone(), d))
+            .collect();
+        for update in request.updates.iter() {
+            match update.action() {
+                Action::Add => {
+                    if let Some(obj) = update.data_object.as_ref() {
+                        if data_objects.contains_key(&obj.name) {
+                            return Err(Error::AlreadyExists);
+                        }
+                        data_objects.insert(obj.name.clone(), obj.clone());
+                    }
+                }
+                Action::Remove => {
+                    if let Some(obj) = update.data_object.as_ref() {
+                        data_objects.remove(&obj.name);
+                    }
+                }
+                Action::Update => {
+                    if let Some(obj) = update.data_object.as_ref() {
+                        if let Some(existing) = data_objects.get_mut(&obj.name) {
+                            *existing = obj.clone();
+                        } else {
+                            return Err(Error::NotFound);
+                        }
+                    }
+                }
+                Action::Unspecified => {
+                    return Err(Error::InvalidArgument("Unspecified action".to_string()));
+                }
+            }
+        }
+
         let resource = ShareInfo {
             name: request.new_name.unwrap_or_else(|| request.name.clone()),
-            comment: request.comment,
-            owner: request.owner,
+            comment: request.comment.or(current.comment),
+            owner: request.owner.or(current.owner),
+            data_objects: data_objects.into_values().collect(),
             ..Default::default()
         };
         // TODO:
-        // - handle data object updates
         // - add update_* relations
         self.update(&ident, resource.into()).await?.0.try_into()
     }

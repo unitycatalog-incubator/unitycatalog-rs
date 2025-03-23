@@ -6,6 +6,7 @@
   "properties": {
     "name": {
       "description": "Name of the share.",
+      "minLength": 3,
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
       "type": "string"
     }
