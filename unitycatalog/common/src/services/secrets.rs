@@ -42,6 +42,7 @@ pub trait SecretManager: Send + Sync + 'static {
     async fn delete_secret(&self, secret_name: &str) -> Result<()>;
 }
 
+/// Auxiliary trait for implementing [`SecretManager`] for structs that contain a [`SecretManager`].
 pub trait ProvidesSecretManager: Send + Sync + 'static {
     fn secret_manager(&self) -> &dyn SecretManager;
 }

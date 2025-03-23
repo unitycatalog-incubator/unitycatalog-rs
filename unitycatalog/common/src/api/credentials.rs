@@ -52,6 +52,17 @@ pub trait CredentialsHandler: Send + Sync + 'static {
         context: RequestContext,
     ) -> Result<CredentialInfo>;
 
+    /// Get a credential without checking permissions.
+    ///
+    /// This is used internally when access to a resource is already checked
+    /// and we need to create internal stores or vended credentials for the resource.
+    ///
+    // TODO: this could also be done by a server recipient / context type
+    async fn get_credential_internal(
+        &self,
+        request: GetCredentialRequest,
+    ) -> Result<CredentialInfo>;
+
     /// Update a credential.
     async fn update_credential(
         &self,
@@ -190,6 +201,13 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialsHandler for T {
         context: RequestContext,
     ) -> Result<CredentialInfo> {
         self.check_required(&request, context.recipient()).await?;
+        self.get_credential_internal(request).await
+    }
+
+    async fn get_credential_internal(
+        &self,
+        request: GetCredentialRequest,
+    ) -> Result<CredentialInfo> {
         let mut cred: CredentialInfo = self.get(&request.resource()).await?.0.try_into()?;
         let (_, secret_data) = self.get_secret(&cred.name).await?;
         let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;

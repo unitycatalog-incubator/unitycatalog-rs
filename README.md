@@ -6,10 +6,14 @@
 
 An experimental implementation of [Unity Catalog] in Rust.
 
-THe reference implementation of unity catalog aims to be a fully self-contained
+The reference implementation of unity catalog aims to be a fully self-contained
 implememntaion of the Unity Catalog API. While this implementation also
 provides a standalone server the primary goal is to provide a toolset that
 allows integrators to customize the implementation to their needs or partially
 adopt specific API surfaces.
+
+The design focuses on abstracting the unity catalog specific behaviors as much
+as possible, while allowing cosutomization of all deployment specific
+aspects.
 
 [Unity Catalog]: unitycatalog.io

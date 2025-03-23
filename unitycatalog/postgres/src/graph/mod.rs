@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use unitycatalog_common::{AssociationLabel, Object, ObjectLabel, ResourceIdent, ResourceRef};
 use uuid::Uuid;
 
-mod sharing;
 mod store;
 
 pub use store::Store as GraphStore;

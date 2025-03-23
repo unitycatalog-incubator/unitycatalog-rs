@@ -41,7 +41,7 @@ reqwest = { version = "0.12", default-features = false, features = [
 ] }
 
 # in-memory handler dependencies (in alphabetical order)
-dashmap = { version = "6", optional = true }
+dashmap = { version = "6" }
 
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
@@ -75,7 +75,7 @@ default = ["grpc", "memory", "rest-client", "tokio"]
 grpc = ["tonic"]
 axum = ["tower", "dep:axum", "http"]
 sqlx = ["dep:sqlx"]
-memory = ["dashmap", "uuid/v7"]
+memory = ["uuid/v7"]
 tokio = ["dep:tokio", "delta_kernel/tokio"]
 
 rest-client = ["futures"]

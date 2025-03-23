@@ -2,7 +2,6 @@ use std::sync::{Arc, LazyLock};
 
 use clap::Parser;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use unitycatalog_common::kernel::KernelQueryHandler;
 use unitycatalog_common::services::{ConstantPolicy, ServerHandler};
 use unitycatalog_common::{memory::InMemoryResourceStore, rest::AnonymousAuthenticator};
 use unitycatalog_postgres::GraphStore;
@@ -61,7 +60,7 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
         .await
         .map_err(|_| Error::Generic("Server failed".to_string()))
     } else {
-        let handler = get_memory_handler().await;
+        let handler = get_memory_handler().await?;
         run::run_server_rest(
             args.host.clone(),
             args.port,
@@ -83,32 +82,15 @@ async fn get_db_handler() -> Result<ServerHandler> {
     let store = Arc::new(GraphStore::connect(&db_url).await.unwrap());
     let policy = Arc::new(ConstantPolicy::default());
     store.migrate().await.unwrap();
-    let handler = ServerHandler {
-        query: KernelQueryHandler::new_tokio_multi_threaded(
-            store.clone(),
-            Default::default(),
-            policy.clone(),
-        ),
-        secrets: store.clone(),
-        store,
-        policy,
-    };
+    let handler = ServerHandler::try_new_tokio(policy, store.clone(), store)?;
     Ok(handler)
 }
 
-async fn get_memory_handler() -> ServerHandler {
+async fn get_memory_handler() -> Result<ServerHandler> {
     let store = Arc::new(InMemoryResourceStore::new());
     let policy = Arc::new(ConstantPolicy::default());
-    ServerHandler {
-        secrets: store.clone(),
-        query: KernelQueryHandler::new_tokio_multi_threaded(
-            store.clone(),
-            Default::default(),
-            policy.clone(),
-        ),
-        store,
-        policy,
-    }
+    let handler = ServerHandler::try_new_tokio(policy, store.clone(), store)?;
+    Ok(handler)
 }
 
 fn init_tracing() {

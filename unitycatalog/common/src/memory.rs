@@ -5,7 +5,6 @@ use uuid::Uuid;
 
 use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::locations::TableLocationResolver;
 use crate::services::secrets::SecretManager;
 use crate::{Error, Result};
 
@@ -58,15 +57,6 @@ impl InMemoryResourceStore {
         let uuid = Uuid::now_v7();
         map.insert(name.clone(), uuid);
         Ok(uuid)
-    }
-}
-
-#[async_trait::async_trait]
-impl TableLocationResolver for InMemoryResourceStore {
-    async fn resolve(&self, table: &ResourceRef) -> Result<url::Url> {
-        let ident = ObjectLabel::TableInfo.to_ident(table.clone());
-        let (_resource, _) = self.get(&ident).await?;
-        todo!()
     }
 }
 

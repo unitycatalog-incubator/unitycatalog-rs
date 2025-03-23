@@ -1,12 +1,9 @@
-use std::collections::HashMap;
 use std::sync::Arc;
 
-use delta_kernel::engine::default::{DefaultEngine, executor::TaskExecutor};
 use delta_kernel::snapshot::Snapshot;
 use delta_kernel::{Engine, Table};
 
-use crate::api::sharing::SharingQueryHandler;
-use crate::api::{RequestContext, SecuredAction};
+use crate::api::{RequestContext, SecuredAction, SharingQueryHandler};
 use crate::models::sharing::v1::{
     GetTableMetadataRequest, GetTableVersionRequest, GetTableVersionResponse, QueryResponse,
 };
@@ -16,50 +13,11 @@ use crate::{ResourceRef, Result};
 pub use predicate::json_predicate_to_expression;
 
 mod conversion;
-// mod engine;
+mod engine;
 mod predicate;
 
-#[async_trait::async_trait]
-pub trait KernelEngineFactroy: Send + Sync {
-    async fn create(&self, table: &Table) -> Result<Arc<dyn Engine>>;
-}
-
-pub struct DefaultKernelEngineFactroy<E: TaskExecutor> {
-    task_executor: Arc<E>,
-    storage_configs: HashMap<(String, String), HashMap<String, String>>,
-}
-
-impl<E: TaskExecutor> DefaultKernelEngineFactroy<E> {
-    pub fn new(
-        task_executor: Arc<E>,
-        storage_configs: HashMap<(String, String), HashMap<String, String>>,
-    ) -> Self {
-        Self {
-            task_executor,
-            storage_configs,
-        }
-    }
-}
-
-#[async_trait::async_trait]
-impl<E: TaskExecutor> KernelEngineFactroy for DefaultKernelEngineFactroy<E> {
-    async fn create(&self, table: &Table) -> Result<Arc<dyn Engine>> {
-        let storage_config = self
-            .storage_configs
-            .get(&(
-                table.location().scheme().to_string(),
-                table.location().host_str().unwrap_or_default().to_string(),
-            ))
-            .cloned()
-            .unwrap_or_default();
-        let engine =
-            DefaultEngine::try_new(table.location(), storage_config, self.task_executor.clone())?;
-        Ok(Arc::new(engine))
-    }
-}
-
 pub struct KernelQueryHandler {
-    engine_factory: Arc<dyn KernelEngineFactroy>,
+    engine: Arc<dyn Engine>,
     location_resolver: Arc<dyn TableLocationResolver>,
     policy: Arc<dyn Policy>,
 }
@@ -67,12 +25,12 @@ pub struct KernelQueryHandler {
 impl KernelQueryHandler {
     /// Create a new instance of [`KernelQueryHandler`].
     pub fn new(
-        engine_factory: Arc<dyn KernelEngineFactroy>,
+        engine: Arc<dyn Engine>,
         location_resolver: Arc<dyn TableLocationResolver>,
         policy: Arc<dyn Policy>,
     ) -> Self {
         Self {
-            engine_factory,
+            engine,
             location_resolver,
             policy,
         }
@@ -80,41 +38,35 @@ impl KernelQueryHandler {
 
     /// Create a new instance of [`KernelQueryHandler`] with a background executor.
     #[cfg(feature = "tokio")]
-    pub fn new_tokio_background(
+    pub fn try_new_tokio(
+        handler: Arc<dyn engine::RegistryHandler>,
         location_resolver: Arc<dyn TableLocationResolver>,
-        storage_configs: HashMap<(String, String), HashMap<String, String>>,
         policy: Arc<dyn Policy>,
-    ) -> Arc<Self> {
+    ) -> Result<Arc<Self>> {
         use delta_kernel::engine::default::executor::tokio::TokioBackgroundExecutor;
-        let engine_factory = Arc::new(DefaultKernelEngineFactroy::new(
-            Arc::new(TokioBackgroundExecutor::new()),
-            storage_configs,
-        ));
-        Arc::new(Self::new(engine_factory, location_resolver, policy))
-    }
-
-    /// Create a new instance of [`KernelQueryHandler`] with a multi-threaded executor.
-    #[cfg(feature = "tokio")]
-    pub fn new_tokio_multi_threaded(
-        location_resolver: Arc<dyn TableLocationResolver>,
-        storage_configs: HashMap<(String, String), HashMap<String, String>>,
-        policy: Arc<dyn Policy>,
-    ) -> Arc<Self> {
         use delta_kernel::engine::default::executor::tokio::TokioMultiThreadExecutor;
-        let engine_factory = Arc::new(DefaultKernelEngineFactroy::new(
-            Arc::new(TokioMultiThreadExecutor::new(
-                tokio::runtime::Handle::current(),
-            )),
-            storage_configs,
-        ));
-        Arc::new(Self::new(engine_factory, location_resolver, policy))
+
+        let handle = tokio::runtime::Handle::try_current()
+            .map_err(|e| crate::Error::generic(e.to_string()))?;
+        let engine: Arc<dyn Engine> = match handle.runtime_flavor() {
+            tokio::runtime::RuntimeFlavor::MultiThread => {
+                engine::get_engine(handler, Arc::new(TokioMultiThreadExecutor::new(handle)))?
+            }
+            tokio::runtime::RuntimeFlavor::CurrentThread => {
+                engine::get_engine(handler, Arc::new(TokioBackgroundExecutor::new()))?
+            }
+            _ => {
+                return Err(crate::Error::generic("Unsupported runtime flavor"));
+            }
+        };
+
+        Ok(Arc::new(Self::new(engine, location_resolver, policy)))
     }
 
     async fn get_snapshot(&self, table_ref: &ResourceRef) -> Result<Snapshot> {
         let location = self.location_resolver.resolve(table_ref).await?;
         let table = Table::new(location);
-        let engine = self.engine_factory.create(&table).await?;
-        let snapshot = table.snapshot(engine.as_ref(), None)?;
+        let snapshot = table.snapshot(self.engine.as_ref(), None)?;
         Ok(snapshot)
     }
 }
