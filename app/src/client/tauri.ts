@@ -13,12 +13,14 @@ import { ShareInfoJson } from "../gen/unitycatalog/shares/v1/models_pb";
 import {
   CreateShareRequestJson,
   UpdateShareRequestJson,
+  UpdateShareRequestSchema,
 } from "../gen/unitycatalog/shares/v1/svc_pb";
 import {
   TableInfoJson,
   TableSummaryJson,
 } from "../gen/unitycatalog/tables/v1/models_pb";
 import { CreateTableRequestJson } from "../gen/unitycatalog/tables/v1/svc_pb";
+import { fromJson, toBinary } from "@bufbuild/protobuf";
 
 export async function list_catalogs(maxResults?: number) {
   return await invoke<CatalogInfoJson[]>("list_catalogs", { maxResults });
@@ -37,7 +39,6 @@ export async function delete_catalog(name: string) {
 }
 
 export async function list_schemas(catalog: string, maxResults?: number) {
-  console.log("list_schemas", { catalog, maxResults });
   return await invoke<SchemaInfoJson[]>("list_schemas", { catalog });
 }
 
@@ -127,7 +128,9 @@ export async function get_share(name: string, includeSharedData?: boolean) {
   });
 }
 
-export async function update_share(request: UpdateShareRequestJson) {
+export async function update_share(data: UpdateShareRequestJson) {
+  const jsonMsg = fromJson(UpdateShareRequestSchema, data);
+  const request = toBinary(UpdateShareRequestSchema, jsonMsg);
   return await invoke<ShareInfoJson>("update_share", { request });
 }
 

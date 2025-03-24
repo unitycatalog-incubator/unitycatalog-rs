@@ -15,10 +15,15 @@ import {
   AuthenticationTypeJson,
 } from "../gen/unitycatalog/recipients/v1/models_pb";
 import { CreateRecipientRequestJson } from "../gen/unitycatalog/recipients/v1/svc_pb";
-import type { ShareInfoJson } from "../gen/unitycatalog/shares/v1/models_pb";
+import type {
+  ShareInfoJson,
+  DataObjectJson,
+  DataObjectTypeJson,
+} from "../gen/unitycatalog/shares/v1/models_pb";
 import type {
   CreateShareRequestJson,
   UpdateShareRequestJson,
+  DataObjectUpdateJson,
 } from "../gen/unitycatalog/shares/v1/svc_pb";
 import type {
   TableInfoJson,
@@ -45,6 +50,9 @@ export type {
   TableInfoJson as TableInfo,
   TableSummaryJson as TableSummary,
   CreateTableRequestJson as CreateTableRequest,
+  DataObjectJson as DataObject,
+  DataObjectUpdateJson as DataObjectUpdate,
+  DataObjectTypeJson as DataObjectType,
 };
 
 export type ListOptions = {

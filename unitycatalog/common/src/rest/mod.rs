@@ -105,14 +105,14 @@ mod external_locations {
 
 mod shares {
     use crate::api::shares::*;
-    use axum::routing::{Router, delete, get, post};
+    use axum::routing::{Router, delete, get, patch, post};
 
     pub fn get_router<T: SharesHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/shares", get(list_shares::<T>))
             .route("/shares", post(create_share::<T>))
             .route("/shares/{name}", get(get_share::<T>))
-            //.route("/shares/{name}", patch(update_share::<T>))
+            .route("/shares/{name}", patch(update_share::<T>))
             .route("/shares/{name}", delete(delete_share::<T>))
             .with_state(handler)
     }

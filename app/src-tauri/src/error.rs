@@ -7,6 +7,9 @@ pub enum Error {
 
     #[error(transparent)]
     Uc(#[from] unitycatalog_common::Error),
+
+    #[error(transparent)]
+    Decode(#[from] prost::DecodeError),
 }
 
 // we must manually implement serde::Serialize

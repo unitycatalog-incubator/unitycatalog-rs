@@ -1,4 +1,5 @@
 use futures::TryStreamExt;
+use prost::Message;
 use tauri::State;
 use unitycatalog_common::models::catalogs::v1::{CatalogInfo, CreateCatalogRequest};
 use unitycatalog_common::models::credentials::v1::{
@@ -12,6 +13,7 @@ use unitycatalog_common::models::schemas::v1::{CreateSchemaRequest, SchemaInfo};
 use unitycatalog_common::models::shares::v1::{CreateShareRequest, ShareInfo};
 use unitycatalog_common::models::tables::v1::{CreateTableRequest, TableInfo, TableSummary};
 use unitycatalog_common::rest::client::UnityCatalogClient;
+use unitycatalog_common::shares::v1::UpdateShareRequest;
 
 use crate::error::Result;
 
@@ -214,6 +216,15 @@ pub async fn create_share(
     request: CreateShareRequest,
 ) -> Result<ShareInfo> {
     Ok(state.shares().create_share(&request).await?)
+}
+
+#[tauri::command]
+pub async fn update_share(
+    state: State<'_, UnityCatalogClient>,
+    request: Vec<u8>,
+) -> Result<ShareInfo> {
+    let request = UpdateShareRequest::decode(request.as_slice())?;
+    Ok(state.shares().update_share(&request).await?)
 }
 
 #[tauri::command]

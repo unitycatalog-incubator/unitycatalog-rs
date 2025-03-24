@@ -20,11 +20,12 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 url = { workspace = true }
 thiserror = { workspace = true }
+prost = { workspace = true }
 
 futures = { version = "0.3" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2.3.1", features = [ "macos-private-api", "tracing"] }
+tauri = { version = "2.3.1", features = ["macos-private-api", "tracing"] }
 tauri-plugin-opener = "2"
 
 cloud-client = { path = "../../unitycatalog/cloud-client" }

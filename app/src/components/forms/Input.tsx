@@ -6,6 +6,7 @@ type InputProps = {
   value?: string;
   onChange?: InputChange;
   style?: React.CSSProperties;
+  placeholder?: string;
   type?:
     | "number"
     | "search"
@@ -22,7 +23,14 @@ type InputProps = {
     | undefined;
 };
 
-const Input = ({ label, value, onChange, style, type }: InputProps) => {
+const Input = ({
+  label,
+  value,
+  onChange,
+  style,
+  type,
+  placeholder,
+}: InputProps) => {
   return (
     <Field label={label} style={style}>
       <Input_
@@ -32,6 +40,7 @@ const Input = ({ label, value, onChange, style, type }: InputProps) => {
         autoComplete="off"
         autoCapitalize="off"
         autoCorrect="off"
+        placeholder={placeholder}
       />
     </Field>
   );

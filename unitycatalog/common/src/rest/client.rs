@@ -536,6 +536,24 @@ impl SharesClient {
         let request = share::DeleteShareRequest { name: name.into() };
         self.delete_share(&request).await
     }
+
+    pub async fn update(
+        &self,
+        name: impl Into<String>,
+        new_name: impl Into<Option<String>>,
+        updates: Vec<share::DataObjectUpdate>,
+        comment: impl Into<Option<String>>,
+        owner: impl Into<Option<String>>,
+    ) -> Result<share::ShareInfo> {
+        let request = share::UpdateShareRequest {
+            name: name.into(),
+            new_name: new_name.into().and_then(|s| (!s.is_empty()).then(|| s)),
+            comment: comment.into(),
+            owner: owner.into(),
+            updates,
+        };
+        self.update_share(&request).await
+    }
 }
 
 pub fn stream_paginated<F, Fut, S, T>(state: S, op: F) -> impl Stream<Item = Result<T>>
