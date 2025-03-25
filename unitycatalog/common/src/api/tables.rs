@@ -5,6 +5,7 @@ use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::services::kernel::TableManager;
 use crate::services::policy::{Permission, Policy, Recipient, process_resources};
 use crate::{Error, Result};
 
@@ -90,7 +91,7 @@ pub trait TablesHandler: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> TablesHandler for T {
+impl<T: ResourceStore + Policy + TableManager> TablesHandler for T {
     async fn list_table_summaries(
         &self,
         request: ListTableSummariesRequest,
@@ -148,17 +149,26 @@ impl<T: ResourceStore + Policy> TablesHandler for T {
         context: RequestContext,
     ) -> Result<TableInfo> {
         self.check_required(&request, context.as_ref()).await?;
-        let info = TableInfo {
-            name: request.name,
-            catalog_name: request.catalog_name,
-            schema_name: request.schema_name,
-            table_type: request.table_type,
-            data_source_format: request.data_source_format,
-            properties: request.properties,
-            storage_location: request.storage_location,
-            comment: request.comment,
-            columns: request.columns,
-            ..Default::default()
+        let info = if request.table_type == TableType::External as i32 {
+            let Some(location) = request.storage_location.as_ref() else {
+                return Err(Error::invalid_argument("missing storage location"));
+            };
+            let location = url::Url::parse(location)?;
+            let snapshot = self.read_snapshot(&location, &request.data_source_format(), None)?;
+            todo!()
+        } else {
+            TableInfo {
+                name: request.name,
+                catalog_name: request.catalog_name,
+                schema_name: request.schema_name,
+                table_type: request.table_type,
+                data_source_format: request.data_source_format,
+                properties: request.properties,
+                storage_location: request.storage_location,
+                comment: request.comment,
+                columns: request.columns,
+                ..Default::default()
+            }
         };
         // TODO: update the table with the current actor as owner
         // TODO: create updated_* relations

@@ -1,11 +1,17 @@
 use std::sync::Arc;
 
-use crate::api::{RequestContext, SharingQueryHandler};
-use crate::kernel::KernelQueryHandler;
-use crate::models::sharing::v1::*;
-use crate::resources::ResourceStore;
-use crate::{ProvidesResourceStore, Resource, ResourceIdent, ResourceRef, Result};
+use delta_kernel::Engine;
 
+use self::kernel::{ProvidesEngine, TableManager};
+use crate::api::{RequestContext, SharingQueryHandler};
+use crate::models::sharing::v1::*;
+use crate::models::tables::v1::{DataSourceFormat, TableInfo};
+use crate::resources::ResourceStore;
+use crate::{
+    ProvidesResourceStore, Resource, ResourceIdent, ResourceName, ResourceRef, Result, ShareInfo,
+};
+
+pub mod kernel;
 pub mod locations;
 pub mod policy;
 pub mod secrets;
@@ -17,7 +23,8 @@ pub use secrets::*;
 #[derive(Clone)]
 pub struct ServerHandler {
     handler: Arc<ServerHandlerInner>,
-    query: Arc<dyn SharingQueryHandler>,
+    engine: Arc<dyn Engine>,
+    // query: Arc<dyn SharingQueryHandler>,
 }
 
 impl ServerHandler {
@@ -27,14 +34,31 @@ impl ServerHandler {
         store: Arc<dyn ResourceStore>,
         secrets: Arc<dyn SecretManager>,
     ) -> Result<Self> {
+        use delta_kernel::engine::default::executor::tokio::TokioBackgroundExecutor;
+        use delta_kernel::engine::default::executor::tokio::TokioMultiThreadExecutor;
+
         let handler = Arc::new(ServerHandlerInner::new(
             policy.clone(),
             store.clone(),
             secrets.clone(),
         ));
-        let query =
-            KernelQueryHandler::try_new_tokio(handler.clone(), handler.clone(), policy.clone())?;
-        Ok(Self { handler, query })
+
+        let handle = tokio::runtime::Handle::try_current()
+            .map_err(|e| crate::Error::generic(e.to_string()))?;
+        let engine: Arc<dyn Engine> = match handle.runtime_flavor() {
+            tokio::runtime::RuntimeFlavor::MultiThread => kernel::engine::get_engine(
+                handler.clone(),
+                Arc::new(TokioMultiThreadExecutor::new(handle)),
+            )?,
+            tokio::runtime::RuntimeFlavor::CurrentThread => kernel::engine::get_engine(
+                handler.clone(),
+                Arc::new(TokioBackgroundExecutor::new()),
+            )?,
+            _ => {
+                return Err(crate::Error::generic("Unsupported runtime flavor"));
+            }
+        };
+        Ok(Self { handler, engine })
     }
 }
 
@@ -95,9 +119,15 @@ impl ProvidesSecretManager for ServerHandler {
     }
 }
 
+impl ProvidesEngine for ServerHandler {
+    fn engine(&self) -> &dyn Engine {
+        self.engine.as_ref()
+    }
+}
+
 #[async_trait::async_trait]
 impl<T: ResourceStore> TableLocationResolver for T {
-    async fn resolve(&self, table: &ResourceRef) -> Result<url::Url> {
+    async fn resolve_location(&self, table: &ResourceRef) -> Result<url::Url> {
         let (table, _) = self.get(&ResourceIdent::Table(table.clone())).await?;
         let table = match table {
             Resource::TableInfo(t) => t,
@@ -119,7 +149,23 @@ impl SharingQueryHandler for ServerHandler {
         context: RequestContext,
     ) -> Result<GetTableVersionResponse> {
         self.check_required(&request, context.recipient()).await?;
-        self.query.get_table_version(request, context).await
+        let share_ident = ResourceIdent::share(ResourceName::new([&request.share]));
+        let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
+        let Some(table_object) = share_info
+            .data_objects
+            .iter()
+            .find(|o| o.shared_as() == &format!("{}.{}", request.schema, request.name))
+        else {
+            return Err(crate::Error::NotFound);
+        };
+        let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
+        let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
+        let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
+        let location = url::Url::parse(&location)?;
+        let snapshot = self.read_snapshot(&location, &DataSourceFormat::Delta, None)?;
+        Ok(GetTableVersionResponse {
+            version: snapshot.version() as i64,
+        })
     }
 
     async fn get_table_metadata(
@@ -128,6 +174,20 @@ impl SharingQueryHandler for ServerHandler {
         context: RequestContext,
     ) -> Result<QueryResponse> {
         self.check_required(&request, context.recipient()).await?;
-        self.query.get_table_metadata(request, context).await
+        let share_ident = ResourceIdent::share(ResourceName::new([&request.share]));
+        let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
+        let Some(table_object) = share_info
+            .data_objects
+            .iter()
+            .find(|o| o.shared_as() == &format!("{}.{}", request.schema, request.name))
+        else {
+            return Err(crate::Error::NotFound);
+        };
+        let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
+        let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
+        let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
+        let location = url::Url::parse(&location)?;
+        let snapshot = self.read_snapshot(&location, &DataSourceFormat::Delta, None)?;
+        Ok([snapshot.metadata().into(), snapshot.protocol().into()].into())
     }
 }
