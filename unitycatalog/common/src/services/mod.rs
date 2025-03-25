@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use delta_kernel::Engine;
+use delta_kernel::snapshot::Snapshot;
 
 use self::kernel::{ProvidesEngine, TableManager};
 use crate::api::{RequestContext, SharingQueryHandler};
@@ -24,7 +25,6 @@ pub use secrets::*;
 pub struct ServerHandler {
     handler: Arc<ServerHandlerInner>,
     engine: Arc<dyn Engine>,
-    // query: Arc<dyn SharingQueryHandler>,
 }
 
 impl ServerHandler {
@@ -142,19 +142,19 @@ impl<T: ResourceStore> TableLocationResolver for T {
 }
 
 #[async_trait::async_trait]
-impl SharingQueryHandler for ServerHandler {
-    async fn get_table_version(
-        &self,
-        request: GetTableVersionRequest,
-        context: RequestContext,
-    ) -> Result<GetTableVersionResponse> {
-        self.check_required(&request, context.recipient()).await?;
-        let share_ident = ResourceIdent::share(ResourceName::new([&request.share]));
+trait SharingExt {
+    async fn get_snapshot(&self, share: &str, schema: &str, table: &str) -> Result<Snapshot>;
+}
+
+#[async_trait::async_trait]
+impl<T: TableManager + ResourceStore> SharingExt for T {
+    async fn get_snapshot(&self, share: &str, schema: &str, table: &str) -> Result<Snapshot> {
+        let share_ident = ResourceIdent::share(ResourceName::new([share]));
         let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
         let Some(table_object) = share_info
             .data_objects
             .iter()
-            .find(|o| o.shared_as() == &format!("{}.{}", request.schema, request.name))
+            .find(|o| o.shared_as() == &format!("{}.{}", schema, table))
         else {
             return Err(crate::Error::NotFound);
         };
@@ -162,7 +162,21 @@ impl SharingQueryHandler for ServerHandler {
         let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
         let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
         let location = url::Url::parse(&location)?;
-        let snapshot = self.read_snapshot(&location, &DataSourceFormat::Delta, None)?;
+        self.read_snapshot(&location, &DataSourceFormat::Delta, None)
+    }
+}
+
+#[async_trait::async_trait]
+impl SharingQueryHandler for ServerHandler {
+    async fn get_table_version(
+        &self,
+        request: GetTableVersionRequest,
+        context: RequestContext,
+    ) -> Result<GetTableVersionResponse> {
+        self.check_required(&request, context.recipient()).await?;
+        let snapshot = self
+            .get_snapshot(&request.share, &request.schema, &request.name)
+            .await?;
         Ok(GetTableVersionResponse {
             version: snapshot.version() as i64,
         })
@@ -174,20 +188,9 @@ impl SharingQueryHandler for ServerHandler {
         context: RequestContext,
     ) -> Result<QueryResponse> {
         self.check_required(&request, context.recipient()).await?;
-        let share_ident = ResourceIdent::share(ResourceName::new([&request.share]));
-        let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
-        let Some(table_object) = share_info
-            .data_objects
-            .iter()
-            .find(|o| o.shared_as() == &format!("{}.{}", request.schema, request.name))
-        else {
-            return Err(crate::Error::NotFound);
-        };
-        let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
-        let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
-        let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
-        let location = url::Url::parse(&location)?;
-        let snapshot = self.read_snapshot(&location, &DataSourceFormat::Delta, None)?;
+        let snapshot = self
+            .get_snapshot(&request.share, &request.schema, &request.name)
+            .await?;
         Ok([snapshot.metadata().into(), snapshot.protocol().into()].into())
     }
 }
