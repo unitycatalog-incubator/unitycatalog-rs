@@ -5,8 +5,8 @@ use delta_kernel::DeltaResult;
 use delta_kernel::engine::default::executor::TaskExecutor;
 use delta_kernel::engine::default::{DefaultEngine, ObjectStoreRegistry};
 use itertools::Itertools;
+use object_store::DynObjectStore;
 use object_store::azure::MicrosoftAzureBuilder;
-use object_store::{DynObjectStore, ObjectStoreScheme};
 use url::Url;
 
 use crate::api::CredentialsHandler;
@@ -102,18 +102,33 @@ async fn get_object_store(
             name: ext_loc.credential_name.clone(),
         })
         .await?;
-    let (scheme, _) = ObjectStoreScheme::parse(&location).map_err(object_store::Error::from)?;
-    match (scheme, credential.credential) {
-        (ObjectStoreScheme::MicrosoftAzure, Some(cred)) => get_azure_store(&location, cred),
-        _ => Err(Error::InvalidArgument(format!(
-            "Unsupported scheme for location {}",
-            location
-        ))),
+    let Some(cred) = credential.credential else {
+        return Err(Error::NotFound);
+    };
+    match cred {
+        Credential::AzureStorageKey(_)
+        | Credential::AzureServicePrincipal(_)
+        | Credential::AzureManagedIdentity(_) => get_azure_store(&location, cred),
     }
 }
 
 fn get_azure_store(location: &Url, credential: Credential) -> Result<Arc<DynObjectStore>> {
     let mut builder = MicrosoftAzureBuilder::new().with_url(location.as_str());
+    // check if the location is localhost to determine if we are running the emulator
+    if matches!(location.host_str(), Some("localhost") | Some("127.0.0.1")) {
+        let url_err = || {
+            Error::invalid_argument(
+                "emulator URLs must encode the account and container name in the path",
+            )
+        };
+        let mut segments = location.path_segments().ok_or_else(url_err)?;
+        let account_name = segments.next().ok_or_else(url_err)?.to_string();
+        let container_name = segments.next().ok_or_else(url_err)?.to_string();
+        builder = builder
+            .with_use_emulator(true)
+            .with_account(account_name)
+            .with_container_name(container_name);
+    }
     match credential {
         Credential::AzureStorageKey(AzureStorageKey {
             account_name,

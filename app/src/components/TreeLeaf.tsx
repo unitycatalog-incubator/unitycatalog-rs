@@ -6,7 +6,7 @@ import {
 import { RefObject } from "react";
 import { useTreeScope } from "../context";
 import DeleteDialog from "./DeleteDialog";
-import { UpdateItem } from "./TreeBranch";
+import { ViewItem } from "./TreeBranch";
 
 export type TreeLeafProps<Info> = {
   info: Info & { name: string };
@@ -37,7 +37,7 @@ function TreeLeaf<Info>({
     >
       <TreeItemLayout
         iconBefore={icon}
-        actions={[<DeleteDialog />, <UpdateItem />]}
+        actions={[<DeleteDialog />, <ViewItem />]}
       >
         {info.name}
       </TreeItemLayout>

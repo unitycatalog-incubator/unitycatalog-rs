@@ -131,6 +131,8 @@ impl CredentialContainer {
             Ok(credential_info::Credential::AzureServicePrincipal(azure_sp))
         } else if let Some(azure_msi) = self.azure_msi {
             Ok(credential_info::Credential::AzureManagedIdentity(azure_msi))
+        } else if let Some(azure_key) = self.azure_key {
+            Ok(credential_info::Credential::AzureStorageKey(azure_key))
         } else {
             Err(Error::invalid_argument("credential is required"))
         }

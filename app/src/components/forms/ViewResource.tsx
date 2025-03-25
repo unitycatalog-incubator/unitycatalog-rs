@@ -8,27 +8,24 @@ import {
   ToolbarToggleButton,
   ToolbarProps,
 } from "@fluentui/react-components";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useCallback,
   useState,
-  Dispatch,
-  SetStateAction,
   useRef,
   useEffect,
   useMemo,
   ComponentType,
 } from "react";
-import { useNotify, useExplorer, useTreeContext } from "../../context";
+import { useExplorer, useTreeFunctions } from "../../context";
 import {
   ArrowLeftRegular,
-  AddRegular,
   BracesRegular,
-  ArrowUploadRegular,
+  EditRegular,
 } from "@fluentui/react-icons";
 import type monaco from "monaco-editor";
 import JsonEditor from "./editor/JsonEditor";
 import { OnMount } from "@monaco-editor/react";
+import { useQuery } from "@tanstack/react-query";
 
 const useStyles = makeStyles({
   root: {
@@ -65,32 +62,19 @@ const useStyles = makeStyles({
   },
 });
 
-export type CreateFormState<T> = {
+export type ViewFormState<T> = {
   values: T;
-  setValues: Dispatch<SetStateAction<T>>;
 };
 
-type CreateResourceProps<Req, Res> = {
-  createFn: (values: Req) => Promise<Res>;
-  FormComponent: ComponentType<CreateFormState<Req>>;
-  defaultValues?: Req;
-  resourceType: string;
-  typeName: string;
-  operation?: "create" | "update";
+type ViewResourceProps<Info> = {
+  FormComponent?: ComponentType<ViewFormState<Info>>;
 };
 type ToggleChange = ToolbarProps["onCheckedValueChange"];
 
-function CreateResource<Req, Res>({
-  createFn,
-  defaultValues,
-  resourceType,
-  FormComponent,
-  typeName,
-  operation,
-}: CreateResourceProps<Req, Res>) {
+function ViewResource<Info>({ FormComponent }: ViewResourceProps<Info>) {
   const styles = useStyles();
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const [values, setValues] = useState<Req>(defaultValues ?? ({} as Req));
+  const [values, setValues] = useState<Info>({} as Info);
   const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({
     display: [],
   });
@@ -100,29 +84,9 @@ function CreateResource<Req, Res>({
     });
   };
   const showJson = useMemo(
-    () => checkedValues.display.includes("json"),
-    [checkedValues],
+    () => checkedValues.display.includes("json") || !FormComponent,
+    [checkedValues, FormComponent],
   );
-
-  const notify = useNotify();
-  const queryClient = useQueryClient();
-  const queryKey = useTreeContext();
-  const { update } = useExplorer();
-
-  const mutation = useMutation({
-    mutationFn: createFn,
-    onError: () =>
-      notify("error", `Failed to ${operation ?? "create"} ${resourceType}`),
-    onSuccess: () => {
-      notify(
-        "success",
-        `${resourceType} ${operation ?? "create"}ed successfully`,
-      );
-      queryClient.invalidateQueries({ queryKey });
-      update({});
-      setValues({} as Req);
-    },
-  });
 
   const onMount: OnMount = useCallback(
     (editor) => {
@@ -131,22 +95,33 @@ function CreateResource<Req, Res>({
     [editorRef],
   );
 
-  const onSubmit = useCallback(() => {
-    mutation.mutate(values);
-  }, [mutation, values]);
-
+  const { update, scope } = useExplorer();
+  const { typeName, schemaName, getFn } = useTreeFunctions(scope ?? []);
   const onCancel = useCallback(() => {
-    update((curr) => ({ ...curr, display: "view" }));
-    setValues({} as Req);
+    update({});
+  }, [update]);
+  const { data, status } = useQuery({
+    queryKey: ["get", ...(scope ?? [])],
+    queryFn: () => getFn(),
+  });
+
+  const onEdit = useCallback(() => {
+    update((curr) => {
+      return { ...curr, display: "edit" };
+    });
   }, [update]);
 
   useEffect(() => {
-    if (showJson && editorRef.current) {
-      editorRef.current.setValue(JSON.stringify(values, null, 4));
-    } else if (editorRef.current) {
-      setValues(JSON.parse(editorRef.current.getValue()));
+    if (status === "success") {
+      setValues(data as Info);
     }
-  }, [showJson]);
+  }, [status, data, editorRef.current]);
+
+  useEffect(() => {
+    if (editorRef.current && status === "success") {
+      editorRef.current.setValue(JSON.stringify(values, null, 2));
+    }
+  }, [values, status]);
 
   return (
     <div className={styles.root}>
@@ -161,37 +136,37 @@ function CreateResource<Req, Res>({
           icon={<ArrowLeftRegular />}
           onClick={onCancel}
         />
-        <Text>{`${operation === "update" ? "Update" : "Create"} ${resourceType}`}</Text>
+        <Text>{`View ${typeName}`}</Text>
         <ToolbarGroup>
-          <ToolbarToggleButton
-            aria-label="Toggle JSON editor"
-            icon={<BracesRegular />}
-            name="display"
-            value="json"
-          />
+          {!!FormComponent && (
+            <ToolbarToggleButton
+              aria-label="Toggle JSON editor"
+              icon={<BracesRegular />}
+              name="display"
+              value="json"
+            />
+          )}
           <ToolbarButton
             appearance="subtle"
-            icon={
-              operation === "update" ? <ArrowUploadRegular /> : <AddRegular />
-            }
-            onClick={onSubmit}
+            icon={<EditRegular />}
+            onClick={onEdit}
           >
-            {operation === "update" ? "Update" : "Create"}
+            Edit
           </ToolbarButton>
         </ToolbarGroup>
       </Toolbar>
-      {!showJson && (
+      {!showJson && FormComponent && (
         <div className={styles.content}>
-          <FormComponent values={values} setValues={setValues} />
+          <FormComponent values={values} />
         </div>
       )}
       {
         <div className={showJson ? styles.editor : styles.editorHidden}>
-          <JsonEditor onMount={onMount} typeName={typeName} />
+          <JsonEditor onMount={onMount} typeName={schemaName} readOnly={true} />
         </div>
       }
     </div>
   );
 }
 
-export default CreateResource;
+export default ViewResource;

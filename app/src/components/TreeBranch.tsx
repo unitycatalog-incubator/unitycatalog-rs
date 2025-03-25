@@ -50,11 +50,11 @@ const CreateItem = () => {
   return <Button appearance="subtle" onClick={onClick} icon={<AddRegular />} />;
 };
 
-export const UpdateItem = () => {
+export const ViewItem = () => {
   const scope = useTreeContext();
   const { update } = useExplorer();
   const onClick = useCallback(() => {
-    update({ display: "edit", scope });
+    update({ display: "view", scope });
   }, [update]);
 
   if (scope.length === 1) return null;
@@ -114,7 +114,7 @@ function TreeBranch<Item extends { name?: string }>({
               <Spinner size="extra-tiny" />
             ) : undefined
           }
-          actions={[<DeleteDialog />, <UpdateItem />, <CreateItem />]}
+          actions={[<DeleteDialog />, <ViewItem />, <CreateItem />]}
         >
           {rootName}
         </TreeItemLayout>

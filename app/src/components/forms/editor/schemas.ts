@@ -1,22 +1,29 @@
 import ExternalLocationInfo from "../../../gen/jsonschema/unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.json";
 import CreateExternalLocationRequest from "../../../gen/jsonschema/unitycatalog.external_locations.v1.CreateExternalLocationRequest.jsonschema.json";
 import UpdateExternalLocationRequest from "../../../gen/jsonschema/unitycatalog.external_locations.v1.UpdateExternalLocationRequest.jsonschema.json";
+
 import CatalogInfo from "../../../gen/jsonschema/unitycatalog.catalogs.v1.CatalogInfo.jsonschema.json";
 import CreateCatalogRequest from "../../../gen/jsonschema/unitycatalog.catalogs.v1.CreateCatalogRequest.jsonschema.json";
 import UpdateCatalogRequest from "../../../gen/jsonschema/unitycatalog.catalogs.v1.UpdateCatalogRequest.jsonschema.json";
+
 import SchemaInfo from "../../../gen/jsonschema/unitycatalog.schemas.v1.SchemaInfo.jsonschema.json";
 import CreateSchemaRequest from "../../../gen/jsonschema/unitycatalog.schemas.v1.CreateSchemaRequest.jsonschema.json";
 import UpdateSchemaRequest from "../../../gen/jsonschema/unitycatalog.schemas.v1.UpdateSchemaRequest.jsonschema.json";
+
 import RecipientInfo from "../../../gen/jsonschema/unitycatalog.recipients.v1.RecipientInfo.jsonschema.json";
 import CreateRecipientRequest from "../../../gen/jsonschema/unitycatalog.recipients.v1.CreateRecipientRequest.jsonschema.json";
 import UpdateRecipientRequest from "../../../gen/jsonschema/unitycatalog.recipients.v1.UpdateRecipientRequest.jsonschema.json";
+
 import ShareInfo from "../../../gen/jsonschema/unitycatalog.shares.v1.ShareInfo.jsonschema.json";
 import CreateShareRequest from "../../../gen/jsonschema/unitycatalog.shares.v1.CreateShareRequest.jsonschema.json";
 import UpdateShareRequest from "../../../gen/jsonschema/unitycatalog.shares.v1.UpdateShareRequest.jsonschema.json";
 import DataObject from "../../../gen/jsonschema/unitycatalog.shares.v1.DataObject.jsonschema.json";
 import DataObjectUpdate from "../../../gen/jsonschema/unitycatalog.shares.v1.DataObjectUpdate.jsonschema.json";
+
 import CreateTableRequest from "../../../gen/jsonschema/unitycatalog.tables.v1.CreateTableRequest.jsonschema.json";
-// import UpdateShareRequest from "../../../gen/jsonschema/unitycatalog.shares.v1.UpdateShareRequest.jsonschema.json";
+import TableInfo from "../../../gen/jsonschema/unitycatalog.tables.v1.TableInfo.jsonschema.json";
+import TableSummary from "../../../gen/jsonschema/unitycatalog.tables.v1.TableSummary.jsonschema.json";
+import ColumnInfo from "../../../gen/jsonschema/unitycatalog.tables.v1.ColumnInfo.jsonschema.json";
 
 // Credential schemas
 import CredentialInfo from "../../../gen/jsonschema/unitycatalog.credentials.v1.CredentialInfo.jsonschema.json";
@@ -55,4 +62,7 @@ export default {
   DataObject,
   DataObjectUpdate,
   Struct,
+  ColumnInfo,
+  TableInfo,
+  TableSummary,
 };

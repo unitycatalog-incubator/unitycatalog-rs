@@ -17,6 +17,7 @@ import CreateShare from "./shares/ShareCreate";
 import UpdateShare from "./shares/ShareUpdate";
 import { ExplorerProvider, ExplorerPropsInner, useExplorer } from "../context";
 import { useState } from "react";
+import { ViewResource } from "./forms";
 
 const useStyles = makeStyles({
   root: {
@@ -46,30 +47,8 @@ const useStyles = makeStyles({
 function ExplorerContent() {
   const { display, scope } = useExplorer();
 
-  if (display === "create") {
-    if (scope?.length === 1) {
-      if (scope[0] === "catalogs") {
-        return <CreateCatalog />;
-      } else if (scope[0] === "credentials") {
-        return <CreateCredential />;
-      } else if (scope[0] === "external_locations") {
-        return <CreateExternalLocation />;
-      } else if (scope[0] === "recipients") {
-        return <CreateRecipient />;
-      } else if (scope[0] === "shares") {
-        return <CreateShare />;
-      }
-    } else if (scope && scope[0] === "catalogs") {
-      if (scope?.length === 2) {
-        return <CreateSchema />;
-      } else if (scope?.length === 3) {
-        return <CreateTable />;
-      }
-    }
-  }
-
   switch (display) {
-    case "view":
+    case "create":
       if (scope?.length === 1) {
         if (scope[0] === "catalogs") {
           return <CreateCatalog />;
@@ -89,12 +68,16 @@ function ExplorerContent() {
           return <CreateTable />;
         }
       }
+      break;
     case "edit":
       if (scope?.length === 2) {
         if (scope[0] === "shares") {
           return <UpdateShare />;
         }
       }
+      break;
+    case "view":
+      return <ViewResource />;
     default:
       break;
   }

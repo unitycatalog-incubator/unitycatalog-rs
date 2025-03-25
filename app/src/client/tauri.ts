@@ -169,7 +169,9 @@ export async function create_table(request: CreateTableRequestJson) {
 }
 
 export async function get_table(catalog: string, schema: string, name: string) {
-  return await invoke<TableInfoJson>("get_table", { catalog, schema, name });
+  return await invoke<TableInfoJson>("get_table", {
+    fullName: `${catalog}.${schema}.${name}`,
+  });
 }
 
 export async function delete_table(

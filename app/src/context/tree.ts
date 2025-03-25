@@ -42,30 +42,58 @@ export const useTypeName = (scope: string[]) => {
   throw new Error(`Unknown scope: ${scope}`);
 };
 
+export const useSchemaName = (scope: string[]) => {
+  if (scope.length === 2) {
+    switch (scope[0]) {
+      case "catalogs":
+        return "CatalogInfo";
+      case "external_locations":
+        return "ExternalLocationInfo";
+      case "shares":
+        return "ShareInfo";
+      case "credentials":
+        return "CredentialInfo";
+      case "recipients":
+        return "RecipientInfo";
+    }
+  }
+  if (scope[0] === "catalogs") {
+    if (scope.length === 3) return "SchemaInfo";
+    if (scope.length === 4) return "TableInfo";
+  }
+  throw new Error(`Unknown scope: ${scope}`);
+};
+
 export const useTreeFunctions = (scope: string[]) => {
   const typeName = useTypeName(scope);
-  const { deleteFn } = useMemo(() => {
+  const schemaName = useSchemaName(scope);
+  const { deleteFn, getFn } = useMemo(() => {
     if (scope.length === 2) {
       switch (scope[0]) {
         case "catalogs":
           return {
             deleteFn: () => ucClient.catalogs.delete(scope[1]),
+            getFn: () => ucClient.catalogs.get(scope[1]),
           };
         case "external_locations":
           return {
             deleteFn: () => ucClient.externalLocations.delete(scope[1]),
+            getFn: () => ucClient.externalLocations.get(scope[1]),
           };
         case "shares":
           return {
             deleteFn: () => ucClient.shares.delete(scope[1]),
+            getFn: () => ucClient.shares.get({ name: scope[1] }),
           };
         case "credentials":
           return {
             deleteFn: () => ucClient.credentials.delete(scope[1]),
+            getFn: () => ucClient.credentials.get(scope[1]),
           };
         case "recipients":
           return {
             deleteFn: () => ucClient.recipients.delete(scope[1]),
+            getFn: () => ucClient.recipients.get(scope[1]),
           };
       }
     }
@@ -78,6 +106,7 @@ export const useTreeFunctions = (scope: string[]) => {
               catalog: scope[1],
               name: scope[2],
             }),
+          getFn: () => ucClient.schemas.get(scope[1], scope[2]),
         };
       }
       if (scope.length === 4) {
@@ -88,6 +117,7 @@ export const useTreeFunctions = (scope: string[]) => {
               schema: scope[2],
               name: scope[3],
             }),
+          getFn: () => ucClient.tables.get(scope[1], scope[2], scope[3]),
         };
       }
     }
@@ -95,5 +125,5 @@ export const useTreeFunctions = (scope: string[]) => {
     throw new Error(`Unknown scope: ${scope}`);
   }, [scope]);
 
-  return { typeName, deleteFn };
+  return { typeName, schemaName, deleteFn, getFn };
 };

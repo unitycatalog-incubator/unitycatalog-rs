@@ -5,9 +5,10 @@ import schemas from "./schemas";
 type JsonEditorProps = {
   onMount?: OnMount;
   typeName: string;
+  readOnly?: boolean;
 };
 
-function JsonEditor({ onMount, typeName }: JsonEditorProps) {
+function JsonEditor({ onMount, typeName, readOnly }: JsonEditorProps) {
   const monaco = useMonaco();
 
   useEffect(() => {
@@ -27,7 +28,7 @@ function JsonEditor({ onMount, typeName }: JsonEditorProps) {
       path={`${typeName}.json`}
       defaultLanguage="json"
       theme="vs-dark"
-      options={{ automaticLayout: true }}
+      options={{ automaticLayout: true, readOnly }}
       onMount={onMount}
     />
   );

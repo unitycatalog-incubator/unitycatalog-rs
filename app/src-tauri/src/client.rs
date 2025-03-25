@@ -67,9 +67,9 @@ pub async fn list_schemas(
 pub async fn get_schema(
     state: State<'_, UnityCatalogClient>,
     catalog: String,
-    schema: String,
+    name: String,
 ) -> Result<SchemaInfo> {
-    Ok(state.schemas().get(catalog, schema).await?)
+    Ok(state.schemas().get(catalog, name).await?)
 }
 
 #[tauri::command]
