@@ -72,7 +72,7 @@ export type CreateFormState<T> = {
 
 type CreateResourceProps<Req, Res> = {
   createFn: (values: Req) => Promise<Res>;
-  FormComponent: ComponentType<CreateFormState<Req>>;
+  FormComponent?: ComponentType<CreateFormState<Req>>;
   defaultValues?: Req;
   resourceType: string;
   typeName: string;
@@ -90,6 +90,7 @@ function CreateResource<Req, Res>({
 }: CreateResourceProps<Req, Res>) {
   const styles = useStyles();
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [didMount, setDidMount] = useState(false);
   const [values, setValues] = useState<Req>(defaultValues ?? ({} as Req));
   const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({
     display: [],
@@ -100,7 +101,7 @@ function CreateResource<Req, Res>({
     });
   };
   const showJson = useMemo(
-    () => checkedValues.display.includes("json"),
+    () => checkedValues.display.includes("json") || !FormComponent,
     [checkedValues],
   );
 
@@ -127,6 +128,8 @@ function CreateResource<Req, Res>({
   const onMount: OnMount = useCallback(
     (editor) => {
       editorRef.current = editor;
+      // needed to trigger a refresh of the json editor value
+      setDidMount(true);
     },
     [editorRef],
   );
@@ -141,12 +144,14 @@ function CreateResource<Req, Res>({
   }, [update]);
 
   useEffect(() => {
-    if (showJson && editorRef.current) {
+    if (showJson && didMount && editorRef.current) {
       editorRef.current.setValue(JSON.stringify(values, null, 4));
     } else if (editorRef.current) {
-      setValues(JSON.parse(editorRef.current.getValue()));
+      if (editorRef.current.getValue() !== "") {
+        setValues(JSON.parse(editorRef.current.getValue()));
+      }
     }
-  }, [showJson]);
+  }, [showJson, editorRef.current, didMount]);
 
   return (
     <div className={styles.root}>
@@ -163,12 +168,14 @@ function CreateResource<Req, Res>({
         />
         <Text>{`${operation === "update" ? "Update" : "Create"} ${resourceType}`}</Text>
         <ToolbarGroup>
-          <ToolbarToggleButton
-            aria-label="Toggle JSON editor"
-            icon={<BracesRegular />}
-            name="display"
-            value="json"
-          />
+          {FormComponent && (
+            <ToolbarToggleButton
+              aria-label="Toggle JSON editor"
+              icon={<BracesRegular />}
+              name="display"
+              value="json"
+            />
+          )}
           <ToolbarButton
             appearance="subtle"
             icon={
@@ -180,7 +187,7 @@ function CreateResource<Req, Res>({
           </ToolbarButton>
         </ToolbarGroup>
       </Toolbar>
-      {!showJson && (
+      {!showJson && FormComponent && (
         <div className={styles.content}>
           <FormComponent values={values} setValues={setValues} />
         </div>

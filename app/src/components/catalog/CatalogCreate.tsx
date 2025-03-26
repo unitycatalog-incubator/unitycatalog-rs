@@ -8,7 +8,7 @@ import {
 import { useCallback, useState } from "react";
 import ucClient, { CreateCatalogRequest } from "../../client";
 import { InputChange, TabSelect } from "../../types";
-import { CreateResource, CreateFormState, Input } from "../forms";
+import { CreateFormState, CreateResource, Input } from "../forms";
 
 const useStyles = makeStyles({
   tabs: {
