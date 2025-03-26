@@ -1,58 +1,78 @@
-import tauri from "./tauri";
-import type { CreateCatalogRequestJson } from "../gen/unitycatalog/catalogs/v1/svc_pb";
 import type { CatalogInfoJson } from "../gen/unitycatalog/catalogs/v1/models_pb";
-import type { SchemaInfoJson } from "../gen/unitycatalog/schemas/v1/models_pb";
-import type { CreateSchemaRequestJson } from "../gen/unitycatalog/schemas/v1/svc_pb";
+import type {
+  CreateCatalogRequestJson,
+  UpdateCatalogRequestJson,
+} from "../gen/unitycatalog/catalogs/v1/svc_pb";
 import type {
   CredentialInfoJson,
   PurposeJson,
 } from "../gen/unitycatalog/credentials/v1/models_pb";
-import type { CreateCredentialRequestJson } from "../gen/unitycatalog/credentials/v1/svc_pb";
-import type { ExternalLocationInfoJson } from "../gen/unitycatalog/external_locations/v1/models_pb";
-import type { CreateExternalLocationRequestJson } from "../gen/unitycatalog/external_locations/v1/svc_pb";
-import {
-  RecipientInfoJson,
-  AuthenticationTypeJson,
-} from "../gen/unitycatalog/recipients/v1/models_pb";
-import { CreateRecipientRequestJson } from "../gen/unitycatalog/recipients/v1/svc_pb";
 import type {
-  ShareInfoJson,
+  CreateCredentialRequestJson,
+  UpdateCredentialRequestJson,
+} from "../gen/unitycatalog/credentials/v1/svc_pb";
+import type { ExternalLocationInfoJson } from "../gen/unitycatalog/external_locations/v1/models_pb";
+import type {
+  CreateExternalLocationRequestJson,
+  UpdateExternalLocationRequestJson,
+} from "../gen/unitycatalog/external_locations/v1/svc_pb";
+import {
+  AuthenticationTypeJson,
+  RecipientInfoJson,
+} from "../gen/unitycatalog/recipients/v1/models_pb";
+import {
+  CreateRecipientRequestJson,
+  UpdateRecipientRequestJson,
+} from "../gen/unitycatalog/recipients/v1/svc_pb";
+import type { SchemaInfoJson } from "../gen/unitycatalog/schemas/v1/models_pb";
+import type {
+  CreateSchemaRequestJson,
+  UpdateSchemaRequestJson,
+} from "../gen/unitycatalog/schemas/v1/svc_pb";
+import type {
   DataObjectJson,
   DataObjectTypeJson,
+  ShareInfoJson,
 } from "../gen/unitycatalog/shares/v1/models_pb";
 import type {
   CreateShareRequestJson,
-  UpdateShareRequestJson,
   DataObjectUpdateJson,
+  UpdateShareRequestJson,
 } from "../gen/unitycatalog/shares/v1/svc_pb";
 import type {
   TableInfoJson,
   TableSummaryJson,
 } from "../gen/unitycatalog/tables/v1/models_pb";
 import type { CreateTableRequestJson } from "../gen/unitycatalog/tables/v1/svc_pb";
+import tauri from "./tauri";
 
 export type {
+  AuthenticationTypeJson as AuthenticationType,
   CatalogInfoJson as CatalogInfo,
-  SchemaInfoJson as SchemaInfo,
   CreateCatalogRequestJson as CreateCatalogRequest,
-  CreateSchemaRequestJson as CreateSchemaRequest,
-  CredentialInfoJson as CredentialInfo,
   CreateCredentialRequestJson as CreateCredentialRequest,
-  ExternalLocationInfoJson as ExternalLocationInfo,
   CreateExternalLocationRequestJson as CreateExternalLocationRequest,
+  CreateRecipientRequestJson as CreateRecipientRequest,
+  CreateSchemaRequestJson as CreateSchemaRequest,
+  CreateShareRequestJson as CreateShareRequest,
+  CreateTableRequestJson as CreateTableRequest,
+  CredentialInfoJson as CredentialInfo,
+  DataObjectJson as DataObject,
+  DataObjectTypeJson as DataObjectType,
+  DataObjectUpdateJson as DataObjectUpdate,
+  ExternalLocationInfoJson as ExternalLocationInfo,
   PurposeJson as Purpose,
   RecipientInfoJson as RecipientInfo,
-  AuthenticationTypeJson as AuthenticationType,
-  CreateRecipientRequestJson as CreateRecipientRequest,
+  SchemaInfoJson as SchemaInfo,
   ShareInfoJson as ShareInfo,
-  CreateShareRequestJson as CreateShareRequest,
-  UpdateShareRequestJson as UpdateShareRequest,
   TableInfoJson as TableInfo,
   TableSummaryJson as TableSummary,
-  CreateTableRequestJson as CreateTableRequest,
-  DataObjectJson as DataObject,
-  DataObjectUpdateJson as DataObjectUpdate,
-  DataObjectTypeJson as DataObjectType,
+  UpdateCatalogRequestJson as UpdateCatalogRequest,
+  UpdateCredentialRequestJson as UpdateCredentialRequest,
+  UpdateExternalLocationRequestJson as UpdateExternalLocationRequest,
+  UpdateRecipientRequestJson as UpdateRecipientRequest,
+  UpdateSchemaRequestJson as UpdateSchemaRequest,
+  UpdateShareRequestJson as UpdateShareRequest,
 };
 
 export type ListOptions = {
@@ -70,6 +90,10 @@ export async function getCatalog(name: string) {
 
 export async function createCatalog(request: CreateCatalogRequestJson) {
   return await tauri.create_catalog(request);
+}
+
+export async function updateCatalog(data: UpdateCatalogRequestJson) {
+  return await tauri.update_catalog(data);
 }
 
 export async function deleteCatalog(name: string) {
@@ -91,6 +115,10 @@ export async function createSchema(request: CreateSchemaRequestJson) {
 
 export async function getSchema(catalog: string, name: string) {
   return await tauri.get_schema(catalog, name);
+}
+
+export async function updateSchema(request: UpdateSchemaRequestJson) {
+  return await tauri.update_schema(request);
 }
 
 export async function deleteSchema({
@@ -115,6 +143,10 @@ export async function createCredential(request: CreateCredentialRequestJson) {
   return await tauri.create_credential(request);
 }
 
+export async function updateCredential(request: UpdateCredentialRequestJson) {
+  return await tauri.update_credential(request);
+}
+
 export async function deleteCredential(name: string) {
   return await tauri.delete_credential(name);
 }
@@ -133,6 +165,12 @@ export async function createExternalLocation(
   return await tauri.create_external_location(request);
 }
 
+export async function updateExternalLocation(
+  request: UpdateExternalLocationRequestJson,
+) {
+  return await tauri.update_external_location(request);
+}
+
 export async function deleteExternalLocation(name: string) {
   return await tauri.delete_external_location(name);
 }
@@ -147,6 +185,10 @@ export async function getRecipient(name: string) {
 
 export async function createRecipient(request: CreateRecipientRequestJson) {
   return await tauri.create_recipient(request);
+}
+
+export async function updateRecipient(request: UpdateRecipientRequestJson) {
+  return await tauri.update_recipient(request);
 }
 
 export async function deleteRecipient(name: string) {
@@ -246,30 +288,35 @@ export default {
     list: listCatalogs,
     get: getCatalog,
     create: createCatalog,
+    update: updateCatalog,
     delete: deleteCatalog,
   },
   schemas: {
     list: listSchemas,
     get: getSchema,
     create: createSchema,
+    update: updateSchema,
     delete: deleteSchema,
   },
   credentials: {
     list: listCredentials,
     get: getCredential,
     create: createCredential,
+    update: updateCredential,
     delete: deleteCredential,
   },
   externalLocations: {
     list: listExternalLocations,
     get: getExternalLocation,
     create: createExternalLocation,
+    update: updateExternalLocation,
     delete: deleteExternalLocation,
   },
   recipients: {
     list: listRecipients,
     get: getRecipient,
     create: createRecipient,
+    update: updateRecipient,
     delete: deleteRecipient,
   },
   shares: {

@@ -1,19 +1,24 @@
 use futures::TryStreamExt;
 use prost::Message;
 use tauri::State;
-use unitycatalog_common::models::catalogs::v1::{CatalogInfo, CreateCatalogRequest};
+use unitycatalog_common::models::catalogs::v1::{
+    CatalogInfo, CreateCatalogRequest, UpdateCatalogRequest,
+};
 use unitycatalog_common::models::credentials::v1::{
-    CreateCredentialRequest, CredentialInfo, Purpose,
+    CreateCredentialRequest, CredentialInfo, Purpose, UpdateCredentialRequest,
 };
 use unitycatalog_common::models::external_locations::v1::{
-    CreateExternalLocationRequest, ExternalLocationInfo,
+    CreateExternalLocationRequest, ExternalLocationInfo, UpdateExternalLocationRequest,
 };
-use unitycatalog_common::models::recipients::v1::{CreateRecipientRequest, RecipientInfo};
-use unitycatalog_common::models::schemas::v1::{CreateSchemaRequest, SchemaInfo};
-use unitycatalog_common::models::shares::v1::{CreateShareRequest, ShareInfo};
+use unitycatalog_common::models::recipients::v1::{
+    CreateRecipientRequest, RecipientInfo, UpdateRecipientRequest,
+};
+use unitycatalog_common::models::schemas::v1::{
+    CreateSchemaRequest, SchemaInfo, UpdateSchemaRequest,
+};
+use unitycatalog_common::models::shares::v1::{CreateShareRequest, ShareInfo, UpdateShareRequest};
 use unitycatalog_common::models::tables::v1::{CreateTableRequest, TableInfo, TableSummary};
 use unitycatalog_common::rest::client::UnityCatalogClient;
-use unitycatalog_common::shares::v1::UpdateShareRequest;
 
 use crate::error::Result;
 
@@ -39,6 +44,15 @@ pub async fn create_catalog(
     request: CreateCatalogRequest,
 ) -> Result<CatalogInfo> {
     Ok(state.catalogs().create_catalog(&request).await?)
+}
+
+#[tauri::command]
+pub async fn update_catalog(
+    state: State<'_, UnityCatalogClient>,
+    request: Vec<u8>,
+) -> Result<CatalogInfo> {
+    let request = UpdateCatalogRequest::decode(request.as_slice())?;
+    Ok(state.catalogs().update_catalog(&request).await?)
 }
 
 #[tauri::command]
@@ -81,6 +95,15 @@ pub async fn create_schema(
 }
 
 #[tauri::command]
+pub async fn update_schema(
+    state: State<'_, UnityCatalogClient>,
+    request: Vec<u8>,
+) -> Result<SchemaInfo> {
+    let request = UpdateSchemaRequest::decode(request.as_slice())?;
+    Ok(state.schemas().update_schema(&request).await?)
+}
+
+#[tauri::command]
 pub async fn delete_schema(
     state: State<'_, UnityCatalogClient>,
     catalog: String,
@@ -120,6 +143,15 @@ pub async fn create_credential(
 }
 
 #[tauri::command]
+pub async fn update_credential(
+    state: State<'_, UnityCatalogClient>,
+    request: Vec<u8>,
+) -> Result<CredentialInfo> {
+    let request = UpdateCredentialRequest::decode(request.as_slice())?;
+    Ok(state.credentials().update_credential(&request).await?)
+}
+
+#[tauri::command]
 pub async fn delete_credential(state: State<'_, UnityCatalogClient>, name: String) -> Result<()> {
     Ok(state.credentials().delete(name).await?)
 }
@@ -156,6 +188,18 @@ pub async fn create_external_location(
 }
 
 #[tauri::command]
+pub async fn update_external_location(
+    state: State<'_, UnityCatalogClient>,
+    request: Vec<u8>,
+) -> Result<ExternalLocationInfo> {
+    let request = UpdateExternalLocationRequest::decode(request.as_slice())?;
+    Ok(state
+        .external_locations()
+        .update_external_location(&request)
+        .await?)
+}
+
+#[tauri::command]
 pub async fn delete_external_location(
     state: State<'_, UnityCatalogClient>,
     name: String,
@@ -186,6 +230,15 @@ pub async fn create_recipient(
     request: CreateRecipientRequest,
 ) -> Result<RecipientInfo> {
     Ok(state.recipients().create_recipient(&request).await?)
+}
+
+#[tauri::command]
+pub async fn update_recipient(
+    state: State<'_, UnityCatalogClient>,
+    request: Vec<u8>,
+) -> Result<RecipientInfo> {
+    let request = UpdateRecipientRequest::decode(request.as_slice())?;
+    Ok(state.recipients().update_recipient(&request).await?)
 }
 
 #[tauri::command]
