@@ -20,6 +20,12 @@ mod object;
 
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 
+pub mod google {
+    pub mod protobuf {
+        include!("../gen/google.protobuf.rs");
+    }
+}
+
 #[allow(clippy::empty_docs, clippy::large_enum_variant)]
 pub mod sharing {
     pub mod v1 {

@@ -547,7 +547,7 @@ impl SharesClient {
     ) -> Result<share::ShareInfo> {
         let request = share::UpdateShareRequest {
             name: name.into(),
-            new_name: new_name.into().and_then(|s| (!s.is_empty()).then(|| s)),
+            new_name: new_name.into().and_then(|s| (!s.is_empty()).then_some(s)),
             comment: comment.into(),
             owner: owner.into(),
             updates,

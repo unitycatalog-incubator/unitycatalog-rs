@@ -14,6 +14,9 @@ generate:
 generate-app:
     just app/generate
 
+generate-types:
+    just unitycatalog/common/generate
+
 sqlx-prepare: start_pg
     # Wait for PostgreSQL to be ready
     sleep 1

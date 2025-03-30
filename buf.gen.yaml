@@ -13,9 +13,9 @@ plugins:
   - remote: buf.build/community/neoeinstein-prost:v0.4.0
     out: unitycatalog/common/src/gen
     opt:
-      - bytes=.
-      - compile_well_known_types
-      - extern_path=.google.protobuf=::pbjson_types
+      # - bytes=.
+      - compile_well_known_types=true
+      # - extern_path=.google.protobuf=::pbjson_types
       - file_descriptor_set=false
       - type_attribute=.unitycatalog.internal.Resource.resource=#[derive(::strum::EnumDiscriminants)]
       - type_attribute=.unitycatalog.internal.Resource.resource=#[strum_discriminants(name(ObjectLabel))]
@@ -25,6 +25,8 @@ plugins:
       - type_attribute=.unitycatalog.internal.Resource.resource=#[strum_discriminants(strum(ascii_case_insensitive))]
       - type_attribute=.unitycatalog.internal.Resource.resource=#[strum_discriminants(cfg_attr(feature = "sqlx"\, derive(::sqlx::Type)))]
       - type_attribute=.unitycatalog.internal.Resource.resource=#[strum_discriminants(cfg_attr(feature = "sqlx"\, sqlx(type_name = "object_label"\, rename_all = "snake_case")))]
+      - message_attribute=.unitycatalog=#[cfg_attr(feature = "python"\, ::pyo3::pyclass(get_all\, set_all))]
+      - enum_attribute=.unitycatalog=#[cfg_attr(feature = "python"\, ::pyo3::pyclass)]
   - remote: buf.build/community/neoeinstein-prost-serde:v0.3.1
     out: unitycatalog/common/src/gen
     opt:

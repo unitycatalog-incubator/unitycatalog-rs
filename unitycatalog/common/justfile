@@ -1,0 +1,5 @@
+default:
+    @just --list
+
+generate:
+    @buf generate ./protos/google/protobuf/types.proto --template {{ source_directory() }}/buf.gen.yaml
