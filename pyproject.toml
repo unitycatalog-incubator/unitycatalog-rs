@@ -1,0 +1,20 @@
+[project]
+name = "unitycatalog-py"
+version = "0.0.1"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["datamodel-code-generator>=0.28.5", "pydantic>=2.11.1"]
+
+[tool.datamodel-codegen]
+field-constraints = true
+# snake-case-field = true
+strip-default-none = false
+target-python-version = "3.11"
+use-annotated = true
+formatters = ["ruff-check", "ruff-format"]
+output-model-type = "pydantic_v2.BaseModel"
+use-schema-description = true
+treat-dot-as-module = true
+use-exact-imports = true
+capitalise-enum-members = true

@@ -52,3 +52,11 @@ compose:
 # run local app
 app:
   cd app && npm run tauri dev
+
+generate-py:
+  uv run scripts/prepare_jsonschema.py
+  uv run datamodel-codegen \
+    --input ./tmp_schemas/ \
+    --input-file-type jsonschema \
+    --output python/models/
+  rm -rf tmp_schemas
