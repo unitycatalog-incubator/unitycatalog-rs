@@ -1,20 +1,30 @@
+#[cfg(feature = "axum")]
 pub use auth::*;
-pub use catalogs::get_router as get_catalog_router;
-pub use credentials::get_router as get_credentials_router;
-pub use external_locations::get_router as get_external_locations_router;
-pub use recipients::get_router as get_recipients_router;
-pub use schemas::get_router as get_schemas_router;
-pub use shares::get_router as get_shares_router;
-pub use sharing::get_router as get_sharing_router;
-pub use tables::get_router as get_tables_router;
+#[cfg(feature = "axum")]
+pub use routers::*;
 
+#[cfg(feature = "axum")]
+mod routers {
+    pub use super::catalogs::get_router as get_catalog_router;
+    pub use super::credentials::get_router as get_credentials_router;
+    pub use super::external_locations::get_router as get_external_locations_router;
+    pub use super::recipients::get_router as get_recipients_router;
+    pub use super::schemas::get_router as get_schemas_router;
+    pub use super::shares::get_router as get_shares_router;
+    pub use super::sharing::get_router as get_sharing_router;
+    pub use super::tables::get_router as get_tables_router;
+}
+
+#[cfg(feature = "axum")]
 mod auth;
 #[cfg(feature = "rest-client")]
 pub mod client;
 #[cfg(any(test, feature = "integration"))]
 pub mod integration;
+#[cfg(feature = "axum")]
 mod sharing;
 
+#[cfg(feature = "axum")]
 mod catalogs {
     use crate::api::catalogs::*;
     use axum::routing::{Router, delete, get, patch, post};
@@ -31,6 +41,7 @@ mod catalogs {
     }
 }
 
+#[cfg(feature = "axum")]
 mod schemas {
     use crate::api::schemas::*;
     use axum::routing::{Router, delete, get, patch, post};
@@ -47,6 +58,7 @@ mod schemas {
     }
 }
 
+#[cfg(feature = "axum")]
 mod recipients {
     use crate::api::recipients::*;
     use axum::routing::{Router, delete, get, patch, post};
@@ -63,6 +75,7 @@ mod recipients {
     }
 }
 
+#[cfg(feature = "axum")]
 mod credentials {
     use crate::api::credentials::*;
     use axum::routing::{Router, delete, get, post};
@@ -78,6 +91,7 @@ mod credentials {
     }
 }
 
+#[cfg(feature = "axum")]
 mod external_locations {
     use crate::api::external_locations::*;
     use axum::routing::{Router, delete, get, patch, post};
@@ -103,6 +117,7 @@ mod external_locations {
     }
 }
 
+#[cfg(feature = "axum")]
 mod shares {
     use crate::api::shares::*;
     use axum::routing::{Router, delete, get, patch, post};
@@ -118,6 +133,7 @@ mod shares {
     }
 }
 
+#[cfg(feature = "axum")]
 mod tables {
     use crate::api::tables::*;
     use axum::routing::{Router, delete, get, post};

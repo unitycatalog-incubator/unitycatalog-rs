@@ -63,3 +63,9 @@ generate-py:
     --input-file-type jsonschema \
     --output python/models/
   rm -rf tmp_schemas
+
+develop-py: develop-py-client
+
+develop-py-client:
+  uv run maturin develop --uv \
+    --manifest-path python/client/Cargo.toml

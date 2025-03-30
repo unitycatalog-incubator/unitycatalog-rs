@@ -8,6 +8,8 @@ pub mod error;
 #[cfg(feature = "memory")]
 pub mod memory;
 pub mod models;
+#[cfg(feature = "python")]
+mod python;
 mod resources;
 pub mod rest;
 pub mod services;
