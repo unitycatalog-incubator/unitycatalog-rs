@@ -1,10 +1,10 @@
-use pyo3::exceptions::{PyFileNotFoundError, PyIOError, PyNotImplementedError, PyValueError};
+use pyo3::create_exception;
+use pyo3::exceptions::PyIOError;
 use pyo3::prelude::*;
-use pyo3::{create_exception, DowncastError};
 use thiserror::Error;
 use unitycatalog_common::error::Error as UCError;
 
-/// A type wrapper around `Result<T, PyObjectStoreError>`.
+/// A type wrapper around `Result<T, PyUnityCatalogError>`.
 pub type PyUnityCatalogResult<T> = Result<T, PyUnityCatalogError>;
 
 // Base exception
@@ -45,7 +45,7 @@ impl From<PyUnityCatalogError> for PyErr {
         match error {
             PyUnityCatalogError::PyErr(err) => err,
             PyUnityCatalogError::UnityCatalogError(ref err) => match err {
-                UCError::Generic(msg) => GenericError::new_err(print_with_debug(err)),
+                UCError::Generic(_) => GenericError::new_err(print_with_debug(err)),
                 _ => GenericError::new_err(print_with_debug(err)),
             },
             PyUnityCatalogError::IOError(err) => PyIOError::new_err(err),

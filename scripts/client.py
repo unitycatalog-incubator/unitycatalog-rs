@@ -1,4 +1,4 @@
-from unitycatalog_client import CreateCatalogRequest, UnityCatalogClient
+from unitycatalog_client import UnityCatalogClient
 
 
 client = UnityCatalogClient("http://localhost:8080")
