@@ -3,13 +3,13 @@ use futures::stream::BoxStream;
 use futures::{Future, Stream, StreamExt, TryStreamExt};
 use reqwest::IntoUrl;
 
-use crate::api::catalogs::CatalogClient;
-use crate::api::credentials::CredentialsClient;
-use crate::api::external_locations::ExternalLocationsClient;
-use crate::api::recipients::RecipientsClient;
-use crate::api::schemas::SchemasClient;
-use crate::api::shares::SharesClient;
-use crate::api::tables::TablesClient;
+pub use crate::api::catalogs::CatalogClient;
+pub use crate::api::credentials::CredentialsClient;
+pub use crate::api::external_locations::ExternalLocationsClient;
+pub use crate::api::recipients::RecipientsClient;
+pub use crate::api::schemas::SchemasClient;
+pub use crate::api::shares::SharesClient;
+pub use crate::api::tables::TablesClient;
 use crate::models::catalogs::v1 as catalog;
 use crate::models::credentials::v1 as cred;
 use crate::models::credentials::v1::Purpose;
@@ -20,6 +20,7 @@ use crate::models::shares::v1 as share;
 use crate::models::tables::v1 as tbl;
 use crate::{Error, Result};
 
+#[derive(Clone)]
 pub struct UnityCatalogClient {
     client: CloudClient,
     base_url: url::Url,

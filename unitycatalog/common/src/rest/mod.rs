@@ -19,7 +19,7 @@ mod routers {
 mod auth;
 #[cfg(feature = "rest-client")]
 pub mod client;
-#[cfg(any(test, feature = "integration"))]
+#[cfg(any(all(test, feature = "axum"), feature = "integration"))]
 pub mod integration;
 #[cfg(feature = "axum")]
 mod sharing;
@@ -150,7 +150,7 @@ mod tables {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "axum"))]
 mod tests {
     use super::*;
     use crate::memory::InMemoryResourceStore;

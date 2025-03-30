@@ -1,5 +1,7 @@
-from unitycatalog_client import CreateCatalogRequest
+from unitycatalog_client import CreateCatalogRequest, UnityCatalogClient
 
-catalog = CreateCatalogRequest(name="my_catalog", comment="This is my catalog")
 
-print(catalog.name)
+client = UnityCatalogClient("http://localhost:8080")
+catalog_info = client.catalogs("dat").get()
+
+print(catalog_info)

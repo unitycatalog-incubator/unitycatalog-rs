@@ -1,8 +1,8 @@
 use proc_macro2::{Ident, Span};
 use quote::{quote, quote_spanned};
-use syn::{bracketed, parse_macro_input, Error, Type};
+use syn::{Error, Type, bracketed, parse_macro_input};
 
-use conversions::{from_object, resource_impl, to_object, to_resource, ObjectDefs};
+use conversions::{ObjectDefs, from_object, resource_impl, to_object, to_resource};
 use parsing::HandlerParams;
 use rest_handlers::{
     generate_handler_name, get_type_name, to_action, to_client, to_handler, to_request_impl,
@@ -77,6 +77,7 @@ pub fn rest_handlers(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
     let client_name = Ident::new(&client_name, Span::call_site());
 
     let client = quote! {
+        #[derive(Clone)]
         pub struct #client_name {
             client: ::cloud_client::CloudClient,
             base_url: ::url::Url,

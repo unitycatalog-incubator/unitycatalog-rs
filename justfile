@@ -46,7 +46,7 @@ rest:
 
 rest-db:
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
-        cargo run --bin uc server --rest --use-db
+        cargo run -p unitycatalog-cli -- server --rest --use-db
 
 # Run local docker emvironment
 compose:
