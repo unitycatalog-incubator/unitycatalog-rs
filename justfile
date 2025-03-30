@@ -61,7 +61,7 @@ generate-py:
   uv run datamodel-codegen \
     --input ./tmp_schemas/ \
     --input-file-type jsonschema \
-    --output python/models/
+    --output python/client/python/unitycatalog_client/_models/
   rm -rf tmp_schemas
 
 develop-py: develop-py-client

@@ -7,8 +7,15 @@ requires-python = ">=3.10"
 dependencies = [
   "datamodel-code-generator>=0.28.5",
   "maturin>=1.8.3",
-  "pydantic>=2.11.1",
+  "pydantic>=2.11.1, <3",
+  # "unitycatalog-client",
 ]
+
+# [tool.uv.sources]
+# unitycatalog-client = { workspace = true }
+
+[tool.uv.workspace]
+members = ["python/*"]
 
 [tool.datamodel-codegen]
 field-constraints = true
@@ -19,6 +26,8 @@ use-annotated = true
 formatters = ["ruff-check", "ruff-format"]
 output-model-type = "pydantic_v2.BaseModel"
 use-schema-description = true
-treat-dot-as-module = true
+treat-dot-as-module = false
 use-exact-imports = true
 capitalise-enum-members = true
+use-union-operator = true
+# use-title-as-name = true

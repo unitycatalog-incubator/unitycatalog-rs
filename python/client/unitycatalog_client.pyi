@@ -165,8 +165,94 @@ class CredentialInfo:
     azure_managed_identity: AzureManagedIdentity | None
     azure_storage_key: AzureStorageKey | None
 
+class ExternalLocationInfo:
+    name: str
+    url: str
+    credential_name: str
+    read_only: bool
+    comment: str | None
+    owner: str | None
+    credential_id: str
+    created_at: int | None
+    created_by: str | None
+    updated_at: int | None
+    updated_by: str | None
+    browse_only: bool | None
+    external_location_id: str | None
+
+class DataObjectType(enum.Enum):
+    DATA_OBJECT_TYPE_UNSPECIFIED = 0
+    TABLE = 1
+    SCHEMA = 2
+
+class HistoryStatus(enum.Enum):
+    DISABLED = 0
+    ENABLED = 1
+
+class DataObject:
+    name: str
+    data_object_type: DataObjectType
+    added_at: int | None
+    added_by: str | None
+    comment: str | None
+    shared_as: str | None
+    partitions: list[str]
+    enable_cdf: bool | None
+    history_data_sharing_status: HistoryStatus | None
+    start_version: int | None
+
+    def __init__(
+        self,
+        name: str,
+        data_object_type: DataObjectType,
+        added_at: int | None = None,
+        added_by: str | None = None,
+        comment: str | None = None,
+        shared_as: str | None = None,
+        partitions: list[str] = [],
+        enable_cdf: bool | None = None,
+        history_data_sharing_status: HistoryStatus | None = None,
+        start_version: int | None = None,
+    ) -> None: ...
+
+class DataObjectUpdate:
+    action: str
+    data_object: DataObject
+
+    def __init__(self, action: str, data_object: DataObject) -> None: ...
+
+class ShareInfo:
+    id: str | None
+    name: str
+    owner: str | None
+    comment: str | None
+    data_objects: list[DataObject]
+    created_at: int | None
+    created_by: str | None
+    updated_at: int | None
+    updated_by: str | None
+
+class RecipientInfo:
+    id: str
+    name: str
+    comment: str | None
+    owner: str | None
+    created_at: int | None
+    created_by: str | None
+    updated_at: int | None
+    updated_by: str | None
+
 class TableClient:
-    def get(self) -> TableInfo: ...
+    def get(self, include_delta_metadata: bool | None = None) -> TableInfo: ...
+    def create(
+        self,
+        table_type: TableType,
+        data_source_format: DataSourceFormat,
+        columns: list[ColumnInfo],
+        storage_location: str | None = None,
+        comment: str | None = None,
+        properties: dict | None = None,
+    ) -> TableInfo: ...
 
 class SchemaClient:
     def get(self) -> SchemaInfo: ...
@@ -191,6 +277,64 @@ class CatalogClient:
     ) -> CatalogInfo: ...
     def delete(self, force: bool = False) -> None: ...
 
+class CredentialsClient:
+    def get(self) -> CredentialInfo: ...
+    def create(
+        self,
+        purpose: Purpose,
+        comment: str | None = None,
+        read_only: bool | None = None,
+        skip_validation: bool = False,
+        azure_service_principal: AzureServicePrincipal | None = None,
+        azure_managed_identity: AzureManagedIdentity | None = None,
+        azure_storage_key: AzureStorageKey | None = None,
+    ) -> CredentialInfo: ...
+    def update(
+        self,
+        new_name: str | None = None,
+        comment: str | None = None,
+        read_only: bool | None = None,
+        owner: str | None = None,
+        skip_validation: bool | None = None,
+        force: bool | None = None,
+        azure_service_principal: AzureServicePrincipal | None = None,
+        azure_managed_identity: AzureManagedIdentity | None = None,
+        azure_storage_key: AzureStorageKey | None = None,
+    ) -> CredentialInfo: ...
+
+class ExternalLocationsClient:
+    def get(self) -> ExternalLocationInfo: ...
+    def create(
+        self,
+        url: str,
+        credential_name: str,
+        comment: str | None = None,
+        read_only: bool | None = None,
+        skip_validation: bool = False,
+    ) -> ExternalLocationInfo: ...
+
+class RecipientsClient:
+    def get(self) -> RecipientInfo: ...
+
+class SharesClient:
+    def get(self, include_shared_data: bool | None = None) -> ShareInfo: ...
+    def create(
+        self,
+        name: str,
+        comment: str | None = None,
+    ) -> ShareInfo: ...
+    def update(
+        self,
+        updates: list[DataObjectUpdate],
+        new_name: str | None = None,
+        comment: str | None = None,
+        owner: str | None = None,
+    ) -> ShareInfo: ...
+
 class UnityCatalogClient:
     def __init__(self, base_url: str) -> None: ...
     def catalogs(self, name: str) -> CatalogClient: ...
+    def credentials(self, name: str) -> CredentialsClient: ...
+    def external_locations(self, name: str) -> ExternalLocationsClient: ...
+    def recipients(self, name: str) -> RecipientsClient: ...
+    def shares(self, name: str) -> SharesClient: ...

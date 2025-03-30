@@ -2,6 +2,12 @@ version = 1
 revision = 1
 requires-python = ">=3.10"
 
+[manifest]
+members = [
+    "unitycatalog-client",
+    "unitycatalog-py",
+]
+
 [[package]]
 name = "annotated-types"
 version = "0.7.0"
@@ -459,6 +465,10 @@ wheels = [
 ]
 
 [[package]]
+name = "unitycatalog-client"
+source = { editable = "python/client" }
+
+[[package]]
 name = "unitycatalog-py"
 version = "0.0.1"
 source = { virtual = "." }
@@ -472,5 +482,5 @@ dependencies = [
 requires-dist = [
     { name = "datamodel-code-generator", specifier = ">=0.28.5" },
     { name = "maturin", specifier = ">=1.8.3" },
-    { name = "pydantic", specifier = ">=2.11.1" },
+    { name = "pydantic", specifier = ">=2.11.1,<3" },
 ]
