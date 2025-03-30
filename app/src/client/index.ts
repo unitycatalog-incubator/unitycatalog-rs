@@ -40,8 +40,10 @@ import type {
   UpdateShareRequestJson,
 } from "../gen/unitycatalog/shares/v1/svc_pb";
 import type {
+  DataSourceFormatJson,
   TableInfoJson,
   TableSummaryJson,
+  TableTypeJson,
 } from "../gen/unitycatalog/tables/v1/models_pb";
 import type { CreateTableRequestJson } from "../gen/unitycatalog/tables/v1/svc_pb";
 import tauri from "./tauri";
@@ -60,6 +62,7 @@ export type {
   DataObjectJson as DataObject,
   DataObjectTypeJson as DataObjectType,
   DataObjectUpdateJson as DataObjectUpdate,
+  DataSourceFormatJson as DataSourceFormat,
   ExternalLocationInfoJson as ExternalLocationInfo,
   PurposeJson as Purpose,
   RecipientInfoJson as RecipientInfo,
@@ -67,6 +70,7 @@ export type {
   ShareInfoJson as ShareInfo,
   TableInfoJson as TableInfo,
   TableSummaryJson as TableSummary,
+  TableTypeJson as TableType,
   UpdateCatalogRequestJson as UpdateCatalogRequest,
   UpdateCredentialRequestJson as UpdateCredentialRequest,
   UpdateExternalLocationRequestJson as UpdateExternalLocationRequest,
