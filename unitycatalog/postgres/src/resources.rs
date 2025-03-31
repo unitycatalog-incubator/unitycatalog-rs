@@ -55,6 +55,7 @@ impl ResourceStore for GraphStore {
         max_results: Option<usize>,
         page_token: Option<String>,
     ) -> Result<(Vec<Resource>, Option<String>)> {
+        dbg!("list");
         let namespace = namespace.unwrap_or_else(|| &EMPTY_RESOURCE_NAME);
         let objects = self
             .list_objects(label, namespace, page_token.as_deref(), max_results)

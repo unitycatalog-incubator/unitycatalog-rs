@@ -29,7 +29,7 @@ pub struct ServerHandler {
 
 impl ServerHandler {
     #[cfg(feature = "tokio")]
-    pub async fn try_new_tokio(
+    pub fn try_new_tokio(
         policy: Arc<dyn Policy>,
         store: Arc<dyn ResourceStore>,
         secrets: Arc<dyn SecretManager>,

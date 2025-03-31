@@ -10,6 +10,7 @@ const DUMMY: &str = "dummy";
 #[async_trait::async_trait]
 impl SecretManager for GraphStore {
     async fn get_secret(&self, secret_name: &str) -> Result<(Uuid, Bytes)> {
+        let mut conn = self.pool.acquire().await.map_err(crate::Error::from)?;
         #[derive(sqlx::FromRow)]
         struct Secret {
             id: Uuid,
@@ -26,7 +27,7 @@ impl SecretManager for GraphStore {
             DUMMY,
             secret_name,
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *conn)
         .await
         .map_err(crate::Error::from)?;
         if res.value.is_none() {
@@ -36,6 +37,7 @@ impl SecretManager for GraphStore {
     }
 
     async fn get_secret_version(&self, secret_name: &str, version: Uuid) -> Result<Bytes> {
+        let mut conn = self.pool.acquire().await.map_err(crate::Error::from)?;
         let value: Option<String> = sqlx::query_scalar!(
             r#"
             SELECT pgp_sym_decrypt(value, $2) FROM secrets
@@ -45,7 +47,7 @@ impl SecretManager for GraphStore {
             DUMMY,
             version,
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *conn)
         .await
         .map_err(crate::Error::from)?;
         if let Some(value) = value {
@@ -55,6 +57,7 @@ impl SecretManager for GraphStore {
     }
 
     async fn create_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
+        let mut txn = self.pool.begin().await.map_err(crate::Error::from)?;
         let value = std::str::from_utf8(&secret_value).unwrap();
         Ok(sqlx::query_scalar!(
             r#"
@@ -66,16 +69,19 @@ impl SecretManager for GraphStore {
             value,
             DUMMY,
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *txn)
         .await
         .map_err(crate::Error::from)?)
     }
 
     async fn update_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
+        // NB: we create a new version of the secret on each create operation.
+        // get request should be used to get the latest version.
         self.create_secret(secret_name, secret_value).await
     }
 
     async fn delete_secret(&self, secret_name: &str) -> Result<()> {
+        let mut txn = self.pool.begin().await.map_err(crate::Error::from)?;
         let _ = sqlx::query!(
             r#"
             DELETE FROM secrets
@@ -83,7 +89,7 @@ impl SecretManager for GraphStore {
             "#,
             secret_name,
         )
-        .execute(&*self.pool)
+        .execute(&mut *txn)
         .await
         .map_err(crate::Error::from)?;
         Ok(())

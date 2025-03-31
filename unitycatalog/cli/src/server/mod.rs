@@ -100,7 +100,7 @@ fn init_tracing() {
                 // axum logs rejections from built-in extractors with the `axum::rejection`
                 // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
                 format!(
-                    "{}=debug,tower_http=debug,axum::rejection=trace",
+                    "{}=debug,tower_http=debug,axum::rejection=trace,unitycatalog_common=debug",
                     env!("CARGO_CRATE_NAME")
                 )
                 .into()

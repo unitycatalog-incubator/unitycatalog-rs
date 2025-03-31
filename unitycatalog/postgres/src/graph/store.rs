@@ -4,10 +4,9 @@
 //!
 //! [TAO]: https://www.usenix.org/system/files/conference/atc13/atc13-bronson.pdf
 
-use std::sync::Arc;
-
 use sqlx::PgPool;
 use sqlx::migrate::Migrator;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use unitycatalog_common::{ResourceIdent, ResourceRef};
 use uuid::Uuid;
 
@@ -21,21 +20,23 @@ static MIGRATOR: Migrator = sqlx::migrate!();
 
 #[derive(Clone)]
 pub struct Store {
-    pub(crate) pool: Arc<PgPool>,
+    pub(crate) pool: PgPool,
 }
 
 impl Store {
-    pub fn new(pool: Arc<PgPool>) -> Self {
+    pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
 
     pub async fn connect(url: impl AsRef<str>) -> Result<Self> {
-        let pool = PgPool::connect(url.as_ref()).await.unwrap();
-        Ok(Self::new(Arc::new(pool)))
+        let options: PgConnectOptions = url.as_ref().parse()?;
+        let pool_options = PgPoolOptions::new().max_connections(96);
+        let pool = pool_options.connect_with(options).await?;
+        Ok(Self::new(pool))
     }
 
     pub async fn migrate(&self) -> Result<()> {
-        MIGRATOR.run(&*self.pool).await?;
+        MIGRATOR.run(&self.pool).await?;
         Ok(())
     }
 
@@ -85,6 +86,7 @@ impl Store {
         name: &[String],
         properties: Option<serde_json::Value>,
     ) -> Result<Object> {
+        let mut txn = self.pool.begin().await?;
         Ok(sqlx::query_as!(
             Object,
             r#"
@@ -102,7 +104,7 @@ impl Store {
             name,
             properties
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *txn)
         .await?)
     }
 
@@ -117,6 +119,7 @@ impl Store {
     /// # Errors
     /// - [EntityNotFound](crate::Error::EntityNotFound): If the object does not exist.
     pub async fn get_object(&self, id: &Uuid) -> Result<Object> {
+        let mut conn = self.pool.acquire().await?;
         Ok(sqlx::query_as!(
             Object,
             r#"
@@ -132,7 +135,7 @@ impl Store {
             "#,
             id
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
@@ -151,6 +154,7 @@ impl Store {
     /// # Errors
     /// - [EntityNotFound](crate::Error::EntityNotFound): If the object does not exist.
     pub async fn get_object_by_name(&self, label: &ObjectLabel, name: &[String]) -> Result<Object> {
+        let mut conn = self.pool.acquire().await?;
         Ok(sqlx::query_as!(
             Object,
             r#"
@@ -168,7 +172,7 @@ impl Store {
             label as &ObjectLabel,
             name
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *conn)
         .await?)
     }
 
@@ -190,6 +194,7 @@ impl Store {
         new_name: impl Into<Option<&[String]>>,
         properties: impl Into<Option<serde_json::Value>>,
     ) -> Result<Object> {
+        let mut txn = self.pool.begin().await?;
         Ok(sqlx::query_as!(
             Object,
             r#"
@@ -212,7 +217,7 @@ impl Store {
             new_name.into(),
             properties.into()
         )
-        .fetch_one(&*self.pool)
+        .fetch_one(&mut *txn)
         .await?)
     }
 
@@ -267,6 +272,11 @@ impl Store {
         page_token: Option<&str>,
         max_page_size: Option<usize>,
     ) -> Result<(Vec<Object>, Option<String>)> {
+        let msg = format!(
+            "list objects: {:?} / {:?} / {:?}",
+            label, namespace, page_token
+        );
+        dbg!(msg);
         let max_page_size = usize::min(max_page_size.unwrap_or(MAX_PAGE_SIZE), MAX_PAGE_SIZE);
         let token = page_token
             .map(PaginateToken::<Uuid>::try_from)
@@ -275,6 +285,8 @@ impl Store {
             .as_ref()
             .map(|PaginateToken::V1(V1PaginateToken { created_at, id })| (created_at, id))
             .unzip();
+
+        let mut conn = self.pool.acquire().await?;
 
         let objects = sqlx::query_as!(
             Object,
@@ -299,8 +311,9 @@ impl Store {
             token_id,
             max_page_size as i64
         )
-        .fetch_all(&*self.pool)
+        .fetch_all(&mut *conn)
         .await?;
+        dbg!("list - done");
 
         let next = (objects.len() == max_page_size)
             .then(|| {
@@ -453,7 +466,7 @@ impl Store {
             .as_ref()
             .map(|PaginateToken::V1(V1PaginateToken { created_at, id })| (created_at, id))
             .unzip();
-
+        let mut conn = self.pool.acquire().await?;
         let assocs = sqlx::query_as!(
             Association,
             r#"
@@ -481,7 +494,7 @@ impl Store {
             token_id,
             max_page_size as i64
         )
-        .fetch_all(&*self.pool)
+        .fetch_all(&mut *conn)
         .await?;
 
         let next = (assocs.len() == max_page_size)
@@ -520,6 +533,7 @@ impl Store {
                 },
             )
             .unzip();
+        let mut conn = self.pool.acquire().await?;
 
         let assocs = sqlx::query_as!(
             Association,
@@ -548,7 +562,7 @@ impl Store {
             token_id,
             max_page_size as i64
         )
-        .fetch_all(&*self.pool)
+        .fetch_all(&mut *conn)
         .await?;
 
         let next = (assocs.len() == max_page_size)
