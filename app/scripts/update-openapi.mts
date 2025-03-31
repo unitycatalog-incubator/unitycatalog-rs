@@ -32,6 +32,7 @@ const namespaces = [
   "credentials",
   "external_locations",
   "recipients",
+  "shares",
 ];
 
 for (const namespace of namespaces) {
@@ -44,5 +45,6 @@ updatedOpenapiContent = updatedOpenapiContent.replaceAll(
   ".jsonschema.json",
   "'",
 );
+updatedOpenapiContent = updatedOpenapiContent.replaceAll(".schema.json", "'");
 
 fs.writeFileSync(openapiPath, updatedOpenapiContent);

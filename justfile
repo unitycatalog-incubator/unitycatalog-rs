@@ -64,6 +64,9 @@ generate-py:
     --output python/client/python/unitycatalog_client/_models/
   rm -rf tmp_schemas
 
+update-openapi:
+  just app/update-openapi
+
 develop-py: develop-py-client
 
 develop-py-client:
