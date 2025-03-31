@@ -9,7 +9,7 @@ pub type PyUnityCatalogResult<T> = Result<T, PyUnityCatalogError>;
 
 // Base exception
 create_exception!(
-    unitycatalog_common,
+    unitycatalog_client,
     UnityCatalogError,
     pyo3::exceptions::PyException,
     "The base Python-facing exception from which all other errors subclass."
@@ -17,10 +17,10 @@ create_exception!(
 
 // Subclasses from base exception
 create_exception!(
-    pyo3_object_store,
+    unitycatalog_client,
     GenericError,
     UnityCatalogError,
-    "A Python-facing exception wrapping [object_store::Error::Generic]."
+    "A Python-facing exception wrapping [unitycatalog_common::Error::Generic]."
 );
 
 /// The Error variants returned by this crate.

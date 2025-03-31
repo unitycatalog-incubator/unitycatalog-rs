@@ -101,7 +101,14 @@ impl PyCatalogClient {
         })
     }
 
-    #[pyo3(signature = (*, comment = None, storage_root = None, provider_name = None, share_name = None))]
+    #[pyo3(signature = (
+        *,
+        comment = None,
+        storage_root = None,
+        provider_name = None,
+        share_name = None,
+        properties = None
+    ))]
     pub fn create(
         &self,
         py: Python,
@@ -109,11 +116,12 @@ impl PyCatalogClient {
         storage_root: Option<String>,
         provider_name: Option<String>,
         share_name: Option<String>,
+        properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<CatalogInfo> {
         let request = CreateCatalogRequest {
             name: self.name.clone(),
             comment,
-            properties: None,
+            properties: properties.map(hash_map_to_struct),
             storage_root,
             provider_name,
             share_name,
@@ -566,29 +574,29 @@ impl PyTablesClient {
 
     #[pyo3(signature = (
         *,
-        comment = None,
+        table_type,
+        data_source_format,
         storage_location = None,
+        comment = None,
         columns = None,
-        data_source_format = None,
-        table_type = None,
         properties = None
     ))]
     pub fn create(
         &self,
         py: Python,
-        comment: Option<String>,
+        table_type: TableType,
+        data_source_format: DataSourceFormat,
         storage_location: Option<String>,
+        comment: Option<String>,
         columns: Option<Vec<ColumnInfo>>,
-        data_source_format: Option<DataSourceFormat>,
-        table_type: Option<TableType>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<TableInfo> {
         let request = CreateTableRequest {
             name: self.name.clone(),
             schema_name: self.schema_name.clone(),
             catalog_name: self.catalog_name.clone(),
-            table_type: table_type.unwrap_or(TableType::Managed) as i32,
-            data_source_format: data_source_format.unwrap_or(DataSourceFormat::Delta) as i32,
+            table_type: table_type as i32,
+            data_source_format: data_source_format as i32,
             columns: columns.unwrap_or_default(),
             storage_location,
             comment,

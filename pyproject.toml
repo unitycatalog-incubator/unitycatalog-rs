@@ -17,6 +17,10 @@ dependencies = [
 [tool.uv.workspace]
 members = ["python/*"]
 
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
 [tool.datamodel-codegen]
 field-constraints = true
 # snake-case-field = true

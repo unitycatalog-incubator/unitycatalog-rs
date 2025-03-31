@@ -29,13 +29,14 @@ pub struct ServerHandler {
 
 impl ServerHandler {
     #[cfg(feature = "tokio")]
-    pub fn try_new_tokio(
+    pub async fn try_new_tokio(
         policy: Arc<dyn Policy>,
         store: Arc<dyn ResourceStore>,
         secrets: Arc<dyn SecretManager>,
     ) -> Result<Self> {
         use delta_kernel::engine::default::executor::tokio::TokioBackgroundExecutor;
         use delta_kernel::engine::default::executor::tokio::TokioMultiThreadExecutor;
+        use tracing::info;
 
         let handler = Arc::new(ServerHandlerInner::new(
             policy.clone(),
@@ -45,6 +46,7 @@ impl ServerHandler {
 
         let handle = tokio::runtime::Handle::try_current()
             .map_err(|e| crate::Error::generic(e.to_string()))?;
+        info!("Runtime flavor: {:?}", handle.runtime_flavor());
         let engine: Arc<dyn Engine> = match handle.runtime_flavor() {
             tokio::runtime::RuntimeFlavor::MultiThread => kernel::engine::get_engine(
                 handler.clone(),
@@ -163,6 +165,7 @@ impl<T: TableManager + ResourceStore> SharingExt for T {
         let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
         let location = url::Url::parse(&location)?;
         self.read_snapshot(&location, &DataSourceFormat::Delta, None)
+            .await
     }
 }
 

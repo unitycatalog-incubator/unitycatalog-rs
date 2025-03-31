@@ -30,48 +30,48 @@ class SchemaInfo:
     schema_id: str | None
 
 class ColumnTypeName(enum.Enum):
-    COLUMN_TYPE_NAME_UNSPECIFIED = 0
-    BOOLEAN = 1
-    BYTE = 2
-    SHORT = 3
-    INT = 4
-    LONG = 5
-    FLOAT = 6
-    DOUBLE = 7
-    DATE = 8
-    TIMESTAMP = 9
-    STRING = 10
-    BINARY = 11
-    DECIMAL = 12
-    INTERVAL = 13
-    ARRAY = 14
-    STRUCT = 15
-    MAP = 16
-    CHAR = 17
-    NULL = 18
-    USER_DEFINED_TYPE = 19
-    TIMESTAMP_NTZ = 20
-    VARIANT = 21
-    TABLE_TYPE = 22
+    Unspecified = 0
+    Boolean = 1
+    Byte = 2
+    Short = 3
+    Int = 4
+    Long = 5
+    Float = 6
+    Double = 7
+    Date = 8
+    Timestamp = 9
+    String = 10
+    Binary = 11
+    Decimal = 12
+    Interval = 13
+    Array = 14
+    Struct = 15
+    Map = 16
+    Char = 17
+    Null = 18
+    UserDefinedType = 19
+    TimestampNtz = 20
+    Variant = 21
+    TableType = 22
 
 class DataSourceFormat(enum.Enum):
-    DATA_SOURCE_FORMAT_UNSPECIFIED = 0
-    DELTA = 1
-    ICEBERG = 2
-    HUDI = 3
-    PARQUET = 4
-    CSV = 5
-    JSON = 6
-    ORC = 7
-    AVRO = 8
-    TEXT = 9
-    UNITY_CATALOG = 10
-    DELTASHARING = 11
+    Unspecified = 0
+    Delta = 1
+    Iceberg = 2
+    Hudi = 3
+    Parquet = 4
+    Csv = 5
+    Json = 6
+    Orc = 7
+    Avro = 8
+    Text = 9
+    UnityCatalog = 10
+    Deltasharing = 11
 
 class TableType(enum.Enum):
-    TABLE_TYPE_UNSPECIFIED = 0
-    MANAGED = 1
-    EXTERNAL = 2
+    Unspecified = 0
+    Managed = 1
+    External = 2
 
 class ColumnInfo:
     name: str
@@ -112,9 +112,9 @@ class TableInfo:
     table_id: str | None
 
 class Purpose(enum.Enum):
-    PURPOSE_UNSPECIFIED = 0
-    STORAGE = 1
-    SERVICE = 2
+    Unspecified = 0
+    Storage = 1
+    Service = 2
 
 class AzureServicePrincipal:
     directory_id: str
@@ -181,13 +181,13 @@ class ExternalLocationInfo:
     external_location_id: str | None
 
 class DataObjectType(enum.Enum):
-    DATA_OBJECT_TYPE_UNSPECIFIED = 0
-    TABLE = 1
-    SCHEMA = 2
+    Unspecified = 0
+    Table = 1
+    Schema = 2
 
 class HistoryStatus(enum.Enum):
-    DISABLED = 0
-    ENABLED = 1
+    Disabled = 0
+    Enabled = 1
 
 class DataObject:
     name: str
@@ -248,16 +248,27 @@ class TableClient:
         self,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: list[ColumnInfo],
-        storage_location: str | None = None,
         comment: str | None = None,
-        properties: dict | None = None,
+        storage_location: str | None = None,
+        columns: list[ColumnInfo] | None = None,
+        properties: dict[str, str] | None = None,
     ) -> TableInfo: ...
 
 class SchemaClient:
-    def get(self) -> SchemaInfo: ...
-    def create(self, name: str) -> SchemaInfo: ...
     def tables(self, name: str) -> TableClient: ...
+    def get(self) -> SchemaInfo: ...
+    def create(
+        self,
+        name: str,
+        properties: dict[str, str] | None = None,
+    ) -> SchemaInfo: ...
+    def update(
+        self,
+        new_name: str | None = None,
+        comment: str | None = None,
+        properties: dict[str, str] | None = None,
+    ) -> SchemaInfo: ...
+    def delete(self, force: bool = False) -> None: ...
 
 class CatalogClient:
     def schemas(self, name: str) -> SchemaClient: ...
@@ -268,12 +279,14 @@ class CatalogClient:
         storage_root: str | None = None,
         provider_name: str | None = None,
         share_name: str | None = None,
+        properties: dict[str, str] | None = None,
     ) -> CatalogInfo: ...
     def update(
         self,
         new_name: str | None = None,
         comment: str | None = None,
         owner: str | None = None,
+        properties: dict[str, str] | None = None,
     ) -> CatalogInfo: ...
     def delete(self, force: bool = False) -> None: ...
 
