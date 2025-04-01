@@ -75,6 +75,7 @@ impl<T: ResourceStore + Policy> SchemasHandler for T {
     ) -> Result<SchemaInfo> {
         self.check_required(&request, context.as_ref()).await?;
         let resource = SchemaInfo {
+            full_name: Some(format!("{}.{}", request.catalog_name, request.name)),
             name: request.name,
             catalog_name: request.catalog_name,
             comment: request.comment,

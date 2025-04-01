@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT\n                id,\n                from_id,\n                label AS \"label: AssociationLabel\",\n                to_id,\n                properties,\n                created_at,\n                updated_at,\n                to_label as \"to_label: ObjectLabel\"\n            FROM associations\n            WHERE from_id = $1\n              AND label = $2\n              AND to_id = ANY($3)\n              -- Pagination\n              AND ( id < $4 OR $4 IS NULL )\n            ORDER BY id DESC\n            LIMIT $5\n            ",
+  "query": "\n                SELECT\n                    id,\n                    from_id,\n                    label AS \"label: AssociationLabel\",\n                    to_id,\n                    properties,\n                    created_at,\n                    updated_at,\n                    to_label as \"to_label: ObjectLabel\"\n                FROM associations\n                WHERE from_id = $1\n                  AND label = $2\n                  AND ( to_label = $3 OR $3 IS NULL )\n                  -- Pagination\n                  AND ( id < $4 OR $4 IS NULL )\n                ORDER BY id DESC\n                LIMIT $5\n                ",
   "describe": {
     "columns": [
       {
@@ -100,7 +100,23 @@
             }
           }
         },
-        "UuidArray",
+        {
+          "Custom": {
+            "name": "object_label",
+            "kind": {
+              "Enum": [
+                "share_info",
+                "catalog_info",
+                "schema_info",
+                "table_info",
+                "column_info",
+                "credential_info",
+                "external_location_info",
+                "recipient_info"
+              ]
+            }
+          }
+        },
         "Uuid",
         "Int8"
       ]
@@ -116,5 +132,5 @@
       false
     ]
   },
-  "hash": "fea1f1b63d8a1b4385c82619494999da4d781d95d97bfe410ec2df3e57a9b079"
+  "hash": "ff5d0f4084360b51f5b64fe40cbf15308f48645d17e4b1ec5a434ff7c29aadc1"
 }

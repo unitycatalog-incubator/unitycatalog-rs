@@ -17,6 +17,8 @@ pub mod resource {
     #[strum_discriminants(serde(rename_all = "snake_case"))]
     #[strum_discriminants(strum(ascii_case_insensitive))]
     #[strum_discriminants(cfg_attr(feature = "sqlx", derive(::sqlx::Type)))]
+    #[strum_discriminants(cfg_attr(feature = "tokio-pg", derive(::postgres_types::ToSql, ::postgres_types::FromSql)))]
+    #[strum_discriminants(cfg_attr(feature = "tokio-pg", postgres(name = "object_label", rename_all = "snake_case")))]
     #[strum_discriminants(cfg_attr(feature = "sqlx", sqlx(type_name = "object_label", rename_all = "snake_case")))]
     #[cfg_attr(feature = "python", ::pyo3::pyclass)]
     #[allow(clippy::derive_partial_eq_without_eq)]
