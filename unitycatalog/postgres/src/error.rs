@@ -9,6 +9,9 @@ pub enum Error {
     Connection(sqlx::Error),
 
     #[error(transparent)]
+    COnnectionPool(#[from] tokio_postgres::Error),
+
+    #[error(transparent)]
     Migration(#[from] sqlx::migrate::MigrateError),
 
     #[error("Invalid Url: '{0}'")]
@@ -69,6 +72,7 @@ impl From<Error> for CommonError {
             Error::Generic(e) => CommonError::Generic(e),
             Error::EntityNotFound(_) => CommonError::NotFound,
             Error::AlreadyExists(_) => CommonError::NotAllowed,
+            Error::COnnectionPool(e) => CommonError::generic(e.to_string()),
         }
     }
 }

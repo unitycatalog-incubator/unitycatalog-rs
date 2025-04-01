@@ -127,6 +127,14 @@ impl ObjectLabel {
     feature = "sqlx",
     sqlx(type_name = "association_label", rename_all = "snake_case")
 )]
+#[cfg_attr(
+    feature = "tokio-pg",
+    derive(postgres_types::ToSql, postgres_types::FromSql)
+)]
+#[cfg_attr(
+    feature = "tokio-pg",
+    postgres(name = "association_label", rename_all = "snake_case")
+)]
 pub enum AssociationLabel {
     OwnedBy,
     OwnerOf,
