@@ -66,6 +66,8 @@ generate-py:
 
 update-openapi:
   just app/update-openapi
+  npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
+  mv tmp.yaml openapi/openapi.yaml
 
 develop-py: develop-py-client
 

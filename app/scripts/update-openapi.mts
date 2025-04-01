@@ -46,5 +46,9 @@ updatedOpenapiContent = updatedOpenapiContent.replaceAll(
   "'",
 );
 updatedOpenapiContent = updatedOpenapiContent.replaceAll(".schema.json", "'");
+updatedOpenapiContent = updatedOpenapiContent.replaceAll(
+  "$ref: google.protobuf.Struct",
+  "type: object",
+);
 
 fs.writeFileSync(openapiPath, updatedOpenapiContent);
