@@ -61,6 +61,7 @@ pub enum CatalogType {
     Unspecified = 0,
     ManagedCatalog = 1,
     DeltasharingCatalog = 2,
+    SystemCatalog = 3,
 }
 impl CatalogType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -72,6 +73,7 @@ impl CatalogType {
             CatalogType::Unspecified => "CATALOG_TYPE_UNSPECIFIED",
             CatalogType::ManagedCatalog => "MANAGED_CATALOG",
             CatalogType::DeltasharingCatalog => "DELTASHARING_CATALOG",
+            CatalogType::SystemCatalog => "SYSTEM_CATALOG",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -80,6 +82,7 @@ impl CatalogType {
             "CATALOG_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "MANAGED_CATALOG" => Some(Self::ManagedCatalog),
             "DELTASHARING_CATALOG" => Some(Self::DeltasharingCatalog),
+            "SYSTEM_CATALOG" => Some(Self::SystemCatalog),
             _ => None,
         }
     }

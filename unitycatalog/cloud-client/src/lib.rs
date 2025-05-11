@@ -122,6 +122,14 @@ impl CloudClient {
         })
     }
 
+    pub fn new_with_token(token: impl ToString) -> Self {
+        Self {
+            http_client: Client::new(),
+            retry_config: RetryConfig::default(),
+            credential: Credential::PersonalAccessToken(token.to_string()),
+        }
+    }
+
     pub fn new_unauthenticated() -> Self {
         Self {
             http_client: Client::new(),
@@ -264,7 +272,7 @@ impl CloudRequestBuilder {
                 self.builder = self.builder.bearer_auth(&credential.bearer);
             }
             Credential::PersonalAccessToken(token) => {
-                self.builder = self.builder.bearer_auth(&token);
+                self.builder = self.builder.bearer_auth(token);
             }
             Credential::Unauthenticated => {
                 // Do nothing

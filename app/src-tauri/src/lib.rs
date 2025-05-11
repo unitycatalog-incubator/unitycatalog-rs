@@ -9,7 +9,7 @@ mod error;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let client = CloudClient::new_unauthenticated();
-    let url = Url::parse("http://localhost:8080").unwrap();
+    let url = Url::parse("http://localhost:8080/api/2.1/unity-catalog/").unwrap();
     let unity_client = UnityCatalogClient::new(client, url);
 
     Builder::default()

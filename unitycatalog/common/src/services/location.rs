@@ -96,7 +96,7 @@ fn is_azurite(url: &Url) -> bool {
 }
 
 fn get_store_url(url: &url::Url) -> Result<(ObjectStoreUrl, StorageLocationScheme, Url)> {
-    let scheme = StorageLocationScheme::parse(&url)?;
+    let scheme = StorageLocationScheme::parse(url)?;
     let store_url = match &scheme {
         StorageLocationScheme::ObjectStore(_) => ObjectStoreUrl::parse(format!(
             "{}://{}",
@@ -130,8 +130,8 @@ fn get_store_url(url: &url::Url) -> Result<(ObjectStoreUrl, StorageLocationSchem
         StorageLocationScheme::ObjectStore(_) => {
             let store: &Url = store_url.as_ref();
             let store = store.clone();
-            let store = store.join(url.path())?;
-            store
+            
+            store.join(url.path())?
         }
         StorageLocationScheme::Azurite if url.scheme() != "azurite" => {
             let path = url

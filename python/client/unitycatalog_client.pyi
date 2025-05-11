@@ -1,20 +1,42 @@
 import enum
+from typing import Literal
 
 class CatalogInfo:
     id: str | None
     name: str
+    """The name of the catalog."""
+
     owner: str | None
+    """Username of current owner of catalog."""
+
     comment: str | None
+    """User-provided free-form text description."""
+
     properties: dict | None
+    """A map of key-value properties attached to the securable."""
+
     storage_root: str | None
+
     provider_name: str | None
+    """The name of delta sharing provider."""
+
     share_name: str | None
-    catalog_type: int | None
+    """The name of the share under the share provider."""
+
+    catalog_type: Literal[
+        "MANAGED_CATALOG", "DELTASHARING_CATALOG", "SYSTEM_CATALOG", "EXTERNAL_CATALOG"
+    ]
+    """The type of catalog."""
+
     created_at: int | None
     created_by: str | None
     updated_at: int | None
     updated_by: str | None
+
     browse_only: bool | None
+    """Indicates whether the principal is limited to retrieving metadata for the associated object
+    through the BROWSE privilege when include_browse is enabled in the request.
+    """
 
 class SchemaInfo:
     name: str
@@ -189,6 +211,12 @@ class HistoryStatus(enum.Enum):
     Disabled = 0
     Enabled = 1
 
+class Action(enum.Enum):
+    Unspecified = 0
+    Add = 1
+    Remove = 2
+    Update = 3
+
 class DataObject:
     name: str
     data_object_type: DataObjectType
@@ -209,7 +237,7 @@ class DataObject:
         added_by: str | None = None,
         comment: str | None = None,
         shared_as: str | None = None,
-        partitions: list[str] = [],
+        partitions: list[str] | None = None,
         enable_cdf: bool | None = None,
         history_data_sharing_status: HistoryStatus | None = None,
         start_version: int | None = None,
@@ -345,9 +373,30 @@ class SharesClient:
     ) -> ShareInfo: ...
 
 class UnityCatalogClient:
-    def __init__(self, base_url: str) -> None: ...
+    def __init__(self, base_url: str, token: str | None = None) -> None:
+        """
+        Unity Catalog client.
+
+        Args:
+            base_url: The base URL of the Unity Catalog API.
+            token: Personal Access Token for the Databricks CLI.
+        """
     def catalogs(self, name: str) -> CatalogClient: ...
     def credentials(self, name: str) -> CredentialsClient: ...
     def external_locations(self, name: str) -> ExternalLocationsClient: ...
     def recipients(self, name: str) -> RecipientsClient: ...
     def shares(self, name: str) -> SharesClient: ...
+    def list_catalogs(self, max_results: int | None = None) -> list[CatalogInfo]:
+        """Gets an array of catalogs in the metastore.
+
+        If the caller is the metastore admin, all catalogs will be retrieved.
+        Otherwise, only catalogs owned by the caller (or for which the caller has the `USE_CATALOG`
+        privilege) will be retrieved. There is no guarantee of a specific ordering of the elements
+        in the array.
+
+        Args:
+            max_results: The maximum number of catalogs to return.
+
+        Returns:
+            A list of CatalogInfo objects.
+        """

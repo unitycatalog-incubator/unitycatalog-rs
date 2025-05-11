@@ -14,7 +14,8 @@
           "enum": [
             "CATALOG_TYPE_UNSPECIFIED",
             "MANAGED_CATALOG",
-            "DELTASHARING_CATALOG"
+            "DELTASHARING_CATALOG",
+            "SYSTEM_CATALOG"
           ],
           "title": "Catalog Type",
           "type": "string"
@@ -87,7 +88,8 @@
           "enum": [
             "CATALOG_TYPE_UNSPECIFIED",
             "MANAGED_CATALOG",
-            "DELTASHARING_CATALOG"
+            "DELTASHARING_CATALOG",
+            "SYSTEM_CATALOG"
           ],
           "title": "Catalog Type",
           "type": "string"

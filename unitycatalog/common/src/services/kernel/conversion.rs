@@ -1,7 +1,7 @@
 use delta_kernel::actions::{Metadata, Protocol};
 
 use crate::models::sharing::v1::{
-    Format as FormatMessage, MetadataParquet, ParquetLogMessage, ParquetResponse, ProtocolParquet,
+    MetadataParquet, ParquetLogMessage, ParquetResponse, ProtocolParquet,
     QueryResponse, parquet_log_message::Entry as ParquetEntry,
     query_response::Response as QueryResponseType,
 };

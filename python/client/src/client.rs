@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
 use unitycatalog_common::models::catalogs::v1::{
     CatalogInfo, CreateCatalogRequest, UpdateCatalogRequest,
@@ -35,10 +36,34 @@ pub struct PyUnityCatalogClient(UnityCatalogClient);
 #[pymethods]
 impl PyUnityCatalogClient {
     #[new]
-    pub fn new(base_url: String) -> PyResult<Self> {
-        let client = cloud_client::CloudClient::new_unauthenticated();
+    #[pyo3(signature = (base_url, token = None))]
+    pub fn new(base_url: String, token: Option<String>) -> PyResult<Self> {
+        let client = if let Some(token) = token {
+            cloud_client::CloudClient::new_with_token(token)
+        } else {
+            cloud_client::CloudClient::new_unauthenticated()
+        };
         let base_url = base_url.parse().unwrap();
         Ok(Self(UnityCatalogClient::new(client, base_url)))
+    }
+
+    #[pyo3(signature = (max_results = None))]
+    pub fn list_catalogs(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+    ) -> PyUnityCatalogResult<Vec<CatalogInfo>> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let catalogs = runtime.block_on(async move {
+                self.0
+                    .catalogs()
+                    .list(max_results)
+                    .try_collect::<Vec<_>>()
+                    .await
+            })?;
+            Ok::<_, PyUnityCatalogError>(catalogs)
+        })
     }
 
     pub fn catalogs(&self, name: String) -> PyCatalogClient {
