@@ -59,7 +59,7 @@ impl SecretManager for GraphStore {
     async fn create_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
         let mut txn = self.pool.begin().await.map_err(crate::Error::from)?;
         let value = std::str::from_utf8(&secret_value).unwrap();
-        Ok(sqlx::query_scalar!(
+        let query_result = sqlx::query_scalar!(
             r#"
             INSERT INTO secrets(name, value)
             VALUES ($1, pgp_sym_encrypt($2, $3, 'cipher-algo=aes256'))
@@ -70,8 +70,18 @@ impl SecretManager for GraphStore {
             DUMMY,
         )
         .fetch_one(&mut *txn)
-        .await
-        .map_err(crate::Error::from)?)
+        .await;
+        match query_result {
+            Ok(id) => {
+                txn.commit().await.map_err(crate::Error::from)?;
+                Ok(id)
+            }
+            Err(e) => {
+                txn.rollback().await.map_err(crate::Error::from)?;
+                tracing::error!("create_secret: {} -> {:?}", secret_name, e);
+                Err(crate::Error::from(e).into())
+            }
+        }
     }
 
     async fn update_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
