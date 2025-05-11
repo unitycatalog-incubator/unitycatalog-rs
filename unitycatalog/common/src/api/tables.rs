@@ -169,7 +169,7 @@ impl<T: ResourceStore + Policy + TableManager> TablesHandler for T {
                 comment: request.comment,
                 columns: schema_to_columns(
                     snapshot.schema().as_ref(),
-                    &snapshot.metadata().partition_columns,
+                    snapshot.metadata().partition_columns(),
                 )?,
                 ..Default::default()
             }
@@ -259,7 +259,7 @@ impl FieldExt for StructField {
                 PrimitiveType::Date => ColumnTypeName::Date,
                 PrimitiveType::Timestamp => ColumnTypeName::Timestamp,
                 PrimitiveType::TimestampNtz => ColumnTypeName::TimestampNtz,
-                PrimitiveType::Decimal(_, _) => ColumnTypeName::Decimal,
+                PrimitiveType::Decimal(_) => ColumnTypeName::Decimal,
             },
             DataType::Struct(_) => ColumnTypeName::Struct,
             DataType::Array(_) => ColumnTypeName::Array,
@@ -269,14 +269,14 @@ impl FieldExt for StructField {
 
     fn type_precision(&self) -> Option<i32> {
         match self.data_type() {
-            DataType::Primitive(PrimitiveType::Decimal(p, _)) => Some(*p as i32),
+            DataType::Primitive(PrimitiveType::Decimal(dec)) => Some(dec.precision() as i32),
             _ => None,
         }
     }
 
     fn type_scale(&self) -> Option<i32> {
         match self.data_type() {
-            DataType::Primitive(PrimitiveType::Decimal(_, s)) => Some(*s as i32),
+            DataType::Primitive(PrimitiveType::Decimal(dec)) => Some(dec.scale() as i32),
             _ => None,
         }
     }

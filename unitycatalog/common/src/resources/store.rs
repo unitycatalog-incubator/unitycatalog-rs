@@ -6,13 +6,8 @@ use super::{ResourceIdent, ResourceName, ResourceRef};
 use crate::Result;
 use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 
-/// Generic store that can be used to store and retrieve resources.
-///
-/// Any implementation must conform to the following rules:
-/// - Id fields are managed by the store and must be globally unique.
-///   If the id field is set on a resource, it can be ignored.
 #[async_trait::async_trait]
-pub trait ResourceStore: Send + Sync + 'static {
+pub trait ResourceStoreReader: Send + Sync + 'static {
     /// Get a resource by its identifier.
     ///
     /// # Arguments
@@ -22,6 +17,13 @@ pub trait ResourceStore: Send + Sync + 'static {
     /// The resource with the given identifier.
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)>;
 
+    /// Get multiple resources by their identifiers.
+    ///
+    /// # Arguments
+    /// - `ids`: The identifiers of the resources to get.
+    ///
+    /// # Returns
+    /// The resources with the given identifiers.
     async fn get_many(&self, ids: &[ResourceIdent]) -> Result<Vec<(Resource, ResourceRef)>> {
         let futures = ids.iter().map(|id| self.get(id)).collect_vec();
         Ok(futures_util::future::try_join_all(futures).await?)
@@ -44,7 +46,15 @@ pub trait ResourceStore: Send + Sync + 'static {
         max_results: Option<usize>,
         page_token: Option<String>,
     ) -> Result<(Vec<Resource>, Option<String>)>;
+}
 
+/// Generic store that can be used to store and retrieve resources.
+///
+/// Any implementation must conform to the following rules:
+/// - Id fields are managed by the store and must be globally unique.
+///   If the id field is set on a resource, it can be ignored.
+#[async_trait::async_trait]
+pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
     /// Create a new resource.
     ///
     /// # Arguments
@@ -148,7 +158,7 @@ pub trait ProvidesResourceStore: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore> ResourceStore for Arc<T> {
+impl<T: ResourceStoreReader> ResourceStoreReader for Arc<T> {
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)> {
         T::get(self, id).await
     }
@@ -166,7 +176,10 @@ impl<T: ResourceStore> ResourceStore for Arc<T> {
     ) -> Result<(Vec<Resource>, Option<String>)> {
         T::list(self, label, namespace, max_results, page_token).await
     }
+}
 
+#[async_trait::async_trait]
+impl<T: ResourceStore> ResourceStore for Arc<T> {
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)> {
         T::create(self, resource).await
     }
@@ -215,7 +228,7 @@ impl<T: ResourceStore> ResourceStore for Arc<T> {
 }
 
 #[async_trait::async_trait]
-impl<T: ProvidesResourceStore> ResourceStore for T {
+impl<T: ProvidesResourceStore> ResourceStoreReader for T {
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)> {
         self.store().get(id).await
     }
@@ -235,7 +248,10 @@ impl<T: ProvidesResourceStore> ResourceStore for T {
             .list(label, namespace, max_results, page_token)
             .await
     }
+}
 
+#[async_trait::async_trait]
+impl<T: ProvidesResourceStore> ResourceStore for T {
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)> {
         self.store().create(resource).await
     }

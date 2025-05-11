@@ -530,7 +530,6 @@ mod sqlx_pg {
         )
         .fetch_all(&mut **conn)
         .await?;
-        dbg!("list - done");
 
         let next = (objects.len() == max_page_size)
             .then(|| {

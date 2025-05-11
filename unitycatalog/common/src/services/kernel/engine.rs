@@ -1,9 +1,5 @@
 use std::sync::Arc;
 
-use dashmap::DashMap;
-use delta_kernel::DeltaResult;
-use delta_kernel::engine::default::executor::TaskExecutor;
-use delta_kernel::engine::default::{DefaultEngine, ObjectStoreRegistry};
 use itertools::Itertools;
 use object_store::DynObjectStore;
 use object_store::azure::MicrosoftAzureBuilder;
@@ -21,55 +17,6 @@ use crate::{Error, Result};
 pub trait RegistryHandler: ResourceStore + CredentialsHandler {}
 impl<T: ResourceStore + CredentialsHandler> RegistryHandler for T {}
 
-pub fn get_engine<E: TaskExecutor>(
-    handler: Arc<dyn RegistryHandler>,
-    task_executor: Arc<E>,
-) -> DeltaResult<Arc<DefaultEngine<E>>> {
-    let registry = Arc::new(UnityStorageRegistry::new(task_executor.clone(), handler));
-    Ok(Arc::new(DefaultEngine::new(registry, task_executor)))
-}
-
-pub struct UnityStorageRegistry<E: TaskExecutor> {
-    executor: Arc<E>,
-    handler: Arc<dyn RegistryHandler>,
-    registry: Arc<DashMap<String, Arc<DynObjectStore>>>,
-}
-
-impl<E: TaskExecutor> std::fmt::Debug for UnityStorageRegistry<E> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("UnityStorageRegistry")
-            .field("registry", &self.registry)
-            .finish()
-    }
-}
-
-impl<E: TaskExecutor> UnityStorageRegistry<E> {
-    pub fn new(executor: Arc<E>, handler: Arc<dyn RegistryHandler>) -> Self {
-        Self {
-            executor,
-            handler,
-            registry: Arc::new(DashMap::new()),
-        }
-    }
-}
-
-impl<E: TaskExecutor> ObjectStoreRegistry for UnityStorageRegistry<E> {
-    fn get_store(&self, url: &Url) -> DeltaResult<(Arc<DynObjectStore>, bool)> {
-        self.registry
-            // TODO(packre): using this url kei may be too simplistic since UC allows
-            // registering nested external locations. We need to find a way to find
-            // the most specific location while still being able to cache based on the url.
-            .entry(get_url_key(url))
-            .or_try_insert_with(move || {
-                let url = url.clone();
-                self.executor
-                    .block_on(get_object_store(url, self.handler.clone()))
-            })
-            .map(|e| (e.value().clone(), true))
-            .map_err(delta_kernel::Error::generic)
-    }
-}
-
 /// Get the key of a url for object store registration.
 /// The credential info will be removed
 fn get_url_key(url: &Url) -> String {
@@ -81,7 +28,7 @@ fn get_url_key(url: &Url) -> String {
 }
 
 async fn get_object_store(
-    location: Url,
+    location: &Url,
     handler: Arc<dyn RegistryHandler>,
 ) -> Result<Arc<DynObjectStore>> {
     // TODO(roeap): just listing all external locations could be very inefficient.

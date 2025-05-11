@@ -1,30 +1,31 @@
 use std::sync::Arc;
 
-use delta_kernel::Engine;
+use delta_kernel::Version;
 use delta_kernel::snapshot::Snapshot;
+use url::Url;
 
-use self::kernel::{ProvidesEngine, TableManager};
+use self::kernel::TableManager;
 use crate::api::{RequestContext, SharingQueryHandler};
 use crate::models::sharing::v1::*;
 use crate::models::tables::v1::{DataSourceFormat, TableInfo};
 use crate::resources::ResourceStore;
-use crate::{
-    ProvidesResourceStore, Resource, ResourceIdent, ResourceName, ResourceRef, Result, ShareInfo,
-};
+use crate::{ProvidesResourceStore, ResourceIdent, ResourceName, Result, ShareInfo};
 
 pub mod kernel;
 pub mod locations;
 pub mod policy;
 pub mod secrets;
+pub mod session;
 
 pub use locations::*;
 pub use policy::*;
 pub use secrets::*;
+pub use session::*;
 
 #[derive(Clone)]
 pub struct ServerHandler {
     handler: Arc<ServerHandlerInner>,
-    engine: Arc<dyn Engine>,
+    session: Arc<KernelSession>,
 }
 
 impl ServerHandler {
@@ -34,33 +35,15 @@ impl ServerHandler {
         store: Arc<dyn ResourceStore>,
         secrets: Arc<dyn SecretManager>,
     ) -> Result<Self> {
-        use delta_kernel::engine::default::executor::tokio::TokioBackgroundExecutor;
-        use delta_kernel::engine::default::executor::tokio::TokioMultiThreadExecutor;
-        use tracing::info;
-
         let handler = Arc::new(ServerHandlerInner::new(
             policy.clone(),
             store.clone(),
             secrets.clone(),
         ));
-
-        let handle = tokio::runtime::Handle::try_current()
-            .map_err(|e| crate::Error::generic(e.to_string()))?;
-        info!("Runtime flavor: {:?}", handle.runtime_flavor());
-        let engine: Arc<dyn Engine> = match handle.runtime_flavor() {
-            tokio::runtime::RuntimeFlavor::MultiThread => kernel::engine::get_engine(
-                handler.clone(),
-                Arc::new(TokioMultiThreadExecutor::new(handle)),
-            )?,
-            tokio::runtime::RuntimeFlavor::CurrentThread => kernel::engine::get_engine(
-                handler.clone(),
-                Arc::new(TokioBackgroundExecutor::new()),
-            )?,
-            _ => {
-                return Err(crate::Error::generic("Unsupported runtime flavor"));
-            }
-        };
-        Ok(Self { handler, engine })
+        Ok(Self {
+            handler,
+            session: Arc::new(KernelSession::new()),
+        })
     }
 }
 
@@ -121,25 +104,15 @@ impl ProvidesSecretManager for ServerHandler {
     }
 }
 
-impl ProvidesEngine for ServerHandler {
-    fn engine(&self) -> &dyn Engine {
-        self.engine.as_ref()
-    }
-}
-
 #[async_trait::async_trait]
-impl<T: ResourceStore> TableLocationResolver for T {
-    async fn resolve_location(&self, table: &ResourceRef) -> Result<url::Url> {
-        let (table, _) = self.get(&ResourceIdent::Table(table.clone())).await?;
-        let table = match table {
-            Resource::TableInfo(t) => t,
-            _ => return Err(crate::Error::NotFound),
-        };
-        table
-            .storage_location
-            .as_ref()
-            .ok_or(crate::Error::NotFound)
-            .and_then(|l| Ok(url::Url::parse(l)?))
+impl TableManager for ServerHandler {
+    async fn read_snapshot(
+        &self,
+        location: &Url,
+        format: &DataSourceFormat,
+        version: Option<Version>,
+    ) -> Result<Snapshot> {
+        todo!()
     }
 }
 
