@@ -1,3 +1,4 @@
+//! Conversions of delta sharing json predicates to delta kernel expressions.
 use delta_kernel::expressions::{
     BinaryOperator, ColumnName, Expression, JunctionOperator, UnaryOperator,
 };

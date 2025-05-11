@@ -96,13 +96,13 @@ impl Store {
 
     /// Get an object from the store.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `id`: The globally unique identifier of the object.
     ///
-    /// # Returns
+    /// ## Returns
     /// The object with the given identifier.
     ///
-    /// # Errors
+    /// ## Errors
     /// - [EntityNotFound](crate::Error::EntityNotFound): If the object does not exist.
     pub async fn get_object(&self, id: &Uuid) -> Result<Object> {
         let mut conn = self.pool.acquire().await?;
@@ -114,15 +114,15 @@ impl Store {
     ///
     /// The name of the object is unique within the namespace.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `label`: The label of the object.
     /// - `namespace`: The namespace of the object.
     /// - `name`: The name of the object.
     ///
-    /// # Returns
+    /// ## Returns
     /// The object with the given name.
     ///
-    /// # Errors
+    /// ## Errors
     /// - [EntityNotFound](crate::Error::EntityNotFound): If the object does not exist.
     pub async fn get_object_by_name(&self, label: &ObjectLabel, name: &[String]) -> Result<Object> {
         let mut conn = self.pool.acquire().await?;
@@ -132,14 +132,14 @@ impl Store {
 
     /// Update an object in the store.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `id`: The globally unique identifier of the object.
     /// - `properties`: The properties of the object.
     ///
-    /// # Returns
+    /// ## Returns
     /// The updated object.
     ///
-    /// # Errors
+    /// ## Errors
     /// - [EntityNotFound](crate::Error::EntityNotFound): If the object does not exist.
     pub async fn update_object(
         &self,
@@ -156,7 +156,7 @@ impl Store {
 
     /// Delete an object from the store.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `id`: The globally unique identifier of the object.
     pub async fn delete_object(&self, id: &Uuid) -> Result<()> {
         let mut txn = self.pool.begin().await?;
@@ -168,13 +168,13 @@ impl Store {
     ///
     /// Returns a list of objects in the namespace. The list is paginated.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `label`: The label of the objects.
     /// - `namespace`: The namespace of the objects.
     /// - `page_token`: The page token.
     /// - `max_page_size`: The maximum page size.
     ///
-    /// # Returns
+    /// ## Returns
     /// A tuple containing the objects in the namespace and an optional next page token.
     pub async fn list_objects(
         &self,
@@ -200,16 +200,16 @@ impl Store {
     /// Associations are directed edges between objects.
     /// If an inverse association exists, it is automatically created.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `from_id`: The identifier of the source object.
     /// - `label`: The label of the association.
     /// - `to_id`: The identifier of the target object.
     /// - `properties`: The properties of the association.
     ///
-    /// # Returns
+    /// ## Returns
     /// The association that was added to the store.
     ///
-    /// # Errors
+    /// ## Errors
     /// - [EntityNotFound](crate::Error::EntityNotFound): If the source or target object does not exist.
     /// - [AlreadyExists](crate::Error::AlreadyExists): If the association already exists.
     pub async fn add_association(
@@ -243,12 +243,12 @@ impl Store {
 
     /// List associations of a specific type from an object to a set of objects.
     ///
-    /// # Parameters
+    /// ## Parameters
     /// - `from_id`: The identifier of the source object.
     /// - `label`: The label of the association.
     /// - `to_ids`: The identifiers of the target objects.
     ///
-    /// # Returns
+    /// ## Returns
     /// The associations from the source object to the target objects.
     pub async fn get_associations(
         &self,

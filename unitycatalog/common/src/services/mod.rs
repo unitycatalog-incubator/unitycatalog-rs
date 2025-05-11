@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
+use datafusion_common::{DataFusionError, Result as DFResult};
 use delta_kernel::Version;
-use delta_kernel::snapshot::Snapshot;
+use delta_kernel::object_store::DynObjectStore;
+use delta_kernel_datafusion::{ObjectStoreFactory, TableSnapshot};
 use url::Url;
 
 use self::kernel::TableManager;
@@ -12,12 +14,10 @@ use crate::resources::ResourceStore;
 use crate::{ProvidesResourceStore, ResourceIdent, ResourceName, Result, ShareInfo};
 
 pub mod kernel;
-pub mod locations;
 pub mod policy;
 pub mod secrets;
 pub mod session;
 
-pub use locations::*;
 pub use policy::*;
 pub use secrets::*;
 pub use session::*;
@@ -40,10 +40,8 @@ impl ServerHandler {
             store.clone(),
             secrets.clone(),
         ));
-        Ok(Self {
-            handler,
-            session: Arc::new(KernelSession::new()),
-        })
+        let session = Arc::new(KernelSession::new(handler.clone()));
+        Ok(Self { handler, session })
     }
 }
 
@@ -105,25 +103,45 @@ impl ProvidesSecretManager for ServerHandler {
 }
 
 #[async_trait::async_trait]
+impl ObjectStoreFactory for ServerHandlerInner {
+    async fn create_object_store(&self, location: &Url) -> DFResult<Arc<DynObjectStore>> {
+        tracing::warn!("create_object_store: {:?}", location);
+        kernel::engine::get_object_store(location, self)
+            .await
+            .map_err(|e| DataFusionError::Execution(e.to_string()))
+    }
+}
+
+#[async_trait::async_trait]
 impl TableManager for ServerHandler {
     async fn read_snapshot(
         &self,
         location: &Url,
         format: &DataSourceFormat,
         version: Option<Version>,
-    ) -> Result<Snapshot> {
-        todo!()
+    ) -> Result<Arc<dyn TableSnapshot>> {
+        self.session.read_snapshot(location, format, version).await
     }
 }
 
 #[async_trait::async_trait]
 trait SharingExt {
-    async fn get_snapshot(&self, share: &str, schema: &str, table: &str) -> Result<Snapshot>;
+    async fn get_snapshot(
+        &self,
+        share: &str,
+        schema: &str,
+        table: &str,
+    ) -> Result<Arc<dyn TableSnapshot>>;
 }
 
 #[async_trait::async_trait]
 impl<T: TableManager + ResourceStore> SharingExt for T {
-    async fn get_snapshot(&self, share: &str, schema: &str, table: &str) -> Result<Snapshot> {
+    async fn get_snapshot(
+        &self,
+        share: &str,
+        schema: &str,
+        table: &str,
+    ) -> Result<Arc<dyn TableSnapshot>> {
         let share_ident = ResourceIdent::share(ResourceName::new([share]));
         let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
         let Some(table_object) = share_info

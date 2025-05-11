@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use delta_kernel::Version;
-use delta_kernel::snapshot::Snapshot;
+use delta_kernel_datafusion::TableSnapshot;
 use url::Url;
 
 use crate::Result;
@@ -18,5 +20,5 @@ pub trait TableManager: Send + Sync + 'static {
         location: &Url,
         format: &DataSourceFormat,
         version: Option<Version>,
-    ) -> Result<Snapshot>;
+    ) -> Result<Arc<dyn TableSnapshot>>;
 }

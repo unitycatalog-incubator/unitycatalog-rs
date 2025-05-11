@@ -17,19 +17,9 @@ use crate::{Error, Result};
 pub trait RegistryHandler: ResourceStore + CredentialsHandler {}
 impl<T: ResourceStore + CredentialsHandler> RegistryHandler for T {}
 
-/// Get the key of a url for object store registration.
-/// The credential info will be removed
-fn get_url_key(url: &Url) -> String {
-    format!(
-        "{}://{}",
-        url.scheme(),
-        &url[url::Position::BeforeHost..url::Position::AfterPort],
-    )
-}
-
-async fn get_object_store(
+pub(crate) async fn get_object_store(
     location: &Url,
-    handler: Arc<dyn RegistryHandler>,
+    handler: &dyn RegistryHandler,
 ) -> Result<Arc<DynObjectStore>> {
     // TODO(roeap): just listing all external locations could be very inefficient.
     // introduce an endpoint that allows us to query for specific resource properties instead

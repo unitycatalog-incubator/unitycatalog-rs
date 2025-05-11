@@ -10,19 +10,19 @@ use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 pub trait ResourceStoreReader: Send + Sync + 'static {
     /// Get a resource by its identifier.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `id`: The identifier of the resource to get.
     ///
-    /// # Returns
+    /// ## Returns
     /// The resource with the given identifier.
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)>;
 
     /// Get multiple resources by their identifiers.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `ids`: The identifiers of the resources to get.
     ///
-    /// # Returns
+    /// ## Returns
     /// The resources with the given identifiers.
     async fn get_many(&self, ids: &[ResourceIdent]) -> Result<Vec<(Resource, ResourceRef)>> {
         let futures = ids.iter().map(|id| self.get(id)).collect_vec();
@@ -35,7 +35,7 @@ pub trait ResourceStoreReader: Send + Sync + 'static {
     /// If the Reference inside the ResourceIdent is [Undefined](crate::ResourceRef::Undefined),
     /// the root of the store is used and resources of the specified type are listed.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `root`: The root resource to list children of.
     /// - `max_results`: The maximum number of results to return.
     /// - `page_token`: The token to use to get the next page of results.
@@ -57,10 +57,10 @@ pub trait ResourceStoreReader: Send + Sync + 'static {
 pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
     /// Create a new resource.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `resource`: The resource to create.
     ///
-    /// # Returns
+    /// ## Returns
     /// The created resource.
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)>;
 
@@ -69,17 +69,17 @@ pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
     /// The implementing store should delete all associations of the resource
     /// before deleting the resource itself.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `id`: The identifier of the resource to delete.
     async fn delete(&self, id: &ResourceIdent) -> Result<()>;
 
     /// Update a resource.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `id`: The identifier of the resource to update.
     /// - `resource`: The updated resource.
     ///
-    /// # Returns
+    /// ## Returns
     /// The updated resource.
     async fn update(
         &self,
@@ -95,13 +95,13 @@ pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
     /// there is also an association from B to A with the inverse label. Some labels are symmetric,
     /// meaning that the inverse label is the same as the label.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `from`: The source resource of the association.
     /// - `to`: The target resource of the association.
     /// - `label`: The label of the association.
     /// - `properties`: Optional properties of the association.
     ///
-    /// # Errors
+    /// ## Errors
     /// - [AlreadyExists](crate::Error::AlreadyExists) If the association already exists.
     async fn add_association(
         &self,
@@ -115,12 +115,12 @@ pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
     ///
     /// Implementations must remove the inverse association as well.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `from`: The source resource of the association.
     /// - `to`: The target resource of the association.
     /// - `label`: The label of the association.
     ///
-    /// # Errors
+    /// ## Errors
     /// - [NotFound](crate::Error::NotFound) If the association does not exist.
     async fn remove_association(
         &self,
@@ -133,14 +133,14 @@ pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
     ///
     /// List associations of a resource with the given label.
     ///
-    /// # Arguments
+    /// ## Arguments
     /// - `resource`: The resource to list associations of.
     /// - `label`: The label of the associations to list.
     /// - `target_label`: The label of the target resource of the associations to list.
     /// - `max_results`: The maximum number of results to return.
     /// - `page_token`: The token to use to get the next page of results.
     ///
-    /// # Returns
+    /// ## Returns
     /// The list of associations of the resource with the given label.
     /// The token to use to get the next page of results.
     async fn list_associations(
