@@ -27,8 +27,6 @@ url = { workspace = true }
 
 # crates.io dependencies (in alphabetical order)
 base64 = "0.22"
-# deadpool = { version = "0.12.2", features = ["managed"] }
-deadpool-postgres = { version = "0.14.1", features = ["rt_tokio_1"] }
 paste = "1.0"
 sqlx = { workspace = true, features = [
   "postgres",
@@ -38,13 +36,6 @@ sqlx = { workspace = true, features = [
   "runtime-tokio-rustls",
   "migrate",
   "macros",
-] }
-tokio-postgres = { version = "0.7.13", features = [
-  "with-uuid-1",
-  "runtime",
-  "array-impls",
-  "with-serde_json-1",
-  "with-chrono-0_4",
 ] }
 uuid = { version = "1.8", features = ["serde"] }
 

@@ -5,9 +5,9 @@ use delta_kernel::Version;
 use delta_kernel_datafusion::{
     KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory, TableSnapshot,
 };
-use url::Url;
 
 use super::kernel::TableManager;
+use crate::services::location::StorageLocationUrl;
 use crate::tables::v1::DataSourceFormat;
 use crate::{Error, Result};
 
@@ -28,12 +28,15 @@ impl KernelSession {
 impl TableManager for KernelSession {
     async fn read_snapshot(
         &self,
-        location: &Url,
+        location: &StorageLocationUrl,
         format: &DataSourceFormat,
         version: Option<Version>,
     ) -> Result<Arc<dyn TableSnapshot>> {
         match format {
-            DataSourceFormat::Delta => Ok(self.ctx.read_delta_snapshot(location, version).await?),
+            DataSourceFormat::Delta => Ok(self
+                .ctx
+                .read_delta_snapshot(location.location(), version)
+                .await?),
             _ => Err(Error::InvalidArgument(format!(
                 "unsupported data source format in kernel session: {:?}",
                 format

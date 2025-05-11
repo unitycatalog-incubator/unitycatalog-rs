@@ -6,6 +6,7 @@ use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::services::StorageLocationUrl;
 use crate::services::kernel::TableManager;
 use crate::services::policy::{Permission, Policy, Recipient, process_resources};
 use crate::{Error, Result};
@@ -154,7 +155,7 @@ impl<T: ResourceStore + Policy + TableManager> TablesHandler for T {
             let Some(location) = request.storage_location.as_ref() else {
                 return Err(Error::invalid_argument("missing storage location"));
             };
-            let location = url::Url::parse(location)?;
+            let location = StorageLocationUrl::parse(location)?;
             let snapshot = self
                 .read_snapshot(&location, &request.data_source_format(), None)
                 .await?;

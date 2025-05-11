@@ -14,10 +14,12 @@ use crate::resources::ResourceStore;
 use crate::{ProvidesResourceStore, ResourceIdent, ResourceName, Result, ShareInfo};
 
 pub mod kernel;
+mod location;
 pub mod policy;
 pub mod secrets;
 pub mod session;
 
+pub use location::*;
 pub use policy::*;
 pub use secrets::*;
 pub use session::*;
@@ -105,8 +107,10 @@ impl ProvidesSecretManager for ServerHandler {
 #[async_trait::async_trait]
 impl ObjectStoreFactory for ServerHandlerInner {
     async fn create_object_store(&self, location: &Url) -> DFResult<Arc<DynObjectStore>> {
-        tracing::warn!("create_object_store: {:?}", location);
-        kernel::engine::get_object_store(location, self)
+        tracing::debug!("create_object_store: {:?}", location);
+        let location = StorageLocationUrl::try_new(location.clone())
+            .map_err(|e| DataFusionError::Execution(e.to_string()))?;
+        kernel::engine::get_object_store(&location, self)
             .await
             .map_err(|e| DataFusionError::Execution(e.to_string()))
     }
@@ -116,7 +120,7 @@ impl ObjectStoreFactory for ServerHandlerInner {
 impl TableManager for ServerHandler {
     async fn read_snapshot(
         &self,
-        location: &Url,
+        location: &StorageLocationUrl,
         format: &DataSourceFormat,
         version: Option<Version>,
     ) -> Result<Arc<dyn TableSnapshot>> {
@@ -154,7 +158,7 @@ impl<T: TableManager + ResourceStore> SharingExt for T {
         let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
         let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
         let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
-        let location = url::Url::parse(&location)?;
+        let location = StorageLocationUrl::parse(&location)?;
         self.read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await
     }
