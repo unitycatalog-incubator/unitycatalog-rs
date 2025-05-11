@@ -11,7 +11,7 @@ use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::RecipientInfo;
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::{
-    DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, ShareInfo,
+    Action, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, ShareInfo,
 };
 use unitycatalog_common::models::tables::v1::{
     ColumnInfo, ColumnTypeName, DataSourceFormat, TableInfo, TableType,
@@ -40,6 +40,7 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<DataObjectUpdate>()?;
     m.add_class::<DataObjectType>()?;
     m.add_class::<HistoryStatus>()?;
+    m.add_class::<Action>()?;
     m.add_class::<TableInfo>()?;
     m.add_class::<TableType>()?;
     m.add_class::<ColumnInfo>()?;

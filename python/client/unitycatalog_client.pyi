@@ -211,6 +211,12 @@ class HistoryStatus(enum.Enum):
     Disabled = 0
     Enabled = 1
 
+class Action(enum.Enum):
+    Unspecified = 0
+    Add = 1
+    Remove = 2
+    Update = 3
+
 class DataObject:
     name: str
     data_object_type: DataObjectType
@@ -231,7 +237,7 @@ class DataObject:
         added_by: str | None = None,
         comment: str | None = None,
         shared_as: str | None = None,
-        partitions: list[str] = [],
+        partitions: list[str] | None = None,
         enable_cdf: bool | None = None,
         history_data_sharing_status: HistoryStatus | None = None,
         start_version: int | None = None,
