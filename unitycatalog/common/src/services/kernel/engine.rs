@@ -37,11 +37,11 @@ pub(crate) async fn get_object_store(
             location
                 .raw()
                 .as_str()
-                .starts_with(&ext_loc_url.raw().as_str())
+                .starts_with(ext_loc_url.raw().as_str())
                 || location
                     .location()
                     .as_str()
-                    .starts_with(&ext_loc_url.location().as_str())
+                    .starts_with(ext_loc_url.location().as_str())
         })
         .max_by(|l, r| l.url.len().cmp(&r.url.len()))
         .ok_or_else(|| Error::NotFound)?;
@@ -56,7 +56,7 @@ pub(crate) async fn get_object_store(
     match cred {
         Credential::AzureStorageKey(_)
         | Credential::AzureServicePrincipal(_)
-        | Credential::AzureManagedIdentity(_) => get_azure_store(&location, cred),
+        | Credential::AzureManagedIdentity(_) => get_azure_store(location, cred),
     }
 }
 

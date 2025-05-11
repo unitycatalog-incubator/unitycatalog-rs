@@ -272,7 +272,7 @@ impl CloudRequestBuilder {
                 self.builder = self.builder.bearer_auth(&credential.bearer);
             }
             Credential::PersonalAccessToken(token) => {
-                self.builder = self.builder.bearer_auth(&token);
+                self.builder = self.builder.bearer_auth(token);
             }
             Credential::Unauthenticated => {
                 // Do nothing

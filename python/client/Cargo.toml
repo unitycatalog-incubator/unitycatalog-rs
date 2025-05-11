@@ -1,13 +1,12 @@
 [package]
 name = "unitycatalog-client"
 version = "0.0.1"
-edition = "2021"
+edition = "2024"
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
 repository.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "unitycatalog_client"
 crate-type = ["cdylib"]

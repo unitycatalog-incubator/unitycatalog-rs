@@ -344,6 +344,7 @@ impl serde::Serialize for CatalogType {
             Self::Unspecified => "CATALOG_TYPE_UNSPECIFIED",
             Self::ManagedCatalog => "MANAGED_CATALOG",
             Self::DeltasharingCatalog => "DELTASHARING_CATALOG",
+            Self::SystemCatalog => "SYSTEM_CATALOG",
         };
         serializer.serialize_str(variant)
     }
@@ -358,6 +359,7 @@ impl<'de> serde::Deserialize<'de> for CatalogType {
             "CATALOG_TYPE_UNSPECIFIED",
             "MANAGED_CATALOG",
             "DELTASHARING_CATALOG",
+            "SYSTEM_CATALOG",
         ];
 
         struct GeneratedVisitor;
@@ -401,6 +403,7 @@ impl<'de> serde::Deserialize<'de> for CatalogType {
                     "CATALOG_TYPE_UNSPECIFIED" => Ok(CatalogType::Unspecified),
                     "MANAGED_CATALOG" => Ok(CatalogType::ManagedCatalog),
                     "DELTASHARING_CATALOG" => Ok(CatalogType::DeltasharingCatalog),
+                    "SYSTEM_CATALOG" => Ok(CatalogType::SystemCatalog),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }
