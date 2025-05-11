@@ -38,6 +38,7 @@ enum Credential {
     Aws(AmazonConfig),
     Google(GoogleConfig),
     Azure(AzureConfig),
+    PersonalAccessToken(String),
     Unauthenticated,
 }
 
@@ -261,6 +262,9 @@ impl CloudRequestBuilder {
             Credential::Google(gcp) => {
                 let credential = gcp.get_credential().await?;
                 self.builder = self.builder.bearer_auth(&credential.bearer);
+            }
+            Credential::PersonalAccessToken(token) => {
+                self.builder = self.builder.bearer_auth(&token);
             }
             Credential::Unauthenticated => {
                 // Do nothing
