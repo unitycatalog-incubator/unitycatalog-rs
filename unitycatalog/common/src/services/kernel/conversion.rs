@@ -8,17 +8,18 @@ use crate::models::sharing::v1::{
 
 impl From<&Metadata> for MetadataParquet {
     fn from(value: &Metadata) -> Self {
-        MetadataParquet {
-            id: value.id.clone(),
-            name: value.name.clone(),
-            description: value.description.clone(),
-            format: Some(FormatMessage {
-                provider: value.format.provider.clone(),
-                options: value.format.options.clone(),
-            }),
-            schema_string: value.schema_string.clone(),
-            partition_columns: value.partition_columns.clone(),
-        }
+        // MetadataParquet {
+        //     id: value.id.clone(),
+        //     name: value.name.clone(),
+        //     description: value.description.clone(),
+        //     format: Some(FormatMessage {
+        //         provider: value.format.provider.clone(),
+        //         options: value.format.options.clone(),
+        //     }),
+        //     schema_string: value.schema_string.clone(),
+        //     partition_columns: value.partition_columns.clone(),
+        // }
+        todo!()
     }
 }
 

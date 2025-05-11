@@ -152,13 +152,14 @@ mod tables {
 
 #[cfg(all(test, feature = "axum"))]
 mod tests {
+    use std::sync::Arc;
+
     use super::*;
     use crate::memory::InMemoryResourceStore;
     use crate::rest::auth::{AnonymousAuthenticator, AuthenticationLayer};
     use crate::services::policy::{ConstantPolicy, Policy, ProvidesPolicy};
     use crate::services::secrets::{ProvidesSecretManager, SecretManager};
     use crate::{ProvidesResourceStore, ResourceStore};
-    use std::sync::Arc;
 
     #[derive(Clone)]
     struct Handler {

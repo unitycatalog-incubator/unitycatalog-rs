@@ -4,7 +4,9 @@ use dashmap::DashMap;
 use uuid::Uuid;
 
 use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
-use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::resources::{
+    ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore, ResourceStoreReader,
+};
 use crate::services::secrets::SecretManager;
 use crate::{Error, Result};
 
@@ -61,7 +63,7 @@ impl InMemoryResourceStore {
 }
 
 #[async_trait::async_trait]
-impl ResourceStore for InMemoryResourceStore {
+impl ResourceStoreReader for InMemoryResourceStore {
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)> {
         let resource = match id.as_ref() {
             ResourceRef::Uuid(uuid) => self.resources.get(uuid),
@@ -77,6 +79,48 @@ impl ResourceStore for InMemoryResourceStore {
         }
     }
 
+    async fn list(
+        &self,
+        label: &ObjectLabel,
+        namespace: Option<&ResourceName>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<Resource>, Option<String>)> {
+        let page_token = page_token.map(|t| Uuid::parse_str(&t)).transpose()?;
+        let mut resource_ids = self
+            .id_map
+            .get(label)
+            .map(|map| {
+                map.value()
+                    .iter()
+                    .filter(|entry| {
+                        namespace.is_none_or(|ns| entry.key().prefix_matches(ns))
+                            && page_token.is_none_or(|t| &t > entry.value())
+                    })
+                    .map(|entry| *entry.value())
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+        if resource_ids.is_empty() {
+            return Ok((Vec::new(), None));
+        }
+        resource_ids.sort_unstable();
+
+        let max_page_size = usize::min(max_results.unwrap_or(MAX_PAGE_SIZE), MAX_PAGE_SIZE);
+        let mut resources = Vec::new();
+        let mut last_id = &Uuid::nil();
+        for uuid in resource_ids.iter().rev().take(max_page_size) {
+            let resource = self.resources.get(uuid).ok_or(Error::NotFound)?.clone();
+            last_id = uuid;
+            resources.push(resource);
+        }
+        let next_page_token = (resources.len() == max_page_size).then(|| last_id.to_string());
+        Ok((resources, next_page_token))
+    }
+}
+
+#[async_trait::async_trait]
+impl ResourceStore for InMemoryResourceStore {
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)> {
         if self
             .get_uuid(resource.resource_label(), &resource.resource_name())
@@ -137,45 +181,6 @@ impl ResourceStore for InMemoryResourceStore {
         }
         self.resources.insert(uuid, resource.clone());
         Ok((resource, ResourceRef::Uuid(uuid)))
-    }
-
-    async fn list(
-        &self,
-        label: &ObjectLabel,
-        namespace: Option<&ResourceName>,
-        max_results: Option<usize>,
-        page_token: Option<String>,
-    ) -> Result<(Vec<Resource>, Option<String>)> {
-        let page_token = page_token.map(|t| Uuid::parse_str(&t)).transpose()?;
-        let mut resource_ids = self
-            .id_map
-            .get(label)
-            .map(|map| {
-                map.value()
-                    .iter()
-                    .filter(|entry| {
-                        namespace.is_none_or(|ns| entry.key().prefix_matches(ns))
-                            && page_token.is_none_or(|t| &t > entry.value())
-                    })
-                    .map(|entry| *entry.value())
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default();
-        if resource_ids.is_empty() {
-            return Ok((Vec::new(), None));
-        }
-        resource_ids.sort_unstable();
-
-        let max_page_size = usize::min(max_results.unwrap_or(MAX_PAGE_SIZE), MAX_PAGE_SIZE);
-        let mut resources = Vec::new();
-        let mut last_id = &Uuid::nil();
-        for uuid in resource_ids.iter().rev().take(max_page_size) {
-            let resource = self.resources.get(uuid).ok_or(Error::NotFound)?.clone();
-            last_id = uuid;
-            resources.push(resource);
-        }
-        let next_page_token = (resources.len() == max_page_size).then(|| last_id.to_string());
-        Ok((resources, next_page_token))
     }
 
     async fn add_association(

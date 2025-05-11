@@ -1,5 +1,6 @@
+//! Conversions of delta sharing json predicates to delta kernel expressions.
 use delta_kernel::expressions::{
-    BinaryOperator, ColumnName, Expression, UnaryOperator, VariadicOperator,
+    BinaryOperator, ColumnName, Expression, JunctionOperator, UnaryOperator,
 };
 use delta_kernel::schema::{DataType, PrimitiveType};
 
@@ -131,13 +132,13 @@ fn parse_variadics(predicate: &JsonPredicate) -> Result<Expression> {
         .map(json_predicate_to_expression)
         .collect::<Result<Vec<_>>>()?;
     let op = parse_variadic_operator(&predicate.op)?;
-    Ok(Expression::variadic(op, children))
+    Ok(Expression::junction(op, children))
 }
 
-fn parse_variadic_operator(val: impl AsRef<str>) -> Result<VariadicOperator> {
+fn parse_variadic_operator(val: impl AsRef<str>) -> Result<JunctionOperator> {
     match val.as_ref().to_ascii_lowercase().as_str() {
-        "and" => Ok(VariadicOperator::And),
-        "or" => Ok(VariadicOperator::Or),
+        "and" => Ok(JunctionOperator::And),
+        "or" => Ok(JunctionOperator::Or),
         _ => Err(Error::invalid_predicate(format!(
             "Invalid variadic operator: {}",
             val.as_ref()
@@ -271,8 +272,8 @@ mod tests {
         let expr = json_predicate_to_expression(&predicate).unwrap();
         assert_eq!(
             expr,
-            Expression::variadic(
-                VariadicOperator::And,
+            Expression::junction(
+                JunctionOperator::And,
                 vec![
                     Expression::Column(ColumnName::from_naive_str_split("foo")),
                     Expression::literal(true)
