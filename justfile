@@ -74,3 +74,6 @@ develop-py: develop-py-client
 develop-py-client:
   uv run maturin develop --uv \
     --manifest-path python/client/Cargo.toml
+
+docs:
+  cd ./docs && npm run dev

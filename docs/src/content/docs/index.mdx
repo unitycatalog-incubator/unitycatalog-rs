@@ -1,0 +1,36 @@
+---
+title: Open Lakehouse - rs
+description: Explore the best the open lakehouse ecosystem has to offer
+template: splash
+hero:
+  tagline: Explore your open table data with native performance.
+  actions:
+    - text: Example Guide
+      link: /guides/example/
+      icon: right-arrow
+    - text: Read the Starlight docs
+      link: https://starlight.astro.build
+      icon: right-arrow
+---
+
+import { Card, CardGrid, Code } from '@astrojs/starlight/components';
+import importedCode from '../scripts/client.py?raw';
+
+## Next steps
+
+<Code code={importedCode} lang="python" title="client.py" />
+
+<CardGrid stagger>
+	<Card title="Update content" icon="pencil">
+		Edit `src/content/docs/index.mdx` to see this page change.
+	</Card>
+	<Card title="Add new content" icon="add-document">
+		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	</Card>
+	<Card title="Configure your site" icon="setting">
+		Edit your `sidebar` and other config in `astro.config.mjs`.
+	</Card>
+	<Card title="Read the docs" icon="open-book">
+		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	</Card>
+</CardGrid>
