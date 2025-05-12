@@ -19,7 +19,6 @@ chrono = { workspace = true }
 delta_kernel = { workspace = true }
 delta-kernel-datafusion = { workspace = true }
 itertools = { workspace = true }
-object_store = { workspace = true }
 pbjson = { workspace = true }
 pbjson-types = { workspace = true }
 prost = { workspace = true }

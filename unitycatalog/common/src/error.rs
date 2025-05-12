@@ -42,7 +42,7 @@ pub enum Error {
     MissingRecipient,
 
     #[error("ObjectStore error: {0}")]
-    ObjectStore(#[from] object_store::Error),
+    ObjectStore(#[from] delta_kernel::object_store::Error),
 
     #[error(transparent)]
     SerDe(#[from] serde_json::Error),

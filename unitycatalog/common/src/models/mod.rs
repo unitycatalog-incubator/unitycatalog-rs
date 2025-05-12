@@ -22,85 +22,85 @@ pub type PropertyMap = HashMap<String, serde_json::Value>;
 
 pub mod google {
     pub mod protobuf {
-        include!("../gen/google.protobuf.rs");
+        include!("./gen/google.protobuf.rs");
     }
 }
 
 #[allow(clippy::empty_docs, clippy::large_enum_variant)]
 pub mod sharing {
     pub mod v1 {
-        include!("../gen/unitycatalog.sharing.v1.rs");
+        include!("./gen/unitycatalog.sharing.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.sharing.v1.tonic.rs");
+        include!("./gen/unitycatalog.sharing.v1.tonic.rs");
     }
 }
 
 pub mod catalogs {
     pub mod v1 {
-        include!("../gen/unitycatalog.catalogs.v1.rs");
+        include!("./gen/unitycatalog.catalogs.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.catalogs.v1.tonic.rs");
+        include!("./gen/unitycatalog.catalogs.v1.tonic.rs");
     }
 }
 
 pub mod schemas {
     pub mod v1 {
-        include!("../gen/unitycatalog.schemas.v1.rs");
+        include!("./gen/unitycatalog.schemas.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.schemas.v1.tonic.rs");
+        include!("./gen/unitycatalog.schemas.v1.tonic.rs");
     }
 }
 
 pub mod tables {
     pub mod v1 {
-        include!("../gen/unitycatalog.tables.v1.rs");
+        include!("./gen/unitycatalog.tables.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.tables.v1.tonic.rs");
+        include!("./gen/unitycatalog.tables.v1.tonic.rs");
     }
 }
 
 pub mod shares {
     pub mod v1 {
-        include!("../gen/unitycatalog.shares.v1.rs");
+        include!("./gen/unitycatalog.shares.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.shares.v1.tonic.rs");
+        include!("./gen/unitycatalog.shares.v1.tonic.rs");
     }
 }
 
 pub mod recipients {
     pub mod v1 {
-        include!("../gen/unitycatalog.recipients.v1.rs");
+        include!("./gen/unitycatalog.recipients.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.recipients.v1.tonic.rs");
+        include!("./gen/unitycatalog.recipients.v1.tonic.rs");
     }
 }
 
 pub mod external_locations {
     pub mod v1 {
-        include!("../gen/unitycatalog.external_locations.v1.rs");
+        include!("./gen/unitycatalog.external_locations.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.external_locations.v1.tonic.rs");
+        include!("./gen/unitycatalog.external_locations.v1.tonic.rs");
     }
 }
 
 pub mod credentials {
     pub mod v1 {
-        include!("../gen/unitycatalog.credentials.v1.rs");
+        include!("./gen/unitycatalog.credentials.v1.rs");
         #[cfg(feature = "grpc")]
-        include!("../gen/unitycatalog.credentials.v1.tonic.rs");
+        include!("./gen/unitycatalog.credentials.v1.tonic.rs");
     }
 }
 
 pub mod profiles {
     pub mod v1 {
-        include!("../gen/unitycatalog.profiles.v1.rs");
+        include!("./gen/unitycatalog.profiles.v1.rs");
         // #[cfg(feature = "grpc")]
-        // include!("../gen/unitycatalog.profiles.v1.tonic.rs");
+        // include!("./gen/unitycatalog.profiles.v1.tonic.rs");
     }
 }
 
 pub(crate) mod internal {
-    include!("../gen/unitycatalog.internal.rs");
+    include!("./gen/unitycatalog.internal.rs");
 }
 
 impl ObjectLabel {

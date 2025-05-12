@@ -1,25 +1,24 @@
 use delta_kernel::actions::{Metadata, Protocol};
 
 use crate::models::sharing::v1::{
-    MetadataParquet, ParquetLogMessage, ParquetResponse, ProtocolParquet,
+    Format as FormatMessage, MetadataParquet, ParquetLogMessage, ParquetResponse, ProtocolParquet,
     QueryResponse, parquet_log_message::Entry as ParquetEntry,
     query_response::Response as QueryResponseType,
 };
 
 impl From<&Metadata> for MetadataParquet {
     fn from(value: &Metadata) -> Self {
-        // MetadataParquet {
-        //     id: value.id.clone(),
-        //     name: value.name.clone(),
-        //     description: value.description.clone(),
-        //     format: Some(FormatMessage {
-        //         provider: value.format.provider.clone(),
-        //         options: value.format.options.clone(),
-        //     }),
-        //     schema_string: value.schema_string.clone(),
-        //     partition_columns: value.partition_columns.clone(),
-        // }
-        todo!()
+        MetadataParquet {
+            id: value.id.clone(),
+            name: value.name.clone(),
+            description: value.description.clone(),
+            format: Some(FormatMessage {
+                provider: value.format.provider.clone(),
+                options: value.format.options.clone(),
+            }),
+            schema_string: value.schema_string.clone(),
+            partition_columns: value.partition_columns.clone(),
+        }
     }
 }
 

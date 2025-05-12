@@ -5,22 +5,22 @@
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Share, ShareJson, ShareSchema, SharingSchema, SharingSchemaJson, SharingTable, SharingTableJson } from "./models_pb";
-import { file_unitycatalog_sharing_v1_models } from "./models_pb";
-import type { GetTableMetadataRequestSchema, GetTableVersionRequestSchema, GetTableVersionResponseSchema, QueryResponseSchema } from "./query_pb";
-import { file_unitycatalog_sharing_v1_query } from "./query_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
 import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { Share, ShareJson, ShareSchema, SharingSchema, SharingSchemaJson, SharingTable, SharingTableJson } from "./models_pb";
+import { file_unitycatalog_sharing_v1_models } from "./models_pb";
+import type { GetTableMetadataRequestSchema, GetTableVersionRequestSchema, GetTableVersionResponseSchema, JsonPredicate, JsonPredicateJson, QueryResponseSchema } from "./query_pb";
+import { file_unitycatalog_sharing_v1_query } from "./query_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/sharing/v1/svc.proto.
  */
 export const file_unitycatalog_sharing_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("CiF1bml0eWNhdGFsb2cvc2hhcmluZy92MS9zdmMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxInkKEUxpc3RTaGFyZXNSZXF1ZXN0EicKC21heF9yZXN1bHRzGAEgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgCIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInUKEkxpc3RTaGFyZXNSZXNwb25zZRItCgVpdGVtcxgBIAMoCzIeLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrgBChlMaXN0U2hhcmluZ1NjaGVtYXNSZXF1ZXN0EjUKBXNoYXJlGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKFAQoaTGlzdFNoYXJpbmdTY2hlbWFzUmVzcG9uc2USNQoFaXRlbXMYASADKAsyJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5TaGFyaW5nU2NoZW1hEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i6QEKF0xpc3RTY2hlbWFUYWJsZXNSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjUKBXNoYXJlGAIgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIkCgttYXhfcmVzdWx0cxgDIAEoBUIK4EEBukgEGgIgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YBCABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKCAQoYTGlzdFNjaGVtYVRhYmxlc1Jlc3BvbnNlEjQKBWl0ZW1zGAEgAygLMiUudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuU2hhcmluZ1RhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4itAEKFkxpc3RTaGFyZVRhYmxlc1JlcXVlc3QSNAoEbmFtZRgBIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJwoLbWF4X3Jlc3VsdHMYAiABKAVCDeBBAbpIBxoFEOgHIABIAIgBARIcCgpwYWdlX3Rva2VuGAMgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4igQEKF0xpc3RTaGFyZVRhYmxlc1Jlc3BvbnNlEjQKBWl0ZW1zGAEgAygLMiUudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuU2hhcmluZ1RhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4y0QkKE0RlbHRhU2hhcmluZ1NlcnZpY2UShQEKCkxpc3RTaGFyZXMSKi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2hhcmVzUmVxdWVzdBorLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkxpc3RTaGFyZXNSZXNwb25zZSIeukcMKgpMaXN0U2hhcmVzgtPkkwIJEgcvc2hhcmVzEnsKCEdldFNoYXJlEigudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuR2V0U2hhcmVSZXF1ZXN0Gh4udW5pdHljYXRhbG9nLnNoYXJpbmcudjEuU2hhcmUiJbpHCioIR2V0U2hhcmWC0+STAhISEC97bmFtZT1zaGFyZXMvKn0StgEKEkxpc3RTaGFyaW5nU2NoZW1hcxIyLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkxpc3RTaGFyaW5nU2NoZW1hc1JlcXVlc3QaMy51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2hhcmluZ1NjaGVtYXNSZXNwb25zZSI3ukcUKhJMaXN0U2hhcmluZ1NjaGVtYXOC0+STAhoSGC9zaGFyZXMve3NoYXJlfX0vc2NoZW1hcxK7AQoQTGlzdFNjaGVtYVRhYmxlcxIwLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkxpc3RTY2hlbWFUYWJsZXNSZXF1ZXN0GjEudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuTGlzdFNjaGVtYVRhYmxlc1Jlc3BvbnNlIkK6RxIqEExpc3RTY2hlbWFUYWJsZXOC0+STAicSJS9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tuYW1lfS90YWJsZXMSrQEKD0xpc3RTaGFyZVRhYmxlcxIvLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkxpc3RTaGFyZVRhYmxlc1JlcXVlc3QaMC51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2hhcmVUYWJsZXNSZXNwb25zZSI3ukcRKg9MaXN0U2hhcmVUYWJsZXOC0+STAh0SGy97bmFtZT1zaGFyZXMvKn0vYWxsLXRhYmxlcxLIAQoPR2V0VGFibGVWZXJzaW9uEi8udW5pdHljYXRhbG9nLnNoYXJpbmcudjEuR2V0VGFibGVWZXJzaW9uUmVxdWVzdBowLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkdldFRhYmxlVmVyc2lvblJlc3BvbnNlIlK6RxEqD0dldFRhYmxlVmVyc2lvboLT5JMCOBI2L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS92ZXJzaW9uEsIBChBHZXRUYWJsZU1ldGFkYXRhEjAudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QaJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5RdWVyeVJlc3BvbnNlIlS6RxIqEEdldFRhYmxlTWV0YWRhdGGC0+STAjkSNy9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vbWV0YWRhdGFC/gIKG2NvbS51bml0eWNhdGFsb2cuc2hhcmluZy52MUIIU3ZjUHJvdG9QAVpQZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2hhcmluZy92MTtzaGFyaW5ndjGiAgNVU1iqAhdVbml0eWNhdGFsb2cuU2hhcmluZy5WMcoCF1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYx4gIjVW5pdHljYXRhbG9nXFNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhlVbml0eWNhdGFsb2c6OlNoYXJpbmc6OlYxukeDARKAAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqOgoJQUdQTCB2My4wEi1odHRwczovL3d3dy5nbnUub3JnL2xpY2Vuc2VzL2FncGwtMy4wLmVuLmh0bWwyBTAuMC4wYgZwcm90bzM", [file_buf_validate_validate, file_unitycatalog_sharing_v1_models, file_unitycatalog_sharing_v1_query, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct]);
+  fileDesc("CiF1bml0eWNhdGFsb2cvc2hhcmluZy92MS9zdmMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxInkKEUxpc3RTaGFyZXNSZXF1ZXN0EicKC21heF9yZXN1bHRzGAEgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgCIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInUKEkxpc3RTaGFyZXNSZXNwb25zZRItCgVpdGVtcxgBIAMoCzIeLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrgBChlMaXN0U2hhcmluZ1NjaGVtYXNSZXF1ZXN0EjUKBXNoYXJlGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKFAQoaTGlzdFNoYXJpbmdTY2hlbWFzUmVzcG9uc2USNQoFaXRlbXMYASADKAsyJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5TaGFyaW5nU2NoZW1hEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i6QEKF0xpc3RTY2hlbWFUYWJsZXNSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjUKBXNoYXJlGAIgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIkCgttYXhfcmVzdWx0cxgDIAEoBUIK4EEBukgEGgIgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YBCABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKCAQoYTGlzdFNjaGVtYVRhYmxlc1Jlc3BvbnNlEjQKBWl0ZW1zGAEgAygLMiUudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuU2hhcmluZ1RhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4itAEKFkxpc3RTaGFyZVRhYmxlc1JlcXVlc3QSNAoEbmFtZRgBIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJwoLbWF4X3Jlc3VsdHMYAiABKAVCDeBBAbpIBxoFEOgHIABIAIgBARIcCgpwYWdlX3Rva2VuGAMgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4iwQQKEVF1ZXJ5VGFibGVSZXF1ZXN0EjUKBXNoYXJlGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI2CgZzY2hlbWEYAiABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjQKBG5hbWUYAyABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEh8KEnN0YXJ0aW5nX3RpbWVzdGFtcBgEIAEoCUgAiAEBEhcKD3ByZWRpY2F0ZV9oaW50cxgFIAMoCRJJChRqc29uX3ByZWRpY2F0ZV9oaW50cxgGIAEoCzImLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkpzb25QcmVkaWNhdGVIAYgBARIXCgpsaW1pdF9oaW50GAcgASgFSAKIAQESFAoHdmVyc2lvbhgIIAEoA0gDiAEBEhYKCXRpbWVzdGFtcBgJIAEoCUgEiAEBEh0KEHN0YXJ0aW5nX3ZlcnNpb24YCiABKANIBYgBARIbCg5lbmRpbmdfdmVyc2lvbhgLIAEoA0gGiAEBQhUKE19zdGFydGluZ190aW1lc3RhbXBCFwoVX2pzb25fcHJlZGljYXRlX2hpbnRzQg0KC19saW1pdF9oaW50QgoKCF92ZXJzaW9uQgwKCl90aW1lc3RhbXBCEwoRX3N0YXJ0aW5nX3ZlcnNpb25CEQoPX2VuZGluZ192ZXJzaW9uIoEBChdMaXN0U2hhcmVUYWJsZXNSZXNwb25zZRI0CgVpdGVtcxgBIAMoCzIlLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLlNoYXJpbmdUYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuMoELChNEZWx0YVNoYXJpbmdTZXJ2aWNlEoUBCgpMaXN0U2hhcmVzEioudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuTGlzdFNoYXJlc1JlcXVlc3QaKy51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJ7CghHZXRTaGFyZRIoLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkdldFNoYXJlUmVxdWVzdBoeLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLlNoYXJlIiW6RwoqCEdldFNoYXJlgtPkkwISEhAve25hbWU9c2hhcmVzLyp9ErYBChJMaXN0U2hhcmluZ1NjaGVtYXMSMi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2hhcmluZ1NjaGVtYXNSZXF1ZXN0GjMudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuTGlzdFNoYXJpbmdTY2hlbWFzUmVzcG9uc2UiN7pHFCoSTGlzdFNoYXJpbmdTY2hlbWFzgtPkkwIaEhgvc2hhcmVzL3tzaGFyZX19L3NjaGVtYXMSuwEKEExpc3RTY2hlbWFUYWJsZXMSMC51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2NoZW1hVGFibGVzUmVxdWVzdBoxLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkxpc3RTY2hlbWFUYWJsZXNSZXNwb25zZSJCukcSKhBMaXN0U2NoZW1hVGFibGVzgtPkkwInEiUvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcy97bmFtZX0vdGFibGVzEq0BCg9MaXN0U2hhcmVUYWJsZXMSLy51bml0eWNhdGFsb2cuc2hhcmluZy52MS5MaXN0U2hhcmVUYWJsZXNSZXF1ZXN0GjAudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuTGlzdFNoYXJlVGFibGVzUmVzcG9uc2UiN7pHESoPTGlzdFNoYXJlVGFibGVzgtPkkwIdEhsve25hbWU9c2hhcmVzLyp9L2FsbC10YWJsZXMSyAEKD0dldFRhYmxlVmVyc2lvbhIvLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkdldFRhYmxlVmVyc2lvblJlcXVlc3QaMC51bml0eWNhdGFsb2cuc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXNwb25zZSJSukcRKg9HZXRUYWJsZVZlcnNpb26C0+STAjgSNi9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vdmVyc2lvbhLCAQoQR2V0VGFibGVNZXRhZGF0YRIwLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkdldFRhYmxlTWV0YWRhdGFSZXF1ZXN0GiYudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuUXVlcnlSZXNwb25zZSJUukcSKhBHZXRUYWJsZU1ldGFkYXRhgtPkkwI5Ejcvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcy97c2NoZW1hfS90YWJsZXMve25hbWV9L21ldGFkYXRhEq0BCgpRdWVyeVRhYmxlEioudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuUXVlcnlUYWJsZVJlcXVlc3QaJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5RdWVyeVJlc3BvbnNlIku6RwwqClF1ZXJ5VGFibGWC0+STAjYSNC9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vcXVlcnlC/gIKG2NvbS51bml0eWNhdGFsb2cuc2hhcmluZy52MUIIU3ZjUHJvdG9QAVpQZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2hhcmluZy92MTtzaGFyaW5ndjGiAgNVU1iqAhdVbml0eWNhdGFsb2cuU2hhcmluZy5WMcoCF1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYx4gIjVW5pdHljYXRhbG9nXFNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhlVbml0eWNhdGFsb2c6OlNoYXJpbmc6OlYxukeDARKAAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqOgoJQUdQTCB2My4wEi1odHRwczovL3d3dy5nbnUub3JnL2xpY2Vuc2VzL2FncGwtMy4wLmVuLmh0bWwyBTAuMC4wYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_sharing_v1_models, file_unitycatalog_sharing_v1_query]);
 
 /**
  * Request to list shares.
@@ -471,6 +471,145 @@ export const ListShareTablesRequestSchema: GenMessage<ListShareTablesRequest, Li
   messageDesc(file_unitycatalog_sharing_v1_svc, 7);
 
 /**
+ * Request to query a table.
+ *
+ * @generated from message unitycatalog.sharing.v1.QueryTableRequest
+ */
+export type QueryTableRequest = Message<"unitycatalog.sharing.v1.QueryTableRequest"> & {
+  /**
+   * @generated from field: string share = 1;
+   */
+  share: string;
+
+  /**
+   * @generated from field: string schema = 2;
+   */
+  schema: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
+
+  /**
+   * The starting timestamp to query from.
+   *
+   * @generated from field: optional string starting_timestamp = 4;
+   */
+  startingTimestamp?: string;
+
+  /**
+   * @generated from field: repeated string predicate_hints = 5;
+   */
+  predicateHints: string[];
+
+  /**
+   * The predicate to apply to the table.
+   *
+   * @generated from field: optional unitycatalog.sharing.v1.JsonPredicate json_predicate_hints = 6;
+   */
+  jsonPredicateHints?: JsonPredicate;
+
+  /**
+   * @generated from field: optional int32 limit_hint = 7;
+   */
+  limitHint?: number;
+
+  /**
+   * @generated from field: optional int64 version = 8;
+   */
+  version?: bigint;
+
+  /**
+   * @generated from field: optional string timestamp = 9;
+   */
+  timestamp?: string;
+
+  /**
+   * @generated from field: optional int64 starting_version = 10;
+   */
+  startingVersion?: bigint;
+
+  /**
+   * @generated from field: optional int64 ending_version = 11;
+   */
+  endingVersion?: bigint;
+};
+
+/**
+ * Request to query a table.
+ *
+ * @generated from message unitycatalog.sharing.v1.QueryTableRequest
+ */
+export type QueryTableRequestJson = {
+  /**
+   * @generated from field: string share = 1;
+   */
+  share?: string;
+
+  /**
+   * @generated from field: string schema = 2;
+   */
+  schema?: string;
+
+  /**
+   * @generated from field: string name = 3;
+   */
+  name?: string;
+
+  /**
+   * The starting timestamp to query from.
+   *
+   * @generated from field: optional string starting_timestamp = 4;
+   */
+  startingTimestamp?: string;
+
+  /**
+   * @generated from field: repeated string predicate_hints = 5;
+   */
+  predicateHints?: string[];
+
+  /**
+   * The predicate to apply to the table.
+   *
+   * @generated from field: optional unitycatalog.sharing.v1.JsonPredicate json_predicate_hints = 6;
+   */
+  jsonPredicateHints?: JsonPredicateJson;
+
+  /**
+   * @generated from field: optional int32 limit_hint = 7;
+   */
+  limitHint?: number;
+
+  /**
+   * @generated from field: optional int64 version = 8;
+   */
+  version?: string;
+
+  /**
+   * @generated from field: optional string timestamp = 9;
+   */
+  timestamp?: string;
+
+  /**
+   * @generated from field: optional int64 starting_version = 10;
+   */
+  startingVersion?: string;
+
+  /**
+   * @generated from field: optional int64 ending_version = 11;
+   */
+  endingVersion?: string;
+};
+
+/**
+ * Describes the message unitycatalog.sharing.v1.QueryTableRequest.
+ * Use `create(QueryTableRequestSchema)` to create a new message.
+ */
+export const QueryTableRequestSchema: GenMessage<QueryTableRequest, QueryTableRequestJson> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_sharing_v1_svc, 8);
+
+/**
  * Response for ListShareTablesRequest.
  *
  * @generated from message unitycatalog.sharing.v1.ListShareTablesResponse
@@ -519,7 +658,7 @@ export type ListShareTablesResponseJson = {
  * Use `create(ListShareTablesResponseSchema)` to create a new message.
  */
 export const ListShareTablesResponseSchema: GenMessage<ListShareTablesResponse, ListShareTablesResponseJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_svc, 8);
+  messageDesc(file_unitycatalog_sharing_v1_svc, 9);
 
 /**
  * Service exposing the official APIs for Delta Sharing.
@@ -593,6 +732,14 @@ export const DeltaSharingService: GenService<{
   getTableMetadata: {
     methodKind: "unary";
     input: typeof GetTableMetadataRequestSchema;
+    output: typeof QueryResponseSchema;
+  },
+  /**
+   * @generated from rpc unitycatalog.sharing.v1.DeltaSharingService.QueryTable
+   */
+  queryTable: {
+    methodKind: "unary";
+    input: typeof QueryTableRequestSchema;
     output: typeof QueryResponseSchema;
   },
 }> = /*@__PURE__*/

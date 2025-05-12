@@ -1,0 +1,133 @@
+{
+  "$id": "unitycatalog.sharing.v1.QueryTableRequest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Request to query a table.",
+  "patternProperties": {
+    "^(endingVersion)$": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 9223372036854776000,
+          "minimum": -9223372036854775808,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
+    },
+    "^(jsonPredicateHints)$": {
+      "$ref": "unitycatalog.sharing.v1.JsonPredicate.schema.json",
+      "description": "The predicate to apply to the table."
+    },
+    "^(limitHint)$": {
+      "maximum": 2147483647,
+      "minimum": -2147483648,
+      "type": "integer"
+    },
+    "^(predicateHints)$": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "^(startingTimestamp)$": {
+      "description": "The starting timestamp to query from.",
+      "type": "string"
+    },
+    "^(startingVersion)$": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 9223372036854776000,
+          "minimum": -9223372036854775808,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "ending_version": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 9223372036854776000,
+          "minimum": -9223372036854775808,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
+    },
+    "json_predicate_hints": {
+      "$ref": "unitycatalog.sharing.v1.JsonPredicate.schema.json",
+      "description": "The predicate to apply to the table."
+    },
+    "limit_hint": {
+      "maximum": 2147483647,
+      "minimum": -2147483648,
+      "type": "integer"
+    },
+    "name": {
+      "minLength": 1,
+      "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+      "type": "string"
+    },
+    "predicate_hints": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "minLength": 1,
+      "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+      "type": "string"
+    },
+    "share": {
+      "minLength": 1,
+      "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+      "type": "string"
+    },
+    "starting_timestamp": {
+      "description": "The starting timestamp to query from.",
+      "type": "string"
+    },
+    "starting_version": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 9223372036854776000,
+          "minimum": -9223372036854775808,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 9223372036854776000,
+          "minimum": -9223372036854775808,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "title": "Query Table Request",
+  "type": "object"
+}

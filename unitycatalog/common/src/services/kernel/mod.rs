@@ -10,7 +10,6 @@ use crate::tables::v1::DataSourceFormat;
 pub use predicate::json_predicate_to_expression;
 
 mod conversion;
-pub(crate) mod engine;
 mod predicate;
 
 #[async_trait::async_trait]
