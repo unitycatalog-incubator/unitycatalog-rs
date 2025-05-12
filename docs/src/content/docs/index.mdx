@@ -1,24 +1,24 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: Open Lakehouse - rs
+description: Explore the best the open lakehouse ecosystem has to offer
 template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  tagline: Explore your open table data with native performance.
   actions:
     - text: Example Guide
       link: /guides/example/
       icon: right-arrow
     - text: Read the Starlight docs
       link: https://starlight.astro.build
-      icon: external
-      variant: minimal
+      icon: right-arrow
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, Code } from '@astrojs/starlight/components';
+import importedCode from '../scripts/client.py?raw';
 
 ## Next steps
+
+<Code code={importedCode} lang="python" title="client.py" />
 
 <CardGrid stagger>
 	<Card title="Update content" icon="pencil">
