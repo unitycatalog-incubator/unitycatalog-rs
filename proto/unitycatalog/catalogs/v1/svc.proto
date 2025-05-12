@@ -3,7 +3,6 @@ syntax = "proto3";
 package unitycatalog.catalogs.v1;
 
 import "buf/validate/validate.proto";
-import "unitycatalog/catalogs/v1/models.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "gnostic/openapi/v3/openapiv3.proto";
 import "google/api/annotations.proto";
@@ -12,6 +11,7 @@ import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
+import "unitycatalog/catalogs/v1/models.proto";
 
 // List catalogs
 message ListCatalogsRequest {
