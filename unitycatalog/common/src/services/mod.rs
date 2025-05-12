@@ -1,10 +1,6 @@
 use std::sync::Arc;
 
-use datafusion_common::{DataFusionError, Result as DFResult};
-use delta_kernel::Version;
-use delta_kernel::object_store::DynObjectStore;
-use delta_kernel_datafusion::{ObjectStoreFactory, TableSnapshot};
-use url::Url;
+use delta_kernel_datafusion::{TableSnapshot, Version};
 
 use self::kernel::TableManager;
 use crate::api::{RequestContext, SharingQueryHandler};
@@ -15,6 +11,7 @@ use crate::{ProvidesResourceStore, ResourceIdent, ResourceName, Result, ShareInf
 
 pub mod kernel;
 mod location;
+mod object_store;
 pub mod policy;
 pub mod secrets;
 pub mod session;
@@ -101,18 +98,6 @@ impl ProvidesSecretManager for ServerHandlerInner {
 impl ProvidesSecretManager for ServerHandler {
     fn secret_manager(&self) -> &dyn SecretManager {
         self.handler.secrets.as_ref()
-    }
-}
-
-#[async_trait::async_trait]
-impl ObjectStoreFactory for ServerHandlerInner {
-    async fn create_object_store(&self, location: &Url) -> DFResult<Arc<DynObjectStore>> {
-        tracing::debug!("create_object_store: {:?}", location);
-        let location = StorageLocationUrl::try_new(location.clone())
-            .map_err(|e| DataFusionError::Execution(e.to_string()))?;
-        kernel::engine::get_object_store(&location, self)
-            .await
-            .map_err(|e| DataFusionError::Execution(e.to_string()))
     }
 }
 
