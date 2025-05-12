@@ -76,6 +76,11 @@ rest_handlers!(
             schema: path as String,
             name: path as String,
         ];
+        QueryTableRequest, SharingTable, Read, QueryResponse with [
+            share: path as String,
+            schema: path as String,
+            name: path as String,
+        ];
     ]
 );
 
@@ -90,6 +95,12 @@ pub trait SharingQueryHandler: Send + Sync + 'static {
     async fn get_table_metadata(
         &self,
         request: GetTableMetadataRequest,
+        context: RequestContext,
+    ) -> Result<QueryResponse>;
+
+    async fn query_table(
+        &self,
+        request: QueryTableRequest,
         context: RequestContext,
     ) -> Result<QueryResponse>;
 }

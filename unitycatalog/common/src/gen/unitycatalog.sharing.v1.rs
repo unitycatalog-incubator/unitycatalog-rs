@@ -445,6 +445,36 @@ pub struct ListShareTablesRequest {
     #[prost(string, optional, tag="3")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// Request to query a table.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct QueryTableRequest {
+    #[prost(string, tag="1")]
+    pub share: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub schema: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub name: ::prost::alloc::string::String,
+    /// The starting timestamp to query from.
+    #[prost(string, optional, tag="4")]
+    pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, repeated, tag="5")]
+    pub predicate_hints: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// The predicate to apply to the table.
+    #[prost(message, optional, tag="6")]
+    pub json_predicate_hints: ::core::option::Option<JsonPredicate>,
+    #[prost(int32, optional, tag="7")]
+    pub limit_hint: ::core::option::Option<i32>,
+    #[prost(int64, optional, tag="8")]
+    pub version: ::core::option::Option<i64>,
+    #[prost(string, optional, tag="9")]
+    pub timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(int64, optional, tag="10")]
+    pub starting_version: ::core::option::Option<i64>,
+    #[prost(int64, optional, tag="11")]
+    pub ending_version: ::core::option::Option<i64>,
+}
 /// Response for ListShareTablesRequest.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]

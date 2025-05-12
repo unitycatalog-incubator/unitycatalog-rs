@@ -191,4 +191,12 @@ impl SharingQueryHandler for ServerHandler {
             .await?;
         Ok([snapshot.metadata().into(), snapshot.protocol().into()].into())
     }
+
+    async fn query_table(
+        &self,
+        request: QueryTableRequest,
+        context: RequestContext,
+    ) -> Result<QueryResponse> {
+        todo!()
+    }
 }

@@ -238,7 +238,7 @@ pub(crate) fn to_action(handler: &HandlerDef) -> proc_macro2::TokenStream {
     // HACK: we should probably annotate the query fields that should be extracted for
     // the resource identification, but for now we just hardcode the fields that are
     // known to be excluded.
-    const KNOW_QUERY: [&str; 26] = [
+    const KNOW_QUERY: [&str; 34] = [
         "max_results",
         "page_token",
         "force",
@@ -265,6 +265,14 @@ pub(crate) fn to_action(handler: &HandlerDef) -> proc_macro2::TokenStream {
         "schemaNamePattern",
         "table_name_pattern",
         "tableNamePattern",
+        "starting_timestamp",
+        "predicate_hints",
+        "json_predicate_hints",
+        "limit_hint",
+        "version",
+        "timestamp",
+        "starting_version",
+        "ending_version",
     ];
     let field_names: Vec<_> = handler
         .fields
@@ -346,7 +354,7 @@ fn get_request_type(type_name: &str) -> RequestType {
         RequestType::List
     } else if type_name.starts_with("Create") || type_name.starts_with("Generate") {
         RequestType::Create
-    } else if type_name.starts_with("Update") {
+    } else if type_name.starts_with("Update") || type_name.starts_with("QueryTable") {
         RequestType::Update
     } else if type_name.starts_with("Get") {
         RequestType::Get
