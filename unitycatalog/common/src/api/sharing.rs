@@ -1,11 +1,13 @@
 use itertools::Itertools;
 use unitycatalog_derive::rest_handlers;
 
-use super::{RequestContext, SecuredAction};
+use super::{RequestContext, SecuredAction, SharesHandler};
+use crate::models::ObjectLabel;
+use crate::models::shares::v1::{GetShareRequest as SharesGetShareRequest, ShareInfo};
 use crate::models::sharing::v1::*;
-use crate::models::{AssociationLabel, ObjectLabel, Resource};
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, Recipient, process_resources};
+use crate::shares::v1::DataObjectType;
 use crate::{Error, Result};
 
 rest_handlers!(
@@ -93,7 +95,7 @@ pub trait SharingQueryHandler: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> SharingDiscoveryHandler for T {
+impl<T: ResourceStore + Policy + SharesHandler> SharingDiscoveryHandler for T {
     async fn list_shares(
         &self,
         request: ListSharesRequest,
@@ -112,7 +114,7 @@ impl<T: ResourceStore + Policy> SharingDiscoveryHandler for T {
 
         // if all resources gor filtered, but there are more pages, try again
         if resources.is_empty() && next_page_token.is_some() {
-            return self.list_shares(request, context).await;
+            return SharingDiscoveryHandler::list_shares(self, request, context).await;
         }
 
         Ok(ListSharesResponse {
@@ -123,7 +125,15 @@ impl<T: ResourceStore + Policy> SharingDiscoveryHandler for T {
 
     async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share> {
         self.check_required(&request, context.recipient()).await?;
-        self.get(&request.resource()).await?.0.try_into()
+        let shares_request = SharesGetShareRequest {
+            name: request.name,
+            include_shared_data: Some(false),
+        };
+        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
+        Ok(Share {
+            name: share.name,
+            id: share.id,
+        })
     }
 
     async fn list_sharing_schemas(
@@ -132,39 +142,103 @@ impl<T: ResourceStore + Policy> SharingDiscoveryHandler for T {
         context: RequestContext,
     ) -> Result<ListSharingSchemasResponse> {
         self.check_required(&request, context.recipient()).await?;
-        let (idents, next_page_token) = self
-            .list_associations(
-                &request.resource(),
-                &AssociationLabel::ParentOf,
-                Some(&ResourceIdent::SharingSchema(ResourceRef::Undefined)),
-                request.max_results.map(|m| m as usize),
-                request.page_token,
-            )
-            .await?;
-        let (mut resources, _): (Vec<Resource>, Vec<ResourceRef>) =
-            self.get_many(&idents).await?.into_iter().unzip();
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        let shares_request = SharesGetShareRequest {
+            name: request.share,
+            include_shared_data: Some(true),
+        };
+        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
         Ok(ListSharingSchemasResponse {
-            items: resources.into_iter().map(|r| r.try_into()).try_collect()?,
-            next_page_token,
+            items: share
+                .data_objects
+                .into_iter()
+                .filter_map(|a| {
+                    if matches!(a.data_object_type(), DataObjectType::Table) {
+                        Some(SharingSchema {
+                            name: a.shared_as().split_once(".")?.0.to_string(),
+                            share: share.name.clone(),
+                            ..Default::default()
+                        })
+                    } else {
+                        None
+                    }
+                })
+                .dedup()
+                .collect(),
+            next_page_token: None,
         })
     }
 
     async fn list_schema_tables(
         &self,
-        _request: ListSchemaTablesRequest,
-        _context: RequestContext,
+        request: ListSchemaTablesRequest,
+        context: RequestContext,
     ) -> Result<ListSchemaTablesResponse> {
-        // Scaffold method body (implementation to come later)
-        todo!()
+        self.check_required(&request, context.recipient()).await?;
+        let shares_request = SharesGetShareRequest {
+            name: request.share,
+            include_shared_data: Some(true),
+        };
+        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
+        let items = share
+            .data_objects
+            .into_iter()
+            .filter_map(|a| {
+                if matches!(a.data_object_type(), DataObjectType::Table) {
+                    let (schema, name) = a.shared_as().split_once(".")?;
+                    if schema == request.name {
+                        Some(SharingTable {
+                            name: name.to_string(),
+                            share: share.name.clone(),
+                            share_id: share.id.clone(),
+                            schema: schema.to_string(),
+                            ..Default::default()
+                        })
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect();
+        Ok(ListSchemaTablesResponse {
+            items,
+            next_page_token: None,
+        })
     }
 
     async fn list_share_tables(
         &self,
-        _request: ListShareTablesRequest,
-        _context: RequestContext,
+        request: ListShareTablesRequest,
+        context: RequestContext,
     ) -> Result<ListShareTablesResponse> {
-        // Scaffold method body (implementation to come later)
-        todo!()
+        self.check_required(&request, context.recipient()).await?;
+        let shares_request = SharesGetShareRequest {
+            name: request.name,
+            include_shared_data: Some(true),
+        };
+        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
+        let items = share
+            .data_objects
+            .into_iter()
+            .filter_map(|a| {
+                if matches!(a.data_object_type(), DataObjectType::Table) {
+                    let (schema, name) = a.shared_as().split_once(".")?;
+                    Some(SharingTable {
+                        name: name.to_string(),
+                        share: share.name.clone(),
+                        share_id: share.id.clone(),
+                        schema: schema.to_string(),
+                        ..Default::default()
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect();
+        Ok(ListShareTablesResponse {
+            items,
+            next_page_token: None,
+        })
     }
 }
