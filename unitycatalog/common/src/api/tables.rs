@@ -6,6 +6,7 @@ use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::services::StorageLocationUrl;
 use crate::services::kernel::TableManager;
 use crate::services::policy::{Permission, Policy, Recipient, process_resources};
 use crate::{Error, Result};
@@ -154,7 +155,7 @@ impl<T: ResourceStore + Policy + TableManager> TablesHandler for T {
             let Some(location) = request.storage_location.as_ref() else {
                 return Err(Error::invalid_argument("missing storage location"));
             };
-            let location = url::Url::parse(location)?;
+            let location = StorageLocationUrl::parse(location)?;
             let snapshot = self
                 .read_snapshot(&location, &request.data_source_format(), None)
                 .await?;
@@ -169,7 +170,7 @@ impl<T: ResourceStore + Policy + TableManager> TablesHandler for T {
                 comment: request.comment,
                 columns: schema_to_columns(
                     snapshot.schema().as_ref(),
-                    &snapshot.metadata().partition_columns,
+                    snapshot.metadata().partition_columns(),
                 )?,
                 ..Default::default()
             }
@@ -259,7 +260,7 @@ impl FieldExt for StructField {
                 PrimitiveType::Date => ColumnTypeName::Date,
                 PrimitiveType::Timestamp => ColumnTypeName::Timestamp,
                 PrimitiveType::TimestampNtz => ColumnTypeName::TimestampNtz,
-                PrimitiveType::Decimal(_, _) => ColumnTypeName::Decimal,
+                PrimitiveType::Decimal(_) => ColumnTypeName::Decimal,
             },
             DataType::Struct(_) => ColumnTypeName::Struct,
             DataType::Array(_) => ColumnTypeName::Array,
@@ -269,14 +270,14 @@ impl FieldExt for StructField {
 
     fn type_precision(&self) -> Option<i32> {
         match self.data_type() {
-            DataType::Primitive(PrimitiveType::Decimal(p, _)) => Some(*p as i32),
+            DataType::Primitive(PrimitiveType::Decimal(dec)) => Some(dec.precision() as i32),
             _ => None,
         }
     }
 
     fn type_scale(&self) -> Option<i32> {
         match self.data_type() {
-            DataType::Primitive(PrimitiveType::Decimal(_, s)) => Some(*s as i32),
+            DataType::Primitive(PrimitiveType::Decimal(dec)) => Some(dec.scale() as i32),
             _ => None,
         }
     }

@@ -38,6 +38,7 @@ enum Credential {
     Aws(AmazonConfig),
     Google(GoogleConfig),
     Azure(AzureConfig),
+    PersonalAccessToken(String),
     Unauthenticated,
 }
 
@@ -119,6 +120,14 @@ impl CloudClient {
             retry_config: config.retry_config.clone(),
             credential: Credential::Azure(config),
         })
+    }
+
+    pub fn new_with_token(token: impl ToString) -> Self {
+        Self {
+            http_client: Client::new(),
+            retry_config: RetryConfig::default(),
+            credential: Credential::PersonalAccessToken(token.to_string()),
+        }
     }
 
     pub fn new_unauthenticated() -> Self {
@@ -261,6 +270,9 @@ impl CloudRequestBuilder {
             Credential::Google(gcp) => {
                 let credential = gcp.get_credential().await?;
                 self.builder = self.builder.bearer_auth(&credential.bearer);
+            }
+            Credential::PersonalAccessToken(token) => {
+                self.builder = self.builder.bearer_auth(token);
             }
             Credential::Unauthenticated => {
                 // Do nothing

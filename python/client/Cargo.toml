@@ -1,13 +1,12 @@
 [package]
 name = "unitycatalog-client"
 version = "0.0.1"
-edition = "2021"
+edition = "2024"
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
 repository.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "unitycatalog_client"
 crate-type = ["cdylib"]
@@ -19,8 +18,9 @@ unitycatalog-common = { path = "../../unitycatalog/common", features = [
   "python",
 ] }
 
+futures = "0.3"
 pyo3 = { workspace = true, features = ["abi3-py310"] }
-thiserror = "1"
+thiserror = "2"
 tokio = { version = "1", features = [
   "macros",
   "rt",

@@ -56,6 +56,9 @@ pub enum Error {
     #[error("Reqwuest error: {0}")]
     RequestError(#[from] reqwest::Error),
 
+    #[error("DataFusion error: {0}")]
+    DataFusion(#[from] datafusion::error::DataFusionError),
+
     #[cfg(feature = "axum")]
     #[error("Axum path: {0}")]
     AxumPath(#[from] PathRejection),
@@ -98,6 +101,7 @@ impl From<Error> for Status {
             Error::MissingRecipient => {
                 Status::invalid_argument("Failed to extract recipient from request")
             }
+            Error::DataFusion(error) => Status::internal(error.to_string()),
             Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
             Error::AlreadyExists => Status::already_exists("The resource already exists."),
             Error::InvalidIdentifier(_) => Status::internal("Invalid uuid identifier"),
@@ -200,6 +204,11 @@ mod server {
                 }
                 Error::Generic(message) => {
                     error!("Generic error: {}", message);
+                    INTERNAL_ERROR
+                }
+                Error::DataFusion(error) => {
+                    let message = format!("DataFusion error: {}", error);
+                    error!("{}", message);
                     INTERNAL_ERROR
                 }
                 Error::MissingRecipient => {

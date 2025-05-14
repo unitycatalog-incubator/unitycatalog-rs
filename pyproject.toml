@@ -34,4 +34,9 @@ treat-dot-as-module = false
 use-exact-imports = true
 capitalise-enum-members = true
 use-union-operator = true
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
 # use-title-as-name = true

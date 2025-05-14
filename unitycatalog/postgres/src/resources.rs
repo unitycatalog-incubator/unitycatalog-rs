@@ -2,7 +2,7 @@ use itertools::Itertools;
 use unitycatalog_common::models::PropertyMap;
 use unitycatalog_common::{
     AssociationLabel, EMPTY_RESOURCE_NAME, Error, Object, ObjectLabel, Resource, ResourceIdent,
-    ResourceName, ResourceRef, ResourceStore, Result,
+    ResourceName, ResourceRef, ResourceStore, ResourceStoreReader, Result,
 };
 
 use crate::GraphStore;
@@ -18,7 +18,7 @@ impl IdentRefs for ResourceIdent {
 }
 
 #[async_trait::async_trait]
-impl ResourceStore for GraphStore {
+impl ResourceStoreReader for GraphStore {
     /// Get a resource by its identifier.
     ///
     /// # Arguments
@@ -55,7 +55,6 @@ impl ResourceStore for GraphStore {
         max_results: Option<usize>,
         page_token: Option<String>,
     ) -> Result<(Vec<Resource>, Option<String>)> {
-        dbg!("list");
         let namespace = namespace.unwrap_or_else(|| &EMPTY_RESOURCE_NAME);
         let objects = self
             .list_objects(label, namespace, page_token.as_deref(), max_results)
@@ -69,7 +68,10 @@ impl ResourceStore for GraphStore {
             objects.1,
         ))
     }
+}
 
+#[async_trait::async_trait]
+impl ResourceStore for GraphStore {
     /// Create a new resource.
     ///
     /// # Arguments

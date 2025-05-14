@@ -1,8 +1,9 @@
+use axum::Router;
 use swagger_ui_dist::{ApiDefinition, OpenApiSource};
 use tokio::net::TcpListener;
 use tokio::signal;
-use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tower_http::LatencyUnit;
+use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::Level;
 use unitycatalog_common::api::catalogs::CatalogHandler;
 use unitycatalog_common::api::credentials::CredentialsHandler;
@@ -13,9 +14,9 @@ use unitycatalog_common::api::shares::SharesHandler;
 use unitycatalog_common::api::sharing::{SharingDiscoveryHandler, SharingQueryHandler};
 use unitycatalog_common::api::tables::TablesHandler;
 use unitycatalog_common::rest::{
-    get_catalog_router, get_credentials_router, get_external_locations_router,
-    get_recipients_router, get_schemas_router, get_shares_router, get_tables_router,
-    AuthenticationLayer, Authenticator,
+    AuthenticationLayer, Authenticator, get_catalog_router, get_credentials_router,
+    get_external_locations_router, get_recipients_router, get_schemas_router, get_shares_router,
+    get_tables_router,
 };
 use unitycatalog_common::{Error, Result};
 
@@ -39,18 +40,21 @@ where
     A: Authenticator + Clone,
 {
     let api_def = ApiDefinition {
-        uri_prefix: "/api",
+        uri_prefix: "/api/2.1/unity-catalog",
         api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/openapi.yaml")),
         title: Some("Unity Catalog API"),
     };
-    let router = get_catalog_router(handler.clone())
+    let api_routes = get_catalog_router(handler.clone())
         .merge(get_schemas_router(handler.clone()))
         .merge(get_tables_router(handler.clone()))
         .merge(get_credentials_router(handler.clone()))
         .merge(get_external_locations_router(handler.clone()))
         .merge(get_recipients_router(handler.clone()))
         .merge(get_shares_router(handler.clone()));
+
+    let router = Router::new().nest("/api/2.1/unity-catalog", api_routes);
     let server = router.layer(AuthenticationLayer::new(authenticator));
+
     run(server, host, port, api_def).await
 }
 

@@ -15,7 +15,7 @@ enum CatalogType {
 
   DELTASHARING_CATALOG = 2;
 
-  // SYSTEM_CATALOG = 3;
+  SYSTEM_CATALOG = 3;
 }
 
 // A catalog is a root-level namespace that contains schemas.
