@@ -17,7 +17,7 @@ async-trait = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
 delta_kernel = { workspace = true }
-delta-kernel-datafusion = { workspace = true }
+deltalake-datafusion = { workspace = true }
 itertools = { workspace = true }
 pbjson = { workspace = true }
 pbjson-types = { workspace = true }

@@ -10,11 +10,13 @@ export default defineConfig({
 			title: 'Unity Catalog Rust',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/unitycatalog-incubator/unitycatalog-rs' }],
 			sidebar: [
-				{ label: 'Home', link: '/' },
+				{
+					label: 'Tutorials',
+					autogenerate: { directory: 'tutorials' }
+				},
 				{
 					label: 'Guides',
 					items: [
-						// Each item here is one entry in the navigation menu.
 						{ label: 'Example Guide', slug: 'guides/example' },
 					],
 				},

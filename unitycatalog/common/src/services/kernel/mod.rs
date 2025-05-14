@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use delta_kernel::Version;
-use delta_kernel_datafusion::TableSnapshot;
+use deltalake_datafusion::TableSnapshot;
 
 use crate::Result;
 use crate::services::location::StorageLocationUrl;

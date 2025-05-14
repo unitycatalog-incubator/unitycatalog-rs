@@ -25,7 +25,7 @@ delta_kernel = { path = "../delta-kernel-rs/kernel", features = [
   "default-engine",
   "arrow",
 ] }
-delta-kernel-datafusion = { path = "../delta-kernel-rs/datafusion" }
+deltalake-datafusion = { path = "../deltalake-datafusion/crates/datafusion" }
 
 async-trait = "0.1.83"
 axum = { version = "0.8" }

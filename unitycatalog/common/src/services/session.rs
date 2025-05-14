@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use datafusion::prelude::SessionContext;
 use delta_kernel::Version;
-use delta_kernel_datafusion::{
+use deltalake_datafusion::{
     KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory, TableSnapshot,
 };
 

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use datafusion_common::{DataFusionError, Result as DFResult};
 use delta_kernel::object_store::DynObjectStore;
 use delta_kernel::object_store::azure::MicrosoftAzureBuilder;
-use delta_kernel_datafusion::ObjectStoreFactory;
+use deltalake_datafusion::ObjectStoreFactory;
 use itertools::Itertools;
 use url::Url;
 
