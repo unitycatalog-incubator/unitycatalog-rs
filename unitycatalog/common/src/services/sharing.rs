@@ -1,3 +1,5 @@
+use bytes::Bytes;
+
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
 use crate::api::{RequestContext, SharingQueryHandler};
 use crate::models::sharing::v1::*;
@@ -72,7 +74,7 @@ impl SharingQueryHandler for ServerHandler {
         &self,
         request: GetTableMetadataRequest,
         context: RequestContext,
-    ) -> Result<QueryResponse> {
+    ) -> Result<Bytes> {
         self.check_required(&request, context.recipient()).await?;
         let table_ref = SharingTableReference {
             share: request.share,
@@ -83,14 +85,14 @@ impl SharingQueryHandler for ServerHandler {
         let snapshot = self
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
-        Ok([snapshot.metadata().into(), snapshot.protocol().into()].into())
+        todo!()
     }
 
     async fn query_table(
         &self,
         request: QueryTableRequest,
         context: RequestContext,
-    ) -> Result<QueryResponse> {
+    ) -> Result<Bytes> {
         self.check_required(&request, context.recipient()).await?;
         let table_ref = SharingTableReference {
             share: request.share,

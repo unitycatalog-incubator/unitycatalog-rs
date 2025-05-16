@@ -6,7 +6,7 @@ use http::header::CONTENT_TYPE;
 
 use crate::api::RequestContext;
 use crate::api::sharing::*;
-use crate::models::sharing::v1::{query_response::Response as QueryResponseType, *};
+use crate::models::sharing::v1::*;
 use crate::services::policy::Recipient;
 use crate::{Error, Result};
 
@@ -23,16 +23,20 @@ pub fn get_router<T: SharingDiscoveryHandler + SharingQueryHandler + Clone>(stat
         )
         .route(
             "/shares/{share}/schemas/{schema}/tables/{name}/version",
-            get(get_table_version_correct::<T>),
+            get(get_table_version::<T>),
         )
         .route(
             "/shares/{share}/schemas/{schema}/tables/{name}/metadata",
-            get(get_table_metadata_correct::<T>),
+            get(get_table_metadata::<T>),
+        )
+        .route(
+            "/shares/{share}/schemas/{schema}/tables/{name}/query",
+            get(get_table_query::<T>),
         )
         .with_state(state)
 }
 
-async fn get_table_version_correct<T: SharingQueryHandler>(
+async fn get_table_version<T: SharingQueryHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetTableVersionRequest,
@@ -45,7 +49,7 @@ async fn get_table_version_correct<T: SharingQueryHandler>(
         .map_err(|e| Error::generic(e.to_string()))
 }
 
-async fn get_table_metadata_correct<T: SharingQueryHandler>(
+async fn get_table_metadata<T: SharingQueryHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetTableMetadataRequest,
@@ -54,32 +58,21 @@ async fn get_table_metadata_correct<T: SharingQueryHandler>(
     let result = handler.get_table_metadata(request, ctx).await?;
     let response = Response::builder()
         .header(CONTENT_TYPE, "application/x-ndjson; charset=utf-8")
-        .body(Body::from(query_response_to_ndjson(result)?))
+        .body(Body::from(result))
         .map_err(|e| Error::generic(e.to_string()))?;
     Ok(response)
 }
 
-fn query_response_to_ndjson(response: impl IntoIterator<Item = Result<String>>) -> Result<String> {
-    Ok(response
-        .into_iter()
-        .collect::<Result<Vec<String>>>()?
-        .join("\n"))
-}
-
-impl IntoIterator for QueryResponse {
-    type Item = Result<String>;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let res = self.response.unwrap();
-        match res {
-            QueryResponseType::Parquet(msg) => msg
-                .entries
-                .iter()
-                .map(|it| Ok(serde_json::to_string(it)?))
-                .collect::<Vec<_>>()
-                .into_iter(),
-            QueryResponseType::Delta(_msg) => todo!(),
-        }
-    }
+async fn get_table_query<T: SharingQueryHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: QueryTableRequest,
+) -> Result<Response> {
+    let ctx = RequestContext { recipient };
+    let result = handler.query_table(request, ctx).await?;
+    let response = Response::builder()
+        .header(CONTENT_TYPE, "application/x-ndjson; charset=utf-8")
+        .body(Body::from(result))
+        .map_err(|e| Error::generic(e.to_string()))?;
+    Ok(response)
 }

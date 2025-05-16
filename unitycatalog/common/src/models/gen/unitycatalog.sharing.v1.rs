@@ -139,6 +139,14 @@ pub struct GetTableVersionRequest {
     #[prost(string, optional, tag="4")]
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// helper message internally used to parse the rest request.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InternalGetTableVersionParams {
+    #[prost(string, optional, tag="1")]
+    pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// Response for GetTableVersionRequest.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]

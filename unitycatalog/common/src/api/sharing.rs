@@ -1,3 +1,8 @@
+use axum::body::Body;
+use axum::extract::{FromRequest, FromRequestParts, Json, Path, Query, Request};
+use axum::http::request::Parts;
+use axum::{RequestExt, RequestPartsExt};
+use bytes::Bytes;
 use itertools::Itertools;
 use unitycatalog_derive::rest_handlers;
 
@@ -63,26 +68,77 @@ pub trait SharingDiscoveryHandler: Send + Sync + 'static {
     ) -> Result<ListShareTablesResponse>;
 }
 
-rest_handlers!(
-    SharingQueryHandler, "shares/schemas/tables", [
-        GetTableVersionRequest, SharingTable, Read, GetTableVersionResponse with [
-            share: path as String,
-            schema: path as String,
-            name: path as String,
-            starting_timestamp: query as Option<String>
-        ];
-        GetTableMetadataRequest, SharingTable, Read, QueryResponse with [
-            share: path as String,
-            schema: path as String,
-            name: path as String,
-        ];
-        QueryTableRequest, SharingTable, Read, QueryResponse with [
-            share: path as String,
-            schema: path as String,
-            name: path as String,
-        ];
-    ]
-);
+impl<S: Send + Sync> FromRequestParts<S> for GetTableVersionRequest {
+    type Rejection = Error;
+
+    async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
+        let Path((share, schema, name)) = parts.extract::<Path<(String, String, String)>>().await?;
+        let Query(InternalGetTableVersionParams { starting_timestamp }) = parts
+            .extract::<Query<InternalGetTableVersionParams>>()
+            .await?;
+        Ok(GetTableVersionRequest {
+            share,
+            schema,
+            name,
+            starting_timestamp,
+        })
+    }
+}
+
+impl SecuredAction for GetTableVersionRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl<S: Send + Sync> FromRequestParts<S> for GetTableMetadataRequest {
+    type Rejection = Error;
+
+    async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
+        let Path((share, schema, name)) = parts.extract::<Path<(String, String, String)>>().await?;
+        Ok(GetTableMetadataRequest {
+            share,
+            schema,
+            name,
+        })
+    }
+}
+
+impl SecuredAction for GetTableMetadataRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl<S: Send + Sync> FromRequest<S> for QueryTableRequest {
+    type Rejection = axum::response::Response;
+
+    async fn from_request(req: Request<Body>, _: &S) -> Result<Self, Self::Rejection> {
+        let Json(request) = req
+            .extract()
+            .await
+            .map_err(::axum::response::IntoResponse::into_response)?;
+        Ok(request)
+    }
+}
+
+impl SecuredAction for QueryTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
 
 #[async_trait::async_trait]
 pub trait SharingQueryHandler: Send + Sync + 'static {
@@ -96,13 +152,13 @@ pub trait SharingQueryHandler: Send + Sync + 'static {
         &self,
         request: GetTableMetadataRequest,
         context: RequestContext,
-    ) -> Result<QueryResponse>;
+    ) -> Result<Bytes>;
 
     async fn query_table(
         &self,
         request: QueryTableRequest,
         context: RequestContext,
-    ) -> Result<QueryResponse>;
+    ) -> Result<Bytes>;
 }
 
 #[async_trait::async_trait]

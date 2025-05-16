@@ -29,7 +29,7 @@ mod catalogs {
     use crate::api::catalogs::*;
     use axum::routing::{Router, delete, get, patch, post};
 
-    /// Create a new [Router] for the Delta Sharing REST API.
+    /// Create a new [Router] for the UC Catalogs API.
     pub fn get_router<T: CatalogHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/catalogs", post(create_catalog::<T>))
@@ -46,7 +46,7 @@ mod schemas {
     use crate::api::schemas::*;
     use axum::routing::{Router, delete, get, patch, post};
 
-    /// Create a new [Router] for the Delta Sharing REST API.
+    /// Create a new [Router] for the UC Schemas API.
     pub fn get_router<T: SchemasHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/schemas", post(create_schema::<T>))
@@ -63,7 +63,7 @@ mod recipients {
     use crate::api::recipients::*;
     use axum::routing::{Router, delete, get, patch, post};
 
-    /// Create a new [Router] for the Delta Sharing REST API.
+    /// Create a new [Router] for the UC Recipients API.
     pub fn get_router<T: RecipientsHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/recipients", post(create_recipient::<T>))
@@ -80,6 +80,7 @@ mod credentials {
     use crate::api::credentials::*;
     use axum::routing::{Router, delete, get, post};
 
+    /// Create a new [Router] for the UC Credentials API.
     pub fn get_router<T: CredentialsHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/credentials", get(list_credentials::<T>))
@@ -96,7 +97,7 @@ mod external_locations {
     use crate::api::external_locations::*;
     use axum::routing::{Router, delete, get, patch, post};
 
-    /// Create a new [Router] for the Delta Sharing REST API.
+    /// Create a new [Router] for the UC External Locations API.
     pub fn get_router<T: ExternalLocationsHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/external-locations", post(create_external_location::<T>))
@@ -122,6 +123,7 @@ mod shares {
     use crate::api::shares::*;
     use axum::routing::{Router, delete, get, patch, post};
 
+    /// Create a new [Router] for the UC Shares API.
     pub fn get_router<T: SharesHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/shares", get(list_shares::<T>))
@@ -138,7 +140,7 @@ mod tables {
     use crate::api::tables::*;
     use axum::routing::{Router, delete, get, post};
 
-    /// Create a new [Router] for the Delta Sharing REST API.
+    /// Create a new [Router] for the UC Tables API.
     pub fn get_router<T: TablesHandler + Clone>(handler: T) -> Router {
         Router::new()
             .route("/tables", post(create_table::<T>))
