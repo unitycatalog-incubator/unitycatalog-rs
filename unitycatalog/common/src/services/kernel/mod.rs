@@ -7,10 +7,10 @@ use crate::Result;
 use crate::services::location::StorageLocationUrl;
 use crate::tables::v1::DataSourceFormat;
 
-pub use predicate::json_predicate_to_expression;
+// pub use predicate::json_predicate_to_expression;
 
 mod conversion;
-mod predicate;
+// mod predicate;
 
 #[async_trait::async_trait]
 pub trait TableManager: Send + Sync + 'static {

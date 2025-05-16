@@ -5,30 +5,37 @@ use crate::models::tables::v1::{DataSourceFormat, TableInfo};
 use crate::resources::ResourceStore;
 use crate::{ResourceIdent, ResourceName, Result, ShareInfo};
 
-#[async_trait::async_trait]
-trait SharingExt {
-    async fn get_snapshot(
-        &self,
-        share: &str,
-        schema: &str,
-        table: &str,
-    ) -> Result<StorageLocationUrl>;
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SharingTableReference {
+    share: String,
+    schema: String,
+    table: String,
+}
+
+impl SharingTableReference {
+    pub(super) fn system_table_name(&self) -> String {
+        format!("{}__{}__{}", self.share, self.schema, self.table)
+    }
 }
 
 #[async_trait::async_trait]
-impl<T: TableManager + ResourceStore> SharingExt for T {
-    async fn get_snapshot(
+pub(super) trait SharingExt {
+    async fn table_location(&self, table_ref: &SharingTableReference)
+    -> Result<StorageLocationUrl>;
+}
+
+#[async_trait::async_trait]
+impl<T: ResourceStore> SharingExt for T {
+    async fn table_location(
         &self,
-        share: &str,
-        schema: &str,
-        table: &str,
+        table_ref: &SharingTableReference,
     ) -> Result<StorageLocationUrl> {
-        let share_ident = ResourceIdent::share(ResourceName::new([share]));
+        let share_ident = ResourceIdent::share(ResourceName::new([table_ref.share.as_str()]));
         let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
         let Some(table_object) = share_info
             .data_objects
             .iter()
-            .find(|o| o.shared_as() == &format!("{}.{}", schema, table))
+            .find(|o| o.shared_as() == &format!("{}.{}", table_ref.schema, table_ref.table))
         else {
             return Err(crate::Error::NotFound);
         };
@@ -47,9 +54,12 @@ impl SharingQueryHandler for ServerHandler {
         context: RequestContext,
     ) -> Result<GetTableVersionResponse> {
         self.check_required(&request, context.recipient()).await?;
-        let location = self
-            .get_snapshot(&request.share, &request.schema, &request.name)
-            .await?;
+        let table_ref = SharingTableReference {
+            share: request.share,
+            schema: request.schema,
+            table: request.name,
+        };
+        let location = self.table_location(&table_ref).await?;
         let snapshot = self
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
@@ -64,9 +74,12 @@ impl SharingQueryHandler for ServerHandler {
         context: RequestContext,
     ) -> Result<QueryResponse> {
         self.check_required(&request, context.recipient()).await?;
-        let location = self
-            .get_snapshot(&request.share, &request.schema, &request.name)
-            .await?;
+        let table_ref = SharingTableReference {
+            share: request.share,
+            schema: request.schema,
+            table: request.name,
+        };
+        let location = self.table_location(&table_ref).await?;
         let snapshot = self
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
@@ -79,6 +92,20 @@ impl SharingQueryHandler for ServerHandler {
         context: RequestContext,
     ) -> Result<QueryResponse> {
         self.check_required(&request, context.recipient()).await?;
+        let table_ref = SharingTableReference {
+            share: request.share,
+            schema: request.schema,
+            table: request.name,
+        };
+        let location = self.table_location(&table_ref).await?;
+        // let table_ref = TableReference::new(request.share, request.schema, request.name);
+        // let exists = self.session.ctx().table_exist(&table_ref).await?;
+        // if !exists {
+        //     return Err(crate::Error::NotFound);
+        // }
+        // let snapshot = self
+        //     .read_snapshot(&location, &DataSourceFormat::Delta, None)
+        //     .await?;
         todo!()
     }
 }

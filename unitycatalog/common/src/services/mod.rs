@@ -38,7 +38,7 @@ impl ServerHandler {
             store.clone(),
             secrets.clone(),
         ));
-        let session = Arc::new(KernelSession::new(handler.clone()));
+        let session = Arc::new(KernelSession::new(handler.clone())?);
         Ok(Self { handler, session })
     }
 }
