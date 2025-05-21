@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use serde::{Deserialize, Serialize};
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
 use crate::api::{RequestContext, SharingQueryHandler};
@@ -21,7 +22,7 @@ impl SharingTableReference {
 }
 
 #[async_trait::async_trait]
-pub(super) trait SharingExt {
+pub(super) trait SharingExt: Send + Sync + 'static {
     async fn table_location(&self, table_ref: &SharingTableReference)
     -> Result<StorageLocationUrl>;
 }
@@ -85,7 +86,15 @@ impl SharingQueryHandler for ServerHandler {
         let snapshot = self
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
-        todo!()
+
+        let mut response =
+            serde_json::to_vec(&MetadataResponse::Metadata(snapshot.metadata().clone()))?;
+        response.push(b'\n');
+        response.extend(serde_json::to_vec(&MetadataResponse::Protocol(
+            snapshot.protocol().clone(),
+        ))?);
+
+        Ok(Bytes::from(response))
     }
 
     async fn query_table(
@@ -99,15 +108,17 @@ impl SharingQueryHandler for ServerHandler {
             schema: request.schema,
             table: request.name,
         };
-        let location = self.table_location(&table_ref).await?;
-        // let table_ref = TableReference::new(request.share, request.schema, request.name);
-        // let exists = self.session.ctx().table_exist(&table_ref).await?;
-        // if !exists {
-        //     return Err(crate::Error::NotFound);
-        // }
-        // let snapshot = self
-        //     .read_snapshot(&location, &DataSourceFormat::Delta, None)
-        //     .await?;
-        todo!()
+        let data = self
+            .session
+            .extract_sharing_query_response(&table_ref, &self.handler)
+            .await?;
+        Ok(data)
     }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum MetadataResponse {
+    Protocol(delta_kernel::actions::Protocol),
+    Metadata(delta_kernel::actions::Metadata),
 }

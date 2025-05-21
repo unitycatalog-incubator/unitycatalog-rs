@@ -1,7 +1,3 @@
-use axum::body::Body;
-use axum::extract::{FromRequest, FromRequestParts, Json, Path, Query, Request};
-use axum::http::request::Parts;
-use axum::{RequestExt, RequestPartsExt};
 use bytes::Bytes;
 use itertools::Itertools;
 use unitycatalog_derive::rest_handlers;
@@ -68,20 +64,13 @@ pub trait SharingDiscoveryHandler: Send + Sync + 'static {
     ) -> Result<ListShareTablesResponse>;
 }
 
-impl<S: Send + Sync> FromRequestParts<S> for GetTableVersionRequest {
-    type Rejection = Error;
+impl SecuredAction for QueryTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
 
-    async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-        let Path((share, schema, name)) = parts.extract::<Path<(String, String, String)>>().await?;
-        let Query(InternalGetTableVersionParams { starting_timestamp }) = parts
-            .extract::<Query<InternalGetTableVersionParams>>()
-            .await?;
-        Ok(GetTableVersionRequest {
-            share,
-            schema,
-            name,
-            starting_timestamp,
-        })
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
     }
 }
 
@@ -95,19 +84,6 @@ impl SecuredAction for GetTableVersionRequest {
     }
 }
 
-impl<S: Send + Sync> FromRequestParts<S> for GetTableMetadataRequest {
-    type Rejection = Error;
-
-    async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-        let Path((share, schema, name)) = parts.extract::<Path<(String, String, String)>>().await?;
-        Ok(GetTableMetadataRequest {
-            share,
-            schema,
-            name,
-        })
-    }
-}
-
 impl SecuredAction for GetTableMetadataRequest {
     fn resource(&self) -> ResourceIdent {
         ResourceIdent::share(ResourceName::new([self.share.as_str()]))
@@ -118,25 +94,57 @@ impl SecuredAction for GetTableMetadataRequest {
     }
 }
 
-impl<S: Send + Sync> FromRequest<S> for QueryTableRequest {
-    type Rejection = axum::response::Response;
+#[cfg(feature = "axum")]
+mod sharing_impl {
+    use axum::body::Body;
+    use axum::extract::{FromRequest, FromRequestParts, Json, Path, Query, Request};
+    use axum::http::request::Parts;
+    use axum::{RequestExt, RequestPartsExt};
 
-    async fn from_request(req: Request<Body>, _: &S) -> Result<Self, Self::Rejection> {
-        let Json(request) = req
-            .extract()
-            .await
-            .map_err(::axum::response::IntoResponse::into_response)?;
-        Ok(request)
+    use super::*;
+
+    impl<S: Send + Sync> FromRequestParts<S> for GetTableVersionRequest {
+        type Rejection = Error;
+
+        async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
+            let Path((share, schema, name)) =
+                parts.extract::<Path<(String, String, String)>>().await?;
+            let Query(InternalGetTableVersionParams { starting_timestamp }) = parts
+                .extract::<Query<InternalGetTableVersionParams>>()
+                .await?;
+            Ok(GetTableVersionRequest {
+                share,
+                schema,
+                name,
+                starting_timestamp,
+            })
+        }
     }
-}
 
-impl SecuredAction for QueryTableRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    impl<S: Send + Sync> FromRequestParts<S> for GetTableMetadataRequest {
+        type Rejection = Error;
+
+        async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
+            let Path((share, schema, name)) =
+                parts.extract::<Path<(String, String, String)>>().await?;
+            Ok(GetTableMetadataRequest {
+                share,
+                schema,
+                name,
+            })
+        }
     }
 
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
+    impl<S: Send + Sync> FromRequest<S> for QueryTableRequest {
+        type Rejection = axum::response::Response;
+
+        async fn from_request(req: Request<Body>, _: &S) -> Result<Self, Self::Rejection> {
+            let Json(request) = req
+                .extract()
+                .await
+                .map_err(::axum::response::IntoResponse::into_response)?;
+            Ok(request)
+        }
     }
 }
 

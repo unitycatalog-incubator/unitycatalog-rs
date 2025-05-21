@@ -7,6 +7,73 @@ use crate::models::credentials::v1::{
 use crate::models::shares::v1::{
     Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus,
 };
+use crate::models::sharing::v1::{Share, SharingSchema, SharingTable};
+
+#[pymethods]
+impl Share {
+    #[new]
+    #[pyo3(signature = (name, id = None))]
+    pub fn new(name: String, id: Option<String>) -> Self {
+        Self { id, name }
+    }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "Share(name={}, id={})",
+            self.name,
+            self.id.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl SharingSchema {
+    #[new]
+    #[pyo3(signature = (*, name, share, id = None))]
+    pub fn new(name: String, share: String, id: Option<String>) -> Self {
+        Self { id, name, share }
+    }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "SharingSchema(name={}, share={}, id={})",
+            self.name,
+            self.share,
+            self.id.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl SharingTable {
+    #[new]
+    pub fn new(
+        name: String,
+        schema: String,
+        share: String,
+        share_id: Option<String>,
+        id: Option<String>,
+    ) -> Self {
+        Self {
+            id,
+            name,
+            schema,
+            share,
+            share_id,
+        }
+    }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "SharingTable(name={}, schema={}, share={}, share_id={}, id={})",
+            self.name,
+            self.schema,
+            self.share,
+            self.share_id.as_ref().unwrap_or(&"None".to_owned()),
+            self.id.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
 
 #[pymethods]
 impl AzureStorageKey {
@@ -101,6 +168,37 @@ impl DataObject {
             start_version,
         }
     }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "DataObject(name={}, data_object_type={}, added_at={}, added_by={}, comment={}, shared_as={}, partitions={}, enable_cdf={}, history_data_sharing_status={}, start_version={})",
+            self.name,
+            self.data_object_type,
+            self.added_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.added_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.shared_as.as_ref().unwrap_or(&"None".to_owned()),
+            format!(
+                "[{}]",
+                self.partitions
+                    .iter()
+                    .map(|p| p.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            self.enable_cdf
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.history_data_sharing_status
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.start_version
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+        )
+    }
 }
 
 #[pymethods]
@@ -111,5 +209,15 @@ impl DataObjectUpdate {
             action: action as i32,
             data_object: Some(data_object),
         }
+    }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "DataObjectUpdate(action={}, data_object={})",
+            self.action,
+            self.data_object
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.__repr__())
+        )
     }
 }

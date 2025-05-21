@@ -1,7 +1,12 @@
+use chrono::{DateTime, Utc};
 use cloud_client::CloudClient;
+use delta_kernel::Version;
+use delta_kernel::actions::{Metadata, Protocol};
 use futures::stream::BoxStream;
 use futures::{Future, Stream, StreamExt, TryStreamExt};
+use itertools::Itertools;
 use reqwest::IntoUrl;
+use serde::Deserialize;
 
 pub use crate::api::catalogs::CatalogClient;
 pub use crate::api::credentials::CredentialsClient;
@@ -9,6 +14,7 @@ pub use crate::api::external_locations::ExternalLocationsClient;
 pub use crate::api::recipients::RecipientsClient;
 pub use crate::api::schemas::SchemasClient;
 pub use crate::api::shares::SharesClient;
+pub use crate::api::sharing::SharingDiscoveryClient;
 pub use crate::api::tables::TablesClient;
 use crate::models::catalogs::v1 as catalog;
 use crate::models::credentials::v1 as cred;
@@ -17,6 +23,7 @@ use crate::models::external_locations::v1 as loc;
 use crate::models::recipients::v1 as rec;
 use crate::models::schemas::v1 as schema;
 use crate::models::shares::v1 as share;
+use crate::models::sharing::v1 as sharing;
 use crate::models::tables::v1 as tbl;
 use crate::{Error, Result};
 
@@ -555,6 +562,315 @@ impl SharesClient {
         };
         self.update_share(&request).await
     }
+}
+
+#[derive(Clone)]
+pub struct SharingClient {
+    client: CloudClient,
+    base_url: url::Url,
+    discovery: SharingDiscoveryClient,
+}
+
+impl SharingClient {
+    pub fn new(client: CloudClient, base_url: url::Url) -> Self {
+        let base_url = base_url.join("api/v1/delta-sharing/").unwrap();
+        Self {
+            discovery: SharingDiscoveryClient::new(client.clone(), base_url.clone()),
+            client,
+            base_url,
+        }
+    }
+
+    pub fn new_with_prefix(
+        client: CloudClient,
+        base_url: url::Url,
+        prefix: impl Into<String>,
+    ) -> Self {
+        let prefix = prefix.into();
+        let base_url = if !prefix.ends_with('/') {
+            base_url.join(&format!("{}/", prefix)).unwrap()
+        } else {
+            base_url.join(&prefix).unwrap()
+        };
+        Self {
+            discovery: SharingDiscoveryClient::new(client.clone(), base_url.clone()),
+            client,
+            base_url,
+        }
+    }
+
+    pub fn list_shares(
+        &self,
+        max_results: impl Into<Option<i32>>,
+    ) -> BoxStream<'_, Result<sharing::Share>> {
+        let max_results = max_results.into();
+        stream_paginated(max_results, move |max_results, page_token| async move {
+            let request = sharing::ListSharesRequest {
+                max_results,
+                page_token,
+            };
+            let res = self
+                .discovery
+                .list_shares(&request)
+                .await
+                .map_err(|e| Error::generic(e.to_string()))?;
+            Ok((res.items, max_results, res.next_page_token))
+        })
+        .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
+    }
+
+    pub async fn get_share(&self, name: impl Into<String>) -> Result<sharing::Share> {
+        let request = sharing::GetShareRequest { name: name.into() };
+        self.discovery.get_share(&request).await
+    }
+
+    async fn list_share_schemas_inner(
+        &self,
+        request: sharing::ListSharingSchemasRequest,
+    ) -> Result<sharing::ListSharingSchemasResponse> {
+        let mut url = self
+            .base_url
+            .join(&format!("shares/{}/schemas", request.share))?;
+        if let Some(page_token) = request.page_token {
+            url.query_pairs_mut().append_pair("page_token", &page_token);
+        }
+        if let Some(max_results) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &max_results.to_string());
+        }
+        let result = self.client.get(url).send().await?;
+        result.error_for_status_ref()?;
+        let result = result.bytes().await?;
+        Ok(::serde_json::from_slice(&result)?)
+    }
+
+    pub fn list_share_schemas(
+        &self,
+        share: impl Into<String>,
+        max_results: impl Into<Option<i32>>,
+    ) -> BoxStream<'_, Result<sharing::SharingSchema>> {
+        let share = share.into();
+        let max_results = max_results.into();
+        stream_paginated(
+            (share, max_results),
+            move |(share, max_results), page_token| async move {
+                let request = sharing::ListSharingSchemasRequest {
+                    share: share.clone(),
+                    max_results,
+                    page_token,
+                };
+                let res = self
+                    .list_share_schemas_inner(request)
+                    .await
+                    .map_err(|e| Error::generic(e.to_string()))?;
+                Ok((res.items, (share, max_results), res.next_page_token))
+            },
+        )
+        .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
+    }
+
+    async fn list_share_tables_inner(
+        &self,
+        request: sharing::ListShareTablesRequest,
+    ) -> Result<sharing::ListShareTablesResponse> {
+        let mut url = self
+            .base_url
+            .join(&format!("shares/{}/all-tables", request.name))?;
+        if let Some(page_token) = request.page_token {
+            url.query_pairs_mut().append_pair("page_token", &page_token);
+        }
+        if let Some(max_results) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &max_results.to_string());
+        }
+        let result = self.client.get(url).send().await?;
+        result.error_for_status_ref()?;
+        let result = result.bytes().await?;
+        Ok(::serde_json::from_slice(&result)?)
+    }
+
+    pub fn list_share_tables(
+        &self,
+        share: impl Into<String>,
+        max_results: impl Into<Option<i32>>,
+    ) -> BoxStream<'_, Result<sharing::SharingTable>> {
+        let share = share.into();
+        let max_results = max_results.into();
+        stream_paginated(
+            (share, max_results),
+            move |(share, max_results), page_token| async move {
+                let request = sharing::ListShareTablesRequest {
+                    name: share.clone(),
+                    max_results,
+                    page_token,
+                };
+                let res = self
+                    .list_share_tables_inner(request)
+                    .await
+                    .map_err(|e| Error::generic(e.to_string()))?;
+                Ok((res.items, (share, max_results), res.next_page_token))
+            },
+        )
+        .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
+    }
+
+    async fn list_schema_tables_inner(
+        &self,
+        request: sharing::ListSchemaTablesRequest,
+    ) -> Result<sharing::ListSchemaTablesResponse> {
+        let mut url = self.base_url.join(&format!(
+            "shares/{}/schemas/{}/tables",
+            request.share, request.name
+        ))?;
+        if let Some(page_token) = request.page_token {
+            url.query_pairs_mut().append_pair("page_token", &page_token);
+        }
+        if let Some(max_results) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &max_results.to_string());
+        }
+        let result = self.client.get(url).send().await?;
+        result.error_for_status_ref()?;
+        let result = result.bytes().await?;
+        Ok(::serde_json::from_slice(&result)?)
+    }
+
+    pub fn list_schema_tables(
+        &self,
+        share: impl Into<String>,
+        schema: impl Into<String>,
+        max_results: impl Into<Option<i32>>,
+    ) -> BoxStream<'_, Result<sharing::SharingTable>> {
+        let share = share.into();
+        let schema = schema.into();
+        let max_results = max_results.into();
+        stream_paginated(
+            (share, schema, max_results),
+            move |(share, schema, max_results), page_token| async move {
+                let request = sharing::ListSchemaTablesRequest {
+                    share: share.clone(),
+                    name: schema.clone(),
+                    max_results,
+                    page_token,
+                };
+                let res = self
+                    .list_schema_tables_inner(request)
+                    .await
+                    .map_err(|e| Error::generic(e.to_string()))?;
+                Ok((res.items, (share, schema, max_results), res.next_page_token))
+            },
+        )
+        .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
+    }
+
+    pub async fn get_table_version(
+        &self,
+        share: impl Into<String>,
+        schema: impl Into<String>,
+        table: impl Into<String>,
+        starting_timestamp: Option<DateTime<Utc>>,
+    ) -> Result<Version> {
+        let mut url = self.base_url.join(&format!(
+            "shares/{}/schemas/{}/tables/{}/version",
+            share.into(),
+            schema.into(),
+            table.into()
+        ))?;
+        if let Some(ts) = starting_timestamp {
+            url.query_pairs_mut()
+                .append_pair("startingTimestamp", &ts.to_rfc3339());
+        }
+        let response = self.client.get(url).send().await?;
+        response.error_for_status_ref()?;
+        let headers = response.headers();
+        let version = headers
+            .get("Delta-Table-Version")
+            .ok_or(Error::generic("Delta-Table-Version header not found"))?;
+        let version = version
+            .to_str()
+            .ok()
+            .and_then(|v| v.parse::<Version>().ok())
+            .ok_or(Error::generic("Invalid version header"))?;
+        Ok(version)
+    }
+
+    pub async fn get_table_metadata(
+        &self,
+        share: impl Into<String>,
+        schema: impl Into<String>,
+        name: impl Into<String>,
+    ) -> Result<(Protocol, Metadata)> {
+        let mut url = self.base_url.join(&format!(
+            "shares/{}/schemas/{}/tables/{}/metadata",
+            share.into(),
+            schema.into(),
+            name.into()
+        ))?;
+        let response = self.client.get(url).send().await?;
+        response.error_for_status_ref()?;
+        let result = response.bytes().await?;
+        // split newlines and parse each as json
+        let line_data: Vec<MetadataResponse> = result
+            .split(|c| *c == b'\n')
+            .map(|line| ::serde_json::from_slice(line))
+            .try_collect()?;
+        let mut protocol = None;
+        let mut metadata = None;
+        for item in line_data {
+            match item {
+                MetadataResponse::Protocol(p) => protocol = Some(p),
+                MetadataResponse::Metadata(m) => metadata = Some(m),
+            }
+        }
+        if protocol.is_none() {
+            return Err(Error::generic("Protocol not found"));
+        }
+        if metadata.is_none() {
+            return Err(Error::generic("Metadata not found"));
+        }
+        Ok((protocol.unwrap(), metadata.unwrap()))
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum ProtocolResonseData {
+    /// Protocol in [Delta format]
+    ///
+    /// [Delta format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol-in-delta-format
+    DeltaProtocol(delta_kernel::actions::Protocol),
+
+    /// Protocol in [Parquet format]
+    ///
+    /// [Parquet format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol
+    #[serde(untagged)]
+    ParquetProtocol {
+        #[serde(rename = "camelCase")]
+        min_reader_version: i32,
+    },
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum MetadataResponse {
+    Protocol(delta_kernel::actions::Protocol),
+    Metadata(delta_kernel::actions::Metadata),
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeltaFileResponse {
+    pub name: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 pub fn stream_paginated<F, Fut, S, T>(state: S, op: F) -> impl Stream<Item = Result<T>>
