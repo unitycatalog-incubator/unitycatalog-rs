@@ -59,4 +59,7 @@ default.extend-ignore-re = [
   "(?s)(#|//|<\\!--)\\s*spellchecker:off.*?\\n\\s*(#|//|<\\!--)\\s*spellchecker:on",
   "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$",
 ]
-files.extend-exclude = ["unitycatalog/common/src/models/gen/**/*"]
+files.extend-exclude = [
+  "unitycatalog/common/src/models/gen/**/*",
+  "app/src/gen/**/*",
+]
