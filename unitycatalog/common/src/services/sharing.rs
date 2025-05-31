@@ -1,11 +1,11 @@
 use bytes::Bytes;
-use serde::{Deserialize, Serialize};
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
-use crate::api::{RequestContext, SharingQueryHandler};
+use crate::api::RequestContext;
 use crate::models::sharing::v1::*;
 use crate::models::tables::v1::{DataSourceFormat, TableInfo};
 use crate::resources::ResourceStore;
+use crate::sharing::{MetadataResponse, SharingQueryHandler};
 use crate::{ResourceIdent, ResourceName, Result, ShareInfo};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -114,11 +114,4 @@ impl SharingQueryHandler for ServerHandler {
             .await?;
         Ok(data)
     }
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub enum MetadataResponse {
-    Protocol(delta_kernel::actions::Protocol),
-    Metadata(delta_kernel::actions::Metadata),
 }

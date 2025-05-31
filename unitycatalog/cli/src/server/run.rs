@@ -11,13 +11,13 @@ use unitycatalog_common::api::external_locations::ExternalLocationsHandler;
 use unitycatalog_common::api::recipients::RecipientsHandler;
 use unitycatalog_common::api::schemas::SchemasHandler;
 use unitycatalog_common::api::shares::SharesHandler;
-use unitycatalog_common::api::sharing::{SharingDiscoveryHandler, SharingQueryHandler};
 use unitycatalog_common::api::tables::TablesHandler;
 use unitycatalog_common::rest::{
     AuthenticationLayer, Authenticator, get_catalog_router, get_credentials_router,
     get_external_locations_router, get_recipients_router, get_schemas_router, get_shares_router,
     get_sharing_router, get_tables_router,
 };
+use unitycatalog_common::sharing::{SharingDiscoveryHandler, SharingQueryHandler};
 use unitycatalog_common::{Error, Result};
 
 pub async fn run_server_rest<T, A>(
