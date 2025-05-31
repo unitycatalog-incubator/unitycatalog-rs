@@ -50,3 +50,13 @@ url = { version = "2.5.2", features = [
   "std",
 ], default-features = false }
 uuid = { version = "1", features = ["serde"] }
+
+[workspace.metadata.typos]
+default.extend-ignore-re = [
+  # Custom ignore regex patterns: https://github.com/crate-ci/typos/blob/master/docs/reference.md#example-configurations
+  "(?s)//\\s*spellchecker:ignore-next-line[^\\n]*\\n[^\\n]*",
+  # Line block with # spellchecker:<on|off>
+  "(?s)(#|//|<\\!--)\\s*spellchecker:off.*?\\n\\s*(#|//|<\\!--)\\s*spellchecker:on",
+  "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$",
+]
+files.exclude = ["unitycatalog/common/src/models/gen/**/*"]
