@@ -28,8 +28,8 @@ serde_json = "1"
 tauri = { version = "2.3.1", features = ["macos-private-api", "tracing"] }
 tauri-plugin-opener = "2"
 
-cloud-client = { path = "../../unitycatalog/cloud-client" }
-unitycatalog-common = { path = "../../unitycatalog/common", features = [
+cloud-client = { path = "../../crates/cloud-client" }
+unitycatalog-common = { path = "../../crates/common", features = [
   "rest-client",
   "tokio",
   "axum",
