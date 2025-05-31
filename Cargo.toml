@@ -20,12 +20,12 @@ keywords = [
 ]
 
 [workspace.dependencies]
-delta_kernel = { path = "../delta-kernel-rs/kernel", features = [
+delta_kernel = { version = "0.11.0", features = [
   "internal-api",
   "default-engine",
   "arrow",
 ] }
-delta-kernel-datafusion = { path = "../delta-kernel-rs/datafusion" }
+deltalake-datafusion = { path = "../deltalake-datafusion/crates/datafusion" }
 
 async-trait = "0.1.83"
 axum = { version = "0.8" }
@@ -50,3 +50,21 @@ url = { version = "2.5.2", features = [
   "std",
 ], default-features = false }
 uuid = { version = "1", features = ["serde"] }
+
+[workspace.metadata.typos]
+default.extend-ignore-re = [
+  # Custom ignore regex patterns: https://github.com/crate-ci/typos/blob/master/docs/reference.md#example-configurations
+  "(?s)//\\s*spellchecker:ignore-next-line[^\\n]*\\n[^\\n]*",
+  # Line block with # spellchecker:<on|off>
+  "(?s)(#|//|<\\!--)\\s*spellchecker:off.*?\\n\\s*(#|//|<\\!--)\\s*spellchecker:on",
+  "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$",
+]
+files.extend-exclude = [
+  "unitycatalog/common/src/models/gen/**/*",
+  "app/src/gen/**/*",
+  "openapi/**/*",
+]
+
+[workspace.metadata.typos.default.extend-words]
+# to avoid having to name fields r#type
+typ = "typ"

@@ -42,7 +42,7 @@ pub enum Error {
     MissingRecipient,
 
     #[error("ObjectStore error: {0}")]
-    ObjectStore(#[from] object_store::Error),
+    ObjectStore(#[from] delta_kernel::object_store::Error),
 
     #[error(transparent)]
     SerDe(#[from] serde_json::Error),
@@ -58,6 +58,9 @@ pub enum Error {
 
     #[error("DataFusion error: {0}")]
     DataFusion(#[from] datafusion::error::DataFusionError),
+
+    #[error("Arrow error: {0}")]
+    Arrow(#[from] datafusion::arrow::error::ArrowError),
 
     #[cfg(feature = "axum")]
     #[error("Axum path: {0}")]
@@ -102,6 +105,7 @@ impl From<Error> for Status {
                 Status::invalid_argument("Failed to extract recipient from request")
             }
             Error::DataFusion(error) => Status::internal(error.to_string()),
+            Error::Arrow(error) => Status::internal(error.to_string()),
             Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
             Error::AlreadyExists => Status::already_exists("The resource already exists."),
             Error::InvalidIdentifier(_) => Status::internal("Invalid uuid identifier"),
@@ -208,6 +212,11 @@ mod server {
                 }
                 Error::DataFusion(error) => {
                     let message = format!("DataFusion error: {}", error);
+                    error!("{}", message);
+                    INTERNAL_ERROR
+                }
+                Error::Arrow(error) => {
+                    let message = format!("Arrow error: {}", error);
                     error!("{}", message);
                     INTERNAL_ERROR
                 }

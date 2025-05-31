@@ -16,7 +16,7 @@ use unitycatalog_common::api::tables::TablesHandler;
 use unitycatalog_common::rest::{
     AuthenticationLayer, Authenticator, get_catalog_router, get_credentials_router,
     get_external_locations_router, get_recipients_router, get_schemas_router, get_shares_router,
-    get_tables_router,
+    get_sharing_router, get_tables_router,
 };
 use unitycatalog_common::{Error, Result};
 
@@ -44,6 +44,12 @@ where
         api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/openapi.yaml")),
         title: Some("Unity Catalog API"),
     };
+    let sharing_api_def = ApiDefinition {
+        uri_prefix: "/api/v1/delta-sharing",
+        api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
+        title: Some("Delta Sharing API"),
+    };
+
     let api_routes = get_catalog_router(handler.clone())
         .merge(get_schemas_router(handler.clone()))
         .merge(get_tables_router(handler.clone()))
@@ -52,10 +58,12 @@ where
         .merge(get_recipients_router(handler.clone()))
         .merge(get_shares_router(handler.clone()));
 
-    let router = Router::new().nest("/api/2.1/unity-catalog", api_routes);
+    let router = Router::new()
+        .nest("/api/2.1/unity-catalog", api_routes)
+        .nest("/api/v1/delta-sharing", get_sharing_router(handler.clone()));
     let server = router.layer(AuthenticationLayer::new(authenticator));
 
-    run(server, host, port, api_def).await
+    run(server, host, port, api_def, sharing_api_def).await
 }
 
 async fn run<S: Into<String> + Clone>(
@@ -63,8 +71,12 @@ async fn run<S: Into<String> + Clone>(
     host: impl AsRef<str>,
     port: u16,
     api: ApiDefinition<S>,
+    sharing_api: ApiDefinition<S>,
 ) -> Result<()> {
-    let router = router.merge(swagger_ui_dist::generate_routes(api)).layer(
+    let router = router
+        .merge(swagger_ui_dist::generate_routes(api))
+        .merge(swagger_ui_dist::generate_routes(sharing_api));
+    let router = router.layer(
         TraceLayer::new_for_http()
             .make_span_with(DefaultMakeSpan::new().include_headers(true))
             .on_request(DefaultOnRequest::new().level(Level::INFO))

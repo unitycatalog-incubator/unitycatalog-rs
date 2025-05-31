@@ -18,10 +18,25 @@ option (gnostic.openapi.v3.document) = {
     version: "1.0.0"
     description: "An Open Protocol for Secure Data Sharing"
     license: {
-      name: "AGPL v3.0"
-      url: "https://www.gnu.org/licenses/agpl-3.0.en.html"
+      name: "Apache 2.0"
+      url: "https://www.apache.org/licenses/LICENSE-2.0.html"
     }
   }
+  servers: [
+    {
+      url: "{scheme}://{host}/"
+      variables: {
+        scheme: {
+          description: "The scheme of the URI, either http or https."
+          default: "http"
+        }
+        host: {
+          description: "The host address for the specified server."
+          default: "localhost"
+        }
+      }
+    }
+  ]
 };
 
 // Request to list shares.
@@ -146,6 +161,45 @@ message ListShareTablesRequest {
   optional string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// Request to query a table.
+message QueryTableRequest {
+  string share = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z._]*[0-9a-z]$",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string schema = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z._]*[0-9a-z]$",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string name = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z._]*[0-9a-z]$",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The starting timestamp to query from.
+  optional string starting_timestamp = 4;
+
+  repeated string predicate_hints = 5;
+
+  // The predicate to apply to the table.
+  optional JsonPredicate json_predicate_hints = 6;
+
+  optional int32 limit_hint = 7;
+
+  optional int64 version = 8;
+
+  optional string timestamp = 9;
+
+  optional int64 starting_version = 10;
+
+  optional int64 ending_version = 11;
+}
+
 // Response for ListShareTablesRequest.
 message ListShareTablesResponse {
   // The tables that were requested.
@@ -197,5 +251,10 @@ service DeltaSharingService {
   rpc GetTableMetadata(GetTableMetadataRequest) returns (QueryResponse) {
     option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/metadata"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetTableMetadata"};
+  }
+
+  rpc QueryTable(QueryTableRequest) returns (QueryResponse) {
+    option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/query"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "QueryTable"};
   }
 }

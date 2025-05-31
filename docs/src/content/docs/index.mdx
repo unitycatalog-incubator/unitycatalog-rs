@@ -16,6 +16,37 @@ hero:
 import { Card, CardGrid, Code } from '@astrojs/starlight/components';
 import importedCode from '../scripts/client.py?raw';
 
+The Open Lakehouse is a loose concept of a collection of open source projects that can be used
+to build and deploy data systems adhering to the lakehouse architecture.
+
+## Relevant projects
+
+While there is no official affiliation, here are some projects that can be considered part of the
+open lakehouse ecosystem.
+
+### Open Table Formats
+
+- [delta](https://github.com/delta-io/delta)
+- [delta-rs](https://github.com/delta-io/delta-rs)
+- [iceberg](https://github.com/apache/iceberg)
+- [iceberg-rust](https://github.com/apache/iceberg-rust)
+
+### Catalogs
+
+- [lakekeeper](https://github.com/lakekeeper/lakekeeper)
+- [polaris](https://github.com/apache/polaris)
+- [unitycatalog](https://github.com/unitycatalog/unitycatalog)
+
+### Query Engines
+
+- [datafusion](https://github.com/apache/arrow-datafusion)
+- [polars](https://github.com/pola-rs/polars)
+- [duckdb](https://github.com/duckdb/duckdb)
+
+### Integrations
+
+- [delta-datafusion](https://github.com/delta-incubator/deltalake-datafusion)
+
 ## Next steps
 
 <Code code={importedCode} lang="python" title="client.py" />

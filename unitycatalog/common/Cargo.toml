@@ -17,9 +17,8 @@ async-trait = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
 delta_kernel = { workspace = true }
-delta-kernel-datafusion = { workspace = true }
+deltalake-datafusion = { workspace = true }
 itertools = { workspace = true }
-object_store = { workspace = true }
 pbjson = { workspace = true }
 pbjson-types = { workspace = true }
 prost = { workspace = true }
@@ -37,6 +36,7 @@ datafusion = { version = "47" }
 datafusion-catalog = { version = "47" }
 datafusion-common = { version = "47" }
 datafusion-execution = { version = "47" }
+datafusion-functions = { version = "47" }
 
 futures-util = { version = "0.3.28" }
 reqwest = { version = "0.12", default-features = false, features = [

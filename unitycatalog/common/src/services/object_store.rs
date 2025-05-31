@@ -1,13 +1,18 @@
 use std::sync::Arc;
 
+use datafusion_common::{DataFusionError, Result as DFResult};
+use delta_kernel::object_store::DynObjectStore;
+use delta_kernel::object_store::azure::MicrosoftAzureBuilder;
+use deltalake_datafusion::ObjectStoreFactory;
 use itertools::Itertools;
-use object_store::DynObjectStore;
-use object_store::azure::MicrosoftAzureBuilder;
+use url::Url;
 
+use super::ServerHandlerInner;
 use crate::api::CredentialsHandler;
 use crate::models::credentials::v1::credential_info::Credential;
 use crate::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
+    azure_service_principal::Credential as AzureSpCredential,
 };
 use crate::models::external_locations::v1::ExternalLocationInfo;
 use crate::resources::ResourceStore;
@@ -16,6 +21,18 @@ use crate::{Error, Result};
 
 pub(crate) trait RegistryHandler: ResourceStore + CredentialsHandler {}
 impl<T: ResourceStore + CredentialsHandler> RegistryHandler for T {}
+
+#[async_trait::async_trait]
+impl ObjectStoreFactory for ServerHandlerInner {
+    async fn create_object_store(&self, location: &Url) -> DFResult<Arc<DynObjectStore>> {
+        tracing::debug!("create_object_store: {:?}", location);
+        let location = StorageLocationUrl::try_new(location.clone())
+            .map_err(|e| DataFusionError::Execution(e.to_string()))?;
+        get_object_store(&location, self)
+            .await
+            .map_err(|e| DataFusionError::Execution(e.to_string()))
+    }
+}
 
 pub(crate) async fn get_object_store(
     location: &StorageLocationUrl,
@@ -101,6 +118,19 @@ fn get_azure_store(
             builder = builder
                 .with_tenant_id(directory_id)
                 .with_client_id(application_id);
+            match credential {
+                Some(AzureSpCredential::ClientSecret(client_secret)) => {
+                    builder = builder.with_client_secret(client_secret);
+                }
+                Some(AzureSpCredential::FederatedTokenFile(federated_token_file)) => {
+                    builder = builder.with_federated_token_file(federated_token_file);
+                }
+                _ => {
+                    return Err(Error::invalid_argument(
+                        "Azure service principal requires a credential.",
+                    ));
+                }
+            }
         }
         _ => {
             return Err(Error::invalid_argument(

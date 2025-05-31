@@ -5,17 +5,17 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Format, FormatJson, Metadata, MetadataJson } from "./protocol_pb";
-import { file_unitycatalog_sharing_v1_protocol } from "./protocol_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import type { Format, FormatJson, Metadata, MetadataJson } from "./protocol_pb";
+import { file_unitycatalog_sharing_v1_protocol } from "./protocol_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/sharing/v1/query.proto.
  */
 export const file_unitycatalog_sharing_v1_query: GenFile = /*@__PURE__*/
-  fileDesc("CiN1bml0eWNhdGFsb2cvc2hhcmluZy92MS9xdWVyeS5wcm90bxIXdW5pdHljYXRhbG9nLnNoYXJpbmcudjEi0wEKFkdldFRhYmxlVmVyc2lvblJlcXVlc3QSGAoEbmFtZRgBIAEoCUIK4EECukgEcgIQARIaCgZzY2hlbWEYAiABKAlCCuBBArpIBHICEAESGQoFc2hhcmUYAyABKAlCCuBBArpIBHICEAESUQoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJQjDgQQG6SCpyKDImXlxkezR9LVxkezJ9LVxkezJ9VFxkezJ9OlxkezJ9OlxkezJ9WiRIAIgBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wIioKF0dldFRhYmxlVmVyc2lvblJlc3BvbnNlEg8KB3ZlcnNpb24YASABKAMiagoXR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QSGAoEbmFtZRgBIAEoCUIK4EECukgEcgIQARIZCgVzaGFyZRgCIAEoCUIK4EECukgEcgIQARIaCgZzY2hlbWEYAyABKAlCCuBBArpIBHICEAEikQEKDVF1ZXJ5UmVzcG9uc2USOwoHcGFycXVldBgBIAEoCzIoLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLlBhcnF1ZXRSZXNwb25zZUgAEjcKBWRlbHRhGAIgASgLMiYudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRGVsdGFSZXNwb25zZUgAQgoKCHJlc3BvbnNlIk4KD1BhcnF1ZXRSZXNwb25zZRI7CgdlbnRyaWVzGAEgAygLMioudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuUGFycXVldExvZ01lc3NhZ2UimAEKEVBhcnF1ZXRMb2dNZXNzYWdlEjwKCHByb3RvY29sGAEgASgLMigudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuUHJvdG9jb2xQYXJxdWV0SAASPAoIbWV0YWRhdGEYAiABKAsyKC51bml0eWNhdGFsb2cuc2hhcmluZy52MS5NZXRhZGF0YVBhcnF1ZXRIAEIHCgVlbnRyeSItCg9Qcm90b2NvbFBhcnF1ZXQSGgoSbWluX3JlYWRlcl92ZXJzaW9uGAEgASgFIsYBCg9NZXRhZGF0YVBhcnF1ZXQSCgoCaWQYASABKAkSEQoEbmFtZRgCIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAMgASgJSAGIAQESLwoGZm9ybWF0GAQgASgLMh8udW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRm9ybWF0EhUKDXNjaGVtYV9zdHJpbmcYBSABKAkSGQoRcGFydGl0aW9uX2NvbHVtbnMYBiADKAlCBwoFX25hbWVCDgoMX2Rlc2NyaXB0aW9uIkoKDURlbHRhUmVzcG9uc2USOQoHZW50cmllcxgBIAMoCzIoLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkRlbHRhTG9nTWVzc2FnZSKRAQoPRGVsdGFMb2dNZXNzYWdlEjoKCHByb3RvY29sGAEgASgLMiYudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuUHJvdG9jb2xEZWx0YUgAEjkKCG1ldGFkYXRhGAIgASgLMiUudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuTWV0YWRhdERlbHRhSABCBwoFZW50cnkiRwoNUHJvdG9jb2xEZWx0YRIaChJtaW5fcmVhZGVyX3ZlcnNpb24YASABKAUSGgoSbWluX3dyaXRlcl92ZXJzaW9uGAIgASgFIq0BCgxNZXRhZGF0RGVsdGESOQoOZGVsdGFfbWV0YWRhdGEYASABKAsyIS51bml0eWNhdGFsb2cuc2hhcmluZy52MS5NZXRhZGF0YRIUCgd2ZXJzaW9uGAIgASgDSACIAQESEQoEc2l6ZRgDIAEoA0gBiAEBEhYKCW51bV9maWxlcxgEIAEoA0gCiAEBQgoKCF92ZXJzaW9uQgcKBV9zaXplQgwKCl9udW1fZmlsZXMitwEKDUpzb25QcmVkaWNhdGUSCgoCb3AYASABKAkSOAoIY2hpbGRyZW4YAiADKAsyJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5Kc29uUHJlZGljYXRlEhEKBG5hbWUYAyABKAlIAIgBARISCgV2YWx1ZRgEIAEoCUgBiAEBEhcKCnZhbHVlX3R5cGUYBSABKAlIAogBAUIHCgVfbmFtZUIICgZfdmFsdWVCDQoLX3ZhbHVlX3R5cGVC+QEKG2NvbS51bml0eWNhdGFsb2cuc2hhcmluZy52MUIKUXVlcnlQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zaGFyaW5nL3YxO3NoYXJpbmd2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TaGFyaW5nLlYxygIXVW5pdHljYXRhbG9nXFNoYXJpbmdcVjHiAiNVbml0eWNhdGFsb2dcU2hhcmluZ1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2hhcmluZzo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_unitycatalog_sharing_v1_protocol, file_google_api_field_behavior, file_google_api_resource]);
+  fileDesc("CiN1bml0eWNhdGFsb2cvc2hhcmluZy92MS9xdWVyeS5wcm90bxIXdW5pdHljYXRhbG9nLnNoYXJpbmcudjEi0wEKFkdldFRhYmxlVmVyc2lvblJlcXVlc3QSGAoEbmFtZRgBIAEoCUIK4EECukgEcgIQARIaCgZzY2hlbWEYAiABKAlCCuBBArpIBHICEAESGQoFc2hhcmUYAyABKAlCCuBBArpIBHICEAESUQoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJQjDgQQG6SCpyKDImXlxkezR9LVxkezJ9LVxkezJ9VFxkezJ9OlxkezJ9OlxkezJ9WiRIAIgBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wIokBCh1JbnRlcm5hbEdldFRhYmxlVmVyc2lvblBhcmFtcxJRChJzdGFydGluZ190aW1lc3RhbXAYASABKAlCMOBBAbpIKnIoMiZeXGR7NH0tXGR7Mn0tXGR7Mn1UXGR7Mn06XGR7Mn06XGR7Mn1aJEgAiAEBQhUKE19zdGFydGluZ190aW1lc3RhbXAiKgoXR2V0VGFibGVWZXJzaW9uUmVzcG9uc2USDwoHdmVyc2lvbhgBIAEoAyJqChdHZXRUYWJsZU1ldGFkYXRhUmVxdWVzdBIYCgRuYW1lGAEgASgJQgrgQQK6SARyAhABEhkKBXNoYXJlGAIgASgJQgrgQQK6SARyAhABEhoKBnNjaGVtYRgDIAEoCUIK4EECukgEcgIQASKRAQoNUXVlcnlSZXNwb25zZRI7CgdwYXJxdWV0GAEgASgLMigudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuUGFycXVldFJlc3BvbnNlSAASNwoFZGVsdGEYAiABKAsyJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5EZWx0YVJlc3BvbnNlSABCCgoIcmVzcG9uc2UiTgoPUGFycXVldFJlc3BvbnNlEjsKB2VudHJpZXMYASADKAsyKi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5QYXJxdWV0TG9nTWVzc2FnZSKYAQoRUGFycXVldExvZ01lc3NhZ2USPAoIcHJvdG9jb2wYASABKAsyKC51bml0eWNhdGFsb2cuc2hhcmluZy52MS5Qcm90b2NvbFBhcnF1ZXRIABI8CghtZXRhZGF0YRgCIAEoCzIoLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLk1ldGFkYXRhUGFycXVldEgAQgcKBWVudHJ5Ii0KD1Byb3RvY29sUGFycXVldBIaChJtaW5fcmVhZGVyX3ZlcnNpb24YASABKAUixgEKD01ldGFkYXRhUGFycXVldBIKCgJpZBgBIAEoCRIRCgRuYW1lGAIgASgJSACIAQESGAoLZGVzY3JpcHRpb24YAyABKAlIAYgBARIvCgZmb3JtYXQYBCABKAsyHy51bml0eWNhdGFsb2cuc2hhcmluZy52MS5Gb3JtYXQSFQoNc2NoZW1hX3N0cmluZxgFIAEoCRIZChFwYXJ0aXRpb25fY29sdW1ucxgGIAMoCUIHCgVfbmFtZUIOCgxfZGVzY3JpcHRpb24iSgoNRGVsdGFSZXNwb25zZRI5CgdlbnRyaWVzGAEgAygLMigudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRGVsdGFMb2dNZXNzYWdlIpEBCg9EZWx0YUxvZ01lc3NhZ2USOgoIcHJvdG9jb2wYASABKAsyJi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5Qcm90b2NvbERlbHRhSAASOQoIbWV0YWRhdGEYAiABKAsyJS51bml0eWNhdGFsb2cuc2hhcmluZy52MS5NZXRhZGF0RGVsdGFIAEIHCgVlbnRyeSJHCg1Qcm90b2NvbERlbHRhEhoKEm1pbl9yZWFkZXJfdmVyc2lvbhgBIAEoBRIaChJtaW5fd3JpdGVyX3ZlcnNpb24YAiABKAUirQEKDE1ldGFkYXREZWx0YRI5Cg5kZWx0YV9tZXRhZGF0YRgBIAEoCzIhLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLk1ldGFkYXRhEhQKB3ZlcnNpb24YAiABKANIAIgBARIRCgRzaXplGAMgASgDSAGIAQESFgoJbnVtX2ZpbGVzGAQgASgDSAKIAQFCCgoIX3ZlcnNpb25CBwoFX3NpemVCDAoKX251bV9maWxlcyK3AQoNSnNvblByZWRpY2F0ZRIKCgJvcBgBIAEoCRI4CghjaGlsZHJlbhgCIAMoCzImLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLkpzb25QcmVkaWNhdGUSEQoEbmFtZRgDIAEoCUgAiAEBEhIKBXZhbHVlGAQgASgJSAGIAQESFwoKdmFsdWVfdHlwZRgFIAEoCUgCiAEBQgcKBV9uYW1lQggKBl92YWx1ZUINCgtfdmFsdWVfdHlwZUL5AQobY29tLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxQgpRdWVyeVByb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJpbmcvdjE7c2hhcmluZ3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNoYXJpbmcuVjHKAhdVbml0eWNhdGFsb2dcU2hhcmluZ1xWMeICI1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTaGFyaW5nOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_api_resource, file_unitycatalog_sharing_v1_protocol]);
 
 /**
  * Get the version of a table.
@@ -99,6 +99,37 @@ export const GetTableVersionRequestSchema: GenMessage<GetTableVersionRequest, Ge
   messageDesc(file_unitycatalog_sharing_v1_query, 0);
 
 /**
+ * helper message internally used to parse the rest request.
+ *
+ * @generated from message unitycatalog.sharing.v1.InternalGetTableVersionParams
+ */
+export type InternalGetTableVersionParams = Message<"unitycatalog.sharing.v1.InternalGetTableVersionParams"> & {
+  /**
+   * @generated from field: optional string starting_timestamp = 1;
+   */
+  startingTimestamp?: string;
+};
+
+/**
+ * helper message internally used to parse the rest request.
+ *
+ * @generated from message unitycatalog.sharing.v1.InternalGetTableVersionParams
+ */
+export type InternalGetTableVersionParamsJson = {
+  /**
+   * @generated from field: optional string starting_timestamp = 1;
+   */
+  startingTimestamp?: string;
+};
+
+/**
+ * Describes the message unitycatalog.sharing.v1.InternalGetTableVersionParams.
+ * Use `create(InternalGetTableVersionParamsSchema)` to create a new message.
+ */
+export const InternalGetTableVersionParamsSchema: GenMessage<InternalGetTableVersionParams, InternalGetTableVersionParamsJson> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_sharing_v1_query, 1);
+
+/**
  * Response for GetTableVersionRequest.
  *
  * @generated from message unitycatalog.sharing.v1.GetTableVersionResponse
@@ -131,7 +162,7 @@ export type GetTableVersionResponseJson = {
  * Use `create(GetTableVersionResponseSchema)` to create a new message.
  */
 export const GetTableVersionResponseSchema: GenMessage<GetTableVersionResponse, GetTableVersionResponseJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 1);
+  messageDesc(file_unitycatalog_sharing_v1_query, 2);
 
 /**
  * Get metadata of a table.
@@ -194,7 +225,7 @@ export type GetTableMetadataRequestJson = {
  * Use `create(GetTableMetadataRequestSchema)` to create a new message.
  */
 export const GetTableMetadataRequestSchema: GenMessage<GetTableMetadataRequest, GetTableMetadataRequestJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 2);
+  messageDesc(file_unitycatalog_sharing_v1_query, 3);
 
 /**
  * Response for a query against a table.
@@ -250,7 +281,7 @@ export type QueryResponseJson = {
  * Use `create(QueryResponseSchema)` to create a new message.
  */
 export const QueryResponseSchema: GenMessage<QueryResponse, QueryResponseJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 3);
+  messageDesc(file_unitycatalog_sharing_v1_query, 4);
 
 /**
  * Response for a query against a table in Parquet format.
@@ -281,7 +312,7 @@ export type ParquetResponseJson = {
  * Use `create(ParquetResponseSchema)` to create a new message.
  */
 export const ParquetResponseSchema: GenMessage<ParquetResponse, ParquetResponseJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 4);
+  messageDesc(file_unitycatalog_sharing_v1_query, 5);
 
 /**
  * Log message for Parquet response.
@@ -329,7 +360,7 @@ export type ParquetLogMessageJson = {
  * Use `create(ParquetLogMessageSchema)` to create a new message.
  */
 export const ParquetLogMessageSchema: GenMessage<ParquetLogMessage, ParquetLogMessageJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 5);
+  messageDesc(file_unitycatalog_sharing_v1_query, 6);
 
 /**
  * Protocol for Parquet response.
@@ -366,7 +397,7 @@ export type ProtocolParquetJson = {
  * Use `create(ProtocolParquetSchema)` to create a new message.
  */
 export const ProtocolParquetSchema: GenMessage<ProtocolParquet, ProtocolParquetJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 6);
+  messageDesc(file_unitycatalog_sharing_v1_query, 7);
 
 /**
  * Metadata for Parquet response.
@@ -471,7 +502,7 @@ export type MetadataParquetJson = {
  * Use `create(MetadataParquetSchema)` to create a new message.
  */
 export const MetadataParquetSchema: GenMessage<MetadataParquet, MetadataParquetJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 7);
+  messageDesc(file_unitycatalog_sharing_v1_query, 8);
 
 /**
  * Response for a query against a table in Delta format.
@@ -502,7 +533,7 @@ export type DeltaResponseJson = {
  * Use `create(DeltaResponseSchema)` to create a new message.
  */
 export const DeltaResponseSchema: GenMessage<DeltaResponse, DeltaResponseJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 8);
+  messageDesc(file_unitycatalog_sharing_v1_query, 9);
 
 /**
  * Log message for Delta response.
@@ -550,7 +581,7 @@ export type DeltaLogMessageJson = {
  * Use `create(DeltaLogMessageSchema)` to create a new message.
  */
 export const DeltaLogMessageSchema: GenMessage<DeltaLogMessage, DeltaLogMessageJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 9);
+  messageDesc(file_unitycatalog_sharing_v1_query, 10);
 
 /**
  * Protocol for Delta response.
@@ -597,7 +628,7 @@ export type ProtocolDeltaJson = {
  * Use `create(ProtocolDeltaSchema)` to create a new message.
  */
 export const ProtocolDeltaSchema: GenMessage<ProtocolDelta, ProtocolDeltaJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 10);
+  messageDesc(file_unitycatalog_sharing_v1_query, 11);
 
 /**
  * Metadata for Delta response.
@@ -678,7 +709,7 @@ export type MetadatDeltaJson = {
  * Use `create(MetadatDeltaSchema)` to create a new message.
  */
 export const MetadatDeltaSchema: GenMessage<MetadatDelta, MetadatDeltaJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 11);
+  messageDesc(file_unitycatalog_sharing_v1_query, 12);
 
 /**
  * @generated from message unitycatalog.sharing.v1.JsonPredicate
@@ -777,5 +808,5 @@ export type JsonPredicateJson = {
  * Use `create(JsonPredicateSchema)` to create a new message.
  */
 export const JsonPredicateSchema: GenMessage<JsonPredicate, JsonPredicateJson> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_sharing_v1_query, 12);
+  messageDesc(file_unitycatalog_sharing_v1_query, 13);
 

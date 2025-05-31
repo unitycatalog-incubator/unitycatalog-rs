@@ -5,7 +5,7 @@ info:
   license:
     name: AGPL v3.0
     url: https://www.gnu.org/licenses/agpl-3.0.en.html
-  version: 0.0.0
+  version: 1.0.0
 tags:
   - name: CatalogsService
     description: Manage catalogs and schemas in the service.
@@ -1068,6 +1068,101 @@ paths:
           in: path
           description: The table name to query. It's case-insensitive.
           required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+  /shares/{share}/schemas/{schema}/tables/{name}/query:
+    get:
+      tags:
+        - DeltaSharingService
+      operationId: QueryTable
+      parameters:
+        - name: share
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: schema
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startingTimestamp
+          in: query
+          description: The starting timestamp to query from.
+          schema:
+            type: string
+        - name: predicateHints
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: jsonPredicateHints.op
+          in: query
+          description: The operation to perform.
+          schema:
+            type: string
+        - name: jsonPredicateHints.name
+          in: query
+          description: |-
+            Specifies the name of a column.
+
+             This is only applicable to column ops.
+          schema:
+            type: string
+        - name: jsonPredicateHints.value
+          in: query
+          description: |-
+            Specifies the value of a literal.
+
+             This is only applicable to literal ops.
+          schema:
+            type: string
+        - name: jsonPredicateHints.valueType
+          in: query
+          description: |-
+            Specifies the value type of a column or a literal op.
+
+             This is only applicate to column and literal ops.
+          schema:
+            type: string
+        - name: limitHint
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: version
+          in: query
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          schema:
+            type: string
+        - name: startingVersion
+          in: query
+          schema:
+            type: string
+        - name: endingVersion
+          in: query
           schema:
             type: string
       responses:

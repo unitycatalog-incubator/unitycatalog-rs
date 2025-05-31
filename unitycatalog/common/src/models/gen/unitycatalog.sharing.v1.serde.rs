@@ -791,6 +791,102 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
         deserializer.deserialize_struct("unitycatalog.sharing.v1.GetTableVersionResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for InternalGetTableVersionParams {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.starting_timestamp.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.InternalGetTableVersionParams", len)?;
+        if let Some(v) = self.starting_timestamp.as_ref() {
+            struct_ser.serialize_field("startingTimestamp", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for InternalGetTableVersionParams {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "starting_timestamp",
+            "startingTimestamp",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            StartingTimestamp,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl serde::de::Visitor<'_> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "startingTimestamp" | "starting_timestamp" => Ok(GeneratedField::StartingTimestamp),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = InternalGetTableVersionParams;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct unitycatalog.sharing.v1.InternalGetTableVersionParams")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<InternalGetTableVersionParams, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut starting_timestamp__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::StartingTimestamp => {
+                            if starting_timestamp__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("startingTimestamp"));
+                            }
+                            starting_timestamp__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(InternalGetTableVersionParams {
+                    starting_timestamp: starting_timestamp__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("unitycatalog.sharing.v1.InternalGetTableVersionParams", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for JsonPredicate {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -3039,6 +3135,291 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
             }
         }
         deserializer.deserialize_struct("unitycatalog.sharing.v1.QueryResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for QueryTableRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if self.starting_timestamp.is_some() {
+            len += 1;
+        }
+        if !self.predicate_hints.is_empty() {
+            len += 1;
+        }
+        if self.json_predicate_hints.is_some() {
+            len += 1;
+        }
+        if self.limit_hint.is_some() {
+            len += 1;
+        }
+        if self.version.is_some() {
+            len += 1;
+        }
+        if self.timestamp.is_some() {
+            len += 1;
+        }
+        if self.starting_version.is_some() {
+            len += 1;
+        }
+        if self.ending_version.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.QueryTableRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if let Some(v) = self.starting_timestamp.as_ref() {
+            struct_ser.serialize_field("startingTimestamp", v)?;
+        }
+        if !self.predicate_hints.is_empty() {
+            struct_ser.serialize_field("predicateHints", &self.predicate_hints)?;
+        }
+        if let Some(v) = self.json_predicate_hints.as_ref() {
+            struct_ser.serialize_field("jsonPredicateHints", v)?;
+        }
+        if let Some(v) = self.limit_hint.as_ref() {
+            struct_ser.serialize_field("limitHint", v)?;
+        }
+        if let Some(v) = self.version.as_ref() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("version", ToString::to_string(&v).as_str())?;
+        }
+        if let Some(v) = self.timestamp.as_ref() {
+            struct_ser.serialize_field("timestamp", v)?;
+        }
+        if let Some(v) = self.starting_version.as_ref() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("startingVersion", ToString::to_string(&v).as_str())?;
+        }
+        if let Some(v) = self.ending_version.as_ref() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("endingVersion", ToString::to_string(&v).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for QueryTableRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "name",
+            "starting_timestamp",
+            "startingTimestamp",
+            "predicate_hints",
+            "predicateHints",
+            "json_predicate_hints",
+            "jsonPredicateHints",
+            "limit_hint",
+            "limitHint",
+            "version",
+            "timestamp",
+            "starting_version",
+            "startingVersion",
+            "ending_version",
+            "endingVersion",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            Name,
+            StartingTimestamp,
+            PredicateHints,
+            JsonPredicateHints,
+            LimitHint,
+            Version,
+            Timestamp,
+            StartingVersion,
+            EndingVersion,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl serde::de::Visitor<'_> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "name" => Ok(GeneratedField::Name),
+                            "startingTimestamp" | "starting_timestamp" => Ok(GeneratedField::StartingTimestamp),
+                            "predicateHints" | "predicate_hints" => Ok(GeneratedField::PredicateHints),
+                            "jsonPredicateHints" | "json_predicate_hints" => Ok(GeneratedField::JsonPredicateHints),
+                            "limitHint" | "limit_hint" => Ok(GeneratedField::LimitHint),
+                            "version" => Ok(GeneratedField::Version),
+                            "timestamp" => Ok(GeneratedField::Timestamp),
+                            "startingVersion" | "starting_version" => Ok(GeneratedField::StartingVersion),
+                            "endingVersion" | "ending_version" => Ok(GeneratedField::EndingVersion),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = QueryTableRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct unitycatalog.sharing.v1.QueryTableRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryTableRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut name__ = None;
+                let mut starting_timestamp__ = None;
+                let mut predicate_hints__ = None;
+                let mut json_predicate_hints__ = None;
+                let mut limit_hint__ = None;
+                let mut version__ = None;
+                let mut timestamp__ = None;
+                let mut starting_version__ = None;
+                let mut ending_version__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::StartingTimestamp => {
+                            if starting_timestamp__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("startingTimestamp"));
+                            }
+                            starting_timestamp__ = map_.next_value()?;
+                        }
+                        GeneratedField::PredicateHints => {
+                            if predicate_hints__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("predicateHints"));
+                            }
+                            predicate_hints__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::JsonPredicateHints => {
+                            if json_predicate_hints__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("jsonPredicateHints"));
+                            }
+                            json_predicate_hints__ = map_.next_value()?;
+                        }
+                        GeneratedField::LimitHint => {
+                            if limit_hint__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("limitHint"));
+                            }
+                            limit_hint__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::Version => {
+                            if version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("version"));
+                            }
+                            version__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::Timestamp => {
+                            if timestamp__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("timestamp"));
+                            }
+                            timestamp__ = map_.next_value()?;
+                        }
+                        GeneratedField::StartingVersion => {
+                            if starting_version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("startingVersion"));
+                            }
+                            starting_version__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::EndingVersion => {
+                            if ending_version__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("endingVersion"));
+                            }
+                            ending_version__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(QueryTableRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                    starting_timestamp: starting_timestamp__,
+                    predicate_hints: predicate_hints__.unwrap_or_default(),
+                    json_predicate_hints: json_predicate_hints__,
+                    limit_hint: limit_hint__,
+                    version: version__,
+                    timestamp: timestamp__,
+                    starting_version: starting_version__,
+                    ending_version: ending_version__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("unitycatalog.sharing.v1.QueryTableRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Share {

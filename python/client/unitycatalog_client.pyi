@@ -270,6 +270,66 @@ class RecipientInfo:
     updated_at: int | None
     updated_by: str | None
 
+class Share:
+    id: str | None
+    name: str
+
+class SharingSchema:
+    id: str | None
+    name: str
+    share: str
+
+class SharingTable:
+    id: str | None
+    name: str
+    schema: str
+    share: str
+    share_id: str | None
+
+class Protocol:
+    min_reader_version: int
+    min_writer_version: int
+
+class Metadata:
+    partition_columns: list[str]
+    configuration: dict[str, str]
+
+class SharingClient:
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        path_prefix: str = "api/v1/delta-sharing/",
+        token: str | None = None,
+    ) -> None:
+        """
+        Delta Sharing client.
+
+        Args:
+            base_url: The base URL of the server.
+            path_prefix: The path prefix where the Delta Sharing API is mounted. Defaults to
+                "api/v1/delta-sharing".
+            token: Personal Access Token for the Databricks CLI.
+        """
+
+    def list_shares(self, max_results: int | None = None) -> list[Share]: ...
+    def list_share_schemas(
+        self, share: str, max_results: int | None = None
+    ) -> list[SharingSchema]: ...
+    def list_share_tables(
+        self, share: str, max_results: int | None = None
+    ) -> list[SharingTable]: ...
+    def list_schema_tables(
+        self, share: str, schema: str, max_results: int | None = None
+    ) -> list[SharingTable]: ...
+    def get_table_version(
+        self, share: str, schema: str, name: str, starting_timestamp: str | None = None
+    ) -> int: ...
+    def get_table_metadata(
+        self, share: str, schema: str, table: str
+    ) -> tuple[Protocol, Metadata]: ...
+    def get_table_query(self, share: str, schema: str, table: str) -> str: ...
+
 class TableClient:
     def get(self, include_delta_metadata: bool | None = None) -> TableInfo: ...
     def create(

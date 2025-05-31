@@ -3,9 +3,9 @@ syntax = "proto3";
 package unitycatalog.sharing.v1;
 
 import "buf/validate/validate.proto";
-import "unitycatalog/sharing/v1/protocol.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
+import "unitycatalog/sharing/v1/protocol.proto";
 
 // Get the version of a table.
 message GetTableVersionRequest {
@@ -31,6 +31,16 @@ message GetTableVersionRequest {
   // such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
   // or after the provided timestamp, can be earlier than the timestamp of table version 0.
   optional string starting_timestamp = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.pattern = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+  ];
+}
+
+// helper message internally used to parse the rest request.
+// we do this over a manual implementation since the generated code
+// will allow for snake_case as well as camelCase query parameters
+message InternalGetTableVersionParams {
+  optional string starting_timestamp = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.pattern = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
   ];
