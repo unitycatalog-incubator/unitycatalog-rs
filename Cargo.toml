@@ -62,9 +62,9 @@ default.extend-ignore-re = [
 files.extend-exclude = [
   "unitycatalog/common/src/models/gen/**/*",
   "app/src/gen/**/*",
+  "openapi/**/*",
 ]
 
 [workspace.metadata.typos.default.extend-words]
 # to avoid having to name fields r#type
 typ = "typ"
-nd_json = "nd_json"

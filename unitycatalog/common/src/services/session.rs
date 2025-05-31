@@ -121,7 +121,7 @@ impl KernelSession {
                 Ok::<_, Error>(RecordBatch::from(res.as_struct()))
             })
             .try_collect()?;
-        encode_nd_json(&results)
+        encode_nd_json(&results) // spellchecker:disable-line
     }
 }
 
@@ -146,6 +146,7 @@ impl TableManager for KernelSession {
     }
 }
 
+// spellchecker:ignore-next-line
 pub fn encode_nd_json(data: &[RecordBatch]) -> Result<Bytes> {
     let mut writer = LineDelimitedWriter::new(Vec::new());
     for batch in data {
