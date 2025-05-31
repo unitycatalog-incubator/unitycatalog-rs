@@ -808,7 +808,7 @@ impl SharingClient {
         schema: impl Into<String>,
         name: impl Into<String>,
     ) -> Result<(Protocol, Metadata)> {
-        let mut url = self.base_url.join(&format!(
+        let url = self.base_url.join(&format!(
             "shares/{}/schemas/{}/tables/{}/metadata",
             share.into(),
             schema.into(),
@@ -842,7 +842,7 @@ impl SharingClient {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub enum ProtocolResonseData {
+pub enum ProtocolResponseData {
     /// Protocol in [Delta format]
     ///
     /// [Delta format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol-in-delta-format
