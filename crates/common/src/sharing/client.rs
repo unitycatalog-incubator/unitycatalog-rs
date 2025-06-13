@@ -252,7 +252,7 @@ impl SharingClient {
         share: impl Into<String>,
         schema: impl Into<String>,
         name: impl Into<String>,
-    ) -> Result<(Protocol, Metadata)> {
+    ) -> Result<(ProtocolResponseData, MetadataResponseData)> {
         let url = self.base_url.join(&format!(
             "shares/{}/schemas/{}/tables/{}/metadata",
             share.into(),
@@ -272,7 +272,7 @@ impl SharingClient {
         for item in line_data {
             match item {
                 MetadataResponse::Protocol(p) => protocol = Some(p),
-                MetadataResponse::Metadata(m) => metadata = Some(m),
+                MetadataResponse::MetaData(m) => metadata = Some(m),
             }
         }
         if protocol.is_none() {

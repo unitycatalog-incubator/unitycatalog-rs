@@ -5,7 +5,9 @@ use crate::api::RequestContext;
 use crate::models::sharing::v1::*;
 use crate::models::tables::v1::{DataSourceFormat, TableInfo};
 use crate::resources::ResourceStore;
-use crate::sharing::{MetadataResponse, SharingQueryHandler};
+use crate::sharing::{
+    MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
+};
 use crate::{ResourceIdent, ResourceName, Result, ShareInfo};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -87,11 +89,12 @@ impl SharingQueryHandler for ServerHandler {
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
 
-        let mut response =
-            serde_json::to_vec(&MetadataResponse::Metadata(snapshot.metadata().clone()))?;
+        let mut response = serde_json::to_vec(&MetadataResponse::MetaData(
+            MetadataResponseData::ParquetMetadata(snapshot.metadata().try_into()?),
+        ))?;
         response.push(b'\n');
         response.extend(serde_json::to_vec(&MetadataResponse::Protocol(
-            snapshot.protocol().clone(),
+            ProtocolResponseData::ParquetProtocol(snapshot.protocol().into()),
         ))?);
 
         Ok(Bytes::from(response))
