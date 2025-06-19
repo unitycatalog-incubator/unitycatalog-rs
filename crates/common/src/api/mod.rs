@@ -4,7 +4,6 @@ pub mod external_locations;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
-pub mod sharing;
 pub mod tables;
 
 pub use catalogs::CatalogHandler;
@@ -13,7 +12,6 @@ pub use external_locations::ExternalLocationsHandler;
 pub use recipients::RecipientsHandler;
 pub use schemas::SchemasHandler;
 pub use shares::SharesHandler;
-pub use sharing::{SharingDiscoveryHandler, SharingQueryHandler};
 pub use tables::TablesHandler;
 
 use crate::resources::ResourceIdent;

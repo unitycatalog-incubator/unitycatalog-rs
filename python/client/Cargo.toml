@@ -12,8 +12,8 @@ name = "unitycatalog_client"
 crate-type = ["cdylib"]
 
 [dependencies]
-cloud-client = { path = "../../unitycatalog/cloud-client" }
-unitycatalog-common = { path = "../../unitycatalog/common", features = [
+cloud-client = { path = "../../crates/cloud-client" }
+unitycatalog-common = { path = "../../crates/common", features = [
   "rest-client",
   "python",
 ] }

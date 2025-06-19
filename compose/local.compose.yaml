@@ -1,6 +1,3 @@
-# services used for locally running server dependencies
-version: "3.8"
-
 networks:
   sharing:
 

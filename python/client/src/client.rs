@@ -29,6 +29,7 @@ use unitycatalog_common::rest::client::{
     CredentialsClient, ExternalLocationsClient, RecipientsClient, SharesClient, SharingClient,
     UnityCatalogClient,
 };
+use unitycatalog_common::sharing::{MetadataResponseData, ProtocolResponseData};
 
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -658,7 +659,7 @@ impl PyTablesClient {
 
 #[pyclass(name = "Protocol")]
 pub struct PyProtocol {
-    protocol: Protocol,
+    protocol: ProtocolResponseData,
 }
 
 #[pymethods]
@@ -669,13 +670,13 @@ impl PyProtocol {
     }
 
     #[getter]
-    pub fn min_writer_version(&self) -> i32 {
+    pub fn min_writer_version(&self) -> Option<i32> {
         self.protocol.min_writer_version()
     }
 
     pub fn __repr__(&self) -> String {
         format!(
-            "Protocol(min_reader_version={}, min_writer_version={})",
+            "Protocol(min_reader_version={}, min_writer_version={:?})",
             self.min_reader_version(),
             self.min_writer_version()
         )
@@ -684,14 +685,14 @@ impl PyProtocol {
 
 #[pyclass(name = "Metadata")]
 pub struct PyMetadata {
-    metadata: Metadata,
+    metadata: MetadataResponseData,
 }
 
 #[pymethods]
 impl PyMetadata {
     #[getter]
     pub fn partition_columns(&self) -> Vec<String> {
-        self.metadata.partition_columns().clone()
+        self.metadata.partition_columns().to_vec()
     }
 
     #[getter]

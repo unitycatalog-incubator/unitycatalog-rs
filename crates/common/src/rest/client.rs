@@ -3,7 +3,7 @@ use cloud_client::CloudClient;
 use delta_kernel::Version;
 use delta_kernel::actions::{Metadata, Protocol};
 use futures::stream::BoxStream;
-use futures::{Future, Stream, StreamExt, TryStreamExt};
+use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
 use reqwest::IntoUrl;
 use serde::Deserialize;
@@ -14,7 +14,6 @@ pub use crate::api::external_locations::ExternalLocationsClient;
 pub use crate::api::recipients::RecipientsClient;
 pub use crate::api::schemas::SchemasClient;
 pub use crate::api::shares::SharesClient;
-pub use crate::api::sharing::SharingDiscoveryClient;
 pub use crate::api::tables::TablesClient;
 use crate::models::catalogs::v1 as catalog;
 use crate::models::credentials::v1 as cred;
@@ -25,6 +24,9 @@ use crate::models::schemas::v1 as schema;
 use crate::models::shares::v1 as share;
 use crate::models::sharing::v1 as sharing;
 use crate::models::tables::v1 as tbl;
+pub use crate::sharing::SharingDiscoveryClient;
+use crate::sharing::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
+use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 #[derive(Clone)]
@@ -807,7 +809,7 @@ impl SharingClient {
         share: impl Into<String>,
         schema: impl Into<String>,
         name: impl Into<String>,
-    ) -> Result<(Protocol, Metadata)> {
+    ) -> Result<(ProtocolResponseData, MetadataResponseData)> {
         let url = self.base_url.join(&format!(
             "shares/{}/schemas/{}/tables/{}/metadata",
             share.into(),
@@ -827,7 +829,7 @@ impl SharingClient {
         for item in line_data {
             match item {
                 MetadataResponse::Protocol(p) => protocol = Some(p),
-                MetadataResponse::Metadata(m) => metadata = Some(m),
+                MetadataResponse::MetaData(m) => metadata = Some(m),
             }
         }
         if protocol.is_none() {
@@ -842,69 +844,8 @@ impl SharingClient {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub enum ProtocolResponseData {
-    /// Protocol in [Delta format]
-    ///
-    /// [Delta format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol-in-delta-format
-    DeltaProtocol(delta_kernel::actions::Protocol),
-
-    /// Protocol in [Parquet format]
-    ///
-    /// [Parquet format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol
-    #[serde(untagged)]
-    ParquetProtocol {
-        #[serde(rename = "camelCase")]
-        min_reader_version: i32,
-    },
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-enum MetadataResponse {
-    Protocol(delta_kernel::actions::Protocol),
-    Metadata(delta_kernel::actions::Metadata),
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DeltaFileResponse {
     pub name: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-}
-
-pub fn stream_paginated<F, Fut, S, T>(state: S, op: F) -> impl Stream<Item = Result<T>>
-where
-    F: Fn(S, Option<String>) -> Fut + Copy,
-    Fut: Future<Output = Result<(T, S, Option<String>)>>,
-{
-    enum PaginationState<T> {
-        Start(T),
-        HasMore(T, String),
-        Done,
-    }
-
-    futures::stream::unfold(PaginationState::Start(state), move |state| async move {
-        let (s, page_token) = match state {
-            PaginationState::Start(s) => (s, None),
-            PaginationState::HasMore(s, page_token) if !page_token.is_empty() => {
-                (s, Some(page_token))
-            }
-            _ => {
-                return None;
-            }
-        };
-
-        let (resp, s, continuation) = match op(s, page_token).await {
-            Ok(resp) => resp,
-            Err(e) => return Some((Err(e), PaginationState::Done)),
-        };
-
-        let next_state = match continuation {
-            Some(token) => PaginationState::HasMore(s, token),
-            None => PaginationState::Done,
-        };
-
-        Some((Ok(resp), next_state))
-    })
 }

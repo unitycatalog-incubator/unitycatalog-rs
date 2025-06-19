@@ -4,8 +4,8 @@ use axum::response::Response;
 use axum::routing::{Router, get};
 use http::header::CONTENT_TYPE;
 
+use super::api::*;
 use crate::api::RequestContext;
-use crate::api::sharing::*;
 use crate::models::sharing::v1::*;
 use crate::services::policy::Recipient;
 use crate::{Error, Result};

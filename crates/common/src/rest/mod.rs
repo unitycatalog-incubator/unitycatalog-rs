@@ -11,8 +11,8 @@ mod routers {
     pub use super::recipients::get_router as get_recipients_router;
     pub use super::schemas::get_router as get_schemas_router;
     pub use super::shares::get_router as get_shares_router;
-    pub use super::sharing::get_router as get_sharing_router;
     pub use super::tables::get_router as get_tables_router;
+    pub use crate::sharing::get_router as get_sharing_router;
 }
 
 #[cfg(feature = "axum")]
@@ -21,8 +21,6 @@ mod auth;
 pub mod client;
 #[cfg(any(all(test, feature = "axum"), feature = "integration"))]
 pub mod integration;
-#[cfg(feature = "axum")]
-mod sharing;
 
 #[cfg(feature = "axum")]
 mod catalogs {

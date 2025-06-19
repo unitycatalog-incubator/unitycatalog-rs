@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["unitycatalog/*", "app/src-tauri", "python/client"]
+members = ["crates/*", "app/src-tauri", "python/client"]
 # exclude = ["python/client"]
 
 [workspace.package]
@@ -60,7 +60,7 @@ default.extend-ignore-re = [
   "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$",
 ]
 files.extend-exclude = [
-  "unitycatalog/common/src/models/gen/**/*",
+  "crates/common/src/models/gen/**/*",
   "app/src/gen/**/*",
   "openapi/**/*",
 ]

@@ -135,6 +135,7 @@ mod tests {
                 "url": "http://localhost:8080",
                 "backend": {
                     "engine": "postgres",
+                    "database": "postgres",
                     "host": "localhost",
                     "port": "5432",
                     "user": "user",
