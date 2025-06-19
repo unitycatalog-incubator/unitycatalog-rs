@@ -187,6 +187,22 @@ pub enum ProtocolResponseData {
     ParquetProtocol(ParquetProtocol),
 }
 
+impl ProtocolResponseData {
+    pub fn min_reader_version(&self) -> i32 {
+        match self {
+            ProtocolResponseData::DeltaProtocol(protocol) => protocol.min_reader_version(),
+            ProtocolResponseData::ParquetProtocol(protocol) => protocol.min_reader_version,
+        }
+    }
+
+    pub fn min_writer_version(&self) -> Option<i32> {
+        match self {
+            ProtocolResponseData::DeltaProtocol(protocol) => Some(protocol.min_writer_version()),
+            ProtocolResponseData::ParquetProtocol(_) => None,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeltaMetadata {
@@ -263,6 +279,31 @@ pub enum MetadataResponseData {
     ///
     /// [Parquet format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol
     ParquetMetadata(ParquetMetadata),
+}
+
+impl MetadataResponseData {
+    pub fn id(&self) -> &str {
+        match self {
+            MetadataResponseData::DeltaMetadata(metadata) => &metadata.delta_metadata.id,
+            MetadataResponseData::ParquetMetadata(metadata) => &metadata.id,
+        }
+    }
+
+    pub fn partition_columns(&self) -> &[String] {
+        match self {
+            MetadataResponseData::DeltaMetadata(metadata) => {
+                metadata.delta_metadata.partition_columns.as_ref()
+            }
+            MetadataResponseData::ParquetMetadata(metadata) => metadata.partition_columns.as_ref(),
+        }
+    }
+
+    pub fn configuration(&self) -> &HashMap<String, String> {
+        match self {
+            MetadataResponseData::DeltaMetadata(metadata) => &metadata.delta_metadata.configuration,
+            MetadataResponseData::ParquetMetadata(metadata) => &metadata.configuration,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]

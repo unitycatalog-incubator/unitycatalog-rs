@@ -25,6 +25,7 @@ use crate::models::shares::v1 as share;
 use crate::models::sharing::v1 as sharing;
 use crate::models::tables::v1 as tbl;
 pub use crate::sharing::SharingDiscoveryClient;
+use crate::sharing::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
@@ -808,7 +809,7 @@ impl SharingClient {
         share: impl Into<String>,
         schema: impl Into<String>,
         name: impl Into<String>,
-    ) -> Result<(Protocol, Metadata)> {
+    ) -> Result<(ProtocolResponseData, MetadataResponseData)> {
         let url = self.base_url.join(&format!(
             "shares/{}/schemas/{}/tables/{}/metadata",
             share.into(),
@@ -828,7 +829,7 @@ impl SharingClient {
         for item in line_data {
             match item {
                 MetadataResponse::Protocol(p) => protocol = Some(p),
-                MetadataResponse::Metadata(m) => metadata = Some(m),
+                MetadataResponse::MetaData(m) => metadata = Some(m),
             }
         }
         if protocol.is_none() {
@@ -839,31 +840,6 @@ impl SharingClient {
         }
         Ok((protocol.unwrap(), metadata.unwrap()))
     }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum ProtocolResponseData {
-    /// Protocol in [Delta format]
-    ///
-    /// [Delta format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol-in-delta-format
-    DeltaProtocol(delta_kernel::actions::Protocol),
-
-    /// Protocol in [Parquet format]
-    ///
-    /// [Parquet format]: https://github.com/delta-io/delta-sharing/blob/main/PROTOCOL.md#protocol
-    #[serde(untagged)]
-    ParquetProtocol {
-        #[serde(rename = "camelCase")]
-        min_reader_version: i32,
-    },
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-enum MetadataResponse {
-    Protocol(delta_kernel::actions::Protocol),
-    Metadata(delta_kernel::actions::Metadata),
 }
 
 #[derive(Debug, Deserialize)]
