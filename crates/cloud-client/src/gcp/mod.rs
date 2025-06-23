@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use reqwest::header::HeaderName;
 use reqwest::Client;
+use reqwest::header::HeaderName;
 use serde::{Deserialize, Serialize};
 
 use self::credential::GcpCredential;

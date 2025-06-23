@@ -17,7 +17,7 @@
 
 //! Common logic for interacting with remote object stores
 use bytes::Bytes;
-use futures::{stream::StreamExt, Stream};
+use futures::{Stream, stream::StreamExt};
 
 use super::Result;
 

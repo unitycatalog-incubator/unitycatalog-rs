@@ -1,0 +1,26 @@
+{
+  "include": ["unitycatalog/*.ts", "unitycatalog/**/*.ts", "unitycatalog/*.js"],
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "Node"
+  },
+  "exclude": ["./dist/*", "./examples/*"],
+  "typedocOptions": {
+    "entryPoints": ["unitycatalog/index.ts"],
+    "out": "../docs/src/javascript/",
+    "visibilityFilters": {
+      "protected": false,
+      "private": false,
+      "inherited": true,
+      "external": false
+    }
+  }
+}

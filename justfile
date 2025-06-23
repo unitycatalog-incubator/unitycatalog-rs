@@ -15,13 +15,13 @@ generate-app:
     just app/generate
 
 generate-types:
-    just unitycatalog/common/generate
+    just crates/common/generate
 
 sqlx-prepare: start_pg
     # Wait for PostgreSQL to be ready
     sleep 1
     # Run migrations to create tables
-    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./unitycatalog/postgres/migrations
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     # Prepare SQLx
     cargo sqlx prepare --workspace -- --tests
     # Clean up

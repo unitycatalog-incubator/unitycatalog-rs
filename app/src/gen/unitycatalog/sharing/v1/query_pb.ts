@@ -100,6 +100,8 @@ export const GetTableVersionRequestSchema: GenMessage<GetTableVersionRequest, Ge
 
 /**
  * helper message internally used to parse the rest request.
+ * we do this over a manual implementation since the generated code
+ * will allow for snake_case as well as camelCase query parameters
  *
  * @generated from message unitycatalog.sharing.v1.InternalGetTableVersionParams
  */
@@ -112,6 +114,8 @@ export type InternalGetTableVersionParams = Message<"unitycatalog.sharing.v1.Int
 
 /**
  * helper message internally used to parse the rest request.
+ * we do this over a manual implementation since the generated code
+ * will allow for snake_case as well as camelCase query parameters
  *
  * @generated from message unitycatalog.sharing.v1.InternalGetTableVersionParams
  */

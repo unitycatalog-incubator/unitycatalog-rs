@@ -1,9 +1,9 @@
 use super::*;
 use syn::{
+    LitStr, Token,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     token::Comma,
-    LitStr, Token,
 };
 
 /// Custom keywords for the macro

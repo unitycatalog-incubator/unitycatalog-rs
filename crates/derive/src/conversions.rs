@@ -1,9 +1,9 @@
 use proc_macro2::Ident;
 use quote::quote;
 use syn::{
+    Expr, LitBool, Token, Type,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
-    Expr, LitBool, Token, Type,
 };
 
 pub struct ObjectDefs {

@@ -25,16 +25,16 @@ option (gnostic.openapi.v3.document) = {
   servers: [
     {
       url: "{scheme}://{host}/"
-      variables: {
-        scheme: {
-          description: "The scheme of the URI, either http or https."
-          default: "http"
-        }
-        host: {
-          description: "The host address for the specified server."
-          default: "localhost"
-        }
-      }
+      // variables: {
+      //   scheme: {
+      //     description: "The scheme of the URI, either http or https."
+      //     default: "http"
+      //   }
+      //   host: {
+      //     description: "The host address for the specified server."
+      //     default: "localhost"
+      //   }
+      // }
     }
   ]
 };

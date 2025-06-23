@@ -1,5 +1,5 @@
 [package]
-edition = "2021"
+edition = "2024"
 name = "unitycatalog_client"
 version = "0.0.0"
 
@@ -7,12 +7,20 @@ version = "0.0.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
-napi-derive = "2.12.2"
+cloud-client = { path = "../../crates/cloud-client" }
+unitycatalog-common = { path = "../../crates/common", features = [
+  "rest-client",
+] }
+
+napi = { workspace = true }
+napi-derive = { workspace = true }
+
+env_logger = { workspace = true }
+futures = { workspace = true }
+prost = { workspace = true }
 
 [build-dependencies]
-napi-build = "2.0.1"
+napi-build = "2.1"
 
 [profile.release]
 lto = true

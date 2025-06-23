@@ -130,7 +130,7 @@ fn get_store_url(url: &url::Url) -> Result<(ObjectStoreUrl, StorageLocationSchem
         StorageLocationScheme::ObjectStore(_) => {
             let store: &Url = store_url.as_ref();
             let store = store.clone();
-            
+
             store.join(url.path())?
         }
         StorageLocationScheme::Azurite if url.scheme() != "azurite" => {
