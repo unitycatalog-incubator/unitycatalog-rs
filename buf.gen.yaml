@@ -11,7 +11,7 @@ managed:
       value: github.com/delta-incubator/delta-sharing-rs/go
 plugins:
   - remote: buf.build/community/neoeinstein-prost:v0.4.0
-    out: unitycatalog/common/src/models/gen
+    out: crates/common/src/models/gen
     opt:
       # - bytes=.
       - compile_well_known_types=true
@@ -30,23 +30,28 @@ plugins:
       - message_attribute=.unitycatalog=#[cfg_attr(feature = "python"\, ::pyo3::pyclass(get_all\, set_all))]
       - enum_attribute=.unitycatalog=#[cfg_attr(feature = "python"\, ::pyo3::pyclass)]
   - remote: buf.build/community/neoeinstein-prost-serde:v0.3.1
-    out: unitycatalog/common/src/models/gen
+    out: crates/common/src/models/gen
     opt:
       # useful to build reusable extractors for axum
       - ignore_unknown_fields=true
       # - preserve_proto_field_names=true
   - remote: buf.build/community/neoeinstein-tonic:v0.4.1
-    out: unitycatalog/common/src/models/gen
+    out: crates/common/src/models/gen
     opt:
       - no_client=true
       - extern_path=.google.protobuf=::pbjson_types
       - no_include=true
   - remote: buf.build/community/google-gnostic-openapi:v0.7.0
     out: openapi
-  - remote: buf.build/bufbuild/es:v2.2.3
+  - remote: buf.build/bufbuild/es:v2.5.2
     out: app/src/gen
     opt:
       - target=ts
       - json_types=true
-  - remote: buf.build/bufbuild/protoschema-jsonschema:v0.2.0
+  - remote: buf.build/bufbuild/es:v2.5.2
+    out: node/client/unitycatalog/models/gen
+    opt:
+      - target=ts
+      - json_types=false
+  - remote: buf.build/bufbuild/protoschema-jsonschema:v0.5.0
     out: app/src/gen/jsonschema

@@ -5,14 +5,14 @@ use crate::aws::builder::S3EncryptionHeaders;
 use crate::retry::RetryExt;
 use crate::{ClientOptions, Result, RetryConfig};
 use hyper::http::HeaderName;
-use hyper::{http, HeaderMap};
+use hyper::{HeaderMap, http};
 use reqwest::{Client as ReqwestClient, IntoUrl, Method, RequestBuilder, Response};
 use ring::digest;
 use serde::Serialize;
 
 use self::credential::{AwsAuthorizer, AwsCredential, CredentialExt};
-use crate::util::STRICT_ENCODE_SET;
 use crate::CredentialProvider;
+use crate::util::STRICT_ENCODE_SET;
 
 mod builder;
 mod checksum;

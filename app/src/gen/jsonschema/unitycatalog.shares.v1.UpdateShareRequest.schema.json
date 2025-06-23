@@ -2,7 +2,7 @@
   "$id": "unitycatalog.shares.v1.UpdateShareRequest.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Update a share.\n\n The caller must be a metastore admin or have the UPDATE_SHARE privilege on the metastore.",
+  "description": "The caller must be a metastore admin or have the UPDATE_SHARE privilege on the metastore.",
   "patternProperties": {
     "^(newName)$": {
       "description": "A new name for the share.",
@@ -17,6 +17,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of the share.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
@@ -40,6 +41,6 @@
       "type": "array"
     }
   },
-  "title": "Update Share Request",
+  "title": "Update a share.",
   "type": "object"
 }

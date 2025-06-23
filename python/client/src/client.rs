@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use delta_kernel::actions::{Metadata, Protocol};
 use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
 use unitycatalog_common::models::catalogs::v1::{

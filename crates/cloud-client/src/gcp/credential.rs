@@ -15,14 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::retry::RetryExt;
-use crate::token::TemporaryToken;
-use crate::util::hex_encode;
-use crate::RetryConfig;
-use crate::TokenProvider;
 use async_trait::async_trait;
-use base64::prelude::BASE64_URL_SAFE_NO_PAD;
 use base64::Engine;
+use base64::prelude::BASE64_URL_SAFE_NO_PAD;
 use futures::TryFutureExt;
 use reqwest::{Client, Method};
 use ring::signature::RsaKeyPair;
@@ -34,6 +29,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tracing::info;
+
+use crate::RetryConfig;
+use crate::TokenProvider;
+use crate::retry::RetryExt;
+use crate::token::TemporaryToken;
+use crate::util::hex_encode;
 
 pub(crate) const DEFAULT_SCOPE: &str = "https://www.googleapis.com/auth/cloud-platform";
 

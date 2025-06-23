@@ -5,6 +5,7 @@
   "description": "Get a table",
   "patternProperties": {
     "^(full_name)$": {
+      "default": "",
       "description": "Full name of the table.",
       "type": "string"
     },
@@ -23,6 +24,7 @@
   },
   "properties": {
     "fullName": {
+      "default": "",
       "description": "Full name of the table.",
       "type": "string"
     },

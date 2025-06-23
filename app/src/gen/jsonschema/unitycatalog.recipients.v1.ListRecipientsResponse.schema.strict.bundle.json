@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.recipients.v1.ListRecipientsResponse.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Response to list recipients.",
+      "properties": {
+        "next_page_token": {
+          "description": "Opaque pagination token to go to next page based on previous query.",
+          "type": "string"
+        },
+        "recipients": {
+          "description": "List of recipients.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.recipients.v1.RecipientInfo.schema.strict.json"
+          },
+          "type": "array"
+        }
+      },
+      "title": "List Recipients Response",
+      "type": "object"
+    },
+    "unitycatalog.recipients.v1.RecipientInfo.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "authentication_type": {
+          "description": "The delta sharing authentication type.",
+          "enum": [
+            "AUTHENTICATION_TYPE_UNSPECIFIED",
+            "TOKEN",
+            "OAUTH_CLIENT_CREDENTIALS"
+          ],
+          "title": "Authentication Type",
+          "type": "string"
+        },
+        "comment": {
+          "description": "Description about the recipient.",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Time at which this share was created, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "created_by": {
+          "description": "Username of the creator of the share.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique ID of the recipient.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the recipient.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of the recipient owner.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.schema.strict.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "tokens": {
+          "description": "This field is only present when the authentication_type is TOKEN.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.recipients.v1.RecipientToken.schema.strict.json"
+          },
+          "type": "array"
+        },
+        "updated_at": {
+          "description": "Time at which this share was updated, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "updated_by": {
+          "description": "Username of share updater.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "authentication_type",
+        "owner"
+      ],
+      "title": "Recipient Info",
+      "type": "object"
+    },
+    "unitycatalog.recipients.v1.RecipientToken.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "activation_url": {
+          "description": "Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Time at which this recipient token was created, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "created_by": {
+          "description": "Username of recipient token creator.",
+          "type": "string"
+        },
+        "expiration_time": {
+          "description": "Expiration timestamp of the token in epoch milliseconds.",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Unique ID of the recipient token.",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Time at which this recipient token was updated, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "updated_by": {
+          "description": "Username of recipient token updater.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "created_at",
+        "created_by",
+        "activation_url",
+        "expiration_time",
+        "updated_at",
+        "updated_by"
+      ],
+      "title": "Recipient Token",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.recipients.v1.ListRecipientsResponse.schema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.recipients.v1.ListRecipientsResponse.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

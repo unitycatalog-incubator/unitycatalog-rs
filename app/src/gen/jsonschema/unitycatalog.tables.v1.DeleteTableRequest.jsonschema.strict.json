@@ -1,0 +1,17 @@
+{
+  "$id": "unitycatalog.tables.v1.DeleteTableRequest.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Delete a table",
+  "properties": {
+    "fullName": {
+      "description": "Full name of the table.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fullName"
+  ],
+  "title": "Delete Table Request",
+  "type": "object"
+}

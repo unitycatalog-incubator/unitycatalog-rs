@@ -29,7 +29,9 @@ use crate::backoff::{Backoff, BackoffConfig};
 /// Retry request error
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Received redirect without LOCATION, this normally indicates an incorrectly configured region")]
+    #[error(
+        "Received redirect without LOCATION, this normally indicates an incorrectly configured region"
+    )]
     BareRedirect,
 
     #[error("Server error, body contains Error, with status {status}: {}", body.as_deref().unwrap_or("No Body"))]
@@ -44,7 +46,9 @@ pub enum Error {
         body: Option<String>,
     },
 
-    #[error("Error after {retries} retries in {elapsed:?}, max_retries:{max_retries}, retry_timeout:{retry_timeout:?}, source:{source}")]
+    #[error(
+        "Error after {retries} retries in {elapsed:?}, max_retries:{max_retries}, retry_timeout:{retry_timeout:?}, source:{source}"
+    )]
     Reqwest {
         retries: usize,
         max_retries: usize,
@@ -124,7 +128,7 @@ impl From<Error> for std::io::Error {
             Error::Reqwest { source, .. } if source.is_connect() => {
                 Self::new(ErrorKind::NotConnected, err)
             }
-            _ => Self::new(ErrorKind::Other, err),
+            _ => Self::other(err),
         }
     }
 }
@@ -250,7 +254,7 @@ impl RetryableRequest {
                         return Err(Error::Client {
                             body: None,
                             status: StatusCode::NOT_MODIFIED,
-                        })
+                        });
                     }
                     Ok(r) => {
                         let is_bare_redirect =
@@ -411,8 +415,8 @@ mod tests {
     use super::RetryConfig;
     use crate::mock_server::MockServer;
     use crate::retry::{Error, RetryExt};
-    use hyper::header::LOCATION;
     use hyper::Response;
+    use hyper::header::LOCATION;
     use reqwest::{Client, Method, StatusCode};
     use std::time::Duration;
 
@@ -541,7 +545,10 @@ mod tests {
 
         let e = do_request().await.unwrap_err();
         assert!(matches!(e, Error::BareRedirect));
-        assert_eq!(e.to_string(), "Received redirect without LOCATION, this normally indicates an incorrectly configured region");
+        assert_eq!(
+            e.to_string(),
+            "Received redirect without LOCATION, this normally indicates an incorrectly configured region"
+        );
 
         // Gives up after the retrying the specified number of times
         for _ in 0..=retry.max_retries {

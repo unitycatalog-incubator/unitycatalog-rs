@@ -1,0 +1,67 @@
+{
+  "$id": "unitycatalog.recipients.v1.RecipientInfo.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authentication_type": {
+      "description": "The delta sharing authentication type.",
+      "enum": [
+        "AUTHENTICATION_TYPE_UNSPECIFIED",
+        "TOKEN",
+        "OAUTH_CLIENT_CREDENTIALS"
+      ],
+      "title": "Authentication Type",
+      "type": "string"
+    },
+    "comment": {
+      "description": "Description about the recipient.",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "Time at which this share was created, in epoch milliseconds.",
+      "type": "integer"
+    },
+    "created_by": {
+      "description": "Username of the creator of the share.",
+      "type": "string"
+    },
+    "id": {
+      "description": "Unique ID of the recipient.",
+      "type": "string"
+    },
+    "name": {
+      "description": "The name of the recipient.",
+      "type": "string"
+    },
+    "owner": {
+      "description": "Username of the recipient owner.",
+      "type": "string"
+    },
+    "properties": {
+      "$ref": "google.protobuf.Struct.schema.strict.json",
+      "description": "A map of key-value properties attached to the securable."
+    },
+    "tokens": {
+      "description": "This field is only present when the authentication_type is TOKEN.",
+      "items": {
+        "$ref": "unitycatalog.recipients.v1.RecipientToken.schema.strict.json"
+      },
+      "type": "array"
+    },
+    "updated_at": {
+      "description": "Time at which this share was updated, in epoch milliseconds.",
+      "type": "integer"
+    },
+    "updated_by": {
+      "description": "Username of share updater.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "authentication_type",
+    "owner"
+  ],
+  "title": "Recipient Info",
+  "type": "object"
+}

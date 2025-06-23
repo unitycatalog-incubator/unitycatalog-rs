@@ -7,8 +7,6 @@
     "^(ending_version)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -22,9 +20,17 @@
       "description": "The predicate to apply to the table."
     },
     "^(limit_hint)$": {
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
     },
     "^(predicate_hints)$": {
       "items": {
@@ -39,8 +45,6 @@
     "^(starting_version)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -54,8 +58,6 @@
     "endingVersion": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -69,11 +71,20 @@
       "description": "The predicate to apply to the table."
     },
     "limitHint": {
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ]
     },
     "name": {
+      "default": "",
       "minLength": 1,
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
       "type": "string"
@@ -85,11 +96,13 @@
       "type": "array"
     },
     "schema": {
+      "default": "",
       "minLength": 1,
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
       "type": "string"
     },
     "share": {
+      "default": "",
       "minLength": 1,
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
       "type": "string"
@@ -101,8 +114,6 @@
     "startingVersion": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -117,8 +128,6 @@
     "version": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

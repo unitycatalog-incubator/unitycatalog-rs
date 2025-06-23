@@ -9,6 +9,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of the share.",
       "minLength": 1,
       "type": "string"

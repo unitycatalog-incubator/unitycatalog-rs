@@ -5,9 +5,10 @@
   "description": "Create a new catalog",
   "patternProperties": {
     "^(provider_name)$": {
-      "description": "The name of delta sharing provider.\n\n A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+      "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z-_]*[0-9a-z]$",
+      "title": "The name of delta sharing provider.",
       "type": "string"
     },
     "^(share_name)$": {
@@ -28,6 +29,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -38,9 +40,10 @@
       "description": "A map of key-value properties attached to the securable."
     },
     "providerName": {
-      "description": "The name of delta sharing provider.\n\n A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+      "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z-_]*[0-9a-z]$",
+      "title": "The name of delta sharing provider.",
       "type": "string"
     },
     "shareName": {

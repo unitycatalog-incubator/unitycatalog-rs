@@ -1,0 +1,52 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.schemas.v1.CreateSchemaRequest.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Create a new Schema",
+      "patternProperties": {
+        "^(catalog_name)$": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "catalogName": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of schema, relative to parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        }
+      },
+      "title": "Create Schema Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.schemas.v1.CreateSchemaRequest.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.schemas.v1.CreateSchemaRequest.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

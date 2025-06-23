@@ -1,0 +1,27 @@
+[package]
+edition = "2024"
+name = "unitycatalog_client"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+cloud-client = { path = "../../crates/cloud-client" }
+unitycatalog-common = { path = "../../crates/common", features = [
+  "rest-client",
+] }
+
+napi = { workspace = true }
+napi-derive = { workspace = true }
+
+env_logger = { workspace = true }
+futures = { workspace = true }
+prost = { workspace = true }
+
+[build-dependencies]
+napi-build = "2.1"
+
+[profile.release]
+lto = true
+strip = "symbols"

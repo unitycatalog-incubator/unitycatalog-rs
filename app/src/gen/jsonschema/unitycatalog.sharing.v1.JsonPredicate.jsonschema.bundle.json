@@ -1,0 +1,49 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.JsonPredicate.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(value_type)$": {
+          "description": "This is only applicate to column and literal ops.",
+          "title": "Specifies the value type of a column or a literal op.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "children": {
+          "description": "The inputs to the operation - if any.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.sharing.v1.JsonPredicate.jsonschema.json"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "This is only applicable to column ops.",
+          "title": "Specifies the name of a column.",
+          "type": "string"
+        },
+        "op": {
+          "default": "",
+          "description": "The operation to perform.",
+          "type": "string"
+        },
+        "value": {
+          "description": "This is only applicable to literal ops.",
+          "title": "Specifies the value of a literal.",
+          "type": "string"
+        },
+        "valueType": {
+          "description": "This is only applicate to column and literal ops.",
+          "title": "Specifies the value type of a column or a literal op.",
+          "type": "string"
+        }
+      },
+      "title": "Json Predicate",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.JsonPredicate.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.JsonPredicate.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

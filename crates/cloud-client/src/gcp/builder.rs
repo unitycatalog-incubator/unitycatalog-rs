@@ -18,7 +18,7 @@
 use crate::gcp::credential::{
     ApplicationDefaultCredentials, InstanceCredentialProvider, ServiceAccountCredentials,
 };
-use crate::gcp::{credential, GcpCredential, GcpCredentialProvider};
+use crate::gcp::{GcpCredential, GcpCredentialProvider, credential};
 use crate::gcp::{GoogleClient, GoogleConfig};
 use crate::{
     ClientConfigKey, ClientOptions, Result, RetryConfig, StaticCredentialProvider,

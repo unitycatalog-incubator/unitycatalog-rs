@@ -1,7 +1,7 @@
 use axum::{
+    Router,
     body::Body,
     http::{self, Method, Request},
-    Router,
 };
 use http_body_util::BodyExt;
 

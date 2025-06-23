@@ -1,0 +1,14 @@
+{
+  "$id": "unitycatalog.profiles.v1.CreateProfileResponse.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Create a new profile response",
+  "properties": {
+    "profile": {
+      "$ref": "unitycatalog.profiles.v1.Profile.jsonschema.strict.json",
+      "description": "the profile file"
+    }
+  },
+  "title": "Create Profile Response",
+  "type": "object"
+}

@@ -8,24 +8,36 @@
       "type": "string"
     },
     "^(partition_index)$": {
-      "description": "Partition index for column.",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Partition index for column."
     },
     "^(type_interval_type)$": {
       "description": "Format of IntervalType.",
       "type": "string"
     },
     "^(type_json)$": {
+      "default": "",
       "description": "Full data type specification, JSON-serialized.",
       "type": "string"
     },
     "^(type_name)$": {
       "anyOf": [
         {
+          "pattern": "^COLUMN_TYPE_NAME_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "COLUMN_TYPE_NAME_UNSPECIFIED",
             "BOOLEAN",
             "BYTE",
             "SHORT",
@@ -49,7 +61,6 @@
             "VARIANT",
             "TABLE_TYPE"
           ],
-          "title": "Column Type Name",
           "type": "string"
         },
         {
@@ -58,21 +69,40 @@
           "type": "integer"
         }
       ],
-      "description": "Data type name."
+      "default": 0,
+      "description": "Data type name.",
+      "title": "Column Type Name"
     },
     "^(type_precision)$": {
-      "description": "Digits of precision; required for DecimalTypes.",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Digits of precision; required for DecimalTypes."
     },
     "^(type_scale)$": {
-      "description": "Digits to right of decimal; Required for DecimalTypes.",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Digits to right of decimal; Required for DecimalTypes."
     },
     "^(type_text)$": {
+      "default": "",
       "description": "Full data type specification as SQL/catalogString text.",
       "type": "string"
     }
@@ -87,6 +117,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of the column",
       "type": "string"
     },
@@ -95,30 +126,50 @@
       "type": "boolean"
     },
     "partitionIndex": {
-      "description": "Partition index for column.",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Partition index for column."
     },
     "position": {
-      "description": "Ordinal position of column (starting at position 0).",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Ordinal position of column (starting at position 0)."
     },
     "typeIntervalType": {
       "description": "Format of IntervalType.",
       "type": "string"
     },
     "typeJson": {
+      "default": "",
       "description": "Full data type specification, JSON-serialized.",
       "type": "string"
     },
     "typeName": {
       "anyOf": [
         {
+          "pattern": "^COLUMN_TYPE_NAME_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "COLUMN_TYPE_NAME_UNSPECIFIED",
             "BOOLEAN",
             "BYTE",
             "SHORT",
@@ -142,7 +193,6 @@
             "VARIANT",
             "TABLE_TYPE"
           ],
-          "title": "Column Type Name",
           "type": "string"
         },
         {
@@ -151,21 +201,40 @@
           "type": "integer"
         }
       ],
-      "description": "Data type name."
+      "default": 0,
+      "description": "Data type name.",
+      "title": "Column Type Name"
     },
     "typePrecision": {
-      "description": "Digits of precision; required for DecimalTypes.",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Digits of precision; required for DecimalTypes."
     },
     "typeScale": {
-      "description": "Digits to right of decimal; Required for DecimalTypes.",
-      "maximum": 2147483647,
-      "minimum": -2147483648,
-      "type": "integer"
+      "anyOf": [
+        {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "Digits to right of decimal; Required for DecimalTypes."
     },
     "typeText": {
+      "default": "",
       "description": "Full data type specification as SQL/catalogString text.",
       "type": "string"
     }

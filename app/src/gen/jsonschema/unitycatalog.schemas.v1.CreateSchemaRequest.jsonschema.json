@@ -5,6 +5,7 @@
   "description": "Create a new Schema",
   "patternProperties": {
     "^(catalog_name)$": {
+      "default": "",
       "description": "Name of parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -13,6 +14,7 @@
   },
   "properties": {
     "catalogName": {
+      "default": "",
       "description": "Name of parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -23,6 +25,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of schema, relative to parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",

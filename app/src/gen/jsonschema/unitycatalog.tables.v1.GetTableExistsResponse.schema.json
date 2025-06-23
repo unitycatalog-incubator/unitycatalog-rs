@@ -4,12 +4,14 @@
   "additionalProperties": false,
   "patternProperties": {
     "^(tableExists)$": {
+      "default": false,
       "description": "Boolean reflecting if table exists.",
       "type": "boolean"
     }
   },
   "properties": {
     "table_exists": {
+      "default": false,
       "description": "Boolean reflecting if table exists.",
       "type": "boolean"
     }

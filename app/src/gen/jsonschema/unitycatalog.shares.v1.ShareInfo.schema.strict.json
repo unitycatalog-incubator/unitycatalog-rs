@@ -1,0 +1,51 @@
+{
+  "$id": "unitycatalog.shares.v1.ShareInfo.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "comment": {
+      "description": "User-provided free-form text description.",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "Time at which this share was created, in epoch milliseconds.",
+      "type": "integer"
+    },
+    "created_by": {
+      "description": "Username of the creator of the share.",
+      "type": "string"
+    },
+    "data_objects": {
+      "description": "A list of shared data objects within the share.",
+      "items": {
+        "$ref": "unitycatalog.shares.v1.DataObject.schema.strict.json"
+      },
+      "type": "array"
+    },
+    "id": {
+      "description": "Unique ID of the recipient.",
+      "type": "string"
+    },
+    "name": {
+      "description": "Name of the share.",
+      "type": "string"
+    },
+    "owner": {
+      "description": "Username of current owner of share.",
+      "type": "string"
+    },
+    "updated_at": {
+      "description": "Time at which this share was updated, in epoch milliseconds.",
+      "type": "integer"
+    },
+    "updated_by": {
+      "description": "Username of share updater.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "Share Info",
+  "type": "object"
+}

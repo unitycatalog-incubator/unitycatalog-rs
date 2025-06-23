@@ -1,0 +1,430 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.ColumnInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(column_id)$": {
+          "description": "a unique id for the column",
+          "type": "string"
+        },
+        "^(partition_index)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Partition index for column."
+        },
+        "^(type_interval_type)$": {
+          "description": "Format of IntervalType.",
+          "type": "string"
+        },
+        "^(type_json)$": {
+          "default": "",
+          "description": "Full data type specification, JSON-serialized.",
+          "type": "string"
+        },
+        "^(type_name)$": {
+          "anyOf": [
+            {
+              "pattern": "^COLUMN_TYPE_NAME_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "BOOLEAN",
+                "BYTE",
+                "SHORT",
+                "INT",
+                "LONG",
+                "FLOAT",
+                "DOUBLE",
+                "DATE",
+                "TIMESTAMP",
+                "STRING",
+                "BINARY",
+                "DECIMAL",
+                "INTERVAL",
+                "ARRAY",
+                "STRUCT",
+                "MAP",
+                "CHAR",
+                "NULL",
+                "USER_DEFINED_TYPE",
+                "TIMESTAMP_NTZ",
+                "VARIANT",
+                "TABLE_TYPE"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Data type name.",
+          "title": "Column Type Name"
+        },
+        "^(type_precision)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits of precision; required for DecimalTypes."
+        },
+        "^(type_scale)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits to right of decimal; Required for DecimalTypes."
+        },
+        "^(type_text)$": {
+          "default": "",
+          "description": "Full data type specification as SQL/catalogString text.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "columnId": {
+          "description": "a unique id for the column",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of the column",
+          "type": "string"
+        },
+        "nullable": {
+          "description": "Whether field may be Null.",
+          "type": "boolean"
+        },
+        "partitionIndex": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Partition index for column."
+        },
+        "position": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Ordinal position of column (starting at position 0)."
+        },
+        "typeIntervalType": {
+          "description": "Format of IntervalType.",
+          "type": "string"
+        },
+        "typeJson": {
+          "default": "",
+          "description": "Full data type specification, JSON-serialized.",
+          "type": "string"
+        },
+        "typeName": {
+          "anyOf": [
+            {
+              "pattern": "^COLUMN_TYPE_NAME_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "BOOLEAN",
+                "BYTE",
+                "SHORT",
+                "INT",
+                "LONG",
+                "FLOAT",
+                "DOUBLE",
+                "DATE",
+                "TIMESTAMP",
+                "STRING",
+                "BINARY",
+                "DECIMAL",
+                "INTERVAL",
+                "ARRAY",
+                "STRUCT",
+                "MAP",
+                "CHAR",
+                "NULL",
+                "USER_DEFINED_TYPE",
+                "TIMESTAMP_NTZ",
+                "VARIANT",
+                "TABLE_TYPE"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Data type name.",
+          "title": "Column Type Name"
+        },
+        "typePrecision": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits of precision; required for DecimalTypes."
+        },
+        "typeScale": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits to right of decimal; Required for DecimalTypes."
+        },
+        "typeText": {
+          "default": "",
+          "description": "Full data type specification as SQL/catalogString text.",
+          "type": "string"
+        }
+      },
+      "title": "Column Info",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.CreateTableRequest.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "WARNING: this API is experimental and subject to change.",
+      "patternProperties": {
+        "^(catalog_name)$": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "^(data_source_format)$": {
+          "anyOf": [
+            {
+              "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DELTA",
+                "ICEBERG",
+                "HUDI",
+                "PARQUET",
+                "CSV",
+                "JSON",
+                "ORC",
+                "AVRO",
+                "TEXT",
+                "UNITY_CATALOG",
+                "DELTASHARING"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Data Source Format"
+        },
+        "^(schema_name)$": {
+          "default": "",
+          "description": "Name of parent schema relative to its parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "^(storage_location)$": {
+          "description": "Storage root URL for external table.",
+          "type": "string"
+        },
+        "^(table_type)$": {
+          "anyOf": [
+            {
+              "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "MANAGED",
+                "EXTERNAL"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Table Type"
+        }
+      },
+      "properties": {
+        "catalogName": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "columns": {
+          "description": "The array of ColumnInfo definitions of the table's columns.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.tables.v1.ColumnInfo.jsonschema.json"
+          },
+          "type": "array"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "dataSourceFormat": {
+          "anyOf": [
+            {
+              "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DELTA",
+                "ICEBERG",
+                "HUDI",
+                "PARQUET",
+                "CSV",
+                "JSON",
+                "ORC",
+                "AVRO",
+                "TEXT",
+                "UNITY_CATALOG",
+                "DELTASHARING"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Data Source Format"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of table, relative to parent schema.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "schemaName": {
+          "default": "",
+          "description": "Name of parent schema relative to its parent catalog.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "storageLocation": {
+          "description": "Storage root URL for external table.",
+          "type": "string"
+        },
+        "tableType": {
+          "anyOf": [
+            {
+              "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "MANAGED",
+                "EXTERNAL"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Table Type"
+        }
+      },
+      "title": "Create a table",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.CreateTableRequest.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.CreateTableRequest.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

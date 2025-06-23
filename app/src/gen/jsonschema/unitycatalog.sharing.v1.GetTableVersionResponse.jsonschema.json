@@ -7,8 +7,6 @@
     "version": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -16,6 +14,7 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "The table version that was requested."
     }
   },

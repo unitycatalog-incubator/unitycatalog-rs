@@ -1,0 +1,96 @@
+{
+  "$defs": {
+    "unitycatalog.tables.v1.ListTableSummariesResponse.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(next_page_token)$": {
+          "description": "The next_page_token value to include in the next List request.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "nextPageToken": {
+          "description": "The next_page_token value to include in the next List request.",
+          "type": "string"
+        },
+        "tables": {
+          "description": "The table summaries returned.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.tables.v1.TableSummary.jsonschema.json"
+          },
+          "type": "array"
+        }
+      },
+      "title": "List Table Summaries Response",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.TableSummary.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(full_name)$": {
+          "default": "",
+          "description": "The full name of the table.",
+          "type": "string"
+        },
+        "^(table_type)$": {
+          "anyOf": [
+            {
+              "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "MANAGED",
+                "EXTERNAL"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Table Type"
+        }
+      },
+      "properties": {
+        "fullName": {
+          "default": "",
+          "description": "The full name of the table.",
+          "type": "string"
+        },
+        "tableType": {
+          "anyOf": [
+            {
+              "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "MANAGED",
+                "EXTERNAL"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Table Type"
+        }
+      },
+      "title": "Table Summary",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.ListTableSummariesResponse.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.ListTableSummariesResponse.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

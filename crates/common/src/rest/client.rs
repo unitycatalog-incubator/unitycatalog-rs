@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
 use cloud_client::CloudClient;
 use delta_kernel::Version;
-use delta_kernel::actions::{Metadata, Protocol};
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
@@ -822,7 +821,7 @@ impl SharingClient {
         // split newlines and parse each as json
         let line_data: Vec<MetadataResponse> = result
             .split(|c| *c == b'\n')
-            .map(|line| ::serde_json::from_slice(line))
+            .map(::serde_json::from_slice)
             .try_collect()?;
         let mut protocol = None;
         let mut metadata = None;

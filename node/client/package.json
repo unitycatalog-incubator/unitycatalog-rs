@@ -1,0 +1,63 @@
+{
+  "name": "@unitycatalog/client",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "napi": {
+    "name": "client",
+    "triples": {
+      "additional": [
+        "aarch64-apple-darwin",
+        "aarch64-linux-android",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc",
+        "armv7-unknown-linux-gnueabihf",
+        "armv7-unknown-linux-musleabihf",
+        "x86_64-unknown-linux-musl",
+        "x86_64-unknown-freebsd",
+        "armv7-linux-androideabi",
+        "universal-apple-darwin"
+      ]
+    }
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@napi-rs/cli": "^2.18.4",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.7.4",
+    "ava": "^6.0.1",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "msw": "^2.10.2",
+    "shx": "^0.3.4",
+    "tmp": "^0.2.3",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^7.1.0"
+  },
+  "ava": {
+    "timeout": "3m"
+  },
+  "engines": {
+    "node": ">= 18"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "npm run build:debug && npm run tsc && shx cp unitycatalog/*.node dist/",
+    "build:release": "napi build --platform --release",
+    "build:debug": "napi build --platform --dts ../unitycatalog/native.d.ts --js ../unitycatalog/native.js unitycatalog",
+    "tsc": "tsc -b",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "ava",
+    "universal": "napi universal",
+    "version": "napi version"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.5.2"
+  }
+}

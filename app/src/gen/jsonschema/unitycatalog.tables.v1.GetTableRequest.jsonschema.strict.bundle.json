@@ -1,0 +1,35 @@
+{
+  "$defs": {
+    "unitycatalog.tables.v1.GetTableRequest.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Get a table",
+      "properties": {
+        "fullName": {
+          "description": "Full name of the table.",
+          "type": "string"
+        },
+        "includeBrowse": {
+          "description": "Whether to include tables in the response for which the principal can only access selective metadata for",
+          "type": "boolean"
+        },
+        "includeDeltaMetadata": {
+          "description": "Whether delta metadata should be included in the response.",
+          "type": "boolean"
+        },
+        "includeManifestCapabilities": {
+          "description": "Whether to include a manifest containing capabilities the table has.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "fullName"
+      ],
+      "title": "Get Table Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.GetTableRequest.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.GetTableRequest.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

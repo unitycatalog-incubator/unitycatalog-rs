@@ -1,0 +1,26 @@
+{
+  "$defs": {
+    "unitycatalog.shares.v1.ListSharesRequest.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Request to list shares.",
+      "properties": {
+        "max_results": {
+          "description": "The maximum number of results per page that should be returned.",
+          "exclusiveMaximum": 1000,
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        "page_token": {
+          "description": "Opaque pagination token to go to next page based on previous query.",
+          "type": "string"
+        }
+      },
+      "title": "List Shares Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.shares.v1.ListSharesRequest.schema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.shares.v1.ListSharesRequest.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

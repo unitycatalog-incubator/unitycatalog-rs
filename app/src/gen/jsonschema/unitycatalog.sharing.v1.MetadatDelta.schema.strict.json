@@ -1,0 +1,26 @@
+{
+  "$id": "unitycatalog.sharing.v1.MetadatDelta.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Metadata for Delta response.",
+  "properties": {
+    "delta_metadata": {
+      "$ref": "unitycatalog.sharing.v1.Metadata.schema.strict.json",
+      "description": "Metadata from Delta protocol"
+    },
+    "num_files": {
+      "description": "The number of files in the table, will be returned if available in the delta log.",
+      "type": "integer"
+    },
+    "size": {
+      "description": "The size of the table in bytes, will be returned if available in the delta log.",
+      "type": "integer"
+    },
+    "version": {
+      "description": "The table version the metadata corresponds to, returned when querying\n table data with a version or timestamp parameter, or cdf query\n with includeHistoricalMetadata set to true.",
+      "type": "integer"
+    }
+  },
+  "title": "Metadat Delta",
+  "type": "object"
+}

@@ -140,6 +140,8 @@ pub struct GetTableVersionRequest {
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// helper message internally used to parse the rest request.
+/// we do this over a manual implementation since the generated code
+/// will allow for snake_case as well as camelCase query parameters
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]

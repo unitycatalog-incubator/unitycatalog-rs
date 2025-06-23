@@ -5,6 +5,7 @@
   "description": "Get a recipient by name.",
   "properties": {
     "name": {
+      "default": "",
       "description": "Name of the recipient.",
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
       "type": "string"

@@ -5,12 +5,14 @@
   "description": "Delete a table",
   "patternProperties": {
     "^(fullName)$": {
+      "default": "",
       "description": "Full name of the table.",
       "type": "string"
     }
   },
   "properties": {
     "full_name": {
+      "default": "",
       "description": "Full name of the table.",
       "type": "string"
     }

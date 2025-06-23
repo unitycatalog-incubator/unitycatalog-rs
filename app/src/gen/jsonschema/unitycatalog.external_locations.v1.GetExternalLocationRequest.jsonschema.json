@@ -5,6 +5,7 @@
   "description": "Get an external location",
   "properties": {
     "name": {
+      "default": "",
       "description": "Name of external location.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
