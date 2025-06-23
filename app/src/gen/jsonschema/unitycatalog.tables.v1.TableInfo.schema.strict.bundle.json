@@ -1,0 +1,218 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.ColumnInfo.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "column_id": {
+          "description": "a unique id for the column",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the column",
+          "type": "string"
+        },
+        "nullable": {
+          "description": "Whether field may be Null.",
+          "type": "boolean"
+        },
+        "partition_index": {
+          "description": "Partition index for column.",
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        "position": {
+          "description": "Ordinal position of column (starting at position 0).",
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        "type_interval_type": {
+          "description": "Format of IntervalType.",
+          "type": "string"
+        },
+        "type_json": {
+          "description": "Full data type specification, JSON-serialized.",
+          "type": "string"
+        },
+        "type_name": {
+          "description": "Data type name.",
+          "enum": [
+            "COLUMN_TYPE_NAME_UNSPECIFIED",
+            "BOOLEAN",
+            "BYTE",
+            "SHORT",
+            "INT",
+            "LONG",
+            "FLOAT",
+            "DOUBLE",
+            "DATE",
+            "TIMESTAMP",
+            "STRING",
+            "BINARY",
+            "DECIMAL",
+            "INTERVAL",
+            "ARRAY",
+            "STRUCT",
+            "MAP",
+            "CHAR",
+            "NULL",
+            "USER_DEFINED_TYPE",
+            "TIMESTAMP_NTZ",
+            "VARIANT",
+            "TABLE_TYPE"
+          ],
+          "title": "Column Type Name",
+          "type": "string"
+        },
+        "type_precision": {
+          "description": "Digits of precision; required for DecimalTypes.",
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        "type_scale": {
+          "description": "Digits to right of decimal; Required for DecimalTypes.",
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        "type_text": {
+          "description": "Full data type specification as SQL/catalogString text.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "type_text",
+        "type_json",
+        "type_name"
+      ],
+      "title": "Column Info",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.TableInfo.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "catalog_name": {
+          "description": "Name of parent catalog.",
+          "type": "string"
+        },
+        "columns": {
+          "description": "The array of ColumnInfo definitions of the table's columns.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.tables.v1.ColumnInfo.schema.strict.json"
+          },
+          "type": "array"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Time at which this table was created, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "created_by": {
+          "description": "Username of table creator.",
+          "type": "string"
+        },
+        "data_source_format": {
+          "description": "Data source format of the table.",
+          "enum": [
+            "DATA_SOURCE_FORMAT_UNSPECIFIED",
+            "DELTA",
+            "ICEBERG",
+            "HUDI",
+            "PARQUET",
+            "CSV",
+            "JSON",
+            "ORC",
+            "AVRO",
+            "TEXT",
+            "UNITY_CATALOG",
+            "DELTASHARING"
+          ],
+          "title": "Data Source Format",
+          "type": "string"
+        },
+        "deleted_at": {
+          "description": "Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted.",
+          "type": "integer"
+        },
+        "full_name": {
+          "description": "Full name of table, in form of catalog_name.schema_name.table_name.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of table, relative to parent schema.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of table.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.schema.strict.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "schema_name": {
+          "description": "Name of parent schema.",
+          "type": "string"
+        },
+        "storage_credential_name": {
+          "description": "Name of the storage credential, when a storage credential is configured for use with this table.",
+          "type": "string"
+        },
+        "storage_location": {
+          "description": "Storage root URL for table (for MANAGED, EXTERNAL tables)",
+          "type": "string"
+        },
+        "table_id": {
+          "description": "Unique identifier for the table.",
+          "type": "string"
+        },
+        "table_type": {
+          "enum": [
+            "TABLE_TYPE_UNSPECIFIED",
+            "MANAGED",
+            "EXTERNAL"
+          ],
+          "title": "Table Type",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Time at which this table was last updated, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "updated_by": {
+          "description": "Username of user who last modified table.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "schema_name",
+        "catalog_name",
+        "table_type",
+        "data_source_format"
+      ],
+      "title": "Table Info",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.TableInfo.schema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.TableInfo.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,42 @@
+{
+  "catalogs": [
+    {
+      "browse_only": true,
+      "catalog_type": "MANAGED_CATALOG",
+      "comment": "string",
+      "connection_name": "string",
+      "created_at": 0,
+      "created_by": "string",
+      "effective_predictive_optimization_flag": {
+        "inherited_from_name": "string",
+        "inherited_from_type": "CATALOG",
+        "value": "DISABLE"
+      },
+      "enable_predictive_optimization": "DISABLE",
+      "full_name": "string",
+      "isolation_mode": "OPEN",
+      "metastore_id": "string",
+      "name": "string",
+      "options": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "owner": "string",
+      "properties": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "provider_name": "string",
+      "provisioning_info": {
+        "state": "PROVISIONING"
+      },
+      "securable_type": "CATALOG",
+      "share_name": "string",
+      "storage_location": "string",
+      "storage_root": "string",
+      "updated_at": 0,
+      "updated_by": "string"
+    }
+  ],
+  "next_page_token": "string"
+}

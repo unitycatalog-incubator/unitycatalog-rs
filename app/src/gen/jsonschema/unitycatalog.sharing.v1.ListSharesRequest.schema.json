@@ -5,10 +5,18 @@
   "description": "Request to list shares.",
   "patternProperties": {
     "^(maxResults)$": {
-      "description": "The maximum number of results per page that should be returned.",
-      "exclusiveMaximum": 1000,
-      "exclusiveMinimum": 0,
-      "type": "integer"
+      "anyOf": [
+        {
+          "exclusiveMaximum": 1000,
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "The maximum number of results per page that should be returned."
     },
     "^(pageToken)$": {
       "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request to get the next page of results.",
@@ -17,10 +25,18 @@
   },
   "properties": {
     "max_results": {
-      "description": "The maximum number of results per page that should be returned.",
-      "exclusiveMaximum": 1000,
-      "exclusiveMinimum": 0,
-      "type": "integer"
+      "anyOf": [
+        {
+          "exclusiveMaximum": 1000,
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "The maximum number of results per page that should be returned."
     },
     "page_token": {
       "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request to get the next page of results.",

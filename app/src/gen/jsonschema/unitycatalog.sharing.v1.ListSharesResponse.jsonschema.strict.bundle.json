@@ -1,0 +1,48 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.ListSharesResponse.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Response for ListSharesRequest.",
+      "properties": {
+        "items": {
+          "description": "The shares that were requested.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.sharing.v1.Share.jsonschema.strict.json"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "description": "Token that can be used to retrieve the next page of shares.\n An empty or missing token means that no more shares are available for retrieval.",
+          "type": "string"
+        }
+      },
+      "title": "List Shares Response",
+      "type": "object"
+    },
+    "unitycatalog.sharing.v1.Share.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.\n A recipient can access all resources in a share. A share may contain multiple schemas.",
+      "properties": {
+        "id": {
+          "description": "Unique identifier for the share.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the share.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Share",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.ListSharesResponse.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.ListSharesResponse.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

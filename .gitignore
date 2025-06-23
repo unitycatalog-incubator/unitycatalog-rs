@@ -22,3 +22,6 @@ ffi/examples/read-table/build
 /target
 .env
 !.env.dev
+
+# Dependency directories
+node_modules/

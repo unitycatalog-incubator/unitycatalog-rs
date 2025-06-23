@@ -6,12 +6,14 @@
     "^(authenticationType)$": {
       "anyOf": [
         {
+          "pattern": "^AUTHENTICATION_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "AUTHENTICATION_TYPE_UNSPECIFIED",
             "TOKEN",
             "OAUTH_CLIENT_CREDENTIALS"
           ],
-          "title": "Authentication Type",
           "type": "string"
         },
         {
@@ -20,13 +22,13 @@
           "type": "integer"
         }
       ],
-      "description": "The delta sharing authentication type."
+      "default": 0,
+      "description": "The delta sharing authentication type.",
+      "title": "Authentication Type"
     },
     "^(createdAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -43,8 +45,6 @@
     "^(updatedAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -63,12 +63,14 @@
     "authentication_type": {
       "anyOf": [
         {
+          "pattern": "^AUTHENTICATION_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "AUTHENTICATION_TYPE_UNSPECIFIED",
             "TOKEN",
             "OAUTH_CLIENT_CREDENTIALS"
           ],
-          "title": "Authentication Type",
           "type": "string"
         },
         {
@@ -77,7 +79,9 @@
           "type": "integer"
         }
       ],
-      "description": "The delta sharing authentication type."
+      "default": 0,
+      "description": "The delta sharing authentication type.",
+      "title": "Authentication Type"
     },
     "comment": {
       "description": "Description about the recipient.",
@@ -86,8 +90,6 @@
     "created_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -106,10 +108,12 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "The name of the recipient.",
       "type": "string"
     },
     "owner": {
+      "default": "",
       "description": "Username of the recipient owner.",
       "type": "string"
     },
@@ -127,8 +131,6 @@
     "updated_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

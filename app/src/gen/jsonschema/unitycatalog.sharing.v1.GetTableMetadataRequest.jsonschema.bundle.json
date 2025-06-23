@@ -1,0 +1,34 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.GetTableMetadataRequest.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Get metadata of a table.",
+      "properties": {
+        "name": {
+          "default": "",
+          "description": "The table name to query. It's case-insensitive.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema": {
+          "default": "",
+          "description": "The schema name to query. It's case-insensitive.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "share": {
+          "default": "",
+          "description": "The share name to query. It's case-insensitive.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "title": "Get Table Metadata Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.GetTableMetadataRequest.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.GetTableMetadataRequest.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

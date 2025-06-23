@@ -1,0 +1,61 @@
+{
+  "$id": "unitycatalog.sharing.v1.QueryTableRequest.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Request to query a table.",
+  "properties": {
+    "ending_version": {
+      "type": "integer"
+    },
+    "json_predicate_hints": {
+      "$ref": "unitycatalog.sharing.v1.JsonPredicate.schema.strict.json",
+      "description": "The predicate to apply to the table."
+    },
+    "limit_hint": {
+      "maximum": 2147483647,
+      "minimum": -2147483648,
+      "type": "integer"
+    },
+    "name": {
+      "minLength": 1,
+      "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+      "type": "string"
+    },
+    "predicate_hints": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "minLength": 1,
+      "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+      "type": "string"
+    },
+    "share": {
+      "minLength": 1,
+      "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+      "type": "string"
+    },
+    "starting_timestamp": {
+      "description": "The starting timestamp to query from.",
+      "type": "string"
+    },
+    "starting_version": {
+      "type": "integer"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "share",
+    "schema",
+    "name"
+  ],
+  "title": "Query Table Request",
+  "type": "object"
+}

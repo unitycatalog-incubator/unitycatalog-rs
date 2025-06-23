@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "unitycatalog.tables.v1.ListTablesRequest.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "catalogName": {
+          "description": "Name of parent catalog for tables of interest.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "includeBrowse": {
+          "description": "Whether to include tables in the response for which the principal can only access selective metadata for",
+          "type": "boolean"
+        },
+        "includeDeltaMetadata": {
+          "description": "Whether delta metadata should be included in the response.",
+          "type": "boolean"
+        },
+        "includeManifestCapabilities": {
+          "description": "Whether to include a manifest containing capabilities the table has.",
+          "type": "boolean"
+        },
+        "maxResults": {
+          "description": "The maximum number of results per page that should be returned.",
+          "exclusiveMinimum": 0,
+          "maximum": 50,
+          "type": "integer"
+        },
+        "omitColumns": {
+          "description": "Whether to omit the columns of the table from the response or not.",
+          "type": "boolean"
+        },
+        "omitProperties": {
+          "description": "Whether to omit the properties of the table from the response or not.",
+          "type": "boolean"
+        },
+        "omitUsername": {
+          "description": "Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or not.",
+          "type": "boolean"
+        },
+        "pageToken": {
+          "description": "Opaque pagination token to go to next page based on previous query.",
+          "type": "string"
+        },
+        "schemaName": {
+          "description": "Name of parent schema for tables of interest.",
+          "minLength": 3,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaName",
+        "catalogName"
+      ],
+      "title": "List Tables Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.ListTablesRequest.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.ListTablesRequest.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

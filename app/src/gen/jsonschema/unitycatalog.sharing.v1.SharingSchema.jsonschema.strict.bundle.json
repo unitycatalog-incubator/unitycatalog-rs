@@ -1,0 +1,32 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.SharingSchema.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A schema is a logical grouping of tables. A schema may contain multiple tables.",
+      "properties": {
+        "id": {
+          "description": "Unique identifier for the schema.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the schema",
+          "type": "string"
+        },
+        "share": {
+          "description": "The share name that the schema belongs to.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "share"
+      ],
+      "title": "Sharing Schema",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.SharingSchema.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.SharingSchema.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

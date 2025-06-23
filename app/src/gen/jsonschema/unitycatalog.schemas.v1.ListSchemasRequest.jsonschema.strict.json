@@ -1,0 +1,33 @@
+{
+  "$id": "unitycatalog.schemas.v1.ListSchemasRequest.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "List Schemas in a catalog",
+  "properties": {
+    "catalogName": {
+      "description": "Name of parent catalog.",
+      "minLength": 3,
+      "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+      "type": "string"
+    },
+    "includeBrowse": {
+      "description": "Whether to include schemas in the response for which the principal can only access selective metadata for",
+      "type": "boolean"
+    },
+    "maxResults": {
+      "description": "The maximum number of results per page that should be returned.",
+      "exclusiveMaximum": 1000,
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    },
+    "pageToken": {
+      "description": "Opaque pagination token to go to next page based on previous query.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "catalogName"
+  ],
+  "title": "List Schemas Request",
+  "type": "object"
+}

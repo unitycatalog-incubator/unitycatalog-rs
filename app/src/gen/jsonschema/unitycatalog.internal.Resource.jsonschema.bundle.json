@@ -1,0 +1,1964 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.catalogs.v1.CatalogInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A catalog is a root-level namespace that contains schemas.",
+      "patternProperties": {
+        "^(browse_only)$": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse\n is enabled in the request.",
+          "type": "boolean"
+        },
+        "^(catalog_type)$": {
+          "anyOf": [
+            {
+              "enum": [
+                "CATALOG_TYPE_UNSPECIFIED",
+                "MANAGED_CATALOG",
+                "DELTASHARING_CATALOG",
+                "SYSTEM_CATALOG"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "description": "The type of the catalog.",
+          "title": "Catalog Type"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "^(provider_name)$": {
+          "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+          "title": "The name of delta sharing provider.",
+          "type": "string"
+        },
+        "^(share_name)$": {
+          "description": "The name of the share under the share provider.",
+          "type": "string"
+        },
+        "^(storage_root)$": {
+          "description": "Storage root URL for managed tables within catalog.",
+          "type": "string"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was last updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "browseOnly": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse\n is enabled in the request.",
+          "type": "boolean"
+        },
+        "catalogType": {
+          "anyOf": [
+            {
+              "enum": [
+                "CATALOG_TYPE_UNSPECIFIED",
+                "MANAGED_CATALOG",
+                "DELTASHARING_CATALOG",
+                "SYSTEM_CATALOG"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "description": "The type of the catalog.",
+          "title": "Catalog Type"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique identifier for the catalog.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of catalog.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of catalog.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "providerName": {
+          "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+          "title": "The name of delta sharing provider.",
+          "type": "string"
+        },
+        "shareName": {
+          "description": "The name of the share under the share provider.",
+          "type": "string"
+        },
+        "storageRoot": {
+          "description": "Storage root URL for managed tables within catalog.",
+          "type": "string"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was last updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        }
+      },
+      "title": "Catalog Info",
+      "type": "object"
+    },
+    "unitycatalog.credentials.v1.AzureManagedIdentity.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(application_id)$": {
+          "description": "The application ID of the application registration within the referenced AAD tenant.",
+          "type": "string"
+        },
+        "^(msi_resource_id)$": {
+          "description": "Msi resource id for use with managed identity authentication",
+          "type": "string"
+        },
+        "^(object_id)$": {
+          "description": "Object id for use with managed identity authentication",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "applicationId": {
+          "description": "The application ID of the application registration within the referenced AAD tenant.",
+          "type": "string"
+        },
+        "msiResourceId": {
+          "description": "Msi resource id for use with managed identity authentication",
+          "type": "string"
+        },
+        "objectId": {
+          "description": "Object id for use with managed identity authentication",
+          "type": "string"
+        }
+      },
+      "title": "Azure Managed Identity",
+      "type": "object"
+    },
+    "unitycatalog.credentials.v1.AzureServicePrincipal.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(application_id)$": {
+          "default": "",
+          "description": "The application ID of the application registration within the referenced AAD tenant.",
+          "type": "string"
+        },
+        "^(client_secret)$": {
+          "description": "The client secret generated for the above app ID in AAD.",
+          "type": "string"
+        },
+        "^(directory_id)$": {
+          "default": "",
+          "description": "The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application.",
+          "type": "string"
+        },
+        "^(federated_token_file)$": {
+          "description": "Specifically useful for workload identity federation.",
+          "title": "Location of the file containing a federated token.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "applicationId": {
+          "default": "",
+          "description": "The application ID of the application registration within the referenced AAD tenant.",
+          "type": "string"
+        },
+        "clientSecret": {
+          "description": "The client secret generated for the above app ID in AAD.",
+          "type": "string"
+        },
+        "directoryId": {
+          "default": "",
+          "description": "The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application.",
+          "type": "string"
+        },
+        "federatedTokenFile": {
+          "description": "Specifically useful for workload identity federation.",
+          "title": "Location of the file containing a federated token.",
+          "type": "string"
+        }
+      },
+      "title": "Azure Service Principal",
+      "type": "object"
+    },
+    "unitycatalog.credentials.v1.AzureStorageKey.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(account_key)$": {
+          "default": "",
+          "description": "The account key of the storage account.",
+          "type": "string"
+        },
+        "^(account_name)$": {
+          "default": "",
+          "description": "The name of the storage account.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "accountKey": {
+          "default": "",
+          "description": "The account key of the storage account.",
+          "type": "string"
+        },
+        "accountName": {
+          "default": "",
+          "description": "The name of the storage account.",
+          "type": "string"
+        }
+      },
+      "title": "Azure Storage Key",
+      "type": "object"
+    },
+    "unitycatalog.credentials.v1.CredentialInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(azure_managed_identity)$": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.AzureManagedIdentity.jsonschema.json"
+        },
+        "^(azure_service_principal)$": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.AzureServicePrincipal.jsonschema.json"
+        },
+        "^(azure_storage_key)$": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.AzureStorageKey.jsonschema.json"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this credential was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of credential creator.",
+          "type": "string"
+        },
+        "^(full_name)$": {
+          "description": "The full name of the credential.",
+          "type": "string"
+        },
+        "^(read_only)$": {
+          "default": false,
+          "description": "Only applicable when purpose is STORAGE.",
+          "title": "Whether the credential is usable only for read operations.",
+          "type": "boolean"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this credential was last updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of user who last modified credential.",
+          "type": "string"
+        },
+        "^(used_for_managed_storage)$": {
+          "default": false,
+          "description": "Only applicable when purpose is STORAGE.",
+          "title": "Whether this credential is the current metastore's root storage credential.",
+          "type": "boolean"
+        }
+      },
+      "properties": {
+        "azureManagedIdentity": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.AzureManagedIdentity.jsonschema.json"
+        },
+        "azureServicePrincipal": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.AzureServicePrincipal.jsonschema.json"
+        },
+        "azureStorageKey": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.AzureStorageKey.jsonschema.json"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this credential was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of credential creator.",
+          "type": "string"
+        },
+        "fullName": {
+          "description": "The full name of the credential.",
+          "type": "string"
+        },
+        "id": {
+          "default": "",
+          "description": "The unique identifier of the credential.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "The name must be unique among storage and service credentials within the metastore.",
+          "title": "The credential name.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of credential.",
+          "type": "string"
+        },
+        "purpose": {
+          "anyOf": [
+            {
+              "pattern": "^PURPOSE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "STORAGE",
+                "SERVICE"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Indicates the purpose of the credential.",
+          "title": "Purpose"
+        },
+        "readOnly": {
+          "default": false,
+          "description": "Only applicable when purpose is STORAGE.",
+          "title": "Whether the credential is usable only for read operations.",
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this credential was last updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified credential.",
+          "type": "string"
+        },
+        "usedForManagedStorage": {
+          "default": false,
+          "description": "Only applicable when purpose is STORAGE.",
+          "title": "Whether this credential is the current metastore's root storage credential.",
+          "type": "boolean"
+        }
+      },
+      "title": "Credential Info",
+      "type": "object"
+    },
+    "unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(browse_only)$": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse is enabled in the request.",
+          "type": "boolean"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "^(credential_id)$": {
+          "default": "",
+          "description": "Unique ID of the location's storage credential.",
+          "type": "string"
+        },
+        "^(credential_name)$": {
+          "default": "",
+          "description": "Name of the storage credential used with this location.",
+          "type": "string"
+        },
+        "^(external_location_id)$": {
+          "type": "string"
+        },
+        "^(read_only)$": {
+          "default": false,
+          "description": "Indicates whether the external location is read-only.",
+          "type": "boolean"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was last updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "browseOnly": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse is enabled in the request.",
+          "type": "boolean"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "credentialId": {
+          "default": "",
+          "description": "Unique ID of the location's storage credential.",
+          "type": "string"
+        },
+        "credentialName": {
+          "default": "",
+          "description": "Name of the storage credential used with this location.",
+          "type": "string"
+        },
+        "externalLocationId": {
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of the external location.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "The owner of the external location.",
+          "type": "string"
+        },
+        "readOnly": {
+          "default": false,
+          "description": "Indicates whether the external location is read-only.",
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was last updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        },
+        "url": {
+          "default": "",
+          "description": "Path URL of the external location.",
+          "type": "string"
+        }
+      },
+      "title": "External Location Info",
+      "type": "object"
+    },
+    "unitycatalog.internal.Resource.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Dummy message to hold all resources.",
+      "patternProperties": {
+        "^(catalog_info)$": {
+          "$ref": "#/$defs/unitycatalog.catalogs.v1.CatalogInfo.jsonschema.json"
+        },
+        "^(column_info)$": {
+          "$ref": "#/$defs/unitycatalog.tables.v1.ColumnInfo.jsonschema.json"
+        },
+        "^(credential_info)$": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.CredentialInfo.jsonschema.json"
+        },
+        "^(external_location_info)$": {
+          "$ref": "#/$defs/unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.json"
+        },
+        "^(recipient_info)$": {
+          "$ref": "#/$defs/unitycatalog.recipients.v1.RecipientInfo.jsonschema.json"
+        },
+        "^(schema_info)$": {
+          "$ref": "#/$defs/unitycatalog.schemas.v1.SchemaInfo.jsonschema.json"
+        },
+        "^(share_info)$": {
+          "$ref": "#/$defs/unitycatalog.shares.v1.ShareInfo.jsonschema.json"
+        },
+        "^(sharing_schema_info)$": {
+          "$ref": "#/$defs/unitycatalog.sharing.v1.SharingSchemaInfo.jsonschema.json"
+        },
+        "^(sharing_table)$": {
+          "$ref": "#/$defs/unitycatalog.sharing.v1.SharingTable.jsonschema.json"
+        },
+        "^(table_info)$": {
+          "$ref": "#/$defs/unitycatalog.tables.v1.TableInfo.jsonschema.json"
+        }
+      },
+      "properties": {
+        "catalogInfo": {
+          "$ref": "#/$defs/unitycatalog.catalogs.v1.CatalogInfo.jsonschema.json"
+        },
+        "columnInfo": {
+          "$ref": "#/$defs/unitycatalog.tables.v1.ColumnInfo.jsonschema.json"
+        },
+        "credentialInfo": {
+          "$ref": "#/$defs/unitycatalog.credentials.v1.CredentialInfo.jsonschema.json"
+        },
+        "externalLocationInfo": {
+          "$ref": "#/$defs/unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.json"
+        },
+        "recipientInfo": {
+          "$ref": "#/$defs/unitycatalog.recipients.v1.RecipientInfo.jsonschema.json"
+        },
+        "schemaInfo": {
+          "$ref": "#/$defs/unitycatalog.schemas.v1.SchemaInfo.jsonschema.json"
+        },
+        "shareInfo": {
+          "$ref": "#/$defs/unitycatalog.shares.v1.ShareInfo.jsonschema.json"
+        },
+        "sharingSchemaInfo": {
+          "$ref": "#/$defs/unitycatalog.sharing.v1.SharingSchemaInfo.jsonschema.json"
+        },
+        "sharingTable": {
+          "$ref": "#/$defs/unitycatalog.sharing.v1.SharingTable.jsonschema.json"
+        },
+        "tableInfo": {
+          "$ref": "#/$defs/unitycatalog.tables.v1.TableInfo.jsonschema.json"
+        }
+      },
+      "title": "Resource",
+      "type": "object"
+    },
+    "unitycatalog.recipients.v1.RecipientInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(authentication_type)$": {
+          "anyOf": [
+            {
+              "pattern": "^AUTHENTICATION_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "TOKEN",
+                "OAUTH_CLIENT_CREDENTIALS"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "The delta sharing authentication type.",
+          "title": "Authentication Type"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of the creator of the share.",
+          "type": "string"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of share updater.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "authenticationType": {
+          "anyOf": [
+            {
+              "pattern": "^AUTHENTICATION_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "TOKEN",
+                "OAUTH_CLIENT_CREDENTIALS"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "The delta sharing authentication type.",
+          "title": "Authentication Type"
+        },
+        "comment": {
+          "description": "Description about the recipient.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of the creator of the share.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique ID of the recipient.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "The name of the recipient.",
+          "type": "string"
+        },
+        "owner": {
+          "default": "",
+          "description": "Username of the recipient owner.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "tokens": {
+          "description": "This field is only present when the authentication_type is TOKEN.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.recipients.v1.RecipientToken.jsonschema.json"
+          },
+          "type": "array"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of share updater.",
+          "type": "string"
+        }
+      },
+      "title": "Recipient Info",
+      "type": "object"
+    },
+    "unitycatalog.recipients.v1.RecipientToken.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(activation_url)$": {
+          "default": "",
+          "description": "Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.",
+          "type": "string"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "Time at which this recipient token was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "default": "",
+          "description": "Username of recipient token creator.",
+          "type": "string"
+        },
+        "^(expiration_time)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "Expiration timestamp of the token in epoch milliseconds."
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "Time at which this recipient token was updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "default": "",
+          "description": "Username of recipient token updater.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "activationUrl": {
+          "default": "",
+          "description": "Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "Time at which this recipient token was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "default": "",
+          "description": "Username of recipient token creator.",
+          "type": "string"
+        },
+        "expirationTime": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "Expiration timestamp of the token in epoch milliseconds."
+        },
+        "id": {
+          "default": "",
+          "description": "Unique ID of the recipient token.",
+          "type": "string"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "Time at which this recipient token was updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "default": "",
+          "description": "Username of recipient token updater.",
+          "type": "string"
+        }
+      },
+      "title": "Recipient Token",
+      "type": "object"
+    },
+    "unitycatalog.schemas.v1.SchemaInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A schema is a namespace within a catalog that contains tables.",
+      "patternProperties": {
+        "^(catalog_name)$": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "type": "string"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this schema was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of schema creator.",
+          "type": "string"
+        },
+        "^(full_name)$": {
+          "description": "Full name of schema, in form of catalog_name.schema_name.",
+          "type": "string"
+        },
+        "^(schema_id)$": {
+          "description": "Unique identifier for the schema.",
+          "type": "string"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this schema was last updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of user who last modified schema.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "catalogName": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this schema was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of schema creator.",
+          "type": "string"
+        },
+        "fullName": {
+          "description": "Full name of schema, in form of catalog_name.schema_name.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of schema, relative to parent catalog.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of schema.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "schemaId": {
+          "description": "Unique identifier for the schema.",
+          "type": "string"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this schema was last updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified schema.",
+          "type": "string"
+        }
+      },
+      "title": "Schema Info",
+      "type": "object"
+    },
+    "unitycatalog.shares.v1.DataObject.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(added_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "The time when this data object is added to the share, in epoch milliseconds."
+        },
+        "^(added_by)$": {
+          "description": "Username of the sharer.",
+          "type": "string"
+        },
+        "^(data_object_type)$": {
+          "anyOf": [
+            {
+              "pattern": "^DATA_OBJECT_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "TABLE",
+                "SCHEMA"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Type of the data object.",
+          "title": "Data Object Type"
+        },
+        "^(enable_cdf)$": {
+          "description": "Whether to enable cdf or indicate if cdf is enabled on the shared object.",
+          "type": "boolean"
+        },
+        "^(history_data_sharing_status)$": {
+          "anyOf": [
+            {
+              "enum": [
+                "DISABLED",
+                "ENABLED"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "description": "Whether to enable or disable sharing of data history. If not specified, the default is DISABLED.",
+          "title": "History Status"
+        },
+        "^(shared_as)$": {
+          "description": "If this new name is not provided, the object's original name will be used as the shared_as name.\n The shared_as name must be unique within a share.\n For tables, the new name must follow the format of \u003cschema\u003e.\u003ctable\u003e.",
+          "title": "A user-provided new name for the data object within the share.",
+          "type": "string"
+        },
+        "^(start_version)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "This allows data providers to control the lowest object version that is accessible by clients.\n If specified, clients can query snapshots or changes for versions \u003e= start_version.\n If not specified, clients can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The start_version should be \u003c= the current version of the object.",
+          "title": "The start version associated with the object."
+        }
+      },
+      "properties": {
+        "addedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "The time when this data object is added to the share, in epoch milliseconds."
+        },
+        "addedBy": {
+          "description": "Username of the sharer.",
+          "type": "string"
+        },
+        "comment": {
+          "description": "A user-provided comment when adding the data object to the share.",
+          "type": "string"
+        },
+        "dataObjectType": {
+          "anyOf": [
+            {
+              "pattern": "^DATA_OBJECT_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "TABLE",
+                "SCHEMA"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Type of the data object.",
+          "title": "Data Object Type"
+        },
+        "enableCdf": {
+          "description": "Whether to enable cdf or indicate if cdf is enabled on the shared object.",
+          "type": "boolean"
+        },
+        "historyDataSharingStatus": {
+          "anyOf": [
+            {
+              "enum": [
+                "DISABLED",
+                "ENABLED"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "description": "Whether to enable or disable sharing of data history. If not specified, the default is DISABLED.",
+          "title": "History Status"
+        },
+        "name": {
+          "default": "",
+          "description": "For example, a table's fully qualified name is in the format of \u003ccatalog\u003e.\u003cschema\u003e.\u003ctable\u003e,",
+          "title": "A fully qualified name that uniquely identifies a data object.",
+          "type": "string"
+        },
+        "partitions": {
+          "description": "Array of partitions for the shared data.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sharedAs": {
+          "description": "If this new name is not provided, the object's original name will be used as the shared_as name.\n The shared_as name must be unique within a share.\n For tables, the new name must follow the format of \u003cschema\u003e.\u003ctable\u003e.",
+          "title": "A user-provided new name for the data object within the share.",
+          "type": "string"
+        },
+        "startVersion": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "This allows data providers to control the lowest object version that is accessible by clients.\n If specified, clients can query snapshots or changes for versions \u003e= start_version.\n If not specified, clients can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The start_version should be \u003c= the current version of the object.",
+          "title": "The start version associated with the object."
+        }
+      },
+      "title": "Data Object",
+      "type": "object"
+    },
+    "unitycatalog.shares.v1.ShareInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of the creator of the share.",
+          "type": "string"
+        },
+        "^(data_objects)$": {
+          "description": "A list of shared data objects within the share.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.shares.v1.DataObject.jsonschema.json"
+          },
+          "type": "array"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of share updater.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of the creator of the share.",
+          "type": "string"
+        },
+        "dataObjects": {
+          "description": "A list of shared data objects within the share.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.shares.v1.DataObject.jsonschema.json"
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "Unique ID of the recipient.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of the share.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of share.",
+          "type": "string"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this share was updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of share updater.",
+          "type": "string"
+        }
+      },
+      "title": "Share Info",
+      "type": "object"
+    },
+    "unitycatalog.sharing.v1.SharingSchemaInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A schema is a logical grouping of tables.\n It may contain multiple tables.",
+      "patternProperties": {
+        "^(share_id)$": {
+          "description": "The unique identifier for the share this schema belongs to.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "description": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "id": {
+          "default": "",
+          "description": "Unique identifier for the schema.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "The name of the schema.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "share": {
+          "default": "",
+          "description": "The share name that the schema belongs to.",
+          "type": "string"
+        },
+        "shareId": {
+          "description": "The unique identifier for the share this schema belongs to.",
+          "type": "string"
+        }
+      },
+      "title": "A schema in a delta sharing service.",
+      "type": "object"
+    },
+    "unitycatalog.sharing.v1.SharingTable.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A table is a Delta Lake table or a view on top of a Delta Lake table.",
+      "patternProperties": {
+        "^(share_id)$": {
+          "description": "A unique identifier for the share this table belongs to.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "id": {
+          "description": "Unique identifier for the table.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "The name of the table.",
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+          "type": "string"
+        },
+        "schema": {
+          "default": "",
+          "description": "The schema name that the table belongs to.",
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        },
+        "share": {
+          "default": "",
+          "description": "The share name that the table belongs to.",
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+          "type": "string"
+        },
+        "shareId": {
+          "description": "A unique identifier for the share this table belongs to.",
+          "type": "string"
+        }
+      },
+      "title": "Sharing Table",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.ColumnInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(column_id)$": {
+          "description": "a unique id for the column",
+          "type": "string"
+        },
+        "^(partition_index)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Partition index for column."
+        },
+        "^(type_interval_type)$": {
+          "description": "Format of IntervalType.",
+          "type": "string"
+        },
+        "^(type_json)$": {
+          "default": "",
+          "description": "Full data type specification, JSON-serialized.",
+          "type": "string"
+        },
+        "^(type_name)$": {
+          "anyOf": [
+            {
+              "pattern": "^COLUMN_TYPE_NAME_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "BOOLEAN",
+                "BYTE",
+                "SHORT",
+                "INT",
+                "LONG",
+                "FLOAT",
+                "DOUBLE",
+                "DATE",
+                "TIMESTAMP",
+                "STRING",
+                "BINARY",
+                "DECIMAL",
+                "INTERVAL",
+                "ARRAY",
+                "STRUCT",
+                "MAP",
+                "CHAR",
+                "NULL",
+                "USER_DEFINED_TYPE",
+                "TIMESTAMP_NTZ",
+                "VARIANT",
+                "TABLE_TYPE"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Data type name.",
+          "title": "Column Type Name"
+        },
+        "^(type_precision)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits of precision; required for DecimalTypes."
+        },
+        "^(type_scale)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits to right of decimal; Required for DecimalTypes."
+        },
+        "^(type_text)$": {
+          "default": "",
+          "description": "Full data type specification as SQL/catalogString text.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "columnId": {
+          "description": "a unique id for the column",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of the column",
+          "type": "string"
+        },
+        "nullable": {
+          "description": "Whether field may be Null.",
+          "type": "boolean"
+        },
+        "partitionIndex": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Partition index for column."
+        },
+        "position": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Ordinal position of column (starting at position 0)."
+        },
+        "typeIntervalType": {
+          "description": "Format of IntervalType.",
+          "type": "string"
+        },
+        "typeJson": {
+          "default": "",
+          "description": "Full data type specification, JSON-serialized.",
+          "type": "string"
+        },
+        "typeName": {
+          "anyOf": [
+            {
+              "pattern": "^COLUMN_TYPE_NAME_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "BOOLEAN",
+                "BYTE",
+                "SHORT",
+                "INT",
+                "LONG",
+                "FLOAT",
+                "DOUBLE",
+                "DATE",
+                "TIMESTAMP",
+                "STRING",
+                "BINARY",
+                "DECIMAL",
+                "INTERVAL",
+                "ARRAY",
+                "STRUCT",
+                "MAP",
+                "CHAR",
+                "NULL",
+                "USER_DEFINED_TYPE",
+                "TIMESTAMP_NTZ",
+                "VARIANT",
+                "TABLE_TYPE"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Data type name.",
+          "title": "Column Type Name"
+        },
+        "typePrecision": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits of precision; required for DecimalTypes."
+        },
+        "typeScale": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Digits to right of decimal; Required for DecimalTypes."
+        },
+        "typeText": {
+          "default": "",
+          "description": "Full data type specification as SQL/catalogString text.",
+          "type": "string"
+        }
+      },
+      "title": "Column Info",
+      "type": "object"
+    },
+    "unitycatalog.tables.v1.TableInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(catalog_name)$": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "type": "string"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this table was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of table creator.",
+          "type": "string"
+        },
+        "^(data_source_format)$": {
+          "anyOf": [
+            {
+              "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DELTA",
+                "ICEBERG",
+                "HUDI",
+                "PARQUET",
+                "CSV",
+                "JSON",
+                "ORC",
+                "AVRO",
+                "TEXT",
+                "UNITY_CATALOG",
+                "DELTASHARING"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Data source format of the table.",
+          "title": "Data Source Format"
+        },
+        "^(deleted_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted."
+        },
+        "^(full_name)$": {
+          "description": "Full name of table, in form of catalog_name.schema_name.table_name.",
+          "type": "string"
+        },
+        "^(schema_name)$": {
+          "default": "",
+          "description": "Name of parent schema.",
+          "type": "string"
+        },
+        "^(storage_credential_name)$": {
+          "description": "Name of the storage credential, when a storage credential is configured for use with this table.",
+          "type": "string"
+        },
+        "^(storage_location)$": {
+          "description": "Storage root URL for table (for MANAGED, EXTERNAL tables)",
+          "type": "string"
+        },
+        "^(table_id)$": {
+          "description": "Unique identifier for the table.",
+          "type": "string"
+        },
+        "^(table_type)$": {
+          "anyOf": [
+            {
+              "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "MANAGED",
+                "EXTERNAL"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Table Type"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this table was last updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of user who last modified table.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "catalogName": {
+          "default": "",
+          "description": "Name of parent catalog.",
+          "type": "string"
+        },
+        "columns": {
+          "description": "The array of ColumnInfo definitions of the table's columns.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.tables.v1.ColumnInfo.jsonschema.json"
+          },
+          "type": "array"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this table was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of table creator.",
+          "type": "string"
+        },
+        "dataSourceFormat": {
+          "anyOf": [
+            {
+              "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DELTA",
+                "ICEBERG",
+                "HUDI",
+                "PARQUET",
+                "CSV",
+                "JSON",
+                "ORC",
+                "AVRO",
+                "TEXT",
+                "UNITY_CATALOG",
+                "DELTASHARING"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "description": "Data source format of the table.",
+          "title": "Data Source Format"
+        },
+        "deletedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted."
+        },
+        "fullName": {
+          "description": "Full name of table, in form of catalog_name.schema_name.table_name.",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of table, relative to parent schema.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of table.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "schemaName": {
+          "default": "",
+          "description": "Name of parent schema.",
+          "type": "string"
+        },
+        "storageCredentialName": {
+          "description": "Name of the storage credential, when a storage credential is configured for use with this table.",
+          "type": "string"
+        },
+        "storageLocation": {
+          "description": "Storage root URL for table (for MANAGED, EXTERNAL tables)",
+          "type": "string"
+        },
+        "tableId": {
+          "description": "Unique identifier for the table.",
+          "type": "string"
+        },
+        "tableType": {
+          "anyOf": [
+            {
+              "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+              "type": "string"
+            },
+            {
+              "enum": [
+                "MANAGED",
+                "EXTERNAL"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          ],
+          "default": 0,
+          "title": "Table Type"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this table was last updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified table.",
+          "type": "string"
+        }
+      },
+      "title": "Table Info",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.internal.Resource.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.internal.Resource.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

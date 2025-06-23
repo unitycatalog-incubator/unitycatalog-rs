@@ -2,7 +2,7 @@
   "$id": "unitycatalog.sharing.v1.SharingSchemaInfo.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A schema in a delta sharing service.\n\n A schema is a logical grouping of tables.\n It may contain multiple tables.",
+  "description": "A schema is a logical grouping of tables.\n It may contain multiple tables.",
   "patternProperties": {
     "^(shareId)$": {
       "description": "The unique identifier for the share this schema belongs to.",
@@ -15,10 +15,12 @@
       "type": "string"
     },
     "id": {
+      "default": "",
       "description": "Unique identifier for the schema.",
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "The name of the schema.",
       "minLength": 1,
       "type": "string"
@@ -28,6 +30,7 @@
       "description": "A map of key-value properties attached to the securable."
     },
     "share": {
+      "default": "",
       "description": "The share name that the schema belongs to.",
       "type": "string"
     },
@@ -36,6 +39,6 @@
       "type": "string"
     }
   },
-  "title": "Sharing Schema Info",
+  "title": "A schema in a delta sharing service.",
   "type": "object"
 }

@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.Format.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "File format for data files in a table",
+      "properties": {
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map containing configuration options for the format",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "provider": {
+          "default": "",
+          "description": "Name of the encoding for files in this table",
+          "type": "string"
+        }
+      },
+      "title": "Format",
+      "type": "object"
+    },
+    "unitycatalog.sharing.v1.Metadata.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Metadata for a table",
+      "patternProperties": {
+        "^(created_time)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "The time when this metadata action is created, in milliseconds since the Unix epoch"
+        },
+        "^(partition_columns)$": {
+          "description": "An array containing the names of columns by which the data should be partitioned",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "^(schema_string)$": {
+          "default": "",
+          "description": "Schema of the table",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "createdTime": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "The time when this metadata action is created, in milliseconds since the Unix epoch"
+        },
+        "description": {
+          "description": "User-provided description for this table",
+          "type": "string"
+        },
+        "format": {
+          "$ref": "#/$defs/unitycatalog.sharing.v1.Format.jsonschema.json",
+          "description": "Specification of the encoding for the files stored in the table"
+        },
+        "id": {
+          "default": "",
+          "description": "Unique identifier for this table\n Validate GUID",
+          "type": "string"
+        },
+        "name": {
+          "description": "User-provided identifier for this table",
+          "type": "string"
+        },
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map containing configuration options for the metadata action",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "partitionColumns": {
+          "description": "An array containing the names of columns by which the data should be partitioned",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "schemaString": {
+          "default": "",
+          "description": "Schema of the table",
+          "type": "string"
+        }
+      },
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.Metadata.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.Metadata.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

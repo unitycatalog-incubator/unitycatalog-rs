@@ -1,0 +1,26 @@
+{
+  "$id": "unitycatalog.tables.v1.TableSummary.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "fullName": {
+      "description": "The full name of the table.",
+      "type": "string"
+    },
+    "tableType": {
+      "enum": [
+        "TABLE_TYPE_UNSPECIFIED",
+        "MANAGED",
+        "EXTERNAL"
+      ],
+      "title": "Table Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fullName",
+    "tableType"
+  ],
+  "title": "Table Summary",
+  "type": "object"
+}

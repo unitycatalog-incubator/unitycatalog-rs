@@ -11,8 +11,6 @@
     "^(num_files)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -31,8 +29,6 @@
     "numFiles": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -45,8 +41,6 @@
     "size": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -59,8 +53,6 @@
     "version": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

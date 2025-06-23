@@ -1,0 +1,4 @@
+{
+  "name": "unitycatalog",
+  "workspaces": ["node/client", "app"]
+}

@@ -15,6 +15,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "The name of the table.",
       "maxLength": 255,
       "minLength": 1,
@@ -22,6 +23,7 @@
       "type": "string"
     },
     "schema": {
+      "default": "",
       "description": "The schema name that the table belongs to.",
       "maxLength": 255,
       "minLength": 1,
@@ -29,6 +31,7 @@
       "type": "string"
     },
     "share": {
+      "default": "",
       "description": "The share name that the table belongs to.",
       "maxLength": 255,
       "minLength": 1,

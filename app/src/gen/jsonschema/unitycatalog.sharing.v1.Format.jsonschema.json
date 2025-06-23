@@ -15,6 +15,7 @@
       "type": "object"
     },
     "provider": {
+      "default": "",
       "description": "Name of the encoding for files in this table",
       "type": "string"
     }

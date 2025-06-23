@@ -6,8 +6,6 @@
     "^(createdAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -31,8 +29,6 @@
     "^(updatedAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -55,8 +51,6 @@
     "created_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -82,6 +76,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of the share.",
       "type": "string"
     },
@@ -92,8 +87,6 @@
     "updated_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

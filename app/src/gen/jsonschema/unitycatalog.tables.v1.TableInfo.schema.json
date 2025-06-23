@@ -4,14 +4,13 @@
   "additionalProperties": false,
   "patternProperties": {
     "^(catalogName)$": {
+      "default": "",
       "description": "Name of parent catalog.",
       "type": "string"
     },
     "^(createdAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -28,8 +27,11 @@
     "^(dataSourceFormat)$": {
       "anyOf": [
         {
+          "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "DATA_SOURCE_FORMAT_UNSPECIFIED",
             "DELTA",
             "ICEBERG",
             "HUDI",
@@ -42,7 +44,6 @@
             "UNITY_CATALOG",
             "DELTASHARING"
           ],
-          "title": "Data Source Format",
           "type": "string"
         },
         {
@@ -51,13 +52,13 @@
           "type": "integer"
         }
       ],
-      "description": "Data source format of the table."
+      "default": 0,
+      "description": "Data source format of the table.",
+      "title": "Data Source Format"
     },
     "^(deletedAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -72,6 +73,7 @@
       "type": "string"
     },
     "^(schemaName)$": {
+      "default": "",
       "description": "Name of parent schema.",
       "type": "string"
     },
@@ -90,12 +92,14 @@
     "^(tableType)$": {
       "anyOf": [
         {
+          "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL"
           ],
-          "title": "Table Type",
           "type": "string"
         },
         {
@@ -103,13 +107,13 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Table Type"
     },
     "^(updatedAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -126,6 +130,7 @@
   },
   "properties": {
     "catalog_name": {
+      "default": "",
       "description": "Name of parent catalog.",
       "type": "string"
     },
@@ -143,8 +148,6 @@
     "created_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -161,8 +164,11 @@
     "data_source_format": {
       "anyOf": [
         {
+          "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "DATA_SOURCE_FORMAT_UNSPECIFIED",
             "DELTA",
             "ICEBERG",
             "HUDI",
@@ -175,7 +181,6 @@
             "UNITY_CATALOG",
             "DELTASHARING"
           ],
-          "title": "Data Source Format",
           "type": "string"
         },
         {
@@ -184,13 +189,13 @@
           "type": "integer"
         }
       ],
-      "description": "Data source format of the table."
+      "default": 0,
+      "description": "Data source format of the table.",
+      "title": "Data Source Format"
     },
     "deleted_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -205,6 +210,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of table, relative to parent schema.",
       "type": "string"
     },
@@ -217,6 +223,7 @@
       "description": "A map of key-value properties attached to the securable."
     },
     "schema_name": {
+      "default": "",
       "description": "Name of parent schema.",
       "type": "string"
     },
@@ -235,12 +242,14 @@
     "table_type": {
       "anyOf": [
         {
+          "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL"
           ],
-          "title": "Table Type",
           "type": "string"
         },
         {
@@ -248,13 +257,13 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Table Type"
     },
     "updated_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

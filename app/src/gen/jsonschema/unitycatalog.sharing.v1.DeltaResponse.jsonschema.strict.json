@@ -1,0 +1,16 @@
+{
+  "$id": "unitycatalog.sharing.v1.DeltaResponse.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Response for a query against a table in Delta format.",
+  "properties": {
+    "entries": {
+      "items": {
+        "$ref": "unitycatalog.sharing.v1.DeltaLogMessage.jsonschema.strict.json"
+      },
+      "type": "array"
+    }
+  },
+  "title": "Delta Response",
+  "type": "object"
+}

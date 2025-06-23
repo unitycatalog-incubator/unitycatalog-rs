@@ -1,0 +1,32 @@
+{
+  "$defs": {
+    "unitycatalog.tables.v1.TableSummary.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "full_name": {
+          "description": "The full name of the table.",
+          "type": "string"
+        },
+        "table_type": {
+          "enum": [
+            "TABLE_TYPE_UNSPECIFIED",
+            "MANAGED",
+            "EXTERNAL"
+          ],
+          "title": "Table Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "full_name",
+        "table_type"
+      ],
+      "title": "Table Summary",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.TableSummary.schema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.TableSummary.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

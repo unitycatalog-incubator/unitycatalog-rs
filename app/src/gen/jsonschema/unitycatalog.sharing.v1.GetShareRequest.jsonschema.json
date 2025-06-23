@@ -5,6 +5,7 @@
   "description": "Get a share by name.",
   "properties": {
     "name": {
+      "default": "",
       "description": "The share name to query. It's case-insensitive.",
       "minLength": 1,
       "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",

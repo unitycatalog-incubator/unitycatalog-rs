@@ -4,14 +4,13 @@
   "additionalProperties": false,
   "patternProperties": {
     "^(activation_url)$": {
+      "default": "",
       "description": "Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.",
       "type": "string"
     },
     "^(created_at)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -19,17 +18,17 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "Time at which this recipient token was created, in epoch milliseconds."
     },
     "^(created_by)$": {
+      "default": "",
       "description": "Username of recipient token creator.",
       "type": "string"
     },
     "^(expiration_time)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -37,13 +36,12 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "Expiration timestamp of the token in epoch milliseconds."
     },
     "^(updated_at)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -51,23 +49,24 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "Time at which this recipient token was updated, in epoch milliseconds."
     },
     "^(updated_by)$": {
+      "default": "",
       "description": "Username of recipient token updater.",
       "type": "string"
     }
   },
   "properties": {
     "activationUrl": {
+      "default": "",
       "description": "Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.",
       "type": "string"
     },
     "createdAt": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -75,17 +74,17 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "Time at which this recipient token was created, in epoch milliseconds."
     },
     "createdBy": {
+      "default": "",
       "description": "Username of recipient token creator.",
       "type": "string"
     },
     "expirationTime": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -93,17 +92,17 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "Expiration timestamp of the token in epoch milliseconds."
     },
     "id": {
+      "default": "",
       "description": "Unique ID of the recipient token.",
       "type": "string"
     },
     "updatedAt": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -111,9 +110,11 @@
           "type": "string"
         }
       ],
+      "default": 0,
       "description": "Time at which this recipient token was updated, in epoch milliseconds."
     },
     "updatedBy": {
+      "default": "",
       "description": "Username of recipient token updater.",
       "type": "string"
     }

@@ -1,0 +1,26 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.InternalGetTableVersionParams.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "helper message internally used to parse the rest request.\n we do this over a manual implementation since the generated code\n will allow for snake_case as well as camelCase query parameters",
+      "patternProperties": {
+        "^(starting_timestamp)$": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "startingTimestamp": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+          "type": "string"
+        }
+      },
+      "title": "Internal Get Table Version Params",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.InternalGetTableVersionParams.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.InternalGetTableVersionParams.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

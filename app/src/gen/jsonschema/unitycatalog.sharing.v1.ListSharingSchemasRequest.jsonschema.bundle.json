@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.ListSharingSchemasRequest.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "List schemas in a share.",
+      "patternProperties": {
+        "^(max_results)$": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1000,
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "The maximum number of results per page that should be returned."
+        },
+        "^(page_token)$": {
+          "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request to get the next page of results.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "maxResults": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1000,
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "The maximum number of results per page that should be returned."
+        },
+        "pageToken": {
+          "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request to get the next page of results.",
+          "type": "string"
+        },
+        "share": {
+          "default": "",
+          "description": "The share name to query. It's case-insensitive.",
+          "minLength": 1,
+          "pattern": "^[a-z][0-9a-z._]*[0-9a-z]$",
+          "type": "string"
+        }
+      },
+      "title": "List Sharing Schemas Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.ListSharingSchemasRequest.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.ListSharingSchemasRequest.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

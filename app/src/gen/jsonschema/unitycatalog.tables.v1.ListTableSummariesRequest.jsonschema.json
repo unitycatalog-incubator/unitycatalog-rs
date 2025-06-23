@@ -4,6 +4,7 @@
   "additionalProperties": false,
   "patternProperties": {
     "^(catalog_name)$": {
+      "default": "",
       "description": "Name of parent catalog for tables of interest.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -14,10 +15,18 @@
       "type": "boolean"
     },
     "^(max_results)$": {
-      "description": "The maximum number of results per page that should be returned.",
-      "exclusiveMinimum": 0,
-      "maximum": 10000,
-      "type": "integer"
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "The maximum number of results per page that should be returned."
     },
     "^(page_token)$": {
       "description": "Opaque pagination token to go to next page based on previous query.",
@@ -34,6 +43,7 @@
   },
   "properties": {
     "catalogName": {
+      "default": "",
       "description": "Name of parent catalog for tables of interest.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -44,10 +54,18 @@
       "type": "boolean"
     },
     "maxResults": {
-      "description": "The maximum number of results per page that should be returned.",
-      "exclusiveMinimum": 0,
-      "maximum": 10000,
-      "type": "integer"
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "maximum": 10000,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "The maximum number of results per page that should be returned."
     },
     "pageToken": {
       "description": "Opaque pagination token to go to next page based on previous query.",

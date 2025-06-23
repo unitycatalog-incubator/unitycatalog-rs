@@ -1,0 +1,109 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.catalogs.v1.CatalogInfo.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A catalog is a root-level namespace that contains schemas.",
+      "properties": {
+        "browseOnly": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse\n is enabled in the request.",
+          "type": "boolean"
+        },
+        "catalogType": {
+          "description": "The type of the catalog.",
+          "enum": [
+            "CATALOG_TYPE_UNSPECIFIED",
+            "MANAGED_CATALOG",
+            "DELTASHARING_CATALOG",
+            "SYSTEM_CATALOG"
+          ],
+          "title": "Catalog Type",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "description": "Time at which this catalog was created, in epoch milliseconds.",
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        "createdBy": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique identifier for the catalog.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of catalog.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of catalog.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.jsonschema.strict.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "providerName": {
+          "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+          "title": "The name of delta sharing provider.",
+          "type": "string"
+        },
+        "shareName": {
+          "description": "The name of the share under the share provider.",
+          "type": "string"
+        },
+        "storageRoot": {
+          "description": "Storage root URL for managed tables within catalog.",
+          "type": "string"
+        },
+        "updatedAt": {
+          "description": "Time at which this catalog was last updated, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Catalog Info",
+      "type": "object"
+    },
+    "unitycatalog.catalogs.v1.ListCatalogsResponse.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "List catalogs response.",
+      "properties": {
+        "catalogs": {
+          "description": "The catalogs returned.",
+          "items": {
+            "$ref": "#/$defs/unitycatalog.catalogs.v1.CatalogInfo.jsonschema.strict.json"
+          },
+          "type": "array"
+        },
+        "nextPageToken": {
+          "description": "The next_page_token value to include in the next List request.",
+          "type": "string"
+        }
+      },
+      "title": "List Catalogs Response",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.catalogs.v1.ListCatalogsResponse.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.catalogs.v1.ListCatalogsResponse.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

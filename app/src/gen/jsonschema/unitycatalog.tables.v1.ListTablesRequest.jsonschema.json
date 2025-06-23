@@ -4,6 +4,7 @@
   "additionalProperties": false,
   "patternProperties": {
     "^(catalog_name)$": {
+      "default": "",
       "description": "Name of parent catalog for tables of interest.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -22,10 +23,18 @@
       "type": "boolean"
     },
     "^(max_results)$": {
-      "description": "The maximum number of results per page that should be returned.",
-      "exclusiveMinimum": 0,
-      "maximum": 50,
-      "type": "integer"
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "maximum": 50,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "The maximum number of results per page that should be returned."
     },
     "^(omit_columns)$": {
       "description": "Whether to omit the columns of the table from the response or not.",
@@ -44,6 +53,7 @@
       "type": "string"
     },
     "^(schema_name)$": {
+      "default": "",
       "description": "Name of parent schema for tables of interest.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -52,6 +62,7 @@
   },
   "properties": {
     "catalogName": {
+      "default": "",
       "description": "Name of parent catalog for tables of interest.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -70,10 +81,18 @@
       "type": "boolean"
     },
     "maxResults": {
-      "description": "The maximum number of results per page that should be returned.",
-      "exclusiveMinimum": 0,
-      "maximum": 50,
-      "type": "integer"
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "maximum": 50,
+          "type": "integer"
+        },
+        {
+          "pattern": "^-?[0-9]+$",
+          "type": "string"
+        }
+      ],
+      "description": "The maximum number of results per page that should be returned."
     },
     "omitColumns": {
       "description": "Whether to omit the columns of the table from the response or not.",
@@ -92,6 +111,7 @@
       "type": "string"
     },
     "schemaName": {
+      "default": "",
       "description": "Name of parent schema for tables of interest.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",

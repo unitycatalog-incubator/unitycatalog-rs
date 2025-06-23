@@ -7,8 +7,6 @@
     "^(created_time)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -26,6 +24,7 @@
       "type": "array"
     },
     "^(schema_string)$": {
+      "default": "",
       "description": "Schema of the table",
       "type": "string"
     }
@@ -34,8 +33,6 @@
     "createdTime": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -54,6 +51,7 @@
       "description": "Specification of the encoding for the files stored in the table"
     },
     "id": {
+      "default": "",
       "description": "Unique identifier for this table\n Validate GUID",
       "type": "string"
     },
@@ -79,6 +77,7 @@
       "type": "array"
     },
     "schemaString": {
+      "default": "",
       "description": "Schema of the table",
       "type": "string"
     }

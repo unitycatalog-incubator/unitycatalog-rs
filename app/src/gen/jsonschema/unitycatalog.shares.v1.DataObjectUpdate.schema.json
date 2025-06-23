@@ -13,13 +13,15 @@
     "action": {
       "anyOf": [
         {
+          "pattern": "^ACTION_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "ACTION_UNSPECIFIED",
             "ADD",
             "REMOVE",
             "UPDATE"
           ],
-          "title": "Action",
           "type": "string"
         },
         {
@@ -28,7 +30,9 @@
           "type": "integer"
         }
       ],
-      "description": "Name of the share."
+      "default": 0,
+      "description": "Name of the share.",
+      "title": "Action"
     },
     "data_object": {
       "$ref": "unitycatalog.shares.v1.DataObject.schema.json",

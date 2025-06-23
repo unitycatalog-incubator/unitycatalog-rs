@@ -1,0 +1,31 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.ProtocolDelta.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Protocol for Delta response.",
+      "properties": {
+        "min_reader_version": {
+          "description": "The minimum version of the protocol that a client must implement\n in order to correctly read a Delta Lake table.",
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        },
+        "min_writer_version": {
+          "maximum": 2147483647,
+          "minimum": -2147483648,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min_reader_version",
+        "min_writer_version"
+      ],
+      "title": "Protocol Delta",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.ProtocolDelta.schema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.ProtocolDelta.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

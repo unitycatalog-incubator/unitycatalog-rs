@@ -10,8 +10,6 @@
     "^(created_at)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -26,10 +24,12 @@
       "type": "string"
     },
     "^(credential_id)$": {
+      "default": "",
       "description": "Unique ID of the location's storage credential.",
       "type": "string"
     },
     "^(credential_name)$": {
+      "default": "",
       "description": "Name of the storage credential used with this location.",
       "type": "string"
     },
@@ -37,14 +37,13 @@
       "type": "string"
     },
     "^(read_only)$": {
+      "default": false,
       "description": "Indicates whether the external location is read-only.",
       "type": "boolean"
     },
     "^(updated_at)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -71,8 +70,6 @@
     "createdAt": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -87,10 +84,12 @@
       "type": "string"
     },
     "credentialId": {
+      "default": "",
       "description": "Unique ID of the location's storage credential.",
       "type": "string"
     },
     "credentialName": {
+      "default": "",
       "description": "Name of the storage credential used with this location.",
       "type": "string"
     },
@@ -98,6 +97,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of the external location.",
       "type": "string"
     },
@@ -106,14 +106,13 @@
       "type": "string"
     },
     "readOnly": {
+      "default": false,
       "description": "Indicates whether the external location is read-only.",
       "type": "boolean"
     },
     "updatedAt": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -128,6 +127,7 @@
       "type": "string"
     },
     "url": {
+      "default": "",
       "description": "Path URL of the external location.",
       "type": "string"
     }

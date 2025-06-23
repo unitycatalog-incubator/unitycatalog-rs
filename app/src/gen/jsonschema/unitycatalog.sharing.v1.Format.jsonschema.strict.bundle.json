@@ -1,0 +1,33 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.Format.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "File format for data files in a table",
+      "properties": {
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map containing configuration options for the format",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "provider": {
+          "description": "Name of the encoding for files in this table",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider"
+      ],
+      "title": "Format",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.Format.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.Format.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

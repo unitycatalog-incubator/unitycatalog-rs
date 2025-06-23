@@ -1,0 +1,40 @@
+{
+  "$id": "unitycatalog.internal.Resource.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Dummy message to hold all resources.",
+  "properties": {
+    "catalogInfo": {
+      "$ref": "unitycatalog.catalogs.v1.CatalogInfo.jsonschema.strict.json"
+    },
+    "columnInfo": {
+      "$ref": "unitycatalog.tables.v1.ColumnInfo.jsonschema.strict.json"
+    },
+    "credentialInfo": {
+      "$ref": "unitycatalog.credentials.v1.CredentialInfo.jsonschema.strict.json"
+    },
+    "externalLocationInfo": {
+      "$ref": "unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.strict.json"
+    },
+    "recipientInfo": {
+      "$ref": "unitycatalog.recipients.v1.RecipientInfo.jsonschema.strict.json"
+    },
+    "schemaInfo": {
+      "$ref": "unitycatalog.schemas.v1.SchemaInfo.jsonschema.strict.json"
+    },
+    "shareInfo": {
+      "$ref": "unitycatalog.shares.v1.ShareInfo.jsonschema.strict.json"
+    },
+    "sharingSchemaInfo": {
+      "$ref": "unitycatalog.sharing.v1.SharingSchemaInfo.jsonschema.strict.json"
+    },
+    "sharingTable": {
+      "$ref": "unitycatalog.sharing.v1.SharingTable.jsonschema.strict.json"
+    },
+    "tableInfo": {
+      "$ref": "unitycatalog.tables.v1.TableInfo.jsonschema.strict.json"
+    }
+  },
+  "title": "Resource",
+  "type": "object"
+}

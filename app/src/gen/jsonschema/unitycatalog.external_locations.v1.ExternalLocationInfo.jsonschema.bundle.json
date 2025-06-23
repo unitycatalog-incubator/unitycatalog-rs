@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(browse_only)$": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse is enabled in the request.",
+          "type": "boolean"
+        },
+        "^(created_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was created, in epoch milliseconds."
+        },
+        "^(created_by)$": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "^(credential_id)$": {
+          "default": "",
+          "description": "Unique ID of the location's storage credential.",
+          "type": "string"
+        },
+        "^(credential_name)$": {
+          "default": "",
+          "description": "Name of the storage credential used with this location.",
+          "type": "string"
+        },
+        "^(external_location_id)$": {
+          "type": "string"
+        },
+        "^(read_only)$": {
+          "default": false,
+          "description": "Indicates whether the external location is read-only.",
+          "type": "boolean"
+        },
+        "^(updated_at)$": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was last updated, in epoch milliseconds."
+        },
+        "^(updated_by)$": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "browseOnly": {
+          "description": "Indicates whether the principal is limited to retrieving metadata\n for the associated object through the BROWSE privilege when include_browse is enabled in the request.",
+          "type": "boolean"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was created, in epoch milliseconds."
+        },
+        "createdBy": {
+          "description": "Username of catalog creator.",
+          "type": "string"
+        },
+        "credentialId": {
+          "default": "",
+          "description": "Unique ID of the location's storage credential.",
+          "type": "string"
+        },
+        "credentialName": {
+          "default": "",
+          "description": "Name of the storage credential used with this location.",
+          "type": "string"
+        },
+        "externalLocationId": {
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Name of the external location.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "The owner of the external location.",
+          "type": "string"
+        },
+        "readOnly": {
+          "default": false,
+          "description": "Indicates whether the external location is read-only.",
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "description": "Time at which this catalog was last updated, in epoch milliseconds."
+        },
+        "updatedBy": {
+          "description": "Username of user who last modified catalog.",
+          "type": "string"
+        },
+        "url": {
+          "default": "",
+          "description": "Path URL of the external location.",
+          "type": "string"
+        }
+      },
+      "title": "External Location Info",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.external_locations.v1.ExternalLocationInfo.jsonschema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

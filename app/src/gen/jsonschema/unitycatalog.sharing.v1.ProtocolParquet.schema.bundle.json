@@ -1,0 +1,48 @@
+{
+  "$defs": {
+    "unitycatalog.sharing.v1.ProtocolParquet.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Protocol for Parquet response.",
+      "patternProperties": {
+        "^(minReaderVersion)$": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "The minimum version of the protocol that a client must implement\n in order to correctly read a Delta Lake table."
+        }
+      },
+      "properties": {
+        "min_reader_version": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            }
+          ],
+          "default": 0,
+          "description": "The minimum version of the protocol that a client must implement\n in order to correctly read a Delta Lake table."
+        }
+      },
+      "title": "Protocol Parquet",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.sharing.v1.ProtocolParquet.schema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.sharing.v1.ProtocolParquet.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

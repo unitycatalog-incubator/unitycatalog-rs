@@ -4,18 +4,21 @@
   "additionalProperties": false,
   "patternProperties": {
     "^(fullName)$": {
+      "default": "",
       "description": "The full name of the table.",
       "type": "string"
     },
     "^(tableType)$": {
       "anyOf": [
         {
+          "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL"
           ],
-          "title": "Table Type",
           "type": "string"
         },
         {
@@ -23,23 +26,28 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Table Type"
     }
   },
   "properties": {
     "full_name": {
+      "default": "",
       "description": "The full name of the table.",
       "type": "string"
     },
     "table_type": {
       "anyOf": [
         {
+          "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL"
           ],
-          "title": "Table Type",
           "type": "string"
         },
         {
@@ -47,7 +55,9 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Table Type"
     }
   },
   "title": "Table Summary",

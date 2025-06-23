@@ -17,7 +17,6 @@
             "DELTASHARING_CATALOG",
             "SYSTEM_CATALOG"
           ],
-          "title": "Catalog Type",
           "type": "string"
         },
         {
@@ -26,12 +25,12 @@
           "type": "integer"
         }
       ],
-      "description": "The type of the catalog."
+      "description": "The type of the catalog.",
+      "title": "Catalog Type"
     },
     "^(createdAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854775808,
           "exclusiveMinimum": 0,
           "type": "integer"
         },
@@ -47,7 +46,8 @@
       "type": "string"
     },
     "^(providerName)$": {
-      "description": "The name of delta sharing provider.\n\n A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+      "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+      "title": "The name of delta sharing provider.",
       "type": "string"
     },
     "^(shareName)$": {
@@ -61,8 +61,6 @@
     "^(updatedAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -91,7 +89,6 @@
             "DELTASHARING_CATALOG",
             "SYSTEM_CATALOG"
           ],
-          "title": "Catalog Type",
           "type": "string"
         },
         {
@@ -100,7 +97,8 @@
           "type": "integer"
         }
       ],
-      "description": "The type of the catalog."
+      "description": "The type of the catalog.",
+      "title": "Catalog Type"
     },
     "comment": {
       "description": "User-provided free-form text description.",
@@ -109,7 +107,6 @@
     "created_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854775808,
           "exclusiveMinimum": 0,
           "type": "integer"
         },
@@ -129,6 +126,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of catalog.",
       "type": "string"
     },
@@ -141,7 +139,8 @@
       "description": "A map of key-value properties attached to the securable."
     },
     "provider_name": {
-      "description": "The name of delta sharing provider.\n\n A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+      "description": "A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.",
+      "title": "The name of delta sharing provider.",
       "type": "string"
     },
     "share_name": {
@@ -155,8 +154,6 @@
     "updated_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

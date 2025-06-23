@@ -1,0 +1,18 @@
+{
+  "$id": "unitycatalog.sharing.v1.QueryResponse.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Response for a query against a table.",
+  "properties": {
+    "delta": {
+      "$ref": "unitycatalog.sharing.v1.DeltaResponse.schema.strict.json",
+      "description": "Delta response format"
+    },
+    "parquet": {
+      "$ref": "unitycatalog.sharing.v1.ParquetResponse.schema.strict.json",
+      "description": "Parquet response format"
+    }
+  },
+  "title": "Query Response",
+  "type": "object"
+}

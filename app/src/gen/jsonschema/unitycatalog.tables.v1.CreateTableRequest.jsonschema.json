@@ -2,9 +2,10 @@
   "$id": "unitycatalog.tables.v1.CreateTableRequest.jsonschema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Create a table\n\n WARNING: this API is experimental and subject to change.",
+  "description": "WARNING: this API is experimental and subject to change.",
   "patternProperties": {
     "^(catalog_name)$": {
+      "default": "",
       "description": "Name of parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -13,8 +14,11 @@
     "^(data_source_format)$": {
       "anyOf": [
         {
+          "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "DATA_SOURCE_FORMAT_UNSPECIFIED",
             "DELTA",
             "ICEBERG",
             "HUDI",
@@ -27,7 +31,6 @@
             "UNITY_CATALOG",
             "DELTASHARING"
           ],
-          "title": "Data Source Format",
           "type": "string"
         },
         {
@@ -35,9 +38,12 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Data Source Format"
     },
     "^(schema_name)$": {
+      "default": "",
       "description": "Name of parent schema relative to its parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -50,12 +56,14 @@
     "^(table_type)$": {
       "anyOf": [
         {
+          "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL"
           ],
-          "title": "Table Type",
           "type": "string"
         },
         {
@@ -63,11 +71,14 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Table Type"
     }
   },
   "properties": {
     "catalogName": {
+      "default": "",
       "description": "Name of parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -87,8 +98,11 @@
     "dataSourceFormat": {
       "anyOf": [
         {
+          "pattern": "^DATA_SOURCE_FORMAT_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "DATA_SOURCE_FORMAT_UNSPECIFIED",
             "DELTA",
             "ICEBERG",
             "HUDI",
@@ -101,7 +115,6 @@
             "UNITY_CATALOG",
             "DELTASHARING"
           ],
-          "title": "Data Source Format",
           "type": "string"
         },
         {
@@ -109,9 +122,12 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Data Source Format"
     },
     "name": {
+      "default": "",
       "description": "Name of table, relative to parent schema.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -122,6 +138,7 @@
       "description": "A map of key-value properties attached to the securable."
     },
     "schemaName": {
+      "default": "",
       "description": "Name of parent schema relative to its parent catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -134,12 +151,14 @@
     "tableType": {
       "anyOf": [
         {
+          "pattern": "^TABLE_TYPE_UNSPECIFIED$",
+          "type": "string"
+        },
+        {
           "enum": [
-            "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL"
           ],
-          "title": "Table Type",
           "type": "string"
         },
         {
@@ -147,9 +166,11 @@
           "minimum": -2147483648,
           "type": "integer"
         }
-      ]
+      ],
+      "default": 0,
+      "title": "Table Type"
     }
   },
-  "title": "Create Table Request",
+  "title": "Create a table",
   "type": "object"
 }

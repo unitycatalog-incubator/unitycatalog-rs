@@ -1,0 +1,28 @@
+{
+  "$defs": {
+    "unitycatalog.shares.v1.GetShareRequest.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Get a share by name.",
+      "properties": {
+        "includeSharedData": {
+          "description": "Query for data to include in the share.",
+          "type": "boolean"
+        },
+        "name": {
+          "description": "Name of the share.",
+          "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Get Share Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.shares.v1.GetShareRequest.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.shares.v1.GetShareRequest.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

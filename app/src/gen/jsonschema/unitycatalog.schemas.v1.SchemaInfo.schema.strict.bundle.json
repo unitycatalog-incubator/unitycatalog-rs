@@ -1,0 +1,69 @@
+{
+  "$defs": {
+    "google.protobuf.Struct.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Struct",
+      "type": "object"
+    },
+    "unitycatalog.schemas.v1.SchemaInfo.schema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "A schema is a namespace within a catalog that contains tables.",
+      "properties": {
+        "catalog_name": {
+          "description": "Name of parent catalog.",
+          "type": "string"
+        },
+        "comment": {
+          "description": "User-provided free-form text description.",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Time at which this schema was created, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "created_by": {
+          "description": "Username of schema creator.",
+          "type": "string"
+        },
+        "full_name": {
+          "description": "Full name of schema, in form of catalog_name.schema_name.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of schema, relative to parent catalog.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Username of current owner of schema.",
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/google.protobuf.Struct.schema.strict.json",
+          "description": "A map of key-value properties attached to the securable."
+        },
+        "schema_id": {
+          "description": "Unique identifier for the schema.",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Time at which this schema was last updated, in epoch milliseconds.",
+          "type": "integer"
+        },
+        "updated_by": {
+          "description": "Username of user who last modified schema.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "catalog_name"
+      ],
+      "title": "Schema Info",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.schemas.v1.SchemaInfo.schema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.schemas.v1.SchemaInfo.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

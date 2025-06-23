@@ -1,0 +1,28 @@
+{
+  "$defs": {
+    "unitycatalog.tables.v1.DeleteTableRequest.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Delete a table",
+      "patternProperties": {
+        "^(fullName)$": {
+          "default": "",
+          "description": "Full name of the table.",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "full_name": {
+          "default": "",
+          "description": "Full name of the table.",
+          "type": "string"
+        }
+      },
+      "title": "Delete Table Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.DeleteTableRequest.schema.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.DeleteTableRequest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,23 @@
+{
+  "$defs": {
+    "unitycatalog.tables.v1.GetTableExistsRequest.jsonschema.strict.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Get boolean reflecting if table exists",
+      "properties": {
+        "fullName": {
+          "description": "Full name of the table.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fullName"
+      ],
+      "title": "Get Table Exists Request",
+      "type": "object"
+    }
+  },
+  "$id": "unitycatalog.tables.v1.GetTableExistsRequest.jsonschema.strict.bundle.json",
+  "$ref": "#/$defs/unitycatalog.tables.v1.GetTableExistsRequest.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

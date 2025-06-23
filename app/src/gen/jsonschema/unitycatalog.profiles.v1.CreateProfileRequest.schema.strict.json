@@ -1,0 +1,18 @@
+{
+  "$id": "unitycatalog.profiles.v1.CreateProfileRequest.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Create a new profile",
+  "properties": {
+    "claims": {
+      "description": "serialized profile claims",
+      "pattern": "^[A-Za-z0-9+/]*={0,2}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "claims"
+  ],
+  "title": "Create Profile Request",
+  "type": "object"
+}

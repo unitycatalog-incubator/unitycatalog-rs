@@ -17,6 +17,17 @@ generate-app:
 generate-types:
     just crates/common/generate
 
+generate-py:
+    uv run scripts/prepare_jsonschema.py
+    uv run datamodel-codegen \
+      --input ./tmp_schemas/ \
+      --input-file-type jsonschema \
+      --output python/client/python/unitycatalog_client/_models/
+    rm -rf tmp_schemas
+
+generate-node:
+    just node/client/generate
+
 sqlx-prepare: start_pg
     # Wait for PostgreSQL to be ready
     sleep 1
@@ -54,26 +65,21 @@ compose:
 
 # run local app
 app:
-  cd app && npm run tauri dev
-
-generate-py:
-  uv run scripts/prepare_jsonschema.py
-  uv run datamodel-codegen \
-    --input ./tmp_schemas/ \
-    --input-file-type jsonschema \
-    --output python/client/python/unitycatalog_client/_models/
-  rm -rf tmp_schemas
+    cd app && npm run tauri dev
 
 update-openapi:
-  just app/update-openapi
-  npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
-  mv tmp.yaml openapi/openapi.yaml
+    just app/update-openapi
+    npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
+    mv tmp.yaml openapi/openapi.yaml
 
 develop-py: develop-py-client
 
 develop-py-client:
-  uv run maturin develop --uv \
-    --manifest-path python/client/Cargo.toml
+    uv run maturin develop --uv \
+      --manifest-path python/client/Cargo.toml
 
 docs:
-  cd ./docs && npm run dev
+    cd ./docs && npm run dev
+
+build-node:
+    npm run build -w @unitycatalog/client

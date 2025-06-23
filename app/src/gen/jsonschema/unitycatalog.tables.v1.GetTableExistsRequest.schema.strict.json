@@ -1,0 +1,17 @@
+{
+  "$id": "unitycatalog.tables.v1.GetTableExistsRequest.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Get boolean reflecting if table exists",
+  "properties": {
+    "full_name": {
+      "description": "Full name of the table.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name"
+  ],
+  "title": "Get Table Exists Request",
+  "type": "object"
+}

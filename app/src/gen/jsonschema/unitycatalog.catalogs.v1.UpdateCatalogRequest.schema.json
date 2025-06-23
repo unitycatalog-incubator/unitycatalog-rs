@@ -5,6 +5,7 @@
   "description": "Update a catalog",
   "patternProperties": {
     "^(newName)$": {
+      "default": "",
       "description": "Name of catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -17,12 +18,14 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
       "type": "string"
     },
     "new_name": {
+      "default": "",
       "description": "Name of catalog.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -34,7 +37,8 @@
     },
     "properties": {
       "$ref": "google.protobuf.Struct.schema.json",
-      "description": "A map of key-value properties attached to the securable.\n\n When provided in update request, the specified properties will override the existing properties.\n To add and remove properties, one would need to perform a read-modify-write."
+      "description": "When provided in update request, the specified properties will override the existing properties.\n To add and remove properties, one would need to perform a read-modify-write.",
+      "title": "A map of key-value properties attached to the securable."
     }
   },
   "title": "Update Catalog Request",

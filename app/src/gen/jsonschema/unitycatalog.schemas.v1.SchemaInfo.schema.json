@@ -5,14 +5,13 @@
   "description": "A schema is a namespace within a catalog that contains tables.",
   "patternProperties": {
     "^(catalogName)$": {
+      "default": "",
       "description": "Name of parent catalog.",
       "type": "string"
     },
     "^(createdAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -37,8 +36,6 @@
     "^(updatedAt)$": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -55,6 +52,7 @@
   },
   "properties": {
     "catalog_name": {
+      "default": "",
       "description": "Name of parent catalog.",
       "type": "string"
     },
@@ -65,8 +63,6 @@
     "created_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {
@@ -85,6 +81,7 @@
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of schema, relative to parent catalog.",
       "type": "string"
     },
@@ -103,8 +100,6 @@
     "updated_at": {
       "anyOf": [
         {
-          "exclusiveMaximum": 9223372036854776000,
-          "minimum": -9223372036854775808,
           "type": "integer"
         },
         {

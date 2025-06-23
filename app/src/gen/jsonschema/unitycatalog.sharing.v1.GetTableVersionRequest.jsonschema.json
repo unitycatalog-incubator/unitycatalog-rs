@@ -12,16 +12,19 @@
   },
   "properties": {
     "name": {
+      "default": "",
       "description": "The table name to query. It's case-insensitive.",
       "minLength": 1,
       "type": "string"
     },
     "schema": {
+      "default": "",
       "description": "The schema name to query. It's case-insensitive.",
       "minLength": 1,
       "type": "string"
     },
     "share": {
+      "default": "",
       "description": "The share name to query. It's case-insensitive.",
       "minLength": 1,
       "type": "string"

@@ -5,6 +5,7 @@
   "description": "Create a new external location",
   "patternProperties": {
     "^(credential_name)$": {
+      "default": "",
       "description": "Name of the storage credential used with this location.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -25,12 +26,14 @@
       "type": "string"
     },
     "credentialName": {
+      "default": "",
       "description": "Name of the storage credential used with this location.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
       "type": "string"
     },
     "name": {
+      "default": "",
       "description": "Name of external location.",
       "minLength": 3,
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
@@ -45,6 +48,7 @@
       "type": "boolean"
     },
     "url": {
+      "default": "",
       "description": "Path URL of the external location.",
       "pattern": "^(?:(?:[a-zA-Z][a-zA-Z\\d+\\-.]*):)?(?://(?:[A-Za-z0-9\\-\\.]+(?::\\d+)?))?(/[^\\?#]*)?(?:\\?([^\\#]*))?(?:\\#(.*))?$",
       "type": "string"

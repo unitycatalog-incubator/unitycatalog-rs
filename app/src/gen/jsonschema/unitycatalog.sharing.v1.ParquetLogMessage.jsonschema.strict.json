@@ -1,0 +1,16 @@
+{
+  "$id": "unitycatalog.sharing.v1.ParquetLogMessage.jsonschema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Log message for Parquet response.",
+  "properties": {
+    "metadata": {
+      "$ref": "unitycatalog.sharing.v1.MetadataParquet.jsonschema.strict.json"
+    },
+    "protocol": {
+      "$ref": "unitycatalog.sharing.v1.ProtocolParquet.jsonschema.strict.json"
+    }
+  },
+  "title": "Parquet Log Message",
+  "type": "object"
+}

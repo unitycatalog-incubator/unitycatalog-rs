@@ -1,0 +1,46 @@
+{
+  "$id": "unitycatalog.recipients.v1.RecipientToken.schema.strict.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activation_url": {
+      "description": "Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "Time at which this recipient token was created, in epoch milliseconds.",
+      "type": "integer"
+    },
+    "created_by": {
+      "description": "Username of recipient token creator.",
+      "type": "string"
+    },
+    "expiration_time": {
+      "description": "Expiration timestamp of the token in epoch milliseconds.",
+      "type": "integer"
+    },
+    "id": {
+      "description": "Unique ID of the recipient token.",
+      "type": "string"
+    },
+    "updated_at": {
+      "description": "Time at which this recipient token was updated, in epoch milliseconds.",
+      "type": "integer"
+    },
+    "updated_by": {
+      "description": "Username of recipient token updater.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "created_at",
+    "created_by",
+    "activation_url",
+    "expiration_time",
+    "updated_at",
+    "updated_by"
+  ],
+  "title": "Recipient Token",
+  "type": "object"
+}

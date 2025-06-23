@@ -15,6 +15,7 @@
       "type": "boolean"
     },
     "name": {
+      "default": "",
       "description": "Name of the share.",
       "pattern": "^[a-z][0-9a-z_]*[0-9a-z]$",
       "type": "string"
