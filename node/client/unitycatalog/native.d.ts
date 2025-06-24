@@ -91,6 +91,8 @@ export declare class CatalogClient {
   get(): Promise<Buffer>
   create(comment?: string | undefined | null, storageRoot?: string | undefined | null, providerName?: string | undefined | null, shareName?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   update(newName?: string | undefined | null, comment?: string | undefined | null, owner?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
+  /** Deletes the catalog. */
+  delete(force?: boolean | undefined | null): Promise<void>
   listSchemas(maxResults?: number | undefined | null): Promise<Array<Buffer>>
 }
 export declare class SchemaClient {
@@ -101,5 +103,6 @@ export declare class SchemaClient {
   get(): Promise<Buffer>
   create(comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   update(newName?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
+  delete(force?: boolean | undefined | null): Promise<void>
   listTables(maxResults?: number | undefined | null, includeDeltaMetadata?: boolean | undefined | null, omitColumns?: boolean | undefined | null, omitProperties?: boolean | undefined | null, omitUsername?: boolean | undefined | null): Promise<Array<Buffer>>
 }

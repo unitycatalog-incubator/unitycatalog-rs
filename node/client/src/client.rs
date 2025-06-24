@@ -137,6 +137,16 @@ impl CatalogClient {
             .default_error()
     }
 
+    /// Deletes the catalog.
+    #[napi(catch_unwind)]
+    pub async fn delete(&self, force: Option<bool>) -> napi::Result<()> {
+        self.inner
+            .catalogs()
+            .delete(&self.name, force)
+            .await
+            .default_error()
+    }
+
     #[napi(catch_unwind)]
     pub async fn list_schemas(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
         self.inner
@@ -234,6 +244,15 @@ impl SchemaClient {
             .update_schema(&request)
             .await
             .map(|schema| Buffer::from(schema.encode_to_vec()))
+            .default_error()
+    }
+
+    #[napi(catch_unwind)]
+    pub async fn delete(&self, force: Option<bool>) -> napi::Result<()> {
+        self.inner
+            .schemas()
+            .delete(&self.catalog_name, &self.name, force)
+            .await
             .default_error()
     }
 
