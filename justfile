@@ -83,3 +83,6 @@ docs:
 
 build-node:
     npm run build -w @unitycatalog/client
+
+build-docker:
+  docker build -f docker/Dockerfile -t unitycatalog-rs:dev .
