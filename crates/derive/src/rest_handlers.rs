@@ -397,14 +397,12 @@ fn generate_path_query_request_impl(
         query_types.push(&page_token_type);
     }
 
-    let path_ext = (!path_names.is_empty())
-        .then(|| {
+    let path_ext = if !path_names.is_empty() { {
             quote! {
                 use ::axum::extract::Path;
                 let Path((#(#path_names),*)) = parts.extract::<Path<(#(#path_types),*)>>().await?;
             }
-        })
-        .unwrap_or_default();
+        } } else { Default::default() };
 
     let query_ext = (!query_names.is_empty()).then(|| quote! {
         use ::axum::extract::Query;
