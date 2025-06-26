@@ -11,7 +11,7 @@
     "openapi": "tsx scripts/update-openapi.mts"
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^2.2.3",
+    "@bufbuild/protobuf": "^2.5.2",
     "@fluentui/react-components": "^9.60.0",
     "@fluentui/react-icons": "^2.0.274",
     "@monaco-editor/react": "^4.7.0",

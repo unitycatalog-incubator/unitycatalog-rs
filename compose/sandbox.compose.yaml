@@ -1,0 +1,75 @@
+networks:
+  sharing:
+
+services:
+  uc:
+    image: unitycatalog-rs:dev
+    container_name: uc
+    hostname: uc
+    restart: always
+    networks:
+      - sharing
+    ports:
+      - "8080:8080"
+    command: ["server", "--rest", "--use-db"]
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+    depends_on:
+      - azurite
+      - postgres
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite
+    hostname: azurite
+    restart: always
+    networks:
+      - sharing
+    ports:
+      - "10000:10000"
+      # - "10001:10001"
+      # - "10002:10002"
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    networks:
+      - sharing
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # minio:
+  #   restart: always
+  #   image: ${REPOSITORY}/minio/minio:RELEASE.2022-10-20T00-55-09Z
+  #   ports:
+  #     - 9000:9000
+  #     - 9001:9001
+  #   environment:
+  #     - MINIO_ROOT_USER=minio
+  #     - MINIO_ROOT_PASSWORD=password
+  #   command: server /data --address :9000 --console-address ":9001"
+
+  # minio_create_buckets:
+  #   image: ${REPOSITORY}/minio/mc
+  #   environment:
+  #     - MINIO_ROOT_USER=minio
+  #     - MINIO_ROOT_PASSWORD=password
+  #   entrypoint:
+  #     - "/bin/sh"
+  #     - "-c"
+  #   command:
+  #     - "until (/usr/bin/mc alias set minio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD) do
+  #       echo 'Waiting to start minio...' && sleep 1;
+  #       done;
+  #       /usr/bin/mc mb minio/neon --region=eu-north-1;
+  #       exit 0;"
+  #   depends_on:
+  #     - minio

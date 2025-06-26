@@ -63,9 +63,15 @@ rest-db:
 compose:
     docker-compose -p unitycatalog-rs -f compose/local.compose.yaml up -d
 
+compose-full:
+    docker-compose -p unitycatalog-rs -f compose/sandbox.compose.yaml up -d
+
 # run local app
 app:
-    cd app && npm run tauri dev
+    npm run tauri dev -w app
+
+docs:
+    npm run dev -w docs
 
 update-openapi:
     just app/update-openapi
@@ -78,8 +84,8 @@ develop-py-client:
     uv run maturin develop --uv \
       --manifest-path python/client/Cargo.toml
 
-docs:
-    cd ./docs && npm run dev
-
 build-node:
     npm run build -w @unitycatalog/client
+
+build-docker:
+    docker build -f docker/Dockerfile -t unitycatalog-rs:dev .

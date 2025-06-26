@@ -94,19 +94,19 @@ pub async fn handle_client(
         Some(ClientCommands::Catalogs(args)) => match &args.command {
             Some(CatalogCommands::List) => {
                 let catalogs = client.catalogs().list(None).try_collect::<Vec<_>>().await?;
-                println!("List catalogs: {:?}", catalogs);
+                println!("List catalogs: {catalogs:?}");
             }
             Some(CatalogCommands::Create { name }) => {
                 let catalog = client.catalogs().create(name, None).await?;
-                println!("Create catalog: {:?}", catalog);
+                println!("Create catalog: {catalog:?}");
             }
             Some(CatalogCommands::Get { name }) => {
                 let catalog = client.catalogs().get(name).await?;
-                println!("Create catalog: {:?}", catalog);
+                println!("Create catalog: {catalog:?}");
             }
             Some(CatalogCommands::Delete { name, force }) => {
                 client.catalogs().delete(name, *force).await?;
-                println!("Deleted catalog: {:?}", name);
+                println!("Deleted catalog: {name:?}");
             }
             None => {
                 println!("No command provided: {:?}", args.command);
@@ -114,13 +114,13 @@ pub async fn handle_client(
         },
         Some(ClientCommands::Schemas(args)) => match &args.command {
             Some(SchemaCommands::List { catalog_name }) => {
-                println!("List schemas: {:?}", catalog_name);
+                println!("List schemas: {catalog_name:?}");
             }
             Some(SchemaCommands::Create { catalog_name, name }) => {
-                println!("Create schema: {} in catalog: {}", name, catalog_name);
+                println!("Create schema: {name} in catalog: {catalog_name}");
             }
             Some(SchemaCommands::Delete { catalog_name, name }) => {
-                println!("Delete schema: {} from catalog: {}", name, catalog_name);
+                println!("Delete schema: {name} from catalog: {catalog_name}");
             }
             None => {
                 println!("No command provided: {:?}", args.command);

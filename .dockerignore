@@ -1,0 +1,8 @@
+target/
+app/
+.github/
+.venv/
+.sqlx/
+.vscode/
+.zed/
+node_modules/
