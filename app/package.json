@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.5.2",
-    "@fluentui/react-components": "^9.60.0",
-    "@fluentui/react-icons": "^2.0.274",
+    "@fluentui/react-components": "^9.66.4",
+    "@fluentui/react-icons": "^2.0.304",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.66.11",
     "@tauri-apps/api": "^2",
