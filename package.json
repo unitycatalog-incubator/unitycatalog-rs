@@ -4,5 +4,9 @@
     "node/client",
     "app",
     "docs"
-  ]
+  ],
+  "dependencies": {
+    "eslint": "^9.30.0",
+    "prettier": "^3.6.2"
+  }
 }
