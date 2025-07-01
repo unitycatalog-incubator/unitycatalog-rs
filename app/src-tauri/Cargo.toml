@@ -34,3 +34,5 @@ unitycatalog-common = { path = "../../crates/common", features = [
   "tokio",
   "axum",
 ] }
+chrono = { workspace = true }
+caspers-universe = { path = "../../../management/crates/universe" }

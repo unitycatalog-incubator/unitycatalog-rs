@@ -10,6 +10,7 @@ import {
   ToolbarDivider,
 } from "@fluentui/react-components";
 import Explorer from "./components/Explorer";
+import Simulation from "./simulation";
 import {
   SettingsRegular,
   AlignCenterHorizontal24Regular,
@@ -41,7 +42,7 @@ function App() {
   const styles = useStyles();
 
   const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({
-    rootView: ["center"],
+    rootView: ["catalogs"],
   });
 
   const onChange: ToolbarProps["onCheckedValueChange"] = (
@@ -87,6 +88,7 @@ function App() {
       </div>
       <div className={styles.content}>
         {checkedValues.rootView.includes("catalogs") && <Explorer />}
+        {checkedValues.rootView.includes("simulation") && <Simulation />}
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file caspers/core/v1/models.proto.
  */
 export const file_caspers_core_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("ChxjYXNwZXJzL2NvcmUvdjEvbW9kZWxzLnByb3RvEg9jYXNwZXJzLmNvcmUudjEijQEKBFNpdGUSFAoCaWQYASABKAlCCLpIBXIDsAEBEhgKBG5hbWUYAiABKAlCCrpIB3IFEAMY/wESKQoIbGF0aXR1ZGUYAyABKAFCF7pIFBISGQAAAAAAgFZAKQAAAAAAgFbAEioKCWxvbmdpdHVkZRgEIAEoAUIXukgUEhIZAAAAAACAZkApAAAAAACAZsAiZgoGVmVuZG9yEhQKAmlkGAEgASgJQgi6SAVyA7ABARIYCgRuYW1lGAIgASgJQgq6SAdyBRADGP8BEh8KCGxvZ29fdXJsGAMgASgJQgi6SAVyA4gBAUgAiAEBQgsKCV9sb2dvX3VybCI5CgdLaXRjaGVuEhQKAmlkGAEgASgJQgi6SAVyA7ABARIYCgRuYW1lGAIgASgJQgq6SAdyBRADGP8BIoYBCgdTdGF0aW9uEhkKAmlkGAEgASgJQgi6SAVyA7ABAUgAiAEBEhgKBG5hbWUYAiABKAlCCrpIB3IFEAMY/wESPwoMc3RhdGlvbl90eXBlGAMgASgOMh8uY2FzcGVycy5jb3JlLnYxLktpdGNoZW5TdGF0aW9uQgi6SAWCAQIgAEIFCgNfaWQiogEKCkluZ3JlZGllbnQSFAoCaWQYASABKAlCCLpIBXIDsAEBEhgKBG5hbWUYAiABKAlCCrpIB3IFEAMY/wESHwoLZGVzY3JpcHRpb24YAyABKAlCCrpIB3IFEAMY/wESJgoFcHJpY2UYBCABKAFCF7pIFBISGQAAAAAAiMNAKXsUrkfheoQ/EhsKCWltYWdlX3VybBgFIAEoCUIIukgFcgOIAQEiuQEKBUJyYW5kEhgKBG5hbWUYASABKAlCCrpIB3IFEAMY/wESHwoLZGVzY3JpcHRpb24YAiABKAlCCrpIB3IFEAMY/wESHAoIY2F0ZWdvcnkYAyABKAlCCrpIB3IFEAMY/wESNQoFaXRlbXMYBCADKAsyGS5jYXNwZXJzLmNvcmUudjEuTWVudUl0ZW1CC7pICJIBBQgBEOgHEhkKAmlkGAUgASgJQgi6SAVyA7ABAUgAiAEBQgUKA19pZCK5AgoITWVudUl0ZW0SFAoCaWQYASABKAlCCLpIBXIDsAEBEhYKBG5hbWUYAiABKAlCCLpIBXIDkAEBEh8KC2Rlc2NyaXB0aW9uGAMgASgJQgq6SAdyBRADGP8BEiYKBXByaWNlGAQgASgBQhe6SBQSEhkAAAAAAIjDQCl7FK5H4XqEPxIgCglpbWFnZV91cmwYBSABKAlCCLpIBXIDiAEBSACIAQESRQoLaW5ncmVkaWVudHMYBiADKAsyIy5jYXNwZXJzLmNvcmUudjEuSW5ncmVkaWVudFF1YW50aXR5Qgu6SAiSAQUIARDoBxI/CgxpbnN0cnVjdGlvbnMYByADKAsyHC5jYXNwZXJzLmNvcmUudjEuSW5zdHJ1Y3Rpb25CC7pICJIBBQgBEOgHQgwKCl9pbWFnZV91cmwiUQoSSW5ncmVkaWVudFF1YW50aXR5EiAKDmluZ3JlZGllbnRfcmVmGAEgASgJQgi6SAVyA5ABARIZCghxdWFudGl0eRgCIAEoCUIHukgEcgIQASKtAQoLSW5zdHJ1Y3Rpb24SGAoEc3RlcBgBIAEoCUIKukgHcgUQAxj/ARITCgtkZXNjcmlwdGlvbhgCIAEoCRI5ChByZXF1aXJlZF9zdGF0aW9uGAMgASgOMh8uY2FzcGVycy5jb3JlLnYxLktpdGNoZW5TdGF0aW9uEjQKEWV4cGVjdGVkX2R1cmF0aW9uGAQgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uKocBCg5LaXRjaGVuU3RhdGlvbhIfChtLSVRDSEVOX1NUQVRJT05fVU5TUEVDSUZJRUQQABIfChtLSVRDSEVOX1NUQVRJT05fV09SS1NUQVRJT04QARIZChVLSVRDSEVOX1NUQVRJT05fU1RPVkUQAhIYChRLSVRDSEVOX1NUQVRJT05fT1ZFThADQoABChNjb20uY2FzcGVycy5jb3JlLnYxQgtNb2RlbHNQcm90b1ABogIDQ0NYqgIPQ2FzcGVycy5Db3JlLlYxygIPQ2FzcGVyc1xDb3JlXFYx4gIbQ2FzcGVyc1xDb3JlXFYxXEdQQk1ldGFkYXRh6gIRQ2FzcGVyczo6Q29yZTo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_duration]);
+  fileDesc("ChxjYXNwZXJzL2NvcmUvdjEvbW9kZWxzLnByb3RvEg9jYXNwZXJzLmNvcmUudjEijQEKBFNpdGUSFAoCaWQYASABKAlCCLpIBXIDsAEBEhgKBG5hbWUYAiABKAlCCrpIB3IFEAMY/wESKQoIbGF0aXR1ZGUYAyABKAFCF7pIFBISGQAAAAAAgFZAKQAAAAAAgFbAEioKCWxvbmdpdHVkZRgEIAEoAUIXukgUEhIZAAAAAACAZkApAAAAAACAZsAiYQoJU2l0ZVNldHVwEiMKBGluZm8YASABKAsyFS5jYXNwZXJzLmNvcmUudjEuU2l0ZRIvCghraXRjaGVucxgCIAMoCzIdLmNhc3BlcnMuY29yZS52MS5LaXRjaGVuU2V0dXAiYgoMS2l0Y2hlblNldHVwEiYKBGluZm8YASABKAsyGC5jYXNwZXJzLmNvcmUudjEuS2l0Y2hlbhIqCghzdGF0aW9ucxgCIAMoCzIYLmNhc3BlcnMuY29yZS52MS5TdGF0aW9uImYKBlZlbmRvchIUCgJpZBgBIAEoCUIIukgFcgOwAQESGAoEbmFtZRgCIAEoCUIKukgHcgUQAxj/ARIfCghsb2dvX3VybBgDIAEoCUIIukgFcgOIAQFIAIgBAUILCglfbG9nb191cmwiOQoHS2l0Y2hlbhIUCgJpZBgBIAEoCUIIukgFcgOwAQESGAoEbmFtZRgCIAEoCUIKukgHcgUQAxj/ASKGAQoHU3RhdGlvbhIZCgJpZBgBIAEoCUIIukgFcgOwAQFIAIgBARIYCgRuYW1lGAIgASgJQgq6SAdyBRADGP8BEj8KDHN0YXRpb25fdHlwZRgDIAEoDjIfLmNhc3BlcnMuY29yZS52MS5LaXRjaGVuU3RhdGlvbkIIukgFggECIABCBQoDX2lkIqIBCgpJbmdyZWRpZW50EhQKAmlkGAEgASgJQgi6SAVyA7ABARIYCgRuYW1lGAIgASgJQgq6SAdyBRADGP8BEh8KC2Rlc2NyaXB0aW9uGAMgASgJQgq6SAdyBRADGP8BEiYKBXByaWNlGAQgASgBQhe6SBQSEhkAAAAAAIjDQCl7FK5H4XqEPxIbCglpbWFnZV91cmwYBSABKAlCCLpIBXIDiAEBIrkBCgVCcmFuZBIYCgRuYW1lGAEgASgJQgq6SAdyBRADGP8BEh8KC2Rlc2NyaXB0aW9uGAIgASgJQgq6SAdyBRADGP8BEhwKCGNhdGVnb3J5GAMgASgJQgq6SAdyBRADGP8BEjUKBWl0ZW1zGAQgAygLMhkuY2FzcGVycy5jb3JlLnYxLk1lbnVJdGVtQgu6SAiSAQUIARDoBxIZCgJpZBgFIAEoCUIIukgFcgOwAQFIAIgBAUIFCgNfaWQiuQIKCE1lbnVJdGVtEhQKAmlkGAEgASgJQgi6SAVyA7ABARIWCgRuYW1lGAIgASgJQgi6SAVyA5ABARIfCgtkZXNjcmlwdGlvbhgDIAEoCUIKukgHcgUQAxj/ARImCgVwcmljZRgEIAEoAUIXukgUEhIZAAAAAACIw0ApexSuR+F6hD8SIAoJaW1hZ2VfdXJsGAUgASgJQgi6SAVyA4gBAUgAiAEBEkUKC2luZ3JlZGllbnRzGAYgAygLMiMuY2FzcGVycy5jb3JlLnYxLkluZ3JlZGllbnRRdWFudGl0eUILukgIkgEFCAEQ6AcSPwoMaW5zdHJ1Y3Rpb25zGAcgAygLMhwuY2FzcGVycy5jb3JlLnYxLkluc3RydWN0aW9uQgu6SAiSAQUIARDoB0IMCgpfaW1hZ2VfdXJsIlEKEkluZ3JlZGllbnRRdWFudGl0eRIgCg5pbmdyZWRpZW50X3JlZhgBIAEoCUIIukgFcgOQAQESGQoIcXVhbnRpdHkYAiABKAlCB7pIBHICEAEirQEKC0luc3RydWN0aW9uEhgKBHN0ZXAYASABKAlCCrpIB3IFEAMY/wESEwoLZGVzY3JpcHRpb24YAiABKAkSOQoQcmVxdWlyZWRfc3RhdGlvbhgDIAEoDjIfLmNhc3BlcnMuY29yZS52MS5LaXRjaGVuU3RhdGlvbhI0ChFleHBlY3RlZF9kdXJhdGlvbhgEIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbiqHAQoOS2l0Y2hlblN0YXRpb24SHwobS0lUQ0hFTl9TVEFUSU9OX1VOU1BFQ0lGSUVEEAASHwobS0lUQ0hFTl9TVEFUSU9OX1dPUktTVEFUSU9OEAESGQoVS0lUQ0hFTl9TVEFUSU9OX1NUT1ZFEAISGAoUS0lUQ0hFTl9TVEFUSU9OX09WRU4QA0KAAQoTY29tLmNhc3BlcnMuY29yZS52MUILTW9kZWxzUHJvdG9QAaICA0NDWKoCD0Nhc3BlcnMuQ29yZS5WMcoCD0Nhc3BlcnNcQ29yZVxWMeICG0Nhc3BlcnNcQ29yZVxWMVxHUEJNZXRhZGF0YeoCEUNhc3BlcnM6OkNvcmU6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_duration]);
 
 /**
  * Physical locations where kitchens operate
@@ -56,6 +56,50 @@ export const SiteSchema: GenMessage<Site> = /*@__PURE__*/
   messageDesc(file_caspers_core_v1_models, 0);
 
 /**
+ * @generated from message caspers.core.v1.SiteSetup
+ */
+export type SiteSetup = Message<"caspers.core.v1.SiteSetup"> & {
+  /**
+   * @generated from field: caspers.core.v1.Site info = 1;
+   */
+  info?: Site;
+
+  /**
+   * @generated from field: repeated caspers.core.v1.KitchenSetup kitchens = 2;
+   */
+  kitchens: KitchenSetup[];
+};
+
+/**
+ * Describes the message caspers.core.v1.SiteSetup.
+ * Use `create(SiteSetupSchema)` to create a new message.
+ */
+export const SiteSetupSchema: GenMessage<SiteSetup> = /*@__PURE__*/
+  messageDesc(file_caspers_core_v1_models, 1);
+
+/**
+ * @generated from message caspers.core.v1.KitchenSetup
+ */
+export type KitchenSetup = Message<"caspers.core.v1.KitchenSetup"> & {
+  /**
+   * @generated from field: caspers.core.v1.Kitchen info = 1;
+   */
+  info?: Kitchen;
+
+  /**
+   * @generated from field: repeated caspers.core.v1.Station stations = 2;
+   */
+  stations: Station[];
+};
+
+/**
+ * Describes the message caspers.core.v1.KitchenSetup.
+ * Use `create(KitchenSetupSchema)` to create a new message.
+ */
+export const KitchenSetupSchema: GenMessage<KitchenSetup> = /*@__PURE__*/
+  messageDesc(file_caspers_core_v1_models, 2);
+
+/**
  * A company that owns and operates brands and kitchens
  *
  * @generated from message caspers.core.v1.Vendor
@@ -86,7 +130,7 @@ export type Vendor = Message<"caspers.core.v1.Vendor"> & {
  * Use `create(VendorSchema)` to create a new message.
  */
 export const VendorSchema: GenMessage<Vendor> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 1);
+  messageDesc(file_caspers_core_v1_models, 3);
 
 /**
  * Physical cooking spaces within locations, operated by vendors
@@ -114,7 +158,7 @@ export type Kitchen = Message<"caspers.core.v1.Kitchen"> & {
  * Use `create(KitchenSchema)` to create a new message.
  */
 export const KitchenSchema: GenMessage<Kitchen> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 2);
+  messageDesc(file_caspers_core_v1_models, 4);
 
 /**
  * @generated from message caspers.core.v1.Station
@@ -147,7 +191,7 @@ export type Station = Message<"caspers.core.v1.Station"> & {
  * Use `create(StationSchema)` to create a new message.
  */
 export const StationSchema: GenMessage<Station> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 3);
+  messageDesc(file_caspers_core_v1_models, 5);
 
 /**
  * @generated from message caspers.core.v1.Ingredient
@@ -184,7 +228,7 @@ export type Ingredient = Message<"caspers.core.v1.Ingredient"> & {
  * Use `create(IngredientSchema)` to create a new message.
  */
 export const IngredientSchema: GenMessage<Ingredient> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 4);
+  messageDesc(file_caspers_core_v1_models, 6);
 
 /**
  * Distinct restaurant brands
@@ -225,7 +269,7 @@ export type Brand = Message<"caspers.core.v1.Brand"> & {
  * Use `create(BrandSchema)` to create a new message.
  */
 export const BrandSchema: GenMessage<Brand> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 5);
+  messageDesc(file_caspers_core_v1_models, 7);
 
 /**
  * Menu items are individual dishes within a menu
@@ -290,7 +334,7 @@ export type MenuItem = Message<"caspers.core.v1.MenuItem"> & {
  * Use `create(MenuItemSchema)` to create a new message.
  */
 export const MenuItemSchema: GenMessage<MenuItem> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 6);
+  messageDesc(file_caspers_core_v1_models, 8);
 
 /**
  * @generated from message caspers.core.v1.IngredientQuantity
@@ -312,7 +356,7 @@ export type IngredientQuantity = Message<"caspers.core.v1.IngredientQuantity"> &
  * Use `create(IngredientQuantitySchema)` to create a new message.
  */
 export const IngredientQuantitySchema: GenMessage<IngredientQuantity> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 7);
+  messageDesc(file_caspers_core_v1_models, 9);
 
 /**
  * An instruction describes a step in the preparation of a menu item.
@@ -354,7 +398,7 @@ export type Instruction = Message<"caspers.core.v1.Instruction"> & {
  * Use `create(InstructionSchema)` to create a new message.
  */
 export const InstructionSchema: GenMessage<Instruction> = /*@__PURE__*/
-  messageDesc(file_caspers_core_v1_models, 8);
+  messageDesc(file_caspers_core_v1_models, 10);
 
 /**
  * @generated from enum caspers.core.v1.KitchenStation
