@@ -3,14 +3,14 @@ use std::sync::{Arc, LazyLock};
 use bytes::Bytes;
 use datafusion::arrow::array::{AsArray, RecordBatch};
 use datafusion::arrow::json::LineDelimitedWriter;
+use datafusion::catalog::{CatalogProvider, MemoryCatalogProvider, MemorySchemaProvider};
+use datafusion::common::TableReference as DfTableReference;
+use datafusion::functions::core::expr_ext::FieldAccessor;
 use datafusion::logical_expr::ColumnarValue;
 use datafusion::physical_plan::PhysicalExpr;
 use datafusion::prelude::SessionContext;
 use datafusion::prelude::{Expr, col, lit, named_struct};
-use datafusion_catalog::{CatalogProvider, MemoryCatalogProvider, MemorySchemaProvider};
-use datafusion_common::TableReference as DfTableReference;
-use datafusion_functions::core::expr_ext::FieldAccessor;
-use delta_kernel::{Table, Version};
+use delta_kernel::Version;
 use deltalake_datafusion::{
     DeltaLogReplayProvider, KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory,
     TableSnapshot,
@@ -104,10 +104,9 @@ impl KernelSession {
         );
         if !self.ctx.table_exist(inner_ref.clone())? {
             let location = sharing_ext.table_location(table_ref).await?;
-            let table = Table::try_from_uri(location.location())?;
             self.ctx.register_table(
                 inner_ref.clone(),
-                Arc::new(DeltaLogReplayProvider::new(table.into())?),
+                Arc::new(DeltaLogReplayProvider::new(location.location().clone())?),
             )?;
         }
         let table = self.ctx.table(inner_ref).await?.collect().await?;

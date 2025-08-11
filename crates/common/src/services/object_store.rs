@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use datafusion_common::{DataFusionError, Result as DFResult};
+use datafusion::common::{DataFusionError, Result as DFResult};
 use delta_kernel::object_store::DynObjectStore;
 use delta_kernel::object_store::azure::MicrosoftAzureBuilder;
 use deltalake_datafusion::ObjectStoreFactory;

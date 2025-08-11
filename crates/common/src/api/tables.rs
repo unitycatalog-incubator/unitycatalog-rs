@@ -265,6 +265,7 @@ impl FieldExt for StructField {
             DataType::Struct(_) => ColumnTypeName::Struct,
             DataType::Array(_) => ColumnTypeName::Array,
             DataType::Map(_) => ColumnTypeName::Map,
+            DataType::Variant(_) => ColumnTypeName::Variant,
         }
     }
 
