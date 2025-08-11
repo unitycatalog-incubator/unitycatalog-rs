@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/*", "app/src-tauri", "node/client", "python/client"]
+members = ["crates/*", "node/client", "python/client"]
 # members = ["crates/*"]
 # exclude = ["python/client"]
 
