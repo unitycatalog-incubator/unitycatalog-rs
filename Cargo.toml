@@ -21,12 +21,13 @@ keywords = [
 ]
 
 [workspace.dependencies]
-delta_kernel = { version = "0.12.1", features = [
+delta_kernel = { version = "0.14.0", features = [
   "internal-api",
   "default-engine",
   "arrow",
 ] }
-deltalake-datafusion = { git = "https://github.com/delta-incubator/deltalake-datafusion", rev = "11e147d069ac2e1e59d50c46b2f74ecd6d044aff" }
+deltalake-datafusion = { git = "https://github.com/delta-incubator/deltalake-datafusion", rev = "8757b39a3de232a79507eaba54bf8943b3ba6a9d" }
+# deltalake-datafusion = { path = "../deltalake-datafusion/crates/datafusion" }
 
 async-trait = "0.1.83"
 axum = { version = "0.8" }
