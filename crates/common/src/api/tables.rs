@@ -1,99 +1,87 @@
 use delta_kernel::schema::{DataType, PrimitiveType, Schema, StructField};
 use itertools::Itertools;
-use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
+pub use crate::codegen::{TableClient, TableHandler};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
-use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use crate::resources::{ResourceName, ResourceStore};
 use crate::services::StorageLocationUrl;
 use crate::services::kernel::TableManager;
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
-use crate::{Error, Result};
+use crate::services::policy::{Permission, Policy, process_resources};
+use crate::{Error, ResourceIdent, Result};
 
 const MAX_RESULTS_TABLES: usize = 50;
 
-rest_handlers!(
-    TablesHandler, "tables", [
-        ListTableSummariesRequest, Table, Read, ListTableSummariesResponse with [
-            catalog_name: query as String,
-            schema_name_pattern: query as Option<String>,
-            table_name_pattern: query as Option<String>,
-            include_manifest_capabilities: query as Option<bool>,
-        ];
-        ListTablesRequest, Table, Read, ListTablesResponse with [
-            catalog_name: query as String,
-            schema_name: query as String,
-            include_delta_metadata: query as Option<bool>,
-            omit_columns: query as Option<bool>,
-            omit_properties: query as Option<bool>,
-            omit_username: query as Option<bool>,
-            include_browse: query as Option<bool>,
-            include_manifest_capabilities: query as Option<bool>,
-        ];
-        CreateTableRequest, Table, Create, TableInfo;
-        GetTableRequest, Table, Read, TableInfo with [
-            full_name: path as String,
-            include_delta_metadata: query as Option<bool>,
-            include_browse: query as Option<bool>,
-            include_manifest_capabilities: query as Option<bool>,
-        ];
-        GetTableExistsRequest, Table, Read, GetTableExistsResponse with [
-            full_name: path as String,
-        ];
-        DeleteTableRequest, Table, Write with [
-            full_name: path as String,
-        ];
-    ]
-);
+impl SecuredAction for CreateTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::table(ResourceName::new([
+            self.catalog_name.as_str(),
+            self.schema_name.as_str(),
+            self.name.as_str(),
+        ]))
+    }
 
-#[async_trait::async_trait]
-pub trait TablesHandler: Send + Sync + 'static {
-    /// List table summaries.
-    async fn list_table_summaries(
-        &self,
-        request: ListTableSummariesRequest,
-        context: RequestContext,
-    ) -> Result<ListTableSummariesResponse>;
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
 
-    /// List tables.
-    async fn list_tables(
-        &self,
-        request: ListTablesRequest,
-        context: RequestContext,
-    ) -> Result<ListTablesResponse>;
+impl SecuredAction for ListTableSummariesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::table(ResourceName::new([self.catalog_name.as_str()]))
+    }
 
-    /// Create a table.
-    async fn create_table(
-        &self,
-        request: CreateTableRequest,
-        context: RequestContext,
-    ) -> Result<TableInfo>;
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
 
-    /// Get a table.
-    async fn get_table(
-        &self,
-        request: GetTableRequest,
-        context: RequestContext,
-    ) -> Result<TableInfo>;
+impl SecuredAction for ListTablesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::table(ResourceName::new([
+            self.catalog_name.as_str(),
+            self.schema_name.as_str(),
+        ]))
+    }
 
-    /// Check if a table exists.
-    async fn get_table_exists(
-        &self,
-        request: GetTableExistsRequest,
-        context: RequestContext,
-    ) -> Result<GetTableExistsResponse>;
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
 
-    /// Delete a table.
-    async fn delete_table(
-        &self,
-        request: DeleteTableRequest,
-        context: RequestContext,
-    ) -> Result<()>;
+impl SecuredAction for GetTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::table(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetTableExistsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::table(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for DeleteTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::table(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + TableManager> TablesHandler for T {
+impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
     async fn list_table_summaries(
         &self,
         request: ListTableSummariesRequest,

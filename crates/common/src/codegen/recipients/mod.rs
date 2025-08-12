@@ -1,11 +1,12 @@
 pub mod client;
-pub mod extractors;
-pub mod handler;
+mod extractors;
+mod handler;
 pub mod routes;
+pub use client::*;
 pub use handler::RecipientHandler;
-pub use routes::*;
+use routes::*;
 /// Create router for this service
-pub fn create_router<T: RecipientHandler + Clone>() -> axum::Router<T> {
+pub fn create_router<T: RecipientHandler + Clone>(handler: T) -> axum::Router {
     axum::Router::new()
         .route(
             "/recipients",
@@ -27,4 +28,5 @@ pub fn create_router<T: RecipientHandler + Clone>() -> axum::Router<T> {
             "/recipients/{name}",
             axum::routing::delete(delete_recipient_handler::<T>),
         )
+        .with_state(handler)
 }

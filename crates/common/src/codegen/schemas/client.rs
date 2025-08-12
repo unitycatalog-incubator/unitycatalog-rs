@@ -4,8 +4,8 @@ use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct SchemaClient {
-    client: CloudClient,
-    base_url: Url,
+    pub(crate) client: CloudClient,
+    pub(crate) base_url: Url,
 }
 impl SchemaClient {
     /// Create a new client instance

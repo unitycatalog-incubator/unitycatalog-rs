@@ -4,8 +4,8 @@ use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct CatalogClient {
-    client: CloudClient,
-    base_url: Url,
+    pub(crate) client: CloudClient,
+    pub(crate) base_url: Url,
 }
 impl CatalogClient {
     /// Create a new client instance

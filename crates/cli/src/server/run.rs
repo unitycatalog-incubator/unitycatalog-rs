@@ -6,18 +6,18 @@ use tower_http::LatencyUnit;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::Level;
 use unitycatalog_common::api::catalogs::CatalogHandler;
-use unitycatalog_common::api::credentials::CredentialsHandler;
-use unitycatalog_common::api::external_locations::ExternalLocationsHandler;
-use unitycatalog_common::api::recipients::RecipientsHandler;
-use unitycatalog_common::api::schemas::SchemasHandler;
-use unitycatalog_common::api::shares::SharesHandler;
-use unitycatalog_common::api::tables::TablesHandler;
+use unitycatalog_common::api::credentials::CredentialHandler;
+use unitycatalog_common::api::external_locations::ExternalLocationHandler;
+use unitycatalog_common::api::recipients::RecipientHandler;
+use unitycatalog_common::api::schemas::SchemaHandler;
+use unitycatalog_common::api::shares::ShareHandler;
+use unitycatalog_common::api::tables::TableHandler;
 use unitycatalog_common::rest::{
     AuthenticationLayer, Authenticator, get_catalog_router, get_credentials_router,
     get_external_locations_router, get_recipients_router, get_schemas_router, get_shares_router,
     get_sharing_router, get_tables_router,
 };
-use unitycatalog_common::sharing::{SharingDiscoveryHandler, SharingQueryHandler};
+use unitycatalog_common::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_common::{Error, Result};
 
 pub async fn run_server_rest<T, A>(
@@ -28,14 +28,14 @@ pub async fn run_server_rest<T, A>(
 ) -> Result<()>
 where
     T: CatalogHandler
-        + CredentialsHandler
-        + SharingDiscoveryHandler
+        + CredentialHandler
+        + SharingHandler
         + SharingQueryHandler
-        + SharesHandler
-        + SchemasHandler
-        + TablesHandler
-        + ExternalLocationsHandler
-        + RecipientsHandler
+        + ShareHandler
+        + SchemaHandler
+        + TableHandler
+        + ExternalLocationHandler
+        + RecipientHandler
         + Clone,
     A: Authenticator + Clone,
 {

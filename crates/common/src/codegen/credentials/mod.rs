@@ -1,11 +1,12 @@
 pub mod client;
-pub mod extractors;
-pub mod handler;
+mod extractors;
+mod handler;
 pub mod routes;
+pub use client::*;
 pub use handler::CredentialHandler;
-pub use routes::*;
+use routes::*;
 /// Create router for this service
-pub fn create_router<T: CredentialHandler + Clone>() -> axum::Router<T> {
+pub fn create_router<T: CredentialHandler + Clone>(handler: T) -> axum::Router {
     axum::Router::new()
         .route(
             "/credentials",
@@ -27,4 +28,5 @@ pub fn create_router<T: CredentialHandler + Clone>() -> axum::Router<T> {
             "/credentials/{name}",
             axum::routing::delete(delete_credential_handler::<T>),
         )
+        .with_state(handler)
 }

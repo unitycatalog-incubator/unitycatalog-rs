@@ -8,7 +8,8 @@ use itertools::Itertools;
 use url::Url;
 
 use super::ServerHandlerInner;
-use crate::api::CredentialsHandler;
+use crate::api::CredentialHandler;
+use crate::api::credentials::CredentialHandlerExt;
 use crate::models::credentials::v1::credential_info::Credential;
 use crate::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
@@ -19,8 +20,11 @@ use crate::resources::ResourceStore;
 use crate::services::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::{Error, Result};
 
-pub(crate) trait RegistryHandler: ResourceStore + CredentialsHandler {}
-impl<T: ResourceStore + CredentialsHandler> RegistryHandler for T {}
+pub(crate) trait RegistryHandler:
+    ResourceStore + CredentialHandler + CredentialHandlerExt
+{
+}
+impl<T: ResourceStore + CredentialHandler + CredentialHandlerExt> RegistryHandler for T {}
 
 #[async_trait::async_trait]
 impl ObjectStoreFactory for ServerHandlerInner {

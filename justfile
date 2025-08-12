@@ -37,7 +37,7 @@ sqlx-prepare: start_pg
     # Run migrations to create tables
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     # Prepare SQLx
-    cargo sqlx prepare --workspace -- --tests
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx prepare --workspace -- --tests
     # Clean up
     @just stop_pg
 
@@ -59,6 +59,7 @@ rest:
     @RUST_LOG=INFO cargo run --bin uc server --rest
 
 rest-db:
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
         cargo run -p unitycatalog-cli -- server --rest --use-db
 

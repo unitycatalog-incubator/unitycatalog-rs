@@ -1,11 +1,12 @@
 pub mod client;
-pub mod extractors;
-pub mod handler;
+mod extractors;
+mod handler;
 pub mod routes;
+pub use client::*;
 pub use handler::SharingHandler;
-pub use routes::*;
+use routes::*;
 /// Create router for this service
-pub fn create_router<T: SharingHandler + Clone>() -> axum::Router<T> {
+pub fn create_router<T: SharingHandler + Clone>(handler: T) -> axum::Router {
     axum::Router::new()
         .route("/shares", axum::routing::get(list_shares_handler::<T>))
         .route("/shares/{name}", axum::routing::get(get_share_handler::<T>))
@@ -33,4 +34,5 @@ pub fn create_router<T: SharingHandler + Clone>() -> axum::Router<T> {
             "/shares/{share}/schemas/{schema}/tables/{name}/query",
             axum::routing::post(query_table_handler::<T>),
         )
+        .with_state(handler)
 }

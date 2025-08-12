@@ -4,8 +4,8 @@ use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct ShareClient {
-    client: CloudClient,
-    base_url: Url,
+    pub(crate) client: CloudClient,
+    pub(crate) base_url: Url,
 }
 impl ShareClient {
     /// Create a new client instance

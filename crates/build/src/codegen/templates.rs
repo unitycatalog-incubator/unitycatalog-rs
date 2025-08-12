@@ -314,8 +314,8 @@ pub fn client_struct(client_name: &str, methods: &[String], service_namespace: &
         /// HTTP client for service operations
         #[derive(Clone)]
         pub struct #client_ident {
-            client: CloudClient,
-            base_url: Url,
+            pub(crate) client: CloudClient,
+            pub(crate) base_url: Url,
         }
 
         impl #client_ident {
@@ -395,18 +395,20 @@ pub fn service_module(handler_name: &str, _base_path: &str, methods: &[MethodPla
         .collect();
 
     let tokens = quote! {
-        pub mod handler;
+        mod handler;
         pub mod routes;
-        pub mod extractors;
+        mod extractors;
         pub mod client;
 
         pub use handler::#handler_ident;
-        pub use routes::*;
+        use routes::*;
+        pub use client::*;
 
         /// Create router for this service
-        pub fn create_router<T: #handler_ident + Clone>() -> axum::Router<T> {
+        pub fn create_router<T: #handler_ident + Clone>(handler: T) -> axum::Router {
             axum::Router::new()
                 #(#route_registrations)*
+                .with_state(handler)
         }
     };
 

@@ -1,57 +1,67 @@
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
+pub use crate::codegen::{CredentialClient, CredentialHandler};
 use crate::models::ObjectLabel;
 use crate::models::credentials::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
+use crate::services::policy::{Permission, Policy, process_resources};
 use crate::services::secrets::SecretManager;
 use crate::{Error, Result};
 
-rest_handlers!(
-    CredentialsHandler, "credentials",
-    [
-        ListCredentialsRequest, Credential, Read, ListCredentialsResponse with [
-            purpose: query as Option<i32>,
-        ];
-        CreateCredentialRequest, Credential, Create, CredentialInfo;
-        GetCredentialRequest, Credential, Read, CredentialInfo with [
-            name: path as String,
-        ];
-        UpdateCredentialRequest, Credential, Manage, CredentialInfo with [
-            name: path as String,
-        ];
-        DeleteCredentialRequest, Credential, Manage with [
-            name: path as String,
-        ];
-    ]
-);
+impl SecuredAction for CreateCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListCredentialsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
 
 #[async_trait::async_trait]
-pub trait CredentialsHandler: Send + Sync + 'static {
-    /// List credentials.
-    async fn list_credentials(
-        &self,
-        request: ListCredentialsRequest,
-        context: RequestContext,
-    ) -> Result<ListCredentialsResponse>;
-
-    /// Create a new credential.
-    async fn create_credential(
-        &self,
-        request: CreateCredentialRequest,
-        context: RequestContext,
-    ) -> Result<CredentialInfo>;
-
-    /// Get a credential.
-    async fn get_credential(
-        &self,
-        request: GetCredentialRequest,
-        context: RequestContext,
-    ) -> Result<CredentialInfo>;
-
+pub trait CredentialHandlerExt: Send + Sync + 'static {
     /// Get a credential without checking permissions.
     ///
     /// This is used internally when access to a resource is already checked
@@ -62,20 +72,6 @@ pub trait CredentialsHandler: Send + Sync + 'static {
         &self,
         request: GetCredentialRequest,
     ) -> Result<CredentialInfo>;
-
-    /// Update a credential.
-    async fn update_credential(
-        &self,
-        request: UpdateCredentialRequest,
-        context: RequestContext,
-    ) -> Result<CredentialInfo>;
-
-    /// Delete a credential.
-    async fn delete_credential(
-        &self,
-        request: DeleteCredentialRequest,
-        context: RequestContext,
-    ) -> Result<()>;
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -144,7 +140,7 @@ impl CredentialContainer {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + SecretManager> CredentialsHandler for T {
+impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
     async fn list_credentials(
         &self,
         request: ListCredentialsRequest,
@@ -206,17 +202,6 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialsHandler for T {
         self.get_credential_internal(request).await
     }
 
-    async fn get_credential_internal(
-        &self,
-        request: GetCredentialRequest,
-    ) -> Result<CredentialInfo> {
-        let mut cred: CredentialInfo = self.get(&request.resource()).await?.0.try_into()?;
-        let (_, secret_data) = self.get_secret(&cred.name).await?;
-        let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;
-        cred.credential = Some(secret.into_cred()?);
-        Ok(cred)
-    }
-
     async fn update_credential(
         &self,
         request: UpdateCredentialRequest,
@@ -273,5 +258,19 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialsHandler for T {
             Ok(_) | Err(Error::NotFound) => self.delete(&request.resource()).await,
             Err(e) => Err(e),
         }
+    }
+}
+
+#[async_trait::async_trait]
+impl<T: ResourceStore + Policy + SecretManager> CredentialHandlerExt for T {
+    async fn get_credential_internal(
+        &self,
+        request: GetCredentialRequest,
+    ) -> Result<CredentialInfo> {
+        let mut cred: CredentialInfo = self.get(&request.resource()).await?.0.try_into()?;
+        let (_, secret_data) = self.get_secret(&cred.name).await?;
+        let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;
+        cred.credential = Some(secret.into_cred()?);
+        Ok(cred)
     }
 }

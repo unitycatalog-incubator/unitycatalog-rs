@@ -1,11 +1,12 @@
 pub mod client;
-pub mod extractors;
-pub mod handler;
+mod extractors;
+mod handler;
 pub mod routes;
+pub use client::*;
 pub use handler::CatalogHandler;
-pub use routes::*;
+use routes::*;
 /// Create router for this service
-pub fn create_router<T: CatalogHandler + Clone>() -> axum::Router<T> {
+pub fn create_router<T: CatalogHandler + Clone>(handler: T) -> axum::Router {
     axum::Router::new()
         .route("/catalogs", axum::routing::get(list_catalogs_handler::<T>))
         .route(
@@ -24,4 +25,5 @@ pub fn create_router<T: CatalogHandler + Clone>() -> axum::Router<T> {
             "/catalogs/{name}",
             axum::routing::delete(delete_catalog_handler::<T>),
         )
+        .with_state(handler)
 }

@@ -4,15 +4,16 @@ pub mod external_locations;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
+pub mod sharing;
 pub mod tables;
 
 pub use catalogs::CatalogHandler;
-pub use credentials::CredentialsHandler;
-pub use external_locations::ExternalLocationsHandler;
-pub use recipients::RecipientsHandler;
-pub use schemas::SchemasHandler;
-pub use shares::SharesHandler;
-pub use tables::TablesHandler;
+pub use credentials::CredentialHandler;
+pub use external_locations::ExternalLocationHandler;
+pub use recipients::RecipientHandler;
+pub use schemas::SchemaHandler;
+pub use shares::ShareHandler;
+pub use tables::TableHandler;
 
 use crate::resources::ResourceIdent;
 use crate::services::policy::{Permission, Recipient};

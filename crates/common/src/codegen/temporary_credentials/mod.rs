@@ -1,11 +1,12 @@
 pub mod client;
-pub mod extractors;
-pub mod handler;
+mod extractors;
+mod handler;
 pub mod routes;
+pub use client::*;
 pub use handler::TemporaryCredentialHandler;
-pub use routes::*;
+use routes::*;
 /// Create router for this service
-pub fn create_router<T: TemporaryCredentialHandler + Clone>() -> axum::Router<T> {
+pub fn create_router<T: TemporaryCredentialHandler + Clone>(handler: T) -> axum::Router {
     axum::Router::new()
         .route(
             "/temporary-table-credentials",
@@ -15,4 +16,5 @@ pub fn create_router<T: TemporaryCredentialHandler + Clone>() -> axum::Router<T>
             "/temporary-volume-credentials",
             axum::routing::post(generate_temporary_volume_credentials_handler::<T>),
         )
+        .with_state(handler)
 }

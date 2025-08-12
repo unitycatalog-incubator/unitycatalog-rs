@@ -25,7 +25,7 @@ use unitycatalog_common::models::tables::v1::{
     ColumnInfo, CreateTableRequest, DataSourceFormat, TableInfo, TableType,
 };
 use unitycatalog_common::rest::client::{
-    CredentialsClient, ExternalLocationsClient, RecipientsClient, SharesClient, SharingClient,
+    CredentialClient, DeltaSharingClient, ExternalLocationClient, RecipientClient, ShareClient,
     UnityCatalogClient,
 };
 use unitycatalog_common::sharing::{MetadataResponseData, ProtocolResponseData};
@@ -76,29 +76,29 @@ impl PyUnityCatalogClient {
         }
     }
 
-    pub fn credentials(&self, name: String) -> PyCredentialsClient {
-        PyCredentialsClient {
+    pub fn credentials(&self, name: String) -> PyCredentialClient {
+        PyCredentialClient {
             name,
             client: self.0.credentials(),
         }
     }
 
-    pub fn external_locations(&self, name: String) -> PyExternalLocationsClient {
-        PyExternalLocationsClient {
+    pub fn external_locations(&self, name: String) -> PyExternalLocationClient {
+        PyExternalLocationClient {
             name,
             client: self.0.external_locations(),
         }
     }
 
-    pub fn recipients(&self, name: String) -> PyRecipientsClient {
-        PyRecipientsClient {
+    pub fn recipients(&self, name: String) -> PyRecipientClient {
+        PyRecipientClient {
             name,
             client: self.0.recipients(),
         }
     }
 
-    pub fn shares(&self, name: String) -> PySharesClient {
-        PySharesClient {
+    pub fn shares(&self, name: String) -> PyShareClient {
+        PyShareClient {
             name,
             client: self.0.shares(),
         }
@@ -194,14 +194,14 @@ impl PyCatalogClient {
     }
 }
 
-#[pyclass(name = "CredentialsClient")]
-pub struct PyCredentialsClient {
-    client: CredentialsClient,
+#[pyclass(name = "CredentialClient")]
+pub struct PyCredentialClient {
+    client: CredentialClient,
     name: String,
 }
 
 #[pymethods]
-impl PyCredentialsClient {
+impl PyCredentialClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -315,14 +315,14 @@ impl PyCredentialsClient {
     }
 }
 
-#[pyclass(name = "ExternalLocationsClient")]
-pub struct PyExternalLocationsClient {
-    client: ExternalLocationsClient,
+#[pyclass(name = "ExternalLocationClient")]
+pub struct PyExternalLocationClient {
+    client: ExternalLocationClient,
     name: String,
 }
 
 #[pymethods]
-impl PyExternalLocationsClient {
+impl PyExternalLocationClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocationInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -414,14 +414,14 @@ impl PyExternalLocationsClient {
     }
 }
 
-#[pyclass(name = "RecipientsClient")]
-pub struct PyRecipientsClient {
-    client: RecipientsClient,
+#[pyclass(name = "RecipientClient")]
+pub struct PyRecipientClient {
+    client: RecipientClient,
     name: String,
 }
 
 #[pymethods]
-impl PyRecipientsClient {
+impl PyRecipientClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<RecipientInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -513,14 +513,14 @@ impl PySchemasClient {
     }
 }
 
-#[pyclass(name = "SharesClient")]
-pub struct PySharesClient {
-    client: SharesClient,
+#[pyclass(name = "ShareClient")]
+pub struct PyShareClient {
+    client: ShareClient,
     name: String,
 }
 
 #[pymethods]
-impl PySharesClient {
+impl PyShareClient {
     #[pyo3(signature = (include_shared_data = None))]
     pub fn get(
         &self,
@@ -710,7 +710,7 @@ impl PyMetadata {
 
 #[pyclass(name = "SharingClient")]
 pub struct PySharingClient {
-    client: SharingClient,
+    client: DeltaSharingClient,
 }
 
 #[pymethods]
@@ -725,7 +725,7 @@ impl PySharingClient {
         };
         let base_url = base_url.parse().unwrap();
         Ok(Self {
-            client: SharingClient::new_with_prefix(client, base_url, path_prefix),
+            client: DeltaSharingClient::new_with_prefix(client, base_url, path_prefix),
         })
     }
 
