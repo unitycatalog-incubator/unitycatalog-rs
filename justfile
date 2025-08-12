@@ -11,11 +11,11 @@ generate:
     mv tmp.yaml openapi/openapi.yaml
     cargo clippy --fix --allow-dirty --allow-staged
 
-generate-app:
-    just app/generate
-
 generate-types:
     just crates/common/generate
+
+generate-build:
+    just crates/build/generate
 
 generate-py:
     uv run scripts/prepare_jsonschema.py
