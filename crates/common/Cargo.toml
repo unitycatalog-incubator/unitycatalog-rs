@@ -73,7 +73,15 @@ postgres-types = { version = "0.2", optional = true, features = ["derive"] }
 # derive pyclass for generated messages
 pyo3 = { workspace = true, optional = true }
 
-# pyhon bindings
+[build-dependencies]
+prost = { workspace = true }
+protobuf = "3.0"
+unitycatalog-build = { path = "../build" }
+proc-macro2 = "1"
+syn = { version = "2.0", features = ["extra-traits"] }
+quote = "1.0"
+convert_case = "0.7"
+
 [dev-dependencies]
 http-body-util = "0.1.0"
 mime = "0.3"
