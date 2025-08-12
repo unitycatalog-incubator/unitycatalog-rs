@@ -17,6 +17,9 @@ generate-types:
 generate-build:
     just crates/build/generate
 
+descriptors:
+   cd proto && buf build --output ../crates/common/descriptors/descriptors.bin
+
 generate-py:
     uv run scripts/prepare_jsonschema.py
     uv run datamodel-codegen \

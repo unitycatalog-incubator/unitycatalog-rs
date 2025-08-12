@@ -110,7 +110,6 @@ pub fn rest_handlers(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
             use super::*;
 
             #(#handlers)*
-            #(#request_impls)*
         }
     };
 
