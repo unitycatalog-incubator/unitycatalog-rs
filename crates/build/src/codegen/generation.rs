@@ -15,16 +15,12 @@ use super::templates;
 use super::{GeneratedCode, GenerationPlan, ServicePlan};
 
 mod client;
+mod handler;
 mod server;
 
 /// Generate all Rust code from the generation plan
 pub fn generate_code(plan: &GenerationPlan) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
-
-    println!(
-        "cargo:warning=Generating code for {} services",
-        plan.services.len()
-    );
 
     // Generate code for each service
     for service in &plan.services {
@@ -42,14 +38,8 @@ fn generate_service_code(
     service: &ServicePlan,
     files: &mut HashMap<String, String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!(
-        "cargo:warning=Generating code for service {} with {} methods",
-        service.service_name,
-        service.methods.len()
-    );
-
     // Generate handler trait
-    let trait_code = generate_handler_trait(service)?;
+    let trait_code = handler::generate(service)?;
     files.insert(format!("{}/handler.rs", service.base_path), trait_code);
 
     // Generate server code
@@ -67,24 +57,6 @@ fn generate_service_code(
     Ok(())
 }
 
-/// Generate handler trait for a service
-fn generate_handler_trait(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
-    let mut trait_methods = Vec::new();
-
-    for method in &service.methods {
-        let method_code = templates::handler_trait_method(method);
-        trait_methods.push(method_code);
-    }
-
-    let trait_code = templates::handler_trait(
-        &service.handler_name,
-        &trait_methods,
-        service.base_path.clone(),
-    );
-
-    Ok(trait_code)
-}
-
 /// Generate service module that exports all components
 fn generate_service_module(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
     let module_code = templates::service_module(&service.handler_name);
@@ -100,7 +72,6 @@ fn generate_main_module(
     let module_code = templates::main_module(services);
     files.insert("mod.rs".to_string(), module_code);
 
-    println!("cargo:warning=Generated main module file");
     Ok(())
 }
 
@@ -166,38 +137,6 @@ mod tests {
             base_path: "catalogs".to_string(),
             methods: vec![method_plan],
         }
-    }
-
-    #[test]
-    fn test_generate_handler_trait() {
-        let service = create_test_service_plan();
-        let result = generate_handler_trait(&service);
-        assert!(result.is_ok());
-        let code = result.unwrap();
-        assert!(code.contains("CatalogHandler"));
-        assert!(code.contains("list_catalogs"));
-    }
-
-    #[test]
-    fn test_generated_code_format() {
-        let service = create_test_service_plan();
-        let result = generate_handler_trait(&service);
-        assert!(result.is_ok());
-        let code = result.unwrap();
-
-        // Print generated code to verify format
-        println!("Generated handler trait:\n{}", code);
-
-        // Verify the code contains expected elements
-        assert!(code.contains("pub trait CatalogHandler"));
-        assert!(code.contains("async fn list_catalogs"));
-        assert!(code.contains("RequestContext"));
-        assert!(code.contains("async_trait"));
-
-        // Verify proper Rust syntax (no extra escaping or formatting issues)
-        assert!(!code.contains("\\n"));
-        assert!(!code.contains("\\t"));
-        assert!(!code.contains("\\\""));
     }
 
     #[test]
