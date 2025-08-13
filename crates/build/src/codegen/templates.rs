@@ -18,9 +18,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::{File, Path};
 
-use super::{MethodPlan, PathParam, ServicePlan};
-use crate::RequestType;
-use crate::utils::strings;
+use super::{MethodPlan, ServicePlan};
 
 /// Generate handler trait definition
 pub fn handler_trait(trait_name: &str, methods: &[TokenStream], service_base: String) -> String {
@@ -66,85 +64,6 @@ pub fn handler_trait_method(method: &MethodPlan) -> TokenStream {
             ) -> Result<()>;
         }
     }
-}
-
-/// Generate client method implementation
-pub fn client_method(method: &MethodPlan) -> String {
-    let method_name = format_ident!("{}", method.handler_function_name);
-    let input_type = strings::extract_simple_type_name(&method.metadata.input_type);
-    let input_type_ident = format_ident!("{}", input_type);
-    let http_method = format_ident!("{}", method.http_method.to_lowercase());
-    let url_formatting = generate_url_formatting(&method.http_path, &method.path_params);
-
-    let body_handling = if matches!(
-        method.metadata.request_type(),
-        RequestType::Create | RequestType::Update
-    ) {
-        quote! { .json(request) }
-    } else {
-        quote! {}
-    };
-
-    let tokens = if method.has_response {
-        let output_type = strings::extract_simple_type_name(&method.metadata.output_type);
-        let output_type_ident = format_ident!("{}", output_type);
-        quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<#output_type_ident> {
-                #url_formatting
-                let response = self.client.#http_method(url)#body_handling.send().await?;
-                response.error_for_status_ref()?;
-                let result = response.bytes().await?;
-                Ok(serde_json::from_slice(&result)?)
-            }
-        }
-    } else {
-        quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<()> {
-                #url_formatting
-                let response = self.client.#http_method(url)#body_handling.send().await?;
-                response.error_for_status()?;
-                Ok(())
-            }
-        }
-    };
-
-    format_tokens(tokens)
-}
-
-/// Generate client struct definition
-pub fn client_struct(client_name: &str, methods: &[String], service_namespace: &str) -> String {
-    let client_ident = format_ident!("{}", client_name);
-    let method_tokens: Vec<TokenStream> = methods
-        .iter()
-        .map(|m| syn::parse_str::<TokenStream>(m).unwrap_or_else(|_| quote! {}))
-        .collect();
-    let mod_path: Path =
-        syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
-
-    let tokens = quote! {
-        use cloud_client::CloudClient;
-        use url::Url;
-
-        use #mod_path::*;
-
-        /// HTTP client for service operations
-        #[derive(Clone)]
-        pub struct #client_ident {
-            pub(crate) client: CloudClient,
-            pub(crate) base_url: Url,
-        }
-
-        impl #client_ident {
-            /// Create a new client instance
-            pub fn new(client: CloudClient, base_url: Url) -> Self {
-                Self { client, base_url }
-            }
-
-            #(#method_tokens)*
-        }
-    };
-
-    format_tokens(tokens)
 }
 
 /// Generate route handlers module
@@ -292,33 +211,6 @@ pub fn proto_exports() -> String {
 pub(crate) fn extract_type_ident(full_type: &str) -> Ident {
     let type_name = full_type.split('.').last().unwrap_or(full_type);
     format_ident!("{}", type_name)
-}
-
-/// Generate URL formatting code that properly substitutes path parameters
-fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::TokenStream {
-    if params.is_empty() {
-        return quote! {
-            let url = self.base_url.join(#path)?;
-        };
-    }
-
-    let param_names: Vec<String> = params.iter().map(|p| p.name.clone()).collect();
-    let (format_string, format_args) = crate::utils::paths::format_url_template(path, &param_names);
-
-    if format_args.is_empty() {
-        quote! {
-            let url = self.base_url.join(#path)?;
-        }
-    } else {
-        let field_idents: Vec<_> = format_args
-            .iter()
-            .map(|arg| format_ident!("{}", arg))
-            .collect();
-        quote! {
-            let formatted_path = format!(#format_string, #(request.#field_idents),*);
-            let url = self.base_url.join(&formatted_path)?;
-        }
-    }
 }
 
 /// Helper function to format TokenStream as properly formatted Rust code

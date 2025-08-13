@@ -1,12 +1,8 @@
-use std::collections::HashMap;
-
-use prettyplease;
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
-use syn::{File, Path, Type};
+use syn::{Path, Type};
 
 use super::super::{BodyField, MethodPlan, PathParam, QueryParam, ServicePlan, templates};
-use super::{GeneratedCode, GenerationPlan};
 use crate::RequestType;
 
 /// Generate server side code for axum servers

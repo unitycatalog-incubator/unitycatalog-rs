@@ -12,8 +12,9 @@
 use std::collections::HashMap;
 
 use super::templates;
-use super::{GeneratedCode, GenerationPlan, MethodPlan, ServicePlan};
+use super::{GeneratedCode, GenerationPlan, ServicePlan};
 
+mod client;
 mod server;
 
 /// Generate all Rust code from the generation plan
@@ -56,7 +57,7 @@ fn generate_service_code(
     files.insert(format!("{}/server.rs", service.base_path), server_code);
 
     // Generate client code
-    let client_code = generate_client_code(service)?;
+    let client_code = client::generate(service)?;
     files.insert(format!("{}/client.rs", service.base_path), client_code);
 
     // Generate service module
@@ -84,33 +85,6 @@ fn generate_handler_trait(service: &ServicePlan) -> Result<String, Box<dyn std::
     Ok(trait_code)
 }
 
-/// Generate client code for a service
-fn generate_client_code(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
-    let mut client_methods = Vec::new();
-
-    for method in &service.methods {
-        let method_code = templates::client_method(method);
-        client_methods.push(method_code);
-    }
-
-    let client_name = format!(
-        "{}Client",
-        service
-            .handler_name
-            .strip_suffix("Handler")
-            .unwrap_or(&service.handler_name)
-    );
-    let client_code = templates::client_struct(&client_name, &client_methods, &service.base_path);
-
-    println!(
-        "cargo:warning=Generated client {} with {} methods",
-        client_name,
-        service.methods.len()
-    );
-
-    Ok(client_code)
-}
-
 /// Generate service module that exports all components
 fn generate_service_module(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
     let module_code = templates::service_module(&service.handler_name);
@@ -132,12 +106,13 @@ fn generate_main_module(
 
 #[cfg(test)]
 mod tests {
+    use super::super::MethodPlan;
     use super::*;
     use crate::{
         MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
     };
 
-    fn create_test_service_plan() -> ServicePlan {
+    pub(crate) fn create_test_service_plan() -> ServicePlan {
         let operation = Operation {
             operation_id: "ListCatalogs".to_string(),
             ..Default::default()
@@ -392,27 +367,5 @@ mod tests {
         assert_eq!(update_plan.query_params[0].name, "force");
         assert_eq!(update_plan.body_fields.len(), 1);
         assert_eq!(update_plan.body_fields[0].name, "catalog");
-    }
-
-    #[test]
-    fn test_generate_client_code() {
-        let service = create_test_service_plan();
-        let result = generate_client_code(&service);
-        assert!(result.is_ok());
-        let code = result.unwrap();
-
-        // Print generated client code to verify format
-        println!("Generated client code:\n{}", code);
-
-        // Verify the code contains expected elements
-        assert!(code.contains("pub struct CatalogClient"));
-        assert!(code.contains("pub async fn list_catalogs"));
-        assert!(code.contains("CloudClient"));
-        assert!(code.contains("impl CatalogClient"));
-
-        // Verify proper Rust syntax
-        assert!(!code.contains("\\n"));
-        assert!(!code.contains("\\t"));
-        assert!(!code.contains("\\\""));
     }
 }
