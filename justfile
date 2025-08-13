@@ -100,3 +100,7 @@ build-node:
 
 build-docker:
     docker build -f docker/Dockerfile -t unitycatalog-rs:dev .
+
+# run marimo notebook server
+notebook:
+    uvx --directory notebooks marimo edit client.py
