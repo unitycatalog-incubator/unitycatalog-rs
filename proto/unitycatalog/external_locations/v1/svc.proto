@@ -143,7 +143,7 @@ service ExternalLocationsService {
   // Create a new external location
   rpc CreateExternalLocation(CreateExternalLocationRequest) returns (ExternalLocationInfo) {
     option (google.api.http) = {
-      post: "/external_locations"
+      post: "/external-locations"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {operation_id: "CreateExternalLocation"};
@@ -151,14 +151,14 @@ service ExternalLocationsService {
 
   // Get an external location
   rpc GetExternalLocation(GetExternalLocationRequest) returns (ExternalLocationInfo) {
-    option (google.api.http) = {get: "/external_locations/{name}"};
+    option (google.api.http) = {get: "/external-locations/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetExternalLocation"};
   }
 
   // Update an external location
   rpc UpdateExternalLocation(UpdateExternalLocationRequest) returns (ExternalLocationInfo) {
     option (google.api.http) = {
-      patch: "/external_locations/{name}"
+      patch: "/external-locations/{name}"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {operation_id: "UpdateExternalLocation"};
@@ -166,7 +166,7 @@ service ExternalLocationsService {
 
   // Delete an external location
   rpc DeleteExternalLocation(DeleteExternalLocationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/external_locations/{name}"};
+    option (google.api.http) = {delete: "/external-locations/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "DeleteExternalLocation"};
   }
 }

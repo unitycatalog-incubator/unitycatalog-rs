@@ -1,152 +1,15 @@
 use bytes::Bytes;
 use itertools::Itertools;
-use unitycatalog_derive::rest_handlers;
 
-use super::{RequestContext, SecuredAction, SharesHandler};
+use super::{RequestContext, SecuredAction, ShareHandler};
+use crate::Result;
+pub use crate::codegen::{SharingClient, SharingHandler};
 use crate::models::ObjectLabel;
 use crate::models::shares::v1::{GetShareRequest as SharesGetShareRequest, ShareInfo};
 use crate::models::sharing::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
+use crate::services::policy::{Permission, Policy, process_resources};
 use crate::shares::v1::DataObjectType;
-use crate::{Error, Result};
-
-rest_handlers!(
-    SharingDiscoveryHandler, "shares/schemas/tables", [
-        ListSharesRequest, Share, Use, ListSharesResponse;
-        GetShareRequest, Share, Use, Share with [
-            name: path as String,
-        ];
-        ListSharingSchemasRequest, Share, Use, ListSharingSchemasResponse with [
-            share: path as String,
-        ];
-        ListShareTablesRequest, Share, Use, ListShareTablesResponse with [
-            name: path as String,
-        ];
-        ListSchemaTablesRequest, SharingSchema, Use, ListSchemaTablesResponse with [
-            share: path as String,
-            name: path as String,
-        ];
-    ]
-);
-
-#[async_trait::async_trait]
-pub trait SharingDiscoveryHandler: Send + Sync + 'static {
-    /// List all shares that the recipient is allowed to read.
-    async fn list_shares(
-        &self,
-        request: ListSharesRequest,
-        context: RequestContext,
-    ) -> Result<ListSharesResponse>;
-
-    /// Get a share by name.
-    async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share>;
-
-    /// List all schemas in a share.
-    async fn list_sharing_schemas(
-        &self,
-        request: ListSharingSchemasRequest,
-        context: RequestContext,
-    ) -> Result<ListSharingSchemasResponse>;
-
-    /// List all tables in a schema.
-    async fn list_schema_tables(
-        &self,
-        request: ListSchemaTablesRequest,
-        context: RequestContext,
-    ) -> Result<ListSchemaTablesResponse>;
-
-    /// List all tables in a share.
-    async fn list_share_tables(
-        &self,
-        request: ListShareTablesRequest,
-        context: RequestContext,
-    ) -> Result<ListShareTablesResponse>;
-}
-
-impl SecuredAction for QueryTableRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetTableVersionRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetTableMetadataRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-#[cfg(feature = "axum")]
-mod sharing_impl {
-    use axum::body::Body;
-    use axum::extract::{FromRequest, FromRequestParts, Json, Path, Query, Request};
-    use axum::http::request::Parts;
-    use axum::{RequestExt, RequestPartsExt};
-
-    use super::*;
-
-    impl<S: Send + Sync> FromRequestParts<S> for GetTableVersionRequest {
-        type Rejection = Error;
-
-        async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-            let Path((share, schema, name)) =
-                parts.extract::<Path<(String, String, String)>>().await?;
-            let Query(InternalGetTableVersionParams { starting_timestamp }) = parts
-                .extract::<Query<InternalGetTableVersionParams>>()
-                .await?;
-            Ok(GetTableVersionRequest {
-                share,
-                schema,
-                name,
-                starting_timestamp,
-            })
-        }
-    }
-
-    impl<S: Send + Sync> FromRequestParts<S> for GetTableMetadataRequest {
-        type Rejection = Error;
-
-        async fn from_request_parts(parts: &mut Parts, _: &S) -> Result<Self, Self::Rejection> {
-            let Path((share, schema, name)) =
-                parts.extract::<Path<(String, String, String)>>().await?;
-            Ok(GetTableMetadataRequest {
-                share,
-                schema,
-                name,
-            })
-        }
-    }
-
-    impl<S: Send + Sync> FromRequest<S> for QueryTableRequest {
-        type Rejection = axum::response::Response;
-
-        async fn from_request(req: Request<Body>, _: &S) -> Result<Self, Self::Rejection> {
-            let Json(request) = req
-                .extract()
-                .await
-                .map_err(::axum::response::IntoResponse::into_response)?;
-            Ok(request)
-        }
-    }
-}
 
 #[async_trait::async_trait]
 pub trait SharingQueryHandler: Send + Sync + 'static {
@@ -170,7 +33,7 @@ pub trait SharingQueryHandler: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + SharesHandler> SharingDiscoveryHandler for T {
+impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
     async fn list_shares(
         &self,
         request: ListSharesRequest,
@@ -189,7 +52,7 @@ impl<T: ResourceStore + Policy + SharesHandler> SharingDiscoveryHandler for T {
 
         // if all resources gor filtered, but there are more pages, try again
         if resources.is_empty() && next_page_token.is_some() {
-            return SharingDiscoveryHandler::list_shares(self, request, context).await;
+            return SharingHandler::list_shares(self, request, context).await;
         }
 
         Ok(ListSharesResponse {
@@ -315,5 +178,105 @@ impl<T: ResourceStore + Policy + SharesHandler> SharingDiscoveryHandler for T {
             items,
             next_page_token: None,
         })
+    }
+
+    async fn get_table_version(
+        &self,
+        _request: GetTableVersionRequest,
+        _context: RequestContext,
+    ) -> Result<GetTableVersionResponse> {
+        unimplemented!("only method on SharingQueryHandler should be used")
+    }
+    async fn get_table_metadata(
+        &self,
+        _request: GetTableMetadataRequest,
+        _context: RequestContext,
+    ) -> Result<QueryResponse> {
+        unimplemented!("only method on SharingQueryHandler should be used")
+    }
+    async fn query_table(
+        &self,
+        _request: QueryTableRequest,
+        _context: RequestContext,
+    ) -> Result<QueryResponse> {
+        unimplemented!("only method on SharingQueryHandler should be used")
+    }
+}
+
+impl SecuredAction for GetShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+impl SecuredAction for ListSharesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+impl SecuredAction for ListSharingSchemasRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for ListShareTablesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for ListSchemaTablesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for QueryTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetTableVersionRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetTableMetadataRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
     }
 }

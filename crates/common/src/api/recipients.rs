@@ -1,69 +1,15 @@
 use itertools::Itertools;
-use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
+use crate::Result;
+pub use crate::codegen::{RecipientClient, RecipientHandler};
 use crate::models::ObjectLabel;
 use crate::models::recipients::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
-use crate::{Error, Result};
-
-rest_handlers!(
-    RecipientsHandler, "recipients", [
-        CreateRecipientRequest, Recipient, Create, RecipientInfo;
-        ListRecipientsRequest, Recipient, Read, ListRecipientsResponse;
-        GetRecipientRequest, Recipient, Read, RecipientInfo with [
-            name: path as String,
-        ];
-        UpdateRecipientRequest, Recipient, Manage, RecipientInfo with [
-            name: path as String,
-        ];
-        DeleteRecipientRequest, Recipient, Manage with [
-            name: path as String
-        ];
-    ]
-);
+use crate::services::policy::{Permission, Policy, process_resources};
 
 #[async_trait::async_trait]
-pub trait RecipientsHandler: Send + Sync + 'static {
-    /// List recipients.
-    async fn list_recipients(
-        &self,
-        request: ListRecipientsRequest,
-        context: RequestContext,
-    ) -> Result<ListRecipientsResponse>;
-
-    /// Create a new recipient.
-    async fn create_recipient(
-        &self,
-        request: CreateRecipientRequest,
-        context: RequestContext,
-    ) -> Result<RecipientInfo>;
-
-    /// Get a recipient.
-    async fn get_recipient(
-        &self,
-        request: GetRecipientRequest,
-        context: RequestContext,
-    ) -> Result<RecipientInfo>;
-
-    /// Update a recipient.
-    async fn update_recipient(
-        &self,
-        request: UpdateRecipientRequest,
-        context: RequestContext,
-    ) -> Result<RecipientInfo>;
-
-    /// Delete a recipient.
-    async fn delete_recipient(
-        &self,
-        request: DeleteRecipientRequest,
-        context: RequestContext,
-    ) -> Result<()>;
-}
-
-#[async_trait::async_trait]
-impl<T: ResourceStore + Policy> RecipientsHandler for T {
+impl<T: ResourceStore + Policy> RecipientHandler for T {
     async fn create_recipient(
         &self,
         request: CreateRecipientRequest,
@@ -131,5 +77,55 @@ impl<T: ResourceStore + Policy> RecipientsHandler for T {
     ) -> Result<RecipientInfo> {
         // TODO: once we have token handling, we can update token expiration etc...
         todo!("update_recipient")
+    }
+}
+
+impl SecuredAction for CreateRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListRecipientsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

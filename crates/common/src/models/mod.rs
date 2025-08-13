@@ -91,6 +91,14 @@ pub mod credentials {
     }
 }
 
+pub mod temporary_credentials {
+    pub mod v1 {
+        include!("./gen/unitycatalog.temporary_credentials.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./gen/unitycatalog.temporary_credentials.v1.tonic.rs");
+    }
+}
+
 pub mod profiles {
     pub mod v1 {
         include!("./gen/unitycatalog.profiles.v1.rs");

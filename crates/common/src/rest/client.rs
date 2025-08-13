@@ -8,12 +8,14 @@ use reqwest::IntoUrl;
 use serde::Deserialize;
 
 pub use crate::api::catalogs::CatalogClient;
-pub use crate::api::credentials::CredentialsClient;
-pub use crate::api::external_locations::ExternalLocationsClient;
-pub use crate::api::recipients::RecipientsClient;
-pub use crate::api::schemas::SchemasClient;
-pub use crate::api::shares::SharesClient;
-pub use crate::api::tables::TablesClient;
+pub use crate::api::credentials::CredentialClient;
+pub use crate::api::external_locations::ExternalLocationHandler;
+pub use crate::api::recipients::RecipientClient;
+pub use crate::api::schemas::SchemaClient;
+pub use crate::api::shares::ShareClient;
+pub use crate::api::sharing::SharingClient;
+pub use crate::api::tables::TableClient;
+pub use crate::codegen::ExternalLocationClient;
 use crate::models::catalogs::v1 as catalog;
 use crate::models::credentials::v1 as cred;
 use crate::models::credentials::v1::Purpose;
@@ -23,7 +25,6 @@ use crate::models::schemas::v1 as schema;
 use crate::models::shares::v1 as share;
 use crate::models::sharing::v1 as sharing;
 use crate::models::tables::v1 as tbl;
-pub use crate::sharing::SharingDiscoveryClient;
 use crate::sharing::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::utils::stream_paginated;
 use crate::{Error, Result};
@@ -43,28 +44,28 @@ impl UnityCatalogClient {
         CatalogClient::new(self.client.clone(), self.base_url.clone())
     }
 
-    pub fn credentials(&self) -> CredentialsClient {
-        CredentialsClient::new(self.client.clone(), self.base_url.clone())
+    pub fn credentials(&self) -> CredentialClient {
+        CredentialClient::new(self.client.clone(), self.base_url.clone())
     }
 
-    pub fn external_locations(&self) -> ExternalLocationsClient {
-        ExternalLocationsClient::new(self.client.clone(), self.base_url.clone())
+    pub fn external_locations(&self) -> ExternalLocationClient {
+        ExternalLocationClient::new(self.client.clone(), self.base_url.clone())
     }
 
-    pub fn recipients(&self) -> RecipientsClient {
-        RecipientsClient::new(self.client.clone(), self.base_url.clone())
+    pub fn recipients(&self) -> RecipientClient {
+        RecipientClient::new(self.client.clone(), self.base_url.clone())
     }
 
-    pub fn schemas(&self) -> SchemasClient {
-        SchemasClient::new(self.client.clone(), self.base_url.clone())
+    pub fn schemas(&self) -> SchemaClient {
+        SchemaClient::new(self.client.clone(), self.base_url.clone())
     }
 
-    pub fn tables(&self) -> TablesClient {
-        TablesClient::new(self.client.clone(), self.base_url.clone())
+    pub fn tables(&self) -> TableClient {
+        TableClient::new(self.client.clone(), self.base_url.clone())
     }
 
-    pub fn shares(&self) -> SharesClient {
-        SharesClient::new(self.client.clone(), self.base_url.clone())
+    pub fn shares(&self) -> ShareClient {
+        ShareClient::new(self.client.clone(), self.base_url.clone())
     }
 }
 
@@ -124,7 +125,7 @@ impl CatalogClient {
     }
 }
 
-impl SchemasClient {
+impl SchemaClient {
     pub fn list(
         &self,
         catalog_name: impl Into<String>,
@@ -198,7 +199,7 @@ impl SchemasClient {
     }
 }
 
-impl TablesClient {
+impl TableClient {
     pub fn list_summaries(
         &self,
         catalog_name: impl Into<String>,
@@ -335,7 +336,7 @@ impl TablesClient {
     }
 }
 
-impl CredentialsClient {
+impl CredentialClient {
     pub fn list(
         &self,
         purpose: Option<Purpose>,
@@ -386,7 +387,7 @@ impl CredentialsClient {
     }
 }
 
-impl ExternalLocationsClient {
+impl ExternalLocationClient {
     pub fn list(
         &self,
         max_results: impl Into<Option<i32>>,
@@ -447,7 +448,7 @@ impl ExternalLocationsClient {
     }
 }
 
-impl RecipientsClient {
+impl RecipientClient {
     pub fn list(
         &self,
         max_results: impl Into<Option<i32>>,
@@ -495,7 +496,7 @@ impl RecipientsClient {
     }
 }
 
-impl SharesClient {
+impl ShareClient {
     pub fn list(
         &self,
         max_results: impl Into<Option<i32>>,
@@ -566,17 +567,17 @@ impl SharesClient {
 }
 
 #[derive(Clone)]
-pub struct SharingClient {
+pub struct DeltaSharingClient {
     client: CloudClient,
     base_url: url::Url,
-    discovery: SharingDiscoveryClient,
+    discovery: SharingClient,
 }
 
-impl SharingClient {
+impl DeltaSharingClient {
     pub fn new(client: CloudClient, base_url: url::Url) -> Self {
         let base_url = base_url.join("api/v1/delta-sharing/").unwrap();
         Self {
-            discovery: SharingDiscoveryClient::new(client.clone(), base_url.clone()),
+            discovery: SharingClient::new(client.clone(), base_url.clone()),
             client,
             base_url,
         }
@@ -594,7 +595,7 @@ impl SharingClient {
             base_url.join(&prefix).unwrap()
         };
         Self {
-            discovery: SharingDiscoveryClient::new(client.clone(), base_url.clone()),
+            discovery: SharingClient::new(client.clone(), base_url.clone()),
             client,
             base_url,
         }

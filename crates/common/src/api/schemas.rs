@@ -1,73 +1,15 @@
 use itertools::Itertools;
-use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
+use crate::Result;
+pub use crate::codegen::{SchemaClient, SchemaHandler};
 use crate::models::ObjectLabel;
 use crate::models::schemas::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
-use crate::{Error, Result};
-
-rest_handlers!(
-    SchemasHandler, "schemas", [
-        CreateSchemaRequest, Schema, Create, SchemaInfo;
-        ListSchemasRequest, Catalog, Read, ListSchemasResponse with [
-            catalog_name: query as String,
-            include_browse: query as Option<bool>,
-        ];
-        GetSchemaRequest, Schema, Read, SchemaInfo with [
-            full_name: path as String,
-        ];
-        UpdateSchemaRequest, Schema, Manage, SchemaInfo with [
-            full_name: path as String,
-        ];
-        DeleteSchemaRequest, Schema, Manage with [
-            full_name: path as String,
-            force: query as Option<bool>,
-        ];
-    ]
-);
+use crate::services::policy::{Permission, Policy, process_resources};
 
 #[async_trait::async_trait]
-pub trait SchemasHandler: Send + Sync + 'static {
-    /// Create a new schema.
-    async fn create_schema(
-        &self,
-        request: CreateSchemaRequest,
-        context: RequestContext,
-    ) -> Result<SchemaInfo>;
-
-    /// Delete a schema.
-    async fn delete_schema(
-        &self,
-        request: DeleteSchemaRequest,
-        context: RequestContext,
-    ) -> Result<()>;
-
-    /// Get a schema.
-    async fn get_schema(
-        &self,
-        request: GetSchemaRequest,
-        context: RequestContext,
-    ) -> Result<SchemaInfo>;
-
-    /// List schemas.
-    async fn list_schemas(
-        &self,
-        request: ListSchemasRequest,
-        context: RequestContext,
-    ) -> Result<ListSchemasResponse>;
-
-    /// Update a schema.
-    async fn update_schema(
-        &self,
-        request: UpdateSchemaRequest,
-        context: RequestContext,
-    ) -> Result<SchemaInfo>;
-}
-
-#[async_trait::async_trait]
-impl<T: ResourceStore + Policy> SchemasHandler for T {
+impl<T: ResourceStore + Policy> SchemaHandler for T {
     async fn create_schema(
         &self,
         request: CreateSchemaRequest,
@@ -152,5 +94,58 @@ impl<T: ResourceStore + Policy> SchemasHandler for T {
         // - add update_* relations
         // - update owner if necessary
         self.update(&ident, resource.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::new([
+            self.catalog_name.as_str(),
+            self.name.as_str(),
+        ]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListSchemasRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

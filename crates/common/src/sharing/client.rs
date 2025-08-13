@@ -5,24 +5,24 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
 
-use super::SharingDiscoveryClient;
+use super::SharingClient;
 use super::models::*;
 use crate::models::sharing::v1::*;
 use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 #[derive(Clone)]
-pub struct SharingClient {
+pub struct DeltaSharingClient {
     client: CloudClient,
     base_url: url::Url,
-    discovery: SharingDiscoveryClient,
+    discovery: SharingClient,
 }
 
-impl SharingClient {
+impl DeltaSharingClient {
     pub fn new(client: CloudClient, base_url: url::Url) -> Self {
         let base_url = base_url.join("api/v1/delta-sharing/").unwrap();
         Self {
-            discovery: SharingDiscoveryClient::new(client.clone(), base_url.clone()),
+            discovery: SharingClient::new(client.clone(), base_url.clone()),
             client,
             base_url,
         }
@@ -40,7 +40,7 @@ impl SharingClient {
             base_url.join(&prefix).unwrap()
         };
         Self {
-            discovery: SharingDiscoveryClient::new(client.clone(), base_url.clone()),
+            discovery: SharingClient::new(client.clone(), base_url.clone()),
             client,
             base_url,
         }

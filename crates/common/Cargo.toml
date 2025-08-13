@@ -73,7 +73,6 @@ postgres-types = { version = "0.2", optional = true, features = ["derive"] }
 # derive pyclass for generated messages
 pyo3 = { workspace = true, optional = true }
 
-# pyhon bindings
 [dev-dependencies]
 http-body-util = "0.1.0"
 mime = "0.3"

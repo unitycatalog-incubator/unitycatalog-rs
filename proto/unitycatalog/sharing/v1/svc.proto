@@ -211,7 +211,7 @@ message ListShareTablesResponse {
 }
 
 // Service exposing the official APIs for Delta Sharing.
-service DeltaSharingService {
+service SharingService {
   // List shares accessible to a recipient.
   rpc ListShares(ListSharesRequest) returns (ListSharesResponse) {
     option (google.api.http) = {get: "/shares"};
@@ -220,13 +220,13 @@ service DeltaSharingService {
 
   // Get the metadata for a specific share.
   rpc GetShare(GetShareRequest) returns (Share) {
-    option (google.api.http) = {get: "/{name=shares/*}"};
+    option (google.api.http) = {get: "/shares/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetShare"};
   }
 
   // List the schemas in a share.
   rpc ListSharingSchemas(ListSharingSchemasRequest) returns (ListSharingSchemasResponse) {
-    option (google.api.http) = {get: "/shares/{share}}/schemas"};
+    option (google.api.http) = {get: "/shares/{share}/schemas"};
     option (gnostic.openapi.v3.operation) = {operation_id: "ListSharingSchemas"};
   }
 
@@ -238,7 +238,7 @@ service DeltaSharingService {
 
   // List all the tables under all schemas in a share.
   rpc ListShareTables(ListShareTablesRequest) returns (ListShareTablesResponse) {
-    option (google.api.http) = {get: "/{name=shares/*}/all-tables"};
+    option (google.api.http) = {get: "/shares/{name}/all-tables"};
     option (gnostic.openapi.v3.operation) = {operation_id: "ListShareTables"};
   }
 
@@ -254,7 +254,10 @@ service DeltaSharingService {
   }
 
   rpc QueryTable(QueryTableRequest) returns (QueryResponse) {
-    option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/query"};
+    option (google.api.http) = {
+      post: "/shares/{share}/schemas/{schema}/tables/{name}/query"
+      body: "*"
+    };
     option (gnostic.openapi.v3.operation) = {operation_id: "QueryTable"};
   }
 }

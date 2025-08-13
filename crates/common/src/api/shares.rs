@@ -1,72 +1,16 @@
+use itertools::Itertools;
 use std::collections::HashMap;
 
-use itertools::Itertools;
-use unitycatalog_derive::rest_handlers;
-
 use super::{RequestContext, SecuredAction};
+pub use crate::codegen::{ShareClient, ShareHandler};
 use crate::models::ObjectLabel;
 use crate::models::shares::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
+use crate::services::policy::{Permission, Policy, process_resources};
 use crate::{Error, Result};
 
-rest_handlers!(
-    SharesHandler, "shares", [
-        CreateShareRequest, Share, Create, ShareInfo;
-        ListSharesRequest, Share, Read, ListSharesResponse;
-        GetShareRequest, Share, Read, ShareInfo with [
-            name: path as String,
-            include_shared_data: query as Option<bool>,
-        ];
-        UpdateShareRequest, Share, Manage, ShareInfo with [
-            name: path as String,
-        ];
-        DeleteShareRequest, Share, Manage with [
-            name: path as String
-        ];
-    ]
-);
-
 #[async_trait::async_trait]
-pub trait SharesHandler: Send + Sync + 'static {
-    /// Create a new share.
-    async fn create_share(
-        &self,
-        request: CreateShareRequest,
-        context: RequestContext,
-    ) -> Result<ShareInfo>;
-
-    /// Delete a share.
-    async fn delete_share(
-        &self,
-        request: DeleteShareRequest,
-        context: RequestContext,
-    ) -> Result<()>;
-
-    /// Get a share.
-    async fn get_share(
-        &self,
-        request: GetShareRequest,
-        context: RequestContext,
-    ) -> Result<ShareInfo>;
-
-    /// List shares.
-    async fn list_shares(
-        &self,
-        request: ListSharesRequest,
-        context: RequestContext,
-    ) -> Result<ListSharesResponse>;
-
-    /// Update a share.
-    async fn update_share(
-        &self,
-        request: UpdateShareRequest,
-        context: RequestContext,
-    ) -> Result<ShareInfo>;
-}
-
-#[async_trait::async_trait]
-impl<T: ResourceStore + Policy> SharesHandler for T {
+impl<T: ResourceStore + Policy> ShareHandler for T {
     async fn create_share(
         &self,
         request: CreateShareRequest,
@@ -178,5 +122,55 @@ impl<T: ResourceStore + Policy> SharesHandler for T {
         // TODO:
         // - add update_* relations
         self.update(&ident, resource.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListSharesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

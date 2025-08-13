@@ -11,11 +11,21 @@ generate:
     mv tmp.yaml openapi/openapi.yaml
     cargo clippy --fix --allow-dirty --allow-staged
 
-generate-app:
-    just app/generate
-
 generate-types:
     just crates/common/generate
+
+generate-build:
+    just crates/build/generate
+
+generate-rest:
+    cargo run --bin unitycatalog-build -- \
+      --output crates/common/src/codegen \
+      --descriptors crates/common/descriptors/descriptors.bin
+    cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
+    cargo fmt
+
+descriptors:
+    cd proto && buf build --output ../crates/common/descriptors/descriptors.bin
 
 generate-py:
     uv run scripts/prepare_jsonschema.py
@@ -34,7 +44,7 @@ sqlx-prepare: start_pg
     # Run migrations to create tables
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     # Prepare SQLx
-    cargo sqlx prepare --workspace -- --tests
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx prepare --workspace -- --tests
     # Clean up
     @just stop_pg
 
@@ -56,6 +66,7 @@ rest:
     @RUST_LOG=INFO cargo run --bin uc server --rest
 
 rest-db:
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
         cargo run -p unitycatalog-cli -- server --rest --use-db
 

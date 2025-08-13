@@ -1,73 +1,15 @@
 use itertools::Itertools;
-use unitycatalog_derive::rest_handlers;
 
 use super::{RequestContext, SecuredAction};
+use crate::Result;
+pub use crate::codegen::{ExternalLocationClient, ExternalLocationHandler};
 use crate::models::ObjectLabel;
 use crate::models::external_locations::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
-use crate::services::policy::{Permission, Policy, Recipient, process_resources};
-use crate::{Error, Result};
-
-rest_handlers!(
-    ExternalLocationsHandler, "external-locations",
-    [
-        CreateExternalLocationRequest, ExternalLocation, Create, ExternalLocationInfo;
-        ListExternalLocationsRequest, ExternalLocation, Read, ListExternalLocationsResponse with [
-            include_browse: query as Option<bool>,
-        ];
-        GetExternalLocationRequest, ExternalLocation, Read, ExternalLocationInfo with [
-            name: path as String,
-        ];
-        UpdateExternalLocationRequest, ExternalLocation, Manage, ExternalLocationInfo with [
-            name: path as String,
-        ];
-        DeleteExternalLocationRequest, ExternalLocation, Manage with [
-            name: path as String,
-            force: query as Option<bool>,
-        ];
-    ]
-);
+use crate::services::policy::{Permission, Policy, process_resources};
 
 #[async_trait::async_trait]
-pub trait ExternalLocationsHandler: Send + Sync + 'static {
-    /// Create a new external location.
-    async fn create_external_location(
-        &self,
-        request: CreateExternalLocationRequest,
-        context: RequestContext,
-    ) -> Result<ExternalLocationInfo>;
-
-    /// Delete an external location.
-    async fn delete_external_location(
-        &self,
-        request: DeleteExternalLocationRequest,
-        context: RequestContext,
-    ) -> Result<()>;
-
-    /// Get an external location.
-    async fn get_external_location(
-        &self,
-        request: GetExternalLocationRequest,
-        context: RequestContext,
-    ) -> Result<ExternalLocationInfo>;
-
-    /// List external locations.
-    async fn list_external_locations(
-        &self,
-        request: ListExternalLocationsRequest,
-        context: RequestContext,
-    ) -> Result<ListExternalLocationsResponse>;
-
-    /// Update an external location.
-    async fn update_external_location(
-        &self,
-        request: UpdateExternalLocationRequest,
-        context: RequestContext,
-    ) -> Result<ExternalLocationInfo>;
-}
-
-#[async_trait::async_trait]
-impl<T: ResourceStore + Policy> ExternalLocationsHandler for T {
+impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
     async fn create_external_location(
         &self,
         request: CreateExternalLocationRequest,
@@ -171,5 +113,55 @@ impl<T: ResourceStore + Policy> ExternalLocationsHandler for T {
         // - update owner if necessary
 
         self.update(&curr_ident, current.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListExternalLocationsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }
