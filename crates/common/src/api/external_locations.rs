@@ -8,56 +8,6 @@ use crate::models::external_locations::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, process_resources};
 
-impl SecuredAction for CreateExternalLocationRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Create
-    }
-}
-
-impl SecuredAction for ListExternalLocationsRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::external_location(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetExternalLocationRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateExternalLocationRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteExternalLocationRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
     async fn create_external_location(
@@ -163,5 +113,55 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         // - update owner if necessary
 
         self.update(&curr_ident, current.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListExternalLocationsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteExternalLocationRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::external_location(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

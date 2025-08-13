@@ -6,7 +6,7 @@ use http::header::CONTENT_TYPE;
 
 use crate::api::RequestContext;
 use crate::codegen::SharingHandler;
-use crate::codegen::sharing::routes::*;
+use crate::codegen::sharing::server::*;
 use crate::models::sharing::v1::*;
 use crate::services::policy::Recipient;
 use crate::sharing::SharingQueryHandler;

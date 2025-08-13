@@ -79,8 +79,8 @@ pub fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> Strin
         let output_type = extract_type_ident(&method.metadata.output_type);
         quote! {
             pub async fn #function_name<T: #handler_trait_ident>(
-                ::axum::extract::State(handler): ::axum::extract::State<T>,
-                ::axum::extract::Extension(recipient): ::axum::extract::Extension<Recipient>,
+                State(handler): State<T>,
+                Extension(recipient): Extension<Recipient>,
                 request: #input_type,
             ) -> Result<::axum::Json<#output_type>> {
                 let context = RequestContext { recipient };
@@ -91,8 +91,8 @@ pub fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> Strin
     } else {
         quote! {
             pub async fn #function_name<T: #handler_trait_ident>(
-                ::axum::extract::State(handler): ::axum::extract::State<T>,
-                ::axum::extract::Extension(recipient): ::axum::extract::Extension<Recipient>,
+                State(handler): State<T>,
+                Extension(recipient): Extension<Recipient>,
                 request: #input_type,
             ) -> Result<()> {
                 let context = RequestContext { recipient };
@@ -332,14 +332,19 @@ pub fn client_struct(client_name: &str, methods: &[String], service_namespace: &
 }
 
 /// Generate route handlers module
-pub fn route_handlers_module(
+pub fn server_module(
     trait_name: &str,
     handlers: &[String],
+    extractors: &[String],
     service_namespace: &str,
 ) -> String {
     let handler_tokens: Vec<TokenStream> = handlers
         .iter()
         .map(|h| syn::parse_str::<TokenStream>(h).unwrap_or_else(|_| quote! {}))
+        .collect();
+    let extractor_tokens: Vec<TokenStream> = extractors
+        .iter()
+        .map(|e| syn::parse_str::<TokenStream>(e).unwrap_or_else(|_| quote! {}))
         .collect();
     let mod_path: Path =
         syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
@@ -351,26 +356,10 @@ pub fn route_handlers_module(
         use #mod_path::*;
         use #trait_path;
         use crate::services::Recipient;
+        use axum::{RequestExt, RequestPartsExt};
+        use axum::extract::{State, Extension};
 
         #(#handler_tokens)*
-    };
-
-    format_tokens(tokens)
-}
-
-/// Generate request extractors module
-pub fn request_extractors_module(extractors: &[String], service_namespace: &str) -> String {
-    let extractor_tokens: Vec<TokenStream> = extractors
-        .iter()
-        .map(|e| syn::parse_str::<TokenStream>(e).unwrap_or_else(|_| quote! {}))
-        .collect();
-    let mod_path: Path =
-        syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
-
-    let tokens = quote! {
-        use ::axum::{RequestExt, RequestPartsExt};
-
-        use #mod_path::*;
 
         #(#extractor_tokens)*
     };
@@ -379,40 +368,20 @@ pub fn request_extractors_module(extractors: &[String], service_namespace: &str)
 }
 
 /// Generate service module
-pub fn service_module(handler_name: &str, _base_path: &str, methods: &[MethodPlan]) -> String {
+pub fn service_module(handler_name: &str) -> String {
     let handler_ident = format_ident!("{}", handler_name);
 
-    let route_registrations: Vec<TokenStream> = methods
-        .iter()
-        .map(|m| {
-            let path = &m.http_path;
-            let http_method = format_ident!("{}", m.http_method.to_lowercase());
-            let route_function = format_ident!("{}", m.route_function_name);
-            quote! {
-                .route(#path, axum::routing::#http_method(#route_function::<T>))
-            }
-        })
-        .collect();
-
     let tokens = quote! {
-        mod handler;
-        pub mod routes;
-        mod extractors;
-        pub mod client;
-
         pub use handler::#handler_ident;
-        use routes::*;
         pub use client::*;
 
-        /// Create router for this service
-        pub fn create_router<T: #handler_ident + Clone>(handler: T) -> axum::Router {
-            axum::Router::new()
-                #(#route_registrations)*
-                .with_state(handler)
-        }
+        mod handler;
+        #[cfg(feature = "axum")]
+        pub mod server;
+        pub mod client;
     };
 
-    format_tokens(tokens)
+    tokens.to_string()
 }
 
 /// Generate main module file

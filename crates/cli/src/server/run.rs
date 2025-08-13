@@ -13,9 +13,9 @@ use unitycatalog_common::api::schemas::SchemaHandler;
 use unitycatalog_common::api::shares::ShareHandler;
 use unitycatalog_common::api::tables::TableHandler;
 use unitycatalog_common::rest::{
-    AuthenticationLayer, Authenticator, get_catalog_router, get_credentials_router,
-    get_external_locations_router, get_recipients_router, get_schemas_router, get_shares_router,
-    get_sharing_router, get_tables_router,
+    AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
+    create_external_locations_router, create_recipients_router, create_schemas_router,
+    create_shares_router, create_sharing_router, create_tables_router,
 };
 use unitycatalog_common::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_common::{Error, Result};
@@ -50,17 +50,20 @@ where
         title: Some("Delta Sharing API"),
     };
 
-    let api_routes = get_catalog_router(handler.clone())
-        .merge(get_schemas_router(handler.clone()))
-        .merge(get_tables_router(handler.clone()))
-        .merge(get_credentials_router(handler.clone()))
-        .merge(get_external_locations_router(handler.clone()))
-        .merge(get_recipients_router(handler.clone()))
-        .merge(get_shares_router(handler.clone()));
+    let api_routes = create_catalogs_router(handler.clone())
+        .merge(create_schemas_router(handler.clone()))
+        .merge(create_tables_router(handler.clone()))
+        .merge(create_credentials_router(handler.clone()))
+        .merge(create_external_locations_router(handler.clone()))
+        .merge(create_recipients_router(handler.clone()))
+        .merge(create_shares_router(handler.clone()));
 
     let router = Router::new()
         .nest("/api/2.1/unity-catalog", api_routes)
-        .nest("/api/v1/delta-sharing", get_sharing_router(handler.clone()));
+        .nest(
+            "/api/v1/delta-sharing",
+            create_sharing_router(handler.clone()),
+        );
     let server = router.layer(AuthenticationLayer::new(authenticator));
 
     run(server, host, port, api_def, sharing_api_def).await

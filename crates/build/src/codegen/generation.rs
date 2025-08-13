@@ -50,16 +50,9 @@ fn generate_service_code(
     let trait_code = generate_handler_trait(service)?;
     files.insert(format!("{}/handler.rs", service.base_path), trait_code);
 
-    // Generate route handlers
-    let route_code = generate_route_handlers(service)?;
-    files.insert(format!("{}/routes.rs", service.base_path), route_code);
-
-    // Generate request extractors
-    let extractor_code = generate_request_extractors(service)?;
-    files.insert(
-        format!("{}/extractors.rs", service.base_path),
-        extractor_code,
-    );
+    // Generate server code
+    let server_code = generate_server_code(service)?;
+    files.insert(format!("{}/server.rs", service.base_path), server_code);
 
     // Generate client code
     let client_code = generate_client_code(service)?;
@@ -87,56 +80,28 @@ fn generate_handler_trait(service: &ServicePlan) -> Result<String, Box<dyn std::
         service.base_path.clone(),
     );
 
-    println!(
-        "cargo:warning=Generated handler trait {} with {} methods",
-        service.handler_name,
-        service.methods.len()
-    );
-
     Ok(trait_code)
 }
 
 /// Generate route handler functions for a service
-fn generate_route_handlers(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+fn generate_server_code(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
     let mut handler_functions = Vec::new();
-
     for method in &service.methods {
         let handler_code = templates::route_handler_function(method, &service.handler_name);
         handler_functions.push(handler_code);
     }
 
-    let module_code = templates::route_handlers_module(
-        &service.handler_name,
-        &handler_functions,
-        &service.base_path,
-    );
-
-    println!(
-        "cargo:warning=Generated {} route handlers for {}",
-        service.methods.len(),
-        service.service_name
-    );
-
-    Ok(module_code)
-}
-
-/// Generate request extractor implementations for a service
-fn generate_request_extractors(
-    service: &ServicePlan,
-) -> Result<String, Box<dyn std::error::Error>> {
     let mut extractor_impls = Vec::new();
-
     for method in &service.methods {
         let extractor_code = generate_extractor_for_method(method)?;
         extractor_impls.push(extractor_code);
     }
 
-    let module_code = templates::request_extractors_module(&extractor_impls, &service.base_path);
-
-    println!(
-        "cargo:warning=Generated {} request extractors for {}",
-        service.methods.len(),
-        service.service_name
+    let module_code = templates::server_module(
+        &service.handler_name,
+        &handler_functions,
+        &extractor_impls,
+        &service.base_path,
     );
 
     Ok(module_code)
@@ -171,8 +136,7 @@ fn generate_client_code(service: &ServicePlan) -> Result<String, Box<dyn std::er
 
 /// Generate service module that exports all components
 fn generate_service_module(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
-    let module_code =
-        templates::service_module(&service.handler_name, &service.base_path, &service.methods);
+    let module_code = templates::service_module(&service.handler_name);
 
     Ok(module_code)
 }

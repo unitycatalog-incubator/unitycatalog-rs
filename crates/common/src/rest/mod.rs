@@ -2,18 +2,10 @@
 pub use auth::*;
 #[cfg(feature = "axum")]
 pub use routers::*;
-
 #[cfg(feature = "axum")]
-mod routers {
-    pub use crate::codegen::catalogs::create_router as get_catalog_router;
-    pub use crate::codegen::credentials::create_router as get_credentials_router;
-    pub use crate::codegen::external_locations::create_router as get_external_locations_router;
-    pub use crate::codegen::recipients::create_router as get_recipients_router;
-    pub use crate::codegen::schemas::create_router as get_schemas_router;
-    pub use crate::codegen::shares::create_router as get_shares_router;
-    pub use crate::codegen::tables::create_router as get_tables_router;
-    pub use crate::sharing::get_router as get_sharing_router;
-}
+mod routers;
+#[cfg(feature = "axum")]
+pub use crate::sharing::get_router as create_sharing_router;
 
 #[cfg(feature = "axum")]
 mod auth;
@@ -69,8 +61,8 @@ mod tests {
     #[tokio::test]
     async fn test_catalog_router() {
         let handler = Handler::default();
-        let app = get_catalog_router(handler.clone())
-            .merge(get_schemas_router(handler))
+        let app = create_catalogs_router(handler.clone())
+            .merge(create_schemas_router(handler))
             .layer(AuthenticationLayer::new(AnonymousAuthenticator));
         super::integration::test_catalog_router(app).await;
     }
@@ -78,8 +70,8 @@ mod tests {
     #[tokio::test]
     async fn test_credentials_router() {
         let handler = Handler::default();
-        let app = get_credentials_router(handler.clone())
-            .merge(get_external_locations_router(handler))
+        let app = create_credentials_router(handler.clone())
+            .merge(create_external_locations_router(handler))
             .layer(AuthenticationLayer::new(AnonymousAuthenticator));
         super::integration::test_credentials_router(app).await;
     }

@@ -17,35 +17,14 @@ use std::collections::HashSet;
 pub fn analyze_metadata(
     metadata: &CodeGenMetadata,
 ) -> Result<GenerationPlan, Box<dyn std::error::Error>> {
-    println!(
-        "cargo:warning=Analyzing {} methods from {} services",
-        metadata.methods.len(),
-        metadata.services().len()
-    );
-
-    let services = analyze_services(metadata)?;
-
-    Ok(GenerationPlan { services })
-}
-
-/// Analyze services and create service plans
-fn analyze_services(
-    metadata: &CodeGenMetadata,
-) -> Result<Vec<ServicePlan>, Box<dyn std::error::Error>> {
-    let mut service_plans = Vec::new();
+    let mut services = Vec::new();
 
     for (service_name, methods) in metadata.services() {
-        println!(
-            "cargo:warning=Analyzing service {} with {} methods",
-            service_name,
-            methods.len()
-        );
-
         let service_plan = analyze_service(&service_name, methods)?;
-        service_plans.push(service_plan);
+        services.push(service_plan);
     }
 
-    Ok(service_plans)
+    Ok(GenerationPlan { services })
 }
 
 /// Analyze a single service and create a service plan
@@ -68,12 +47,6 @@ fn analyze_service(
             );
         }
     }
-
-    println!(
-        "cargo:warning=Service {} planned with {} methods",
-        service_name,
-        method_plans.len()
-    );
 
     Ok(ServicePlan {
         service_name: service_name.to_string(),
@@ -124,16 +97,6 @@ pub fn analyze_method(
     // Determine if method has response
     let request_type = method.request_type();
     let has_response = types::has_response_body(&request_type);
-
-    println!(
-        "cargo:warning=Analyzed method {} -> {} {} {} (params: {}, query: {})",
-        operation_id,
-        http_method,
-        http_path,
-        handler_function_name,
-        path_params.len(),
-        query_params.len()
-    );
 
     Ok(Some(MethodPlan {
         metadata: method.clone(),

@@ -10,56 +10,6 @@ use crate::services::policy::{Permission, Policy, process_resources};
 use crate::services::secrets::SecretManager;
 use crate::{Error, Result};
 
-impl SecuredAction for CreateCredentialRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Create
-    }
-}
-
-impl SecuredAction for ListCredentialsRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::credential(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetCredentialRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateCredentialRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteCredentialRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
 #[async_trait::async_trait]
 pub trait CredentialHandlerExt: Send + Sync + 'static {
     /// Get a credential without checking permissions.
@@ -272,5 +222,55 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandlerExt for T {
         let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;
         cred.credential = Some(secret.into_cred()?);
         Ok(cred)
+    }
+}
+
+impl SecuredAction for CreateCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListCredentialsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::credential(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteCredentialRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

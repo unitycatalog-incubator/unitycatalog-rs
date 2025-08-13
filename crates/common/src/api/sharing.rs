@@ -11,84 +11,6 @@ use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, process_resources};
 use crate::shares::v1::DataObjectType;
 
-impl SecuredAction for GetShareRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-impl SecuredAction for ListSharesRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-impl SecuredAction for ListSharingSchemasRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for ListShareTablesRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for ListSchemaTablesRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for QueryTableRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetTableVersionRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetTableMetadataRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
 #[async_trait::async_trait]
 pub trait SharingQueryHandler: Send + Sync + 'static {
     async fn get_table_version(
@@ -278,5 +200,83 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         _context: RequestContext,
     ) -> Result<QueryResponse> {
         unimplemented!("only method on SharingQueryHandler should be used")
+    }
+}
+
+impl SecuredAction for GetShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+impl SecuredAction for ListSharesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+impl SecuredAction for ListSharingSchemasRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for ListShareTablesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for ListSchemaTablesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for QueryTableRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetTableVersionRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetTableMetadataRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
     }
 }

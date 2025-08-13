@@ -8,59 +8,6 @@ use crate::models::schemas::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, process_resources};
 
-impl SecuredAction for CreateSchemaRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::schema(ResourceName::new([
-            self.catalog_name.as_str(),
-            self.name.as_str(),
-        ]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Create
-    }
-}
-
-impl SecuredAction for ListSchemasRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::schema(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetSchemaRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateSchemaRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteSchemaRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> SchemaHandler for T {
     async fn create_schema(
@@ -147,5 +94,58 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         // - add update_* relations
         // - update owner if necessary
         self.update(&ident, resource.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::new([
+            self.catalog_name.as_str(),
+            self.name.as_str(),
+        ]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListSchemasRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteSchemaRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::schema(ResourceName::from_naive_str_split(self.full_name.as_str()))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

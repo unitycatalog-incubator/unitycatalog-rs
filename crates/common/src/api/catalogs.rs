@@ -8,56 +8,6 @@ use crate::models::catalogs::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, process_resources};
 
-impl SecuredAction for CreateCatalogRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Create
-    }
-}
-
-impl SecuredAction for ListCatalogsRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::catalog(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetCatalogRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateCatalogRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteCatalogRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> CatalogHandler for T {
     async fn create_catalog(
@@ -146,5 +96,55 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         // - add update_* relations
         // - update owner if necessary
         self.update(&ident, resource.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateCatalogRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListCatalogsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetCatalogRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateCatalogRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteCatalogRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::catalog(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

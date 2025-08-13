@@ -13,6 +13,7 @@ pub mod gnostic {
 }
 
 pub mod codegen;
+pub mod error;
 pub mod parsing;
 pub mod utils;
 

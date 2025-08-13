@@ -9,56 +9,6 @@ use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, process_resources};
 use crate::{Error, Result};
 
-impl SecuredAction for CreateShareRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Create
-    }
-}
-
-impl SecuredAction for ListSharesRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetShareRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateShareRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteShareRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ShareHandler for T {
     async fn create_share(
@@ -172,5 +122,55 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         // TODO:
         // - add update_* relations
         self.update(&ident, resource.into()).await?.0.try_into()
+    }
+}
+
+impl SecuredAction for CreateShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListSharesRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

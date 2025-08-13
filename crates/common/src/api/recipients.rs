@@ -8,56 +8,6 @@ use crate::models::recipients::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
 use crate::services::policy::{Permission, Policy, process_resources};
 
-impl SecuredAction for CreateRecipientRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Create
-    }
-}
-
-impl SecuredAction for ListRecipientsRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::recipient(ResourceRef::Undefined)
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for GetRecipientRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateRecipientRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteRecipientRequest {
-    fn resource(&self) -> ResourceIdent {
-        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> RecipientHandler for T {
     async fn create_recipient(
@@ -127,5 +77,55 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
     ) -> Result<RecipientInfo> {
         // TODO: once we have token handling, we can update token expiration etc...
         todo!("update_recipient")
+    }
+}
+
+impl SecuredAction for CreateRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Create
+    }
+}
+
+impl SecuredAction for ListRecipientsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GetRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteRecipientRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::recipient(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
     }
 }

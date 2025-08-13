@@ -1,5 +1,55 @@
+use super::handler::ExternalLocationHandler;
+use crate::Result;
+use crate::api::RequestContext;
 use crate::models::external_locations::v1::*;
-use ::axum::{RequestExt, RequestPartsExt};
+use crate::services::Recipient;
+use axum::extract::{Extension, State};
+use axum::{RequestExt, RequestPartsExt};
+pub async fn list_external_locations_handler<T: ExternalLocationHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: ListExternalLocationsRequest,
+) -> Result<::axum::Json<ListExternalLocationsResponse>> {
+    let context = RequestContext { recipient };
+    let result = handler.list_external_locations(request, context).await?;
+    Ok(axum::Json(result))
+}
+pub async fn create_external_location_handler<T: ExternalLocationHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: CreateExternalLocationRequest,
+) -> Result<::axum::Json<ExternalLocationInfo>> {
+    let context = RequestContext { recipient };
+    let result = handler.create_external_location(request, context).await?;
+    Ok(axum::Json(result))
+}
+pub async fn get_external_location_handler<T: ExternalLocationHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: GetExternalLocationRequest,
+) -> Result<::axum::Json<ExternalLocationInfo>> {
+    let context = RequestContext { recipient };
+    let result = handler.get_external_location(request, context).await?;
+    Ok(axum::Json(result))
+}
+pub async fn update_external_location_handler<T: ExternalLocationHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: UpdateExternalLocationRequest,
+) -> Result<::axum::Json<ExternalLocationInfo>> {
+    let context = RequestContext { recipient };
+    let result = handler.update_external_location(request, context).await?;
+    Ok(axum::Json(result))
+}
+pub async fn delete_external_location_handler<T: ExternalLocationHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: DeleteExternalLocationRequest,
+) -> Result<()> {
+    let context = RequestContext { recipient };
+    handler.delete_external_location(request, context).await?;
+    Ok(())
+}
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListExternalLocationsRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(

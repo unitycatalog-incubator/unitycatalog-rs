@@ -1,6 +1,6 @@
+use crate::Result;
 use crate::api::RequestContext;
 use crate::models::credentials::v1::*;
-use crate::Result;
 use async_trait::async_trait;
 #[async_trait]
 pub trait CredentialHandler: Send + Sync + 'static {

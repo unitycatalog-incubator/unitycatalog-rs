@@ -17,8 +17,15 @@ generate-types:
 generate-build:
     just crates/build/generate
 
+generate-rest:
+    cargo run --bin unitycatalog-build -- \
+      --output crates/common/src/codegen \
+      --descriptors crates/common/descriptors/descriptors.bin
+    cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
+    cargo fmt
+
 descriptors:
-   cd proto && buf build --output ../crates/common/descriptors/descriptors.bin
+    cd proto && buf build --output ../crates/common/descriptors/descriptors.bin
 
 generate-py:
     uv run scripts/prepare_jsonschema.py
