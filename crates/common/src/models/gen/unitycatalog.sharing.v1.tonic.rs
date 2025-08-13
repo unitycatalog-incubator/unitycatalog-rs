@@ -1,11 +1,11 @@
 // @generated
 /// Generated server implementations.
-pub mod delta_sharing_service_server {
+pub mod sharing_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with DeltaSharingServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with SharingServiceServer.
     #[async_trait]
-    pub trait DeltaSharingService: Send + Sync + 'static {
+    pub trait SharingService: Send + Sync + 'static {
         /** List shares accessible to a recipient.
 */
         async fn list_shares(
@@ -71,14 +71,14 @@ pub mod delta_sharing_service_server {
     /** Service exposing the official APIs for Delta Sharing.
 */
     #[derive(Debug)]
-    pub struct DeltaSharingServiceServer<T: DeltaSharingService> {
+    pub struct SharingServiceServer<T: SharingService> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: DeltaSharingService> DeltaSharingServiceServer<T> {
+    impl<T: SharingService> SharingServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -129,9 +129,9 @@ pub mod delta_sharing_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for DeltaSharingServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for SharingServiceServer<T>
     where
-        T: DeltaSharingService,
+        T: SharingService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -146,11 +146,11 @@ pub mod delta_sharing_service_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/unitycatalog.sharing.v1.DeltaSharingService/ListShares" => {
+                "/unitycatalog.sharing.v1.SharingService/ListShares" => {
                     #[allow(non_camel_case_types)]
-                    struct ListSharesSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct ListSharesSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::ListSharesRequest>
                     for ListSharesSvc<T> {
                         type Response = super::ListSharesResponse;
@@ -164,8 +164,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::list_shares(&inner, request)
-                                    .await
+                                <T as SharingService>::list_shares(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -192,11 +191,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/GetShare" => {
+                "/unitycatalog.sharing.v1.SharingService/GetShare" => {
                     #[allow(non_camel_case_types)]
-                    struct GetShareSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct GetShareSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::GetShareRequest>
                     for GetShareSvc<T> {
                         type Response = super::Share;
@@ -210,7 +209,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::get_share(&inner, request).await
+                                <T as SharingService>::get_share(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -237,11 +236,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/ListSharingSchemas" => {
+                "/unitycatalog.sharing.v1.SharingService/ListSharingSchemas" => {
                     #[allow(non_camel_case_types)]
-                    struct ListSharingSchemasSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct ListSharingSchemasSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::ListSharingSchemasRequest>
                     for ListSharingSchemasSvc<T> {
                         type Response = super::ListSharingSchemasResponse;
@@ -255,10 +254,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::list_sharing_schemas(
-                                        &inner,
-                                        request,
-                                    )
+                                <T as SharingService>::list_sharing_schemas(&inner, request)
                                     .await
                             };
                             Box::pin(fut)
@@ -286,11 +282,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/ListSchemaTables" => {
+                "/unitycatalog.sharing.v1.SharingService/ListSchemaTables" => {
                     #[allow(non_camel_case_types)]
-                    struct ListSchemaTablesSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct ListSchemaTablesSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::ListSchemaTablesRequest>
                     for ListSchemaTablesSvc<T> {
                         type Response = super::ListSchemaTablesResponse;
@@ -304,10 +300,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::list_schema_tables(
-                                        &inner,
-                                        request,
-                                    )
+                                <T as SharingService>::list_schema_tables(&inner, request)
                                     .await
                             };
                             Box::pin(fut)
@@ -335,11 +328,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/ListShareTables" => {
+                "/unitycatalog.sharing.v1.SharingService/ListShareTables" => {
                     #[allow(non_camel_case_types)]
-                    struct ListShareTablesSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct ListShareTablesSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::ListShareTablesRequest>
                     for ListShareTablesSvc<T> {
                         type Response = super::ListShareTablesResponse;
@@ -353,10 +346,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::list_share_tables(
-                                        &inner,
-                                        request,
-                                    )
+                                <T as SharingService>::list_share_tables(&inner, request)
                                     .await
                             };
                             Box::pin(fut)
@@ -384,11 +374,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/GetTableVersion" => {
+                "/unitycatalog.sharing.v1.SharingService/GetTableVersion" => {
                     #[allow(non_camel_case_types)]
-                    struct GetTableVersionSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct GetTableVersionSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::GetTableVersionRequest>
                     for GetTableVersionSvc<T> {
                         type Response = super::GetTableVersionResponse;
@@ -402,10 +392,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::get_table_version(
-                                        &inner,
-                                        request,
-                                    )
+                                <T as SharingService>::get_table_version(&inner, request)
                                     .await
                             };
                             Box::pin(fut)
@@ -433,11 +420,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/GetTableMetadata" => {
+                "/unitycatalog.sharing.v1.SharingService/GetTableMetadata" => {
                     #[allow(non_camel_case_types)]
-                    struct GetTableMetadataSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct GetTableMetadataSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::GetTableMetadataRequest>
                     for GetTableMetadataSvc<T> {
                         type Response = super::QueryResponse;
@@ -451,10 +438,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::get_table_metadata(
-                                        &inner,
-                                        request,
-                                    )
+                                <T as SharingService>::get_table_metadata(&inner, request)
                                     .await
                             };
                             Box::pin(fut)
@@ -482,11 +466,11 @@ pub mod delta_sharing_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.sharing.v1.DeltaSharingService/QueryTable" => {
+                "/unitycatalog.sharing.v1.SharingService/QueryTable" => {
                     #[allow(non_camel_case_types)]
-                    struct QueryTableSvc<T: DeltaSharingService>(pub Arc<T>);
+                    struct QueryTableSvc<T: SharingService>(pub Arc<T>);
                     impl<
-                        T: DeltaSharingService,
+                        T: SharingService,
                     > tonic::server::UnaryService<super::QueryTableRequest>
                     for QueryTableSvc<T> {
                         type Response = super::QueryResponse;
@@ -500,8 +484,7 @@ pub mod delta_sharing_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as DeltaSharingService>::query_table(&inner, request)
-                                    .await
+                                <T as SharingService>::query_table(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -546,7 +529,7 @@ pub mod delta_sharing_service_server {
             }
         }
     }
-    impl<T: DeltaSharingService> Clone for DeltaSharingServiceServer<T> {
+    impl<T: SharingService> Clone for SharingServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -558,8 +541,7 @@ pub mod delta_sharing_service_server {
             }
         }
     }
-    impl<T: DeltaSharingService> tonic::server::NamedService
-    for DeltaSharingServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.sharing.v1.DeltaSharingService";
+    impl<T: SharingService> tonic::server::NamedService for SharingServiceServer<T> {
+        const NAME: &'static str = "unitycatalog.sharing.v1.SharingService";
     }
 }

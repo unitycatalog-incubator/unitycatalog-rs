@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import enum
 from typing import Literal
 
@@ -137,6 +139,11 @@ class Purpose(enum.Enum):
     Unspecified = 0
     Storage = 1
     Service = 2
+
+class AuthenticationType(enum.Enum):
+    Unspecified = 0
+    Token = 1
+    OauthClientCredentials = 2
 
 class AzureServicePrincipal:
     directory_id: str
@@ -287,32 +294,31 @@ class SharingTable:
     share_id: str | None
 
 class Protocol:
-    min_reader_version: int
-    min_writer_version: int
+    def min_reader_version(self) -> int: ...
+    def min_writer_version(self) -> int | None: ...
 
 class Metadata:
-    partition_columns: list[str]
-    configuration: dict[str, str]
+    def partition_columns(self) -> list[str]: ...
+    def configuration(self) -> dict[str, str]: ...
 
 class SharingClient:
     def __init__(
         self,
         base_url: str,
-        *,
-        path_prefix: str = "api/v1/delta-sharing/",
         token: str | None = None,
+        prefix: str | None = None,
     ) -> None:
         """
         Delta Sharing client.
 
         Args:
             base_url: The base URL of the server.
-            path_prefix: The path prefix where the Delta Sharing API is mounted. Defaults to
-                "api/v1/delta-sharing".
             token: Personal Access Token for the Databricks CLI.
+            prefix: The path prefix where the Delta Sharing API is mounted.
         """
 
     def list_shares(self, max_results: int | None = None) -> list[Share]: ...
+    def get_share(self, name: str) -> Share: ...
     def list_share_schemas(
         self, share: str, max_results: int | None = None
     ) -> list[SharingSchema]: ...
@@ -323,52 +329,66 @@ class SharingClient:
         self, share: str, schema: str, max_results: int | None = None
     ) -> list[SharingTable]: ...
     def get_table_version(
-        self, share: str, schema: str, name: str, starting_timestamp: str | None = None
+        self, share: str, schema: str, table: str, starting_timestamp: str | None = None
     ) -> int: ...
     def get_table_metadata(
         self, share: str, schema: str, table: str
     ) -> tuple[Protocol, Metadata]: ...
-    def get_table_query(self, share: str, schema: str, table: str) -> str: ...
 
 class TableClient:
     def get(self, include_delta_metadata: bool | None = None) -> TableInfo: ...
-    def create(
-        self,
-        table_type: TableType,
-        data_source_format: DataSourceFormat,
-        comment: str | None = None,
-        storage_location: str | None = None,
-        columns: list[ColumnInfo] | None = None,
-        properties: dict[str, str] | None = None,
-    ) -> TableInfo: ...
+    def delete(self) -> None: ...
 
 class SchemaClient:
-    def tables(self, name: str) -> TableClient: ...
     def get(self) -> SchemaInfo: ...
-    def create(
+    def create_table(
         self,
-        name: str,
+        table_name: str,
+        table_type: TableType,
+        data_source_format: DataSourceFormat,
+        columns: list[ColumnInfo],
+        storage_location: str | None = None,
+        comment: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> SchemaInfo: ...
+    ) -> TableInfo:
+        """Create a new table in this schema.
+
+        Args:
+            table_name: The name of the table.
+            table_type: The type of table (managed or external).
+            data_source_format: The data source format.
+            columns: List of column definitions.
+            storage_location: Storage location for external tables.
+            comment: User-provided free-form text description.
+            properties: A map of key-value properties attached to the table.
+
+        Returns:
+            The created TableInfo object.
+        """
     def update(
         self,
         new_name: str | None = None,
         comment: str | None = None,
         properties: dict[str, str] | None = None,
     ) -> SchemaInfo: ...
-    def delete(self, force: bool = False) -> None: ...
+    def delete(self, force: bool | None = None) -> None: ...
 
 class CatalogClient:
-    def schemas(self, name: str) -> SchemaClient: ...
     def get(self) -> CatalogInfo: ...
-    def create(
+    def create_schema(
         self,
+        schema_name: str,
         comment: str | None = None,
-        storage_root: str | None = None,
-        provider_name: str | None = None,
-        share_name: str | None = None,
-        properties: dict[str, str] | None = None,
-    ) -> CatalogInfo: ...
+    ) -> SchemaInfo:
+        """Create a new schema in this catalog.
+
+        Args:
+            schema_name: The name of the schema.
+            comment: User-provided free-form text description.
+
+        Returns:
+            The created SchemaInfo object.
+        """
     def update(
         self,
         new_name: str | None = None,
@@ -376,63 +396,61 @@ class CatalogClient:
         owner: str | None = None,
         properties: dict[str, str] | None = None,
     ) -> CatalogInfo: ...
-    def delete(self, force: bool = False) -> None: ...
+    def delete(self, force: bool | None = None) -> None: ...
 
 class CredentialClient:
     def get(self) -> CredentialInfo: ...
-    def create(
-        self,
-        purpose: Purpose,
-        comment: str | None = None,
-        read_only: bool | None = None,
-        skip_validation: bool = False,
-        azure_service_principal: AzureServicePrincipal | None = None,
-        azure_managed_identity: AzureManagedIdentity | None = None,
-        azure_storage_key: AzureStorageKey | None = None,
-    ) -> CredentialInfo: ...
     def update(
         self,
         new_name: str | None = None,
         comment: str | None = None,
-        read_only: bool | None = None,
         owner: str | None = None,
+        read_only: bool | None = None,
         skip_validation: bool | None = None,
         force: bool | None = None,
-        azure_service_principal: AzureServicePrincipal | None = None,
-        azure_managed_identity: AzureManagedIdentity | None = None,
-        azure_storage_key: AzureStorageKey | None = None,
+        credential: object | None = None,
     ) -> CredentialInfo: ...
+    def delete(self) -> None: ...
 
 class ExternalLocationClient:
     def get(self) -> ExternalLocationInfo: ...
-    def create(
+    def update(
         self,
-        url: str,
-        credential_name: str,
+        new_name: str | None = None,
+        url: str | None = None,
+        credential_name: str | None = None,
         comment: str | None = None,
+        owner: str | None = None,
         read_only: bool | None = None,
-        skip_validation: bool = False,
+        skip_validation: bool | None = None,
+        force: bool | None = None,
     ) -> ExternalLocationInfo: ...
+    def delete(self, force: bool | None = None) -> None: ...
 
 class RecipientClient:
     def get(self) -> RecipientInfo: ...
-
-class ShareClient:
-    def get(self, include_shared_data: bool | None = None) -> ShareInfo: ...
-    def create(
-        self,
-        name: str,
-        comment: str | None = None,
-    ) -> ShareInfo: ...
     def update(
         self,
-        updates: list[DataObjectUpdate],
         new_name: str | None = None,
         comment: str | None = None,
         owner: str | None = None,
-    ) -> ShareInfo: ...
+        properties: dict[str, str] | None = None,
+        expiration_time: int | None = None,
+    ) -> RecipientInfo: ...
+    def delete(self) -> None: ...
 
-class UnityCatalogClient:
+class ShareClient:
+    def get(self, include_shared_data: bool | None = None) -> ShareInfo: ...
+    def update(
+        self,
+        new_name: str | None = None,
+        updates: list[DataObjectUpdate] | None = None,
+        comment: str | None = None,
+        owner: str | None = None,
+    ) -> ShareInfo: ...
+    def delete(self) -> None: ...
+
+class PyUnityCatalogClient:
     def __init__(self, base_url: str, token: str | None = None) -> None:
         """
         Unity Catalog client.
@@ -441,11 +459,8 @@ class UnityCatalogClient:
             base_url: The base URL of the Unity Catalog API.
             token: Personal Access Token for the Databricks CLI.
         """
-    def catalogs(self, name: str) -> CatalogClient: ...
-    def credentials(self, name: str) -> CredentialClient: ...
-    def external_locations(self, name: str) -> ExternalLocationClient: ...
-    def recipients(self, name: str) -> RecipientClient: ...
-    def shares(self, name: str) -> ShareClient: ...
+
+    # Catalog methods
     def list_catalogs(self, max_results: int | None = None) -> list[CatalogInfo]:
         """Gets an array of catalogs in the metastore.
 
@@ -459,4 +474,173 @@ class UnityCatalogClient:
 
         Returns:
             A list of CatalogInfo objects.
+        """
+
+    def catalog(self, name: str) -> CatalogClient: ...
+
+    # Schema methods
+    def list_schemas(
+        self, catalog_name: str, max_results: int | None = None
+    ) -> list[SchemaInfo]: ...
+    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
+
+    # Table methods
+    def list_tables(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        max_results: int | None = None,
+        include_delta_metadata: bool | None = None,
+        omit_columns: bool | None = None,
+        omit_properties: bool | None = None,
+        omit_username: bool | None = None,
+    ) -> list[TableInfo]: ...
+    def table(self, full_name: str) -> TableClient: ...
+
+    # Share methods
+    def list_shares(self, max_results: int | None = None) -> list[ShareInfo]: ...
+    def share(self, name: str) -> ShareClient: ...
+
+    # Recipient methods
+    def list_recipients(
+        self, max_results: int | None = None
+    ) -> list[RecipientInfo]: ...
+    def recipient(self, name: str) -> RecipientClient: ...
+
+    # Credential methods
+    def list_credentials(
+        self, purpose: Purpose | None = None, max_results: int | None = None
+    ) -> list[CredentialInfo]: ...
+    def credential(self, name: str) -> CredentialClient: ...
+
+    # External location methods
+    def list_external_locations(
+        self, max_results: int | None = None
+    ) -> list[ExternalLocationInfo]: ...
+    def external_location(self, name: str) -> ExternalLocationClient: ...
+
+    # Create methods
+    def create_catalog(
+        self,
+        name: str,
+        storage_root: str | None = None,
+        comment: str | None = None,
+        properties: dict[str, str] | None = None,
+    ) -> CatalogInfo:
+        """Create a new managed catalog.
+
+        Args:
+            name: The name of the catalog.
+            storage_root: Storage root for the catalog.
+            comment: User-provided free-form text description.
+            properties: A map of key-value properties attached to the catalog.
+
+        Returns:
+            The created CatalogInfo object.
+        """
+
+    def create_sharing_catalog(
+        self,
+        name: str,
+        provider_name: str,
+        share_name: str,
+        comment: str | None = None,
+        properties: dict[str, str] | None = None,
+    ) -> CatalogInfo:
+        """Create a new sharing catalog.
+
+        Args:
+            name: The name of the catalog.
+            provider_name: The name of the delta sharing provider.
+            share_name: The name of the share under the share provider.
+            comment: User-provided free-form text description.
+            properties: A map of key-value properties attached to the catalog.
+
+        Returns:
+            The created CatalogInfo object.
+        """
+
+    def create_schema(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        comment: str | None = None,
+    ) -> SchemaInfo:
+        """Create a new schema.
+
+        Args:
+            catalog_name: The name of the catalog.
+            schema_name: The name of the schema.
+            comment: User-provided free-form text description.
+
+        Returns:
+            The created SchemaInfo object.
+        """
+
+    def create_share(
+        self,
+        name: str,
+        comment: str | None = None,
+    ) -> ShareInfo:
+        """Create a new share.
+
+        Args:
+            name: The name of the share.
+            comment: User-provided free-form text description.
+
+        Returns:
+            The created ShareInfo object.
+        """
+
+    def create_recipient(
+        self,
+        name: str,
+        authentication_type: AuthenticationType,
+        comment: str | None = None,
+    ) -> RecipientInfo:
+        """Create a new recipient.
+
+        Args:
+            name: The name of the recipient.
+            authentication_type: The authentication type for the recipient.
+            comment: User-provided free-form text description.
+
+        Returns:
+            The created RecipientInfo object.
+        """
+
+    def create_credential(
+        self,
+        name: str,
+        purpose: Purpose,
+        comment: str | None = None,
+    ) -> CredentialInfo:
+        """Create a new credential.
+
+        Args:
+            name: The name of the credential.
+            purpose: The purpose of the credential.
+            comment: User-provided free-form text description.
+
+        Returns:
+            The created CredentialInfo object.
+        """
+
+    def create_external_location(
+        self,
+        name: str,
+        url: str,
+        credential_name: str,
+        comment: str | None = None,
+    ) -> ExternalLocationInfo:
+        """Create a new external location.
+
+        Args:
+            name: The name of the external location.
+            url: The URL of the external location.
+            credential_name: The name of the credential to use.
+            comment: User-provided free-form text description.
+
+        Returns:
+            The created ExternalLocationInfo object.
         """

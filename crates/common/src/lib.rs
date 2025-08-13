@@ -4,6 +4,8 @@ pub use resources::*;
 pub use unitycatalog_derive as derive;
 
 pub mod api;
+#[cfg(feature = "rest-client")]
+pub mod client;
 pub mod error;
 #[cfg(feature = "memory")]
 pub mod memory;
@@ -13,8 +15,4 @@ pub mod python;
 mod resources;
 pub mod rest;
 pub mod services;
-pub mod sharing;
 pub mod utils;
-
-#[cfg(feature = "axum")]
-mod codegen;

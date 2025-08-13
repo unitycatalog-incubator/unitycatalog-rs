@@ -5,8 +5,8 @@ use napi::bindgen_prelude::Buffer;
 use napi_derive::napi;
 use prost::Message;
 use unitycatalog_common::catalogs::v1::{CreateCatalogRequest, UpdateCatalogRequest};
+use unitycatalog_common::client::UnityCatalogClient as UCClient;
 use unitycatalog_common::google::protobuf::{Struct, Value, value::Kind as ValueKind};
-use unitycatalog_common::rest::client::UnityCatalogClient as UCClient;
 use unitycatalog_common::schemas::v1::{CreateSchemaRequest, UpdateSchemaRequest};
 
 use crate::error::NapiErrorExt;

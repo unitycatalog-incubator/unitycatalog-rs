@@ -4,13 +4,10 @@ pub use auth::*;
 pub use routers::*;
 #[cfg(feature = "axum")]
 mod routers;
-#[cfg(feature = "axum")]
-pub use crate::sharing::get_router as create_sharing_router;
 
 #[cfg(feature = "axum")]
 mod auth;
-#[cfg(feature = "rest-client")]
-pub mod client;
+
 #[cfg(any(all(test, feature = "axum"), feature = "integration"))]
 pub mod integration;
 

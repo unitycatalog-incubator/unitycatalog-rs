@@ -8,6 +8,7 @@ mod client;
 mod config;
 mod error;
 mod server;
+mod test;
 
 #[derive(Parser)]
 #[command(name = "unity-catalog", version, about = "CLI to manage delta.sharing services.", long_about = None)]
@@ -42,6 +43,9 @@ enum Commands {
     )]
     Client(ClientCommand),
 
+    #[clap(about = "run tests against a uc server")]
+    Test,
+
     #[clap(about = "run database migrations")]
     Migrate,
 }
@@ -61,6 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             handle_client(client_args, args.global_opts).await?;
         }
         Commands::Migrate => todo!(),
+        Commands::Test => test::run(&args.global_opts).await?,
     };
     Ok(())
 }

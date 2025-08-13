@@ -19,7 +19,7 @@ generate-build:
 
 generate-rest:
     cargo run --bin unitycatalog-build -- \
-      --output crates/common/src/codegen \
+      --output crates/common/src/api/codegen \
       --descriptors crates/common/descriptors/descriptors.bin
     cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
     cargo fmt
@@ -95,8 +95,19 @@ develop-py-client:
     uv run maturin develop --uv \
       --manifest-path python/client/Cargo.toml
 
+develop-py-server:
+    uv run maturin develop --uv \
+      --manifest-path crates/cli/Cargo.toml
+
 build-node:
     npm run build -w @unitycatalog/client
 
 build-docker:
     docker build -f docker/Dockerfile -t unitycatalog-rs:dev .
+
+# run marimo notebook server
+notebook:
+    uv run --directory notebooks marimo edit client.py
+
+test-api:
+    UC_SERVER_URL="http://localhost:8080/api/2.1/unity-catalog/" cargo run -p unitycatalog-cli -- test

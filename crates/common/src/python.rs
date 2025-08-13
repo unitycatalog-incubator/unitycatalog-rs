@@ -1,13 +1,19 @@
 use pyo3::prelude::*;
 
+use crate::models::catalogs::v1::CatalogInfo;
 use crate::models::credentials::v1::{
-    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey,
+    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, CredentialInfo,
     azure_managed_identity::Identifier, azure_service_principal::Credential as SpCredential,
 };
+use crate::models::external_locations::v1::ExternalLocationInfo;
+use crate::models::recipients::v1::{RecipientInfo, RecipientToken};
+use crate::models::schemas::v1::SchemaInfo;
 use crate::models::shares::v1::{
     Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus,
+    ShareInfo,
 };
 use crate::models::sharing::v1::{Share, SharingSchema, SharingTable};
+use crate::models::tables::v1::{ColumnInfo, TableInfo};
 
 #[pymethods]
 impl Share {
@@ -218,6 +224,244 @@ impl DataObjectUpdate {
             self.data_object
                 .as_ref()
                 .map_or("None".to_owned(), |n| n.__repr__())
+        )
+    }
+}
+
+#[pymethods]
+impl CatalogInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "CatalogInfo(id={}, name={}, owner={}, comment={}, storage_root={}, provider_name={}, share_name={}, catalog_type={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
+            self.id.as_ref().unwrap_or(&"None".to_owned()),
+            self.name,
+            self.owner.as_ref().unwrap_or(&"None".to_owned()),
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.storage_root.as_ref().unwrap_or(&"None".to_owned()),
+            self.provider_name.as_ref().unwrap_or(&"None".to_owned()),
+            self.share_name.as_ref().unwrap_or(&"None".to_owned()),
+            self.catalog_type
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl SchemaInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "SchemaInfo(name={}, catalog_name={}, comment={}, full_name={}, owner={}, created_at={}, created_by={}, updated_at={}, updated_by={}, schema_id={})",
+            self.name,
+            self.catalog_name,
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.full_name.as_ref().unwrap_or(&"None".to_owned()),
+            self.owner.as_ref().unwrap_or(&"None".to_owned()),
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.schema_id.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl TableInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "TableInfo(name={}, catalog_name={}, schema_name={}, table_type={}, data_source_format={}, comment={}, owner={}, storage_location={}, created_at={}, created_by={}, updated_at={}, updated_by={}, table_id={})",
+            self.name,
+            self.catalog_name,
+            self.schema_name,
+            self.table_type,
+            self.data_source_format.to_string(),
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.owner.as_ref().unwrap_or(&"None".to_owned()),
+            self.storage_location.as_ref().unwrap_or(&"None".to_owned()),
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.table_id.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl ColumnInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "ColumnInfo(name={}, type_text={}, type_json={}, type_name={}, type_precision={}, type_scale={}, type_interval_type={}, position={}, comment={}, nullable={}, partition_index={})",
+            self.name,
+            self.type_text,
+            self.type_json,
+            self.type_name,
+            self.type_precision
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.type_scale
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.type_interval_type
+                .as_ref()
+                .unwrap_or(&"None".to_owned()),
+            self.position
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.nullable
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.partition_index
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string())
+        )
+    }
+}
+
+#[pymethods]
+impl ShareInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "ShareInfo(id={}, name={}, comment={}, owner={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
+            self.id.as_ref().unwrap_or(&"None".to_owned()),
+            self.name,
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.owner.as_ref().unwrap_or(&"None".to_owned()),
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl RecipientInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "RecipientInfo(id={}, name={}, authentication_type={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={}, tokens={})",
+            self.id.as_ref().unwrap_or(&"None".to_owned()),
+            self.name,
+            self.authentication_type,
+            self.owner,
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned()),
+            format!(
+                "[{}]",
+                self.tokens
+                    .iter()
+                    .map(|t| t.__repr__())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        )
+    }
+}
+
+#[pymethods]
+impl RecipientToken {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "RecipientToken(id={}, created_at={}, created_by={}, activation_url={}, expiration_time={}, updated_at={}, updated_by={})",
+            self.id,
+            self.created_at,
+            self.created_by,
+            self.activation_url,
+            self.expiration_time,
+            self.updated_at,
+            self.updated_by
+        )
+    }
+}
+
+#[pymethods]
+impl CredentialInfo {
+    pub fn __repr__(&self) -> String {
+        let credential_str = match &self.credential {
+            Some(cred) => match cred {
+                crate::models::credentials::v1::credential_info::Credential::AzureServicePrincipal(_) => "AzureServicePrincipal(...)",
+                crate::models::credentials::v1::credential_info::Credential::AzureManagedIdentity(_) => "AzureManagedIdentity(...)",
+                crate::models::credentials::v1::credential_info::Credential::AzureStorageKey(_) => "AzureStorageKey(...)",
+            }
+            None => "None"
+        };
+
+        format!(
+            "CredentialInfo(id={}, name={}, purpose={}, credential={}, read_only={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
+            self.id,
+            self.name,
+            self.purpose,
+            credential_str,
+            self.read_only,
+            self.owner.as_ref().unwrap_or(&"None".to_owned()),
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned())
+        )
+    }
+}
+
+#[pymethods]
+impl ExternalLocationInfo {
+    pub fn __repr__(&self) -> String {
+        format!(
+            "ExternalLocationInfo(name={}, url={}, credential_name={}, read_only={}, comment={}, owner={}, credential_id={}, created_at={}, created_by={}, updated_at={}, updated_by={}, browse_only={}, external_location_id={})",
+            self.name,
+            self.url,
+            self.credential_name,
+            self.read_only,
+            self.comment.as_ref().unwrap_or(&"None".to_owned()),
+            self.owner.as_ref().unwrap_or(&"None".to_owned()),
+            self.credential_id,
+            self.created_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.created_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.updated_at
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.updated_by.as_ref().unwrap_or(&"None".to_owned()),
+            self.browse_only
+                .as_ref()
+                .map_or("None".to_owned(), |n| n.to_string()),
+            self.external_location_id
+                .as_ref()
+                .unwrap_or(&"None".to_owned())
         )
     }
 }

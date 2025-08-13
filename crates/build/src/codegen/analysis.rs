@@ -140,7 +140,8 @@ fn extract_request_fields(
         let field = paths::find_matching_field_for_path_param(path_param_name, input_fields);
         if let Some(field) = field {
             path_params.push(PathParam {
-                name: field.name.clone(),
+                template_param: path_param_name.clone(),
+                field_name: field.name.clone(),
                 rust_type: types::field_type_to_rust_type(&field.field_type),
             });
             processed_fields.insert(field.name.clone());
@@ -248,6 +249,68 @@ mod tests {
     }
 
     #[test]
+    fn test_schema_path_parameter_mismatch() {
+        // Test the specific case where HTTP rule uses {name} but request only has full_name field
+        let input_fields = vec![
+            MessageField {
+                name: "full_name".to_string(), // Request has full_name field
+                field_type: "TYPE_STRING".to_string(),
+                optional: false,
+                oneof_name: None,
+            },
+            MessageField {
+                name: "force".to_string(),
+                field_type: "TYPE_BOOL".to_string(),
+                optional: true,
+                oneof_name: None,
+            },
+        ];
+
+        let operation = Operation {
+            operation_id: "DeleteSchema".to_string(),
+            ..Default::default()
+        };
+
+        let http_rule = HttpRule {
+            pattern: Some(crate::google::api::http_rule::Pattern::Delete(
+                "/schemas/{name}".to_string(), // HTTP rule uses {name}
+            )),
+            ..Default::default()
+        };
+
+        let method = MethodMetadata {
+            service_name: "SchemasService".to_string(),
+            method_name: "DeleteSchema".to_string(),
+            input_type: ".unitycatalog.schemas.v1.DeleteSchemaRequest".to_string(),
+            output_type: ".google.protobuf.Empty".to_string(),
+            operation: Some(operation),
+            http_rule: Some(http_rule),
+            input_fields,
+        };
+
+        let (path_params, query_params, body_fields) =
+            extract_request_fields(&method, "/schemas/{name}", &method.input_fields).unwrap();
+
+        // With the fallback logic, {name} should match full_name field
+        assert_eq!(
+            path_params.len(),
+            1,
+            "Should find one path parameter via fallback"
+        );
+        assert_eq!(
+            path_params[0].field_name, "full_name",
+            "Should use full_name field for name parameter"
+        );
+
+        // Force should be a query parameter
+        assert_eq!(query_params.len(), 1);
+        assert_eq!(query_params[0].name, "force");
+        assert!(query_params[0].optional);
+
+        assert_eq!(body_fields.len(), 0);
+    }
+
+    #[test]
     fn test_path_parameter_ordering() {
         // Test that path parameters are extracted in URL order, not struct field order
         let input_fields = vec![
@@ -306,9 +369,9 @@ mod tests {
         assert_eq!(body_fields.len(), 0);
 
         // Verify path parameters are in URL order: share, schema, name
-        assert_eq!(path_params[0].name, "share");
-        assert_eq!(path_params[1].name, "schema");
-        assert_eq!(path_params[2].name, "name");
+        assert_eq!(path_params[0].field_name, "share");
+        assert_eq!(path_params[1].field_name, "schema");
+        assert_eq!(path_params[2].field_name, "name");
     }
 
     #[test]

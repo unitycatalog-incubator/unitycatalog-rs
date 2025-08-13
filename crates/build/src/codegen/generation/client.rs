@@ -24,12 +24,6 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
     );
     let client_code = client_struct(&client_name, &client_methods, &service.base_path);
 
-    println!(
-        "cargo:warning=Generated client {} with {} methods",
-        client_name,
-        service.methods.len()
-    );
-
     Ok(client_code)
 }
 
@@ -47,7 +41,7 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
         #![allow(unused_mut)]
         use cloud_client::CloudClient;
         use url::Url;
-
+        use crate::Result;
         use #mod_path::*;
 
         /// HTTP client for service operations
@@ -92,7 +86,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         let output_type = strings::extract_simple_type_name(&method.metadata.output_type);
         let output_type_ident = format_ident!("{}", output_type);
         quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<#output_type_ident> {
+            pub async fn #method_name(&self, request: &#input_type_ident) -> Result<#output_type_ident> {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
@@ -103,7 +97,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         }
     } else {
         quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<()> {
+            pub async fn #method_name(&self, request: &#input_type_ident) -> Result<()> {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
@@ -118,23 +112,36 @@ pub fn client_method(method: &MethodPlan) -> String {
 
 /// Generate URL formatting code that properly substitutes path parameters
 fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::TokenStream {
+    let path = path.trim_start_matches('/');
+
     if params.is_empty() {
         return quote! {
             let mut url = self.base_url.join(#path)?;
         };
     }
 
-    let param_names: Vec<String> = params.iter().map(|p| p.name.clone()).collect();
-    let (format_string, format_args) = crate::utils::paths::format_url_template(path, &param_names);
+    let template_param_names: Vec<String> =
+        params.iter().map(|p| p.template_param.clone()).collect();
+    let (format_string, format_args) =
+        crate::utils::paths::format_url_template(path, &template_param_names);
 
     if format_args.is_empty() {
         quote! {
             let mut url = self.base_url.join(#path)?;
         }
     } else {
+        // Map template parameter names back to field names for request access
         let field_idents: Vec<_> = format_args
             .iter()
-            .map(|arg| format_ident!("{}", arg))
+            .map(|template_param| {
+                // Find the corresponding field name for this template parameter
+                let field_name = params
+                    .iter()
+                    .find(|p| p.template_param == *template_param)
+                    .map(|p| &p.field_name)
+                    .unwrap_or(template_param);
+                format_ident!("{}", field_name)
+            })
             .collect();
         quote! {
             let formatted_path = format!(#format_string, #(request.#field_idents),*);

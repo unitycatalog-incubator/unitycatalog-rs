@@ -25,7 +25,6 @@ pub fn process_file_descriptor(
     codegen_metadata: &mut CodeGenMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let file_name = file_desc.name();
-    println!("cargo:warning=Processing file: {}", file_name);
 
     // Process messages in the file
     for message in &file_desc.message_type {
@@ -60,9 +59,6 @@ fn process_message(
         format!("{}.{}", type_prefix, message_name)
     };
 
-    // Extract gnostic message-level annotations
-    extract_message_annotations(message, message_name)?;
-
     // Collect field information, handling oneof fields specially
     let mut fields = Vec::new();
     let mut oneof_groups: std::collections::HashMap<String, Vec<String>> =
@@ -93,7 +89,7 @@ fn process_message(
                 if !field.proto3_optional() {
                     oneof_groups
                         .entry(oneof_name)
-                        .or_insert_with(Vec::new)
+                        .or_default()
                         .push(field.name().to_string());
                     continue; // Skip adding this field individually
                 }
@@ -147,26 +143,6 @@ fn process_message(
     Ok(())
 }
 
-/// Extract gnostic annotations from message-level options
-fn extract_message_annotations(
-    message: &DescriptorProto,
-    message_name: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
-    if message.options.is_some() {
-        let options = message.options.as_ref().unwrap();
-        let unknown_fields = options.unknown_fields();
-
-        let field_count = unknown_fields.iter().count();
-        if field_count > 0 {
-            println!(
-                "cargo:warning=Message {} has {} extension fields",
-                message_name, field_count
-            );
-        }
-    }
-    Ok(())
-}
-
 /// Process a gRPC service definition
 fn process_service(
     service: &ServiceDescriptorProto,
@@ -174,12 +150,6 @@ fn process_service(
     codegen_metadata: &mut CodeGenMetadata,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let service_name = service.name();
-
-    println!(
-        "cargo:warning=Processing service {} with {} methods",
-        service_name,
-        service.method.len()
-    );
 
     // Process methods in the service
     for method in &service.method {
@@ -198,11 +168,6 @@ fn process_method(
     let method_name = method.name();
     let input_type = method.input_type();
     let output_type = method.output_type();
-
-    println!(
-        "cargo:warning=  Method {}.{} - input: {}, output: {}",
-        service_name, method_name, input_type, output_type
-    );
 
     // Get input message fields
     let input_fields = codegen_metadata.get_message_fields(input_type);

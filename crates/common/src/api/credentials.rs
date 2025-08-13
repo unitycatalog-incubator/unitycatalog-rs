@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
+pub use super::codegen::{CredentialClient, CredentialHandler};
 use super::{RequestContext, SecuredAction};
-pub use crate::codegen::{CredentialClient, CredentialHandler};
 use crate::models::ObjectLabel;
 use crate::models::credentials::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};

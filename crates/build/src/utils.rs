@@ -45,7 +45,11 @@ pub mod strings {
     /// Extract the simple type name from a protobuf type
     /// e.g., ".unitycatalog.catalogs.v1.CatalogInfo" -> "CatalogInfo"
     pub fn extract_simple_type_name(full_type: &str) -> String {
-        full_type.split('.').last().unwrap_or(full_type).to_string()
+        full_type
+            .split('.')
+            .next_back()
+            .unwrap_or(full_type)
+            .to_string()
     }
 
     /// Convert protobuf field name to Rust identifier
@@ -93,10 +97,10 @@ pub mod paths {
             return Some(field);
         }
 
-        // Try common fallback patterns
+        // Try common fallback patterns based on Unity Catalog API conventions
         match path_param_name {
             "name" => {
-                // For {name}, try full_name as fallback
+                // For {name}, try full_name as fallback (common in schema operations)
                 input_fields.iter().find(|f| f.name == "full_name")
             }
             "full_name" => {
@@ -149,9 +153,8 @@ pub mod types {
                 } else if field_type.starts_with("TYPE_ENUM:") {
                     // Enum fields are represented as i32 in the generated structs
                     "i32".to_string()
-                } else if field_type.starts_with("TYPE_ONEOF:") {
+                } else if let Some(oneof_name) = field_type.strip_prefix("TYPE_ONEOF:") {
                     // Extract the oneof name and create an enum type
-                    let oneof_name = &field_type[11..];
                     super::strings::extract_simple_type_name(oneof_name)
                 } else {
                     // Default to String for unknown types

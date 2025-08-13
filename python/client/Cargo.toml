@@ -19,6 +19,7 @@ unitycatalog-common = { path = "../../crates/common", features = [
 ] }
 delta_kernel = { workspace = true }
 
+chrono = { workspace = true }
 futures = { workspace = true }
 pyo3 = { workspace = true, features = ["abi3-py310"] }
 thiserror = "2"

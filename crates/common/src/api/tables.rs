@@ -1,8 +1,8 @@
 use delta_kernel::schema::{DataType, PrimitiveType, Schema, StructField};
 use itertools::Itertools;
 
+pub use super::codegen::{TableClient, TableHandler};
 use super::{RequestContext, SecuredAction};
-pub use crate::codegen::{TableClient, TableHandler};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
 use crate::resources::{ResourceName, ResourceStore};

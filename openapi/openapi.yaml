@@ -15,8 +15,6 @@ tags:
     description: |-
       Manage credentials to access external data sources and services
        as well as generate signed urls for the Delta Sharing service.
-  - name: DeltaSharingService
-    description: Service exposing the official APIs for Delta Sharing.
   - name: ExternalLocationsService
   - name: RecipientsService
     description: |-
@@ -35,6 +33,8 @@ tags:
        have the SELECT permission on the table or view.
   - name: SharesService
     description: Service for managing shares
+  - name: SharingService
+    description: Service exposing the official APIs for Delta Sharing.
   - name: TablesService
   - name: TemporaryCredentialsService
 paths:
@@ -375,7 +375,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
-  /external_locations:
     post:
       tags:
         - ExternalLocationsService
@@ -400,7 +399,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
-  /external_locations/{name}:
+  /external-locations/{name}:
     get:
       tags:
         - ExternalLocationsService
@@ -800,7 +799,7 @@ paths:
   /shares:
     get:
       tags:
-        - DeltaSharingService
+        - SharingService
       description: List shares accessible to a recipient.
       operationId: ListShares
       parameters:
@@ -857,28 +856,23 @@ paths:
   /shares/{name}:
     get:
       tags:
-        - SharesService
-      description: Get a share by name.
+        - SharingService
+      description: Get the metadata for a specific share.
       operationId: GetShare
       parameters:
         - name: name
           in: path
-          description: Name of the share.
+          description: The share name to query. It's case-insensitive.
           required: true
           schema:
             type: string
-        - name: includeSharedData
-          in: query
-          description: Query for data to include in the share.
-          schema:
-            type: boolean
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShareInfo'
+                $ref: '#/components/schemas/Share'
         default:
           description: Default error response
           content:
@@ -938,42 +932,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
-  /shares/{share}:
+  /shares/{name}/all-tables:
     get:
       tags:
-        - DeltaSharingService
-      description: Get the metadata for a specific share.
-      operationId: GetShare
-      parameters:
-        - name: share
-          in: path
-          description: The share id.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Share'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-  /shares/{share}/all-tables:
-    get:
-      tags:
-        - DeltaSharingService
+        - SharingService
       description: List all the tables under all schemas in a share.
       operationId: ListShareTables
       parameters:
-        - name: share
+        - name: name
           in: path
-          description: The share id.
+          description: The share name to query. It's case-insensitive.
           required: true
           schema:
             type: string
@@ -1003,10 +971,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
+  /shares/{share}/schemas:
+    get:
+      tags:
+        - SharingService
+      description: List the schemas in a share.
+      operationId: ListSharingSchemas
+      parameters:
+        - name: share
+          in: path
+          description: The share name to query. It's case-insensitive.
+          required: true
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: |-
+            Specifies a page token to use. Set pageToken to the nextPageToken returned
+             by a previous list request to get the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSharingSchemasResponse'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
   /shares/{share}/schemas/{name}/tables:
     get:
       tags:
-        - DeltaSharingService
+        - SharingService
       description: List the tables in a given share's schema.
       operationId: ListSchemaTables
       parameters:
@@ -1051,7 +1058,7 @@ paths:
   /shares/{share}/schemas/{schema}/tables/{name}/metadata:
     get:
       tags:
-        - DeltaSharingService
+        - SharingService
       operationId: GetTableMetadata
       parameters:
         - name: share
@@ -1086,9 +1093,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Status'
   /shares/{share}/schemas/{schema}/tables/{name}/query:
-    get:
+    post:
       tags:
-        - DeltaSharingService
+        - SharingService
       operationId: QueryTable
       parameters:
         - name: share
@@ -1106,67 +1113,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: startingTimestamp
-          in: query
-          description: The starting timestamp to query from.
-          schema:
-            type: string
-        - name: predicateHints
-          in: query
-          schema:
-            type: array
-            items:
-              type: string
-        - name: jsonPredicateHints.op
-          in: query
-          description: The operation to perform.
-          schema:
-            type: string
-        - name: jsonPredicateHints.name
-          in: query
-          description: |-
-            Specifies the name of a column.
-
-             This is only applicable to column ops.
-          schema:
-            type: string
-        - name: jsonPredicateHints.value
-          in: query
-          description: |-
-            Specifies the value of a literal.
-
-             This is only applicable to literal ops.
-          schema:
-            type: string
-        - name: jsonPredicateHints.valueType
-          in: query
-          description: |-
-            Specifies the value type of a column or a literal op.
-
-             This is only applicate to column and literal ops.
-          schema:
-            type: string
-        - name: limitHint
-          in: query
-          schema:
-            type: integer
-            format: int32
-        - name: version
-          in: query
-          schema:
-            type: string
-        - name: timestamp
-          in: query
-          schema:
-            type: string
-        - name: startingVersion
-          in: query
-          schema:
-            type: string
-        - name: endingVersion
-          in: query
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryTableRequest'
+        required: true
       responses:
         '200':
           description: OK
@@ -1183,7 +1135,7 @@ paths:
   /shares/{share}/schemas/{schema}/tables/{name}/version:
     get:
       tags:
-        - DeltaSharingService
+        - SharingService
       description: Get the current version for a table within a schema.
       operationId: GetTableVersion
       parameters:
@@ -1220,45 +1172,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetTableVersionResponse'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
-  /shares/{share}}/schemas:
-    get:
-      tags:
-        - DeltaSharingService
-      description: List the schemas in a share.
-      operationId: ListSharingSchemas
-      parameters:
-        - name: share
-          in: path
-          description: The share name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: maxResults
-          in: query
-          description: The maximum number of results per page that should be returned.
-          schema:
-            type: integer
-            format: int32
-        - name: pageToken
-          in: query
-          description: |-
-            Specifies a page token to use. Set pageToken to the nextPageToken returned
-             by a previous list request to get the next page of results.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListSharingSchemasResponse'
         default:
           description: Default error response
           content:
@@ -2170,6 +2083,35 @@ components:
           description: The type of the serialized message.
       additionalProperties: true
       description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+    JsonPredicate:
+      type: object
+      properties:
+        op:
+          type: string
+          description: The operation to perform.
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/JsonPredicate'
+          description: The inputs to the operation - if any.
+        name:
+          type: string
+          description: |-
+            Specifies the name of a column.
+
+             This is only applicable to column ops.
+        value:
+          type: string
+          description: |-
+            Specifies the value of a literal.
+
+             This is only applicable to literal ops.
+        valueType:
+          type: string
+          description: |-
+            Specifies the value type of a column or a literal op.
+
+             This is only applicate to column and literal ops.
     ListCatalogsResponse:
       type: object
       properties:
@@ -2436,6 +2378,42 @@ components:
             - $ref: '#/components/schemas/DeltaResponse'
           description: Delta response format
       description: Response for a query against a table.
+    QueryTableRequest:
+      required:
+        - share
+        - schema
+        - name
+      type: object
+      properties:
+        share:
+          type: string
+        schema:
+          type: string
+        name:
+          type: string
+        startingTimestamp:
+          type: string
+          description: The starting timestamp to query from.
+        predicateHints:
+          type: array
+          items:
+            type: string
+        jsonPredicateHints:
+          allOf:
+            - $ref: '#/components/schemas/JsonPredicate'
+          description: The predicate to apply to the table.
+        limitHint:
+          type: integer
+          format: int32
+        version:
+          type: string
+        timestamp:
+          type: string
+        startingVersion:
+          type: string
+        endingVersion:
+          type: string
+      description: Request to query a table.
     R2TemporaryCredentials:
       type: object
       properties:

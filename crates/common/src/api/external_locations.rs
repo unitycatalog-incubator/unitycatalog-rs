@@ -1,8 +1,8 @@
 use itertools::Itertools;
 
+pub use super::codegen::{ExternalLocationClient, ExternalLocationHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
-pub use crate::codegen::{ExternalLocationClient, ExternalLocationHandler};
 use crate::models::ObjectLabel;
 use crate::models::external_locations::v1::*;
 use crate::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore};

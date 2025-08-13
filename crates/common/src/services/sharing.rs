@@ -2,12 +2,12 @@ use bytes::Bytes;
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
 use crate::api::RequestContext;
+use crate::api::sharing::{
+    MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
+};
 use crate::models::sharing::v1::*;
 use crate::models::tables::v1::{DataSourceFormat, TableInfo};
 use crate::resources::ResourceStore;
-use crate::sharing::{
-    MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
-};
 use crate::{ResourceIdent, ResourceName, Result, ShareInfo};
 
 #[derive(Debug, Clone, PartialEq, Eq)]

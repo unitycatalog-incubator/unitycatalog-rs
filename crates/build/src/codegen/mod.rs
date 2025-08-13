@@ -36,25 +36,10 @@ pub fn generate_rest_handlers(
     metadata: &CodeGenMetadata,
     output_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!(
-        "cargo:warning=Starting code generation for {} methods",
-        metadata.methods.len()
-    );
-
     // Phase 1: Analyze metadata and plan generation
     let plan = analysis::analyze_metadata(metadata)?;
-    println!(
-        "cargo:warning=Analysis complete: {} services planned",
-        plan.services.len()
-    );
-
     // Phase 2: Generate code from plan
     let generated_code = generation::generate_code(&plan)?;
-    println!(
-        "cargo:warning=Code generation complete: {} files generated",
-        generated_code.files.len()
-    );
-
     // Phase 3: Write generated code to output directory
     output::write_generated_code(&generated_code, output_dir)?;
     println!("cargo:warning=Code written to {}", output_dir.display());
@@ -107,8 +92,10 @@ pub struct MethodPlan {
 /// A path parameter in a URL template
 #[derive(Debug)]
 pub struct PathParam {
-    /// Parameter name (e.g., "name" from "/catalogs/{name}")
-    pub name: String,
+    /// Template parameter name (e.g., "name" from "/catalogs/{name}")
+    pub template_param: String,
+    /// Field name in the request struct (e.g., "full_name")
+    pub field_name: String,
     /// Rust type for this parameter
     pub rust_type: String,
 }
