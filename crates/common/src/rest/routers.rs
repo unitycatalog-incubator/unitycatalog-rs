@@ -3,6 +3,10 @@ use crate::api::{
     ShareHandler, TableHandler, TemporaryCredentialHandler,
 };
 
+pub use sharing::get_router as create_sharing_router;
+
+mod sharing;
+
 pub fn create_catalogs_router<T: CatalogHandler + Clone>(handler: T) -> axum::Router {
     use crate::api::codegen::catalogs::server::*;
 

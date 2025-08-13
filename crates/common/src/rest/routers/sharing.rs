@@ -6,10 +6,9 @@ use http::header::CONTENT_TYPE;
 
 use crate::api::RequestContext;
 use crate::api::codegen::sharing::server::*;
-use crate::api::sharing::SharingHandler;
+use crate::api::sharing::{SharingHandler, SharingQueryHandler};
 use crate::models::sharing::v1::*;
 use crate::services::policy::Recipient;
-use crate::sharing::SharingQueryHandler;
 use crate::{Error, Result};
 
 /// Create a new [Router] for the Delta Sharing REST API.

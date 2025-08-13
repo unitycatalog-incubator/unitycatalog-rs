@@ -14,6 +14,7 @@ pub use crate::api::recipients::RecipientClient;
 pub use crate::api::schemas::SchemaClient;
 pub use crate::api::shares::ShareClient;
 pub use crate::api::sharing::SharingClient;
+use crate::api::sharing::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 pub use crate::api::tables::TableClient;
 use crate::models::catalogs::v1 as catalog;
 use crate::models::credentials::v1 as cred;
@@ -24,7 +25,6 @@ use crate::models::schemas::v1 as schema;
 use crate::models::shares::v1 as share;
 use crate::models::sharing::v1 as sharing;
 use crate::models::tables::v1 as tbl;
-use crate::sharing::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
