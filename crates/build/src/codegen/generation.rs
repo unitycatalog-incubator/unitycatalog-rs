@@ -80,7 +80,8 @@ mod tests {
     use super::super::MethodPlan;
     use super::*;
     use crate::{
-        MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
+        MessageField, MethodMetadata, codegen::QueryParam, gnostic::openapi::v3::Operation,
+        google::api::HttpRule,
     };
 
     pub(crate) fn create_test_service_plan() -> ServicePlan {
@@ -126,7 +127,18 @@ mod tests {
             http_method: "GET".to_string(),
             http_path: "/catalogs".to_string(),
             path_params: vec![],
-            query_params: vec![],
+            query_params: vec![
+                QueryParam {
+                    name: "max_results".to_string(),
+                    rust_type: "Option<i32>".to_string(),
+                    optional: true,
+                },
+                QueryParam {
+                    name: "page_token".to_string(),
+                    rust_type: "Option<String>".to_string(),
+                    optional: true,
+                },
+            ],
             body_fields: vec![],
             has_response: true,
         };
@@ -147,8 +159,7 @@ mod tests {
         assert!(result.is_ok());
 
         assert!(files.contains_key("catalogs/handler.rs"));
-        assert!(files.contains_key("catalogs/routes.rs"));
-        assert!(files.contains_key("catalogs/extractors.rs"));
+        assert!(files.contains_key("catalogs/server.rs"));
         assert!(files.contains_key("catalogs/client.rs"));
         assert!(files.contains_key("catalogs/mod.rs"));
     }

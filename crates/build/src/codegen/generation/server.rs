@@ -54,6 +54,7 @@ pub fn server_module(
     let trait_path: Path = syn::parse_str(&format!("super::handler::{}", trait_name)).unwrap();
 
     let tokens = quote! {
+        #![allow(unused_mut)]
         use crate::Result;
         use crate::api::RequestContext;
         use #mod_path::*;

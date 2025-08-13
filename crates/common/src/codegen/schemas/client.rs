@@ -1,3 +1,4 @@
+#![allow(unused_mut)]
 use crate::models::schemas::v1::*;
 use cloud_client::CloudClient;
 use url::Url;
@@ -16,21 +17,35 @@ impl SchemaClient {
         &self,
         request: &ListSchemasRequest,
     ) -> crate::Result<ListSchemasResponse> {
-        let url = self.base_url.join("/schemas")?;
+        let mut url = self.base_url.join("/schemas")?;
+        url.query_pairs_mut()
+            .append_pair("catalog_name", &request.catalog_name.to_string());
+        if let Some(ref value) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
+        }
+        if let Some(ref value) = request.page_token {
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
+        }
+        if let Some(ref value) = request.include_browse {
+            url.query_pairs_mut()
+                .append_pair("include_browse", &value.to_string());
+        }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_schema(&self, request: &CreateSchemaRequest) -> crate::Result<SchemaInfo> {
-        let url = self.base_url.join("/schemas")?;
+        let mut url = self.base_url.join("/schemas")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_schema(&self, request: &GetSchemaRequest) -> crate::Result<SchemaInfo> {
-        let url = self.base_url.join("/schemas/{name}")?;
+        let mut url = self.base_url.join("/schemas/{name}")?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -38,14 +53,18 @@ impl SchemaClient {
     }
     pub async fn update_schema(&self, request: &UpdateSchemaRequest) -> crate::Result<SchemaInfo> {
         let formatted_path = format!("/schemas/{}", request.full_name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_schema(&self, request: &DeleteSchemaRequest) -> crate::Result<()> {
-        let url = self.base_url.join("/schemas/{name}")?;
+        let mut url = self.base_url.join("/schemas/{name}")?;
+        if let Some(ref value) = request.force {
+            url.query_pairs_mut()
+                .append_pair("force", &value.to_string());
+        }
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;
         Ok(())

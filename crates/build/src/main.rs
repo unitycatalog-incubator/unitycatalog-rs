@@ -1,9 +1,7 @@
-use std::env;
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
 
-use clap::{Args, Parser, Subcommand};
+use clap::Parser;
 use protobuf::Message;
 use protobuf::descriptor::FileDescriptorSet;
 

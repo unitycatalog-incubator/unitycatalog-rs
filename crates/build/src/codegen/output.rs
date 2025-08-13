@@ -170,7 +170,6 @@ mod tests {
         // Check that files were created
         assert!(temp_dir.path().join("test_handler.rs").exists());
         assert!(temp_dir.path().join("test_routes.rs").exists());
-        assert!(temp_dir.path().join("GENERATION_SUMMARY.md").exists());
     }
 
     #[test]

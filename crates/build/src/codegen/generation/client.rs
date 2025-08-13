@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use super::super::{MethodPlan, PathParam, ServicePlan, templates};
+use super::super::{MethodPlan, PathParam, QueryParam, ServicePlan, templates};
 use crate::RequestType;
 use crate::utils::strings;
 
@@ -44,6 +44,7 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
         syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
 
     let tokens = quote! {
+        #![allow(unused_mut)]
         use cloud_client::CloudClient;
         use url::Url;
 
@@ -76,6 +77,7 @@ pub fn client_method(method: &MethodPlan) -> String {
     let input_type_ident = format_ident!("{}", input_type);
     let http_method = format_ident!("{}", method.http_method.to_lowercase());
     let url_formatting = generate_url_formatting(&method.http_path, &method.path_params);
+    let query_handling = generate_query_parameters(&method.query_params);
 
     let body_handling = if matches!(
         method.metadata.request_type(),
@@ -92,6 +94,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         quote! {
             pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<#output_type_ident> {
                 #url_formatting
+                #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
                 response.error_for_status_ref()?;
                 let result = response.bytes().await?;
@@ -102,6 +105,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         quote! {
             pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<()> {
                 #url_formatting
+                #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
                 response.error_for_status()?;
                 Ok(())
@@ -116,7 +120,7 @@ pub fn client_method(method: &MethodPlan) -> String {
 fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::TokenStream {
     if params.is_empty() {
         return quote! {
-            let url = self.base_url.join(#path)?;
+            let mut url = self.base_url.join(#path)?;
         };
     }
 
@@ -125,7 +129,7 @@ fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::Tok
 
     if format_args.is_empty() {
         quote! {
-            let url = self.base_url.join(#path)?;
+            let mut url = self.base_url.join(#path)?;
         }
     } else {
         let field_idents: Vec<_> = format_args
@@ -134,8 +138,38 @@ fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::Tok
             .collect();
         quote! {
             let formatted_path = format!(#format_string, #(request.#field_idents),*);
-            let url = self.base_url.join(&formatted_path)?;
+            let mut url = self.base_url.join(&formatted_path)?;
         }
+    }
+}
+
+/// Generate query parameter handling code
+fn generate_query_parameters(query_params: &[QueryParam]) -> proc_macro2::TokenStream {
+    if query_params.is_empty() {
+        return quote! {};
+    }
+
+    let mut param_assignments = Vec::new();
+
+    for param in query_params {
+        let field_ident = format_ident!("{}", param.name);
+        let param_name = &param.name;
+
+        if param.optional {
+            param_assignments.push(quote! {
+                if let Some(ref value) = request.#field_ident {
+                    url.query_pairs_mut().append_pair(#param_name, &value.to_string());
+                }
+            });
+        } else {
+            param_assignments.push(quote! {
+                url.query_pairs_mut().append_pair(#param_name, &request.#field_ident.to_string());
+            });
+        }
+    }
+
+    quote! {
+        #(#param_assignments)*
     }
 }
 
@@ -164,5 +198,46 @@ mod tests {
         assert!(!code.contains("\\n"));
         assert!(!code.contains("\\t"));
         assert!(!code.contains("\\\""));
+    }
+
+    #[test]
+    fn test_generate_query_parameters() {
+        use crate::codegen::QueryParam;
+
+        // Test with no query parameters
+        let empty_params = vec![];
+        let result = generate_query_parameters(&empty_params);
+        assert_eq!(result.to_string(), "");
+
+        // Test with optional query parameters
+        let params = vec![
+            QueryParam {
+                name: "max_results".to_string(),
+                rust_type: "Option<i32>".to_string(),
+                optional: true,
+            },
+            QueryParam {
+                name: "page_token".to_string(),
+                rust_type: "Option<String>".to_string(),
+                optional: true,
+            },
+        ];
+        let result = generate_query_parameters(&params);
+        let code = result.to_string();
+        assert!(code.contains("url . query_pairs_mut () . append_pair"));
+        assert!(code.contains("if let Some (ref value) = request . max_results"));
+        assert!(code.contains("if let Some (ref value) = request . page_token"));
+
+        // Test with required query parameters
+        let required_params = vec![QueryParam {
+            name: "filter".to_string(),
+            rust_type: "String".to_string(),
+            optional: false,
+        }];
+        let result = generate_query_parameters(&required_params);
+        let code = result.to_string();
+        assert!(code.contains(
+            "url . query_pairs_mut () . append_pair (\"filter\" , & request . filter . to_string ())"
+        ));
     }
 }

@@ -1,3 +1,4 @@
+#![allow(unused_mut)]
 use crate::models::catalogs::v1::*;
 use cloud_client::CloudClient;
 use url::Url;
@@ -16,7 +17,15 @@ impl CatalogClient {
         &self,
         request: &ListCatalogsRequest,
     ) -> crate::Result<ListCatalogsResponse> {
-        let url = self.base_url.join("/catalogs")?;
+        let mut url = self.base_url.join("/catalogs")?;
+        if let Some(ref value) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
+        }
+        if let Some(ref value) = request.page_token {
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
+        }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -26,7 +35,7 @@ impl CatalogClient {
         &self,
         request: &CreateCatalogRequest,
     ) -> crate::Result<CatalogInfo> {
-        let url = self.base_url.join("/catalogs")?;
+        let mut url = self.base_url.join("/catalogs")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -34,7 +43,11 @@ impl CatalogClient {
     }
     pub async fn get_catalog(&self, request: &GetCatalogRequest) -> crate::Result<CatalogInfo> {
         let formatted_path = format!("/catalogs/{}", request.name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
+        if let Some(ref value) = request.include_browse {
+            url.query_pairs_mut()
+                .append_pair("include_browse", &value.to_string());
+        }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -45,7 +58,7 @@ impl CatalogClient {
         request: &UpdateCatalogRequest,
     ) -> crate::Result<CatalogInfo> {
         let formatted_path = format!("/catalogs/{}", request.name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -53,7 +66,11 @@ impl CatalogClient {
     }
     pub async fn delete_catalog(&self, request: &DeleteCatalogRequest) -> crate::Result<()> {
         let formatted_path = format!("/catalogs/{}", request.name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
+        if let Some(ref value) = request.force {
+            url.query_pairs_mut()
+                .append_pair("force", &value.to_string());
+        }
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;
         Ok(())

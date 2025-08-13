@@ -1,3 +1,4 @@
+#![allow(unused_mut)]
 use super::handler::RecipientHandler;
 use crate::Result;
 use crate::api::RequestContext;

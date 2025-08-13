@@ -1,3 +1,4 @@
+#![allow(unused_mut)]
 use crate::models::external_locations::v1::*;
 use cloud_client::CloudClient;
 use url::Url;
@@ -16,7 +17,19 @@ impl ExternalLocationClient {
         &self,
         request: &ListExternalLocationsRequest,
     ) -> crate::Result<ListExternalLocationsResponse> {
-        let url = self.base_url.join("/external-locations")?;
+        let mut url = self.base_url.join("/external-locations")?;
+        if let Some(ref value) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
+        }
+        if let Some(ref value) = request.page_token {
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
+        }
+        if let Some(ref value) = request.include_browse {
+            url.query_pairs_mut()
+                .append_pair("include_browse", &value.to_string());
+        }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -26,7 +39,7 @@ impl ExternalLocationClient {
         &self,
         request: &CreateExternalLocationRequest,
     ) -> crate::Result<ExternalLocationInfo> {
-        let url = self.base_url.join("/external-locations")?;
+        let mut url = self.base_url.join("/external-locations")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -37,7 +50,7 @@ impl ExternalLocationClient {
         request: &GetExternalLocationRequest,
     ) -> crate::Result<ExternalLocationInfo> {
         let formatted_path = format!("/external-locations/{}", request.name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -48,7 +61,7 @@ impl ExternalLocationClient {
         request: &UpdateExternalLocationRequest,
     ) -> crate::Result<ExternalLocationInfo> {
         let formatted_path = format!("/external-locations/{}", request.name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -59,7 +72,11 @@ impl ExternalLocationClient {
         request: &DeleteExternalLocationRequest,
     ) -> crate::Result<()> {
         let formatted_path = format!("/external-locations/{}", request.name);
-        let url = self.base_url.join(&formatted_path)?;
+        let mut url = self.base_url.join(&formatted_path)?;
+        if let Some(ref value) = request.force {
+            url.query_pairs_mut()
+                .append_pair("force", &value.to_string());
+        }
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;
         Ok(())
