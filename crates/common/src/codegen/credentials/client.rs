@@ -1,4 +1,5 @@
 #![allow(unused_mut)]
+use crate::Result;
 use crate::models::credentials::v1::*;
 use cloud_client::CloudClient;
 use url::Url;
@@ -16,7 +17,7 @@ impl CredentialClient {
     pub async fn list_credentials(
         &self,
         request: &ListCredentialsRequest,
-    ) -> crate::Result<ListCredentialsResponse> {
+    ) -> Result<ListCredentialsResponse> {
         let mut url = self.base_url.join("/credentials")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
@@ -38,17 +39,14 @@ impl CredentialClient {
     pub async fn create_credential(
         &self,
         request: &CreateCredentialRequest,
-    ) -> crate::Result<CredentialInfo> {
+    ) -> Result<CredentialInfo> {
         let mut url = self.base_url.join("/credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_credential(
-        &self,
-        request: &GetCredentialRequest,
-    ) -> crate::Result<CredentialInfo> {
+    pub async fn get_credential(&self, request: &GetCredentialRequest) -> Result<CredentialInfo> {
         let formatted_path = format!("/credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -59,7 +57,7 @@ impl CredentialClient {
     pub async fn update_credential(
         &self,
         request: &UpdateCredentialRequest,
-    ) -> crate::Result<CredentialInfo> {
+    ) -> Result<CredentialInfo> {
         let formatted_path = format!("/credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
@@ -67,7 +65,7 @@ impl CredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn delete_credential(&self, request: &DeleteCredentialRequest) -> crate::Result<()> {
+    pub async fn delete_credential(&self, request: &DeleteCredentialRequest) -> Result<()> {
         let formatted_path = format!("/credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;

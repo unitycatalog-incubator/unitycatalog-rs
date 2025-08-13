@@ -24,12 +24,6 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
     );
     let client_code = client_struct(&client_name, &client_methods, &service.base_path);
 
-    println!(
-        "cargo:warning=Generated client {} with {} methods",
-        client_name,
-        service.methods.len()
-    );
-
     Ok(client_code)
 }
 
@@ -47,7 +41,7 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
         #![allow(unused_mut)]
         use cloud_client::CloudClient;
         use url::Url;
-
+        use crate::Result;
         use #mod_path::*;
 
         /// HTTP client for service operations
@@ -92,7 +86,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         let output_type = strings::extract_simple_type_name(&method.metadata.output_type);
         let output_type_ident = format_ident!("{}", output_type);
         quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<#output_type_ident> {
+            pub async fn #method_name(&self, request: &#input_type_ident) -> Result<#output_type_ident> {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
@@ -103,7 +97,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         }
     } else {
         quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> crate::Result<()> {
+            pub async fn #method_name(&self, request: &#input_type_ident) -> Result<()> {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;

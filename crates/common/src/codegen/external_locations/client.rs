@@ -1,4 +1,5 @@
 #![allow(unused_mut)]
+use crate::Result;
 use crate::models::external_locations::v1::*;
 use cloud_client::CloudClient;
 use url::Url;
@@ -16,7 +17,7 @@ impl ExternalLocationClient {
     pub async fn list_external_locations(
         &self,
         request: &ListExternalLocationsRequest,
-    ) -> crate::Result<ListExternalLocationsResponse> {
+    ) -> Result<ListExternalLocationsResponse> {
         let mut url = self.base_url.join("/external-locations")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
@@ -38,7 +39,7 @@ impl ExternalLocationClient {
     pub async fn create_external_location(
         &self,
         request: &CreateExternalLocationRequest,
-    ) -> crate::Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocationInfo> {
         let mut url = self.base_url.join("/external-locations")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -48,7 +49,7 @@ impl ExternalLocationClient {
     pub async fn get_external_location(
         &self,
         request: &GetExternalLocationRequest,
-    ) -> crate::Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocationInfo> {
         let formatted_path = format!("/external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -59,7 +60,7 @@ impl ExternalLocationClient {
     pub async fn update_external_location(
         &self,
         request: &UpdateExternalLocationRequest,
-    ) -> crate::Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocationInfo> {
         let formatted_path = format!("/external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
@@ -70,7 +71,7 @@ impl ExternalLocationClient {
     pub async fn delete_external_location(
         &self,
         request: &DeleteExternalLocationRequest,
-    ) -> crate::Result<()> {
+    ) -> Result<()> {
         let formatted_path = format!("/external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.force {

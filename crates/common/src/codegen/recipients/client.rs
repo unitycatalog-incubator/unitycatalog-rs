@@ -1,4 +1,5 @@
 #![allow(unused_mut)]
+use crate::Result;
 use crate::models::recipients::v1::*;
 use cloud_client::CloudClient;
 use url::Url;
@@ -16,7 +17,7 @@ impl RecipientClient {
     pub async fn list_recipients(
         &self,
         request: &ListRecipientsRequest,
-    ) -> crate::Result<ListRecipientsResponse> {
+    ) -> Result<ListRecipientsResponse> {
         let mut url = self.base_url.join("/recipients")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
@@ -34,17 +35,14 @@ impl RecipientClient {
     pub async fn create_recipient(
         &self,
         request: &CreateRecipientRequest,
-    ) -> crate::Result<RecipientInfo> {
+    ) -> Result<RecipientInfo> {
         let mut url = self.base_url.join("/recipients")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_recipient(
-        &self,
-        request: &GetRecipientRequest,
-    ) -> crate::Result<RecipientInfo> {
+    pub async fn get_recipient(&self, request: &GetRecipientRequest) -> Result<RecipientInfo> {
         let formatted_path = format!("/recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -55,7 +53,7 @@ impl RecipientClient {
     pub async fn update_recipient(
         &self,
         request: &UpdateRecipientRequest,
-    ) -> crate::Result<RecipientInfo> {
+    ) -> Result<RecipientInfo> {
         let formatted_path = format!("/recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
@@ -63,7 +61,7 @@ impl RecipientClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn delete_recipient(&self, request: &DeleteRecipientRequest) -> crate::Result<()> {
+    pub async fn delete_recipient(&self, request: &DeleteRecipientRequest) -> Result<()> {
         let formatted_path = format!("/recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
