@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use std::collections::HashMap;
 
+pub use super::codegen::{ShareClient, ShareHandler};
 use super::{RequestContext, SecuredAction};
-pub use crate::codegen::{ShareClient, ShareHandler};
 use crate::models::ObjectLabel;
 use crate::models::shares::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};

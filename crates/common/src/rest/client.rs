@@ -9,13 +9,12 @@ use serde::Deserialize;
 
 pub use crate::api::catalogs::CatalogClient;
 pub use crate::api::credentials::CredentialClient;
-pub use crate::api::external_locations::ExternalLocationHandler;
+pub use crate::api::external_locations::ExternalLocationClient;
 pub use crate::api::recipients::RecipientClient;
 pub use crate::api::schemas::SchemaClient;
 pub use crate::api::shares::ShareClient;
 pub use crate::api::sharing::SharingClient;
 pub use crate::api::tables::TableClient;
-pub use crate::codegen::ExternalLocationClient;
 use crate::models::catalogs::v1 as catalog;
 use crate::models::credentials::v1 as cred;
 use crate::models::credentials::v1::Purpose;

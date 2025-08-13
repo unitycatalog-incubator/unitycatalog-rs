@@ -1,8 +1,8 @@
 use itertools::Itertools;
 
+pub use super::codegen::{SchemaClient, SchemaHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
-pub use crate::codegen::{SchemaClient, SchemaHandler};
 use crate::models::ObjectLabel;
 use crate::models::schemas::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};

@@ -19,7 +19,7 @@ pub fn write_generated_code(
     output_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!(
-        "cargo:warning=Writing {} generated files to {}",
+        "Writing {} generated files to {}",
         generated_code.files.len(),
         output_dir.display()
     );
@@ -32,7 +32,7 @@ pub fn write_generated_code(
         write_file(output_dir, relative_path, content)?;
     }
 
-    println!("cargo:warning=Successfully wrote all generated files");
+    println!("Successfully wrote all generated files");
     Ok(())
 }
 
@@ -54,11 +54,6 @@ fn write_file(
 
     // Write the file
     fs::write(&file_path, formatted_content)?;
-
-    println!(
-        "cargo:warning=Wrote generated file: {}",
-        file_path.display()
-    );
 
     Ok(())
 }
@@ -99,17 +94,13 @@ pub fn validate_output(
         .into());
     }
 
-    println!("cargo:warning=Output validation passed: all expected files generated");
     Ok(())
 }
 
 /// Clean the output directory before generation
 pub fn clean_output_directory(output_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
     if output_dir.exists() {
-        println!(
-            "cargo:warning=Cleaning output directory: {}",
-            output_dir.display()
-        );
+        println!("Cleaning output directory: {}", output_dir.display());
         fs::remove_dir_all(output_dir)?;
     }
 

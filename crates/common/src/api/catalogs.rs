@@ -1,8 +1,8 @@
 use itertools::Itertools;
 
+pub use super::codegen::{CatalogClient, CatalogHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
-pub use crate::codegen::{CatalogClient, CatalogHandler};
 use crate::models::ObjectLabel;
 use crate::models::catalogs::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};

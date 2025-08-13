@@ -36,25 +36,10 @@ pub fn generate_rest_handlers(
     metadata: &CodeGenMetadata,
     output_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!(
-        "cargo:warning=Starting code generation for {} methods",
-        metadata.methods.len()
-    );
-
     // Phase 1: Analyze metadata and plan generation
     let plan = analysis::analyze_metadata(metadata)?;
-    println!(
-        "cargo:warning=Analysis complete: {} services planned",
-        plan.services.len()
-    );
-
     // Phase 2: Generate code from plan
     let generated_code = generation::generate_code(&plan)?;
-    println!(
-        "cargo:warning=Code generation complete: {} files generated",
-        generated_code.files.len()
-    );
-
     // Phase 3: Write generated code to output directory
     output::write_generated_code(&generated_code, output_dir)?;
     println!("cargo:warning=Code written to {}", output_dir.display());

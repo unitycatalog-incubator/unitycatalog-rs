@@ -19,7 +19,7 @@ generate-build:
 
 generate-rest:
     cargo run --bin unitycatalog-build -- \
-      --output crates/common/src/codegen \
+      --output crates/common/src/api/codegen \
       --descriptors crates/common/descriptors/descriptors.bin
     cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
     cargo fmt

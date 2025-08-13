@@ -1,8 +1,8 @@
 use itertools::Itertools;
 
+pub use super::codegen::{RecipientClient, RecipientHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
-pub use crate::codegen::{RecipientClient, RecipientHandler};
 use crate::models::ObjectLabel;
 use crate::models::recipients::v1::*;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
