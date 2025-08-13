@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 use futures::TryStreamExt;
-use unitycatalog_common::rest::client::UnityCatalogClient;
+use unitycatalog_common::client::UnityCatalogClient;
 
 use crate::GlobalOpts;
 
@@ -93,19 +93,21 @@ pub async fn handle_client(
     match &cmd.command {
         Some(ClientCommands::Catalogs(args)) => match &args.command {
             Some(CatalogCommands::List) => {
-                let catalogs = client.catalogs().list(None).try_collect::<Vec<_>>().await?;
+                let catalogs = client.list_catalogs(None).try_collect::<Vec<_>>().await?;
                 println!("List catalogs: {catalogs:?}");
             }
             Some(CatalogCommands::Create { name }) => {
-                let catalog = client.catalogs().create(name, None).await?;
+                let catalog = client
+                    .create_catalog(name, None::<String>, None::<String>, None)
+                    .await?;
                 println!("Create catalog: {catalog:?}");
             }
             Some(CatalogCommands::Get { name }) => {
-                let catalog = client.catalogs().get(name).await?;
+                let catalog = client.catalog(name).get().await?;
                 println!("Create catalog: {catalog:?}");
             }
             Some(CatalogCommands::Delete { name, force }) => {
-                client.catalogs().delete(name, *force).await?;
+                client.catalog(name).delete(*force).await?;
                 println!("Deleted catalog: {name:?}");
             }
             None => {

@@ -18,7 +18,7 @@ impl CredentialClient {
         &self,
         request: &ListCredentialsRequest,
     ) -> Result<ListCredentialsResponse> {
-        let mut url = self.base_url.join("/credentials")?;
+        let mut url = self.base_url.join("credentials")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());
@@ -40,14 +40,14 @@ impl CredentialClient {
         &self,
         request: &CreateCredentialRequest,
     ) -> Result<CredentialInfo> {
-        let mut url = self.base_url.join("/credentials")?;
+        let mut url = self.base_url.join("credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_credential(&self, request: &GetCredentialRequest) -> Result<CredentialInfo> {
-        let formatted_path = format!("/credentials/{}", request.name);
+        let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -58,7 +58,7 @@ impl CredentialClient {
         &self,
         request: &UpdateCredentialRequest,
     ) -> Result<CredentialInfo> {
-        let formatted_path = format!("/credentials/{}", request.name);
+        let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -66,7 +66,7 @@ impl CredentialClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_credential(&self, request: &DeleteCredentialRequest) -> Result<()> {
-        let formatted_path = format!("/credentials/{}", request.name);
+        let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;

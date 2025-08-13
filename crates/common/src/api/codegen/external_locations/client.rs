@@ -18,7 +18,7 @@ impl ExternalLocationClient {
         &self,
         request: &ListExternalLocationsRequest,
     ) -> Result<ListExternalLocationsResponse> {
-        let mut url = self.base_url.join("/external-locations")?;
+        let mut url = self.base_url.join("external-locations")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());
@@ -40,7 +40,7 @@ impl ExternalLocationClient {
         &self,
         request: &CreateExternalLocationRequest,
     ) -> Result<ExternalLocationInfo> {
-        let mut url = self.base_url.join("/external-locations")?;
+        let mut url = self.base_url.join("external-locations")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
@@ -50,7 +50,7 @@ impl ExternalLocationClient {
         &self,
         request: &GetExternalLocationRequest,
     ) -> Result<ExternalLocationInfo> {
-        let formatted_path = format!("/external-locations/{}", request.name);
+        let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -61,7 +61,7 @@ impl ExternalLocationClient {
         &self,
         request: &UpdateExternalLocationRequest,
     ) -> Result<ExternalLocationInfo> {
-        let formatted_path = format!("/external-locations/{}", request.name);
+        let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -72,7 +72,7 @@ impl ExternalLocationClient {
         &self,
         request: &DeleteExternalLocationRequest,
     ) -> Result<()> {
-        let formatted_path = format!("/external-locations/{}", request.name);
+        let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.force {
             url.query_pairs_mut()

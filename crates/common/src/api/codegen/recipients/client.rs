@@ -18,7 +18,7 @@ impl RecipientClient {
         &self,
         request: &ListRecipientsRequest,
     ) -> Result<ListRecipientsResponse> {
-        let mut url = self.base_url.join("/recipients")?;
+        let mut url = self.base_url.join("recipients")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());
@@ -36,14 +36,14 @@ impl RecipientClient {
         &self,
         request: &CreateRecipientRequest,
     ) -> Result<RecipientInfo> {
-        let mut url = self.base_url.join("/recipients")?;
+        let mut url = self.base_url.join("recipients")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_recipient(&self, request: &GetRecipientRequest) -> Result<RecipientInfo> {
-        let formatted_path = format!("/recipients/{}", request.name);
+        let formatted_path = format!("recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -54,7 +54,7 @@ impl RecipientClient {
         &self,
         request: &UpdateRecipientRequest,
     ) -> Result<RecipientInfo> {
-        let formatted_path = format!("/recipients/{}", request.name);
+        let formatted_path = format!("recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -62,7 +62,7 @@ impl RecipientClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_recipient(&self, request: &DeleteRecipientRequest) -> Result<()> {
-        let formatted_path = format!("/recipients/{}", request.name);
+        let formatted_path = format!("recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;

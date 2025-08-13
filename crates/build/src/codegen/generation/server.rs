@@ -279,7 +279,10 @@ pub(crate) fn generate_path_extractions_tokens(
     if params.is_empty() {
         quote! {}
     } else {
-        let param_names: Vec<Ident> = params.iter().map(|p| format_ident!("{}", p.name)).collect();
+        let param_names: Vec<Ident> = params
+            .iter()
+            .map(|p| format_ident!("{}", p.field_name))
+            .collect();
         let param_types: Vec<TokenStream> = params
             .iter()
             .map(|p| {
@@ -355,7 +358,7 @@ pub(crate) fn generate_field_assignments_tokens(
     let mut assignments = Vec::new();
 
     for param in path_params {
-        let name = format_ident!("{}", param.name);
+        let name = format_ident!("{}", param.field_name);
         assignments.push(quote! { #name });
     }
 
@@ -433,7 +436,7 @@ fn generate_mixed_field_assignments_tokens(
     let mut assignments = Vec::new();
 
     for param in path_params {
-        let name = format_ident!("{}", param.name);
+        let name = format_ident!("{}", param.field_name);
         assignments.push(quote! { #name });
     }
 
@@ -680,7 +683,7 @@ mod tests {
         assert_eq!(method_plan.body_fields.len(), 0);
 
         // Verify path param
-        assert_eq!(method_plan.path_params[0].name, "catalog_name");
+        assert_eq!(method_plan.path_params[0].field_name, "catalog_name");
         assert_eq!(method_plan.path_params[0].rust_type, "String");
 
         // Verify query params include both original and auto-added pagination

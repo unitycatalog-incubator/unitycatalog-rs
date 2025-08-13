@@ -207,7 +207,7 @@ mod tests {
             .unwrap()
             .unwrap();
         assert_eq!(get_plan.path_params.len(), 1);
-        assert_eq!(get_plan.path_params[0].name, "name");
+        assert_eq!(get_plan.path_params[0].field_name, "name");
         assert_eq!(get_plan.query_params.len(), 1);
         assert_eq!(get_plan.query_params[0].name, "include_browse");
         assert_eq!(get_plan.body_fields.len(), 0);
@@ -312,7 +312,7 @@ mod tests {
             .unwrap()
             .unwrap();
         assert_eq!(update_plan.path_params.len(), 1);
-        assert_eq!(update_plan.path_params[0].name, "name");
+        assert_eq!(update_plan.path_params[0].field_name, "name");
         assert_eq!(update_plan.query_params.len(), 1);
         assert_eq!(update_plan.query_params[0].name, "force");
         assert_eq!(update_plan.body_fields.len(), 1);

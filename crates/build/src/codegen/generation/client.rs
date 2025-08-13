@@ -112,23 +112,36 @@ pub fn client_method(method: &MethodPlan) -> String {
 
 /// Generate URL formatting code that properly substitutes path parameters
 fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::TokenStream {
+    let path = path.trim_start_matches('/');
+
     if params.is_empty() {
         return quote! {
             let mut url = self.base_url.join(#path)?;
         };
     }
 
-    let param_names: Vec<String> = params.iter().map(|p| p.name.clone()).collect();
-    let (format_string, format_args) = crate::utils::paths::format_url_template(path, &param_names);
+    let template_param_names: Vec<String> =
+        params.iter().map(|p| p.template_param.clone()).collect();
+    let (format_string, format_args) =
+        crate::utils::paths::format_url_template(path, &template_param_names);
 
     if format_args.is_empty() {
         quote! {
             let mut url = self.base_url.join(#path)?;
         }
     } else {
+        // Map template parameter names back to field names for request access
         let field_idents: Vec<_> = format_args
             .iter()
-            .map(|arg| format_ident!("{}", arg))
+            .map(|template_param| {
+                // Find the corresponding field name for this template parameter
+                let field_name = params
+                    .iter()
+                    .find(|p| p.template_param == *template_param)
+                    .map(|p| &p.field_name)
+                    .unwrap_or(template_param);
+                format_ident!("{}", field_name)
+            })
             .collect();
         quote! {
             let formatted_path = format!(#format_string, #(request.#field_idents),*);

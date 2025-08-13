@@ -7,8 +7,7 @@ mod routers;
 
 #[cfg(feature = "axum")]
 mod auth;
-#[cfg(feature = "rest-client")]
-pub mod client;
+
 #[cfg(any(all(test, feature = "axum"), feature = "integration"))]
 pub mod integration;
 

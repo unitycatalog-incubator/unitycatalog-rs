@@ -18,7 +18,7 @@ impl TableClient {
         &self,
         request: &ListTableSummariesRequest,
     ) -> Result<ListTableSummariesResponse> {
-        let mut url = self.base_url.join("/table-summaries")?;
+        let mut url = self.base_url.join("table-summaries")?;
         url.query_pairs_mut()
             .append_pair("catalog_name", &request.catalog_name.to_string());
         if let Some(ref value) = request.schema_name_pattern {
@@ -47,7 +47,7 @@ impl TableClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn list_tables(&self, request: &ListTablesRequest) -> Result<ListTablesResponse> {
-        let mut url = self.base_url.join("/tables")?;
+        let mut url = self.base_url.join("tables")?;
         url.query_pairs_mut()
             .append_pair("schema_name", &request.schema_name.to_string());
         url.query_pairs_mut()
@@ -90,14 +90,14 @@ impl TableClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_table(&self, request: &CreateTableRequest) -> Result<TableInfo> {
-        let mut url = self.base_url.join("/tables")?;
+        let mut url = self.base_url.join("tables")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_table(&self, request: &GetTableRequest) -> Result<TableInfo> {
-        let formatted_path = format!("/tables/{}", request.full_name);
+        let formatted_path = format!("tables/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_delta_metadata {
             url.query_pairs_mut()
@@ -120,7 +120,7 @@ impl TableClient {
         &self,
         request: &GetTableExistsRequest,
     ) -> Result<GetTableExistsResponse> {
-        let formatted_path = format!("/tables/{}/exists", request.full_name);
+        let formatted_path = format!("tables/{}/exists", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -128,7 +128,7 @@ impl TableClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_table(&self, request: &DeleteTableRequest) -> Result<()> {
-        let formatted_path = format!("/tables/{}", request.full_name);
+        let formatted_path = format!("tables/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;

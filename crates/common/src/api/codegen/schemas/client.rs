@@ -15,7 +15,7 @@ impl SchemaClient {
         Self { client, base_url }
     }
     pub async fn list_schemas(&self, request: &ListSchemasRequest) -> Result<ListSchemasResponse> {
-        let mut url = self.base_url.join("/schemas")?;
+        let mut url = self.base_url.join("schemas")?;
         url.query_pairs_mut()
             .append_pair("catalog_name", &request.catalog_name.to_string());
         if let Some(ref value) = request.max_results {
@@ -36,21 +36,22 @@ impl SchemaClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_schema(&self, request: &CreateSchemaRequest) -> Result<SchemaInfo> {
-        let mut url = self.base_url.join("/schemas")?;
+        let mut url = self.base_url.join("schemas")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_schema(&self, request: &GetSchemaRequest) -> Result<SchemaInfo> {
-        let mut url = self.base_url.join("/schemas/{name}")?;
+        let formatted_path = format!("schemas/{}", request.full_name);
+        let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn update_schema(&self, request: &UpdateSchemaRequest) -> Result<SchemaInfo> {
-        let formatted_path = format!("/schemas/{}", request.full_name);
+        let formatted_path = format!("schemas/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -58,7 +59,8 @@ impl SchemaClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_schema(&self, request: &DeleteSchemaRequest) -> Result<()> {
-        let mut url = self.base_url.join("/schemas/{name}")?;
+        let formatted_path = format!("schemas/{}", request.full_name);
+        let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.force {
             url.query_pairs_mut()
                 .append_pair("force", &value.to_string());

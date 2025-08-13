@@ -15,7 +15,7 @@ impl ShareClient {
         Self { client, base_url }
     }
     pub async fn list_shares(&self, request: &ListSharesRequest) -> Result<ListSharesResponse> {
-        let mut url = self.base_url.join("/shares")?;
+        let mut url = self.base_url.join("shares")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());
@@ -30,14 +30,14 @@ impl ShareClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_share(&self, request: &CreateShareRequest) -> Result<ShareInfo> {
-        let mut url = self.base_url.join("/shares")?;
+        let mut url = self.base_url.join("shares")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_share(&self, request: &GetShareRequest) -> Result<ShareInfo> {
-        let formatted_path = format!("/shares/{}", request.name);
+        let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_shared_data {
             url.query_pairs_mut()
@@ -49,7 +49,7 @@ impl ShareClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn update_share(&self, request: &UpdateShareRequest) -> Result<ShareInfo> {
-        let formatted_path = format!("/shares/{}", request.name);
+        let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -57,7 +57,7 @@ impl ShareClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_share(&self, request: &DeleteShareRequest) -> Result<()> {
-        let formatted_path = format!("/shares/{}", request.name);
+        let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;

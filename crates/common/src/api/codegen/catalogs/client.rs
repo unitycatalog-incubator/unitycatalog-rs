@@ -18,7 +18,7 @@ impl CatalogClient {
         &self,
         request: &ListCatalogsRequest,
     ) -> Result<ListCatalogsResponse> {
-        let mut url = self.base_url.join("/catalogs")?;
+        let mut url = self.base_url.join("catalogs")?;
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());
@@ -33,14 +33,14 @@ impl CatalogClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_catalog(&self, request: &CreateCatalogRequest) -> Result<CatalogInfo> {
-        let mut url = self.base_url.join("/catalogs")?;
+        let mut url = self.base_url.join("catalogs")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn get_catalog(&self, request: &GetCatalogRequest) -> Result<CatalogInfo> {
-        let formatted_path = format!("/catalogs/{}", request.name);
+        let formatted_path = format!("catalogs/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_browse {
             url.query_pairs_mut()
@@ -52,7 +52,7 @@ impl CatalogClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn update_catalog(&self, request: &UpdateCatalogRequest) -> Result<CatalogInfo> {
-        let formatted_path = format!("/catalogs/{}", request.name);
+        let formatted_path = format!("catalogs/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -60,7 +60,7 @@ impl CatalogClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_catalog(&self, request: &DeleteCatalogRequest) -> Result<()> {
-        let formatted_path = format!("/catalogs/{}", request.name);
+        let formatted_path = format!("catalogs/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.force {
             url.query_pairs_mut()

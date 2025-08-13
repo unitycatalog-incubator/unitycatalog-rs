@@ -92,8 +92,10 @@ pub struct MethodPlan {
 /// A path parameter in a URL template
 #[derive(Debug)]
 pub struct PathParam {
-    /// Parameter name (e.g., "name" from "/catalogs/{name}")
-    pub name: String,
+    /// Template parameter name (e.g., "name" from "/catalogs/{name}")
+    pub template_param: String,
+    /// Field name in the request struct (e.g., "full_name")
+    pub field_name: String,
     /// Rust type for this parameter
     pub rust_type: String,
 }

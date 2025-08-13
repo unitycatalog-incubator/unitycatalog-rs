@@ -8,76 +8,173 @@ app = marimo.App()
 def _():
     from unitycatalog_client import UnityCatalogClient
     import os
-    return UnityCatalogClient, os
+    from pprint import pprint
+    return UnityCatalogClient, pprint
 
 
 @app.cell
-def _(UnityCatalogClient, os):
-    host = os.environ["DATABRICKS_HOST"]
-    # client = UnityCatalogClient(base_url=f"{host}/api/2.1/unity-catalog/", token=os.environ["DATABRICKS_TOKEN"])
-    client = UnityCatalogClient(base_url="http://localhost:8080/api/2.1/unity-catalog/")
+def _(mo):
+    mo.md(
+        r"""
+    ## Unity Catalog Client
+
+    This notebook demonstrates how to interact with unity catalog APIs using the
+    `unitycatalog-rs` python bindings. We will walk through some common scenarios
+    when interacting with UC.
+
+    * Setup client
+    * Create Catalog/Schema/Table
+    * Read from and write to table
+    * Create and query a Share
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""### Setup unity client""")
+    return
+
+
+@app.cell
+def _(UnityCatalogClient):
+    # connect to databricks hosted service using a PAT
+    # host = os.environ["DATABRICKS_HOST"]
+    # client = UnityCatalogClient(
+    #     base_url=f"{host}/api/2.1/unity-catalog/",
+    #     token=os.environ["DATABRICKS_TOKEN"],
+    # )
+
+    # connect to locally running service
+    client = UnityCatalogClient(
+        base_url="http://localhost:8080/api/2.1/unity-catalog/"
+    )
     return (client,)
 
 
 @app.cell
-def _(client):
-    catalogs = client.list_catalogs()
-    for catalog in catalogs:
-        print(catalog.catalog_type)
+def _(mo):
+    mo.md(
+        r"""
+    ### Manage Catalogs, Schemas, and Tables
+
+    We'll create and then cleanup a catalog and child schemas. Then register
+    a table with the catalog.
+    """
+    )
     return
 
 
 @app.cell
-def _(client):
-    share_client = client.shares("new_share")
-    return (share_client,)
+def _(client, pprint):
+    # create a new catalog at the root.
+    new_catalog = client.create_catalog(name="new_catalog")
+    print("Created new catalog:")
+    pprint(new_catalog)
 
+    # get an instance client for the catalog.
+    catalog_client = client.catalog(name=new_catalog.name)
 
-@app.cell
-def _(share_client):
-    share_client.get()
-    return
+    # update the catalog.
+    updated_catalog = catalog_client.update(comment="new comment")
+    print("Updated catalog:")
+    pprint(updated_catalog)
 
+    # create a schema
+    schema_info = catalog_client.create_schema("new_schema")
+    pprint("created schema")
+    pprint(schema_info)
 
-@app.cell
-def _(share_client):
-    from unitycatalog_client import DataObjectUpdate, DataObject, DataObjectType, HistoryStatus, Action
+    schema_client = catalog_client.schema(schema_info.name)
 
-    share = {
-        # "name": "new_share",
-        "updates": [
-            DataObjectUpdate(**{
-                "action": Action.Add,
-                "data_object": DataObject(**{
-                    "name": "dat.dat.all_primitive_types",
-                    "data_object_type": DataObjectType.Table,
-                    "shared_as": "dat.all_primitive_types",
-                    "partitions": [],
-                    "history_data_sharing_status": HistoryStatus.Disabled,
-                    "enable_cdf": False
-                })
-            }),
-            DataObjectUpdate(**{
-                "action": Action.Add,
-                "data_object": DataObject(**{
-                    "name": "dat.dat.column_mapping",
-                    "data_object_type": DataObjectType.Table,
-                    "shared_as": "dat.column_mapping",
-                    "partitions": [],
-                    "history_data_sharing_status": HistoryStatus.Disabled,
-                    "enable_cdf": False
-                })
-            })
-        ]
-    }
+    updated_schema = schema_client.update(comment="schema comment")
+    print("Updated schema:")
+    pprint(updated_schema)
 
-    share_client.update(**share)
+    schema_client.delete()
+    print("Deleted schema.")
+
+    catalog_client.delete()
+    print("Deleted catalog.")
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""### Delta Sharing""")
+    mo.md(
+        r"""
+    ### Delta Sharing
+
+    Set up a share and access it via delta sharing.
+    """
+    )
+    return
+
+
+@app.cell
+def _(client):
+    shared_catalog = client.create_catalog(name="shared_catalog")
+    shared_catalog_client = client.catalog(name=shared_catalog.name)
+    shared_schema = shared_catalog_client.create_schema(schema_name="shared_schema")
+
+    # TODO: add tables
+    return
+
+
+@app.cell
+def _(client):
+    share_info = client.create_share(name="new_share")
+    share_client = client.share(name=share_info.name)
+    return (share_client,)
+
+
+@app.cell
+def _(share_client):
+    from unitycatalog_client import (
+        DataObjectUpdate,
+        DataObject,
+        DataObjectType,
+        HistoryStatus,
+        Action,
+    )
+
+    share = {
+        "updates": [
+            DataObjectUpdate(
+                **{
+                    "action": Action.Add,
+                    "data_object": DataObject(
+                        **{
+                            "name": "dat.dat.all_primitive_types",
+                            "data_object_type": DataObjectType.Table,
+                            "shared_as": "dat.all_primitive_types",
+                            "partitions": [],
+                            "history_data_sharing_status": HistoryStatus.Disabled,
+                            "enable_cdf": False,
+                        }
+                    ),
+                }
+            ),
+            DataObjectUpdate(
+                **{
+                    "action": Action.Add,
+                    "data_object": DataObject(
+                        **{
+                            "name": "dat.dat.column_mapping",
+                            "data_object_type": DataObjectType.Table,
+                            "shared_as": "dat.column_mapping",
+                            "partitions": [],
+                            "history_data_sharing_status": HistoryStatus.Disabled,
+                            "enable_cdf": False,
+                        }
+                    ),
+                }
+            ),
+        ]
+    }
+
+    share_client.update(**share)
     return
 
 

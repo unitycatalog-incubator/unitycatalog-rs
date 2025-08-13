@@ -163,7 +163,7 @@ pub fn proto_exports() -> String {
 
 /// Extract the final type name from a fully qualified protobuf type and convert to Ident
 pub(crate) fn extract_type_ident(full_type: &str) -> Ident {
-    let type_name = full_type.split('.').last().unwrap_or(full_type);
+    let type_name = full_type.split('.').next_back().unwrap_or(full_type);
     format_ident!("{}", type_name)
 }
 

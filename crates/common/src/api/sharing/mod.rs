@@ -4,10 +4,8 @@ use crate::services::policy::Permission;
 
 pub use self::models::*;
 pub use super::codegen::{SharingClient, SharingHandler};
-pub use client::*;
 pub use handler::SharingQueryHandler;
 
-mod client;
 mod handler;
 mod models;
 

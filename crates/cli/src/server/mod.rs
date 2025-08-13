@@ -93,7 +93,7 @@ async fn get_memory_handler() -> Result<ServerHandler> {
     Ok(handler)
 }
 
-fn init_tracing() {
+pub(crate) fn init_tracing() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {

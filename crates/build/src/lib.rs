@@ -126,7 +126,7 @@ impl CodeGenMetadata {
         self.messages
             .get(type_name)
             .map(|msg| msg.fields.clone())
-            .unwrap_or_else(Vec::new)
+            .unwrap_or_default()
     }
 
     /// Get all methods that have complete REST metadata (operation_id + http_rule)

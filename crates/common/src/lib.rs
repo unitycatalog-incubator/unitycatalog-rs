@@ -4,6 +4,8 @@ pub use resources::*;
 pub use unitycatalog_derive as derive;
 
 pub mod api;
+#[cfg(feature = "rest-client")]
+pub mod client;
 pub mod error;
 #[cfg(feature = "memory")]
 pub mod memory;

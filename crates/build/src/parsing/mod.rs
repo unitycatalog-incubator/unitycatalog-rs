@@ -89,7 +89,7 @@ fn process_message(
                 if !field.proto3_optional() {
                     oneof_groups
                         .entry(oneof_name)
-                        .or_insert_with(Vec::new)
+                        .or_default()
                         .push(field.name().to_string());
                     continue; // Skip adding this field individually
                 }

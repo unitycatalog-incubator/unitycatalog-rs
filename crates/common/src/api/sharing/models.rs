@@ -314,14 +314,6 @@ pub enum MetadataResponse {
     MetaData(MetadataResponseData),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DeltaFileResponse {
-    pub name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
