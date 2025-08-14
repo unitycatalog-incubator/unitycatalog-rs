@@ -5,36 +5,39 @@ default:
     @just --list --justfile {{ justfile() }}
 
 # run code generation for proto files.
+[group('generate')]
 generate:
     buf generate proto
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
     cargo clippy --fix --allow-dirty --allow-staged
 
+# generate auxiliary types in common crate
+[group('generate')]
 generate-types:
     just crates/common/generate
 
+# generate types for build crate
+[group('generate')]
 generate-build:
     just crates/build/generate
 
-generate-rest:
+# generate rest server and client code with build crate.
+[group('generate')]
+generate-rest: generate-descriptors
     cargo run --bin unitycatalog-build -- \
       --output crates/common/src/api/codegen \
       --descriptors crates/common/descriptors/descriptors.bin
     cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
     cargo fmt
 
-descriptors:
-    cd proto && buf build --output ../crates/common/descriptors/descriptors.bin
+# generate file descriptor set for codegen
+[group('generate')]
+generate-descriptors:
+    buf build --output ./crates/common/descriptors/descriptors.bin proto
 
-generate-py:
-    uv run scripts/prepare_jsonschema.py
-    uv run datamodel-codegen \
-      --input ./tmp_schemas/ \
-      --input-file-type jsonschema \
-      --output python/client/python/unitycatalog_client/_models/
-    rm -rf tmp_schemas
-
+# generate types for node client
+[group('generate')]
 generate-node:
     just node/client/generate
 
@@ -76,10 +79,6 @@ compose:
 
 compose-full:
     docker-compose -p unitycatalog-rs -f compose/sandbox.compose.yaml up -d
-
-# run local app
-app:
-    npm run tauri dev -w app
 
 docs:
     npm run dev -w docs
