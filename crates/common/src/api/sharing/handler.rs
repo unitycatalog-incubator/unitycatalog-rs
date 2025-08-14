@@ -1,9 +1,9 @@
 use bytes::Bytes;
 use itertools::Itertools;
 
-use super::{RequestContext, SecuredAction, ShareHandler};
 use crate::Result;
-use crate::api::codegen::SharingHandler;
+use crate::api::codegen::sharing::SharingHandler;
+use crate::api::{RequestContext, SecuredAction, ShareHandler};
 use crate::models::ObjectLabel;
 use crate::models::shares::v1::{GetShareRequest as SharesGetShareRequest, ShareInfo};
 use crate::models::sharing::v1::*;

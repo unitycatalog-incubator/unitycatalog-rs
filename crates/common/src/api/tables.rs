@@ -1,13 +1,15 @@
+use std::sync::Arc;
+
 use delta_kernel::schema::{DataType, PrimitiveType, Schema, StructField};
+use delta_kernel::{Snapshot, Version};
 use itertools::Itertools;
 
-pub use super::codegen::{TableClient, TableHandler};
+pub use super::codegen::tables::{TableClient, TableHandler};
 use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::tables::v1::*;
 use crate::resources::{ResourceName, ResourceStore};
 use crate::services::StorageLocationUrl;
-use crate::services::kernel::TableManager;
 use crate::services::policy::{Permission, Policy, process_resources};
 use crate::{Error, ResourceIdent, Result};
 
@@ -78,6 +80,16 @@ impl SecuredAction for DeleteTableRequest {
     fn permission(&self) -> &'static Permission {
         &Permission::Manage
     }
+}
+
+#[async_trait::async_trait]
+pub trait TableManager: Send + Sync + 'static {
+    async fn read_snapshot(
+        &self,
+        location: &StorageLocationUrl,
+        format: &DataSourceFormat,
+        version: Option<Version>,
+    ) -> Result<Arc<Snapshot>>;
 }
 
 #[async_trait::async_trait]

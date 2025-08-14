@@ -1,7 +1,7 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
-pub(super) use crate::api::shares::ShareClient as ShareClientBase;
+pub(super) use crate::api::codegen::shares::ShareClient as ShareClientBase;
 use crate::models::shares::v1::*;
 use crate::utils::stream_paginated;
 use crate::{Error, Result};

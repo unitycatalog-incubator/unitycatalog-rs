@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-pub use super::codegen::{CredentialClient, CredentialHandler};
+pub use super::codegen::credentials::CredentialHandler;
 use super::{RequestContext, SecuredAction};
 use crate::models::ObjectLabel;
 use crate::models::credentials::v1::*;

@@ -11,6 +11,9 @@
 
 use std::collections::HashMap;
 
+use proc_macro2::TokenStream;
+use quote::{format_ident, quote};
+
 use super::templates;
 use super::{GeneratedCode, GenerationPlan, ServicePlan};
 
@@ -25,6 +28,54 @@ pub fn generate_code(plan: &GenerationPlan) -> Result<GeneratedCode, Box<dyn std
     // Generate code for each service
     for service in &plan.services {
         generate_service_code(service, &mut files)?;
+    }
+
+    // Generate the main module file that ties everything together
+    generate_main_module(&plan.services, &mut files)?;
+
+    Ok(GeneratedCode { files })
+}
+
+pub fn generate_server_code(
+    plan: &GenerationPlan,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    // Generate code for each service
+    for service in &plan.services {
+        // Generate handler trait
+        let trait_code = handler::generate(service)?;
+        files.insert(format!("{}/handler.rs", service.base_path), trait_code);
+
+        // Generate server code
+        let server_code = server::generate(service)?;
+        files.insert(format!("{}/server.rs", service.base_path), server_code);
+
+        // Generate client code
+        let client_code = client::generate(service)?;
+        files.insert(format!("{}/client.rs", service.base_path), client_code);
+
+        // Generate service module
+        let module_code = generate_service_module(service)?;
+        files.insert(format!("{}/mod.rs", service.base_path), module_code);
+    }
+
+    // Generate the main module file that ties everything together
+    generate_main_module(&plan.services, &mut files)?;
+
+    Ok(GeneratedCode { files })
+}
+
+pub fn generate_client_code(
+    plan: &GenerationPlan,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    // Generate code for each service
+    for service in &plan.services {
+        // Generate client code
+        let client_code = client::generate(service)?;
+        files.insert(format!("{}/mod.rs", service.base_path), client_code);
     }
 
     // Generate the main module file that ties everything together
@@ -69,10 +120,29 @@ fn generate_main_module(
     services: &[ServicePlan],
     files: &mut HashMap<String, String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let module_code = templates::main_module(services);
+    let module_code = main_module(services);
     files.insert("mod.rs".to_string(), module_code);
 
     Ok(())
+}
+
+/// Generate main module file
+pub fn main_module(services: &[ServicePlan]) -> String {
+    let service_modules: Vec<TokenStream> = services
+        .iter()
+        .map(|s| {
+            let module_name = format_ident!("{}", s.base_path);
+            quote! { pub mod #module_name; }
+        })
+        .collect();
+
+    let tokens = quote! {
+        // Service modules
+        #(#service_modules)*
+
+    };
+
+    templates::format_tokens(tokens)
 }
 
 #[cfg(test)]

@@ -10,18 +10,17 @@ use datafusion::logical_expr::ColumnarValue;
 use datafusion::physical_plan::PhysicalExpr;
 use datafusion::prelude::SessionContext;
 use datafusion::prelude::{Expr, col, lit, named_struct};
-use delta_kernel::Version;
+use delta_kernel::{Snapshot, Version};
 use deltalake_datafusion::{
     DeltaLogReplayProvider, KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory,
-    TableSnapshot,
 };
 use itertools::Itertools;
 
-use super::kernel::TableManager;
 use super::sharing::{SharingExt, SharingTableReference};
-use crate::services::location::StorageLocationUrl;
-use crate::tables::v1::DataSourceFormat;
-use crate::{Error, Result};
+use unitycatalog_common::api::tables::TableManager;
+use unitycatalog_common::models::tables::v1::DataSourceFormat;
+use unitycatalog_common::services::StorageLocationUrl;
+use unitycatalog_common::{Error, Result};
 
 const UC_RS_SYSTEM_CATALOG_NAME: &str = "uc_rs_system";
 const UC_RS_LOG_REPLAY_SCHEMA_NAME: &str = "uc_rs_log_replay";
@@ -131,17 +130,18 @@ impl TableManager for KernelSession {
         location: &StorageLocationUrl,
         format: &DataSourceFormat,
         version: Option<Version>,
-    ) -> Result<Arc<dyn TableSnapshot>> {
-        match format {
-            DataSourceFormat::Delta => Ok(self
-                .ctx
-                .read_delta_snapshot(location.location(), version)
-                .await?),
-            _ => Err(Error::InvalidArgument(format!(
-                "unsupported data source format in kernel session: {:?}",
-                format
-            ))),
-        }
+    ) -> Result<Arc<Snapshot>> {
+        todo!()
+        // match format {
+        //     DataSourceFormat::Delta => Ok(self
+        //         .ctx
+        //         .read_delta_snapshot(location.location(), version)
+        //         .await?),
+        //     _ => Err(Error::InvalidArgument(format!(
+        //         "unsupported data source format in kernel session: {:?}",
+        //         format
+        //     ))),
+        // }
     }
 }
 

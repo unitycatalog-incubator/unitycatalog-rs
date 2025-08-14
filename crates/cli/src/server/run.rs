@@ -13,12 +13,12 @@ use unitycatalog_common::api::schemas::SchemaHandler;
 use unitycatalog_common::api::shares::ShareHandler;
 use unitycatalog_common::api::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_common::api::tables::TableHandler;
-use unitycatalog_common::rest::{
+use unitycatalog_common::{Error, Result};
+use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
     create_external_locations_router, create_recipients_router, create_schemas_router,
     create_shares_router, create_sharing_router, create_tables_router,
 };
-use unitycatalog_common::{Error, Result};
 
 pub async fn run_server_rest<T, A>(
     host: impl AsRef<str>,

@@ -4,12 +4,12 @@ use axum::response::Response;
 use axum::routing::{Router, get, post};
 use http::header::CONTENT_TYPE;
 
-use crate::api::RequestContext;
-use crate::api::codegen::sharing::server::*;
-use crate::api::sharing::{SharingHandler, SharingQueryHandler};
-use crate::models::sharing::v1::*;
-use crate::services::policy::Recipient;
-use crate::{Error, Result};
+use unitycatalog_common::api::RequestContext;
+use unitycatalog_common::api::codegen::sharing::server::*;
+use unitycatalog_common::api::sharing::{SharingHandler, SharingQueryHandler};
+use unitycatalog_common::models::sharing::v1::*;
+use unitycatalog_common::services::policy::Recipient;
+use unitycatalog_common::{Error, Result};
 
 /// Create a new [Router] for the Delta Sharing REST API.
 pub fn get_router<T: SharingHandler + SharingQueryHandler + Clone>(state: T) -> Router {

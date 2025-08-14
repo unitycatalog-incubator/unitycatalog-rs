@@ -22,6 +22,7 @@ unitycatalog-common = { path = "../common", features = [
   "tokio",
 ] }
 unitycatalog-postgres = { path = "../postgres" }
+unitycatalog-server = { path = "../server", features = ["axum"] }
 
 # workspace dependencies (in alphabetical order)
 axum = { workspace = true, features = ["tracing"] }

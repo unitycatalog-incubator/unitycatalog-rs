@@ -11,7 +11,7 @@ use crate::resources::ResourceIdent;
 use crate::services::policy::{Permission, Recipient};
 
 pub mod catalogs;
-pub(crate) mod codegen;
+pub mod codegen;
 pub mod credentials;
 pub mod external_locations;
 pub mod recipients;

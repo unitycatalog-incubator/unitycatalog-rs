@@ -287,7 +287,7 @@ impl TableInfo {
             self.catalog_name,
             self.schema_name,
             self.table_type,
-            self.data_source_format.to_string(),
+            self.data_source_format,
             self.comment.as_ref().unwrap_or(&"None".to_owned()),
             self.owner.as_ref().unwrap_or(&"None".to_owned()),
             self.storage_location.as_ref().unwrap_or(&"None".to_owned()),

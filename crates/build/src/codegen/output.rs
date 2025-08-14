@@ -18,12 +18,6 @@ pub fn write_generated_code(
     generated_code: &GeneratedCode,
     output_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    println!(
-        "Writing {} generated files to {}",
-        generated_code.files.len(),
-        output_dir.display()
-    );
-
     // Ensure output directory exists
     fs::create_dir_all(output_dir)?;
 

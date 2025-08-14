@@ -1,7 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
 pub use crate::models::sharing::v1::*;
-use chrono::{DateTime, Utc};
 use delta_kernel::{
     actions::{Metadata as KernelMetadata, Protocol as DeltaProtocol},
     table_features::ReaderFeature,
