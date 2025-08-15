@@ -12,8 +12,11 @@ use unitycatalog_build::parsing::process_file_descriptor;
 
 #[derive(Parser)]
 struct Cli {
-    #[clap(long, short, env = "UC_BUILD_OUTPUT")]
-    output: String,
+    #[clap(long, env = "UC_BUILD_OUTPUT_SERVER")]
+    output_server: String,
+
+    #[clap(long, env = "UC_BUILD_OUTPUT_CLIENT")]
+    output_client: String,
 
     #[clap(long, short, env = "UC_BUILD_DESCRIPTORS")]
     descriptors: String,
@@ -37,9 +40,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         process_file_descriptor(file_descriptor, &mut codegen_metadata)?;
     }
 
+    println!("server -> {}", args.output_server);
+    println!("client -> {}", args.output_client);
+
     // Generate code from collected metadata
-    let output_dir = fs::canonicalize(PathBuf::from(&args.output))?;
-    generate_rest_handlers(&codegen_metadata, &output_dir)?;
+    // let output_dir_server = fs::canonicalize(PathBuf::from(&args.output_server))?;
+    let output_dir_server = PathBuf::from(&args.output_server);
+    println!("server -> {}", output_dir_server.display());
+
+    let output_dir_client = fs::canonicalize(PathBuf::from(&args.output_client))?;
+    println!("client -> {}", output_dir_client.display());
+
+    generate_rest_handlers(&codegen_metadata, &output_dir_server, &output_dir_client)?;
 
     Ok(())
 }

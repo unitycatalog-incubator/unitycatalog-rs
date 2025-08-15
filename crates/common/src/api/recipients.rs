@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-pub use super::codegen::{RecipientClient, RecipientHandler};
+pub use super::codegen::recipients::{RecipientClient, RecipientHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
 use crate::models::ObjectLabel;

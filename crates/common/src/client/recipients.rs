@@ -1,7 +1,7 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
-pub(super) use crate::api::recipients::RecipientClient as RecipientClientBase;
+pub(super) use crate::api::codegen::recipients::RecipientClient as RecipientClientBase;
 use crate::models::recipients::v1::*;
 use crate::utils::stream_paginated;
 use crate::{Error, Result};

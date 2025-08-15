@@ -1,10 +1,9 @@
-use crate::api::{RequestContext, SecuredAction, ShareHandler};
+pub use self::models::*;
+pub use super::codegen::sharing::*;
+use crate::api::SecuredAction;
 use crate::resources::{ResourceIdent, ResourceName, ResourceRef};
 use crate::services::policy::Permission;
-
-pub use self::models::*;
-pub use super::codegen::{SharingClient, SharingHandler};
-pub use handler::SharingQueryHandler;
+pub use handler::*;
 
 mod handler;
 mod models;

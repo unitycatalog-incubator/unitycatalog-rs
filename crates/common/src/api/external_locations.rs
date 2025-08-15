@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-pub use super::codegen::{ExternalLocationClient, ExternalLocationHandler};
+pub use super::codegen::external_locations::{ExternalLocationClient, ExternalLocationHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
 use crate::models::ObjectLabel;

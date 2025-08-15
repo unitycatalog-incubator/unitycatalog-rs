@@ -4,7 +4,7 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::tables::{TableClient, TableClientBase};
-pub(super) use crate::api::schemas::SchemaClient as SchemaClientBase;
+pub(super) use crate::api::codegen::schemas::SchemaClient as SchemaClientBase;
 use crate::client::utils::hash_map_to_struct;
 use crate::models::schemas::v1::*;
 use crate::models::tables::v1::{
@@ -104,7 +104,7 @@ impl SchemaClient {
             columns,
             storage_location: storage_location.map(|s| s.to_string()),
             comment: comment.map(|c| c.to_string()),
-            properties: properties.into().map(|m| hash_map_to_struct(m)),
+            properties: properties.into().map(hash_map_to_struct),
         };
         let tables_client = super::tables::TableClientBase::new(
             self.client.client.clone(),
@@ -132,7 +132,7 @@ impl SchemaClient {
                 .map(|s| s.to_string())
                 .unwrap_or_else(|| self.schema_name.clone()),
             comment: comment.map(|s| s.to_string()),
-            properties: properties.into().map(|m| hash_map_to_struct(m)),
+            properties: properties.into().map(hash_map_to_struct),
         };
         self.client.update_schema(&request).await
     }

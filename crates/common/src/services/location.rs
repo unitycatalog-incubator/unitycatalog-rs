@@ -45,6 +45,10 @@ impl StorageLocationScheme {
 }
 
 /// A URL representing a storage location.
+///
+/// This struct provides a cerntalized place to parse various URLs into more specific
+/// service references along with the semantic information that can be extracted from
+/// the URL.
 pub struct StorageLocationUrl {
     /// The raw, unaltered URL.
     url: Url,

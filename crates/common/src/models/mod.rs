@@ -21,6 +21,7 @@ mod object;
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 
 pub mod google {
+    #[allow(deprecated)]
     pub mod protobuf {
         include!("./gen/google.protobuf.rs");
     }

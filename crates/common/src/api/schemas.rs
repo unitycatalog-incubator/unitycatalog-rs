@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-pub use super::codegen::{SchemaClient, SchemaHandler};
+pub use super::codegen::schemas::{SchemaClient, SchemaHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
 use crate::models::ObjectLabel;

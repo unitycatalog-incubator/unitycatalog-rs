@@ -34,15 +34,39 @@ pub mod templates;
 /// Takes collected metadata and generates all necessary Rust code for REST handlers.
 pub fn generate_rest_handlers(
     metadata: &CodeGenMetadata,
-    output_dir: &Path,
+    output_dir_server: &Path,
+    output_dir_client: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // Phase 1: Analyze metadata and plan generation
+    // Analyze metadata and plan generation
     let plan = analysis::analyze_metadata(metadata)?;
-    // Phase 2: Generate code from plan
-    let generated_code = generation::generate_code(&plan)?;
-    // Phase 3: Write generated code to output directory
-    output::write_generated_code(&generated_code, output_dir)?;
-    println!("cargo:warning=Code written to {}", output_dir.display());
+
+    // Generate code from plan
+    let generated_server_code = generation::generate_server_code(&plan)?;
+
+    println!(
+        "cargo:warning=Writing server code to {}",
+        output_dir_server.display()
+    );
+    // Write generated code to output directory
+    output::write_generated_code(&generated_server_code, output_dir_client)?;
+    println!(
+        "cargo:warning=Code written to {}",
+        output_dir_server.display()
+    );
+
+    // // Generate code from plan
+    // let generated_client_code = generation::generate_client_code(&plan)?;
+
+    // println!(
+    //     "cargo:warning=Writing client code to {}",
+    //     output_dir_client.display()
+    // );
+    // // Write generated code to output directory
+    // output::write_generated_code(&generated_client_code, output_dir_client)?;
+    // println!(
+    //     "cargo:warning=Code written to {}",
+    //     output_dir_client.display()
+    // );
 
     Ok(())
 }

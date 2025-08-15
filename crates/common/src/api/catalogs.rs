@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-pub use super::codegen::{CatalogClient, CatalogHandler};
+pub use super::codegen::catalogs::{CatalogClient, CatalogHandler};
 use super::{RequestContext, SecuredAction};
 use crate::Result;
 use crate::models::ObjectLabel;

@@ -18,8 +18,6 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::{File, Path};
 
-use super::ServicePlan;
-
 /// Generate route handlers module
 pub fn server_module(
     trait_name: &str,
@@ -71,35 +69,6 @@ pub fn service_module(handler_name: &str) -> String {
     };
 
     tokens.to_string()
-}
-
-/// Generate main module file
-pub fn main_module(services: &[ServicePlan]) -> String {
-    let service_modules: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let module_name = format_ident!("{}", s.base_path);
-            quote! { pub mod #module_name; }
-        })
-        .collect();
-
-    let service_exports: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let module_name = format_ident!("{}", s.base_path);
-            quote! { pub use #module_name::*; }
-        })
-        .collect();
-
-    let tokens = quote! {
-        // Service modules
-        #(#service_modules)*
-
-        // Re-exports
-        #(#service_exports)*
-    };
-
-    format_tokens(tokens)
 }
 
 /// Generate error types

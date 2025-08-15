@@ -34,6 +34,16 @@ pub struct UnityCatalogClient {
 }
 
 impl UnityCatalogClient {
+    pub fn new_unauthenticated(base_url: url::Url) -> Self {
+        let client = CloudClient::new_unauthenticated();
+        Self::new(client, base_url)
+    }
+
+    pub fn new_with_token(base_url: url::Url, token: impl ToString) -> Self {
+        let client = CloudClient::new_with_token(token);
+        Self::new(client, base_url)
+    }
+
     pub fn new(client: CloudClient, base_url: url::Url) -> Self {
         let catalogs = CatalogClientBase::new(client.clone(), base_url.clone());
         let schemas = SchemaClientBase::new(client.clone(), base_url.clone());

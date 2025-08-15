@@ -1,0 +1,37 @@
+[package]
+name = "unitycatalog-server"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+rust-version.workspace = true
+version.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+
+[dependencies]
+unitycatalog-common = { path = "../common", features = ["axum"] }
+
+async-trait = { workspace = true }
+bytes = { workspace = true }
+delta_kernel = { workspace = true }
+deltalake-datafusion = { workspace = true }
+itertools = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+axum = { workspace = true, optional = true }
+datafusion = { version = "49" }
+futures-util = { version = "0.3.28" }
+http = { version = "1.2", optional = true }
+tokio = { version = "1.40", features = ["rt-multi-thread"] }
+tower = { workspace = true, features = ["make"], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[features]
+default = ["axum"]
+axum = ["dep:axum", "http", "tower"]

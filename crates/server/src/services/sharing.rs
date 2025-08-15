@@ -1,14 +1,14 @@
 use bytes::Bytes;
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
-use crate::api::RequestContext;
-use crate::api::sharing::{
+use unitycatalog_common::api::RequestContext;
+use unitycatalog_common::api::sharing::{
     MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
 };
-use crate::models::sharing::v1::*;
-use crate::models::tables::v1::{DataSourceFormat, TableInfo};
-use crate::resources::ResourceStore;
-use crate::{ResourceIdent, ResourceName, Result, ShareInfo};
+use unitycatalog_common::models::sharing::v1::*;
+use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableInfo};
+use unitycatalog_common::resources::ResourceStore;
+use unitycatalog_common::{Error, ResourceIdent, ResourceName, Result, ShareInfo};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SharingTableReference {
@@ -42,11 +42,11 @@ impl<T: ResourceStore> SharingExt for T {
             .iter()
             .find(|o| o.shared_as() == &format!("{}.{}", table_ref.schema, table_ref.table))
         else {
-            return Err(crate::Error::NotFound);
+            return Err(Error::NotFound);
         };
         let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
         let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
-        let location = table_info.storage_location.ok_or(crate::Error::NotFound)?;
+        let location = table_info.storage_location.ok_or(Error::NotFound)?;
         StorageLocationUrl::parse(&location)
     }
 }

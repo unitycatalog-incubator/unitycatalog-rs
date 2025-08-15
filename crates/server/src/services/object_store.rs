@@ -8,17 +8,17 @@ use itertools::Itertools;
 use url::Url;
 
 use super::ServerHandlerInner;
-use crate::api::CredentialHandler;
-use crate::api::credentials::CredentialHandlerExt;
-use crate::models::credentials::v1::credential_info::Credential;
-use crate::models::credentials::v1::{
+use unitycatalog_common::api::CredentialHandler;
+use unitycatalog_common::api::credentials::CredentialHandlerExt;
+use unitycatalog_common::models::credentials::v1::credential_info::Credential;
+use unitycatalog_common::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
     azure_service_principal::Credential as AzureSpCredential,
 };
-use crate::models::external_locations::v1::ExternalLocationInfo;
-use crate::resources::ResourceStore;
-use crate::services::location::{StorageLocationScheme, StorageLocationUrl};
-use crate::{Error, Result};
+use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
+use unitycatalog_common::resources::ResourceStore;
+use unitycatalog_common::services::{StorageLocationScheme, StorageLocationUrl};
+use unitycatalog_common::{Error, Result};
 
 pub(crate) trait RegistryHandler:
     ResourceStore + CredentialHandler + CredentialHandlerExt
@@ -46,7 +46,12 @@ pub(crate) async fn get_object_store(
     // TODO(roeap): just listing all external locations could be very inefficient.
     // introduce an endpoint that allows us to query for specific resource properties instead
     let (locations, _) = handler
-        .list(&crate::ObjectLabel::ExternalLocationInfo, None, None, None)
+        .list(
+            &unitycatalog_common::ObjectLabel::ExternalLocationInfo,
+            None,
+            None,
+            None,
+        )
         .await?;
     let locations: Vec<ExternalLocationInfo> =
         locations.into_iter().map(|l| l.try_into()).try_collect()?;

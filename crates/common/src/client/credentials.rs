@@ -1,7 +1,7 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
-pub(super) use crate::api::credentials::CredentialClient as CredentialClientBase;
+pub(super) use crate::api::codegen::credentials::CredentialClient as CredentialClientBase;
 use crate::models::credentials::v1::*;
 use crate::utils::stream_paginated;
 use crate::{Error, Result};

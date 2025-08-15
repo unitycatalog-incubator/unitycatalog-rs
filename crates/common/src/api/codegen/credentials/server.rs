@@ -97,7 +97,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetCredentialRequest
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts.extract::<axum::extract::Path<(String)>>().await?;
+        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
         Ok(GetCredentialRequest { name })
     }
 }
@@ -108,8 +108,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -135,7 +135,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteCredentialRequ
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts.extract::<axum::extract::Path<(String)>>().await?;
+        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
         Ok(DeleteCredentialRequest { name })
     }
 }

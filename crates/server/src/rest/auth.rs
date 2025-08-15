@@ -5,9 +5,8 @@ use axum::extract::Request;
 use axum::response::{IntoResponse, Response};
 use futures_util::{FutureExt, future::BoxFuture};
 use tower::{Layer, Service};
-
-use crate::Result;
-use crate::services::policy::Recipient;
+use unitycatalog_common::Result;
+use unitycatalog_common::services::policy::Recipient;
 
 /// Authenticator for authenticating requests to a sharing server.
 pub trait Authenticator: Send + Sync + 'static {
