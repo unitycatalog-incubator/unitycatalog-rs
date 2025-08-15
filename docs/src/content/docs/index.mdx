@@ -14,7 +14,7 @@ hero:
 ---
 
 import { Card, CardGrid, Code } from '@astrojs/starlight/components';
-import importedCode from '../scripts/client.py?raw';
+import importedCode from './scripts/client.py?raw';
 
 The Open Lakehouse is a loose concept of a collection of open source projects that can be used
 to build and deploy data systems adhering to the lakehouse architecture.
@@ -52,12 +52,6 @@ open lakehouse ecosystem.
 <Code code={importedCode} lang="python" title="client.py" />
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
 	<Card title="Configure your site" icon="setting">
 		Edit your `sidebar` and other config in `astro.config.mjs`.
 	</Card>
