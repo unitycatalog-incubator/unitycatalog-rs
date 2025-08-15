@@ -66,7 +66,7 @@ impl KernelSession {
     pub fn new(object_store_factory: Arc<dyn ObjectStoreFactory>) -> Result<Self> {
         let config =
             KernelExtensionConfig::default().with_object_store_factory(object_store_factory);
-        let ctx = SessionContext::new().enable_delta_kernel(config);
+        let ctx = SessionContext::new().enable_delta_kernel(Some(config));
         let catalog = Arc::new(MemoryCatalogProvider::new());
         catalog.register_schema(
             UC_RS_LOG_REPLAY_SCHEMA_NAME,
