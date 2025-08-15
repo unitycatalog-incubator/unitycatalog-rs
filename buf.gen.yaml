@@ -44,14 +44,7 @@ plugins:
   - remote: buf.build/community/google-gnostic-openapi:v0.7.0
     out: openapi
   - remote: buf.build/bufbuild/es:v2.5.2
-    out: app/src/gen
-    opt:
-      - target=ts
-      - json_types=true
-  - remote: buf.build/bufbuild/es:v2.5.2
     out: node/client/unitycatalog/models/gen
     opt:
       - target=ts
       - json_types=false
-  - remote: buf.build/bufbuild/protoschema-jsonschema:v0.5.0
-    out: app/src/gen/jsonschema

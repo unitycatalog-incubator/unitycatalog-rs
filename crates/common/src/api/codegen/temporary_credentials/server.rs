@@ -17,14 +17,14 @@ pub async fn generate_temporary_table_credentials_handler<T: TemporaryCredential
         .await?;
     Ok(axum::Json(result))
 }
-pub async fn generate_temporary_volume_credentials_handler<T: TemporaryCredentialHandler>(
+pub async fn generate_temporary_path_credentials_handler<T: TemporaryCredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
-    request: GenerateTemporaryVolumeCredentialsRequest,
+    request: GenerateTemporaryPathCredentialsRequest,
 ) -> Result<::axum::Json<TemporaryCredential>> {
     let context = RequestContext { recipient };
     let result = handler
-        .generate_temporary_volume_credentials(request, context)
+        .generate_temporary_path_credentials(request, context)
         .await?;
     Ok(axum::Json(result))
 }
@@ -41,7 +41,7 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryTableCre
         Ok(request)
     }
 }
-impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryVolumeCredentialsRequest {
+impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryPathCredentialsRequest {
     type Rejection = axum::response::Response;
     async fn from_request(
         req: axum::extract::Request<axum::body::Body>,

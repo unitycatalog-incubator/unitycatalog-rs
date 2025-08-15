@@ -5,18 +5,18 @@
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { TemporaryCredentialSchema } from "./models_pb";
-import { file_unitycatalog_temporary_credentials_v1_models } from "./models_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
+import type { TemporaryCredentialSchema } from "./models_pb";
+import { file_unitycatalog_temporary_credentials_v1_models } from "./models_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/temporary_credentials/v1/svc.proto.
  */
 export const file_unitycatalog_temporary_credentials_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("Ci91bml0eWNhdGFsb2cvdGVtcG9yYXJ5X2NyZWRlbnRpYWxzL3YxL3N2Yy5wcm90bxIldW5pdHljYXRhbG9nLnRlbXBvcmFyeV9jcmVkZW50aWFscy52MSKLAQooR2VuZXJhdGVUZW1wb3JhcnlUYWJsZUNyZWRlbnRpYWxzUmVxdWVzdBIVCgh0YWJsZV9pZBgBIAEoCUID4EECEkgKCW9wZXJhdGlvbhgCIAEoDjIwLnVuaXR5Y2F0YWxvZy50ZW1wb3JhcnlfY3JlZGVudGlhbHMudjEuT3BlcmF0aW9uQgPgQQIijQEKKUdlbmVyYXRlVGVtcG9yYXJ5Vm9sdW1lQ3JlZGVudGlhbHNSZXF1ZXN0EhYKCXZvbHVtZV9pZBgBIAEoCUID4EECEkgKCW9wZXJhdGlvbhgCIAEoDjIwLnVuaXR5Y2F0YWxvZy50ZW1wb3JhcnlfY3JlZGVudGlhbHMudjEuT3BlcmF0aW9uQgPgQQIqQAoJT3BlcmF0aW9uEhkKFU9QRVJBVElPTl9VTlNQRUNJRklFRBAAEggKBFJFQUQQARIOCgpSRUFEX1dSSVRFEAIypQQKG1RlbXBvcmFyeUNyZWRlbnRpYWxzU2VydmljZRL/AQohR2VuZXJhdGVUZW1wb3JhcnlUYWJsZUNyZWRlbnRpYWxzEk8udW5pdHljYXRhbG9nLnRlbXBvcmFyeV9jcmVkZW50aWFscy52MS5HZW5lcmF0ZVRlbXBvcmFyeVRhYmxlQ3JlZGVudGlhbHNSZXF1ZXN0GjoudW5pdHljYXRhbG9nLnRlbXBvcmFyeV9jcmVkZW50aWFscy52MS5UZW1wb3JhcnlDcmVkZW50aWFsIk26RyMqIUdlbmVyYXRlVGVtcG9yYXJ5VGFibGVDcmVkZW50aWFsc4LT5JMCIToBKiIcL3RlbXBvcmFyeS10YWJsZS1jcmVkZW50aWFscxKDAgoiR2VuZXJhdGVUZW1wb3JhcnlWb2x1bWVDcmVkZW50aWFscxJQLnVuaXR5Y2F0YWxvZy50ZW1wb3JhcnlfY3JlZGVudGlhbHMudjEuR2VuZXJhdGVUZW1wb3JhcnlWb2x1bWVDcmVkZW50aWFsc1JlcXVlc3QaOi51bml0eWNhdGFsb2cudGVtcG9yYXJ5X2NyZWRlbnRpYWxzLnYxLlRlbXBvcmFyeUNyZWRlbnRpYWwiT7pHJCoiR2VuZXJhdGVUZW1wb3JhcnlWb2x1bWVDcmVkZW50aWFsc4LT5JMCIjoBKiIdL3RlbXBvcmFyeS12b2x1bWUtY3JlZGVudGlhbHNC1QIKKWNvbS51bml0eWNhdGFsb2cudGVtcG9yYXJ5X2NyZWRlbnRpYWxzLnYxQghTdmNQcm90b1ABWmxnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy90ZW1wb3JhcnlfY3JlZGVudGlhbHMvdjE7dGVtcG9yYXJ5X2NyZWRlbnRpYWxzdjGiAgNVVFiqAiRVbml0eWNhdGFsb2cuVGVtcG9yYXJ5Q3JlZGVudGlhbHMuVjHKAiRVbml0eWNhdGFsb2dcVGVtcG9yYXJ5Q3JlZGVudGlhbHNcVjHiAjBVbml0eWNhdGFsb2dcVGVtcG9yYXJ5Q3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAiZVbml0eWNhdGFsb2c6OlRlbXBvcmFyeUNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_unitycatalog_temporary_credentials_v1_models, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior]);
+  fileDesc("Ci91bml0eWNhdGFsb2cvdGVtcG9yYXJ5X2NyZWRlbnRpYWxzL3YxL3N2Yy5wcm90bxIldW5pdHljYXRhbG9nLnRlbXBvcmFyeV9jcmVkZW50aWFscy52MSLsAQooR2VuZXJhdGVUZW1wb3JhcnlUYWJsZUNyZWRlbnRpYWxzUmVxdWVzdBIVCgh0YWJsZV9pZBgBIAEoCUID4EECEnEKCW9wZXJhdGlvbhgCIAEoDjJZLnVuaXR5Y2F0YWxvZy50ZW1wb3JhcnlfY3JlZGVudGlhbHMudjEuR2VuZXJhdGVUZW1wb3JhcnlUYWJsZUNyZWRlbnRpYWxzUmVxdWVzdC5PcGVyYXRpb25CA+BBAiI2CglPcGVyYXRpb24SDwoLVU5TUEVDSUZJRUQQABIICgRSRUFEEAESDgoKUkVBRF9XUklURRACIq0CCidHZW5lcmF0ZVRlbXBvcmFyeVBhdGhDcmVkZW50aWFsc1JlcXVlc3QSEAoDdXJsGAEgASgJQgPgQQIScAoJb3BlcmF0aW9uGAIgASgOMlgudW5pdHljYXRhbG9nLnRlbXBvcmFyeV9jcmVkZW50aWFscy52MS5HZW5lcmF0ZVRlbXBvcmFyeVBhdGhDcmVkZW50aWFsc1JlcXVlc3QuT3BlcmF0aW9uQgPgQQISGQoHZHJ5X3J1bhgDIAEoCEID4EEBSACIAQEiVwoJT3BlcmF0aW9uEg8KC1VOU1BFQ0lGSUVEEAASDQoJUEFUSF9SRUFEEAESEwoPUEFUSF9SRUFEX1dSSVRFEAISFQoRUEFUSF9DUkVBVEVfVEFCTEUQA0IKCghfZHJ5X3J1bjKfBAobVGVtcG9yYXJ5Q3JlZGVudGlhbHNTZXJ2aWNlEv8BCiFHZW5lcmF0ZVRlbXBvcmFyeVRhYmxlQ3JlZGVudGlhbHMSTy51bml0eWNhdGFsb2cudGVtcG9yYXJ5X2NyZWRlbnRpYWxzLnYxLkdlbmVyYXRlVGVtcG9yYXJ5VGFibGVDcmVkZW50aWFsc1JlcXVlc3QaOi51bml0eWNhdGFsb2cudGVtcG9yYXJ5X2NyZWRlbnRpYWxzLnYxLlRlbXBvcmFyeUNyZWRlbnRpYWwiTbpHIyohR2VuZXJhdGVUZW1wb3JhcnlUYWJsZUNyZWRlbnRpYWxzgtPkkwIhOgEqIhwvdGVtcG9yYXJ5LXRhYmxlLWNyZWRlbnRpYWxzEv0BCiJHZW5lcmF0ZVRlbXBvcmFyeVZvbHVtZUNyZWRlbnRpYWxzEk4udW5pdHljYXRhbG9nLnRlbXBvcmFyeV9jcmVkZW50aWFscy52MS5HZW5lcmF0ZVRlbXBvcmFyeVBhdGhDcmVkZW50aWFsc1JlcXVlc3QaOi51bml0eWNhdGFsb2cudGVtcG9yYXJ5X2NyZWRlbnRpYWxzLnYxLlRlbXBvcmFyeUNyZWRlbnRpYWwiS7pHIiogR2VuZXJhdGVUZW1wb3JhcnlQYXRoQ3JlZGVudGlhbHOC0+STAiA6ASoiGy90ZW1wb3JhcnktcGF0aC1jcmVkZW50aWFsc0LVAgopY29tLnVuaXR5Y2F0YWxvZy50ZW1wb3JhcnlfY3JlZGVudGlhbHMudjFCCFN2Y1Byb3RvUAFabGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3RlbXBvcmFyeV9jcmVkZW50aWFscy92MTt0ZW1wb3JhcnlfY3JlZGVudGlhbHN2MaICA1VUWKoCJFVuaXR5Y2F0YWxvZy5UZW1wb3JhcnlDcmVkZW50aWFscy5WMcoCJFVuaXR5Y2F0YWxvZ1xUZW1wb3JhcnlDcmVkZW50aWFsc1xWMeICMFVuaXR5Y2F0YWxvZ1xUZW1wb3JhcnlDcmVkZW50aWFsc1xWMVxHUEJNZXRhZGF0YeoCJlVuaXR5Y2F0YWxvZzo6VGVtcG9yYXJ5Q3JlZGVudGlhbHM6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_unitycatalog_temporary_credentials_v1_models]);
 
 /**
  * Gebnerate a new set of credentials for a table.
@@ -34,9 +34,9 @@ export type GenerateTemporaryTableCredentialsRequest = Message<"unitycatalog.tem
   /**
    * The operation to perform with the credentials.
    *
-   * @generated from field: unitycatalog.temporary_credentials.v1.Operation operation = 2;
+   * @generated from field: unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest.Operation operation = 2;
    */
-  operation: Operation;
+  operation: GenerateTemporaryTableCredentialsRequest_Operation;
 };
 
 /**
@@ -47,47 +47,15 @@ export const GenerateTemporaryTableCredentialsRequestSchema: GenMessage<Generate
   messageDesc(file_unitycatalog_temporary_credentials_v1_svc, 0);
 
 /**
- * Genearte a new set of credentials for a volume.
- *
- * @generated from message unitycatalog.temporary_credentials.v1.GenerateTemporaryVolumeCredentialsRequest
+ * @generated from enum unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest.Operation
  */
-export type GenerateTemporaryVolumeCredentialsRequest = Message<"unitycatalog.temporary_credentials.v1.GenerateTemporaryVolumeCredentialsRequest"> & {
-  /**
-   * The name of the volume for which to generate credentials.
-   *
-   * @generated from field: string volume_id = 1;
-   */
-  volumeId: string;
-
-  /**
-   * The operation to perform with the credentials.
-   *
-   * @generated from field: unitycatalog.temporary_credentials.v1.Operation operation = 2;
-   */
-  operation: Operation;
-};
-
-/**
- * Describes the message unitycatalog.temporary_credentials.v1.GenerateTemporaryVolumeCredentialsRequest.
- * Use `create(GenerateTemporaryVolumeCredentialsRequestSchema)` to create a new message.
- */
-export const GenerateTemporaryVolumeCredentialsRequestSchema: GenMessage<GenerateTemporaryVolumeCredentialsRequest> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_temporary_credentials_v1_svc, 1);
-
-/**
- * The operation performed against the table data, either READ or READ_WRITE.
- * If READ_WRITE is specified, the credentials returned will have write permissions,
- * otherwise, it will be read only.
- *
- * @generated from enum unitycatalog.temporary_credentials.v1.Operation
- */
-export enum Operation {
+export enum GenerateTemporaryTableCredentialsRequest_Operation {
   /**
    * The operation is not specified.
    *
-   * @generated from enum value: OPERATION_UNSPECIFIED = 0;
+   * @generated from enum value: UNSPECIFIED = 0;
    */
-  OPERATION_UNSPECIFIED = 0,
+  UNSPECIFIED = 0,
 
   /**
    * The operation is read only.
@@ -105,10 +73,80 @@ export enum Operation {
 }
 
 /**
- * Describes the enum unitycatalog.temporary_credentials.v1.Operation.
+ * Describes the enum unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest.Operation.
  */
-export const OperationSchema: GenEnum<Operation> = /*@__PURE__*/
-  enumDesc(file_unitycatalog_temporary_credentials_v1_svc, 0);
+export const GenerateTemporaryTableCredentialsRequest_OperationSchema: GenEnum<GenerateTemporaryTableCredentialsRequest_Operation> = /*@__PURE__*/
+  enumDesc(file_unitycatalog_temporary_credentials_v1_svc, 0, 0);
+
+/**
+ * Genearte a new set of credentials for a volume.
+ *
+ * @generated from message unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest
+ */
+export type GenerateTemporaryPathCredentialsRequest = Message<"unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest"> & {
+  /**
+   * The name of the volume for which to generate credentials.
+   *
+   * @generated from field: string url = 1;
+   */
+  url: string;
+
+  /**
+   * The operation to perform with the credentials.
+   *
+   * @generated from field: unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.Operation operation = 2;
+   */
+  operation: GenerateTemporaryPathCredentialsRequest_Operation;
+
+  /**
+   * @generated from field: optional bool dry_run = 3;
+   */
+  dryRun?: boolean;
+};
+
+/**
+ * Describes the message unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.
+ * Use `create(GenerateTemporaryPathCredentialsRequestSchema)` to create a new message.
+ */
+export const GenerateTemporaryPathCredentialsRequestSchema: GenMessage<GenerateTemporaryPathCredentialsRequest> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_temporary_credentials_v1_svc, 1);
+
+/**
+ * @generated from enum unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.Operation
+ */
+export enum GenerateTemporaryPathCredentialsRequest_Operation {
+  /**
+   * The operation is not specified.
+   *
+   * @generated from enum value: UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The operation is read only.
+   *
+   * @generated from enum value: PATH_READ = 1;
+   */
+  PATH_READ = 1,
+
+  /**
+   * The operation is read and write.
+   *
+   * @generated from enum value: PATH_READ_WRITE = 2;
+   */
+  PATH_READ_WRITE = 2,
+
+  /**
+   * @generated from enum value: PATH_CREATE_TABLE = 3;
+   */
+  PATH_CREATE_TABLE = 3,
+}
+
+/**
+ * Describes the enum unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.Operation.
+ */
+export const GenerateTemporaryPathCredentialsRequest_OperationSchema: GenEnum<GenerateTemporaryPathCredentialsRequest_Operation> = /*@__PURE__*/
+  enumDesc(file_unitycatalog_temporary_credentials_v1_svc, 1, 0);
 
 /**
  * @generated from service unitycatalog.temporary_credentials.v1.TemporaryCredentialsService
@@ -131,7 +169,7 @@ export const TemporaryCredentialsService: GenService<{
    */
   generateTemporaryVolumeCredentials: {
     methodKind: "unary";
-    input: typeof GenerateTemporaryVolumeCredentialsRequestSchema;
+    input: typeof GenerateTemporaryPathCredentialsRequestSchema;
     output: typeof TemporaryCredentialSchema;
   },
 }> = /*@__PURE__*/

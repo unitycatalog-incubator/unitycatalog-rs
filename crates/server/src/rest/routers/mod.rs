@@ -189,8 +189,8 @@ pub fn create_temporary_credentials_router<T: TemporaryCredentialHandler + Clone
             axum::routing::post(generate_temporary_table_credentials_handler::<T>),
         )
         .route(
-            "/temporary-volume-credentials",
-            axum::routing::post(generate_temporary_volume_credentials_handler::<T>),
+            "/temporary-path-credentials",
+            axum::routing::post(generate_temporary_path_credentials_handler::<T>),
         )
         .with_state(handler)
 }

@@ -9,9 +9,9 @@ pub trait TemporaryCredentialHandler: Send + Sync + 'static {
         request: GenerateTemporaryTableCredentialsRequest,
         context: RequestContext,
     ) -> Result<TemporaryCredential>;
-    async fn generate_temporary_volume_credentials(
+    async fn generate_temporary_path_credentials(
         &self,
-        request: GenerateTemporaryVolumeCredentialsRequest,
+        request: GenerateTemporaryPathCredentialsRequest,
         context: RequestContext,
     ) -> Result<TemporaryCredential>;
 }

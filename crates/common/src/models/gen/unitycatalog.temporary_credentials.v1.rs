@@ -45,15 +45,15 @@ pub struct AwsTemporaryCredentials {
     /// The access key ID that identifies the temporary credentials.
     #[prost(string, tag="1")]
     pub access_key_id: ::prost::alloc::string::String,
-    /// The secret access key that can be used to sign AWS API requests.
+    /// The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
     #[prost(string, tag="2")]
+    pub access_point: ::prost::alloc::string::String,
+    /// The secret access key that can be used to sign AWS API requests.
+    #[prost(string, tag="3")]
     pub secret_access_key: ::prost::alloc::string::String,
     /// The token that users must pass to AWS API to use the temporary credentials.
-    #[prost(string, tag="3")]
-    pub session_token: ::prost::alloc::string::String,
-    /// The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
     #[prost(string, tag="4")]
-    pub access_point: ::prost::alloc::string::String,
+    pub session_token: ::prost::alloc::string::String,
 }
 /// The response to the GenerateTemporaryTableCredentialsRequest.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -104,54 +104,95 @@ pub struct GenerateTemporaryTableCredentialsRequest {
     #[prost(string, tag="1")]
     pub table_id: ::prost::alloc::string::String,
     /// The operation to perform with the credentials.
-    #[prost(enumeration="Operation", tag="2")]
+    #[prost(enumeration="generate_temporary_table_credentials_request::Operation", tag="2")]
     pub operation: i32,
+}
+/// Nested message and enum types in `GenerateTemporaryTableCredentialsRequest`.
+pub mod generate_temporary_table_credentials_request {
+    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[repr(i32)]
+    pub enum Operation {
+        /// The operation is not specified.
+        Unspecified = 0,
+        /// The operation is read only.
+        Read = 1,
+        /// The operation is read and write.
+        ReadWrite = 2,
+    }
+    impl Operation {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Operation::Unspecified => "UNSPECIFIED",
+                Operation::Read => "READ",
+                Operation::ReadWrite => "READ_WRITE",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNSPECIFIED" => Some(Self::Unspecified),
+                "READ" => Some(Self::Read),
+                "READ_WRITE" => Some(Self::ReadWrite),
+                _ => None,
+            }
+        }
+    }
 }
 /// Genearte a new set of credentials for a volume.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GenerateTemporaryVolumeCredentialsRequest {
+pub struct GenerateTemporaryPathCredentialsRequest {
     /// The name of the volume for which to generate credentials.
     #[prost(string, tag="1")]
-    pub volume_id: ::prost::alloc::string::String,
+    pub url: ::prost::alloc::string::String,
     /// The operation to perform with the credentials.
-    #[prost(enumeration="Operation", tag="2")]
+    #[prost(enumeration="generate_temporary_path_credentials_request::Operation", tag="2")]
     pub operation: i32,
+    #[prost(bool, optional, tag="3")]
+    pub dry_run: ::core::option::Option<bool>,
 }
-/// The operation performed against the table data, either READ or READ_WRITE.
-/// If READ_WRITE is specified, the credentials returned will have write permissions,
-/// otherwise, it will be read only.
-#[cfg_attr(feature = "python", ::pyo3::pyclass)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum Operation {
-    /// The operation is not specified.
-    Unspecified = 0,
-    /// The operation is read only.
-    Read = 1,
-    /// The operation is read and write.
-    ReadWrite = 2,
-}
-impl Operation {
-    /// String value of the enum field names used in the ProtoBuf definition.
-    ///
-    /// The values are not transformed in any way and thus are considered stable
-    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
-        match self {
-            Operation::Unspecified => "OPERATION_UNSPECIFIED",
-            Operation::Read => "READ",
-            Operation::ReadWrite => "READ_WRITE",
-        }
+/// Nested message and enum types in `GenerateTemporaryPathCredentialsRequest`.
+pub mod generate_temporary_path_credentials_request {
+    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[repr(i32)]
+    pub enum Operation {
+        /// The operation is not specified.
+        Unspecified = 0,
+        /// The operation is read only.
+        PathRead = 1,
+        /// The operation is read and write.
+        PathReadWrite = 2,
+        PathCreateTable = 3,
     }
-    /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-        match value {
-            "OPERATION_UNSPECIFIED" => Some(Self::Unspecified),
-            "READ" => Some(Self::Read),
-            "READ_WRITE" => Some(Self::ReadWrite),
-            _ => None,
+    impl Operation {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Operation::Unspecified => "UNSPECIFIED",
+                Operation::PathRead => "PATH_READ",
+                Operation::PathReadWrite => "PATH_READ_WRITE",
+                Operation::PathCreateTable => "PATH_CREATE_TABLE",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNSPECIFIED" => Some(Self::Unspecified),
+                "PATH_READ" => Some(Self::PathRead),
+                "PATH_READ_WRITE" => Some(Self::PathReadWrite),
+                "PATH_CREATE_TABLE" => Some(Self::PathCreateTable),
+                _ => None,
+            }
         }
     }
 }
