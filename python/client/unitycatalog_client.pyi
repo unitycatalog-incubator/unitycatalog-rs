@@ -336,7 +336,12 @@ class SharingClient:
     ) -> tuple[Protocol, Metadata]: ...
 
 class TableClient:
-    def get(self, include_delta_metadata: bool | None = None) -> TableInfo: ...
+    def get(
+        self,
+        include_delta_metadata: bool | None = None,
+        include_browse: bool | None = None,
+        include_manifest_capabilities: bool | None = None,
+    ) -> TableInfo: ...
     def delete(self) -> None: ...
 
 class SchemaClient:

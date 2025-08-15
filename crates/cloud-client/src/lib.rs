@@ -10,7 +10,7 @@ use reqwest::{Body, Client, IntoUrl, Method, RequestBuilder};
 use serde::Serialize;
 
 use self::azure::credential::AzureCredentialExt;
-use self::token::{TemporaryToken, TokenCache};
+pub use self::token::{TemporaryToken, TokenCache};
 
 pub mod aws;
 pub mod azure;

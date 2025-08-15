@@ -119,12 +119,17 @@ impl TableClient {
         }
     }
 
-    pub async fn get(&self, include_delta_metadata: impl Into<Option<bool>>) -> Result<TableInfo> {
+    pub async fn get(
+        &self,
+        include_delta_metadata: impl Into<Option<bool>>,
+        include_browse: impl Into<Option<bool>>,
+        include_manifest_capabilities: impl Into<Option<bool>>,
+    ) -> Result<TableInfo> {
         let request = GetTableRequest {
             full_name: self.full_name.clone(),
             include_delta_metadata: include_delta_metadata.into(),
-            include_browse: None,
-            include_manifest_capabilities: None,
+            include_browse: include_browse.into(),
+            include_manifest_capabilities: include_manifest_capabilities.into(),
         };
         self.client.get_table(&request).await
     }

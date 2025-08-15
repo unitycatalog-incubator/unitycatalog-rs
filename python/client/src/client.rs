@@ -485,15 +485,21 @@ pub struct PyTableClient {
 
 #[pymethods]
 impl PyTableClient {
-    #[pyo3(signature = (include_delta_metadata = None))]
+    #[pyo3(signature = (include_delta_metadata = None, include_browse = None, include_manifest_capabilities = None))]
     pub fn get(
         &self,
         py: Python,
         include_delta_metadata: Option<bool>,
+        include_browse: Option<bool>,
+        include_manifest_capabilities: Option<bool>,
     ) -> PyUnityCatalogResult<TableInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get(include_delta_metadata))?;
+            let info = runtime.block_on(self.client.get(
+                include_delta_metadata,
+                include_browse,
+                include_manifest_capabilities,
+            ))?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
