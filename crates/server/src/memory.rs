@@ -3,12 +3,12 @@ use std::sync::Arc;
 use dashmap::DashMap;
 use uuid::Uuid;
 
-use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
-use crate::resources::{
+use unitycatalog_common::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
+use unitycatalog_common::resources::{
     ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore, ResourceStoreReader,
 };
-use crate::services::secrets::SecretManager;
-use crate::{Error, Result};
+use unitycatalog_common::services::secrets::SecretManager;
+use unitycatalog_common::{Error, Result};
 
 const MAX_PAGE_SIZE: usize = 10000;
 
@@ -359,7 +359,7 @@ impl SecretManager for InMemoryResourceStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{CatalogInfo, ObjectLabel};
+    use unitycatalog_common::models::{CatalogInfo, ObjectLabel};
 
     #[tokio::test]
     async fn test_create_get_delete() {

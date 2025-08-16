@@ -40,9 +40,6 @@ reqwest = { version = "0.12", default-features = false, features = [
   "stream",
 ] }
 
-# in-memory handler dependencies (in alphabetical order)
-dashmap = { version = "6" }
-
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
 
@@ -65,9 +62,6 @@ sqlx = { workspace = true, optional = true, features = [
   "json",
 ] }
 
-# convenience for downstream crates that want to use certain types with tokio-postgres
-postgres-types = { version = "0.2", optional = true, features = ["derive"] }
-
 # derive pyclass for generated messages
 pyo3 = { workspace = true, optional = true }
 
@@ -77,16 +71,17 @@ mime = "0.3"
 tokio = { version = "1", features = ["full"] }
 
 [features]
-default = ["grpc", "memory", "rest-client", "tokio"]
+default = ["grpc", "rest-client", "tokio"]
 grpc = ["tonic"]
+
+# enable support for the axum framework. This will implement `FromRequest`
+# and `FromRequestParts` for request types.
 axum = ["dep:axum", "http"]
+
 sqlx = ["dep:sqlx"]
-memory = ["uuid/v7"]
 tokio = ["dep:tokio", "delta_kernel/tokio"]
 
 rest-client = ["futures"]
-
-tokio-pg = ["postgres-types"]
 
 # exposes functionality that help testing cutom handler / router implementations.
 integration = ["http-body-util", "mime", "axum"]

@@ -14,11 +14,6 @@ pub static EMPTY_RESOURCE_NAME: LazyLock<ResourceName> =
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Serialize, Deserialize)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::Type))]
 #[cfg_attr(feature = "sqlx", sqlx(transparent, no_pg_array))]
-#[cfg_attr(
-    feature = "tokio-pg",
-    derive(postgres_types::ToSql, postgres_types::FromSql)
-)]
-#[cfg_attr(feature = "tokio-pg", postgres(transparent))]
 pub struct ResourceName(Vec<String>);
 
 impl ResourceName {

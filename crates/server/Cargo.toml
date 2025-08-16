@@ -29,9 +29,17 @@ http = { version = "1.2", optional = true }
 tokio = { version = "1.40", features = ["rt-multi-thread"] }
 tower = { workspace = true, features = ["make"], optional = true }
 
+# in-memory handler dependencies (in alphabetical order)
+dashmap = { version = "6", optional = true }
+uuid = { workspace = true, optional = true, features = ["v7"] }
+
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
 
 [features]
-default = ["axum"]
+default = ["axum", "memory"]
+
 axum = ["dep:axum", "http", "tower"]
+
+# in-memory handler features
+memory = ["dashmap", "uuid"]
