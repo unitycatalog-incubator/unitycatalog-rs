@@ -3,10 +3,8 @@ use uuid::Uuid;
 use crate::models::ObjectLabel;
 
 pub use name::*;
-pub use store::*;
 
 mod name;
-mod store;
 
 /// Unique identifier for a resource.
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]

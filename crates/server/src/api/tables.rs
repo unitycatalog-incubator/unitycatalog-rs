@@ -6,13 +6,14 @@ use itertools::Itertools;
 
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::tables::v1::*;
-use unitycatalog_common::resources::{ResourceName, ResourceStore};
+use unitycatalog_common::resources::ResourceName;
 use unitycatalog_common::{Error, ResourceIdent, Result};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::tables::TableHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::services::location::StorageLocationUrl;
+use crate::store::ResourceStore;
 
 const MAX_RESULTS_TABLES: usize = 50;
 

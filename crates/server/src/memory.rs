@@ -4,11 +4,11 @@ use dashmap::DashMap;
 use uuid::Uuid;
 
 use unitycatalog_common::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
-use unitycatalog_common::resources::{
-    ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore, ResourceStoreReader,
-};
-use unitycatalog_common::services::secrets::SecretManager;
+use unitycatalog_common::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
 use unitycatalog_common::{Error, Result};
+
+use crate::services::secrets::SecretManager;
+use crate::store::{ResourceStore, ResourceStoreReader};
 
 const MAX_PAGE_SIZE: usize = 10000;
 
