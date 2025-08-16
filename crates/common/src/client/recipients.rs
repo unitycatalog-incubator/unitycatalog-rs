@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::recipients::RecipientClient as RecipientClientBase;
 use crate::models::recipients::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl RecipientClientBase {

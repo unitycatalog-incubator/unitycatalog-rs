@@ -2,9 +2,9 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use reqwest::IntoUrl;
 
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
 use crate::models::external_locations::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl ExternalLocationClientBase {

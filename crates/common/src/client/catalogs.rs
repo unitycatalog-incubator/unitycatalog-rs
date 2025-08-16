@@ -4,9 +4,9 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::schemas::{SchemaClient, SchemaClientBase};
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::catalogs::CatalogClient as CatalogClientBase;
 use crate::models::catalogs::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl CatalogClientBase {

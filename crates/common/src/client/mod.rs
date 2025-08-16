@@ -22,6 +22,7 @@ mod shares;
 mod sharing;
 mod tables;
 mod temporary_credentials;
+mod utils;
 
 #[derive(Clone)]
 pub struct UnityCatalogClient {

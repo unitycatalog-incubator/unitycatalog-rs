@@ -4,12 +4,12 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::tables::{TableClient, TableClientBase};
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::schemas::SchemaClient as SchemaClientBase;
 use crate::models::schemas::v1::*;
 use crate::models::tables::v1::{
     ColumnInfo, CreateTableRequest, DataSourceFormat, TableInfo, TableType,
 };
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl SchemaClientBase {

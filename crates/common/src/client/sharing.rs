@@ -5,11 +5,11 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
 
+use super::utils::stream_paginated;
 use crate::api::sharing::{
     MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingClient,
 };
 use crate::models::sharing::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 #[derive(Clone)]

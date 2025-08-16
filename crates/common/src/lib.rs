@@ -12,4 +12,3 @@ pub mod models;
 pub mod python;
 pub mod resources;
 pub mod services;
-pub mod utils;

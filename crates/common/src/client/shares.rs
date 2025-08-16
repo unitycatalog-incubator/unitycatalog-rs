@@ -1,9 +1,9 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::shares::ShareClient as ShareClientBase;
 use crate::models::shares::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl ShareClientBase {
