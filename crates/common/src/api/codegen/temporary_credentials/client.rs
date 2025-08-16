@@ -11,7 +11,10 @@ pub struct TemporaryCredentialClient {
 }
 impl TemporaryCredentialClient {
     /// Create a new client instance
-    pub fn new(client: CloudClient, base_url: Url) -> Self {
+    pub fn new(client: CloudClient, mut base_url: Url) -> Self {
+        if !base_url.path().ends_with('/') {
+            base_url.set_path(&format!("{}/", base_url.path()));
+        }
         Self { client, base_url }
     }
     pub async fn generate_temporary_table_credentials(
@@ -24,11 +27,11 @@ impl TemporaryCredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn generate_temporary_volume_credentials(
+    pub async fn generate_temporary_path_credentials(
         &self,
-        request: &GenerateTemporaryVolumeCredentialsRequest,
+        request: &GenerateTemporaryPathCredentialsRequest,
     ) -> Result<TemporaryCredential> {
-        let mut url = self.base_url.join("temporary-volume-credentials")?;
+        let mut url = self.base_url.join("temporary-path-credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;

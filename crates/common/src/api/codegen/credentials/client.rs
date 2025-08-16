@@ -11,7 +11,10 @@ pub struct CredentialClient {
 }
 impl CredentialClient {
     /// Create a new client instance
-    pub fn new(client: CloudClient, base_url: Url) -> Self {
+    pub fn new(client: CloudClient, mut base_url: Url) -> Self {
+        if !base_url.path().ends_with('/') {
+            base_url.set_path(&format!("{}/", base_url.path()));
+        }
         Self { client, base_url }
     }
     pub async fn list_credentials(

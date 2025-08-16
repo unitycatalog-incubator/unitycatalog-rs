@@ -34,14 +34,14 @@ message AwsTemporaryCredentials {
   // The access key ID that identifies the temporary credentials.
   string access_key_id = 1;
 
+  // The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
+  string access_point = 2;
+
   // The secret access key that can be used to sign AWS API requests.
-  string secret_access_key = 2;
+  string secret_access_key = 3;
 
   // The token that users must pass to AWS API to use the temporary credentials.
-  string session_token = 3;
-
-  // The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
-  string access_point = 4;
+  string session_token = 4;
 }
 
 // The response to the GenerateTemporaryTableCredentialsRequest.

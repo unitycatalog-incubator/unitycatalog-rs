@@ -19,7 +19,7 @@ pub mod temporary_credentials_service_server {
 */
         async fn generate_temporary_volume_credentials(
             &self,
-            request: tonic::Request<super::GenerateTemporaryVolumeCredentialsRequest>,
+            request: tonic::Request<super::GenerateTemporaryPathCredentialsRequest>,
         ) -> std::result::Result<
             tonic::Response<super::TemporaryCredential>,
             tonic::Status,
@@ -169,7 +169,7 @@ pub mod temporary_credentials_service_server {
                     impl<
                         T: TemporaryCredentialsService,
                     > tonic::server::UnaryService<
-                        super::GenerateTemporaryVolumeCredentialsRequest,
+                        super::GenerateTemporaryPathCredentialsRequest,
                     > for GenerateTemporaryVolumeCredentialsSvc<T> {
                         type Response = super::TemporaryCredential;
                         type Future = BoxFuture<
@@ -179,7 +179,7 @@ pub mod temporary_credentials_service_server {
                         fn call(
                             &mut self,
                             request: tonic::Request<
-                                super::GenerateTemporaryVolumeCredentialsRequest,
+                                super::GenerateTemporaryPathCredentialsRequest,
                             >,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);

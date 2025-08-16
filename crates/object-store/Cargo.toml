@@ -1,0 +1,23 @@
+[package]
+name = "unitycatalog-object-store"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+rust-version.workspace = true
+version.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+
+[dependencies]
+cloud-client = { path = "../cloud-client" }
+unitycatalog-common = { path = "../common", default-features = false, features = [
+  "rest-client",
+] }
+
+async-trait = { workspace = true }
+chrono = { workspace = true }
+object_store = { workspace = true }
+thiserror = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true }

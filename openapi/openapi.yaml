@@ -1426,6 +1426,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
+  /temporary-path-credentials:
+    post:
+      tags:
+        - TemporaryCredentialsService
+      description: Generate a new set of credentials for a volume.
+      operationId: GenerateTemporaryPathCredentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateTemporaryPathCredentialsRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryCredential'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
   /temporary-table-credentials:
     post:
       tags:
@@ -1451,31 +1476,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
-  /temporary-volume-credentials:
-    post:
-      tags:
-        - TemporaryCredentialsService
-      description: Generate a new set of credentials for a volume.
-      operationId: GenerateTemporaryVolumeCredentials
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GenerateTemporaryVolumeCredentialsRequest'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TemporaryCredential'
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
 components:
   schemas:
     AwsTemporaryCredentials:
@@ -1484,15 +1484,15 @@ components:
         accessKeyId:
           type: string
           description: The access key ID that identifies the temporary credentials.
+        accessPoint:
+          type: string
+          description: The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
         secretAccessKey:
           type: string
           description: The secret access key that can be used to sign AWS API requests.
         sessionToken:
           type: string
           description: The token that users must pass to AWS API to use the temporary credentials.
-        accessPoint:
-          type: string
-          description: The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
     AzureAad:
       type: object
       properties:
@@ -2034,6 +2034,22 @@ components:
         oauthToken:
           type: string
           description: The OAuth token used to access Google Cloud services.
+    GenerateTemporaryPathCredentialsRequest:
+      required:
+        - url
+        - operation
+      type: object
+      properties:
+        url:
+          type: string
+          description: The name of the volume for which to generate credentials.
+        operation:
+          type: integer
+          description: The operation to perform with the credentials.
+          format: enum
+        dryRun:
+          type: boolean
+      description: Genearte a new set of credentials for a volume.
     GenerateTemporaryTableCredentialsRequest:
       required:
         - tableId
@@ -2048,20 +2064,6 @@ components:
           description: The operation to perform with the credentials.
           format: enum
       description: Gebnerate a new set of credentials for a table.
-    GenerateTemporaryVolumeCredentialsRequest:
-      required:
-        - volumeId
-        - operation
-      type: object
-      properties:
-        volumeId:
-          type: string
-          description: The name of the volume for which to generate credentials.
-        operation:
-          type: integer
-          description: The operation to perform with the credentials.
-          format: enum
-      description: Genearte a new set of credentials for a volume.
     GetTableExistsResponse:
       type: object
       properties:

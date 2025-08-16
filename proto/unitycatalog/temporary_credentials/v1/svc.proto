@@ -3,27 +3,24 @@ syntax = "proto3";
 package unitycatalog.temporary_credentials.v1;
 
 import "buf/validate/validate.proto";
-import "unitycatalog/temporary_credentials/v1/models.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-
-// The operation performed against the table data, either READ or READ_WRITE.
-// If READ_WRITE is specified, the credentials returned will have write permissions,
-// otherwise, it will be read only.
-enum Operation {
-  // The operation is not specified.
-  OPERATION_UNSPECIFIED = 0;
-
-  // The operation is read only.
-  READ = 1;
-
-  // The operation is read and write.
-  READ_WRITE = 2;
-}
+import "unitycatalog/temporary_credentials/v1/models.proto";
 
 // Gebnerate a new set of credentials for a table.
 message GenerateTemporaryTableCredentialsRequest {
+  enum Operation {
+    // The operation is not specified.
+    UNSPECIFIED = 0;
+
+    // The operation is read only.
+    READ = 1;
+
+    // The operation is read and write.
+    READ_WRITE = 2;
+  }
+
   // The name of the table for which to generate credentials.
   string table_id = 1 [(google.api.field_behavior) = REQUIRED];
 
@@ -32,12 +29,27 @@ message GenerateTemporaryTableCredentialsRequest {
 }
 
 // Genearte a new set of credentials for a volume.
-message GenerateTemporaryVolumeCredentialsRequest {
+message GenerateTemporaryPathCredentialsRequest {
+  enum Operation {
+    // The operation is not specified.
+    UNSPECIFIED = 0;
+
+    // The operation is read only.
+    PATH_READ = 1;
+
+    // The operation is read and write.
+    PATH_READ_WRITE = 2;
+
+    PATH_CREATE_TABLE = 3;
+  }
+
   // The name of the volume for which to generate credentials.
-  string volume_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string url = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The operation to perform with the credentials.
   Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
+
+  optional bool dry_run = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 service TemporaryCredentialsService {
@@ -51,11 +63,11 @@ service TemporaryCredentialsService {
   }
 
   // Generate a new set of credentials for a volume.
-  rpc GenerateTemporaryVolumeCredentials(GenerateTemporaryVolumeCredentialsRequest) returns (TemporaryCredential) {
+  rpc GenerateTemporaryVolumeCredentials(GenerateTemporaryPathCredentialsRequest) returns (TemporaryCredential) {
     option (google.api.http) = {
-      post: "/temporary-volume-credentials"
+      post: "/temporary-path-credentials"
       body: "*"
     };
-    option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryVolumeCredentials"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryPathCredentials"};
   }
 }

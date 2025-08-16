@@ -9,6 +9,7 @@ pub use schemas::*;
 pub use shares::*;
 pub use sharing::*;
 pub use tables::*;
+pub use temporary_credentials::*;
 
 use crate::{CatalogInfo, Result};
 
@@ -20,6 +21,7 @@ mod schemas;
 mod shares;
 mod sharing;
 mod tables;
+mod temporary_credentials;
 mod utils;
 
 #[derive(Clone)]
@@ -44,7 +46,10 @@ impl UnityCatalogClient {
         Self::new(client, base_url)
     }
 
-    pub fn new(client: CloudClient, base_url: url::Url) -> Self {
+    pub fn new(client: CloudClient, mut base_url: url::Url) -> Self {
+        if !base_url.path().ends_with('/') {
+            base_url.set_path(&format!("{}/", base_url.path()));
+        }
         let catalogs = CatalogClientBase::new(client.clone(), base_url.clone());
         let schemas = SchemaClientBase::new(client.clone(), base_url.clone());
         let tables = TableClientBase::new(client.clone(), base_url.clone());

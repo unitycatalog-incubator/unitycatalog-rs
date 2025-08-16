@@ -1,6 +1,6 @@
 ---
-title: Example Guide
-description: A guide in my new Starlight docs site.
+title: Unity Catalog Client Guide
+description: Learn how to use the Unity Catalog client to interact with your Unity Catalog.
 ---
 
 Guides lead a user through a specific task they want to accomplish, often with a sequence of steps.
