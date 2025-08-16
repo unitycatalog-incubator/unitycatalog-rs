@@ -95,7 +95,7 @@ impl TemporaryCredentialClient {
         &self,
         table: impl Into<TableReference>,
         operation: TableOperation,
-    ) -> Result<TemporaryCredential> {
+    ) -> Result<(TemporaryCredential, Uuid)> {
         let table_id = match table.into() {
             TableReference::Id(id) => id.as_hyphenated().to_string(),
             TableReference::Name(name) => {
@@ -112,12 +112,16 @@ impl TemporaryCredentialClient {
                 table_info.table_id().to_string()
             }
         };
-        self.client
-            .generate_temporary_table_credentials(&GenerateTemporaryTableCredentialsRequest {
-                table_id,
-                operation: operation.into(),
-            })
-            .await
+        let uuid = Uuid::parse_str(&table_id).unwrap();
+        Ok((
+            self.client
+                .generate_temporary_table_credentials(&GenerateTemporaryTableCredentialsRequest {
+                    table_id,
+                    operation: operation.into(),
+                })
+                .await?,
+            uuid,
+        ))
     }
 
     pub async fn temporary_path_credential(
@@ -125,13 +129,17 @@ impl TemporaryCredentialClient {
         path: impl IntoUrl,
         operation: PathOperation,
         dry_run: impl Into<Option<bool>>,
-    ) -> Result<TemporaryCredential> {
-        self.client
-            .generate_temporary_path_credentials(&GenerateTemporaryPathCredentialsRequest {
-                url: path.into_url()?.to_string(),
-                operation: operation.into(),
-                dry_run: dry_run.into(),
-            })
-            .await
+    ) -> Result<(TemporaryCredential, Url)> {
+        let url = path.into_url()?;
+        Ok((
+            self.client
+                .generate_temporary_path_credentials(&GenerateTemporaryPathCredentialsRequest {
+                    url: url.to_string(),
+                    operation: operation.into(),
+                    dry_run: dry_run.into(),
+                })
+                .await?,
+            url,
+        ))
     }
 }
