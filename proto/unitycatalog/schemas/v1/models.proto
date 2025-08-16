@@ -17,7 +17,7 @@ message SchemaInfo {
   optional string comment = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 4 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> properties = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Full name of schema, in form of catalog_name.schema_name.
   optional string full_name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];

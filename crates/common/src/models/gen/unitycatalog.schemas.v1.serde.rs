@@ -16,7 +16,7 @@ impl serde::Serialize for CreateSchemaRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.CreateSchemaRequest", len)?;
@@ -29,8 +29,8 @@ impl serde::Serialize for CreateSchemaRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         struct_ser.end()
     }
@@ -128,7 +128,9 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -139,7 +141,7 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
                     name: name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                 })
             }
         }
@@ -637,7 +639,7 @@ impl serde::Serialize for SchemaInfo {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.full_name.is_some() {
@@ -671,8 +673,8 @@ impl serde::Serialize for SchemaInfo {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.full_name.as_ref() {
             struct_ser.serialize_field("fullName", v)?;
@@ -829,7 +831,9 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::FullName => {
                             if full_name__.is_some() {
@@ -886,7 +890,7 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                     name: name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     full_name: full_name__,
                     owner: owner__,
                     created_at: created_at__,
@@ -914,7 +918,7 @@ impl serde::Serialize for UpdateSchemaRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if !self.new_name.is_empty() {
@@ -927,8 +931,8 @@ impl serde::Serialize for UpdateSchemaRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if !self.new_name.is_empty() {
             struct_ser.serialize_field("newName", &self.new_name)?;
@@ -1024,7 +1028,9 @@ impl<'de> serde::Deserialize<'de> for UpdateSchemaRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::NewName => {
                             if new_name__.is_some() {
@@ -1040,7 +1046,7 @@ impl<'de> serde::Deserialize<'de> for UpdateSchemaRequest {
                 Ok(UpdateSchemaRequest {
                     full_name: full_name__.unwrap_or_default(),
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     new_name: new_name__.unwrap_or_default(),
                 })
             }

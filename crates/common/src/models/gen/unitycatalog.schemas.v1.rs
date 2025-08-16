@@ -15,8 +15,8 @@ pub struct SchemaInfo {
     #[prost(string, optional, tag="3")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="4")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="4")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Full name of schema, in form of catalog_name.schema_name.
     #[prost(string, optional, tag="5")]
     pub full_name: ::core::option::Option<::prost::alloc::string::String>,
@@ -84,8 +84,8 @@ pub struct CreateSchemaRequest {
     #[prost(string, optional, tag="3")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="4")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="4")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Get a Schema
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -113,8 +113,8 @@ pub struct UpdateSchemaRequest {
     ///
     /// When provided in update request, the specified properties will override the existing properties.
     /// To add and remove properties, one would need to perform a read-modify-write.
-    #[prost(message, optional, tag="3")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="3")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Name of schema.
     #[prost(string, tag="4")]
     pub new_name: ::prost::alloc::string::String,

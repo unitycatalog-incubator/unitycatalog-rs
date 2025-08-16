@@ -293,6 +293,12 @@ class SharingTable:
     share: str
     share_id: str | None
 
+class TemporaryCredential:
+    """Represents temporary credentials for accessing storage resources."""
+
+    expiration_time: int
+    url: str
+
 class Protocol:
     def min_reader_version(self) -> int: ...
     def min_writer_version(self) -> int | None: ...
@@ -346,6 +352,15 @@ class TableClient:
 
 class SchemaClient:
     def get(self) -> SchemaInfo: ...
+    def table(self, name: str) -> TableClient:
+        """Get a TableClient for the specified table in this schema.
+
+        Args:
+            name: The name of the table.
+
+        Returns:
+            A TableClient object.
+        """
     def create_table(
         self,
         table_name: str,
@@ -648,4 +663,45 @@ class PyUnityCatalogClient:
 
         Returns:
             The created ExternalLocationInfo object.
+        """
+    def temporary_credentials(self) -> TemporaryCredentialClient:
+        """Get a client for managing temporary credentials.
+
+        Returns:
+            A TemporaryCredentialClient instance.
+        """
+
+class TemporaryCredentialClient:
+    """Client for managing temporary credentials for tables and paths."""
+
+    def temporary_table_credential(
+        self,
+        table: str,
+        operation: Literal["read", "read_write"],
+    ) -> tuple[TemporaryCredential, str]:
+        """Generate temporary credentials for accessing a table.
+
+        Args:
+            table: The full name of the table.
+            operation: The operation type ('read' or 'read_write').
+
+        Returns:
+            A tuple containing the temporary credential and table UUID.
+        """
+
+    def temporary_path_credential(
+        self,
+        path: str,
+        operation: Literal["read", "read_write", "create_table"],
+        dry_run: bool | None = None,
+    ) -> tuple[TemporaryCredential, str]:
+        """Generate temporary credentials for accessing a storage path.
+
+        Args:
+            path: The storage path URL.
+            operation: The operation type ('read', 'read_write', or 'create_table').
+            dry_run: Whether this is a dry run operation.
+
+        Returns:
+            A tuple containing the temporary credential and resolved URL.
         """

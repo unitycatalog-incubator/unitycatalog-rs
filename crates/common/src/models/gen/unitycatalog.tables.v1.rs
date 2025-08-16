@@ -23,21 +23,21 @@ pub struct ColumnInfo {
     /// Full data type specification, JSON-serialized.
     #[prost(string, tag="3")]
     pub type_json: ::prost::alloc::string::String,
+    /// Ordinal position of column (starting at position 0).
+    #[prost(int32, optional, tag="4")]
+    pub position: ::core::option::Option<i32>,
     /// Data type name.
-    #[prost(enumeration="ColumnTypeName", tag="4")]
+    #[prost(enumeration="ColumnTypeName", tag="5")]
     pub type_name: i32,
     /// Digits of precision; required for DecimalTypes.
-    #[prost(int32, optional, tag="5")]
+    #[prost(int32, optional, tag="6")]
     pub type_precision: ::core::option::Option<i32>,
     /// Digits to right of decimal; Required for DecimalTypes.
-    #[prost(int32, optional, tag="6")]
+    #[prost(int32, optional, tag="7")]
     pub type_scale: ::core::option::Option<i32>,
     /// Format of IntervalType.
-    #[prost(string, optional, tag="7")]
+    #[prost(string, optional, tag="8")]
     pub type_interval_type: ::core::option::Option<::prost::alloc::string::String>,
-    /// Ordinal position of column (starting at position 0).
-    #[prost(int32, optional, tag="8")]
-    pub position: ::core::option::Option<i32>,
     /// User-provided free-form text description.
     #[prost(string, optional, tag="9")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
@@ -58,12 +58,12 @@ pub struct TableInfo {
     /// Name of table, relative to parent schema.
     #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
-    /// Name of parent schema.
-    #[prost(string, tag="2")]
-    pub schema_name: ::prost::alloc::string::String,
     /// Name of parent catalog.
-    #[prost(string, tag="3")]
+    #[prost(string, tag="2")]
     pub catalog_name: ::prost::alloc::string::String,
+    /// Name of parent schema.
+    #[prost(string, tag="3")]
+    pub schema_name: ::prost::alloc::string::String,
     #[prost(enumeration="TableType", tag="4")]
     pub table_type: i32,
     /// Data source format of the table.
@@ -89,8 +89,8 @@ pub struct TableInfo {
     #[prost(string, optional, tag="12")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="13")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="13")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Name of the storage credential, when a storage credential is configured for use with this table.
     #[prost(string, optional, tag="14")]
     pub storage_credential_name: ::core::option::Option<::prost::alloc::string::String>,
@@ -409,8 +409,8 @@ pub struct CreateTableRequest {
     #[prost(string, optional, tag="8")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="9")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="9")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Get a table
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

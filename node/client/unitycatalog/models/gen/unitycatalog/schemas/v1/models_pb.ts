@@ -6,13 +6,13 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { JsonObject, Message } from "@bufbuild/protobuf";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/schemas/v1/models.proto.
  */
 export const file_unitycatalog_schemas_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxItQDCgpTY2hlbWFJbmZvEhEKBG5hbWUYASABKAlCA+BBAhIZCgxjYXRhbG9nX25hbWUYAiABKAlCA+BBAhIZCgdjb21tZW50GAMgASgJQgPgQQFIAIgBARI1Cgpwcm9wZXJ0aWVzGAQgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEID4EEBSAGIAQESGwoJZnVsbF9uYW1lGAUgASgJQgPgQQNIAogBARIXCgVvd25lchgGIAEoCUID4EEDSAOIAQESHAoKY3JlYXRlZF9hdBgHIAEoA0ID4EEDSASIAQESHAoKY3JlYXRlZF9ieRgIIAEoCUID4EEDSAWIAQESHAoKdXBkYXRlZF9hdBgJIAEoA0ID4EEDSAaIAQESHAoKdXBkYXRlZF9ieRgKIAEoCUID4EEDSAeIAQESGwoJc2NoZW1hX2lkGAsgASgJQgPgQQNICIgBAUIKCghfY29tbWVudEINCgtfcHJvcGVydGllc0IMCgpfZnVsbF9uYW1lQggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfc2NoZW1hX2lkQvoBChtjb20udW5pdHljYXRhbG9nLnNjaGVtYXMudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NjaGVtYXMvdjE7c2NoZW1hc3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNjaGVtYXMuVjHKAhdVbml0eWNhdGFsb2dcU2NoZW1hc1xWMeICI1VuaXR5Y2F0YWxvZ1xTY2hlbWFzXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTY2hlbWFzOjpWMWIGcHJvdG8z", [file_google_api_field_behavior, file_google_protobuf_struct]);
+  fileDesc("CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIo8ECgpTY2hlbWFJbmZvEhEKBG5hbWUYASABKAlCA+BBAhIZCgxjYXRhbG9nX25hbWUYAiABKAlCA+BBAhIZCgdjb21tZW50GAMgASgJQgPgQQFIAIgBARJMCgpwcm9wZXJ0aWVzGAQgAygLMjMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mby5Qcm9wZXJ0aWVzRW50cnlCA+BBARIbCglmdWxsX25hbWUYBSABKAlCA+BBA0gBiAEBEhcKBW93bmVyGAYgASgJQgPgQQNIAogBARIcCgpjcmVhdGVkX2F0GAcgASgDQgPgQQNIA4gBARIcCgpjcmVhdGVkX2J5GAggASgJQgPgQQNIBIgBARIcCgp1cGRhdGVkX2F0GAkgASgDQgPgQQNIBYgBARIcCgp1cGRhdGVkX2J5GAogASgJQgPgQQNIBogBARIbCglzY2hlbWFfaWQYCyABKAlCA+BBA0gHiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgoKCF9jb21tZW50QgwKCl9mdWxsX25hbWVCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9zY2hlbWFfaWRC+gEKG2NvbS51bml0eWNhdGFsb2cuc2NoZW1hcy52MUILTW9kZWxzUHJvdG9QAVpQZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2NoZW1hcy92MTtzY2hlbWFzdjGiAgNVU1iqAhdVbml0eWNhdGFsb2cuU2NoZW1hcy5WMcoCF1VuaXR5Y2F0YWxvZ1xTY2hlbWFzXFYx4gIjVW5pdHljYXRhbG9nXFNjaGVtYXNcVjFcR1BCTWV0YWRhdGHqAhlVbml0eWNhdGFsb2c6OlNjaGVtYXM6OlYxYgZwcm90bzM", [file_google_api_field_behavior, file_google_protobuf_struct]);
 
 /**
  * A schema is a namespace within a catalog that contains tables.
@@ -44,9 +44,9 @@ export type SchemaInfo = Message<"unitycatalog.schemas.v1.SchemaInfo"> & {
   /**
    * A map of key-value properties attached to the securable.
    *
-   * @generated from field: optional google.protobuf.Struct properties = 4;
+   * @generated from field: map<string, string> properties = 4;
    */
-  properties?: JsonObject;
+  properties: { [key: string]: string };
 
   /**
    * Full name of schema, in form of catalog_name.schema_name.

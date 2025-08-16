@@ -55,7 +55,7 @@ message RecipientInfo {
   optional string comment = 4;
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 6;
+  map<string, string> properties = 6;
 
   // Time at which this share was created, in epoch milliseconds.
   optional int64 created_at = 7;

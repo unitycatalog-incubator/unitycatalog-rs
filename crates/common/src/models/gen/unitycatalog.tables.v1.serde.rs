@@ -16,6 +16,9 @@ impl serde::Serialize for ColumnInfo {
         if !self.type_json.is_empty() {
             len += 1;
         }
+        if self.position.is_some() {
+            len += 1;
+        }
         if self.type_name != 0 {
             len += 1;
         }
@@ -26,9 +29,6 @@ impl serde::Serialize for ColumnInfo {
             len += 1;
         }
         if self.type_interval_type.is_some() {
-            len += 1;
-        }
-        if self.position.is_some() {
             len += 1;
         }
         if self.comment.is_some() {
@@ -53,6 +53,9 @@ impl serde::Serialize for ColumnInfo {
         if !self.type_json.is_empty() {
             struct_ser.serialize_field("typeJson", &self.type_json)?;
         }
+        if let Some(v) = self.position.as_ref() {
+            struct_ser.serialize_field("position", v)?;
+        }
         if self.type_name != 0 {
             let v = ColumnTypeName::try_from(self.type_name)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.type_name)))?;
@@ -66,9 +69,6 @@ impl serde::Serialize for ColumnInfo {
         }
         if let Some(v) = self.type_interval_type.as_ref() {
             struct_ser.serialize_field("typeIntervalType", v)?;
-        }
-        if let Some(v) = self.position.as_ref() {
-            struct_ser.serialize_field("position", v)?;
         }
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
@@ -97,6 +97,7 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
             "typeText",
             "type_json",
             "typeJson",
+            "position",
             "type_name",
             "typeName",
             "type_precision",
@@ -105,7 +106,6 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
             "typeScale",
             "type_interval_type",
             "typeIntervalType",
-            "position",
             "comment",
             "nullable",
             "partition_index",
@@ -119,11 +119,11 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
             Name,
             TypeText,
             TypeJson,
+            Position,
             TypeName,
             TypePrecision,
             TypeScale,
             TypeIntervalType,
-            Position,
             Comment,
             Nullable,
             PartitionIndex,
@@ -153,11 +153,11 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                             "name" => Ok(GeneratedField::Name),
                             "typeText" | "type_text" => Ok(GeneratedField::TypeText),
                             "typeJson" | "type_json" => Ok(GeneratedField::TypeJson),
+                            "position" => Ok(GeneratedField::Position),
                             "typeName" | "type_name" => Ok(GeneratedField::TypeName),
                             "typePrecision" | "type_precision" => Ok(GeneratedField::TypePrecision),
                             "typeScale" | "type_scale" => Ok(GeneratedField::TypeScale),
                             "typeIntervalType" | "type_interval_type" => Ok(GeneratedField::TypeIntervalType),
-                            "position" => Ok(GeneratedField::Position),
                             "comment" => Ok(GeneratedField::Comment),
                             "nullable" => Ok(GeneratedField::Nullable),
                             "partitionIndex" | "partition_index" => Ok(GeneratedField::PartitionIndex),
@@ -184,11 +184,11 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                 let mut name__ = None;
                 let mut type_text__ = None;
                 let mut type_json__ = None;
+                let mut position__ = None;
                 let mut type_name__ = None;
                 let mut type_precision__ = None;
                 let mut type_scale__ = None;
                 let mut type_interval_type__ = None;
-                let mut position__ = None;
                 let mut comment__ = None;
                 let mut nullable__ = None;
                 let mut partition_index__ = None;
@@ -212,6 +212,14 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                                 return Err(serde::de::Error::duplicate_field("typeJson"));
                             }
                             type_json__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Position => {
+                            if position__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("position"));
+                            }
+                            position__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
                         }
                         GeneratedField::TypeName => {
                             if type_name__.is_some() {
@@ -240,14 +248,6 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                                 return Err(serde::de::Error::duplicate_field("typeIntervalType"));
                             }
                             type_interval_type__ = map_.next_value()?;
-                        }
-                        GeneratedField::Position => {
-                            if position__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("position"));
-                            }
-                            position__ = 
-                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
-                            ;
                         }
                         GeneratedField::Comment => {
                             if comment__.is_some() {
@@ -284,11 +284,11 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                     name: name__.unwrap_or_default(),
                     type_text: type_text__.unwrap_or_default(),
                     type_json: type_json__.unwrap_or_default(),
+                    position: position__,
                     type_name: type_name__.unwrap_or_default(),
                     type_precision: type_precision__,
                     type_scale: type_scale__,
                     type_interval_type: type_interval_type__,
-                    position: position__,
                     comment: comment__,
                     nullable: nullable__,
                     partition_index: partition_index__,
@@ -465,7 +465,7 @@ impl serde::Serialize for CreateTableRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.CreateTableRequest", len)?;
@@ -497,8 +497,8 @@ impl serde::Serialize for CreateTableRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         struct_ser.end()
     }
@@ -650,7 +650,9 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -666,7 +668,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                     columns: columns__.unwrap_or_default(),
                     storage_location: storage_location__,
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                 })
             }
         }
@@ -1897,10 +1899,10 @@ impl serde::Serialize for TableInfo {
         if !self.name.is_empty() {
             len += 1;
         }
-        if !self.schema_name.is_empty() {
+        if !self.catalog_name.is_empty() {
             len += 1;
         }
-        if !self.catalog_name.is_empty() {
+        if !self.schema_name.is_empty() {
             len += 1;
         }
         if self.table_type != 0 {
@@ -1921,7 +1923,7 @@ impl serde::Serialize for TableInfo {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.storage_credential_name.is_some() {
@@ -1952,11 +1954,11 @@ impl serde::Serialize for TableInfo {
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
-        if !self.schema_name.is_empty() {
-            struct_ser.serialize_field("schemaName", &self.schema_name)?;
-        }
         if !self.catalog_name.is_empty() {
             struct_ser.serialize_field("catalogName", &self.catalog_name)?;
+        }
+        if !self.schema_name.is_empty() {
+            struct_ser.serialize_field("schemaName", &self.schema_name)?;
         }
         if self.table_type != 0 {
             let v = TableType::try_from(self.table_type)
@@ -1980,8 +1982,8 @@ impl serde::Serialize for TableInfo {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.storage_credential_name.as_ref() {
             struct_ser.serialize_field("storageCredentialName", v)?;
@@ -2024,10 +2026,10 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
     {
         const FIELDS: &[&str] = &[
             "name",
-            "schema_name",
-            "schemaName",
             "catalog_name",
             "catalogName",
+            "schema_name",
+            "schemaName",
             "table_type",
             "tableType",
             "data_source_format",
@@ -2059,8 +2061,8 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Name,
-            SchemaName,
             CatalogName,
+            SchemaName,
             TableType,
             DataSourceFormat,
             Columns,
@@ -2099,8 +2101,8 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                     {
                         match value {
                             "name" => Ok(GeneratedField::Name),
-                            "schemaName" | "schema_name" => Ok(GeneratedField::SchemaName),
                             "catalogName" | "catalog_name" => Ok(GeneratedField::CatalogName),
+                            "schemaName" | "schema_name" => Ok(GeneratedField::SchemaName),
                             "tableType" | "table_type" => Ok(GeneratedField::TableType),
                             "dataSourceFormat" | "data_source_format" => Ok(GeneratedField::DataSourceFormat),
                             "columns" => Ok(GeneratedField::Columns),
@@ -2136,8 +2138,8 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                     V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
-                let mut schema_name__ = None;
                 let mut catalog_name__ = None;
+                let mut schema_name__ = None;
                 let mut table_type__ = None;
                 let mut data_source_format__ = None;
                 let mut columns__ = None;
@@ -2161,17 +2163,17 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                             }
                             name__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::SchemaName => {
-                            if schema_name__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("schemaName"));
-                            }
-                            schema_name__ = Some(map_.next_value()?);
-                        }
                         GeneratedField::CatalogName => {
                             if catalog_name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("catalogName"));
                             }
                             catalog_name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SchemaName => {
+                            if schema_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schemaName"));
+                            }
+                            schema_name__ = Some(map_.next_value()?);
                         }
                         GeneratedField::TableType => {
                             if table_type__.is_some() {
@@ -2213,7 +2215,9 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::StorageCredentialName => {
                             if storage_credential_name__.is_some() {
@@ -2276,15 +2280,15 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                 }
                 Ok(TableInfo {
                     name: name__.unwrap_or_default(),
-                    schema_name: schema_name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
+                    schema_name: schema_name__.unwrap_or_default(),
                     table_type: table_type__.unwrap_or_default(),
                     data_source_format: data_source_format__.unwrap_or_default(),
                     columns: columns__.unwrap_or_default(),
                     storage_location: storage_location__,
                     owner: owner__,
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     storage_credential_name: storage_credential_name__,
                     full_name: full_name__,
                     created_at: created_at__,

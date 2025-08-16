@@ -18,8 +18,8 @@ pub struct CatalogInfo {
     #[prost(string, optional, tag="4")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="5")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="5")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Storage root URL for managed tables within catalog.
     #[prost(string, optional, tag="6")]
     pub storage_root: ::core::option::Option<::prost::alloc::string::String>,
@@ -123,8 +123,8 @@ pub struct CreateCatalogRequest {
     #[prost(string, optional, tag="2")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="3")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="3")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Storage root URL for managed tables within catalog.
     #[prost(string, optional, tag="4")]
     pub storage_root: ::core::option::Option<::prost::alloc::string::String>,
@@ -167,8 +167,8 @@ pub struct UpdateCatalogRequest {
     ///
     /// When provided in update request, the specified properties will override the existing properties.
     /// To add and remove properties, one would need to perform a read-modify-write.
-    #[prost(message, optional, tag="4")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="4")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Name of catalog.
     #[prost(string, tag="5")]
     pub new_name: ::prost::alloc::string::String,

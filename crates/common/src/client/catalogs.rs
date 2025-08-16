@@ -5,7 +5,6 @@ use futures::{StreamExt, TryStreamExt};
 
 use super::schemas::{SchemaClient, SchemaClientBase};
 pub(super) use crate::api::codegen::catalogs::CatalogClient as CatalogClientBase;
-use crate::client::utils::hash_map_to_struct;
 use crate::models::catalogs::v1::*;
 use crate::utils::stream_paginated;
 use crate::{Error, Result};
@@ -62,7 +61,7 @@ impl CatalogClient {
         let request = CreateCatalogRequest {
             name: self.name.clone(),
             comment: comment.map(|s| s.to_string()),
-            properties: properties.into().map(hash_map_to_struct),
+            properties: properties.into().unwrap_or_default(),
             storage_root: storage_root.map(|s| s.to_string()),
             ..Default::default()
         };
@@ -79,7 +78,7 @@ impl CatalogClient {
         let request = CreateCatalogRequest {
             name: self.name.clone(),
             comment: comment.map(|s| s.to_string()),
-            properties: properties.into().map(hash_map_to_struct),
+            properties: properties.into().unwrap_or_default(),
             share_name: Some(share_name.into()),
             provider_name: Some(provider_name.into()),
             ..Default::default()
@@ -129,7 +128,7 @@ impl CatalogClient {
                 .unwrap_or_else(|| self.name.clone()),
             comment: comment.map(|s| s.to_string()),
             owner: owner.map(|s| s.to_string()),
-            properties: properties.into().map(hash_map_to_struct),
+            properties: properties.into().unwrap_or_default(),
         };
         self.client.update_catalog(&request).await
     }

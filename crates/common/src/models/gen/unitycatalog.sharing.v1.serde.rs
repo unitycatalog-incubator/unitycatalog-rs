@@ -3686,7 +3686,7 @@ impl serde::Serialize for SharingSchemaInfo {
         if self.description.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.SharingSchemaInfo", len)?;
@@ -3705,8 +3705,8 @@ impl serde::Serialize for SharingSchemaInfo {
         if let Some(v) = self.description.as_ref() {
             struct_ser.serialize_field("description", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         struct_ser.end()
     }
@@ -3824,7 +3824,9 @@ impl<'de> serde::Deserialize<'de> for SharingSchemaInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -3837,7 +3839,7 @@ impl<'de> serde::Deserialize<'de> for SharingSchemaInfo {
                     share: share__.unwrap_or_default(),
                     share_id: share_id__,
                     description: description__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                 })
             }
         }

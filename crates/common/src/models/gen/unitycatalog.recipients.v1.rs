@@ -46,8 +46,8 @@ pub struct RecipientInfo {
     #[prost(string, optional, tag="4")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="6")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="6")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Time at which this share was created, in epoch milliseconds.
     #[prost(int64, optional, tag="7")]
     pub created_at: ::core::option::Option<i64>,
@@ -142,8 +142,8 @@ pub struct CreateRecipientRequest {
     ///
     /// When provided in update request, the specified properties will override the existing properties.
     /// To add and remove properties, one would need to perform a read-modify-write.
-    #[prost(message, optional, tag="5")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="5")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Expiration timestamp of the token, in epoch milliseconds.
     #[prost(int64, optional, tag="6")]
     pub expiration_time: ::core::option::Option<i64>,
@@ -178,8 +178,8 @@ pub struct UpdateRecipientRequest {
     ///
     /// When provided in update request, the specified properties will override the existing properties.
     /// To add and remove properties, one would need to perform a read-modify-write.
-    #[prost(message, optional, tag="5")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="5")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Expiration timestamp of the token, in epoch milliseconds.
     #[prost(int64, optional, tag="6")]
     pub expiration_time: ::core::option::Option<i64>,

@@ -22,7 +22,6 @@ mod shares;
 mod sharing;
 mod tables;
 mod temporary_credentials;
-mod utils;
 
 #[derive(Clone)]
 pub struct UnityCatalogClient {
@@ -33,6 +32,7 @@ pub struct UnityCatalogClient {
     recipients: RecipientClientBase,
     credentials: CredentialClientBase,
     external_locations: ExternalLocationClientBase,
+    temporary_credentials: TemporaryCredentialClientBase,
 }
 
 impl UnityCatalogClient {
@@ -57,6 +57,8 @@ impl UnityCatalogClient {
         let recipients = RecipientClientBase::new(client.clone(), base_url.clone());
         let credentials = CredentialClientBase::new(client.clone(), base_url.clone());
         let external_locations = ExternalLocationClientBase::new(client.clone(), base_url.clone());
+        let temporary_credentials =
+            TemporaryCredentialClientBase::new(client.clone(), base_url.clone());
 
         Self {
             catalogs,
@@ -66,6 +68,7 @@ impl UnityCatalogClient {
             recipients,
             credentials,
             external_locations,
+            temporary_credentials,
         }
     }
 
@@ -260,5 +263,9 @@ impl UnityCatalogClient {
         external_location
             .create(url, credential_name, comment)
             .await
+    }
+
+    pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
+        TemporaryCredentialClient::new(self.temporary_credentials.clone())
     }
 }

@@ -6,17 +6,17 @@ use pyo3::prelude::*;
 use unitycatalog_common::api::sharing::{MetadataResponseData, ProtocolResponseData};
 use unitycatalog_common::client::{
     CatalogClient, CredentialClient, DeltaSharingClient, ExternalLocationClient, RecipientClient,
-    SchemaClient, ShareClient, TableClient, UnityCatalogClient,
+    SchemaClient, ShareClient, TableClient, TemporaryCredentialClient, UnityCatalogClient,
 };
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
-use unitycatalog_common::models::google::protobuf::{Struct, Value, value::Kind as ValueKind};
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::{DataObjectUpdate, ShareInfo};
 use unitycatalog_common::models::sharing::v1::{Share, SharingSchema, SharingTable};
 use unitycatalog_common::models::tables::v1::{ColumnInfo, DataSourceFormat, TableInfo, TableType};
+use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -347,6 +347,12 @@ impl PyUnityCatalogClient {
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
+
+    pub fn temporary_credentials(&self) -> PyTemporaryCredentialClient {
+        PyTemporaryCredentialClient {
+            client: self.0.temporary_credentials(),
+        }
+    }
 }
 
 #[pyclass(name = "CatalogClient")]
@@ -426,19 +432,11 @@ impl PySchemaClient {
         })
     }
 
-    #[pyo3(signature = (new_name = None, comment = None, properties = None))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(self.client.update(new_name, comment, properties))?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
+    #[pyo3(signature = (name))]
+    pub fn table(&self, name: String) -> PyTableClient {
+        PyTableClient {
+            client: self.client.table(name),
+        }
     }
 
     #[pyo3(signature = (name, table_type, data_source_format, columns, storage_location = None, comment = None, properties = None))]
@@ -464,6 +462,21 @@ impl PySchemaClient {
                 comment,
                 properties,
             ))?;
+            Ok::<_, PyUnityCatalogError>(info)
+        })
+    }
+
+    #[pyo3(signature = (new_name = None, comment = None, properties = None))]
+    pub fn update(
+        &self,
+        py: Python,
+        new_name: Option<String>,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> PyUnityCatalogResult<SchemaInfo> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let info = runtime.block_on(self.client.update(new_name, comment, properties))?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -590,12 +603,11 @@ impl PyRecipientClient {
     ) -> PyUnityCatalogResult<RecipientInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let props = properties.map(hash_map_to_struct);
             let info = runtime.block_on(self.client.update(
                 new_name,
                 comment,
                 owner,
-                props,
+                properties,
                 expiration_time,
             ))?;
             Ok::<_, PyUnityCatalogError>(info)
@@ -921,17 +933,71 @@ impl PySharingClient {
     }
 }
 
-fn hash_map_to_struct(map: HashMap<String, String>) -> Struct {
-    let fields = map
-        .into_iter()
-        .map(|(k, v)| {
-            (
-                k,
-                Value {
-                    kind: Some(ValueKind::StringValue(v)),
-                },
-            )
+#[pyclass(name = "TemporaryCredentialClient")]
+pub struct PyTemporaryCredentialClient {
+    client: TemporaryCredentialClient,
+}
+
+#[pymethods]
+impl PyTemporaryCredentialClient {
+    #[pyo3(signature = (table, operation))]
+    pub fn temporary_table_credential(
+        &self,
+        py: Python,
+        table: String,
+        operation: String,
+    ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
+        use unitycatalog_common::client::{TableOperation, TableReference};
+
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let table_ref = TableReference::Name(table);
+            let op = match operation.as_str().to_ascii_lowercase().as_str() {
+                "read" => TableOperation::Read,
+                "read_write" => TableOperation::ReadWrite,
+                _ => {
+                    return Err(PyUnityCatalogError::from(
+                        unitycatalog_common::error::Error::invalid_argument(format!(
+                            "Invalid operation: {}. Must be 'read' or 'read_write'",
+                            operation
+                        )),
+                    ));
+                }
+            };
+
+            let (credential, uuid) =
+                runtime.block_on(self.client.temporary_table_credential(table_ref, op))?;
+            Ok::<_, PyUnityCatalogError>((credential, uuid.to_string()))
         })
-        .collect();
-    Struct { fields }
+    }
+
+    #[pyo3(signature = (path, operation, dry_run = None))]
+    pub fn temporary_path_credential(
+        &self,
+        py: Python,
+        path: String,
+        operation: String,
+        dry_run: Option<bool>,
+    ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
+        use unitycatalog_common::client::PathOperation;
+
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let op = match operation.as_str().to_ascii_lowercase().as_str() {
+                "read" => PathOperation::Read,
+                "read_write" => PathOperation::ReadWrite,
+                "create_table" => PathOperation::CreateTable,
+                _ => return Err(PyUnityCatalogError::from(
+                    unitycatalog_common::error::Error::invalid_argument(
+                        format!("Invalid operation: {}. Must be 'read', 'read_write', or 'create_table'", operation)
+                    )
+                )),
+            };
+
+            let (credential, url) = runtime.block_on(
+                self.client.temporary_path_credential(path, op, dry_run)
+            )?;
+            Ok::<_, PyUnityCatalogError>((credential, url.to_string()))
+        })
+    }
 }

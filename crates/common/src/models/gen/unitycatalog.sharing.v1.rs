@@ -73,8 +73,8 @@ pub struct SharingSchemaInfo {
     #[prost(string, optional, tag="5")]
     pub description: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(message, optional, tag="6")]
-    pub properties: ::core::option::Option<super::super::super::google::protobuf::Struct>,
+    #[prost(map="string, string", tag="6")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// File format for data files in a table
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

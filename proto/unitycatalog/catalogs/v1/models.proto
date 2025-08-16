@@ -33,7 +33,7 @@ message CatalogInfo {
   optional string comment = 4;
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 5;
+  map<string, string> properties = 5;
 
   // Storage root URL for managed tables within catalog.
   optional string storage_root = 6;
