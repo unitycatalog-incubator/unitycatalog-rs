@@ -10,7 +10,7 @@ homepage.workspace = true
 keywords.workspace = true
 
 [dependencies]
-unitycatalog-common = { path = "../common", features = ["axum"] }
+unitycatalog-common = { path = "../common", features = ["axum", "sharing"] }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }
@@ -19,6 +19,7 @@ deltalake-datafusion = { workspace = true }
 itertools = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+strum = { workspace = true }
 tracing = { workspace = true }
 url = { workspace = true }
 

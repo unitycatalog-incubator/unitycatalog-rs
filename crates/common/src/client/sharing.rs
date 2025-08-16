@@ -1,15 +1,13 @@
 use chrono::{DateTime, Utc};
 use cloud_client::CloudClient;
-use delta_kernel::Version;
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
 
 use super::utils::stream_paginated;
-use crate::api::sharing::{
-    MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingClient,
-};
+use crate::api::codegen::sharing::SharingClient;
 use crate::models::sharing::v1::*;
+use crate::models::sharing_ext::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::{Error, Result};
 
 #[derive(Clone)]
@@ -222,7 +220,7 @@ impl DeltaSharingClient {
         schema: impl Into<String>,
         table: impl Into<String>,
         starting_timestamp: Option<DateTime<Utc>>,
-    ) -> Result<Version> {
+    ) -> Result<u64> {
         let mut url = self.base_url.join(&format!(
             "shares/{}/schemas/{}/tables/{}/version",
             share.into(),
@@ -242,7 +240,7 @@ impl DeltaSharingClient {
         let version = version
             .to_str()
             .ok()
-            .and_then(|v| v.parse::<Version>().ok())
+            .and_then(|v| v.parse::<u64>().ok())
             .ok_or(Error::generic("Invalid version header"))?;
         Ok(version)
     }

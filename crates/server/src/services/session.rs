@@ -4,7 +4,7 @@ use bytes::Bytes;
 use datafusion::arrow::array::{AsArray, RecordBatch};
 use datafusion::arrow::json::LineDelimitedWriter;
 use datafusion::catalog::{CatalogProvider, MemoryCatalogProvider, MemorySchemaProvider};
-use datafusion::common::TableReference as DfTableReference;
+use datafusion::common::{DFSchema, TableReference as DfTableReference};
 use datafusion::functions::core::expr_ext::FieldAccessor;
 use datafusion::logical_expr::ColumnarValue;
 use datafusion::physical_plan::PhysicalExpr;
@@ -15,12 +15,12 @@ use deltalake_datafusion::{
     DeltaLogReplayProvider, KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory,
 };
 use itertools::Itertools;
-
-use super::sharing::{SharingExt, SharingTableReference};
-use unitycatalog_common::api::tables::TableManager;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
-use unitycatalog_common::services::StorageLocationUrl;
 use unitycatalog_common::{Error, Result};
+
+use super::location::StorageLocationUrl;
+use super::sharing::{SharingExt, SharingTableReference};
+use crate::api::tables::TableManager;
 
 const UC_RS_SYSTEM_CATALOG_NAME: &str = "uc_rs_system";
 const UC_RS_LOG_REPLAY_SCHEMA_NAME: &str = "uc_rs_log_replay";
@@ -51,8 +51,12 @@ struct Extractors {
 
 impl Extractors {
     pub fn new(ctx: &SessionContext) -> Result<Self> {
-        let df_schema = DeltaLogReplayProvider::scan_row_schema().try_into()?;
-        let sharing_pq_files = ctx.create_physical_expr(PQ_FILE_EXTRACT.clone(), &df_schema)?;
+        let df_schema = DeltaLogReplayProvider::scan_row_schema()
+            .try_into()
+            .map_err(|_| Error::Generic("failed to convert schema".to_string()))?;
+        let sharing_pq_files = ctx
+            .create_physical_expr(PQ_FILE_EXTRACT.clone(), &df_schema)
+            .map_err(|e| Error::Generic(e.to_string()))?;
         Ok(Self { sharing_pq_files })
     }
 }
@@ -68,10 +72,12 @@ impl KernelSession {
             KernelExtensionConfig::default().with_object_store_factory(object_store_factory);
         let ctx = SessionContext::new().enable_delta_kernel(Some(config));
         let catalog = Arc::new(MemoryCatalogProvider::new());
-        catalog.register_schema(
-            UC_RS_LOG_REPLAY_SCHEMA_NAME,
-            Arc::new(MemorySchemaProvider::new()),
-        )?;
+        catalog
+            .register_schema(
+                UC_RS_LOG_REPLAY_SCHEMA_NAME,
+                Arc::new(MemorySchemaProvider::new()),
+            )
+            .map_err(|e| Error::Generic(e.to_string()))?;
         ctx.register_catalog(UC_RS_SYSTEM_CATALOG_NAME, catalog);
 
         Ok(Self {
@@ -101,20 +107,43 @@ impl KernelSession {
             UC_RS_LOG_REPLAY_SCHEMA_NAME,
             log_replay_table_name,
         );
-        if !self.ctx.table_exist(inner_ref.clone())? {
+        if !self
+            .ctx
+            .table_exist(inner_ref.clone())
+            .map_err(|e| Error::Generic(e.to_string()))?
+        {
             let location = sharing_ext.table_location(table_ref).await?;
-            self.ctx.register_table(
-                inner_ref.clone(),
-                Arc::new(DeltaLogReplayProvider::new(location.location().clone())?),
-            )?;
+            self.ctx
+                .register_table(
+                    inner_ref.clone(),
+                    Arc::new(
+                        DeltaLogReplayProvider::new(location.location().clone())
+                            .map_err(|e| Error::Generic(e.to_string()))?,
+                    ),
+                )
+                .map_err(|e| Error::Generic(e.to_string()))?;
         }
-        let table = self.ctx.table(inner_ref).await?.collect().await?;
+        let table = self
+            .ctx
+            .table(inner_ref)
+            .await
+            .map_err(|e| Error::Generic(e.to_string()))?
+            .collect()
+            .await
+            .map_err(|e| Error::Generic(e.to_string()))?;
         let results: Vec<_> = table
             .iter()
             .map(|batch| {
-                let res = match self.extractors.sharing_pq_files.evaluate(batch)? {
+                let res = match self
+                    .extractors
+                    .sharing_pq_files
+                    .evaluate(batch)
+                    .map_err(|e| Error::Generic(e.to_string()))?
+                {
                     ColumnarValue::Array(arr) => arr,
-                    ColumnarValue::Scalar(scalar) => scalar.to_array_of_size(batch.num_rows())?,
+                    ColumnarValue::Scalar(scalar) => scalar
+                        .to_array_of_size(batch.num_rows())
+                        .map_err(|e| Error::Generic(e.to_string()))?,
                 };
                 Ok::<_, Error>(RecordBatch::from(res.as_struct()))
             })
@@ -149,7 +178,9 @@ impl TableManager for KernelSession {
 pub fn encode_nd_json(data: &[RecordBatch]) -> Result<Bytes> {
     let mut writer = LineDelimitedWriter::new(Vec::new());
     for batch in data {
-        writer.write(batch)?;
+        writer
+            .write(batch)
+            .map_err(|e| Error::Generic(e.to_string()))?;
     }
     Ok(Bytes::from(writer.into_inner()))
 }

@@ -27,12 +27,16 @@ pub(super) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
 /// Generate handler trait definition
 pub fn handler_trait(trait_name: &str, methods: &[TokenStream], service_base: String) -> String {
     let trait_ident = format_ident!("{}", trait_name);
-    let mod_path: Path = syn::parse_str(&format!("crate::models::{}::v1", service_base)).unwrap();
+    let mod_path: Path = syn::parse_str(&format!(
+        "unitycatalog_common::models::{}::v1",
+        service_base
+    ))
+    .unwrap();
 
     let tokens = quote! {
         use async_trait::async_trait;
 
-        use crate::Result;
+        use unitycatalog_common::Result;
         use crate::api::RequestContext;
         use #mod_path::*;
 

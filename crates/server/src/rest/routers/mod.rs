@@ -1,4 +1,4 @@
-use unitycatalog_common::api::{
+use crate::api::{
     CatalogHandler, CredentialHandler, ExternalLocationHandler, RecipientHandler, SchemaHandler,
     ShareHandler, TableHandler, TemporaryCredentialHandler,
 };
@@ -8,7 +8,7 @@ pub use sharing::get_router as create_sharing_router;
 mod sharing;
 
 pub fn create_catalogs_router<T: CatalogHandler + Clone>(handler: T) -> axum::Router {
-    use unitycatalog_common::api::codegen::catalogs::server::*;
+    use crate::codegen::catalogs::server::*;
 
     axum::Router::new()
         .route("/catalogs", axum::routing::get(list_catalogs_handler::<T>))
@@ -32,7 +32,7 @@ pub fn create_catalogs_router<T: CatalogHandler + Clone>(handler: T) -> axum::Ro
 }
 
 pub fn create_credentials_router<T: CredentialHandler + Clone>(handler: T) -> axum::Router {
-    use unitycatalog_common::api::codegen::credentials::server::*;
+    use crate::codegen::credentials::server::*;
 
     axum::Router::new()
         .route(
@@ -61,7 +61,7 @@ pub fn create_credentials_router<T: CredentialHandler + Clone>(handler: T) -> ax
 pub fn create_external_locations_router<T: ExternalLocationHandler + Clone>(
     handler: T,
 ) -> axum::Router {
-    use unitycatalog_common::api::codegen::external_locations::server::*;
+    use crate::codegen::external_locations::server::*;
 
     axum::Router::new()
         .route(
@@ -88,7 +88,7 @@ pub fn create_external_locations_router<T: ExternalLocationHandler + Clone>(
 }
 
 pub fn create_recipients_router<T: RecipientHandler + Clone>(handler: T) -> axum::Router {
-    use unitycatalog_common::api::codegen::recipients::server::*;
+    use crate::codegen::recipients::server::*;
 
     axum::Router::new()
         .route(
@@ -115,7 +115,7 @@ pub fn create_recipients_router<T: RecipientHandler + Clone>(handler: T) -> axum
 }
 
 pub fn create_schemas_router<T: SchemaHandler + Clone>(handler: T) -> axum::Router {
-    use unitycatalog_common::api::codegen::schemas::server::*;
+    use crate::codegen::schemas::server::*;
 
     axum::Router::new()
         .route("/schemas", axum::routing::get(list_schemas_handler::<T>))
@@ -136,7 +136,7 @@ pub fn create_schemas_router<T: SchemaHandler + Clone>(handler: T) -> axum::Rout
 }
 
 pub fn create_shares_router<T: ShareHandler + Clone>(handler: T) -> axum::Router {
-    use unitycatalog_common::api::codegen::shares::server::*;
+    use crate::codegen::shares::server::*;
 
     axum::Router::new()
         .route("/shares", axum::routing::get(list_shares_handler::<T>))
@@ -154,7 +154,7 @@ pub fn create_shares_router<T: ShareHandler + Clone>(handler: T) -> axum::Router
 }
 
 pub fn create_tables_router<T: TableHandler + Clone>(handler: T) -> axum::Router {
-    use unitycatalog_common::api::codegen::tables::server::*;
+    use crate::codegen::tables::server::*;
 
     axum::Router::new()
         .route(
@@ -181,7 +181,7 @@ pub fn create_tables_router<T: TableHandler + Clone>(handler: T) -> axum::Router
 pub fn create_temporary_credentials_router<T: TemporaryCredentialHandler + Clone>(
     handler: T,
 ) -> axum::Router {
-    use unitycatalog_common::api::codegen::temporary_credentials::server::*;
+    use crate::codegen::temporary_credentials::server::*;
 
     axum::Router::new()
         .route(

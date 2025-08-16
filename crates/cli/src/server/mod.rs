@@ -2,9 +2,9 @@ use std::sync::{Arc, LazyLock};
 
 use clap::Parser;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use unitycatalog_common::services::ConstantPolicy;
 use unitycatalog_postgres::GraphStore;
 use unitycatalog_server::memory::InMemoryResourceStore;
+use unitycatalog_server::policy::ConstantPolicy;
 use unitycatalog_server::{rest::AnonymousAuthenticator, services::ServerHandler};
 
 use crate::error::{Error, Result};

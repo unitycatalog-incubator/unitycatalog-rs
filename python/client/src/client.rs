@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
-use unitycatalog_common::api::sharing::{MetadataResponseData, ProtocolResponseData};
 use unitycatalog_common::client::{
     CatalogClient, CredentialClient, DeltaSharingClient, ExternalLocationClient, RecipientClient,
     SchemaClient, ShareClient, TableClient, TemporaryCredentialClient, UnityCatalogClient,
@@ -15,6 +14,7 @@ use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientI
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::{DataObjectUpdate, ShareInfo};
 use unitycatalog_common::models::sharing::v1::{Share, SharingSchema, SharingTable};
+use unitycatalog_common::models::sharing_ext::{MetadataResponseData, ProtocolResponseData};
 use unitycatalog_common::models::tables::v1::{ColumnInfo, DataSourceFormat, TableInfo, TableType};
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 

@@ -1,0 +1,17 @@
+use crate::api::RequestContext;
+use async_trait::async_trait;
+use unitycatalog_common::Result;
+use unitycatalog_common::models::temporary_credentials::v1::*;
+#[async_trait]
+pub trait TemporaryCredentialHandler: Send + Sync + 'static {
+    async fn generate_temporary_table_credentials(
+        &self,
+        request: GenerateTemporaryTableCredentialsRequest,
+        context: RequestContext,
+    ) -> Result<TemporaryCredential>;
+    async fn generate_temporary_path_credentials(
+        &self,
+        request: GenerateTemporaryPathCredentialsRequest,
+        context: RequestContext,
+    ) -> Result<TemporaryCredential>;
+}

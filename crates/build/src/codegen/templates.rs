@@ -42,7 +42,7 @@ pub fn server_module(
         use crate::api::RequestContext;
         use #mod_path::*;
         use #trait_path;
-        use crate::services::Recipient;
+        use crate::policy::Recipient;
         use axum::{RequestExt, RequestPartsExt};
         use axum::extract::{State, Extension};
 

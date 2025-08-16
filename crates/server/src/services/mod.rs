@@ -3,14 +3,16 @@ use std::sync::Arc;
 use delta_kernel::{Snapshot, Version};
 
 use session::*;
-use unitycatalog_common::api::tables::TableManager;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
 use unitycatalog_common::resources::ResourceStore;
-use unitycatalog_common::services::{
-    Policy, ProvidesPolicy, ProvidesSecretManager, SecretManager, StorageLocationUrl,
-};
+use unitycatalog_common::services::{ProvidesSecretManager, SecretManager};
 use unitycatalog_common::{ProvidesResourceStore, Result};
 
+use self::location::StorageLocationUrl;
+use crate::api::tables::TableManager;
+use crate::policy::{Policy, ProvidesPolicy, Recipient};
+
+pub mod location;
 mod object_store;
 mod session;
 mod sharing;

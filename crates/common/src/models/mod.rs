@@ -16,6 +16,8 @@ pub use sharing::v1::{Share, SharingSchema, SharingSchemaInfo, SharingTable};
 pub use tables::v1::{ColumnInfo, TableInfo};
 
 mod object;
+#[cfg(feature = "sharing")]
+pub mod sharing_ext;
 
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 

@@ -7,6 +7,7 @@ use futures::stream::BoxStream;
 pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
+#[cfg(feature = "sharing")]
 pub use sharing::*;
 pub use tables::*;
 pub use temporary_credentials::*;
@@ -19,6 +20,7 @@ mod external_locations;
 mod recipients;
 mod schemas;
 mod shares;
+#[cfg(feature = "sharing")]
 mod sharing;
 mod tables;
 mod temporary_credentials;

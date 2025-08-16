@@ -21,13 +21,24 @@ mod client;
 mod handler;
 mod server;
 
-/// Generate all Rust code from the generation plan
-pub fn generate_code(plan: &GenerationPlan) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+pub fn generate_common_code(
+    plan: &GenerationPlan,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
     // Generate code for each service
     for service in &plan.services {
-        generate_service_code(service, &mut files)?;
+        // Generate server code
+        let server_code = server::generate_common(service)?;
+        files.insert(format!("{}/server.rs", service.base_path), server_code);
+
+        // Generate client code
+        let client_code = client::generate(service)?;
+        files.insert(format!("{}/client.rs", service.base_path), client_code);
+
+        // Generate service module
+        let module_code = generate_common_module();
+        files.insert(format!("{}/mod.rs", service.base_path), module_code);
     }
 
     // Generate the main module file that ties everything together
@@ -43,20 +54,14 @@ pub fn generate_server_code(
 
     // Generate code for each service
     for service in &plan.services {
-        // Generate handler trait
         let trait_code = handler::generate(service)?;
         files.insert(format!("{}/handler.rs", service.base_path), trait_code);
 
-        // Generate server code
-        let server_code = server::generate(service)?;
+        let server_code = server::generate_server(service)?;
         files.insert(format!("{}/server.rs", service.base_path), server_code);
 
         // Generate client code
-        let client_code = client::generate(service)?;
-        files.insert(format!("{}/client.rs", service.base_path), client_code);
-
-        // Generate service module
-        let module_code = generate_service_module(service)?;
+        let module_code = generate_server_module(service);
         files.insert(format!("{}/mod.rs", service.base_path), module_code);
     }
 
@@ -66,53 +71,32 @@ pub fn generate_server_code(
     Ok(GeneratedCode { files })
 }
 
-pub fn generate_client_code(
-    plan: &GenerationPlan,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
-    let mut files = HashMap::new();
+/// Generate service module that exports all components
+fn generate_common_module() -> String {
+    let tokens = quote! {
+        pub use client::*;
 
-    // Generate code for each service
-    for service in &plan.services {
-        // Generate client code
-        let client_code = client::generate(service)?;
-        files.insert(format!("{}/mod.rs", service.base_path), client_code);
-    }
+        #[cfg(feature = "axum")]
+        pub mod server;
+        pub mod client;
+    };
 
-    // Generate the main module file that ties everything together
-    generate_main_module(&plan.services, &mut files)?;
-
-    Ok(GeneratedCode { files })
-}
-
-/// Generate code for a single service
-fn generate_service_code(
-    service: &ServicePlan,
-    files: &mut HashMap<String, String>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // Generate handler trait
-    let trait_code = handler::generate(service)?;
-    files.insert(format!("{}/handler.rs", service.base_path), trait_code);
-
-    // Generate server code
-    let server_code = server::generate(service)?;
-    files.insert(format!("{}/server.rs", service.base_path), server_code);
-
-    // Generate client code
-    let client_code = client::generate(service)?;
-    files.insert(format!("{}/client.rs", service.base_path), client_code);
-
-    // Generate service module
-    let module_code = generate_service_module(service)?;
-    files.insert(format!("{}/mod.rs", service.base_path), module_code);
-
-    Ok(())
+    templates::format_tokens(tokens)
 }
 
 /// Generate service module that exports all components
-fn generate_service_module(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
-    let module_code = templates::service_module(&service.handler_name);
+fn generate_server_module(service: &ServicePlan) -> String {
+    let handler_ident = format_ident!("{}", service.handler_name);
 
-    Ok(module_code)
+    let tokens = quote! {
+        pub use handler::#handler_ident;
+
+        mod handler;
+        #[cfg(feature = "axum")]
+        pub mod server;
+    };
+
+    templates::format_tokens(tokens)
 }
 
 /// Generate main module file that ties all services together
@@ -219,19 +203,6 @@ mod tests {
             base_path: "catalogs".to_string(),
             methods: vec![method_plan],
         }
-    }
-
-    #[test]
-    fn test_generate_service_code() {
-        let service = create_test_service_plan();
-        let mut files = HashMap::new();
-        let result = generate_service_code(&service, &mut files);
-        assert!(result.is_ok());
-
-        assert!(files.contains_key("catalogs/handler.rs"));
-        assert!(files.contains_key("catalogs/server.rs"));
-        assert!(files.contains_key("catalogs/client.rs"));
-        assert!(files.contains_key("catalogs/mod.rs"));
     }
 
     #[test]
