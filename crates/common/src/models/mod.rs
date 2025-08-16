@@ -9,7 +9,6 @@ pub use credentials::v1::CredentialInfo;
 pub use external_locations::v1::ExternalLocationInfo;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
-pub use profiles::v1::Profile;
 pub use recipients::v1::RecipientInfo;
 pub use schemas::v1::SchemaInfo;
 pub use shares::v1::ShareInfo;
@@ -97,14 +96,6 @@ pub mod temporary_credentials {
         include!("./gen/unitycatalog.temporary_credentials.v1.rs");
         #[cfg(feature = "grpc")]
         include!("./gen/unitycatalog.temporary_credentials.v1.tonic.rs");
-    }
-}
-
-pub mod profiles {
-    pub mod v1 {
-        include!("./gen/unitycatalog.profiles.v1.rs");
-        // #[cfg(feature = "grpc")]
-        // include!("./gen/unitycatalog.profiles.v1.tonic.rs");
     }
 }
 
