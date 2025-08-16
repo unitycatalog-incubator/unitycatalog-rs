@@ -3,15 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::credentials::v1::*;
-use unitycatalog_common::resources::{
-    ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore,
-};
-use unitycatalog_common::services::secrets::SecretManager;
+use unitycatalog_common::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
 use unitycatalog_common::{Error, Result};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::credentials::CredentialHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::services::secrets::SecretManager;
+use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 pub trait CredentialHandlerExt: Send + Sync + 'static {

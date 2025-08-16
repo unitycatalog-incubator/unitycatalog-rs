@@ -5,3 +5,4 @@ pub mod memory;
 pub mod policy;
 pub mod rest;
 pub mod services;
+pub mod store;

@@ -11,4 +11,3 @@ pub mod models;
 #[cfg(feature = "python")]
 pub mod python;
 pub mod resources;
-pub mod services;

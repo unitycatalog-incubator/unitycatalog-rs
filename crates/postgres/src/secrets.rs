@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use unitycatalog_common::Result;
-use unitycatalog_common::services::SecretManager;
+use unitycatalog_server::services::secrets::SecretManager;
 use uuid::Uuid;
 
 use crate::GraphStore;

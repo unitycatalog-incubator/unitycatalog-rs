@@ -3,12 +3,13 @@ use std::collections::HashMap;
 
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::*;
-use unitycatalog_common::resources::{ResourceIdent, ResourceName, ResourceRef, ResourceStore};
+use unitycatalog_common::resources::{ResourceIdent, ResourceName, ResourceRef};
 use unitycatalog_common::{Error, Result};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::shares::ShareHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ShareHandler for T {

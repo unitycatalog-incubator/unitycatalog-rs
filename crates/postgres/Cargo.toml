@@ -12,6 +12,7 @@ rust-version.workspace = true
 [dependencies]
 # path dependencies (in alphabetical order)
 unitycatalog-common = { path = "../common", default-features = false }
+unitycatalog-server = { path = "../server", default-features = false }
 unitycatalog-derive = { path = "../derive" }
 
 # workspace dependencies (in alphabetical order)

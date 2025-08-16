@@ -3,13 +3,12 @@ use itertools::Itertools;
 use unitycatalog_common::Result;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::external_locations::v1::*;
-use unitycatalog_common::resources::{
-    ResourceExt, ResourceIdent, ResourceName, ResourceRef, ResourceStore,
-};
+use unitycatalog_common::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::external_locations::ExternalLocationHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ExternalLocationHandler for T {

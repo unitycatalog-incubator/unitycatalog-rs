@@ -1,17 +1,18 @@
 use bytes::Bytes;
 use itertools::Itertools;
 
-use crate::api::{RequestContext, SecuredAction, ShareHandler};
-pub use crate::codegen::sharing::SharingHandler;
-use crate::policy::{Permission, Policy, process_resources};
 use unitycatalog_common::Result;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::{
     GetShareRequest as SharesGetShareRequest, ShareInfo,
 };
 use unitycatalog_common::models::sharing::v1::*;
-use unitycatalog_common::resources::ResourceStore;
 use unitycatalog_common::shares::v1::DataObjectType;
+
+use crate::api::{RequestContext, SecuredAction, ShareHandler};
+pub use crate::codegen::sharing::SharingHandler;
+use crate::policy::{Permission, Policy, process_resources};
+use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 pub trait SharingQueryHandler: Send + Sync + 'static {
