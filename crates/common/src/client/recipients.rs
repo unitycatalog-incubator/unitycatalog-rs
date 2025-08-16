@@ -4,9 +4,9 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::recipients::RecipientClient as RecipientClientBase;
+use crate::Result;
+pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
 use crate::models::recipients::v1::*;
-use crate::{Error, Result};
 
 impl RecipientClientBase {
     pub fn list(
@@ -19,10 +19,7 @@ impl RecipientClientBase {
                 max_results,
                 page_token,
             };
-            let res = self
-                .list_recipients(&request)
-                .await
-                .map_err(|e| Error::generic(e.to_string()))?;
+            let res = self.list_recipients(&request).await?;
             Ok((res.recipients, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))

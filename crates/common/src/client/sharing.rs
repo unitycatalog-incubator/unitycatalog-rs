@@ -5,7 +5,7 @@ use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
 
 use super::utils::stream_paginated;
-use crate::api::codegen::sharing::SharingClient;
+use crate::codegen::sharing::SharingClient;
 use crate::models::sharing::v1::*;
 use crate::models::sharing_ext::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::{Error, Result};
@@ -52,11 +52,7 @@ impl DeltaSharingClient {
                 max_results,
                 page_token,
             };
-            let res = self
-                .discovery
-                .list_shares(&request)
-                .await
-                .map_err(|e| Error::generic(e.to_string()))?;
+            let res = self.discovery.list_shares(&request).await?;
             Ok((res.items, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))

@@ -2,9 +2,9 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::tables::TableClient as TableClientBase;
+use crate::Result;
+pub(super) use crate::codegen::tables::TableClient as TableClientBase;
 use crate::models::tables::v1::*;
-use crate::{Error, Result};
 
 impl TableClientBase {
     pub fn list_summaries(
@@ -35,10 +35,7 @@ impl TableClientBase {
                     max_results: None,
                     include_manifest_capabilities: None,
                 };
-                let res = self
-                    .list_table_summaries(&request)
-                    .await
-                    .map_err(|e| Error::generic(e.to_string()))?;
+                let res = self.list_table_summaries(&request).await?;
                 Ok((
                     res.tables,
                     (
@@ -88,10 +85,7 @@ impl TableClientBase {
                     include_browse: None,
                     include_manifest_capabilities: None,
                 };
-                let res = self
-                    .list_tables(&request)
-                    .await
-                    .map_err(|e| Error::generic(e.to_string()))?;
+                let res = self.list_tables(&request).await?;
                 Ok((
                     res.tables,
                     (catalog_name, schema_name, max_results),

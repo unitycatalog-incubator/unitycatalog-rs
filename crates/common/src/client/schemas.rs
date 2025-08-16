@@ -5,12 +5,12 @@ use futures::{StreamExt, TryStreamExt};
 
 use super::tables::{TableClient, TableClientBase};
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::schemas::SchemaClient as SchemaClientBase;
+use crate::Result;
+pub(super) use crate::codegen::schemas::SchemaClient as SchemaClientBase;
 use crate::models::schemas::v1::*;
 use crate::models::tables::v1::{
     ColumnInfo, CreateTableRequest, DataSourceFormat, TableInfo, TableType,
 };
-use crate::{Error, Result};
 
 impl SchemaClientBase {
     pub fn list(
@@ -29,10 +29,7 @@ impl SchemaClientBase {
                     page_token,
                     include_browse: None,
                 };
-                let res = self
-                    .list_schemas(&request)
-                    .await
-                    .map_err(|e| Error::generic(e.to_string()))?;
+                let res = self.list_schemas(&request).await?;
                 Ok((
                     res.schemas,
                     (catalog_name, max_results),

@@ -2,9 +2,9 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::shares::ShareClient as ShareClientBase;
+use crate::Result;
+pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
 use crate::models::shares::v1::*;
-use crate::{Error, Result};
 
 impl ShareClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<ShareInfo>> {
@@ -14,10 +14,7 @@ impl ShareClientBase {
                 max_results,
                 page_token,
             };
-            let res = self
-                .list_shares(&request)
-                .await
-                .map_err(|e| Error::generic(e.to_string()))?;
+            let res = self.list_shares(&request).await?;
             Ok((res.shares, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
