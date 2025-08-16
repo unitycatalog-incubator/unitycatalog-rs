@@ -83,20 +83,20 @@ message ColumnInfo {
   // Full data type specification, JSON-serialized.
   string type_json = 3;
 
+  // Ordinal position of column (starting at position 0).
+  optional int32 position = 4;
+
   // Data type name.
-  ColumnTypeName type_name = 4;
+  ColumnTypeName type_name = 5;
 
   // Digits of precision; required for DecimalTypes.
-  optional int32 type_precision = 5;
+  optional int32 type_precision = 6;
 
   // Digits to right of decimal; Required for DecimalTypes.
-  optional int32 type_scale = 6;
+  optional int32 type_scale = 7;
 
   // Format of IntervalType.
-  optional string type_interval_type = 7;
-
-  // Ordinal position of column (starting at position 0).
-  optional int32 position = 8;
+  optional string type_interval_type = 8;
 
   // User-provided free-form text description.
   optional string comment = 9;
@@ -115,11 +115,11 @@ message TableInfo {
   // Name of table, relative to parent schema.
   string name = 1;
 
-  // Name of parent schema.
-  string schema_name = 2;
-
   // Name of parent catalog.
-  string catalog_name = 3;
+  string catalog_name = 2;
+
+  // Name of parent schema.
+  string schema_name = 3;
 
   TableType table_type = 4;
 
@@ -146,7 +146,7 @@ message TableInfo {
   optional string comment = 12;
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 13;
+  map<string, string> properties = 13;
 
   // Name of the storage credential, when a storage credential is configured for use with this table.
   optional string storage_credential_name = 14;

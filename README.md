@@ -42,3 +42,8 @@ Two python wheels are build in the project.
 ### Node bindings
 
 * [node bindings](node/client/) for the unity catalog client
+
+## Development
+
+We use [`just`](https://just.systems/man/en/) as the command runner for development tasks.
+Have a look at the [`justfile`](justfile) to see all available tasks.

@@ -87,5 +87,5 @@ message SharingSchemaInfo {
   optional string description = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 6 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> properties = 6 [(google.api.field_behavior) = OPTIONAL];
 }

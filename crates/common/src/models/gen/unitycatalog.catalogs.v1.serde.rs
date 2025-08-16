@@ -19,7 +19,7 @@ impl serde::Serialize for CatalogInfo {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.storage_root.is_some() {
@@ -62,8 +62,8 @@ impl serde::Serialize for CatalogInfo {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.storage_root.as_ref() {
             struct_ser.serialize_field("storageRoot", v)?;
@@ -248,7 +248,9 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::StorageRoot => {
                             if storage_root__.is_some() {
@@ -318,7 +320,7 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                     name: name__.unwrap_or_default(),
                     owner: owner__,
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     storage_root: storage_root__,
                     provider_name: provider_name__,
                     share_name: share_name__,
@@ -425,7 +427,7 @@ impl serde::Serialize for CreateCatalogRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.storage_root.is_some() {
@@ -444,8 +446,8 @@ impl serde::Serialize for CreateCatalogRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.storage_root.as_ref() {
             struct_ser.serialize_field("storageRoot", v)?;
@@ -556,7 +558,9 @@ impl<'de> serde::Deserialize<'de> for CreateCatalogRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::StorageRoot => {
                             if storage_root__.is_some() {
@@ -584,7 +588,7 @@ impl<'de> serde::Deserialize<'de> for CreateCatalogRequest {
                 Ok(CreateCatalogRequest {
                     name: name__.unwrap_or_default(),
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     storage_root: storage_root__,
                     provider_name: provider_name__,
                     share_name: share_name__,
@@ -1065,7 +1069,7 @@ impl serde::Serialize for UpdateCatalogRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if !self.new_name.is_empty() {
@@ -1081,8 +1085,8 @@ impl serde::Serialize for UpdateCatalogRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if !self.new_name.is_empty() {
             struct_ser.serialize_field("newName", &self.new_name)?;
@@ -1187,7 +1191,9 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::NewName => {
                             if new_name__.is_some() {
@@ -1204,7 +1210,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                     name: name__.unwrap_or_default(),
                     owner: owner__,
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     new_name: new_name__.unwrap_or_default(),
                 })
             }

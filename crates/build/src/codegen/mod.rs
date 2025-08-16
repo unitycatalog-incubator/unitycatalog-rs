@@ -41,32 +41,16 @@ pub fn generate_rest_handlers(
     let plan = analysis::analyze_metadata(metadata)?;
 
     // Generate code from plan
-    let generated_server_code = generation::generate_server_code(&plan)?;
+    let common_code = generation::generate_common_code(&plan)?;
 
-    println!(
-        "cargo:warning=Writing server code to {}",
-        output_dir_server.display()
-    );
     // Write generated code to output directory
-    output::write_generated_code(&generated_server_code, output_dir_client)?;
-    println!(
-        "cargo:warning=Code written to {}",
-        output_dir_server.display()
-    );
+    output::write_generated_code(&common_code, output_dir_client)?;
 
-    // // Generate code from plan
-    // let generated_client_code = generation::generate_client_code(&plan)?;
+    // Generate server
+    let server_code = generation::generate_server_code(&plan)?;
 
-    // println!(
-    //     "cargo:warning=Writing client code to {}",
-    //     output_dir_client.display()
-    // );
-    // // Write generated code to output directory
-    // output::write_generated_code(&generated_client_code, output_dir_client)?;
-    // println!(
-    //     "cargo:warning=Code written to {}",
-    //     output_dir_client.display()
-    // );
+    // Write generated code to output directory
+    output::write_generated_code(&server_code, output_dir_server)?;
 
     Ok(())
 }

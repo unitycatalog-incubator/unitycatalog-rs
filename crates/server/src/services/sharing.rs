@@ -1,8 +1,8 @@
 use bytes::Bytes;
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
-use unitycatalog_common::api::RequestContext;
-use unitycatalog_common::api::sharing::{
+use crate::api::RequestContext;
+use crate::api::sharing::{
     MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
 };
 use unitycatalog_common::models::sharing::v1::*;

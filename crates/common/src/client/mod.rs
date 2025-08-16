@@ -7,6 +7,7 @@ use futures::stream::BoxStream;
 pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
+#[cfg(feature = "sharing")]
 pub use sharing::*;
 pub use tables::*;
 pub use temporary_credentials::*;
@@ -19,6 +20,7 @@ mod external_locations;
 mod recipients;
 mod schemas;
 mod shares;
+#[cfg(feature = "sharing")]
 mod sharing;
 mod tables;
 mod temporary_credentials;
@@ -33,6 +35,7 @@ pub struct UnityCatalogClient {
     recipients: RecipientClientBase,
     credentials: CredentialClientBase,
     external_locations: ExternalLocationClientBase,
+    temporary_credentials: TemporaryCredentialClientBase,
 }
 
 impl UnityCatalogClient {
@@ -57,6 +60,8 @@ impl UnityCatalogClient {
         let recipients = RecipientClientBase::new(client.clone(), base_url.clone());
         let credentials = CredentialClientBase::new(client.clone(), base_url.clone());
         let external_locations = ExternalLocationClientBase::new(client.clone(), base_url.clone());
+        let temporary_credentials =
+            TemporaryCredentialClientBase::new(client.clone(), base_url.clone());
 
         Self {
             catalogs,
@@ -66,6 +71,7 @@ impl UnityCatalogClient {
             recipients,
             credentials,
             external_locations,
+            temporary_credentials,
         }
     }
 
@@ -260,5 +266,9 @@ impl UnityCatalogClient {
         external_location
             .create(url, credential_name, comment)
             .await
+    }
+
+    pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
+        TemporaryCredentialClient::new(self.temporary_credentials.clone())
     }
 }

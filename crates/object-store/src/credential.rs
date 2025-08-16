@@ -77,7 +77,7 @@ impl<T> UCCredentialProvider<T> {
             SecurableRef::Table(table, op) => {
                 let (cred, table_id) = self
                     .client
-                    .temporary_table_credential(table.clone(), *op)
+                    .temporary_table_credential(*table, *op)
                     .await
                     .map_err(Error::from)?;
                 let securable = SecurableRef::Table(table_id, *op);
@@ -148,9 +148,9 @@ pub(super) fn as_azure(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<
         AzureAad(token) => AzureCredential::BearerToken(token.aad_token.clone()),
         AzureUserDelegationSas(sas) => {
             // split sas query string into pairs
-            let mut pairs = sas.sas_token.split('&');
+            let pairs = sas.sas_token.split('&');
             let mut map = Vec::new();
-            while let Some(pair) = pairs.next() {
+            for pair in pairs {
                 let mut parts = pair.split('=');
                 if let (Some(key), Some(value)) = (parts.next(), parts.next()) {
                     map.push((key.to_string(), value.to_string()));

@@ -9,7 +9,6 @@ pub use credentials::v1::CredentialInfo;
 pub use external_locations::v1::ExternalLocationInfo;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
-pub use profiles::v1::Profile;
 pub use recipients::v1::RecipientInfo;
 pub use schemas::v1::SchemaInfo;
 pub use shares::v1::ShareInfo;
@@ -17,6 +16,8 @@ pub use sharing::v1::{Share, SharingSchema, SharingSchemaInfo, SharingTable};
 pub use tables::v1::{ColumnInfo, TableInfo};
 
 mod object;
+#[cfg(feature = "sharing")]
+pub mod sharing_ext;
 
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 
@@ -100,14 +101,6 @@ pub mod temporary_credentials {
     }
 }
 
-pub mod profiles {
-    pub mod v1 {
-        include!("./gen/unitycatalog.profiles.v1.rs");
-        // #[cfg(feature = "grpc")]
-        // include!("./gen/unitycatalog.profiles.v1.tonic.rs");
-    }
-}
-
 pub(crate) mod internal {
     include!("./gen/unitycatalog.internal.rs");
 }
@@ -135,14 +128,6 @@ impl ObjectLabel {
 #[cfg_attr(
     feature = "sqlx",
     sqlx(type_name = "association_label", rename_all = "snake_case")
-)]
-#[cfg_attr(
-    feature = "tokio-pg",
-    derive(postgres_types::ToSql, postgres_types::FromSql)
-)]
-#[cfg_attr(
-    feature = "tokio-pg",
-    postgres(name = "association_label", rename_all = "snake_case")
 )]
 pub enum AssociationLabel {
     OwnedBy,

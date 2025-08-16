@@ -93,7 +93,7 @@ impl serde::Serialize for CreateRecipientRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.expiration_time.is_some() {
@@ -114,8 +114,8 @@ impl serde::Serialize for CreateRecipientRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.expiration_time.as_ref() {
             #[allow(clippy::needless_borrow)]
@@ -233,7 +233,9 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::ExpirationTime => {
                             if expiration_time__.is_some() {
@@ -253,7 +255,7 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                     authentication_type: authentication_type__.unwrap_or_default(),
                     owner: owner__.unwrap_or_default(),
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     expiration_time: expiration_time__,
                 })
             }
@@ -703,7 +705,7 @@ impl serde::Serialize for RecipientInfo {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.created_at.is_some() {
@@ -739,8 +741,8 @@ impl serde::Serialize for RecipientInfo {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.created_at.as_ref() {
             #[allow(clippy::needless_borrow)]
@@ -901,7 +903,9 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::CreatedAt => {
                             if created_at__.is_some() {
@@ -948,7 +952,7 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                     authentication_type: authentication_type__.unwrap_or_default(),
                     owner: owner__.unwrap_or_default(),
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     created_at: created_at__,
                     created_by: created_by__,
                     tokens: tokens__.unwrap_or_default(),
@@ -1195,7 +1199,7 @@ impl serde::Serialize for UpdateRecipientRequest {
         if self.comment.is_some() {
             len += 1;
         }
-        if self.properties.is_some() {
+        if !self.properties.is_empty() {
             len += 1;
         }
         if self.expiration_time.is_some() {
@@ -1214,8 +1218,8 @@ impl serde::Serialize for UpdateRecipientRequest {
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
-        if let Some(v) = self.properties.as_ref() {
-            struct_ser.serialize_field("properties", v)?;
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.expiration_time.as_ref() {
             #[allow(clippy::needless_borrow)]
@@ -1333,7 +1337,9 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = map_.next_value()?;
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::ExpirationTime => {
                             if expiration_time__.is_some() {
@@ -1353,7 +1359,7 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                     new_name: new_name__,
                     owner: owner__,
                     comment: comment__,
-                    properties: properties__,
+                    properties: properties__.unwrap_or_default(),
                     expiration_time: expiration_time__,
                 })
             }

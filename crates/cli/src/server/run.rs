@@ -5,15 +5,15 @@ use tokio::signal;
 use tower_http::LatencyUnit;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::Level;
-use unitycatalog_common::api::catalogs::CatalogHandler;
-use unitycatalog_common::api::credentials::CredentialHandler;
-use unitycatalog_common::api::external_locations::ExternalLocationHandler;
-use unitycatalog_common::api::recipients::RecipientHandler;
-use unitycatalog_common::api::schemas::SchemaHandler;
-use unitycatalog_common::api::shares::ShareHandler;
-use unitycatalog_common::api::sharing::{SharingHandler, SharingQueryHandler};
-use unitycatalog_common::api::tables::TableHandler;
 use unitycatalog_common::{Error, Result};
+use unitycatalog_server::api::catalogs::CatalogHandler;
+use unitycatalog_server::api::credentials::CredentialHandler;
+use unitycatalog_server::api::external_locations::ExternalLocationHandler;
+use unitycatalog_server::api::recipients::RecipientHandler;
+use unitycatalog_server::api::schemas::SchemaHandler;
+use unitycatalog_server::api::shares::ShareHandler;
+use unitycatalog_server::api::sharing::{SharingHandler, SharingQueryHandler};
+use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
     create_external_locations_router, create_recipients_router, create_schemas_router,

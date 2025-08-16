@@ -1,9 +1,9 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::tables::TableClient as TableClientBase;
 use crate::models::tables::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl TableClientBase {

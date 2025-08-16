@@ -11,7 +11,7 @@ use crate::RequestType;
 /// - FromRequestParts extractor implementations for path/query parameters
 /// - FromRequest extractor implementations for JSON body
 /// - Route handler functions
-pub(super) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+pub(super) fn generate_common(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
     let mut handler_functions = Vec::new();
     for method in &service.methods {
         let handler_code = route_handler_function(method, &service.handler_name);
@@ -24,10 +24,21 @@ pub(super) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
         extractor_impls.push(extractor_code);
     }
 
-    let module_code = server_module(
+    let module_code = server_common(&extractor_impls, &service.base_path);
+
+    Ok(module_code)
+}
+
+pub(super) fn generate_server(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+    let mut handler_functions = Vec::new();
+    for method in &service.methods {
+        let handler_code = route_handler_function(method, &service.handler_name);
+        handler_functions.push(handler_code);
+    }
+
+    let module_code = server_server(
         &service.handler_name,
         &handler_functions,
-        &extractor_impls,
         &service.base_path,
     );
 
@@ -35,37 +46,49 @@ pub(super) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
 }
 
 /// Generate server module
-pub fn server_module(
-    trait_name: &str,
-    handlers: &[String],
-    extractors: &[String],
-    service_namespace: &str,
-) -> String {
-    let handler_tokens: Vec<TokenStream> = handlers
-        .iter()
-        .map(|h| syn::parse_str::<TokenStream>(h).unwrap_or_else(|_| quote! {}))
-        .collect();
+pub fn server_common(extractors: &[String], service_namespace: &str) -> String {
     let extractor_tokens: Vec<TokenStream> = extractors
         .iter()
         .map(|e| syn::parse_str::<TokenStream>(e).unwrap_or_else(|_| quote! {}))
         .collect();
     let mod_path: Path =
         syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
-    let trait_path: Path = syn::parse_str(&format!("super::handler::{}", trait_name)).unwrap();
 
     let tokens = quote! {
         #![allow(unused_mut)]
         use crate::Result;
+        use #mod_path::*;
+        use axum::{RequestExt, RequestPartsExt};
+
+        #(#extractor_tokens)*
+    };
+
+    templates::format_tokens(tokens)
+}
+
+pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &str) -> String {
+    let handler_tokens: Vec<TokenStream> = handlers
+        .iter()
+        .map(|h| syn::parse_str::<TokenStream>(h).unwrap_or_else(|_| quote! {}))
+        .collect();
+    let mod_path: Path = syn::parse_str(&format!(
+        "unitycatalog_common::models::{}::v1",
+        service_namespace
+    ))
+    .unwrap();
+    let trait_path: Path = syn::parse_str(&format!("super::handler::{}", trait_name)).unwrap();
+
+    let tokens = quote! {
+        #![allow(unused_mut)]
+        use unitycatalog_common::Result;
         use crate::api::RequestContext;
         use #mod_path::*;
         use #trait_path;
-        use crate::services::Recipient;
-        use axum::{RequestExt, RequestPartsExt};
+        use crate::policy::Recipient;
         use axum::extract::{State, Extension};
 
         #(#handler_tokens)*
 
-        #(#extractor_tokens)*
     };
 
     templates::format_tokens(tokens)

@@ -1567,6 +1567,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
         storageRoot:
           type: string
@@ -1615,6 +1617,10 @@ components:
         typeJson:
           type: string
           description: Full data type specification, JSON-serialized.
+        position:
+          type: integer
+          description: Ordinal position of column (starting at position 0).
+          format: int32
         typeName:
           type: integer
           description: Data type name.
@@ -1630,10 +1636,6 @@ components:
         typeIntervalType:
           type: string
           description: Format of IntervalType.
-        position:
-          type: integer
-          description: Ordinal position of column (starting at position 0).
-          format: int32
         comment:
           type: string
           description: User-provided free-form text description.
@@ -1660,6 +1662,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
         storageRoot:
           type: string
@@ -1751,6 +1755,8 @@ components:
           description: Description about the recipient.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: |-
             Recipient properties as map of string key-value pairs.
 
@@ -1777,6 +1783,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
       description: Create a new Schema
     CreateShareRequest:
@@ -1830,6 +1838,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
       description: |-
         Create a table
@@ -2449,6 +2459,8 @@ components:
           description: Description about the recipient.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
         createdAt:
           type: string
@@ -2508,6 +2520,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
         fullName:
           readOnly: true
@@ -2640,12 +2654,12 @@ components:
         name:
           type: string
           description: Name of table, relative to parent schema.
-        schemaName:
-          type: string
-          description: Name of parent schema.
         catalogName:
           type: string
           description: Name of parent catalog.
+        schemaName:
+          type: string
+          description: Name of parent schema.
         tableType:
           type: integer
           format: enum
@@ -2669,6 +2683,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: A map of key-value properties attached to the securable.
         storageCredentialName:
           type: string
@@ -2751,6 +2767,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: |-
             A map of key-value properties attached to the securable.
 
@@ -2847,6 +2865,8 @@ components:
           description: Description about the recipient.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: |-
             Recipient properties as map of string key-value pairs.
 
@@ -2869,6 +2889,8 @@ components:
           description: User-provided free-form text description.
         properties:
           type: object
+          additionalProperties:
+            type: string
           description: |-
             A map of key-value properties attached to the securable.
 

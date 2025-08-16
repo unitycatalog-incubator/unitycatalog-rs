@@ -3,7 +3,7 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-use crate::api::codegen::temporary_credentials::TemporaryCredentialClient as ClientBase;
+pub(super) use crate::api::codegen::temporary_credentials::TemporaryCredentialClient as TemporaryCredentialClientBase;
 use crate::models::temporary_credentials::v1::TemporaryCredential;
 use crate::temporary_credentials::v1::{
     GenerateTemporaryPathCredentialsRequest, GenerateTemporaryTableCredentialsRequest,
@@ -73,7 +73,7 @@ impl From<PathOperation> for i32 {
 
 #[derive(Clone)]
 pub struct TemporaryCredentialClient {
-    client: ClientBase,
+    client: TemporaryCredentialClientBase,
 }
 
 impl TemporaryCredentialClient {
@@ -82,15 +82,24 @@ impl TemporaryCredentialClient {
             base_url.set_path(&format!("{}/", base_url.path()));
         }
         Self {
-            client: ClientBase::new(client, base_url),
+            client: TemporaryCredentialClientBase::new(client, base_url),
         }
     }
 
-    pub fn new(client: ClientBase) -> Self {
+    pub fn new(client: TemporaryCredentialClientBase) -> Self {
         Self { client }
     }
 
     /// Get a temporary credential for reading or writing to a table.
+    ///
+    /// ## Parameters
+    ///
+    /// * `table`: The table to get a temporary credential for.
+    /// * `operation`: The operation to perform on the table.
+    ///
+    /// ## Returns
+    ///
+    /// A tuple containing the temporary credential and the resolved table ID.
     pub async fn temporary_table_credential(
         &self,
         table: impl Into<TableReference>,

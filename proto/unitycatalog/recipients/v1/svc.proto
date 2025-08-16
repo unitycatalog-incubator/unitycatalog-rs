@@ -53,7 +53,7 @@ message CreateRecipientRequest {
   //
   // When provided in update request, the specified properties will override the existing properties.
   // To add and remove properties, one would need to perform a read-modify-write.
-  optional google.protobuf.Struct properties = 5 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> properties = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // Expiration timestamp of the token, in epoch milliseconds.
   optional int64 expiration_time = 6 [(google.api.field_behavior) = OPTIONAL];
@@ -92,7 +92,7 @@ message UpdateRecipientRequest {
   //
   // When provided in update request, the specified properties will override the existing properties.
   // To add and remove properties, one would need to perform a read-modify-write.
-  optional google.protobuf.Struct properties = 5 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> properties = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // Expiration timestamp of the token, in epoch milliseconds.
   optional int64 expiration_time = 6 [(google.api.field_behavior) = OPTIONAL];

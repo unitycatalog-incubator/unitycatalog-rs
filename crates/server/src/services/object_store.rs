@@ -7,9 +7,6 @@ use deltalake_datafusion::ObjectStoreFactory;
 use itertools::Itertools;
 use url::Url;
 
-use super::ServerHandlerInner;
-use unitycatalog_common::api::CredentialHandler;
-use unitycatalog_common::api::credentials::CredentialHandlerExt;
 use unitycatalog_common::models::credentials::v1::credential_info::Credential;
 use unitycatalog_common::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
@@ -17,8 +14,12 @@ use unitycatalog_common::models::credentials::v1::{
 };
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::resources::ResourceStore;
-use unitycatalog_common::services::{StorageLocationScheme, StorageLocationUrl};
 use unitycatalog_common::{Error, Result};
+
+use super::ServerHandlerInner;
+use super::location::{StorageLocationScheme, StorageLocationUrl};
+use crate::api::CredentialHandler;
+use crate::api::credentials::CredentialHandlerExt;
 
 pub(crate) trait RegistryHandler:
     ResourceStore + CredentialHandler + CredentialHandlerExt

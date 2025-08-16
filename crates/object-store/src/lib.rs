@@ -19,7 +19,7 @@ pub use crate::error::Error;
 mod credential;
 mod error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct UnityObjectStoreFactoryBuilder {
     /// URI of the Unity Catalog instance.
     uri: Option<String>,
@@ -27,16 +27,6 @@ pub struct UnityObjectStoreFactoryBuilder {
     token: Option<String>,
     /// Allow unauthenticated access.
     allow_unauthenticated: bool,
-}
-
-impl Default for UnityObjectStoreFactoryBuilder {
-    fn default() -> Self {
-        Self {
-            uri: None,
-            token: None,
-            allow_unauthenticated: false,
-        }
-    }
 }
 
 /// Builder for creating a UnityObjectStoreFactory.
@@ -190,7 +180,7 @@ impl UnityObjectStoreFactory {
             let provider = new_azure(self.client.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
             let store = MicrosoftAzureBuilder::new()
-                .with_url(&url.to_string())
+                .with_url(url.to_string())
                 .with_credentials(Arc::new(provider))
                 .build()?;
             return Ok(Arc::new(store));
@@ -200,7 +190,7 @@ impl UnityObjectStoreFactory {
             let provider = new_aws(self.client.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
             let store = AmazonS3Builder::new()
-                .with_url(&url.to_string())
+                .with_url(url.to_string())
                 .with_credentials(Arc::new(provider))
                 .build()?;
             return Ok(Arc::new(store));
@@ -210,7 +200,7 @@ impl UnityObjectStoreFactory {
             let provider = new_gcp(self.client.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
             let store = GoogleCloudStorageBuilder::new()
-                .with_url(&url.to_string())
+                .with_url(url.to_string())
                 .with_credentials(Arc::new(provider))
                 .build()?;
             return Ok(Arc::new(store));

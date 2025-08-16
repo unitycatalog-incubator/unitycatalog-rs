@@ -7,11 +7,8 @@ pub mod api;
 #[cfg(feature = "rest-client")]
 pub mod client;
 pub mod error;
-#[cfg(feature = "memory")]
-pub mod memory;
 pub mod models;
 #[cfg(feature = "python")]
 pub mod python;
 pub mod resources;
 pub mod services;
-pub mod utils;

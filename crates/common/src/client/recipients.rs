@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
+use super::utils::stream_paginated;
 pub(super) use crate::api::codegen::recipients::RecipientClient as RecipientClientBase;
 use crate::models::recipients::v1::*;
-use crate::utils::stream_paginated;
 use crate::{Error, Result};
 
 impl RecipientClientBase {
@@ -69,7 +71,7 @@ impl RecipientClient {
         new_name: Option<impl ToString>,
         comment: Option<impl ToString>,
         owner: Option<impl ToString>,
-        properties: impl Into<Option<crate::models::google::protobuf::Struct>>,
+        properties: impl Into<Option<HashMap<String, String>>>,
         expiration_time: Option<i64>,
     ) -> Result<RecipientInfo> {
         let request = UpdateRecipientRequest {
@@ -77,7 +79,7 @@ impl RecipientClient {
             new_name: new_name.map(|s| s.to_string()),
             comment: comment.map(|s| s.to_string()),
             owner: owner.map(|s| s.to_string()),
-            properties: properties.into(),
+            properties: properties.into().unwrap_or_default(),
             expiration_time,
         };
         self.client.update_recipient(&request).await

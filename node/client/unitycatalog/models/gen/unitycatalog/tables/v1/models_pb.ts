@@ -5,13 +5,13 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { JsonObject, Message } from "@bufbuild/protobuf";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/tables/v1/models.proto.
  */
 export const file_unitycatalog_tables_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("CiN1bml0eWNhdGFsb2cvdGFibGVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnRhYmxlcy52MSJYCgxUYWJsZVN1bW1hcnkSEQoJZnVsbF9uYW1lGAEgASgJEjUKCnRhYmxlX3R5cGUYAiABKA4yIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlVHlwZSLNAwoKQ29sdW1uSW5mbxIMCgRuYW1lGAEgASgJEhEKCXR5cGVfdGV4dBgCIAEoCRIRCgl0eXBlX2pzb24YAyABKAkSOQoJdHlwZV9uYW1lGAQgASgOMiYudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5UeXBlTmFtZRIbCg50eXBlX3ByZWNpc2lvbhgFIAEoBUgAiAEBEhcKCnR5cGVfc2NhbGUYBiABKAVIAYgBARIfChJ0eXBlX2ludGVydmFsX3R5cGUYByABKAlIAogBARIVCghwb3NpdGlvbhgIIAEoBUgDiAEBEhQKB2NvbW1lbnQYCSABKAlIBIgBARIVCghudWxsYWJsZRgKIAEoCEgFiAEBEhwKD3BhcnRpdGlvbl9pbmRleBgLIAEoBUgGiAEBEhYKCWNvbHVtbl9pZBgMIAEoCUgHiAEBQhEKD190eXBlX3ByZWNpc2lvbkINCgtfdHlwZV9zY2FsZUIVChNfdHlwZV9pbnRlcnZhbF90eXBlQgsKCV9wb3NpdGlvbkIKCghfY29tbWVudEILCglfbnVsbGFibGVCEgoQX3BhcnRpdGlvbl9pbmRleEIMCgpfY29sdW1uX2lkIv8FCglUYWJsZUluZm8SDAoEbmFtZRgBIAEoCRITCgtzY2hlbWFfbmFtZRgCIAEoCRIUCgxjYXRhbG9nX25hbWUYAyABKAkSNQoKdGFibGVfdHlwZRgEIAEoDjIhLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGVUeXBlEkQKEmRhdGFfc291cmNlX2Zvcm1hdBgFIAEoDjIoLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuRGF0YVNvdXJjZUZvcm1hdBIzCgdjb2x1bW5zGAYgAygLMiIudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5JbmZvEh0KEHN0b3JhZ2VfbG9jYXRpb24YByABKAlIAIgBARISCgVvd25lchgLIAEoCUgBiAEBEhQKB2NvbW1lbnQYDCABKAlIAogBARIwCgpwcm9wZXJ0aWVzGA0gASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEgDiAEBEiQKF3N0b3JhZ2VfY3JlZGVudGlhbF9uYW1lGA4gASgJSASIAQESFgoJZnVsbF9uYW1lGBEgASgJSAWIAQESFwoKY3JlYXRlZF9hdBgSIAEoA0gGiAEBEhcKCmNyZWF0ZWRfYnkYEyABKAlIB4gBARIXCgp1cGRhdGVkX2F0GBQgASgDSAiIAQESFwoKdXBkYXRlZF9ieRgVIAEoCUgJiAEBEhcKCmRlbGV0ZWRfYXQYFiABKANICogBARIVCgh0YWJsZV9pZBgXIAEoCUgLiAEBQhMKEV9zdG9yYWdlX2xvY2F0aW9uQggKBl9vd25lckIKCghfY29tbWVudEINCgtfcHJvcGVydGllc0IaChhfc3RvcmFnZV9jcmVkZW50aWFsX25hbWVCDAoKX2Z1bGxfbmFtZUINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUINCgtfZGVsZXRlZF9hdEILCglfdGFibGVfaWQqQgoJVGFibGVUeXBlEhoKFlRBQkxFX1RZUEVfVU5TUEVDSUZJRUQQABILCgdNQU5BR0VEEAESDAoIRVhURVJOQUwQAiq6AQoQRGF0YVNvdXJjZUZvcm1hdBIiCh5EQVRBX1NPVVJDRV9GT1JNQVRfVU5TUEVDSUZJRUQQABIJCgVERUxUQRABEgsKB0lDRUJFUkcQAhIICgRIVURJEAMSCwoHUEFSUVVFVBAEEgcKA0NTVhAFEggKBEpTT04QBhIHCgNPUkMQBxIICgRBVlJPEAgSCAoEVEVYVBAJEhEKDVVOSVRZX0NBVEFMT0cQChIQCgxERUxUQVNIQVJJTkcQCyrFAgoOQ29sdW1uVHlwZU5hbWUSIAocQ09MVU1OX1RZUEVfTkFNRV9VTlNQRUNJRklFRBAAEgsKB0JPT0xFQU4QARIICgRCWVRFEAISCQoFU0hPUlQQAxIHCgNJTlQQBBIICgRMT05HEAUSCQoFRkxPQVQQBhIKCgZET1VCTEUQBxIICgREQVRFEAgSDQoJVElNRVNUQU1QEAkSCgoGU1RSSU5HEAoSCgoGQklOQVJZEAsSCwoHREVDSU1BTBAMEgwKCElOVEVSVkFMEA0SCQoFQVJSQVkQDhIKCgZTVFJVQ1QQDxIHCgNNQVAQEBIICgRDSEFSEBESCAoETlVMTBASEhUKEVVTRVJfREVGSU5FRF9UWVBFEBMSEQoNVElNRVNUQU1QX05UWhAUEgsKB1ZBUklBTlQQFRIOCgpUQUJMRV9UWVBFEBZC8wEKGmNvbS51bml0eWNhdGFsb2cudGFibGVzLnYxQgtNb2RlbHNQcm90b1ABWk5naXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy90YWJsZXMvdjE7dGFibGVzdjGiAgNVVFiqAhZVbml0eWNhdGFsb2cuVGFibGVzLlYxygIWVW5pdHljYXRhbG9nXFRhYmxlc1xWMeICIlVuaXR5Y2F0YWxvZ1xUYWJsZXNcVjFcR1BCTWV0YWRhdGHqAhhVbml0eWNhdGFsb2c6OlRhYmxlczo6VjFiBnByb3RvMw", [file_google_protobuf_struct]);
+  fileDesc("CiN1bml0eWNhdGFsb2cvdGFibGVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnRhYmxlcy52MSJYCgxUYWJsZVN1bW1hcnkSEQoJZnVsbF9uYW1lGAEgASgJEjUKCnRhYmxlX3R5cGUYAiABKA4yIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlVHlwZSLNAwoKQ29sdW1uSW5mbxIMCgRuYW1lGAEgASgJEhEKCXR5cGVfdGV4dBgCIAEoCRIRCgl0eXBlX2pzb24YAyABKAkSFQoIcG9zaXRpb24YBCABKAVIAIgBARI5Cgl0eXBlX25hbWUYBSABKA4yJi51bml0eWNhdGFsb2cudGFibGVzLnYxLkNvbHVtblR5cGVOYW1lEhsKDnR5cGVfcHJlY2lzaW9uGAYgASgFSAGIAQESFwoKdHlwZV9zY2FsZRgHIAEoBUgCiAEBEh8KEnR5cGVfaW50ZXJ2YWxfdHlwZRgIIAEoCUgDiAEBEhQKB2NvbW1lbnQYCSABKAlIBIgBARIVCghudWxsYWJsZRgKIAEoCEgFiAEBEhwKD3BhcnRpdGlvbl9pbmRleBgLIAEoBUgGiAEBEhYKCWNvbHVtbl9pZBgMIAEoCUgHiAEBQgsKCV9wb3NpdGlvbkIRCg9fdHlwZV9wcmVjaXNpb25CDQoLX3R5cGVfc2NhbGVCFQoTX3R5cGVfaW50ZXJ2YWxfdHlwZUIKCghfY29tbWVudEILCglfbnVsbGFibGVCEgoQX3BhcnRpdGlvbl9pbmRleEIMCgpfY29sdW1uX2lkIrgGCglUYWJsZUluZm8SDAoEbmFtZRgBIAEoCRIUCgxjYXRhbG9nX25hbWUYAiABKAkSEwoLc2NoZW1hX25hbWUYAyABKAkSNQoKdGFibGVfdHlwZRgEIAEoDjIhLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGVUeXBlEkQKEmRhdGFfc291cmNlX2Zvcm1hdBgFIAEoDjIoLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuRGF0YVNvdXJjZUZvcm1hdBIzCgdjb2x1bW5zGAYgAygLMiIudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5JbmZvEh0KEHN0b3JhZ2VfbG9jYXRpb24YByABKAlIAIgBARISCgVvd25lchgLIAEoCUgBiAEBEhQKB2NvbW1lbnQYDCABKAlIAogBARJFCgpwcm9wZXJ0aWVzGA0gAygLMjEudW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZUluZm8uUHJvcGVydGllc0VudHJ5EiQKF3N0b3JhZ2VfY3JlZGVudGlhbF9uYW1lGA4gASgJSAOIAQESFgoJZnVsbF9uYW1lGBEgASgJSASIAQESFwoKY3JlYXRlZF9hdBgSIAEoA0gFiAEBEhcKCmNyZWF0ZWRfYnkYEyABKAlIBogBARIXCgp1cGRhdGVkX2F0GBQgASgDSAeIAQESFwoKdXBkYXRlZF9ieRgVIAEoCUgIiAEBEhcKCmRlbGV0ZWRfYXQYFiABKANICYgBARIVCgh0YWJsZV9pZBgXIAEoCUgKiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQhMKEV9zdG9yYWdlX2xvY2F0aW9uQggKBl9vd25lckIKCghfY29tbWVudEIaChhfc3RvcmFnZV9jcmVkZW50aWFsX25hbWVCDAoKX2Z1bGxfbmFtZUINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUINCgtfZGVsZXRlZF9hdEILCglfdGFibGVfaWQqQgoJVGFibGVUeXBlEhoKFlRBQkxFX1RZUEVfVU5TUEVDSUZJRUQQABILCgdNQU5BR0VEEAESDAoIRVhURVJOQUwQAiq6AQoQRGF0YVNvdXJjZUZvcm1hdBIiCh5EQVRBX1NPVVJDRV9GT1JNQVRfVU5TUEVDSUZJRUQQABIJCgVERUxUQRABEgsKB0lDRUJFUkcQAhIICgRIVURJEAMSCwoHUEFSUVVFVBAEEgcKA0NTVhAFEggKBEpTT04QBhIHCgNPUkMQBxIICgRBVlJPEAgSCAoEVEVYVBAJEhEKDVVOSVRZX0NBVEFMT0cQChIQCgxERUxUQVNIQVJJTkcQCyrFAgoOQ29sdW1uVHlwZU5hbWUSIAocQ09MVU1OX1RZUEVfTkFNRV9VTlNQRUNJRklFRBAAEgsKB0JPT0xFQU4QARIICgRCWVRFEAISCQoFU0hPUlQQAxIHCgNJTlQQBBIICgRMT05HEAUSCQoFRkxPQVQQBhIKCgZET1VCTEUQBxIICgREQVRFEAgSDQoJVElNRVNUQU1QEAkSCgoGU1RSSU5HEAoSCgoGQklOQVJZEAsSCwoHREVDSU1BTBAMEgwKCElOVEVSVkFMEA0SCQoFQVJSQVkQDhIKCgZTVFJVQ1QQDxIHCgNNQVAQEBIICgRDSEFSEBESCAoETlVMTBASEhUKEVVTRVJfREVGSU5FRF9UWVBFEBMSEQoNVElNRVNUQU1QX05UWhAUEgsKB1ZBUklBTlQQFRIOCgpUQUJMRV9UWVBFEBZC8wEKGmNvbS51bml0eWNhdGFsb2cudGFibGVzLnYxQgtNb2RlbHNQcm90b1ABWk5naXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy90YWJsZXMvdjE7dGFibGVzdjGiAgNVVFiqAhZVbml0eWNhdGFsb2cuVGFibGVzLlYxygIWVW5pdHljYXRhbG9nXFRhYmxlc1xWMeICIlVuaXR5Y2F0YWxvZ1xUYWJsZXNcVjFcR1BCTWV0YWRhdGHqAhhVbml0eWNhdGFsb2c6OlRhYmxlczo6VjFiBnByb3RvMw", [file_google_protobuf_struct]);
 
 /**
  * @generated from message unitycatalog.tables.v1.TableSummary
@@ -63,39 +63,39 @@ export type ColumnInfo = Message<"unitycatalog.tables.v1.ColumnInfo"> & {
   typeJson: string;
 
   /**
+   * Ordinal position of column (starting at position 0).
+   *
+   * @generated from field: optional int32 position = 4;
+   */
+  position?: number;
+
+  /**
    * Data type name.
    *
-   * @generated from field: unitycatalog.tables.v1.ColumnTypeName type_name = 4;
+   * @generated from field: unitycatalog.tables.v1.ColumnTypeName type_name = 5;
    */
   typeName: ColumnTypeName;
 
   /**
    * Digits of precision; required for DecimalTypes.
    *
-   * @generated from field: optional int32 type_precision = 5;
+   * @generated from field: optional int32 type_precision = 6;
    */
   typePrecision?: number;
 
   /**
    * Digits to right of decimal; Required for DecimalTypes.
    *
-   * @generated from field: optional int32 type_scale = 6;
+   * @generated from field: optional int32 type_scale = 7;
    */
   typeScale?: number;
 
   /**
    * Format of IntervalType.
    *
-   * @generated from field: optional string type_interval_type = 7;
+   * @generated from field: optional string type_interval_type = 8;
    */
   typeIntervalType?: string;
-
-  /**
-   * Ordinal position of column (starting at position 0).
-   *
-   * @generated from field: optional int32 position = 8;
-   */
-  position?: number;
 
   /**
    * User-provided free-form text description.
@@ -145,18 +145,18 @@ export type TableInfo = Message<"unitycatalog.tables.v1.TableInfo"> & {
   name: string;
 
   /**
-   * Name of parent schema.
-   *
-   * @generated from field: string schema_name = 2;
-   */
-  schemaName: string;
-
-  /**
    * Name of parent catalog.
    *
-   * @generated from field: string catalog_name = 3;
+   * @generated from field: string catalog_name = 2;
    */
   catalogName: string;
+
+  /**
+   * Name of parent schema.
+   *
+   * @generated from field: string schema_name = 3;
+   */
+  schemaName: string;
 
   /**
    * @generated from field: unitycatalog.tables.v1.TableType table_type = 4;
@@ -201,9 +201,9 @@ export type TableInfo = Message<"unitycatalog.tables.v1.TableInfo"> & {
   /**
    * A map of key-value properties attached to the securable.
    *
-   * @generated from field: optional google.protobuf.Struct properties = 13;
+   * @generated from field: map<string, string> properties = 13;
    */
-  properties?: JsonObject;
+  properties: { [key: string]: string };
 
   /**
    * Name of the storage credential, when a storage credential is configured for use with this table.

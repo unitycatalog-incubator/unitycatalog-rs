@@ -137,7 +137,7 @@ message CreateTableRequest {
   optional string comment = 8;
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 9;
+  map<string, string> properties = 9;
 }
 
 // Get a table

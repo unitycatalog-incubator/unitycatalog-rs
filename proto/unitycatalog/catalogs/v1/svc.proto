@@ -48,7 +48,7 @@ message CreateCatalogRequest {
   optional string comment = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // A map of key-value properties attached to the securable.
-  optional google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> properties = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Storage root URL for managed tables within catalog.
   optional string storage_root = 4 [
@@ -104,7 +104,7 @@ message UpdateCatalogRequest {
   //
   // When provided in update request, the specified properties will override the existing properties.
   // To add and remove properties, one would need to perform a read-modify-write.
-  optional google.protobuf.Struct properties = 4 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> properties = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Name of catalog.
   string new_name = 5 [

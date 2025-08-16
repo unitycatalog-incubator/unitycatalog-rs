@@ -16,7 +16,7 @@ unitycatalog-derive = { path = "../derive" }
 async-trait = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
-delta_kernel = { workspace = true }
+delta_kernel = { workspace = true, optional = true }
 itertools = { workspace = true }
 pbjson = { workspace = true }
 pbjson-types = { workspace = true }
@@ -30,8 +30,6 @@ tracing = { workspace = true }
 url = { workspace = true }
 uuid = { workspace = true }
 
-datafusion = { version = "49" }
-
 futures-util = { version = "0.3.28" }
 reqwest = { version = "0.12", default-features = false, features = [
   "rustls-tls-native-roots",
@@ -39,9 +37,6 @@ reqwest = { version = "0.12", default-features = false, features = [
   "json",
   "stream",
 ] }
-
-# in-memory handler dependencies (in alphabetical order)
-dashmap = { version = "6" }
 
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
@@ -54,9 +49,6 @@ http = { version = "1.2", optional = true }
 http-body-util = { version = "0.1.0", optional = true }
 mime = { version = "0.3", optional = true }
 
-# support kernel executors based on tokio runtime.
-tokio = { version = "1.40", optional = true, features = ["rt-multi-thread"] }
-
 # convenience for downstream crates that want to use certain types with sqlx
 sqlx = { workspace = true, optional = true, features = [
   "uuid",
@@ -64,9 +56,6 @@ sqlx = { workspace = true, optional = true, features = [
   "chrono",
   "json",
 ] }
-
-# convenience for downstream crates that want to use certain types with tokio-postgres
-postgres-types = { version = "0.2", optional = true, features = ["derive"] }
 
 # derive pyclass for generated messages
 pyo3 = { workspace = true, optional = true }
@@ -77,19 +66,21 @@ mime = "0.3"
 tokio = { version = "1", features = ["full"] }
 
 [features]
-default = ["grpc", "memory", "rest-client", "tokio"]
+default = ["grpc", "rest-client"]
 grpc = ["tonic"]
+
+# enable support for the axum framework. This will implement `FromRequest`
+# and `FromRequestParts` for request types.
 axum = ["dep:axum", "http"]
+
 sqlx = ["dep:sqlx"]
-memory = ["uuid/v7"]
-tokio = ["dep:tokio", "delta_kernel/tokio"]
 
 rest-client = ["futures"]
-
-tokio-pg = ["postgres-types"]
 
 # exposes functionality that help testing cutom handler / router implementations.
 integration = ["http-body-util", "mime", "axum"]
 
 # derives pyclass for generated messages
 python = ["pyo3"]
+
+sharing = ["delta_kernel"]
