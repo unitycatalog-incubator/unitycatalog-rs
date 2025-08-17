@@ -386,7 +386,7 @@ fn parse_escaped_field_name(chars: &mut Chars<'_>) -> Result<String> {
 #[doc(hidden)]
 macro_rules! __resource_name {
     ( $($name:tt)* ) => {
-        $crate::resources::ResourceName::new($crate::derive::parse_column_name!($($name)*))
+        $crate::models::ResourceName::new($crate::derive::parse_column_name!($($name)*))
     };
 }
 #[doc(inline)]

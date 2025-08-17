@@ -8,7 +8,7 @@ pub use tables::TableHandler;
 pub use temporary_credentials::TemporaryCredentialHandler;
 
 use crate::policy::{Permission, Recipient};
-use unitycatalog_common::resources::ResourceIdent;
+use unitycatalog_common::models::ResourceIdent;
 
 pub mod catalogs;
 pub mod credentials;

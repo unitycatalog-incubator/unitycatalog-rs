@@ -1,9 +1,10 @@
 use itertools::Itertools;
 
 use unitycatalog_common::Result;
-use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::external_locations::v1::*;
-use unitycatalog_common::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_common::models::{
+    ObjectLabel, ResourceExt, ResourceIdent, ResourceName, ResourceRef,
+};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::external_locations::ExternalLocationHandler;

@@ -3,7 +3,7 @@ use itertools::Itertools;
 use unitycatalog_common::Result;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::schemas::v1::*;
-use unitycatalog_common::resources::{ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::schemas::SchemaHandler;
