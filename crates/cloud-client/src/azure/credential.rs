@@ -884,9 +884,10 @@ mod tests {
         // Test IMDS
         let _mock = server
             .mock("GET", "/metadata/identity/oauth2/token")
-            .match_query(mockito::Matcher::AllOf(vec![
-                mockito::Matcher::UrlEncoded("client_id".into(), "client_id".into()),
-            ]))
+            .match_query(mockito::Matcher::AllOf(vec![mockito::Matcher::UrlEncoded(
+                "client_id".into(),
+                "client_id".into(),
+            )]))
             .match_header("x-identity-header", "env-secret")
             .match_header("metadata", "true")
             .with_status(200)

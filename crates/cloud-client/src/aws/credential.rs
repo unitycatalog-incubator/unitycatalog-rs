@@ -740,8 +740,8 @@ struct CreateSessionOutput {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockito;
     use hyper::Response;
+    use mockito;
     use reqwest::{Client, Method};
     use std::env;
 

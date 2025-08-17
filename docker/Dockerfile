@@ -1,4 +1,4 @@
-FROM rust:1.87 AS chef
+FROM rust:1.89 AS chef
 
 ARG NO_CHEF=false
 ENV NO_CHEF=${NO_CHEF}

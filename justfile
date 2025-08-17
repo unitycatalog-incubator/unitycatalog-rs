@@ -4,40 +4,45 @@ set dotenv-load := true
 default:
     @just --list --justfile {{ justfile() }}
 
+# main code generation command. This will run all generation for unity types.
+[group('generate')]
+generate: generate-proto generate-code
+
+# run all code generation for unitycatalog and external types.
+[group('generate')]
+generate-full: generate-common-ext generate-build-ext generate-proto generate-code
+
 # run code generation for proto files.
 [group('generate')]
-generate:
+generate-proto:
     buf generate proto
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
     cargo clippy --fix --allow-dirty --allow-staged
 
-# generate auxiliary types in common crate
-[group('generate')]
-generate-types:
-    just crates/common/generate
-
-# generate types for build crate
-[group('generate')]
-generate-build:
-    just crates/build/generate
-
 # generate rest server and client code with build crate.
 [group('generate')]
-generate-rest: generate-descriptors
+generate-code:
+    buf build --output {{ justfile_directory() }}/descriptors.bin proto
     cargo run --bin unitycatalog-build -- \
       --output-server crates/server/src/codegen \
       --output-client crates/common/src/codegen \
-      --descriptors crates/common/descriptors/descriptors.bin
+      --descriptors {{ justfile_directory() }}/descriptors.bin
+    rm {{ justfile_directory() }}/descriptors.bin
     cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
     cargo fmt
 
-# generate file descriptor set for codegen
+# generate auxiliary types in common crate. (custom google.protobuf build)
 [group('generate')]
-generate-descriptors:
-    buf build --output ./crates/common/descriptors/descriptors.bin proto
+generate-common-ext:
+    just crates/common/generate
 
-# generate types for node client
+# generate types for build crate. (google.api and gnostic file extensions)
+[group('generate')]
+generate-build-ext:
+    just crates/build/generate
+
+# generate types for node client. these are all slow changing external types
 [group('generate')]
 generate-node:
     just node/client/generate

@@ -42,6 +42,7 @@ pub enum Error {
     #[error("Failed to extract recipient from request")]
     MissingRecipient,
 
+    #[cfg(feature = "sharing")]
     #[error("ObjectStore error: {0}")]
     ObjectStore(#[from] delta_kernel::object_store::Error),
 
