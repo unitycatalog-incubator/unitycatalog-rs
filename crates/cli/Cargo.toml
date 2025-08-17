@@ -16,7 +16,8 @@ path = "src/main.rs"
 [dependencies]
 # path dependencies (in alphabetical order)
 cloud-client = { path = "../cloud-client" }
-unitycatalog-common = { path = "../common", features = ["axum", "rest-client"] }
+unitycatalog-client = { path = "../client" }
+unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-postgres = { path = "../postgres" }
 unitycatalog-server = { path = "../server", features = ["axum"] }
 
