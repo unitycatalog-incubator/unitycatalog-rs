@@ -2,6 +2,7 @@ use cloud_client::CloudClient;
 
 pub use catalogs::*;
 pub use credentials::*;
+pub use error::*;
 pub use external_locations::*;
 use futures::stream::BoxStream;
 pub use recipients::*;
@@ -11,11 +12,16 @@ pub use shares::*;
 pub use sharing::*;
 pub use tables::*;
 pub use temporary_credentials::*;
-
-use crate::{CatalogInfo, Result};
+use unitycatalog_common::CatalogInfo;
+use unitycatalog_common::{
+    CredentialInfo, ExternalLocationInfo, RecipientInfo, SchemaInfo, ShareInfo, TableInfo,
+    credentials::v1::Purpose, recipients::v1::AuthenticationType, tables::v1::TableSummary,
+};
 
 mod catalogs;
+mod codegen;
 mod credentials;
+pub mod error;
 mod external_locations;
 mod recipients;
 mod schemas;
@@ -92,7 +98,7 @@ impl UnityCatalogClient {
         &self,
         catalog_name: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<crate::models::schemas::v1::SchemaInfo>> {
+    ) -> BoxStream<'_, Result<SchemaInfo>> {
         self.schemas.list(catalog_name, max_results)
     }
 
@@ -107,7 +113,7 @@ impl UnityCatalogClient {
         schema_name_pattern: Option<impl ToString>,
         table_name_pattern: Option<impl ToString>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<crate::models::tables::v1::TableSummary>> {
+    ) -> BoxStream<'_, Result<TableSummary>> {
         self.tables.list_summaries(
             catalog_name,
             schema_name_pattern,
@@ -125,7 +131,7 @@ impl UnityCatalogClient {
         omit_columns: impl Into<Option<bool>>,
         omit_properties: impl Into<Option<bool>>,
         omit_username: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<crate::models::tables::v1::TableInfo>> {
+    ) -> BoxStream<'_, Result<TableInfo>> {
         self.tables.list(
             catalog_name,
             schema_name,
@@ -145,7 +151,7 @@ impl UnityCatalogClient {
     pub fn list_shares(
         &self,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<crate::models::shares::v1::ShareInfo>> {
+    ) -> BoxStream<'_, Result<ShareInfo>> {
         self.shares.list(max_results)
     }
 
@@ -157,7 +163,7 @@ impl UnityCatalogClient {
     pub fn list_recipients(
         &self,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<crate::models::recipients::v1::RecipientInfo>> {
+    ) -> BoxStream<'_, Result<RecipientInfo>> {
         self.recipients.list(max_results)
     }
 
@@ -168,9 +174,9 @@ impl UnityCatalogClient {
     // Credential methods
     pub fn list_credentials(
         &self,
-        purpose: Option<crate::models::credentials::v1::Purpose>,
+        purpose: Option<Purpose>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<crate::models::credentials::v1::CredentialInfo>> {
+    ) -> BoxStream<'_, Result<CredentialInfo>> {
         self.credentials.list(purpose, max_results)
     }
 
@@ -182,7 +188,7 @@ impl UnityCatalogClient {
     pub fn list_external_locations(
         &self,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<crate::models::external_locations::v1::ExternalLocationInfo>> {
+    ) -> BoxStream<'_, Result<ExternalLocationInfo>> {
         self.external_locations.list(max_results)
     }
 
@@ -221,7 +227,7 @@ impl UnityCatalogClient {
         catalog_name: impl ToString,
         schema_name: impl ToString,
         comment: Option<impl ToString>,
-    ) -> Result<crate::models::schemas::v1::SchemaInfo> {
+    ) -> Result<SchemaInfo> {
         let schema = SchemaClient::new(catalog_name, schema_name, self.schemas.clone());
         schema.create(comment).await
     }
@@ -230,7 +236,7 @@ impl UnityCatalogClient {
         &self,
         name: impl ToString,
         comment: Option<impl ToString>,
-    ) -> Result<crate::models::shares::v1::ShareInfo> {
+    ) -> Result<ShareInfo> {
         let share = ShareClient::new(name, self.shares.clone());
         share.create(comment).await
     }
@@ -238,9 +244,9 @@ impl UnityCatalogClient {
     pub async fn create_recipient(
         &self,
         name: impl ToString,
-        authentication_type: crate::models::recipients::v1::AuthenticationType,
+        authentication_type: AuthenticationType,
         comment: Option<impl ToString>,
-    ) -> Result<crate::models::recipients::v1::RecipientInfo> {
+    ) -> Result<RecipientInfo> {
         let recipient = RecipientClient::new(name, self.recipients.clone());
         recipient.create(authentication_type, comment).await
     }
@@ -248,9 +254,9 @@ impl UnityCatalogClient {
     pub async fn create_credential(
         &self,
         name: impl ToString,
-        purpose: crate::models::credentials::v1::Purpose,
+        purpose: Purpose,
         comment: Option<impl ToString>,
-    ) -> Result<crate::models::credentials::v1::CredentialInfo> {
+    ) -> Result<CredentialInfo> {
         let credential = CredentialClient::new(name, self.credentials.clone());
         credential.create(purpose, comment).await
     }
@@ -261,7 +267,7 @@ impl UnityCatalogClient {
         url: impl reqwest::IntoUrl,
         credential_name: impl Into<String>,
         comment: Option<impl ToString>,
-    ) -> Result<crate::models::external_locations::v1::ExternalLocationInfo> {
+    ) -> Result<ExternalLocationInfo> {
         let external_location = ExternalLocationClient::new(name, self.external_locations.clone());
         external_location
             .create(url, credential_name, comment)

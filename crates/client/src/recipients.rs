@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
+use unitycatalog_common::models::recipients::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
-use crate::models::recipients::v1::*;
 
 impl RecipientClientBase {
     pub fn list(

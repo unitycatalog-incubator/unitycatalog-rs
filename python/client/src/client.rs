@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
-use unitycatalog_common::client::{
-    CatalogClient, CredentialClient, DeltaSharingClient, ExternalLocationClient, RecipientClient,
-    SchemaClient, ShareClient, TableClient, TemporaryCredentialClient, UnityCatalogClient,
+use unitycatalog_client::{
+    CatalogClient, CredentialClient, DeltaSharingClient, ExternalLocationClient, PathOperation,
+    RecipientClient, SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
+    TemporaryCredentialClient, UnityCatalogClient,
 };
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
@@ -947,8 +948,6 @@ impl PyTemporaryCredentialClient {
         table: String,
         operation: String,
     ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
-        use unitycatalog_common::client::{TableOperation, TableReference};
-
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let table_ref = TableReference::Name(table);
@@ -979,8 +978,6 @@ impl PyTemporaryCredentialClient {
         operation: String,
         dry_run: Option<bool>,
     ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
-        use unitycatalog_common::client::PathOperation;
-
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let op = match operation.as_str().to_ascii_lowercase().as_str() {

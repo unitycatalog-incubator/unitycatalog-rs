@@ -1,10 +1,10 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
+use unitycatalog_common::models::credentials::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
-use crate::models::credentials::v1::*;
 
 impl CredentialClientBase {
     pub fn list(

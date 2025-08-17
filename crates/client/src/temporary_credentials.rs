@@ -1,28 +1,26 @@
 use cloud_client::CloudClient;
 use reqwest::IntoUrl;
-use url::Url;
-use uuid::Uuid;
-
-pub(super) use crate::codegen::temporary_credentials::TemporaryCredentialClient as TemporaryCredentialClientBase;
-use crate::models::temporary_credentials::v1::TemporaryCredential;
-use crate::temporary_credentials::v1::{
-    GenerateTemporaryPathCredentialsRequest, GenerateTemporaryTableCredentialsRequest,
-};
-use crate::{
-    Result,
-    client::TableClientBase,
+use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
+use unitycatalog_common::{
     models::temporary_credentials::v1::{
+        GenerateTemporaryPathCredentialsRequest, GenerateTemporaryTableCredentialsRequest,
         generate_temporary_path_credentials_request::Operation as PthOperation,
         generate_temporary_table_credentials_request::Operation as TblOperation,
     },
     tables::v1::GetTableRequest,
 };
+use url::Url;
+use uuid::Uuid;
+
+use crate::Result;
+use crate::codegen::tables::TableClient as TableClientBase;
+pub(super) use crate::codegen::temporary_credentials::TemporaryCredentialClient as TemporaryCredentialClientBase;
 
 /// A reference to a table in unity catalog.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TableReference {
     /// The unique identifier of the table.
-    Id(uuid::Uuid),
+    Id(Uuid),
     /// The fully qualified name of the table.
     Name(String),
 }

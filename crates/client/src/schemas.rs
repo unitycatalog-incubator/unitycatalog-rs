@@ -2,15 +2,15 @@ use std::collections::HashMap;
 
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
+use unitycatalog_common::models::schemas::v1::*;
+use unitycatalog_common::models::tables::v1::{
+    ColumnInfo, CreateTableRequest, DataSourceFormat, TableInfo, TableType,
+};
 
 use super::tables::{TableClient, TableClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::schemas::SchemaClient as SchemaClientBase;
-use crate::models::schemas::v1::*;
-use crate::models::tables::v1::{
-    ColumnInfo, CreateTableRequest, DataSourceFormat, TableInfo, TableType,
-};
 
 impl SchemaClientBase {
     pub fn list(

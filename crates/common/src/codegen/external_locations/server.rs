@@ -47,8 +47,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetExternalLocationR
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await?;
         Ok(GetExternalLocationRequest { name })
     }
@@ -60,8 +60,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateExternalLocationReq
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -108,8 +108,8 @@ for DeleteExternalLocationRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {

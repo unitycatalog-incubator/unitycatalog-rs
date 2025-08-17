@@ -1,5 +1,5 @@
 [package]
-name = "unitycatalog-client"
+name = "unitycatalog-client-py"
 version = "0.0.1"
 edition = "2024"
 homepage.workspace = true
@@ -13,10 +13,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 cloud-client = { path = "../../crates/cloud-client" }
-unitycatalog-common = { path = "../../crates/common", features = [
-  "rest-client",
-  "python",
-] }
+unitycatalog-client = { path = "../../crates/client", features = ["sharing"] }
+unitycatalog-common = { path = "../../crates/common", features = ["python"] }
 delta_kernel = { workspace = true }
 
 chrono = { workspace = true }

@@ -30,8 +30,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await?;
         Ok(GetShareRequest { name })
     }
@@ -42,8 +42,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRe
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((share)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(share) = parts
+            .extract::<axum::extract::Path<String>>()
             .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
@@ -95,8 +95,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesReque
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {

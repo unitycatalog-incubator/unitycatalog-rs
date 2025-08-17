@@ -2,12 +2,14 @@ use std::collections::HashMap;
 
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
+use unitycatalog_common::SchemaInfo;
+use unitycatalog_common::models::catalogs::v1::*;
+use unitycatalog_common::schemas::v1::CreateSchemaRequest;
 
 use super::schemas::{SchemaClient, SchemaClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::catalogs::CatalogClient as CatalogClientBase;
-use crate::models::catalogs::v1::*;
 
 impl CatalogClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<CatalogInfo>> {
@@ -88,8 +90,7 @@ impl CatalogClient {
         &self,
         name: impl ToString,
         comment: Option<impl ToString>,
-    ) -> Result<crate::models::schemas::v1::SchemaInfo> {
-        use crate::models::schemas::v1::CreateSchemaRequest;
+    ) -> Result<SchemaInfo> {
         let request = CreateSchemaRequest {
             catalog_name: self.name.clone(),
             name: name.to_string(),

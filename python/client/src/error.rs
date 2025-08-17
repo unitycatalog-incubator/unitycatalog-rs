@@ -27,9 +27,13 @@ create_exception!(
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum PyUnityCatalogError {
-    /// A wrapped [object_store::Error]
+    /// A wrapped [unitycatalog_common::error::Error]
     #[error(transparent)]
     UnityCatalogError(#[from] unitycatalog_common::error::Error),
+
+    /// A wrapped [unitycatalog_client::error::Error]
+    #[error(transparent)]
+    UnityCatalogClientError(#[from] unitycatalog_client::error::Error),
 
     /// A wrapped [PyErr]
     #[error(transparent)]
@@ -48,12 +52,21 @@ impl From<PyUnityCatalogError> for PyErr {
                 UCError::Generic(_) => GenericError::new_err(print_with_debug(err)),
                 _ => GenericError::new_err(print_with_debug(err)),
             },
+            PyUnityCatalogError::UnityCatalogClientError(ref err) => {
+                GenericError::new_err(print_with_debug_client(err))
+            }
             PyUnityCatalogError::IOError(err) => PyIOError::new_err(err),
         }
     }
 }
 
 fn print_with_debug(err: &UCError) -> String {
+    // #? gives "pretty-printing" for debug
+    // https://doc.rust-lang.org/std/fmt/trait.Debug.html
+    format!("{err}\n\nDebug source:\n{err:#?}")
+}
+
+fn print_with_debug_client(err: &unitycatalog_client::Error) -> String {
     // #? gives "pretty-printing" for debug
     // https://doc.rust-lang.org/std/fmt/trait.Debug.html
     format!("{err}\n\nDebug source:\n{err:#?}")

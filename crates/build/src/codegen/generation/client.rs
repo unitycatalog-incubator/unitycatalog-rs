@@ -34,14 +34,17 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
         .iter()
         .map(|m| syn::parse_str::<TokenStream>(m).unwrap_or_else(|_| quote! {}))
         .collect();
-    let mod_path: Path =
-        syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
+    let mod_path: Path = syn::parse_str(&format!(
+        "unitycatalog_common::models::{}::v1",
+        service_namespace
+    ))
+    .unwrap();
 
     let tokens = quote! {
         #![allow(unused_mut)]
         use cloud_client::CloudClient;
         use url::Url;
-        use crate::Result;
+        use crate::error::Result;
         use #mod_path::*;
 
         /// HTTP client for service operations

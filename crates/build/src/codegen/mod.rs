@@ -34,6 +34,7 @@ pub mod templates;
 /// Takes collected metadata and generates all necessary Rust code for REST handlers.
 pub fn generate_rest_handlers(
     metadata: &CodeGenMetadata,
+    output_dir_common: &Path,
     output_dir_server: &Path,
     output_dir_client: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -42,15 +43,15 @@ pub fn generate_rest_handlers(
 
     // Generate code from plan
     let common_code = generation::generate_common_code(&plan)?;
-
-    // Write generated code to output directory
-    output::write_generated_code(&common_code, output_dir_client)?;
+    output::write_generated_code(&common_code, output_dir_common)?;
 
     // Generate server
     let server_code = generation::generate_server_code(&plan)?;
-
-    // Write generated code to output directory
     output::write_generated_code(&server_code, output_dir_server)?;
+
+    // Generate client
+    let client_code = generation::generate_client_code(&plan)?;
+    output::write_generated_code(&client_code, output_dir_client)?;
 
     Ok(())
 }

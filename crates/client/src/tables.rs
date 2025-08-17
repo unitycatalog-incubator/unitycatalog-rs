@@ -1,10 +1,10 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
+use unitycatalog_common::models::tables::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::tables::TableClient as TableClientBase;
-use crate::models::tables::v1::*;
 
 impl TableClientBase {
     pub fn list_summaries(

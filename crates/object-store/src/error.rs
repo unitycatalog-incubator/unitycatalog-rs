@@ -12,6 +12,12 @@ pub enum Error {
         source: unitycatalog_common::Error,
     },
 
+    #[error("Unity Catalog error: {source}")]
+    ClientError {
+        #[from]
+        source: unitycatalog_client::Error,
+    },
+
     #[error("The unity API response did not contain a credential")]
     NoCredential,
 

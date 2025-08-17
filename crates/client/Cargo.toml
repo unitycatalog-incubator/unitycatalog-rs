@@ -1,0 +1,31 @@
+[package]
+name = "unitycatalog-client"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+rust-version.workspace = true
+version.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+
+[dependencies]
+cloud-client = { path = "../cloud-client" }
+unitycatalog-common = { path = "../common" }
+
+chrono = { workspace = true, optional = true }
+itertools = { workspace = true, optional = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true }
+reqwest = { workspace = true }
+serde_json = { workspace = true }
+
+futures = { version = "0.3" }
+
+# used in delta-sharing implementaions
+delta_kernel = { workspace = true, optional = true }
+
+[features]
+sharing = ["delta_kernel", "chrono", "itertools"]

@@ -25,11 +25,12 @@ generate-proto:
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto
     cargo run --bin unitycatalog-build -- \
+      --output-common crates/common/src/codegen \
       --output-server crates/server/src/codegen \
-      --output-client crates/common/src/codegen \
+      --output-client crates/client/src/codegen \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
-    cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
+    cargo clippy --fix --allow-dirty --allow-staged --all-features
     cargo fmt
 
 # generate auxiliary types in common crate. (custom google.protobuf build)

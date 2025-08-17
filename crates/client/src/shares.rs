@@ -1,10 +1,10 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
+use unitycatalog_common::models::shares::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
-use crate::models::shares::v1::*;
 
 impl ShareClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<ShareInfo>> {

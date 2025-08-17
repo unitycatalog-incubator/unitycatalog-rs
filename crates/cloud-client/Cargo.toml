@@ -10,6 +10,8 @@ rust-version.workspace = true
 version.workspace = true
 
 [dependencies]
+reqwest = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
 
 async-trait = "0.1.53"
@@ -30,16 +32,9 @@ base64 = { version = "0.22", default-features = false, features = ["std"] }
 hyper = { version = "1.2", default-features = false }
 quick-xml = { version = "0.37.0", features = ["serialize", "overlapped-lists"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0" }
 rand = { version = "0.9", default-features = false, features = [
   "std",
   "std_rng",
-] }
-reqwest = { version = "0.12", default-features = false, features = [
-  "rustls-tls-native-roots",
-  "http2",
-  "json",
-  "stream",
 ] }
 ring = { version = "0.17", default-features = false, features = ["std"] }
 rustls-pemfile = { version = "2.0", default-features = false, features = [

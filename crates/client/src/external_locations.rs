@@ -1,10 +1,10 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use reqwest::IntoUrl;
+use unitycatalog_common::models::external_locations::v1::*;
 
 use super::utils::stream_paginated;
 pub(super) use crate::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
-use crate::models::external_locations::v1::*;
 use crate::{Error, Result};
 
 impl ExternalLocationClientBase {

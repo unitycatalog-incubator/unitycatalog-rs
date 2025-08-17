@@ -1,10 +1,10 @@
 #![allow(unused_mut)]
-use super::handler::SharingHandler;
-use crate::api::RequestContext;
-use crate::policy::Recipient;
-use axum::extract::{Extension, State};
 use unitycatalog_common::Result;
+use crate::api::RequestContext;
 use unitycatalog_common::models::sharing::v1::*;
+use super::handler::SharingHandler;
+use crate::policy::Recipient;
+use axum::extract::{State, Extension};
 pub async fn list_shares_handler<T: SharingHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
