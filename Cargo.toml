@@ -60,6 +60,12 @@ url = { version = "2.5.2", features = [
   "std",
 ], default-features = false }
 uuid = { version = "1", features = ["serde"] }
+reqwest = { version = "0.12", default-features = false, features = [
+  "rustls-tls-native-roots",
+  "http2",
+  "json",
+  "stream",
+] }
 
 [workspace.metadata.typos]
 default.extend-ignore-re = [

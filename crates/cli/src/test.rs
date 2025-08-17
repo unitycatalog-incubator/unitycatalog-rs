@@ -1,6 +1,6 @@
 use futures::TryStreamExt;
 use tracing::log::*;
-use unitycatalog_common::client::UnityCatalogClient;
+use unitycatalog_client::UnityCatalogClient;
 
 use crate::{GlobalOpts, server::init_tracing};
 

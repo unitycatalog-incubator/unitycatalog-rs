@@ -15,9 +15,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListRecipientsReques
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
-            .await?;
+        let axum::extract::Query(QueryParams {
+            max_results,
+            page_token,
+        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(ListRecipientsRequest {
             max_results,
             page_token,
@@ -43,9 +44,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetRecipientRequest 
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
-            .await?;
+        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
         Ok(GetRecipientRequest { name })
     }
 }
@@ -56,8 +55,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateRecipientRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -88,9 +87,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteRecipientReque
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
-            .await?;
+        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
         Ok(DeleteRecipientRequest { name })
     }
 }

@@ -7,7 +7,7 @@ use object_store::gcp::GoogleCloudStorageBuilder;
 use object_store::path::Path;
 use object_store::prefix::PrefixStore;
 use object_store::{ObjectStore, Result};
-use unitycatalog_common::client::{
+use unitycatalog_client::{
     PathOperation, TableOperation, TableReference, TemporaryCredentialClient,
 };
 use unitycatalog_common::temporary_credentials::v1::TemporaryCredential;

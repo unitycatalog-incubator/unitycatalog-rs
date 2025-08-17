@@ -11,9 +11,8 @@ keywords.workspace = true
 
 [dependencies]
 cloud-client = { path = "../cloud-client" }
-unitycatalog-common = { path = "../common", default-features = false, features = [
-  "rest-client",
-] }
+unitycatalog-client = { path = "../client", default-features = false }
+unitycatalog-common = { path = "../common", default-features = false }
 
 async-trait = { workspace = true }
 chrono = { workspace = true }

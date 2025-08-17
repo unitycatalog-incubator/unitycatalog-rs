@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 use futures::TryStreamExt;
-use unitycatalog_common::client::UnityCatalogClient;
+use unitycatalog_client::UnityCatalogClient;
 
 use crate::GlobalOpts;
 

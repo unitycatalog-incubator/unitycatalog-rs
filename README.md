@@ -24,7 +24,7 @@ The bulk of the implementation is within the rust crates inside the `crates` dir
 
 There are two crates used for internal purposes and not meant for external use
 * [`unitycatalog-build`](crates/build/) - generate rust code from protobuf definitions.
-* [`unitycatalog-dervice`](crates/derive/) - derive macros for internal use.
+* [`unitycatalog-derive`](crates/derive/) - derive macros for internal use.
 
 The core logic is implemented in the [`unitycatalog-common`](crates/common/) crate.
 There are further extension crates to build more advanced serves.

@@ -1,7 +1,0 @@
-# Generated file descriptor sets
-*.bin
-descriptors.bin
-
-# Temporary files
-*.tmp
-*.temp

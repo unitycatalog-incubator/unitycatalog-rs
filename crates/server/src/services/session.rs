@@ -4,16 +4,15 @@ use bytes::Bytes;
 use datafusion::arrow::array::{AsArray, RecordBatch};
 use datafusion::arrow::json::LineDelimitedWriter;
 use datafusion::catalog::{CatalogProvider, MemoryCatalogProvider, MemorySchemaProvider};
-use datafusion::common::{DFSchema, TableReference as DfTableReference};
+use datafusion::common::TableReference as DfTableReference;
 use datafusion::functions::core::expr_ext::FieldAccessor;
 use datafusion::logical_expr::ColumnarValue;
 use datafusion::physical_plan::PhysicalExpr;
 use datafusion::prelude::SessionContext;
 use datafusion::prelude::{Expr, col, lit, named_struct};
 use delta_kernel::{Snapshot, Version};
-use deltalake_datafusion::{
-    DeltaLogReplayProvider, KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory,
-};
+use deltalake_datafusion::table_provider::DeltaLogReplayProvider;
+use deltalake_datafusion::{KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory};
 use itertools::Itertools;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
 use unitycatalog_common::{Error, Result};
