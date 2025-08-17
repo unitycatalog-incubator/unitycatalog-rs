@@ -3,7 +3,7 @@ use futures::{StreamExt, TryStreamExt};
 use reqwest::IntoUrl;
 
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
+pub(super) use crate::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
 use crate::models::external_locations::v1::*;
 use crate::{Error, Result};
 
@@ -19,10 +19,7 @@ impl ExternalLocationClientBase {
                 page_token,
                 include_browse: None,
             };
-            let res = self
-                .list_external_locations(&request)
-                .await
-                .map_err(|e| Error::generic(e.to_string()))?;
+            let res = self.list_external_locations(&request).await?;
             Ok((res.external_locations, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))

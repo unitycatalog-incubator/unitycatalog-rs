@@ -48,6 +48,7 @@ pub enum Error {
     #[error(transparent)]
     SerDe(#[from] serde_json::Error),
 
+    #[cfg(feature = "rest-client")]
     #[error(transparent)]
     Client(#[from] cloud_client::Error),
 

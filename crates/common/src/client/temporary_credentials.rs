@@ -3,7 +3,7 @@ use reqwest::IntoUrl;
 use url::Url;
 use uuid::Uuid;
 
-pub(super) use crate::api::codegen::temporary_credentials::TemporaryCredentialClient as TemporaryCredentialClientBase;
+pub(super) use crate::codegen::temporary_credentials::TemporaryCredentialClient as TemporaryCredentialClientBase;
 use crate::models::temporary_credentials::v1::TemporaryCredential;
 use crate::temporary_credentials::v1::{
     GenerateTemporaryPathCredentialsRequest, GenerateTemporaryTableCredentialsRequest,

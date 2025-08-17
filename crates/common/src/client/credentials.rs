@@ -2,9 +2,9 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::credentials::CredentialClient as CredentialClientBase;
+use crate::Result;
+pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
 use crate::models::credentials::v1::*;
-use crate::{Error, Result};
 
 impl CredentialClientBase {
     pub fn list(
@@ -20,10 +20,7 @@ impl CredentialClientBase {
                 page_token,
                 purpose,
             };
-            let res = self
-                .list_credentials(&request)
-                .await
-                .map_err(|e| Error::generic(e.to_string()))?;
+            let res = self.list_credentials(&request).await?;
             Ok((res.credentials, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))

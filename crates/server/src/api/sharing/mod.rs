@@ -1,6 +1,6 @@
 use unitycatalog_common::models::sharing::v1::*;
 pub use unitycatalog_common::models::sharing_ext::*;
-use unitycatalog_common::resources::{ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 
 pub use self::handler::*;
 use crate::api::SecuredAction;

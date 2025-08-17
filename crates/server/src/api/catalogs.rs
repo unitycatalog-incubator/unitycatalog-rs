@@ -1,9 +1,8 @@
 use itertools::Itertools;
 
 use unitycatalog_common::Result;
-use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::catalogs::v1::*;
-use unitycatalog_common::resources::{ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_common::models::{ObjectLabel, ResourceIdent, ResourceName, ResourceRef};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::catalogs::CatalogHandler;

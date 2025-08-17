@@ -10,7 +10,7 @@ use std::sync::Arc;
 use strum::AsRefStr;
 
 use crate::api::SecuredAction;
-use unitycatalog_common::resources::{ResourceExt, ResourceIdent};
+use unitycatalog_common::models::{ResourceExt, ResourceIdent};
 use unitycatalog_common::{Error, Result};
 
 pub use constant::*;

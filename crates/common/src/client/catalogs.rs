@@ -5,9 +5,9 @@ use futures::{StreamExt, TryStreamExt};
 
 use super::schemas::{SchemaClient, SchemaClientBase};
 use super::utils::stream_paginated;
-pub(super) use crate::api::codegen::catalogs::CatalogClient as CatalogClientBase;
+use crate::Result;
+pub(super) use crate::codegen::catalogs::CatalogClient as CatalogClientBase;
 use crate::models::catalogs::v1::*;
-use crate::{Error, Result};
 
 impl CatalogClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<CatalogInfo>> {
@@ -17,10 +17,7 @@ impl CatalogClientBase {
                 max_results,
                 page_token,
             };
-            let res = self
-                .list_catalogs(&request)
-                .await
-                .map_err(|e| Error::generic(e.to_string()))?;
+            let res = self.list_catalogs(&request).await?;
             Ok((res.catalogs, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))

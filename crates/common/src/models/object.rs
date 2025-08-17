@@ -6,10 +6,9 @@ use super::ExternalLocationInfo;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    CatalogInfo, ColumnInfo, CredentialInfo, ObjectLabel, RecipientInfo, Resource, SchemaInfo,
-    ShareInfo, SharingSchemaInfo, SharingTable, TableInfo,
+    CatalogInfo, ColumnInfo, CredentialInfo, ObjectLabel, RecipientInfo, Resource, ResourceExt,
+    ResourceName, ResourceRef, SchemaInfo, ShareInfo, SharingSchemaInfo, SharingTable, TableInfo,
 };
-use crate::resources::{ResourceExt, ResourceName, ResourceRef};
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]

@@ -27,7 +27,7 @@ generate-build:
 generate-rest: generate-descriptors
     cargo run --bin unitycatalog-build -- \
       --output-server crates/server/src/codegen \
-      --output-client crates/common/src/api/codegen \
+      --output-client crates/common/src/codegen \
       --descriptors crates/common/descriptors/descriptors.bin
     cargo clippy --fix --lib -p unitycatalog-common --allow-dirty --allow-staged --all-features
     cargo fmt

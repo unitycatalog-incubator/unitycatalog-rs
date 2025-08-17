@@ -740,7 +740,7 @@ struct CreateSessionOutput {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mock_server::MockServer;
+    use mockito;
     use hyper::Response;
     use reqwest::{Client, Method};
     use std::env;
@@ -1038,10 +1038,9 @@ mod tests {
         assert!(!secret.is_empty());
         assert!(!token.is_empty())
     }
-
     #[tokio::test]
     async fn test_mock() {
-        let server = MockServer::new().await;
+        let mut server = mockito::Server::new_async().await;
 
         const IMDSV2_HEADER: &str = "X-aws-ec2-metadata-token";
 
@@ -1054,30 +1053,30 @@ mod tests {
         let retry_config = RetryConfig::default();
 
         // Test IMDSv2
-        server.push_fn(|req| {
-            assert_eq!(req.uri().path(), "/latest/api/token");
-            assert_eq!(req.method(), &Method::PUT);
-            Response::new("cupcakes".to_string())
-        });
-        server.push_fn(|req| {
-            assert_eq!(
-                req.uri().path(),
-                "/latest/meta-data/iam/security-credentials/"
-            );
-            assert_eq!(req.method(), &Method::GET);
-            let t = req.headers().get(IMDSV2_HEADER).unwrap().to_str().unwrap();
-            assert_eq!(t, "cupcakes");
-            Response::new("myrole".to_string())
-        });
-        server.push_fn(|req| {
-            assert_eq!(req.uri().path(), "/latest/meta-data/iam/security-credentials/myrole");
-            assert_eq!(req.method(), &Method::GET);
-            let t = req.headers().get(IMDSV2_HEADER).unwrap().to_str().unwrap();
-            assert_eq!(t, "cupcakes");
-            Response::new(r#"{"AccessKeyId":"KEYID","Code":"Success","Expiration":"2022-08-30T10:51:04Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"SECRET","Token":"TOKEN","Type":"AWS-HMAC"}"#.to_string())
-        });
+        let _mock1 = server
+            .mock("PUT", "/latest/api/token")
+            .with_status(200)
+            .with_body("cupcakes")
+            .create_async()
+            .await;
 
-        let creds = instance_creds(&client, &retry_config, endpoint, true)
+        let _mock2 = server
+            .mock("GET", "/latest/meta-data/iam/security-credentials/")
+            .match_header(IMDSV2_HEADER, "cupcakes")
+            .with_status(200)
+            .with_body("myrole")
+            .create_async()
+            .await;
+
+        let _mock3 = server
+            .mock("GET", "/latest/meta-data/iam/security-credentials/myrole")
+            .match_header(IMDSV2_HEADER, "cupcakes")
+            .with_status(200)
+            .with_body(r#"{"AccessKeyId":"KEYID","Code":"Success","Expiration":"2022-08-30T10:51:04Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"SECRET","Token":"TOKEN","Type":"AWS-HMAC"}"#)
+            .create_async()
+            .await;
+
+        let creds = instance_creds(&client, &retry_config, &endpoint, true)
             .await
             .unwrap();
 
@@ -1086,31 +1085,28 @@ mod tests {
         assert_eq!(&creds.token.secret_key, secret_access_key);
 
         // Test IMDSv1 fallback
-        server.push_fn(|req| {
-            assert_eq!(req.uri().path(), "/latest/api/token");
-            assert_eq!(req.method(), &Method::PUT);
-            Response::builder()
-                .status(StatusCode::FORBIDDEN)
-                .body(String::new())
-                .unwrap()
-        });
-        server.push_fn(|req| {
-            assert_eq!(
-                req.uri().path(),
-                "/latest/meta-data/iam/security-credentials/"
-            );
-            assert_eq!(req.method(), &Method::GET);
-            assert!(req.headers().get(IMDSV2_HEADER).is_none());
-            Response::new("myrole".to_string())
-        });
-        server.push_fn(|req| {
-            assert_eq!(req.uri().path(), "/latest/meta-data/iam/security-credentials/myrole");
-            assert_eq!(req.method(), &Method::GET);
-            assert!(req.headers().get(IMDSV2_HEADER).is_none());
-            Response::new(r#"{"AccessKeyId":"KEYID","Code":"Success","Expiration":"2022-08-30T10:51:04Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"SECRET","Token":"TOKEN","Type":"AWS-HMAC"}"#.to_string())
-        });
+        let _mock4 = server
+            .mock("PUT", "/latest/api/token")
+            .with_status(403)
+            .with_body("")
+            .create_async()
+            .await;
 
-        let creds = instance_creds(&client, &retry_config, endpoint, true)
+        let _mock5 = server
+            .mock("GET", "/latest/meta-data/iam/security-credentials/")
+            .with_status(200)
+            .with_body("myrole")
+            .create_async()
+            .await;
+
+        let _mock6 = server
+            .mock("GET", "/latest/meta-data/iam/security-credentials/myrole")
+            .with_status(200)
+            .with_body(r#"{"AccessKeyId":"KEYID","Code":"Success","Expiration":"2022-08-30T10:51:04Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"SECRET","Token":"TOKEN","Type":"AWS-HMAC"}"#)
+            .create_async()
+            .await;
+
+        let creds = instance_creds(&client, &retry_config, &endpoint, true)
             .await
             .unwrap();
 
@@ -1119,15 +1115,15 @@ mod tests {
         assert_eq!(&creds.token.secret_key, secret_access_key);
 
         // Test IMDSv1 fallback disabled
-        server.push(
-            Response::builder()
-                .status(StatusCode::FORBIDDEN)
-                .body(String::new())
-                .unwrap(),
-        );
+        let _mock7 = server
+            .mock("PUT", "/latest/api/token")
+            .with_status(403)
+            .with_body("")
+            .create_async()
+            .await;
 
         // Should fail
-        instance_creds(&client, &retry_config, endpoint, false)
+        instance_creds(&client, &retry_config, &endpoint, false)
             .await
             .unwrap_err();
     }

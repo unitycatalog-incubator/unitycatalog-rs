@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::resources::{ResourceIdent, ResourceRef};
 use crate::{Error, Result};
 
 pub use catalogs::v1::CatalogInfo;
@@ -10,12 +9,14 @@ pub use external_locations::v1::ExternalLocationInfo;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
 pub use recipients::v1::RecipientInfo;
+pub use resources::*;
 pub use schemas::v1::SchemaInfo;
 pub use shares::v1::ShareInfo;
 pub use sharing::v1::{Share, SharingSchema, SharingSchemaInfo, SharingTable};
 pub use tables::v1::{ColumnInfo, TableInfo};
 
 mod object;
+mod resources;
 #[cfg(feature = "sharing")]
 pub mod sharing_ext;
 

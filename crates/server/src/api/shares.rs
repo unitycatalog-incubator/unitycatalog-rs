@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::*;
-use unitycatalog_common::resources::{ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 use unitycatalog_common::{Error, Result};
 
 use super::{RequestContext, SecuredAction};

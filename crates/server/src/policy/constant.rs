@@ -1,6 +1,6 @@
 use super::{Decision, Permission, Policy, Recipient};
 use unitycatalog_common::Result;
-use unitycatalog_common::resources::ResourceIdent;
+use unitycatalog_common::models::ResourceIdent;
 
 /// Policy that always returns a constant decision.
 ///
@@ -41,7 +41,7 @@ impl Policy for ConstantPolicy {
 #[cfg(test)]
 mod test {
     use super::*;
-    use unitycatalog_common::resources::resource_name;
+    use unitycatalog_common::models::resource_name;
 
     #[test]
     fn assert_send_sync() {

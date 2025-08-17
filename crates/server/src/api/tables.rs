@@ -5,8 +5,8 @@ use delta_kernel::{Snapshot, Version};
 use itertools::Itertools;
 
 use unitycatalog_common::models::ObjectLabel;
+use unitycatalog_common::models::ResourceName;
 use unitycatalog_common::models::tables::v1::*;
-use unitycatalog_common::resources::ResourceName;
 use unitycatalog_common::{Error, ResourceIdent, Result};
 
 use super::{RequestContext, SecuredAction};

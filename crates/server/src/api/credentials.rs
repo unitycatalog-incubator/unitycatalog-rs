@@ -1,9 +1,10 @@
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::credentials::v1::*;
-use unitycatalog_common::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_common::models::{
+    ObjectLabel, ResourceExt, ResourceIdent, ResourceName, ResourceRef,
+};
 use unitycatalog_common::{Error, Result};
 
 use super::{RequestContext, SecuredAction};
