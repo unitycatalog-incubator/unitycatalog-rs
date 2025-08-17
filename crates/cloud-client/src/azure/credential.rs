@@ -869,12 +869,11 @@ mod tests {
 
     use super::*;
     // use crate::azure::AzureBuilder;
-    use crate::mock_server::MockServer;
+    use mockito;
     // use crate::{ObjectStore, Path};
-
     #[tokio::test]
     async fn test_managed_identity() {
-        let server = MockServer::new().await;
+        let mut server = mockito::Server::new_async().await;
 
         unsafe { std::env::set_var(MSI_SECRET_ENV_KEY, "env-secret") };
 
@@ -883,20 +882,15 @@ mod tests {
         let retry_config = RetryConfig::default();
 
         // Test IMDS
-        server.push_fn(|req| {
-            assert_eq!(req.uri().path(), "/metadata/identity/oauth2/token");
-            assert!(req.uri().query().unwrap().contains("client_id=client_id"));
-            assert_eq!(req.method(), &Method::GET);
-            let t = req
-                .headers()
-                .get("x-identity-header")
-                .unwrap()
-                .to_str()
-                .unwrap();
-            assert_eq!(t, "env-secret");
-            let t = req.headers().get("metadata").unwrap().to_str().unwrap();
-            assert_eq!(t, "true");
-            Response::new(
+        let _mock = server
+            .mock("GET", "/metadata/identity/oauth2/token")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("client_id".into(), "client_id".into()),
+            ]))
+            .match_header("x-identity-header", "env-secret")
+            .match_header("metadata", "true")
+            .with_status(200)
+            .with_body(
                 r#"
             {
                 "access_token": "TOKEN",
@@ -907,10 +901,10 @@ mod tests {
                 "resource": "https://management.azure.com/",
                 "token_type": "Bearer"
               }
-            "#
-                .to_string(),
+            "#,
             )
-        });
+            .create_async()
+            .await;
 
         let credential = ImdsManagedIdentityProvider::new(
             Some("client_id".into()),
@@ -932,7 +926,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_workload_identity() {
-        let server = MockServer::new().await;
+        let mut server = mockito::Server::new_async().await;
         let tokenfile = NamedTempFile::new().unwrap();
         let tenant = "tenant";
         std::fs::write(tokenfile.path(), "federated-token").unwrap();
@@ -942,13 +936,11 @@ mod tests {
         let retry_config = RetryConfig::default();
 
         // Test IMDS
-        server.push_fn(move |req| {
-            assert_eq!(req.uri().path(), format!("/{tenant}/oauth2/v2.0/token"));
-            assert_eq!(req.method(), &Method::POST);
-            let body = block_on(async move { req.into_body().collect().await.unwrap().to_bytes() });
-            let body = String::from_utf8(body.to_vec()).unwrap();
-            assert!(body.contains("federated-token"));
-            Response::new(
+        let _mock = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .match_body(mockito::Matcher::Regex("federated-token".into()))
+            .with_status(200)
+            .with_body(
                 r#"
             {
                 "access_token": "TOKEN",
@@ -959,10 +951,10 @@ mod tests {
                 "resource": "https://management.azure.com/",
                 "token_type": "Bearer"
               }
-            "#
-                .to_string(),
+            "#,
             )
-        });
+            .create_async()
+            .await;
 
         let credential = WorkloadIdentityOAuthProvider::new(
             "client_id",

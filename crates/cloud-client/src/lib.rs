@@ -20,8 +20,7 @@ mod config;
 mod credential;
 mod error;
 pub mod gcp;
-#[cfg(test)]
-mod mock_server;
+
 mod pagination;
 mod retry;
 mod token;
