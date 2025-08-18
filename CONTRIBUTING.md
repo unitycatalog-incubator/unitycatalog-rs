@@ -18,38 +18,42 @@ The most important components involved in our code generation are:
 - the [`build`](crates/build) crate which holds custom generation logic
 - the [`derive`](crates/derive) crate which holds custom derive macros
 
-THe unitycatalog API is specified as a REST API, however we maintain the API definitions in
-protobuf to make use of the (IMO :)) more flexible and powerful code generation capabilities
-and better ease of maintenance (legibility). To maintain a proper mapping of how the protobuf
-messages / services should be mapped to REST API endpoints, we annotate the definitions
-with [`google.api.http`](https://github.com/googleapis/googleapis/blob/master/google/api/http.proto)
+The Unity Catalog API is specified as a REST API, but we maintain API definitions in
+protobuf for more flexible code generation and better maintainability. To map protobuf
+messages/services to REST endpoints, we annotate definitions with
+[`google.api.http`](https://github.com/googleapis/googleapis/blob/master/google/api/http.proto)
 and [`gnostic`](https://github.com/google/gnostic) options.
 
-These annotations are used by both the `buf` compiler to generate e.g. OpenAPI specifications
-and by our custom code to provide boilerplate implementations for server and client implementations.
+These annotations are used by the `buf` compiler to generate OpenAPI specifications
+and by our custom code to provide boilerplate server/client implementations.
 
-have a look at
+Run the complete generation sequence:
 
 ```sh
 just generate
 ```
 
-to see the exact sequence of steps performed to generate our code.
+### Adding new resources
 
-### Addind new resources
+To add a new resource/API surface, follow these steps:
 
-UC manages resources at the root level. To add a new resource / API surface,
-the following steps are required:
+1. **Define protobuf schema**: Create the resource in `proto/unitycatalog/<resource>/v1/`
+   - Define messages (e.g., `VolumeInfo`, `CreateVolumeRequest`)
+   - Define service with RPC methods
+   - Annotate with `google.api.http` and `gnostic.openapi.v3.operation`
 
-1. Define the resource in the protobuf definitions.
-2. Annotate the resource with `google.api.http` and `gnostic` options.
-3. Generate the common models using `just generate-proto`
-4. Extend the `unitycatalog_common::models` module to include the newly generated files.
-5. Run `just generate-code` to generate the server and client implementations.
+2. **Generate base code**: Run `just generate-proto` to generate common models
 
-Once the boilerplate code is generated, you can start implementing the resource logic.
+3. **Update exports**: Add new types to `unitycatalog_common::models` module exports
 
-For the client:
-- Implement the higher level client in the `unitycatalog_client` crate.
-- Implement the new client in the python bindings.
-  - Don't forget to update the python type definitions.
+4. **Generate clients**: Run `just generate-code` for server/client boilerplate
+
+5. **Implement high-level client**:
+   - Create `crates/client/src/<resource>.rs` with ergonomic methods
+   - Add to `lib.rs` exports and main client struct
+   - Add streaming support for list operations
+
+6. **Add Python bindings**:
+   - Import new types in `python/client/src/lib.rs`
+   - Add Python client wrapper in `python/client/src/client.rs`
+   - Update type definitions in `python/client/unitycatalog_client.pyi`

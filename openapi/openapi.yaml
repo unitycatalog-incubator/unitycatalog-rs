@@ -1546,46 +1546,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Status'
-  /volumes/projects/{project}/locations/{location}/catalogs/{catalog}/volumes/{volume}:
-    delete:
-      tags:
-        - VolumesService
-      operationId: DeleteVolume
-      parameters:
-        - name: project
-          in: path
-          description: The project id.
-          required: true
-          schema:
-            type: string
-        - name: location
-          in: path
-          description: The location id.
-          required: true
-          schema:
-            type: string
-        - name: catalog
-          in: path
-          description: The catalog id.
-          required: true
-          schema:
-            type: string
-        - name: volume
-          in: path
-          description: The volume id.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content: {}
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Status'
   /volumes/{name}:
     get:
       tags:
@@ -1610,6 +1570,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VolumeInfo'
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+    delete:
+      tags:
+        - VolumesService
+      operationId: DeleteVolume
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the volume
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content: {}
         default:
           description: Default error response
           content:

@@ -101,12 +101,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteVolumeRequest 
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        #[derive(serde::Deserialize)]
-        struct QueryParams {
-            name: String,
-        }
-        let axum::extract::Query(QueryParams { name }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
         Ok(DeleteVolumeRequest { name })
     }
 }

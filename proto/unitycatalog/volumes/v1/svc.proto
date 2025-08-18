@@ -176,7 +176,7 @@ service VolumesService {
 
   rpc DeleteVolume(DeleteVolumeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/volumes/{name=projects/*/locations/*/catalogs/*/volumes/*}"
+      delete: "/volumes/{name}"
     };
     option (gnostic.openapi.v3.operation) = {operation_id: "DeleteVolume"};
   }

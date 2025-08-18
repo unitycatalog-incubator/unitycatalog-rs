@@ -14,6 +14,7 @@ pub use schemas::v1::SchemaInfo;
 pub use shares::v1::ShareInfo;
 pub use sharing::v1::{Share, SharingSchema, SharingSchemaInfo, SharingTable};
 pub use tables::v1::{ColumnInfo, TableInfo};
+pub use volumes::v1::{VolumeInfo, VolumeType};
 
 mod object;
 mod resources;

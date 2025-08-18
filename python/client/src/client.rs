@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use unitycatalog_client::{
     CatalogClient, CredentialClient, DeltaSharingClient, ExternalLocationClient, PathOperation,
     RecipientClient, SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
-    TemporaryCredentialClient, UnityCatalogClient,
+    TemporaryCredentialClient, UnityCatalogClient, VolumeClient,
 };
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
@@ -18,6 +18,7 @@ use unitycatalog_common::models::sharing::v1::{Share, SharingSchema, SharingTabl
 use unitycatalog_common::models::sharing_ext::{MetadataResponseData, ProtocolResponseData};
 use unitycatalog_common::models::tables::v1::{ColumnInfo, DataSourceFormat, TableInfo, TableType};
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
+use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
 
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -353,6 +354,67 @@ impl PyUnityCatalogClient {
         PyTemporaryCredentialClient {
             client: self.0.temporary_credentials(),
         }
+    }
+
+    pub fn list_volumes(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<Vec<VolumeInfo>> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let volumes = runtime.block_on(async move {
+                self.0
+                    .list_volumes(catalog_name, schema_name, max_results, include_browse)
+                    .try_collect::<Vec<_>>()
+                    .await
+            })?;
+            Ok::<_, PyUnityCatalogError>(volumes)
+        })
+    }
+
+    pub fn volume(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        volume_name: String,
+    ) -> PyVolumeClient {
+        PyVolumeClient {
+            client: self.0.volume(catalog_name, schema_name, volume_name),
+        }
+    }
+
+    pub fn volume_from_full_name(&self, full_name: String) -> PyVolumeClient {
+        PyVolumeClient {
+            client: self.0.volume_from_full_name(full_name),
+        }
+    }
+
+    pub fn create_volume(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        volume_name: String,
+        volume_type: VolumeType,
+        storage_location: Option<String>,
+        comment: Option<String>,
+    ) -> PyUnityCatalogResult<VolumeInfo> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let volume = runtime.block_on(self.0.create_volume(
+                catalog_name,
+                schema_name,
+                volume_name,
+                volume_type,
+                storage_location,
+                comment,
+            ))?;
+            Ok::<_, PyUnityCatalogError>(volume)
+        })
     }
 }
 
@@ -930,6 +992,50 @@ impl PySharingClient {
             let (protocol, metadata) =
                 runtime.block_on(self.client.get_table_metadata(share, schema, table))?;
             Ok::<_, PyUnityCatalogError>((PyProtocol { protocol }, PyMetadata { metadata }))
+        })
+    }
+}
+
+#[pyclass(name = "VolumeClient")]
+pub struct PyVolumeClient {
+    client: VolumeClient,
+}
+
+#[pymethods]
+impl PyVolumeClient {
+    pub fn get(
+        &self,
+        py: Python,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<VolumeInfo> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let volume = runtime.block_on(self.client.get(include_browse))?;
+            Ok::<_, PyUnityCatalogError>(volume)
+        })
+    }
+
+    pub fn update(
+        &self,
+        py: Python,
+        new_name: Option<String>,
+        comment: Option<String>,
+        owner: Option<String>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<VolumeInfo> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let volume =
+                runtime.block_on(self.client.update(new_name, comment, owner, include_browse))?;
+            Ok::<_, PyUnityCatalogError>(volume)
+        })
+    }
+
+    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            runtime.block_on(self.client.delete())?;
+            Ok::<_, PyUnityCatalogError>(())
         })
     }
 }

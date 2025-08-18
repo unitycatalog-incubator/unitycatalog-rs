@@ -68,11 +68,8 @@ impl VolumeClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn delete_volume(&self, request: &DeleteVolumeRequest) -> Result<()> {
-        let mut url = self
-            .base_url
-            .join("volumes/{name=projects/*/locations/*/catalogs/*/volumes/*}")?;
-        url.query_pairs_mut()
-            .append_pair("name", &request.name.to_string());
+        let formatted_path = format!("volumes/{}", request.name);
+        let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;
         Ok(())
