@@ -35,6 +35,7 @@ serde = { version = "1.0", default-features = false, features = ["derive"] }
 rand = { version = "0.9", default-features = false, features = [
   "std",
   "std_rng",
+  "thread_rng",
 ] }
 ring = { version = "0.17", default-features = false, features = ["std"] }
 rustls-pemfile = { version = "2.0", default-features = false, features = [

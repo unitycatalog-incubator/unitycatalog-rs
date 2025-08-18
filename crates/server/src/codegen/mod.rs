@@ -7,3 +7,4 @@ pub mod shares;
 pub mod sharing;
 pub mod tables;
 pub mod temporary_credentials;
+pub mod volumes;

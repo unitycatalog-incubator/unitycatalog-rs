@@ -1,6 +1,7 @@
 use self::client::{
     PyCatalogClient, PyCredentialClient, PyExternalLocationClient, PyRecipientClient,
     PySchemaClient, PyShareClient, PySharingClient, PyTableClient, PyUnityCatalogClient,
+    PyVolumeClient,
 };
 use pyo3::prelude::*;
 use unitycatalog_common::models::catalogs::v1::{CatalogInfo, CatalogType};
@@ -16,6 +17,7 @@ use unitycatalog_common::models::shares::v1::{
 use unitycatalog_common::models::tables::v1::{
     ColumnInfo, ColumnTypeName, DataSourceFormat, TableInfo, TableType,
 };
+use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
 
 mod client;
 mod error;
@@ -46,6 +48,8 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ColumnInfo>()?;
     m.add_class::<ColumnTypeName>()?;
     m.add_class::<DataSourceFormat>()?;
+    m.add_class::<VolumeInfo>()?;
+    m.add_class::<VolumeType>()?;
 
     // service clients
     m.add_class::<PyCatalogClient>()?;
@@ -57,6 +61,7 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySharingClient>()?;
     m.add_class::<PyTableClient>()?;
     m.add_class::<PyUnityCatalogClient>()?;
+    m.add_class::<PyVolumeClient>()?;
 
     Ok(())
 }

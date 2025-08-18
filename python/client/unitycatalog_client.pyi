@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import enum
+
+# Import Python class for runtime context
 from typing import Literal
 
 class CatalogInfo:
@@ -292,6 +294,28 @@ class SharingTable:
     schema: str
     share: str
     share_id: str | None
+
+class VolumeType:
+    UNSPECIFIED = 0
+    EXTERNAL = 1
+    MANAGED = 2
+
+class VolumeInfo:
+    """Information about a Unity Catalog volume."""
+
+    name: str
+    catalog_name: str
+    schema_name: str
+    full_name: str
+    storage_location: str | None
+    volume_id: str
+    volume_type: int
+    owner: str | None
+    comment: str | None
+    created_at: int | None
+    created_by: str | None
+    updated_at: int | None
+    updated_by: str | None
 
 class TemporaryCredential:
     """Represents temporary credentials for accessing storage resources."""
@@ -670,6 +694,39 @@ class PyUnityCatalogClient:
         Returns:
             A TemporaryCredentialClient instance.
         """
+
+    # Volume methods
+    def list_volumes(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        max_results: int | None = None,
+        include_browse: bool | None = None,
+    ) -> list[VolumeInfo]: ...
+    def volume(
+        self, catalog_name: str, schema_name: str, volume_name: str
+    ) -> VolumeClient: ...
+    def volume_from_full_name(self, full_name: str) -> VolumeClient: ...
+    def create_volume(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        volume_name: str,
+        volume_type: VolumeType,
+        storage_location: str | None = None,
+        comment: str | None = None,
+    ) -> VolumeInfo: ...
+
+class VolumeClient:
+    def get(self, include_browse: bool | None = None) -> VolumeInfo: ...
+    def update(
+        self,
+        new_name: str | None = None,
+        comment: str | None = None,
+        owner: str | None = None,
+        include_browse: bool | None = None,
+    ) -> VolumeInfo: ...
+    def delete(self) -> None: ...
 
 class TemporaryCredentialClient:
     """Client for managing temporary credentials for tables and paths."""

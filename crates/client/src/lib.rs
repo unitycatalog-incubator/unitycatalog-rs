@@ -13,10 +13,12 @@ pub use sharing::*;
 pub use tables::*;
 pub use temporary_credentials::*;
 use unitycatalog_common::CatalogInfo;
+use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
 use unitycatalog_common::{
     CredentialInfo, ExternalLocationInfo, RecipientInfo, SchemaInfo, ShareInfo, TableInfo,
     credentials::v1::Purpose, recipients::v1::AuthenticationType, tables::v1::TableSummary,
 };
+pub use volumes::*;
 
 mod catalogs;
 mod codegen;
@@ -31,6 +33,7 @@ mod sharing;
 mod tables;
 mod temporary_credentials;
 mod utils;
+mod volumes;
 
 #[derive(Clone)]
 pub struct UnityCatalogClient {
@@ -42,6 +45,7 @@ pub struct UnityCatalogClient {
     credentials: CredentialClientBase,
     external_locations: ExternalLocationClientBase,
     temporary_credentials: TemporaryCredentialClientBase,
+    volumes: VolumeClientBase,
 }
 
 impl UnityCatalogClient {
@@ -68,6 +72,7 @@ impl UnityCatalogClient {
         let external_locations = ExternalLocationClientBase::new(client.clone(), base_url.clone());
         let temporary_credentials =
             TemporaryCredentialClientBase::new(client.clone(), base_url.clone());
+        let volumes = VolumeClientBase::new(client.clone(), base_url.clone());
 
         Self {
             catalogs,
@@ -78,6 +83,7 @@ impl UnityCatalogClient {
             credentials,
             external_locations,
             temporary_credentials,
+            volumes,
         }
     }
 
@@ -276,5 +282,44 @@ impl UnityCatalogClient {
 
     pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
         TemporaryCredentialClient::new(self.temporary_credentials.clone())
+    }
+
+    // Volume methods
+    pub fn list_volumes(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        max_results: impl Into<Option<i32>>,
+        include_browse: impl Into<Option<bool>>,
+    ) -> BoxStream<'_, Result<VolumeInfo>> {
+        self.volumes
+            .list(catalog_name, schema_name, max_results, include_browse)
+    }
+
+    pub fn volume(
+        &self,
+        catalog_name: impl ToString,
+        schema_name: impl ToString,
+        volume_name: impl ToString,
+    ) -> VolumeClient {
+        VolumeClient::new(catalog_name, schema_name, volume_name, self.volumes.clone())
+    }
+
+    pub fn volume_from_full_name(&self, full_name: impl ToString) -> VolumeClient {
+        VolumeClient::new_from_full_name(full_name, self.volumes.clone())
+    }
+
+    pub async fn create_volume(
+        &self,
+        catalog_name: impl ToString,
+        schema_name: impl ToString,
+        volume_name: impl ToString,
+        volume_type: VolumeType,
+        storage_location: Option<impl ToString>,
+        comment: Option<impl ToString>,
+    ) -> Result<VolumeInfo> {
+        let volume =
+            VolumeClient::new(catalog_name, schema_name, volume_name, self.volumes.clone());
+        volume.create(volume_type, storage_location, comment).await
     }
 }

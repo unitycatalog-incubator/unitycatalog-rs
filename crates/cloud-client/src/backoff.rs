@@ -16,6 +16,7 @@
 // under the License.
 
 use rand::prelude::*;
+
 use std::time::Duration;
 
 /// Exponential backoff with decorrelated jitter algorithm
@@ -99,7 +100,7 @@ impl Backoff {
 
         let rand_backoff = match self.rng.as_mut() {
             Some(rng) => rng.random_range(range),
-            None => rand::rng().random_range(range),
+            None => rand::thread_rng().random_range(range),
         };
 
         let next_backoff = self.max_backoff_secs.min(rand_backoff);
