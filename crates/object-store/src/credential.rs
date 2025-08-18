@@ -157,7 +157,7 @@ pub(super) fn as_azure(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<
 
     Ok(TemporaryToken {
         token: Arc::new(az_cred),
-        expiry: get_expiry(&cred)?,
+        expiry: get_expiry(cred)?,
     })
 }
 
@@ -186,7 +186,7 @@ pub(super) fn as_aws(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Aw
 
     Ok(TemporaryToken {
         token: Arc::new(aws_cred),
-        expiry: get_expiry(&cred)?,
+        expiry: get_expiry(cred)?,
     })
 }
 
@@ -206,7 +206,7 @@ pub(super) fn as_gcp(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Gc
 
     Ok(TemporaryToken {
         token: Arc::new(gcp_cred),
-        expiry: get_expiry(&cred)?,
+        expiry: get_expiry(cred)?,
     })
 }
 

@@ -35,3 +35,21 @@ just generate
 ```
 
 to see the exact sequence of steps performed to generate our code.
+
+### Addind new resources
+
+UC manages resources at the root level. To add a new resource / API surface,
+the following steps are required:
+
+1. Define the resource in the protobuf definitions.
+2. Annotate the resource with `google.api.http` and `gnostic` options.
+3. Generate the common models using `just generate-proto`
+4. Extend the `unitycatalog_common::models` module to include the newly generated files.
+5. Run `just generate-code` to generate the server and client implementations.
+
+Once the boilerplate code is generated, you can start implementing the resource logic.
+
+For the client:
+- Implement the higher level client in the `unitycatalog_client` crate.
+- Implement the new client in the python bindings.
+  - Don't forget to update the python type definitions.

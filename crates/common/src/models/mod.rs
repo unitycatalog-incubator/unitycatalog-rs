@@ -102,6 +102,14 @@ pub mod temporary_credentials {
     }
 }
 
+pub mod volumes {
+    pub mod v1 {
+        include!("./gen/unitycatalog.volumes.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./gen/unitycatalog.volumes.v1.tonic.rs");
+    }
+}
+
 pub(crate) mod internal {
     include!("./gen/unitycatalog.internal.rs");
 }

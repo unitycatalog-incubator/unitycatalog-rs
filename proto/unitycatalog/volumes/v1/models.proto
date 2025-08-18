@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package unitycatalog.volumes.v1;
+
+import "buf/validate/validate.proto";
+
+enum VolumeType {
+  VOLUME_TYPE_UNSPECIFIED = 0;
+  VOLUME_TYPE_EXTERNAL = 1;
+  VOLUME_TYPE_MANAGED = 2;
+}
+
+message VolumeInfo {
+  // Name of volume, relative to parent schema.
+  string name = 1;
+
+  // Name of parent catalog.
+  string catalog_name = 2;
+
+  // Name of parent schema.
+  string schema_name = 3;
+
+  // The three-level (fully qualified) name of the volume
+  string full_name = 4;
+
+  // The storage location on the cloud
+  string storage_location = 5;
+
+  // The unique identifier of the volume
+  string volume_id = 6;
+
+  // The type of the volume.
+  //
+  // An external volume is located in the specified external location.
+  // A managed volume is located in the default location which is specified
+  // by the parent schema, or the parent catalog, or the Metastore.
+  VolumeType volume_type = 7;
+
+  // Username of current owner of table.
+  optional string owner = 8;
+
+  // User-provided free-form text description.
+  optional string comment = 9;
+
+  // Time at which this catalog was created, in epoch milliseconds.
+  optional int64 created_at = 1000 [(buf.validate.field).int64.gt = 0];
+
+  // Username of catalog creator.
+  optional string created_by = 1001;
+
+  // Time at which this catalog was last updated, in epoch milliseconds.
+  optional int64 updated_at = 1002;
+
+  // Username of user who last modified catalog.
+  optional string updated_by = 1003;
+
+  // Indicates whether the principal is limited to retrieving metadata
+  // for the associated object through the BROWSE privilege when include_browse
+  // is enabled in the request.
+  optional bool browse_only = 1004;
+
+  // The unique identifier of the metastore
+  optional string metastore_id = 1005;
+}

@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package unitycatalog.volumes.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "gnostic/openapi/v3/openapiv3.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "unitycatalog/volumes/v1/models.proto";
+
+// List volumes
+message ListVolumesRequest {
+  // The identifier of the catalog
+  string catalog_name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The identifier of the schema
+  string schema_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The maximum number of results per page that should be returned.
+  optional int32 max_results = 3 [
+    (buf.validate.field).int32.gt = 0,
+    (buf.validate.field).int32.lt = 1000,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether to include schemas in the response for which the principal can only access selective metadata for
+  optional bool include_browse = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// List Schemas response.
+message ListVolumesResponse {
+  // The volumes returned.
+  repeated VolumeInfo volumes = 1;
+
+  // Opaque token to retrieve the next page of results.
+  //
+  // Absent if there are no more pages. page_token should be set to
+  // this value for the next request to retrieve the next page of results.
+  optional string next_page_token = 2;
+}
+
+// Create a new Volume
+message CreateVolumeRequest {
+  // The identifier of the catalog
+  string catalog_name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The identifier of the schema
+  string schema_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The identifier of the volume
+  string name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The type of the volume.
+  //
+  // An external volume is located in the specified external location.
+  // A managed volume is located in the default location which is specified
+  // by the parent schema, or the parent catalog, or the Metastore.
+  VolumeType volume_type = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The storage location on the cloud
+  optional string storage_location = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // The storage location on the cloud
+  optional string comment = 6 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+message GetVolumeRequest {
+  // The three-level (fully qualified) name of the volume
+  string name = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Whether to include schemas in the response for which the principal can only access selective metadata for
+  optional bool include_browse = 1005 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message UpdateVolumeRequest {
+  // The three-level (fully qualified) name of the volume
+  string name = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // New name for the volume.
+  optional string new_name = 2 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // The comment attached to the volume
+  optional string comment = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // The identifier of the user who owns the volume
+  optional string owner = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether to include schemas in the response for which the principal can only access selective metadata for
+  optional bool include_browse = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteVolumeRequest {
+  // The three-level (fully qualified) name of the volume
+  string name = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+service VolumesService {
+  // Lists volumes.
+  rpc ListVolumes(ListVolumesRequest) returns (ListVolumesResponse) {
+    option (google.api.http) = {
+      get: "/volumes"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListVolumes"};
+  }
+
+  rpc CreateVolume(CreateVolumeRequest) returns (VolumeInfo) {
+    option (google.api.http) = {
+      post: "/volumes"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "CreateVolume"};
+  }
+
+  rpc GetVolume(GetVolumeRequest) returns (VolumeInfo) {
+    option (google.api.http) = {
+      get: "/volumes/{name}"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "GetVolume"};
+  }
+
+  rpc UpdateVolume(UpdateVolumeRequest) returns (VolumeInfo) {
+    option (google.api.http) = {
+      patch: "/volumes/{name}"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "UpdateVolume"};
+  }
+
+  rpc DeleteVolume(DeleteVolumeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/volumes/{name=projects/*/locations/*/catalogs/*/volumes/*}"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "DeleteVolume"};
+  }
+}
