@@ -20,3 +20,8 @@ object_store = { workspace = true }
 thiserror = { workspace = true }
 url = { workspace = true }
 uuid = { workspace = true }
+
+[dev-dependencies]
+futures = { workspace = true }
+serde_json = { workspace = true }
+tokio = { version = "1", features = ["full"] }

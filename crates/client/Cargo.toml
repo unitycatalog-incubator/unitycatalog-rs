@@ -28,4 +28,4 @@ futures = { version = "0.3" }
 delta_kernel = { workspace = true, optional = true }
 
 [features]
-sharing = ["delta_kernel", "chrono", "itertools"]
+sharing = ["delta_kernel", "chrono", "itertools", "unitycatalog-common/sharing"]

@@ -576,7 +576,7 @@ impl serde::Serialize for GetTableVersionRequest {
             struct_ser.serialize_field("share", &self.share)?;
         }
         if let Some(v) = self.starting_timestamp.as_ref() {
-            struct_ser.serialize_field("startingTimestamp", v)?;
+            struct_ser.serialize_field("starting_timestamp", v)?;
         }
         struct_ser.end()
     }
@@ -804,7 +804,7 @@ impl serde::Serialize for InternalGetTableVersionParams {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.InternalGetTableVersionParams", len)?;
         if let Some(v) = self.starting_timestamp.as_ref() {
-            struct_ser.serialize_field("startingTimestamp", v)?;
+            struct_ser.serialize_field("starting_timestamp", v)?;
         }
         struct_ser.end()
     }
@@ -924,7 +924,7 @@ impl serde::Serialize for JsonPredicate {
             struct_ser.serialize_field("value", v)?;
         }
         if let Some(v) = self.value_type.as_ref() {
-            struct_ser.serialize_field("valueType", v)?;
+            struct_ser.serialize_field("value_type", v)?;
         }
         struct_ser.end()
     }
@@ -1079,10 +1079,10 @@ impl serde::Serialize for ListSchemaTablesRequest {
             struct_ser.serialize_field("share", &self.share)?;
         }
         if let Some(v) = self.max_results.as_ref() {
-            struct_ser.serialize_field("maxResults", v)?;
+            struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
-            struct_ser.serialize_field("pageToken", v)?;
+            struct_ser.serialize_field("page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1220,7 +1220,7 @@ impl serde::Serialize for ListSchemaTablesResponse {
             struct_ser.serialize_field("items", &self.items)?;
         }
         if let Some(v) = self.next_page_token.as_ref() {
-            struct_ser.serialize_field("nextPageToken", v)?;
+            struct_ser.serialize_field("next_page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1336,10 +1336,10 @@ impl serde::Serialize for ListShareTablesRequest {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if let Some(v) = self.max_results.as_ref() {
-            struct_ser.serialize_field("maxResults", v)?;
+            struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
-            struct_ser.serialize_field("pageToken", v)?;
+            struct_ser.serialize_field("page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1466,7 +1466,7 @@ impl serde::Serialize for ListShareTablesResponse {
             struct_ser.serialize_field("items", &self.items)?;
         }
         if let Some(v) = self.next_page_token.as_ref() {
-            struct_ser.serialize_field("nextPageToken", v)?;
+            struct_ser.serialize_field("next_page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1576,10 +1576,10 @@ impl serde::Serialize for ListSharesRequest {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSharesRequest", len)?;
         if let Some(v) = self.max_results.as_ref() {
-            struct_ser.serialize_field("maxResults", v)?;
+            struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
-            struct_ser.serialize_field("pageToken", v)?;
+            struct_ser.serialize_field("page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1695,7 +1695,7 @@ impl serde::Serialize for ListSharesResponse {
             struct_ser.serialize_field("items", &self.items)?;
         }
         if let Some(v) = self.next_page_token.as_ref() {
-            struct_ser.serialize_field("nextPageToken", v)?;
+            struct_ser.serialize_field("next_page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1811,10 +1811,10 @@ impl serde::Serialize for ListSharingSchemasRequest {
             struct_ser.serialize_field("share", &self.share)?;
         }
         if let Some(v) = self.max_results.as_ref() {
-            struct_ser.serialize_field("maxResults", v)?;
+            struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
-            struct_ser.serialize_field("pageToken", v)?;
+            struct_ser.serialize_field("page_token", v)?;
         }
         struct_ser.end()
     }
@@ -1941,7 +1941,7 @@ impl serde::Serialize for ListSharingSchemasResponse {
             struct_ser.serialize_field("items", &self.items)?;
         }
         if let Some(v) = self.next_page_token.as_ref() {
-            struct_ser.serialize_field("nextPageToken", v)?;
+            struct_ser.serialize_field("next_page_token", v)?;
         }
         struct_ser.end()
     }
@@ -2057,7 +2057,7 @@ impl serde::Serialize for MetadatDelta {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.MetadatDelta", len)?;
         if let Some(v) = self.delta_metadata.as_ref() {
-            struct_ser.serialize_field("deltaMetadata", v)?;
+            struct_ser.serialize_field("delta_metadata", v)?;
         }
         if let Some(v) = self.version.as_ref() {
             #[allow(clippy::needless_borrow)]
@@ -2072,7 +2072,7 @@ impl serde::Serialize for MetadatDelta {
         if let Some(v) = self.num_files.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("numFiles", ToString::to_string(&v).as_str())?;
+            struct_ser.serialize_field("num_files", ToString::to_string(&v).as_str())?;
         }
         struct_ser.end()
     }
@@ -2241,15 +2241,15 @@ impl serde::Serialize for Metadata {
             struct_ser.serialize_field("format", v)?;
         }
         if !self.schema_string.is_empty() {
-            struct_ser.serialize_field("schemaString", &self.schema_string)?;
+            struct_ser.serialize_field("schema_string", &self.schema_string)?;
         }
         if !self.partition_columns.is_empty() {
-            struct_ser.serialize_field("partitionColumns", &self.partition_columns)?;
+            struct_ser.serialize_field("partition_columns", &self.partition_columns)?;
         }
         if let Some(v) = self.created_time.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("createdTime", ToString::to_string(&v).as_str())?;
+            struct_ser.serialize_field("created_time", ToString::to_string(&v).as_str())?;
         }
         if !self.options.is_empty() {
             struct_ser.serialize_field("options", &self.options)?;
@@ -2458,10 +2458,10 @@ impl serde::Serialize for MetadataParquet {
             struct_ser.serialize_field("format", v)?;
         }
         if !self.schema_string.is_empty() {
-            struct_ser.serialize_field("schemaString", &self.schema_string)?;
+            struct_ser.serialize_field("schema_string", &self.schema_string)?;
         }
         if !self.partition_columns.is_empty() {
-            struct_ser.serialize_field("partitionColumns", &self.partition_columns)?;
+            struct_ser.serialize_field("partition_columns", &self.partition_columns)?;
         }
         struct_ser.end()
     }
@@ -2824,10 +2824,10 @@ impl serde::Serialize for ProtocolDelta {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ProtocolDelta", len)?;
         if self.min_reader_version != 0 {
-            struct_ser.serialize_field("minReaderVersion", &self.min_reader_version)?;
+            struct_ser.serialize_field("min_reader_version", &self.min_reader_version)?;
         }
         if self.min_writer_version != 0 {
-            struct_ser.serialize_field("minWriterVersion", &self.min_writer_version)?;
+            struct_ser.serialize_field("min_writer_version", &self.min_writer_version)?;
         }
         struct_ser.end()
     }
@@ -2939,7 +2939,7 @@ impl serde::Serialize for ProtocolParquet {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ProtocolParquet", len)?;
         if self.min_reader_version != 0 {
-            struct_ser.serialize_field("minReaderVersion", &self.min_reader_version)?;
+            struct_ser.serialize_field("min_reader_version", &self.min_reader_version)?;
         }
         struct_ser.end()
     }
@@ -3189,16 +3189,16 @@ impl serde::Serialize for QueryTableRequest {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if let Some(v) = self.starting_timestamp.as_ref() {
-            struct_ser.serialize_field("startingTimestamp", v)?;
+            struct_ser.serialize_field("starting_timestamp", v)?;
         }
         if !self.predicate_hints.is_empty() {
-            struct_ser.serialize_field("predicateHints", &self.predicate_hints)?;
+            struct_ser.serialize_field("predicate_hints", &self.predicate_hints)?;
         }
         if let Some(v) = self.json_predicate_hints.as_ref() {
-            struct_ser.serialize_field("jsonPredicateHints", v)?;
+            struct_ser.serialize_field("json_predicate_hints", v)?;
         }
         if let Some(v) = self.limit_hint.as_ref() {
-            struct_ser.serialize_field("limitHint", v)?;
+            struct_ser.serialize_field("limit_hint", v)?;
         }
         if let Some(v) = self.version.as_ref() {
             #[allow(clippy::needless_borrow)]
@@ -3211,12 +3211,12 @@ impl serde::Serialize for QueryTableRequest {
         if let Some(v) = self.starting_version.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("startingVersion", ToString::to_string(&v).as_str())?;
+            struct_ser.serialize_field("starting_version", ToString::to_string(&v).as_str())?;
         }
         if let Some(v) = self.ending_version.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("endingVersion", ToString::to_string(&v).as_str())?;
+            struct_ser.serialize_field("ending_version", ToString::to_string(&v).as_str())?;
         }
         struct_ser.end()
     }
@@ -3700,7 +3700,7 @@ impl serde::Serialize for SharingSchemaInfo {
             struct_ser.serialize_field("share", &self.share)?;
         }
         if let Some(v) = self.share_id.as_ref() {
-            struct_ser.serialize_field("shareId", v)?;
+            struct_ser.serialize_field("share_id", v)?;
         }
         if let Some(v) = self.description.as_ref() {
             struct_ser.serialize_field("description", v)?;
@@ -3883,7 +3883,7 @@ impl serde::Serialize for SharingTable {
             struct_ser.serialize_field("id", v)?;
         }
         if let Some(v) = self.share_id.as_ref() {
-            struct_ser.serialize_field("shareId", v)?;
+            struct_ser.serialize_field("share_id", v)?;
         }
         struct_ser.end()
     }

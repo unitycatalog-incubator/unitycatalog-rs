@@ -24,7 +24,7 @@ impl serde::Serialize for CreateSchemaRequest {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if !self.catalog_name.is_empty() {
-            struct_ser.serialize_field("catalogName", &self.catalog_name)?;
+            struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
@@ -164,7 +164,7 @@ impl serde::Serialize for DeleteSchemaRequest {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.DeleteSchemaRequest", len)?;
         if !self.full_name.is_empty() {
-            struct_ser.serialize_field("fullName", &self.full_name)?;
+            struct_ser.serialize_field("full_name", &self.full_name)?;
         }
         if let Some(v) = self.force.as_ref() {
             struct_ser.serialize_field("force", v)?;
@@ -274,7 +274,7 @@ impl serde::Serialize for GetSchemaRequest {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.GetSchemaRequest", len)?;
         if !self.full_name.is_empty() {
-            struct_ser.serialize_field("fullName", &self.full_name)?;
+            struct_ser.serialize_field("full_name", &self.full_name)?;
         }
         struct_ser.end()
     }
@@ -379,16 +379,16 @@ impl serde::Serialize for ListSchemasRequest {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.ListSchemasRequest", len)?;
         if !self.catalog_name.is_empty() {
-            struct_ser.serialize_field("catalogName", &self.catalog_name)?;
+            struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
         if let Some(v) = self.max_results.as_ref() {
-            struct_ser.serialize_field("maxResults", v)?;
+            struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
-            struct_ser.serialize_field("pageToken", v)?;
+            struct_ser.serialize_field("page_token", v)?;
         }
         if let Some(v) = self.include_browse.as_ref() {
-            struct_ser.serialize_field("includeBrowse", v)?;
+            struct_ser.serialize_field("include_browse", v)?;
         }
         struct_ser.end()
     }
@@ -528,7 +528,7 @@ impl serde::Serialize for ListSchemasResponse {
             struct_ser.serialize_field("schemas", &self.schemas)?;
         }
         if let Some(v) = self.next_page_token.as_ref() {
-            struct_ser.serialize_field("nextPageToken", v)?;
+            struct_ser.serialize_field("next_page_token", v)?;
         }
         struct_ser.end()
     }
@@ -668,7 +668,7 @@ impl serde::Serialize for SchemaInfo {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if !self.catalog_name.is_empty() {
-            struct_ser.serialize_field("catalogName", &self.catalog_name)?;
+            struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
@@ -677,7 +677,7 @@ impl serde::Serialize for SchemaInfo {
             struct_ser.serialize_field("properties", &self.properties)?;
         }
         if let Some(v) = self.full_name.as_ref() {
-            struct_ser.serialize_field("fullName", v)?;
+            struct_ser.serialize_field("full_name", v)?;
         }
         if let Some(v) = self.owner.as_ref() {
             struct_ser.serialize_field("owner", v)?;
@@ -685,21 +685,21 @@ impl serde::Serialize for SchemaInfo {
         if let Some(v) = self.created_at.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("createdAt", ToString::to_string(&v).as_str())?;
+            struct_ser.serialize_field("created_at", ToString::to_string(&v).as_str())?;
         }
         if let Some(v) = self.created_by.as_ref() {
-            struct_ser.serialize_field("createdBy", v)?;
+            struct_ser.serialize_field("created_by", v)?;
         }
         if let Some(v) = self.updated_at.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("updatedAt", ToString::to_string(&v).as_str())?;
+            struct_ser.serialize_field("updated_at", ToString::to_string(&v).as_str())?;
         }
         if let Some(v) = self.updated_by.as_ref() {
-            struct_ser.serialize_field("updatedBy", v)?;
+            struct_ser.serialize_field("updated_by", v)?;
         }
         if let Some(v) = self.schema_id.as_ref() {
-            struct_ser.serialize_field("schemaId", v)?;
+            struct_ser.serialize_field("schema_id", v)?;
         }
         struct_ser.end()
     }
@@ -926,7 +926,7 @@ impl serde::Serialize for UpdateSchemaRequest {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.UpdateSchemaRequest", len)?;
         if !self.full_name.is_empty() {
-            struct_ser.serialize_field("fullName", &self.full_name)?;
+            struct_ser.serialize_field("full_name", &self.full_name)?;
         }
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
@@ -935,7 +935,7 @@ impl serde::Serialize for UpdateSchemaRequest {
             struct_ser.serialize_field("properties", &self.properties)?;
         }
         if !self.new_name.is_empty() {
-            struct_ser.serialize_field("newName", &self.new_name)?;
+            struct_ser.serialize_field("new_name", &self.new_name)?;
         }
         struct_ser.end()
     }
