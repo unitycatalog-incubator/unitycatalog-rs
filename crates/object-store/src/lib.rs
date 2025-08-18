@@ -37,6 +37,9 @@ impl UnityObjectStoreFactoryBuilder {
         Self::default()
     }
 
+    /// Set the URI of the Unity Catalog instance.
+    ///
+    /// This is required for creating a UnityObjectStoreFactory.
     pub fn with_uri<T>(mut self, uri: impl Into<Option<T>>) -> Self
     where
         T: ToString,
@@ -45,6 +48,9 @@ impl UnityObjectStoreFactoryBuilder {
         self
     }
 
+    /// Set the [access token] for the Unity Catalog instance.
+    ///
+    /// [access token]: https://docs.databricks.com/aws/en/dev-tools/auth/pat
     pub fn with_token<T>(mut self, token: impl Into<Option<T>>) -> Self
     where
         T: ToString,
@@ -53,6 +59,10 @@ impl UnityObjectStoreFactoryBuilder {
         self
     }
 
+    /// Allow creating an unauthenticated client
+    ///
+    /// This should only ever be used fro testing / development as there should
+    /// probably not be any unauthenticated UC servers out there.
     pub fn with_allow_unauthenticated(mut self, allow_unauthenticated: bool) -> Self {
         self.allow_unauthenticated = allow_unauthenticated;
         self

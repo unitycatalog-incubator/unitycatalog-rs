@@ -72,26 +72,20 @@ pub async fn new_gcp(
 }
 
 impl<T> UCCredentialProvider<T> {
-    async fn get_credential_inner(&self) -> Result<(TemporaryCredential, SecurableRef)> {
+    async fn get_credential_inner(&self) -> Result<TemporaryCredential> {
         match &self.securable {
-            SecurableRef::Table(table, op) => {
-                let (cred, table_id) = self
-                    .client
-                    .temporary_table_credential(*table, *op)
-                    .await
-                    .map_err(Error::from)?;
-                let securable = SecurableRef::Table(table_id, *op);
-                Ok((cred, securable))
-            }
-            SecurableRef::Path(path, op) => {
-                let (cred, path) = self
-                    .client
-                    .temporary_path_credential(path.clone(), *op, false)
-                    .await
-                    .map_err(Error::from)?;
-                let securable = SecurableRef::Path(path.clone(), *op);
-                Ok((cred, securable))
-            }
+            SecurableRef::Table(table, op) => Ok(self
+                .client
+                .temporary_table_credential(*table, *op)
+                .await
+                .map_err(Error::from)?
+                .0),
+            SecurableRef::Path(path, op) => Ok(self
+                .client
+                .temporary_path_credential(path.clone(), *op, false)
+                .await
+                .map_err(Error::from)?
+                .0),
         }
     }
 }
@@ -110,7 +104,7 @@ impl CredentialProvider for UCCredentialProvider<AzureCredential> {
 
     async fn get_credential(&self) -> Result<Arc<AzureCredential>> {
         self.cache
-            .get_or_insert_with(|| async { as_azure(&self.get_credential_inner().await?.0) })
+            .get_or_insert_with(|| async { as_azure(&self.get_credential_inner().await?) })
             .await
     }
 }
@@ -121,7 +115,7 @@ impl CredentialProvider for UCCredentialProvider<AwsCredential> {
 
     async fn get_credential(&self) -> Result<Arc<AwsCredential>> {
         self.cache
-            .get_or_insert_with(|| async { as_aws(&self.get_credential_inner().await?.0) })
+            .get_or_insert_with(|| async { as_aws(&self.get_credential_inner().await?) })
             .await
     }
 }
@@ -132,7 +126,7 @@ impl CredentialProvider for UCCredentialProvider<GcpCredential> {
 
     async fn get_credential(&self) -> Result<Arc<GcpCredential>> {
         self.cache
-            .get_or_insert_with(|| async { as_gcp(&self.get_credential_inner().await?.0) })
+            .get_or_insert_with(|| async { as_gcp(&self.get_credential_inner().await?) })
             .await
     }
 }
@@ -161,13 +155,9 @@ pub(super) fn as_azure(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<
         _ => return Err(crate::Error::credential_mismatch("Expected Azure credential.").into()),
     };
 
-    let expiry = DateTime::from_timestamp_millis(cred.expiration_time)
-        .ok_or(Error::credential_mismatch("Invalid expiration time"))?;
-    let ttl = (expiry - Utc::now()).to_std().unwrap_or_default();
-
     Ok(TemporaryToken {
         token: Arc::new(az_cred),
-        expiry: Some(Instant::now() + ttl),
+        expiry: get_expiry(&cred)?,
     })
 }
 
@@ -194,13 +184,9 @@ pub(super) fn as_aws(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Aw
         _ => return Err(crate::Error::credential_mismatch("Expected AWS credential.").into()),
     };
 
-    let expiry = DateTime::from_timestamp_millis(cred.expiration_time)
-        .ok_or(Error::credential_mismatch("Invalid expiration time"))?;
-    let ttl = (expiry - Utc::now()).to_std().unwrap_or_default();
-
     Ok(TemporaryToken {
         token: Arc::new(aws_cred),
-        expiry: Some(Instant::now() + ttl),
+        expiry: get_expiry(&cred)?,
     })
 }
 
@@ -218,12 +204,16 @@ pub(super) fn as_gcp(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Gc
         _ => return Err(crate::Error::credential_mismatch("Expected GCS credential.").into()),
     };
 
+    Ok(TemporaryToken {
+        token: Arc::new(gcp_cred),
+        expiry: get_expiry(&cred)?,
+    })
+}
+
+fn get_expiry(cred: &TemporaryCredential) -> Result<Option<Instant>> {
     let expiry = DateTime::from_timestamp_millis(cred.expiration_time)
         .ok_or(Error::credential_mismatch("Invalid expiration time"))?;
     let ttl = (expiry - Utc::now()).to_std().unwrap_or_default();
 
-    Ok(TemporaryToken {
-        token: Arc::new(gcp_cred),
-        expiry: Some(Instant::now() + ttl),
-    })
+    Ok(Some(Instant::now() + ttl))
 }
