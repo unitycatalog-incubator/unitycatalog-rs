@@ -21,16 +21,16 @@ impl serde::Serialize for AwsTemporaryCredentials {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials", len)?;
         if !self.access_key_id.is_empty() {
-            struct_ser.serialize_field("accessKeyId", &self.access_key_id)?;
+            struct_ser.serialize_field("access_key_id", &self.access_key_id)?;
         }
         if !self.access_point.is_empty() {
-            struct_ser.serialize_field("accessPoint", &self.access_point)?;
+            struct_ser.serialize_field("access_point", &self.access_point)?;
         }
         if !self.secret_access_key.is_empty() {
-            struct_ser.serialize_field("secretAccessKey", &self.secret_access_key)?;
+            struct_ser.serialize_field("secret_access_key", &self.secret_access_key)?;
         }
         if !self.session_token.is_empty() {
-            struct_ser.serialize_field("sessionToken", &self.session_token)?;
+            struct_ser.serialize_field("session_token", &self.session_token)?;
         }
         struct_ser.end()
     }
@@ -162,7 +162,7 @@ impl serde::Serialize for AzureAad {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AzureAad", len)?;
         if !self.aad_token.is_empty() {
-            struct_ser.serialize_field("aadToken", &self.aad_token)?;
+            struct_ser.serialize_field("aad_token", &self.aad_token)?;
         }
         struct_ser.end()
     }
@@ -258,7 +258,7 @@ impl serde::Serialize for AzureUserDelegationSas {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AzureUserDelegationSas", len)?;
         if !self.sas_token.is_empty() {
-            struct_ser.serialize_field("sasToken", &self.sas_token)?;
+            struct_ser.serialize_field("sas_token", &self.sas_token)?;
         }
         struct_ser.end()
     }
@@ -354,7 +354,7 @@ impl serde::Serialize for GcpOauthToken {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.GcpOauthToken", len)?;
         if !self.oauth_token.is_empty() {
-            struct_ser.serialize_field("oauthToken", &self.oauth_token)?;
+            struct_ser.serialize_field("oauth_token", &self.oauth_token)?;
         }
         struct_ser.end()
     }
@@ -464,7 +464,7 @@ impl serde::Serialize for GenerateTemporaryPathCredentialsRequest {
             struct_ser.serialize_field("operation", &v)?;
         }
         if let Some(v) = self.dry_run.as_ref() {
-            struct_ser.serialize_field("dryRun", v)?;
+            struct_ser.serialize_field("dry_run", v)?;
         }
         struct_ser.end()
     }
@@ -662,7 +662,7 @@ impl serde::Serialize for GenerateTemporaryTableCredentialsRequest {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest", len)?;
         if !self.table_id.is_empty() {
-            struct_ser.serialize_field("tableId", &self.table_id)?;
+            struct_ser.serialize_field("table_id", &self.table_id)?;
         }
         if self.operation != 0 {
             let v = generate_temporary_table_credentials_request::Operation::try_from(self.operation)
@@ -854,13 +854,13 @@ impl serde::Serialize for R2TemporaryCredentials {
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.R2TemporaryCredentials", len)?;
         if !self.access_key_id.is_empty() {
-            struct_ser.serialize_field("accessKeyId", &self.access_key_id)?;
+            struct_ser.serialize_field("access_key_id", &self.access_key_id)?;
         }
         if !self.secret_access_key.is_empty() {
-            struct_ser.serialize_field("secretAccessKey", &self.secret_access_key)?;
+            struct_ser.serialize_field("secret_access_key", &self.secret_access_key)?;
         }
         if !self.session_token.is_empty() {
-            struct_ser.serialize_field("sessionToken", &self.session_token)?;
+            struct_ser.serialize_field("session_token", &self.session_token)?;
         }
         struct_ser.end()
     }
@@ -988,7 +988,7 @@ impl serde::Serialize for TemporaryCredential {
         if self.expiration_time != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("expirationTime", ToString::to_string(&self.expiration_time).as_str())?;
+            struct_ser.serialize_field("expiration_time", ToString::to_string(&self.expiration_time).as_str())?;
         }
         if !self.url.is_empty() {
             struct_ser.serialize_field("url", &self.url)?;
@@ -996,19 +996,19 @@ impl serde::Serialize for TemporaryCredential {
         if let Some(v) = self.credentials.as_ref() {
             match v {
                 temporary_credential::Credentials::AzureUserDelegationSas(v) => {
-                    struct_ser.serialize_field("azureUserDelegationSas", v)?;
+                    struct_ser.serialize_field("azure_user_delegation_sas", v)?;
                 }
                 temporary_credential::Credentials::AzureAad(v) => {
-                    struct_ser.serialize_field("azureAad", v)?;
+                    struct_ser.serialize_field("azure_aad", v)?;
                 }
                 temporary_credential::Credentials::AwsTempCredentials(v) => {
-                    struct_ser.serialize_field("awsTempCredentials", v)?;
+                    struct_ser.serialize_field("aws_temp_credentials", v)?;
                 }
                 temporary_credential::Credentials::GcpOauthToken(v) => {
-                    struct_ser.serialize_field("gcpOauthToken", v)?;
+                    struct_ser.serialize_field("gcp_oauth_token", v)?;
                 }
                 temporary_credential::Credentials::R2TempCredentials(v) => {
-                    struct_ser.serialize_field("r2TempCredentials", v)?;
+                    struct_ser.serialize_field("r2_temp_credentials", v)?;
                 }
             }
         }

@@ -27,6 +27,8 @@ pub struct UnityObjectStoreFactoryBuilder {
     token: Option<String>,
     /// Allow unauthenticated access.
     allow_unauthenticated: bool,
+    /// aws region to assign
+    aws_region: Option<String>,
 }
 
 /// Builder for creating a UnityObjectStoreFactory.
@@ -56,6 +58,19 @@ impl UnityObjectStoreFactoryBuilder {
         self
     }
 
+    /// Set the AWS region for the factory.
+    ///
+    /// Right now we cannot infer the AWS region from the vended credential return.
+    /// If no region is supplied the default region from object_store will be used.
+    /// Currently, the default region is set to "us-east-1".
+    pub fn with_aws_region<T>(mut self, aws_region: impl Into<Option<T>>) -> Self
+    where
+        T: ToString,
+    {
+        self.aws_region = aws_region.into().map(|t| t.to_string());
+        self
+    }
+
     pub async fn build(self) -> Result<UnityObjectStoreFactory> {
         let url = if let Some(uri) = self.uri {
             url::Url::parse(&uri).map_err(Error::from)?
@@ -74,7 +89,10 @@ impl UnityObjectStoreFactoryBuilder {
         };
 
         let client = TemporaryCredentialClient::new_with_url(cloud_client, url);
-        Ok(UnityObjectStoreFactory { client })
+        Ok(UnityObjectStoreFactory {
+            client,
+            aws_region: self.aws_region,
+        })
     }
 }
 
@@ -115,6 +133,7 @@ impl UCFactoryStore {
 #[derive(Clone)]
 pub struct UnityObjectStoreFactory {
     client: TemporaryCredentialClient,
+    aws_region: Option<String>,
 }
 
 impl UnityObjectStoreFactory {
@@ -189,10 +208,13 @@ impl UnityObjectStoreFactory {
         if as_aws(&credential).is_ok() {
             let provider = new_aws(self.client.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
-            let store = AmazonS3Builder::new()
+            let mut store = AmazonS3Builder::new()
                 .with_url(url.to_string())
-                .with_credentials(Arc::new(provider))
-                .build()?;
+                .with_credentials(Arc::new(provider));
+            if let Some(region) = &self.aws_region {
+                store = store.with_region(region);
+            }
+            let store = store.build()?;
             return Ok(Arc::new(store));
         }
 
