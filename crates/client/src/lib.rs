@@ -95,8 +95,56 @@ impl UnityCatalogClient {
         self.catalogs.list(max_results)
     }
 
+    pub async fn create_catalog(
+        &self,
+        name: impl ToString,
+        storage_root: Option<impl ToString>,
+        comment: Option<impl ToString>,
+        properties: impl Into<Option<std::collections::HashMap<String, String>>>,
+    ) -> Result<CatalogInfo> {
+        let catalog = CatalogClient::new(name, self.catalogs.clone());
+        catalog.create(storage_root, comment, properties).await
+    }
+
+    pub async fn create_sharing_catalog(
+        &self,
+        name: impl ToString,
+        provider_name: impl Into<String>,
+        share_name: impl Into<String>,
+        comment: Option<impl ToString>,
+        properties: impl Into<Option<std::collections::HashMap<String, String>>>,
+    ) -> Result<CatalogInfo> {
+        let catalog = CatalogClient::new(name, self.catalogs.clone());
+        catalog
+            .create_sharing(provider_name, share_name, comment, properties)
+            .await
+    }
+
     pub fn catalog(&self, name: impl ToString) -> CatalogClient {
         CatalogClient::new(name, self.catalogs.clone())
+    }
+
+    // Credential methods
+    pub fn list_credentials(
+        &self,
+        purpose: Option<Purpose>,
+        max_results: impl Into<Option<i32>>,
+    ) -> BoxStream<'_, Result<CredentialInfo>> {
+        self.credentials.list(purpose, max_results)
+    }
+
+    pub async fn create_credential(
+        &self,
+        name: impl ToString,
+        purpose: Purpose,
+        comment: Option<impl ToString>,
+    ) -> Result<CredentialInfo> {
+        let credential = CredentialClient::new(name, self.credentials.clone());
+        credential.create(purpose, comment).await
+    }
+
+    pub fn credential(&self, name: impl ToString) -> CredentialClient {
+        CredentialClient::new(name, self.credentials.clone())
     }
 
     // Schema methods
@@ -106,6 +154,16 @@ impl UnityCatalogClient {
         max_results: impl Into<Option<i32>>,
     ) -> BoxStream<'_, Result<SchemaInfo>> {
         self.schemas.list(catalog_name, max_results)
+    }
+
+    pub async fn create_schema(
+        &self,
+        catalog_name: impl ToString,
+        schema_name: impl ToString,
+        comment: Option<impl ToString>,
+    ) -> Result<SchemaInfo> {
+        let schema = SchemaClient::new(catalog_name, schema_name, self.schemas.clone());
+        schema.create(comment).await
     }
 
     pub fn schema(&self, catalog_name: impl ToString, schema_name: impl ToString) -> SchemaClient {
@@ -153,6 +211,15 @@ impl UnityCatalogClient {
         TableClient::new(full_name, self.tables.clone())
     }
 
+    pub async fn create_share(
+        &self,
+        name: impl ToString,
+        comment: Option<impl ToString>,
+    ) -> Result<ShareInfo> {
+        let share = ShareClient::new(name, self.shares.clone());
+        share.create(comment).await
+    }
+
     // Share methods
     pub fn list_shares(
         &self,
@@ -163,6 +230,16 @@ impl UnityCatalogClient {
 
     pub fn share(&self, name: impl ToString) -> ShareClient {
         ShareClient::new(name, self.shares.clone())
+    }
+
+    pub async fn create_recipient(
+        &self,
+        name: impl ToString,
+        authentication_type: AuthenticationType,
+        comment: Option<impl ToString>,
+    ) -> Result<RecipientInfo> {
+        let recipient = RecipientClient::new(name, self.recipients.clone());
+        recipient.create(authentication_type, comment).await
     }
 
     // Recipient methods
@@ -177,94 +254,12 @@ impl UnityCatalogClient {
         RecipientClient::new(name, self.recipients.clone())
     }
 
-    // Credential methods
-    pub fn list_credentials(
-        &self,
-        purpose: Option<Purpose>,
-        max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<CredentialInfo>> {
-        self.credentials.list(purpose, max_results)
-    }
-
-    pub fn credential(&self, name: impl ToString) -> CredentialClient {
-        CredentialClient::new(name, self.credentials.clone())
-    }
-
     // External location methods
     pub fn list_external_locations(
         &self,
         max_results: impl Into<Option<i32>>,
     ) -> BoxStream<'_, Result<ExternalLocationInfo>> {
         self.external_locations.list(max_results)
-    }
-
-    pub fn external_location(&self, name: impl ToString) -> ExternalLocationClient {
-        ExternalLocationClient::new(name, self.external_locations.clone())
-    }
-
-    // Create methods
-    pub async fn create_catalog(
-        &self,
-        name: impl ToString,
-        storage_root: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        properties: impl Into<Option<std::collections::HashMap<String, String>>>,
-    ) -> Result<CatalogInfo> {
-        let catalog = CatalogClient::new(name, self.catalogs.clone());
-        catalog.create(storage_root, comment, properties).await
-    }
-
-    pub async fn create_sharing_catalog(
-        &self,
-        name: impl ToString,
-        provider_name: impl Into<String>,
-        share_name: impl Into<String>,
-        comment: Option<impl ToString>,
-        properties: impl Into<Option<std::collections::HashMap<String, String>>>,
-    ) -> Result<CatalogInfo> {
-        let catalog = CatalogClient::new(name, self.catalogs.clone());
-        catalog
-            .create_sharing(provider_name, share_name, comment, properties)
-            .await
-    }
-
-    pub async fn create_schema(
-        &self,
-        catalog_name: impl ToString,
-        schema_name: impl ToString,
-        comment: Option<impl ToString>,
-    ) -> Result<SchemaInfo> {
-        let schema = SchemaClient::new(catalog_name, schema_name, self.schemas.clone());
-        schema.create(comment).await
-    }
-
-    pub async fn create_share(
-        &self,
-        name: impl ToString,
-        comment: Option<impl ToString>,
-    ) -> Result<ShareInfo> {
-        let share = ShareClient::new(name, self.shares.clone());
-        share.create(comment).await
-    }
-
-    pub async fn create_recipient(
-        &self,
-        name: impl ToString,
-        authentication_type: AuthenticationType,
-        comment: Option<impl ToString>,
-    ) -> Result<RecipientInfo> {
-        let recipient = RecipientClient::new(name, self.recipients.clone());
-        recipient.create(authentication_type, comment).await
-    }
-
-    pub async fn create_credential(
-        &self,
-        name: impl ToString,
-        purpose: Purpose,
-        comment: Option<impl ToString>,
-    ) -> Result<CredentialInfo> {
-        let credential = CredentialClient::new(name, self.credentials.clone());
-        credential.create(purpose, comment).await
     }
 
     pub async fn create_external_location(
@@ -278,6 +273,10 @@ impl UnityCatalogClient {
         external_location
             .create(url, credential_name, comment)
             .await
+    }
+
+    pub fn external_location(&self, name: impl ToString) -> ExternalLocationClient {
+        ExternalLocationClient::new(name, self.external_locations.clone())
     }
 
     pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
@@ -296,19 +295,6 @@ impl UnityCatalogClient {
             .list(catalog_name, schema_name, max_results, include_browse)
     }
 
-    pub fn volume(
-        &self,
-        catalog_name: impl ToString,
-        schema_name: impl ToString,
-        volume_name: impl ToString,
-    ) -> VolumeClient {
-        VolumeClient::new(catalog_name, schema_name, volume_name, self.volumes.clone())
-    }
-
-    pub fn volume_from_full_name(&self, full_name: impl ToString) -> VolumeClient {
-        VolumeClient::new_from_full_name(full_name, self.volumes.clone())
-    }
-
     pub async fn create_volume(
         &self,
         catalog_name: impl ToString,
@@ -321,5 +307,18 @@ impl UnityCatalogClient {
         let volume =
             VolumeClient::new(catalog_name, schema_name, volume_name, self.volumes.clone());
         volume.create(volume_type, storage_location, comment).await
+    }
+
+    pub fn volume(
+        &self,
+        catalog_name: impl ToString,
+        schema_name: impl ToString,
+        volume_name: impl ToString,
+    ) -> VolumeClient {
+        VolumeClient::new(catalog_name, schema_name, volume_name, self.volumes.clone())
+    }
+
+    pub fn volume_from_full_name(&self, full_name: impl ToString) -> VolumeClient {
+        VolumeClient::new_from_full_name(full_name, self.volumes.clone())
     }
 }
