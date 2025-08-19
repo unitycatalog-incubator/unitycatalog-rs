@@ -51,7 +51,7 @@ impl CatalogClient {
     }
 
     /// Create a new managed catalog.
-    pub(super) async fn create(
+    pub async fn create(
         &self,
         storage_root: Option<impl ToString>,
         comment: Option<impl ToString>,
@@ -67,7 +67,7 @@ impl CatalogClient {
         self.client.create_catalog(&request).await
     }
 
-    pub(super) async fn create_sharing(
+    pub async fn create_sharing(
         &self,
         provider_name: impl Into<String>,
         share_name: impl Into<String>,

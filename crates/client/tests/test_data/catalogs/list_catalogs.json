@@ -1,0 +1,67 @@
+{
+  "catalogs": [
+    {
+      "name": "production_catalog",
+      "comment": "Production data catalog",
+      "storage_root": "s3://prod-bucket/catalogs/production_catalog",
+      "properties": {
+        "environment": "production",
+        "tier": "critical"
+      },
+      "owner": "admin-user",
+      "created_at": 1699564800000,
+      "updated_at": 1699564800000,
+      "catalog_type": "MANAGED_CATALOG",
+      "provider_name": null,
+      "share_name": null,
+      "isolation_mode": "OPEN",
+      "options": {},
+      "effective_predictive_optimization_flag": {
+        "value": "INHERIT",
+        "inherited_from_type": "SYSTEM_DEFAULT"
+      }
+    },
+    {
+      "name": "staging_catalog",
+      "comment": "Staging data catalog",
+      "storage_root": "s3://staging-bucket/catalogs/staging_catalog",
+      "properties": {
+        "environment": "staging",
+        "tier": "standard"
+      },
+      "owner": "data-team",
+      "created_at": 1699568400000,
+      "updated_at": 1699568400000,
+      "catalog_type": "MANAGED_CATALOG",
+      "provider_name": null,
+      "share_name": null,
+      "isolation_mode": "OPEN",
+      "options": {},
+      "effective_predictive_optimization_flag": {
+        "value": "INHERIT",
+        "inherited_from_type": "SYSTEM_DEFAULT"
+      }
+    },
+    {
+      "name": "dev_catalog",
+      "comment": null,
+      "storage_root": "s3://dev-bucket/catalogs/dev_catalog",
+      "properties": {
+        "environment": "development"
+      },
+      "owner": "dev-user",
+      "created_at": 1699572000000,
+      "updated_at": 1699572000000,
+      "catalog_type": "MANAGED_CATALOG",
+      "provider_name": null,
+      "share_name": null,
+      "isolation_mode": "OPEN",
+      "options": {},
+      "effective_predictive_optimization_flag": {
+        "value": "INHERIT",
+        "inherited_from_type": "SYSTEM_DEFAULT"
+      }
+    }
+  ],
+  "next_page_token": null
+}

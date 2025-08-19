@@ -18,14 +18,28 @@ itertools = { workspace = true, optional = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 url = { workspace = true }
-uuid = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
 reqwest = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
 
 futures = { version = "0.3" }
 
 # used in delta-sharing implementaions
 delta_kernel = { workspace = true, optional = true }
+
+[dev-dependencies]
+rstest = "0.18"
+mockito = "1.4"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio-test = "0.4"
+serde = { workspace = true }
+serde_json = { workspace = true }
+tempfile = "3.1"
+futures = "0.3"
+url = { workspace = true }
+toml = "0.8"
+chrono = { workspace = true }
 
 [features]
 sharing = ["delta_kernel", "chrono", "itertools", "unitycatalog-common/sharing"]

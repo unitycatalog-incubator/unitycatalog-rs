@@ -1,0 +1,542 @@
+{
+  "name": "hierarchical_data_structure",
+  "description": "Complete hierarchical data structure journey: create catalog, schema, and table with dependencies",
+  "variables": {
+    "catalog_name": "test_hierarchy_catalog",
+    "schema_name": "test_schema",
+    "table_name": "test_table",
+    "storage_root": "s3://test-bucket/catalogs/",
+    "catalog_comment": "Test catalog for hierarchical structure",
+    "schema_comment": "Test schema within catalog",
+    "table_comment": "Test table within schema"
+  },
+  "steps": [
+    {
+      "id": "create_catalog",
+      "description": "Create parent catalog for the hierarchy",
+      "method": "POST",
+      "path": "/catalogs",
+      "request_body": {
+        "name": "{catalog_name}",
+        "storage_root": "{storage_root}",
+        "comment": "{catalog_comment}",
+        "properties": {
+          "environment": "test",
+          "purpose": "hierarchical-testing"
+        }
+      },
+      "expected_status": 201,
+      "expected_response": {
+        "name": "{catalog_name}",
+        "comment": "{catalog_comment}",
+        "storage_root": "{storage_root}",
+        "properties": {
+          "environment": "test",
+          "purpose": "hierarchical-testing"
+        },
+        "owner": "test-user",
+        "created_at": 1699564800000,
+        "updated_at": 1699564800000,
+        "catalog_type": "MANAGED_CATALOG",
+        "provider_name": null,
+        "share_name": null,
+        "isolation_mode": "OPEN",
+        "options": {},
+        "effective_predictive_optimization_flag": {
+          "value": "INHERIT",
+          "inherited_from_type": "SYSTEM_DEFAULT"
+        }
+      },
+      "extract_variables": {
+        "catalog_created_at": "$.created_at",
+        "catalog_full_name": "$.name"
+      },
+      "tags": ["setup", "catalog", "create"]
+    },
+    {
+      "id": "verify_catalog_exists",
+      "description": "Verify catalog was created successfully",
+      "method": "GET",
+      "path": "/catalogs/{catalog_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{catalog_name}",
+        "comment": "{catalog_comment}",
+        "storage_root": "{storage_root}",
+        "properties": {
+          "environment": "test",
+          "purpose": "hierarchical-testing"
+        },
+        "owner": "test-user",
+        "created_at": 1699564800000,
+        "updated_at": 1699564800000,
+        "catalog_type": "MANAGED_CATALOG",
+        "provider_name": null,
+        "share_name": null,
+        "isolation_mode": "OPEN",
+        "options": {},
+        "effective_predictive_optimization_flag": {
+          "value": "INHERIT",
+          "inherited_from_type": "SYSTEM_DEFAULT"
+        }
+      },
+      "depends_on": ["create_catalog"],
+      "tags": ["setup", "catalog", "verification"]
+    },
+    {
+      "id": "create_schema",
+      "description": "Create schema within the catalog",
+      "method": "POST",
+      "path": "/schemas",
+      "request_body": {
+        "name": "{schema_name}",
+        "catalog_name": "{catalog_name}",
+        "comment": "{schema_comment}",
+        "properties": {
+          "data_classification": "test",
+          "retention_days": "90"
+        }
+      },
+      "expected_status": 201,
+      "expected_response": {
+        "name": "{schema_name}",
+        "catalog_name": "{catalog_name}",
+        "full_name": "{catalog_name}.{schema_name}",
+        "comment": "{schema_comment}",
+        "properties": {
+          "data_classification": "test",
+          "retention_days": "90"
+        },
+        "owner": "test-user",
+        "created_at": 1699564900000,
+        "updated_at": 1699564900000,
+        "schema_type": "MANAGED_SCHEMA",
+        "storage_root": "{storage_root}{catalog_name}/{schema_name}"
+      },
+      "depends_on": ["verify_catalog_exists"],
+      "extract_variables": {
+        "schema_full_name": "$.full_name",
+        "schema_created_at": "$.created_at",
+        "schema_storage_root": "$.storage_root"
+      },
+      "tags": ["setup", "schema", "create"]
+    },
+    {
+      "id": "verify_schema_exists",
+      "description": "Verify schema was created successfully",
+      "method": "GET",
+      "path": "/schemas/{catalog_name}.{schema_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{schema_name}",
+        "catalog_name": "{catalog_name}",
+        "full_name": "{catalog_name}.{schema_name}",
+        "comment": "{schema_comment}",
+        "properties": {
+          "data_classification": "test",
+          "retention_days": "90"
+        },
+        "owner": "test-user",
+        "created_at": 1699564900000,
+        "updated_at": 1699564900000,
+        "schema_type": "MANAGED_SCHEMA",
+        "storage_root": "{storage_root}{catalog_name}/{schema_name}"
+      },
+      "depends_on": ["create_schema"],
+      "tags": ["setup", "schema", "verification"]
+    },
+    {
+      "id": "list_schemas_in_catalog",
+      "description": "List schemas to verify our schema appears",
+      "method": "GET",
+      "path": "/schemas?catalog_name={catalog_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "schemas": [
+          {
+            "name": "{schema_name}",
+            "catalog_name": "{catalog_name}",
+            "full_name": "{catalog_name}.{schema_name}",
+            "comment": "{schema_comment}",
+            "properties": {
+              "data_classification": "test",
+              "retention_days": "90"
+            },
+            "owner": "test-user",
+            "created_at": 1699564900000,
+            "updated_at": 1699564900000,
+            "schema_type": "MANAGED_SCHEMA",
+            "storage_root": "{storage_root}{catalog_name}/{schema_name}"
+          }
+        ],
+        "next_page_token": null
+      },
+      "depends_on": ["verify_schema_exists"],
+      "tags": ["main", "schema", "list"]
+    },
+    {
+      "id": "create_table",
+      "description": "Create table within the schema",
+      "method": "POST",
+      "path": "/tables",
+      "request_body": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "comment": "{table_comment}",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "INT",
+            "type_name": "INT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Primary key",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "delta.autoOptimize.optimizeWrite": "true",
+          "delta.autoOptimize.autoCompact": "true"
+        }
+      },
+      "expected_status": 201,
+      "expected_response": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "full_name": "{catalog_name}.{schema_name}.{table_name}",
+        "comment": "{table_comment}",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "INT",
+            "type_name": "INT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Primary key",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "delta.autoOptimize.optimizeWrite": "true",
+          "delta.autoOptimize.autoCompact": "true"
+        },
+        "owner": "test-user",
+        "created_at": 1699565000000,
+        "updated_at": 1699565000000,
+        "table_id": "12345678-1234-1234-1234-123456789012",
+        "storage_location": "{storage_root}{catalog_name}/{schema_name}/{table_name}"
+      },
+      "depends_on": ["list_schemas_in_catalog"],
+      "extract_variables": {
+        "table_full_name": "$.full_name",
+        "table_id": "$.table_id",
+        "table_storage_location": "$.storage_location",
+        "table_created_at": "$.created_at"
+      },
+      "tags": ["main", "table", "create"]
+    },
+    {
+      "id": "verify_table_exists",
+      "description": "Verify table was created successfully",
+      "method": "GET",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "full_name": "{catalog_name}.{schema_name}.{table_name}",
+        "comment": "{table_comment}",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "INT",
+            "type_name": "INT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Primary key",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "delta.autoOptimize.optimizeWrite": "true",
+          "delta.autoOptimize.autoCompact": "true"
+        },
+        "owner": "test-user",
+        "created_at": 1699565000000,
+        "updated_at": 1699565000000,
+        "table_id": "12345678-1234-1234-1234-123456789012",
+        "storage_location": "{storage_root}{catalog_name}/{schema_name}/{table_name}"
+      },
+      "depends_on": ["create_table"],
+      "tags": ["main", "table", "verification"]
+    },
+    {
+      "id": "list_tables_in_schema",
+      "description": "List tables to verify our table appears",
+      "method": "GET",
+      "path": "/tables?catalog_name={catalog_name}&schema_name={schema_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "tables": [
+          {
+            "name": "{table_name}",
+            "catalog_name": "{catalog_name}",
+            "schema_name": "{schema_name}",
+            "full_name": "{catalog_name}.{schema_name}.{table_name}",
+            "comment": "{table_comment}",
+            "table_type": "MANAGED",
+            "data_source_format": "DELTA",
+            "owner": "test-user",
+            "created_at": 1699565000000,
+            "updated_at": 1699565000000,
+            "table_id": "12345678-1234-1234-1234-123456789012"
+          }
+        ],
+        "next_page_token": null
+      },
+      "depends_on": ["verify_table_exists"],
+      "tags": ["main", "table", "list"]
+    },
+    {
+      "id": "update_table_comment",
+      "description": "Update table comment to test modification",
+      "method": "PATCH",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "request_body": {
+        "comment": "Updated table comment for testing"
+      },
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "full_name": "{catalog_name}.{schema_name}.{table_name}",
+        "comment": "Updated table comment for testing",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "INT",
+            "type_name": "INT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Primary key",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "delta.autoOptimize.optimizeWrite": "true",
+          "delta.autoOptimize.autoCompact": "true"
+        },
+        "owner": "test-user",
+        "created_at": 1699565000000,
+        "updated_at": 1699565100000,
+        "table_id": "12345678-1234-1234-1234-123456789012",
+        "storage_location": "{storage_root}{catalog_name}/{schema_name}/{table_name}"
+      },
+      "depends_on": ["list_tables_in_schema"],
+      "extract_variables": {
+        "table_updated_at": "$.updated_at"
+      },
+      "tags": ["main", "table", "update"]
+    },
+    {
+      "id": "cleanup_delete_table",
+      "description": "Delete the table as part of cleanup",
+      "method": "DELETE",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "expected_status": 200,
+      "depends_on": ["update_table_comment"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "table", "delete"]
+    },
+    {
+      "id": "verify_table_deleted",
+      "description": "Verify table was deleted",
+      "method": "GET",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "expected_status": 404,
+      "expected_response": {
+        "error_code": "RESOURCE_DOES_NOT_EXIST",
+        "message": "Table not found"
+      },
+      "depends_on": ["cleanup_delete_table"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "table", "verification"]
+    },
+    {
+      "id": "cleanup_delete_schema",
+      "description": "Delete the schema as part of cleanup",
+      "method": "DELETE",
+      "path": "/schemas/{catalog_name}.{schema_name}",
+      "expected_status": 200,
+      "depends_on": ["verify_table_deleted"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "schema", "delete"]
+    },
+    {
+      "id": "verify_schema_deleted",
+      "description": "Verify schema was deleted",
+      "method": "GET",
+      "path": "/schemas/{catalog_name}.{schema_name}",
+      "expected_status": 404,
+      "expected_response": {
+        "error_code": "RESOURCE_DOES_NOT_EXIST",
+        "message": "Schema not found"
+      },
+      "depends_on": ["cleanup_delete_schema"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "schema", "verification"]
+    },
+    {
+      "id": "cleanup_delete_catalog",
+      "description": "Delete the catalog as part of cleanup",
+      "method": "DELETE",
+      "path": "/catalogs/{catalog_name}",
+      "expected_status": 200,
+      "depends_on": ["verify_schema_deleted"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "catalog", "delete"]
+    },
+    {
+      "id": "verify_catalog_deleted",
+      "description": "Verify catalog was deleted",
+      "method": "GET",
+      "path": "/catalogs/{catalog_name}",
+      "expected_status": 404,
+      "expected_response": {
+        "error_code": "RESOURCE_DOES_NOT_EXIST",
+        "message": "Catalog not found"
+      },
+      "depends_on": ["cleanup_delete_catalog"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "catalog", "verification"]
+    }
+  ],
+  "metadata": {
+    "author": "Unity Catalog Test Framework",
+    "created": "2024-01-15",
+    "version": "1.0",
+    "tags": ["catalog", "schema", "table", "hierarchy", "full-lifecycle"],
+    "estimated_duration_ms": 15000,
+    "description": "Tests the complete hierarchical data structure in Unity Catalog with proper dependency management and cleanup"
+  }
+}

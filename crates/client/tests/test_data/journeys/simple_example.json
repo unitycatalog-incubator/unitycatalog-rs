@@ -1,0 +1,508 @@
+{
+  "name": "simple_example",
+  "description": "Simple example journey demonstrating the journey testing framework capabilities",
+  "variables": {
+    "catalog_name": "example_catalog",
+    "schema_name": "example_schema",
+    "table_name": "example_table",
+    "storage_root": "s3://example-bucket/data/",
+    "test_comment": "Example journey for documentation"
+  },
+  "steps": [
+    {
+      "id": "create_catalog",
+      "description": "Create example catalog to demonstrate catalog creation",
+      "method": "POST",
+      "path": "/catalogs",
+      "request_body": {
+        "name": "{catalog_name}",
+        "storage_root": "{storage_root}",
+        "comment": "{test_comment}",
+        "properties": {
+          "purpose": "example",
+          "created_by": "journey_framework"
+        }
+      },
+      "expected_status": 201,
+      "expected_response": {
+        "name": "{catalog_name}",
+        "comment": "{test_comment}",
+        "storage_root": "{storage_root}",
+        "properties": {
+          "purpose": "example",
+          "created_by": "journey_framework"
+        },
+        "owner": "test-user",
+        "created_at": 1699564800000,
+        "updated_at": 1699564800000,
+        "catalog_type": "MANAGED_CATALOG",
+        "provider_name": null,
+        "share_name": null,
+        "isolation_mode": "OPEN",
+        "options": {},
+        "effective_predictive_optimization_flag": {
+          "value": "INHERIT",
+          "inherited_from_type": "SYSTEM_DEFAULT"
+        }
+      },
+      "extract_variables": {
+        "catalog_created_at": "$.created_at",
+        "catalog_owner": "$.owner"
+      },
+      "tags": ["setup", "catalog", "create"]
+    },
+    {
+      "id": "verify_catalog",
+      "description": "Verify the catalog was created successfully",
+      "method": "GET",
+      "path": "/catalogs/{catalog_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{catalog_name}",
+        "comment": "{test_comment}",
+        "storage_root": "{storage_root}",
+        "properties": {
+          "purpose": "example",
+          "created_by": "journey_framework"
+        },
+        "owner": "test-user",
+        "created_at": 1699564800000,
+        "updated_at": 1699564800000,
+        "catalog_type": "MANAGED_CATALOG",
+        "provider_name": null,
+        "share_name": null,
+        "isolation_mode": "OPEN",
+        "options": {},
+        "effective_predictive_optimization_flag": {
+          "value": "INHERIT",
+          "inherited_from_type": "SYSTEM_DEFAULT"
+        }
+      },
+      "depends_on": ["create_catalog"],
+      "tags": ["verification", "catalog", "read"]
+    },
+    {
+      "id": "create_schema",
+      "description": "Create schema within the example catalog",
+      "method": "POST",
+      "path": "/schemas",
+      "request_body": {
+        "name": "{schema_name}",
+        "catalog_name": "{catalog_name}",
+        "comment": "Example schema for journey testing",
+        "properties": {
+          "data_type": "example",
+          "version": "1.0"
+        }
+      },
+      "expected_status": 201,
+      "expected_response": {
+        "name": "{schema_name}",
+        "catalog_name": "{catalog_name}",
+        "full_name": "{catalog_name}.{schema_name}",
+        "comment": "Example schema for journey testing",
+        "properties": {
+          "data_type": "example",
+          "version": "1.0"
+        },
+        "owner": "test-user",
+        "created_at": 1699564900000,
+        "updated_at": 1699564900000,
+        "schema_type": "MANAGED_SCHEMA",
+        "storage_root": "{storage_root}{catalog_name}/{schema_name}"
+      },
+      "depends_on": ["verify_catalog"],
+      "extract_variables": {
+        "schema_full_name": "$.full_name",
+        "schema_storage": "$.storage_root"
+      },
+      "tags": ["setup", "schema", "create"]
+    },
+    {
+      "id": "list_schemas",
+      "description": "List schemas in catalog to verify creation",
+      "method": "GET",
+      "path": "/schemas?catalog_name={catalog_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "schemas": [
+          {
+            "name": "{schema_name}",
+            "catalog_name": "{catalog_name}",
+            "full_name": "{catalog_name}.{schema_name}",
+            "comment": "Example schema for journey testing",
+            "properties": {
+              "data_type": "example",
+              "version": "1.0"
+            },
+            "owner": "test-user",
+            "created_at": 1699564900000,
+            "updated_at": 1699564900000,
+            "schema_type": "MANAGED_SCHEMA",
+            "storage_root": "{storage_root}{catalog_name}/{schema_name}"
+          }
+        ],
+        "next_page_token": null
+      },
+      "depends_on": ["create_schema"],
+      "tags": ["verification", "schema", "list"]
+    },
+    {
+      "id": "create_table",
+      "description": "Create example table with simple schema",
+      "method": "POST",
+      "path": "/tables",
+      "request_body": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "comment": "Example table for journey testing",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "BIGINT",
+            "type_name": "BIGINT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Unique identifier",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "status",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Status field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 3,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "example_property": "value",
+          "delta.autoOptimize.optimizeWrite": "true"
+        }
+      },
+      "expected_status": 201,
+      "expected_response": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "full_name": "{catalog_name}.{schema_name}.{table_name}",
+        "comment": "Example table for journey testing",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "BIGINT",
+            "type_name": "BIGINT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Unique identifier",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "status",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Status field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 3,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "example_property": "value",
+          "delta.autoOptimize.optimizeWrite": "true"
+        },
+        "owner": "test-user",
+        "created_at": 1699565000000,
+        "updated_at": 1699565000000,
+        "table_id": "example-table-uuid-12345",
+        "storage_location": "{storage_root}{catalog_name}/{schema_name}/{table_name}"
+      },
+      "depends_on": ["list_schemas"],
+      "extract_variables": {
+        "table_full_name": "$.full_name",
+        "table_id": "$.table_id",
+        "table_location": "$.storage_location"
+      },
+      "tags": ["main", "table", "create"]
+    },
+    {
+      "id": "get_table_info",
+      "description": "Retrieve table information to verify creation",
+      "method": "GET",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "full_name": "{catalog_name}.{schema_name}.{table_name}",
+        "comment": "Example table for journey testing",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "BIGINT",
+            "type_name": "BIGINT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Unique identifier",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "status",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Status field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 3,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "example_property": "value",
+          "delta.autoOptimize.optimizeWrite": "true"
+        },
+        "owner": "test-user",
+        "created_at": 1699565000000,
+        "updated_at": 1699565000000,
+        "table_id": "example-table-uuid-12345",
+        "storage_location": "{storage_root}{catalog_name}/{schema_name}/{table_name}"
+      },
+      "depends_on": ["create_table"],
+      "tags": ["main", "table", "verification"]
+    },
+    {
+      "id": "update_table_comment",
+      "description": "Update table comment to demonstrate modification",
+      "method": "PATCH",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "request_body": {
+        "comment": "Updated comment via journey test"
+      },
+      "expected_status": 200,
+      "expected_response": {
+        "name": "{table_name}",
+        "catalog_name": "{catalog_name}",
+        "schema_name": "{schema_name}",
+        "full_name": "{catalog_name}.{schema_name}.{table_name}",
+        "comment": "Updated comment via journey test",
+        "table_type": "MANAGED",
+        "data_source_format": "DELTA",
+        "columns": [
+          {
+            "name": "id",
+            "type_text": "BIGINT",
+            "type_name": "BIGINT",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 0,
+            "comment": "Unique identifier",
+            "nullable": false,
+            "partition_index": null
+          },
+          {
+            "name": "name",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 1,
+            "comment": "Name field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "status",
+            "type_text": "STRING",
+            "type_name": "STRING",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 2,
+            "comment": "Status field",
+            "nullable": true,
+            "partition_index": null
+          },
+          {
+            "name": "created_date",
+            "type_text": "DATE",
+            "type_name": "DATE",
+            "type_precision": 0,
+            "type_scale": 0,
+            "type_interval_type": null,
+            "position": 3,
+            "comment": "Creation date",
+            "nullable": true,
+            "partition_index": 0
+          }
+        ],
+        "properties": {
+          "example_property": "value",
+          "delta.autoOptimize.optimizeWrite": "true"
+        },
+        "owner": "test-user",
+        "created_at": 1699565000000,
+        "updated_at": 1699565100000,
+        "table_id": "example-table-uuid-12345",
+        "storage_location": "{storage_root}{catalog_name}/{schema_name}/{table_name}"
+      },
+      "depends_on": ["get_table_info"],
+      "extract_variables": {
+        "table_updated_at": "$.updated_at"
+      },
+      "tags": ["main", "table", "update"]
+    },
+    {
+      "id": "cleanup_delete_table",
+      "description": "Clean up by deleting the example table",
+      "method": "DELETE",
+      "path": "/tables/{catalog_name}.{schema_name}.{table_name}",
+      "expected_status": 200,
+      "depends_on": ["update_table_comment"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "table", "delete"]
+    },
+    {
+      "id": "cleanup_delete_schema",
+      "description": "Clean up by deleting the example schema",
+      "method": "DELETE",
+      "path": "/schemas/{catalog_name}.{schema_name}",
+      "expected_status": 200,
+      "depends_on": ["cleanup_delete_table"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "schema", "delete"]
+    },
+    {
+      "id": "cleanup_delete_catalog",
+      "description": "Clean up by deleting the example catalog",
+      "method": "DELETE",
+      "path": "/catalogs/{catalog_name}",
+      "expected_status": 200,
+      "depends_on": ["cleanup_delete_schema"],
+      "continue_on_failure": true,
+      "tags": ["cleanup", "catalog", "delete"]
+    }
+  ],
+  "metadata": {
+    "author": "Unity Catalog Journey Framework",
+    "created": "2024-01-15",
+    "version": "1.0",
+    "tags": ["example", "documentation", "full-workflow", "catalog", "schema", "table"],
+    "estimated_duration_ms": 12000,
+    "description": "Comprehensive example journey showing catalog -> schema -> table workflow with proper cleanup",
+    "complexity": "medium",
+    "prerequisites": [],
+    "learning_objectives": [
+      "Understand journey structure and format",
+      "Learn variable substitution and extraction",
+      "See dependency management in action",
+      "Observe proper cleanup patterns",
+      "Experience complete CRUD operations"
+    ],
+    "use_cases": [
+      "Documentation and tutorials",
+      "Framework validation testing",
+      "New developer onboarding",
+      "Integration test template"
+    ]
+  }
+}

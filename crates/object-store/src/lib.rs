@@ -244,3 +244,41 @@ impl UnityObjectStoreFactory {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use futures::TryStreamExt;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_list_store_with_temp_credential() {
+        let databricks_host = std::env::var("DATABRICKS_HOST").unwrap();
+        let databricks_token = std::env::var("DATABRICKS_TOKEN").unwrap();
+        let factory = UnityObjectStoreFactoryBuilder::default()
+            .with_uri(format!("{}/api/2.1/unity-catalog/", databricks_host))
+            .with_token(databricks_token)
+            .with_aws_region("eu-north-1")
+            .build()
+            .await
+            .unwrap();
+
+        // let table_id = uuid::Uuid::parse_str("0ad1356c-b48b-439c-be4c-ce44a82e2860").unwrap();
+        // let store = factory
+        //     .for_table(table_id, TableOperation::Read)
+        //     .await
+        //     .unwrap();
+        // let store = store.prefixed_store();
+        // let files: Vec<_> = store.list(None).try_collect().await.unwrap();
+
+        let volume_path = url::Url::parse("s3://open-lakehouse-dev/volumes/").unwrap();
+        let store = factory
+            .for_path(&volume_path, PathOperation::Read)
+            .await
+            .unwrap();
+        let store = store.prefixed_store();
+        let files: Vec<_> = store.list(None).try_collect().await.unwrap();
+
+        println!("files: {files:?}");
+    }
+}

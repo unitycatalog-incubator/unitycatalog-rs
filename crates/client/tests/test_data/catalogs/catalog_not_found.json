@@ -1,0 +1,14 @@
+{
+  "error_code": "RESOURCE_DOES_NOT_EXIST",
+  "message": "Catalog 'nonexistent_catalog' not found",
+  "details": [
+    {
+      "reason": "RESOURCE_DOES_NOT_EXIST",
+      "domain": "UNITY_CATALOG",
+      "metadata": {
+        "resource_type": "Catalog",
+        "resource_name": "nonexistent_catalog"
+      }
+    }
+  ]
+}
