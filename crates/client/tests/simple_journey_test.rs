@@ -121,7 +121,7 @@ async fn test_journey_validation() {
 #[rstest]
 #[tokio::test]
 async fn test_variable_substitution_basic() {
-    let journey = create_simple_journey();
+    let _journey = create_simple_journey();
 
     // Create a basic executor to test variable substitution
     let client = UnityCatalogClient::new(

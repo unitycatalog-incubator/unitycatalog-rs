@@ -125,16 +125,14 @@ pub struct JourneyResult {
 
 /// Journey execution engine
 pub struct JourneyExecutor {
-    client: UnityCatalogClient,
     server: Option<TestServer>,
     context: JourneyContext,
 }
 
 impl JourneyExecutor {
     /// Create a new journey executor with a client and optional mock server
-    pub fn new(client: UnityCatalogClient, server: Option<TestServer>) -> Self {
+    pub fn new(_client: UnityCatalogClient, server: Option<TestServer>) -> Self {
         Self {
-            client,
             server,
             context: JourneyContext {
                 variables: HashMap::new(),
@@ -158,11 +156,6 @@ impl JourneyExecutor {
     /// Get access to the journey context
     pub fn context(&self) -> &JourneyContext {
         &self.context
-    }
-
-    /// Get mutable access to the journey context
-    pub fn context_mut(&mut self) -> &mut JourneyContext {
-        &mut self.context
     }
 
     /// Execute a complete user journey
@@ -336,7 +329,7 @@ impl JourneyExecutor {
         server: &mut TestServer,
         step: &JourneyStep,
         path: &str,
-        request_body: &Option<Value>,
+        _request_body: &Option<Value>,
     ) -> Option<Mock> {
         let mock = server
             .mock_catalog_endpoint(&step.method, path)
@@ -612,11 +605,8 @@ mod tests {
             url::Url::parse("http://localhost").unwrap(),
         );
 
-        let executor = JourneyExecutor {
-            client,
-            server: None,
-            context,
-        };
+        let mut executor = JourneyExecutor::new(client, None);
+        executor.context = context;
 
         let template = "/catalogs/{catalog_name}/schemas/{schema_name}";
         let result = executor.substitute_variables(template);
@@ -638,15 +628,7 @@ mod tests {
             url::Url::parse("http://localhost").unwrap(),
         );
 
-        let executor = JourneyExecutor {
-            client,
-            server: None,
-            context: JourneyContext {
-                variables: HashMap::new(),
-                step_results: HashMap::new(),
-                continue_on_failure: false,
-            },
-        };
+        let executor = JourneyExecutor::new(client, None);
 
         let name = executor.simple_json_path_extract(&response, "$.name");
         assert_eq!(name, Some(json!("test_catalog")));

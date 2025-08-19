@@ -9,11 +9,7 @@ use std::collections::HashMap;
 use unitycatalog_client::UnityCatalogClient;
 
 mod test_utils;
-use test_utils::{
-    TestAssertions, TestDataLoader, TestServer,
-    fixtures::*,
-    responses::{CatalogResponses, ErrorResponses},
-};
+use test_utils::{TestAssertions, TestServer, fixtures::*, responses::ErrorResponses};
 
 /// Test schema creation within a catalog
 #[rstest]

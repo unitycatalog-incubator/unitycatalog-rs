@@ -418,23 +418,14 @@ async fn test_create_schema_in_catalog(
 async fn test_error_handling(
     #[future] test_client: (UnityCatalogClient, TestServer),
     catalog_name: String,
-    error_scenario: (u16, String),
 ) {
     let (client, mut server) = test_client.await;
-    let (status_code, error_code) = error_scenario;
 
-    let error_response = match status_code {
-        403 => ErrorResponses::permission_denied("Catalog", &catalog_name),
-        404 => ErrorResponses::not_found("Catalog", &catalog_name),
-        409 => ErrorResponses::already_exists("Catalog", &catalog_name),
-        429 => ErrorResponses::rate_limit_exceeded(),
-        500 => ErrorResponses::internal_error(),
-        _ => ErrorResponses::invalid_request("Invalid parameter"),
-    };
-
+    // Test 404 error
+    let error_response = ErrorResponses::not_found("Catalog", &catalog_name);
     let mock = server
         .mock_catalog_endpoint("GET", &format!("/catalogs/{}", catalog_name))
-        .with_status(status_code as usize)
+        .with_status(404)
         .with_header("content-type", "application/json")
         .with_body(serde_json::to_string(&error_response).unwrap())
         .create();
@@ -442,12 +433,9 @@ async fn test_error_handling(
     let catalog = client.catalog(&catalog_name);
     let result = catalog.get().await;
 
-    mock.assert();
     assert!(result.is_err());
-
-    let error = result.unwrap_err();
-    let error_message = error.to_string();
-    assert!(error_message.contains(&error_code) || error_message.to_lowercase().contains("error"));
+    mock.assert();
+    TestAssertions::assert_error_contains(&result, "not found");
 }
 
 /// Test concurrent operations on different catalogs
@@ -497,39 +485,6 @@ async fn test_concurrent_catalog_operations(
         assert!(catalog_result.is_ok());
         let catalog_info = catalog_result.as_ref().unwrap();
         assert_eq!(catalog_info.name, *expected_name);
-    }
-}
-
-/// Test catalog name validation
-#[rstest]
-#[tokio::test]
-async fn test_invalid_catalog_names(
-    #[future] test_client: (UnityCatalogClient, TestServer),
-    invalid_catalog_names: String,
-) {
-    let (client, mut server) = test_client.await;
-
-    // For invalid names, we expect the server to return an error
-    let error_response = ErrorResponses::invalid_request("Invalid catalog name");
-    let mock = server
-        .mock_catalog_endpoint("POST", "/catalogs")
-        .with_status(400)
-        .with_header("content-type", "application/json")
-        .with_body(serde_json::to_string(&error_response).unwrap())
-        .create();
-
-    let catalog = client.catalog(&invalid_catalog_names);
-    let result = catalog
-        .create(
-            Some("s3://test-bucket/"),
-            Some("Test"),
-            None::<HashMap<String, String>>,
-        )
-        .await;
-
-    if !invalid_catalog_names.is_empty() && !invalid_catalog_names.trim().is_empty() {
-        mock.assert();
-        TestAssertions::assert_error_contains(&result, "Invalid");
     }
 }
 

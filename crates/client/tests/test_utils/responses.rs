@@ -48,11 +48,6 @@ impl CatalogResponses {
         })
     }
 
-    /// Create catalog response (same as catalog_info)
-    pub fn create_catalog(name: &str, comment: Option<&str>) -> Value {
-        Self::catalog_info(name, comment)
-    }
-
     /// Update catalog response
     pub fn update_catalog(_old_name: &str, new_name: &str, comment: Option<&str>) -> Value {
         let mut catalog = Self::catalog_info(new_name, comment);
@@ -155,102 +150,6 @@ impl ErrorResponses {
                     }
                 }
             ]
-        })
-    }
-
-    /// Invalid request error
-    pub fn invalid_request(message: &str) -> Value {
-        json!({
-            "error_code": "INVALID_PARAMETER_VALUE",
-            "message": message,
-            "details": [
-                {
-                    "reason": "INVALID_PARAMETER_VALUE",
-                    "domain": "UNITY_CATALOG"
-                }
-            ]
-        })
-    }
-
-    /// Permission denied error
-    pub fn permission_denied(resource_type: &str, resource_name: &str) -> Value {
-        json!({
-            "error_code": "PERMISSION_DENIED",
-            "message": format!("Permission denied on {} '{}'", resource_type, resource_name),
-            "details": [
-                {
-                    "reason": "PERMISSION_DENIED",
-                    "domain": "UNITY_CATALOG",
-                    "metadata": {
-                        "resource_type": resource_type,
-                        "resource_name": resource_name
-                    }
-                }
-            ]
-        })
-    }
-
-    /// Internal server error
-    pub fn internal_error() -> Value {
-        json!({
-            "error_code": "INTERNAL_ERROR",
-            "message": "An internal error occurred",
-            "details": [
-                {
-                    "reason": "INTERNAL_ERROR",
-                    "domain": "UNITY_CATALOG"
-                }
-            ]
-        })
-    }
-
-    /// Rate limit exceeded error
-    pub fn rate_limit_exceeded() -> Value {
-        json!({
-            "error_code": "RESOURCE_EXHAUSTED",
-            "message": "Rate limit exceeded",
-            "details": [
-                {
-                    "reason": "RESOURCE_EXHAUSTED",
-                    "domain": "UNITY_CATALOG"
-                }
-            ]
-        })
-    }
-}
-
-/// Schema response fixtures for catalog tests that involve schemas
-pub struct SchemaResponses;
-
-impl SchemaResponses {
-    /// Schema info response
-    pub fn schema_info(catalog_name: &str, schema_name: &str, comment: Option<&str>) -> Value {
-        json!({
-            "name": schema_name,
-            "catalog_name": catalog_name,
-            "comment": comment,
-            "properties": {},
-            "owner": "test-user",
-            "created_at": 1699564800000i64,
-            "updated_at": 1699564800000i64,
-            "schema_type": "MANAGED_SCHEMA",
-            "storage_root": format!("s3://my-bucket/catalogs/{}/schemas/{}", catalog_name, schema_name),
-            "full_name": format!("{}.{}", catalog_name, schema_name)
-        })
-    }
-
-    /// List schemas response
-    pub fn list_schemas(schemas: Vec<(&str, &str, Option<&str>)>) -> Value {
-        let schema_list: Vec<Value> = schemas
-            .into_iter()
-            .map(|(catalog_name, schema_name, comment)| {
-                Self::schema_info(catalog_name, schema_name, comment)
-            })
-            .collect();
-
-        json!({
-            "schemas": schema_list,
-            "next_page_token": null
         })
     }
 }

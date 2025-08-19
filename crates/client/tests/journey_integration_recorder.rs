@@ -1,538 +1,712 @@
-//! Journey Integration Test Recorder
+//! Journey Integration Recorder
 //!
-//! This module provides utilities for recording real Unity Catalog server responses
-//! during journey execution. It can be used to capture actual API responses and
-//! update journey files with real data for more accurate testing.
+//! This module provides functionality to record real server responses for journey tests.
+//! It allows capturing actual API responses from a deployed Unity Catalog server and
+//! saving them for later use in mock tests or validation.
 
-use reqwest::{Client, Method};
-use serde_json::{Map, Value};
+use chrono::{DateTime, Utc};
+use cloud_client::CloudClient;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
+use tokio::time::{Duration, timeout};
+use unitycatalog_client::UnityCatalogClient;
 use url::Url;
 
-mod test_utils;
-use test_utils::journeys::{JourneyLoader, JourneyStep, UserJourney};
+// Inline the necessary types instead of importing from test_utils
 
-/// Configuration for integration test recording
-#[derive(Debug, Clone)]
-pub struct RecorderConfig {
-    /// Unity Catalog server URL
-    pub server_url: String,
-
-    /// Authentication token (if required)
-    pub auth_token: Option<String>,
-
-    /// Directory to save recorded responses
-    pub output_dir: String,
-
-    /// Whether to overwrite existing journey files
-    pub overwrite_existing: bool,
-
-    /// HTTP client timeout in seconds
-    pub timeout_seconds: u64,
-
-    /// Whether to record only successful responses
-    pub record_success_only: bool,
+/// Journey step definition (inline version)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JourneyStep {
+    pub id: String,
+    pub description: String,
+    pub method: String,
+    pub path: String,
+    pub request_body: Option<Value>,
+    pub expected_status: u16,
+    pub expected_response: Option<Value>,
+    pub extract_variables: Option<HashMap<String, String>>,
+    pub depends_on: Option<Vec<String>>,
+    pub continue_on_failure: Option<bool>,
+    pub tags: Option<Vec<String>>,
 }
 
-impl Default for RecorderConfig {
-    fn default() -> Self {
-        Self {
-            server_url: env::var("UC_SERVER_URL")
-                .unwrap_or_else(|_| "http://localhost:8080".to_string()),
-            auth_token: env::var("UC_AUTH_TOKEN").ok(),
-            output_dir: "tests/test_data/journeys/recorded".to_string(),
-            overwrite_existing: env::var("OVERWRITE_JOURNEY_RESPONSES")
-                .map(|v| v.to_lowercase() == "true")
-                .unwrap_or(false),
-            timeout_seconds: 30,
-            record_success_only: env::var("RECORD_SUCCESS_ONLY")
-                .map(|v| v.to_lowercase() == "true")
-                .unwrap_or(true),
-        }
+/// User journey definition (inline version)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserJourney {
+    pub name: String,
+    pub description: String,
+    pub variables: Option<HashMap<String, Value>>,
+    pub steps: Vec<JourneyStep>,
+    pub metadata: Option<HashMap<String, Value>>,
+}
+
+/// Journey loader (inline version)
+pub struct JourneyLoader;
+
+impl JourneyLoader {
+    pub fn load_journey(filename: &str) -> Result<UserJourney, Box<dyn std::error::Error>> {
+        let path = format!("tests/test_data/journeys/{}", filename);
+        let content = std::fs::read_to_string(&path)
+            .map_err(|e| format!("Failed to read journey file {}: {}", path, e))?;
+
+        serde_json::from_str(&content)
+            .map_err(|e| format!("Failed to parse journey JSON from {}: {}", path, e).into())
     }
 }
 
-/// Journey recorder that captures real server responses
+/// Configuration for journey recording
+#[derive(Debug, Clone)]
+pub struct RecordingConfig {
+    /// Base URL of the Unity Catalog server
+    pub server_url: String,
+    /// Authentication token for the server
+    pub auth_token: Option<String>,
+    /// Directory to save recorded responses
+    pub output_dir: PathBuf,
+    /// Whether to record only successful responses (2xx status codes)
+    pub record_success_only: bool,
+    /// Whether to overwrite existing recorded files
+    pub overwrite_existing: bool,
+    /// Timeout for HTTP requests in seconds
+    pub request_timeout_secs: u64,
+}
+
+impl RecordingConfig {
+    /// Create recording configuration from environment variables
+    pub fn from_env() -> Result<Self, Box<dyn std::error::Error>> {
+        let server_url =
+            env::var("UC_SERVER_URL").map_err(|_| "UC_SERVER_URL environment variable not set")?;
+
+        let auth_token = env::var("UC_AUTH_TOKEN").ok();
+
+        let output_dir = env::var("JOURNEY_RECORDING_DIR")
+            .unwrap_or_else(|_| "tests/test_data/journeys/recorded".to_string());
+
+        let record_success_only = env::var("RECORD_SUCCESS_ONLY")
+            .unwrap_or_else(|_| "true".to_string())
+            .parse()
+            .unwrap_or(true);
+
+        let overwrite_existing = env::var("OVERWRITE_JOURNEY_RESPONSES")
+            .unwrap_or_else(|_| "false".to_string())
+            .parse()
+            .unwrap_or(false);
+
+        let request_timeout_secs = env::var("JOURNEY_REQUEST_TIMEOUT")
+            .unwrap_or_else(|_| "30".to_string())
+            .parse()
+            .unwrap_or(30);
+
+        Ok(Self {
+            server_url,
+            auth_token,
+            output_dir: PathBuf::from(output_dir),
+            record_success_only,
+            overwrite_existing,
+            request_timeout_secs,
+        })
+    }
+
+    /// Check if recording is enabled via environment variables
+    pub fn is_recording_enabled() -> bool {
+        env::var("RECORD_JOURNEY_RESPONSES")
+            .unwrap_or_else(|_| "false".to_string())
+            .parse()
+            .unwrap_or(false)
+    }
+}
+
+/// Recorded response data
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecordedResponse {
+    /// HTTP status code
+    pub status_code: u16,
+    /// Response body as JSON
+    pub body: Value,
+    /// Response headers (selected important ones)
+    pub headers: HashMap<String, String>,
+    /// Timestamp when recorded
+    pub recorded_at: DateTime<Utc>,
+    /// Request method
+    pub method: String,
+    /// Request path
+    pub path: String,
+    /// Request body (if any)
+    pub request_body: Option<Value>,
+}
+
+/// Recorded step result containing both the step and its response
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecordedStep {
+    /// The journey step that was executed
+    pub step: JourneyStep,
+    /// The recorded response from the server
+    pub response: RecordedResponse,
+    /// Variables extracted from this step
+    pub extracted_variables: HashMap<String, Value>,
+}
+
+/// Complete recorded journey with all steps and metadata
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecordedJourney {
+    /// Original journey definition
+    pub journey: UserJourney,
+    /// Recorded steps with responses
+    pub recorded_steps: Vec<RecordedStep>,
+    /// Final variables after journey execution
+    pub final_variables: HashMap<String, Value>,
+    /// Recording metadata
+    pub metadata: RecordingMetadata,
+}
+
+/// Metadata about the recording session
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecordingMetadata {
+    /// When the recording was made
+    pub recorded_at: DateTime<Utc>,
+    /// Server URL used for recording
+    pub server_url: String,
+    /// Unity Catalog version (if available)
+    pub server_version: Option<String>,
+    /// Total steps recorded
+    pub total_steps: usize,
+    /// Number of successful steps
+    pub successful_steps: usize,
+    /// Recording configuration used
+    pub config_summary: String,
+}
+
+/// Journey recorder that executes journeys against real servers and captures responses
 pub struct JourneyRecorder {
-    config: RecorderConfig,
-    http_client: Client,
-    base_url: Url,
+    /// Recording configuration
+    config: RecordingConfig,
+    /// Unity Catalog client for making requests
+    client: UnityCatalogClient,
+    /// Current journey variables
+    variables: HashMap<String, Value>,
 }
 
 impl JourneyRecorder {
     /// Create a new journey recorder with the given configuration
-    pub fn new(config: RecorderConfig) -> Result<Self, Box<dyn std::error::Error>> {
-        let http_client = Client::builder()
-            .timeout(std::time::Duration::from_secs(config.timeout_seconds))
-            .build()?;
+    pub fn new(config: RecordingConfig) -> Result<Self, Box<dyn std::error::Error>> {
+        // Create authenticated client if token is provided
+        let cloud_client = if let Some(token) = &config.auth_token {
+            CloudClient::new_with_token(token.clone())
+        } else {
+            CloudClient::new_unauthenticated()
+        };
 
         let base_url = Url::parse(&config.server_url)?;
-
-        // Ensure output directory exists
-        fs::create_dir_all(&config.output_dir)?;
+        let client = UnityCatalogClient::new(cloud_client, base_url);
 
         Ok(Self {
             config,
-            http_client,
-            base_url,
+            client,
+            variables: HashMap::new(),
         })
     }
 
-    /// Create a recorder with default configuration from environment variables
+    /// Create a recorder from environment variables
     pub fn from_env() -> Result<Self, Box<dyn std::error::Error>> {
-        Self::new(RecorderConfig::default())
+        let config = RecordingConfig::from_env()?;
+        Self::new(config)
     }
 
-    /// Record responses for a journey and save updated journey file
+    /// Set initial variables for the journey
+    pub fn with_variables(mut self, variables: HashMap<String, Value>) -> Self {
+        self.variables = variables;
+        self
+    }
+
+    /// Get current variables
+    pub fn variables(&self) -> &HashMap<String, Value> {
+        &self.variables
+    }
+
+    /// Record a complete journey, executing all steps against the real server
     pub async fn record_journey(
-        &self,
-        journey_name: &str,
-    ) -> Result<UserJourney, Box<dyn std::error::Error>> {
-        // Load the original journey
-        let mut journey = JourneyLoader::load_journey(journey_name)?;
+        &mut self,
+        journey: UserJourney,
+    ) -> Result<RecordedJourney, Box<dyn std::error::Error>> {
+        println!("🎬 Recording journey: {}", journey.name);
+        println!("📡 Server: {}", self.config.server_url);
 
-        println!("Recording journey: {}", journey.name);
-        println!("Server URL: {}", self.config.server_url);
+        // Ensure output directory exists
+        fs::create_dir_all(&self.config.output_dir)?;
 
-        // Execute journey and record responses
-        let recorded_journey = self.execute_and_record(&mut journey).await?;
-
-        // Save the updated journey
-        self.save_recorded_journey(&recorded_journey, journey_name)?;
-
-        Ok(recorded_journey)
-    }
-
-    /// Execute all journeys in the journeys directory and record responses
-    pub async fn record_all_journeys(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-        let journeys = JourneyLoader::load_all_journeys()?;
-        let mut recorded_files = Vec::new();
-
-        for journey in journeys {
-            let journey_file = format!("{}.json", journey.name);
-
-            match self.record_journey(&journey_file).await {
-                Ok(_) => {
-                    recorded_files.push(journey_file.clone());
-                    println!("Successfully recorded: {}", journey_file);
-                }
-                Err(e) => {
-                    eprintln!("Failed to record {}: {}", journey_file, e);
-                }
+        // Merge journey variables with existing variables
+        if let Some(journey_vars) = &journey.variables {
+            for (key, value) in journey_vars {
+                self.variables.insert(key.clone(), value.clone());
             }
         }
 
-        Ok(recorded_files)
-    }
+        let mut recorded_steps = Vec::new();
+        let mut successful_steps = 0;
+        let recording_start = Utc::now();
 
-    /// Execute journey steps and capture actual responses
-    async fn execute_and_record(
-        &self,
-        journey: &mut UserJourney,
-    ) -> Result<UserJourney, Box<dyn std::error::Error>> {
-        let mut context = self.create_execution_context(journey);
-        let mut updated_steps = Vec::new();
+        // Execute steps in dependency order
+        let execution_order = self.resolve_step_dependencies(&journey.steps)?;
 
-        for step in &journey.steps {
-            // Check dependencies (simplified - assume previous steps succeeded)
-            if let Some(_deps) = &step.depends_on {
-                // In a full implementation, we would check if dependencies were satisfied
-                // For now, we continue with execution
-            }
+        for step_id in execution_order {
+            let step = journey
+                .steps
+                .iter()
+                .find(|s| s.id == step_id)
+                .ok_or_else(|| format!("Step not found: {}", step_id))?;
 
-            // Execute the step and record response
-            match self.execute_step_and_record(step, &mut context).await {
-                Ok(updated_step) => {
-                    updated_steps.push(updated_step);
+            println!("🔄 Recording step: {} - {}", step.id, step.description);
+
+            match self.record_step(step).await {
+                Ok(recorded_step) => {
+                    // Extract variables from the response
+                    if let Some(extractions) = &step.extract_variables {
+                        for (var_name, json_path) in extractions {
+                            if let Some(value) = self
+                                .extract_value_from_json(&recorded_step.response.body, json_path)
+                            {
+                                self.variables.insert(var_name.clone(), value);
+                                println!(
+                                    "📝 Extracted variable: {} = {}",
+                                    var_name, self.variables[var_name]
+                                );
+                            }
+                        }
+                    }
+
+                    if recorded_step.response.status_code >= 200
+                        && recorded_step.response.status_code < 300
+                    {
+                        successful_steps += 1;
+                        println!(
+                            "✅ Step succeeded: HTTP {}",
+                            recorded_step.response.status_code
+                        );
+                    } else {
+                        println!(
+                            "⚠️ Step failed: HTTP {}",
+                            recorded_step.response.status_code
+                        );
+                    }
+
+                    recorded_steps.push(recorded_step);
                 }
                 Err(e) => {
-                    eprintln!("Failed to execute step '{}': {}", step.id, e);
-
+                    println!("❌ Step failed: {}", e);
                     if !step.continue_on_failure.unwrap_or(false) {
                         return Err(e);
                     }
-
-                    // Use original step if recording failed
-                    updated_steps.push(step.clone());
                 }
             }
         }
 
-        // Create updated journey with recorded responses
-        let mut recorded_journey = journey.clone();
-        recorded_journey.steps = updated_steps;
+        let metadata = RecordingMetadata {
+            recorded_at: recording_start,
+            server_url: self.config.server_url.clone(),
+            server_version: None, // Could be extracted from server info endpoint
+            total_steps: recorded_steps.len(),
+            successful_steps,
+            config_summary: format!(
+                "success_only={}, overwrite={}, timeout={}s",
+                self.config.record_success_only,
+                self.config.overwrite_existing,
+                self.config.request_timeout_secs
+            ),
+        };
 
-        // Add recording metadata
-        if recorded_journey.metadata.is_none() {
-            recorded_journey.metadata = Some(Map::new());
-        }
+        let recorded_journey = RecordedJourney {
+            journey,
+            recorded_steps,
+            final_variables: self.variables.clone(),
+            metadata,
+        };
 
-        if let Some(ref mut metadata) = recorded_journey.metadata {
-            metadata.insert(
-                "recorded_at".to_string(),
-                Value::String(chrono::Utc::now().to_rfc3339()),
-            );
-            metadata.insert(
-                "recorded_from".to_string(),
-                Value::String(self.config.server_url.clone()),
-            );
-            metadata.insert(
-                "recording_tool".to_string(),
-                Value::String("unity_catalog_journey_recorder".to_string()),
-            );
-        }
+        // Save the recorded journey
+        self.save_recorded_journey(&recorded_journey).await?;
+
+        println!(
+            "🎉 Journey recording completed: {}/{} steps successful",
+            successful_steps, recorded_journey.metadata.total_steps
+        );
 
         Ok(recorded_journey)
     }
 
-    /// Execute a single step and record the response
-    async fn execute_step_and_record(
+    /// Record a single step execution
+    async fn record_step(
         &self,
         step: &JourneyStep,
-        context: &mut HashMap<String, Value>,
-    ) -> Result<JourneyStep, Box<dyn std::error::Error>> {
-        println!("Recording step: {} - {}", step.id, step.description);
-
-        // Substitute variables in path and request body
-        let path = self.substitute_variables(&step.path, context);
+    ) -> Result<RecordedStep, Box<dyn std::error::Error>> {
+        // Substitute variables in the path and request body
+        let path = self.substitute_variables(&step.path);
         let request_body = step
             .request_body
             .as_ref()
-            .map(|body| self.substitute_variables_in_json(body, context));
+            .map(|body| self.substitute_variables_in_json(body));
 
-        // Build the full URL
-        let full_url = self.base_url.join(&path.trim_start_matches('/'))?;
+        // Execute the HTTP request with timeout
+        let request_future = self.execute_http_request(step, &path, &request_body);
+        let (status_code, response_body, headers) = timeout(
+            Duration::from_secs(self.config.request_timeout_secs),
+            request_future,
+        )
+        .await??;
 
-        // Create HTTP request
-        let method = Method::from_bytes(step.method.as_bytes())?;
-        let mut request_builder = self.http_client.request(method, full_url);
-
-        // Add authentication if configured
-        if let Some(ref token) = self.config.auth_token {
-            request_builder = request_builder.bearer_auth(token);
+        // Check if we should record this response
+        if self.config.record_success_only && (status_code < 200 || status_code >= 300) {
+            return Err(format!("Skipping non-successful response: HTTP {}", status_code).into());
         }
 
-        // Add request body if present
-        if let Some(ref body) = request_body {
-            request_builder = request_builder
-                .header("Content-Type", "application/json")
-                .json(body);
-        }
-
-        // Execute the request
-        let response = request_builder.send().await?;
-        let status_code = response.status().as_u16();
-
-        // Read response body
-        let response_text = response.text().await?;
-        let response_json: Value = if response_text.is_empty() {
-            Value::Null
-        } else {
-            serde_json::from_str(&response_text).unwrap_or_else(|_| Value::String(response_text))
+        let recorded_response = RecordedResponse {
+            status_code,
+            body: response_body,
+            headers,
+            recorded_at: Utc::now(),
+            method: step.method.clone(),
+            path: path.clone(),
+            request_body,
         };
 
-        println!("  Status: {}", status_code);
-
-        // Extract variables from response if configured
-        if let Some(ref extract_rules) = step.extract_variables {
-            for (var_name, json_path) in extract_rules {
-                if let Some(extracted_value) =
-                    self.simple_json_path_extract(&response_json, json_path)
+        // Extract variables for the recorded step
+        let mut extracted_variables = HashMap::new();
+        if let Some(extractions) = &step.extract_variables {
+            for (var_name, json_path) in extractions {
+                if let Some(value) =
+                    self.extract_value_from_json(&recorded_response.body, json_path)
                 {
-                    context.insert(var_name.clone(), extracted_value);
+                    extracted_variables.insert(var_name.clone(), value);
                 }
             }
         }
 
-        // Create updated step with recorded response
-        let mut updated_step = step.clone();
-
-        // Update expected status and response if we're recording all responses
-        // or if it's a successful response and we're only recording success
-        let should_record = if self.config.record_success_only {
-            status_code >= 200 && status_code < 300
-        } else {
-            true
-        };
-
-        if should_record {
-            updated_step.expected_status = status_code;
-            updated_step.expected_response = if response_json == Value::Null {
-                None
-            } else {
-                Some(response_json)
-            };
-        }
-
-        Ok(updated_step)
+        Ok(RecordedStep {
+            step: step.clone(),
+            response: recorded_response,
+            extracted_variables,
+        })
     }
 
-    /// Create execution context with initial variables
-    fn create_execution_context(&self, journey: &UserJourney) -> HashMap<String, Value> {
-        let mut context = HashMap::new();
+    /// Execute HTTP request against the real server
+    async fn execute_http_request(
+        &self,
+        step: &JourneyStep,
+        path: &str,
+        request_body: &Option<Value>,
+    ) -> Result<(u16, Value, HashMap<String, String>), Box<dyn std::error::Error>> {
+        // Use the Unity Catalog client's underlying HTTP client
+        // For now, we'll use reqwest directly to have more control over the recording
+        let http_client = reqwest::Client::new();
 
-        // Add journey variables
-        if let Some(ref variables) = journey.variables {
-            for (key, value) in variables {
-                context.insert(key.clone(), value.clone());
+        let full_url = format!("{}{}", self.config.server_url.trim_end_matches('/'), path);
+
+        let mut request = match step.method.to_uppercase().as_str() {
+            "GET" => http_client.get(&full_url),
+            "POST" => http_client.post(&full_url),
+            "PUT" => http_client.put(&full_url),
+            "DELETE" => http_client.delete(&full_url),
+            "PATCH" => http_client.patch(&full_url),
+            _ => return Err(format!("Unsupported HTTP method: {}", step.method).into()),
+        };
+
+        // Add authentication header if token is available
+        if let Some(token) = &self.config.auth_token {
+            request = request.bearer_auth(token);
+        }
+
+        // Add request body if provided
+        if let Some(body) = request_body {
+            request = request.json(body);
+        }
+
+        // Set standard headers
+        request = request
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json");
+
+        // Execute the request
+        let response = request.send().await?;
+        let status_code = response.status().as_u16();
+
+        // Capture important headers
+        let mut headers = HashMap::new();
+        for (name, value) in response.headers() {
+            if let Ok(value_str) = value.to_str() {
+                match name.as_str() {
+                    "content-type" | "content-length" | "x-request-id" | "x-trace-id" => {
+                        headers.insert(name.to_string(), value_str.to_string());
+                    }
+                    _ => {}
+                }
             }
         }
 
-        // Add some default variables for recording
-        context.insert(
-            "timestamp".to_string(),
-            Value::Number(serde_json::Number::from(chrono::Utc::now().timestamp())),
-        );
+        // Get response body
+        let response_text = response.text().await?;
+        let response_json = if response_text.is_empty() {
+            serde_json::json!({})
+        } else {
+            serde_json::from_str(&response_text)
+                .unwrap_or_else(|_| serde_json::json!({"raw_response": response_text}))
+        };
 
-        context.insert(
-            "recording_session".to_string(),
-            Value::String(uuid::Uuid::new_v4().to_string()),
-        );
-
-        context
+        Ok((status_code, response_json, headers))
     }
 
-    /// Substitute variables in a string template
-    fn substitute_variables(&self, template: &str, context: &HashMap<String, Value>) -> String {
-        let mut result = template.to_string();
+    /// Save recorded journey to disk
+    async fn save_recorded_journey(
+        &self,
+        recorded_journey: &RecordedJourney,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let filename = format!("{}_recorded.json", recorded_journey.journey.name);
+        let file_path = self.config.output_dir.join(&filename);
 
-        for (key, value) in context {
-            let placeholder = format!("{{{}}}", key);
-            let replacement = match value {
-                Value::String(s) => s.clone(),
-                Value::Number(n) => n.to_string(),
-                Value::Bool(b) => b.to_string(),
-                _ => value.to_string().trim_matches('"').to_string(),
-            };
-            result = result.replace(&placeholder, &replacement);
+        // Check if file exists and we shouldn't overwrite
+        if file_path.exists() && !self.config.overwrite_existing {
+            println!(
+                "⏭️ Skipping existing file: {} (use OVERWRITE_JOURNEY_RESPONSES=true to overwrite)",
+                filename
+            );
+            return Ok(());
         }
 
+        let json_content = serde_json::to_string_pretty(recorded_journey)?;
+        fs::write(&file_path, json_content)?;
+
+        println!("💾 Saved recorded journey: {}", file_path.display());
+        Ok(())
+    }
+
+    /// Resolve step execution order based on dependencies
+    fn resolve_step_dependencies(
+        &self,
+        steps: &[JourneyStep],
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut execution_order = Vec::new();
+        let mut completed_steps = std::collections::HashSet::new();
+        let mut remaining_steps: std::collections::HashMap<String, &JourneyStep> =
+            steps.iter().map(|step| (step.id.clone(), step)).collect();
+
+        while !remaining_steps.is_empty() {
+            let mut progress_made = false;
+
+            // Find steps that can be executed (all dependencies satisfied)
+            let ready_steps: Vec<String> = remaining_steps
+                .iter()
+                .filter(|(_, step)| {
+                    step.depends_on
+                        .as_ref()
+                        .map(|deps| deps.iter().all(|dep| completed_steps.contains(dep)))
+                        .unwrap_or(true)
+                })
+                .map(|(id, _)| id.clone())
+                .collect();
+
+            for step_id in ready_steps {
+                execution_order.push(step_id.clone());
+                completed_steps.insert(step_id.clone());
+                remaining_steps.remove(&step_id);
+                progress_made = true;
+            }
+
+            if !progress_made {
+                return Err("Circular dependency detected in journey steps".into());
+            }
+        }
+
+        Ok(execution_order)
+    }
+
+    /// Substitute variables in a string
+    fn substitute_variables(&self, template: &str) -> String {
+        let mut result = template.to_string();
+        for (key, value) in &self.variables {
+            let placeholder = format!("{{{}}}", key);
+            let value_str = match value {
+                Value::String(s) => s.clone(),
+                _ => value.to_string(),
+            };
+            result = result.replace(&placeholder, &value_str);
+        }
         result
     }
 
-    /// Substitute variables in a JSON value
-    fn substitute_variables_in_json(
-        &self,
-        json: &Value,
-        context: &HashMap<String, Value>,
-    ) -> Value {
+    /// Substitute variables in JSON value
+    fn substitute_variables_in_json(&self, json: &Value) -> Value {
         match json {
-            Value::String(s) => Value::String(self.substitute_variables(s, context)),
-            Value::Object(obj) => {
-                let mut new_obj = Map::new();
-                for (key, value) in obj {
-                    new_obj.insert(
-                        key.clone(),
-                        self.substitute_variables_in_json(value, context),
-                    );
+            Value::String(s) => Value::String(self.substitute_variables(s)),
+            Value::Object(map) => {
+                let mut new_map = serde_json::Map::new();
+                for (k, v) in map {
+                    new_map.insert(k.clone(), self.substitute_variables_in_json(v));
                 }
-                Value::Object(new_obj)
+                Value::Object(new_map)
             }
             Value::Array(arr) => Value::Array(
                 arr.iter()
-                    .map(|v| self.substitute_variables_in_json(v, context))
+                    .map(|v| self.substitute_variables_in_json(v))
                     .collect(),
             ),
             _ => json.clone(),
         }
     }
 
-    /// Simple JSONPath-like extraction
-    fn simple_json_path_extract(&self, json: &Value, path: &str) -> Option<Value> {
+    /// Extract value from JSON using simple JSONPath-like syntax
+    fn extract_value_from_json(&self, json: &Value, path: &str) -> Option<Value> {
         if path.starts_with("$.") {
-            let path_parts: Vec<&str> = path[2..].split('.').collect();
-            let mut current = json;
-
-            for part in path_parts {
-                match current {
-                    Value::Object(obj) => {
-                        current = obj.get(part)?;
-                    }
-                    _ => return None,
-                }
-            }
-
-            Some(current.clone())
+            let path = &path[2..]; // Remove "$."
+            self.extract_nested_value(json, path)
         } else {
             None
         }
     }
 
-    /// Save recorded journey to file
-    fn save_recorded_journey(
-        &self,
-        journey: &UserJourney,
-        original_filename: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let output_path = Path::new(&self.config.output_dir).join(original_filename);
-
-        // Check if file exists and we shouldn't overwrite
-        if output_path.exists() && !self.config.overwrite_existing {
-            let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
-            let stem = output_path.file_stem().unwrap().to_str().unwrap();
-            let extension = output_path.extension().unwrap().to_str().unwrap();
-            let new_filename = format!("{}_{}.{}", stem, timestamp, extension);
-            let output_path = Path::new(&self.config.output_dir).join(new_filename);
-
-            println!("Saving recorded journey to: {}", output_path.display());
-            let json_content = serde_json::to_string_pretty(journey)?;
-            fs::write(output_path, json_content)?;
-        } else {
-            println!("Saving recorded journey to: {}", output_path.display());
-            let json_content = serde_json::to_string_pretty(journey)?;
-            fs::write(output_path, json_content)?;
+    /// Extract nested value from JSON
+    fn extract_nested_value(&self, json: &Value, path: &str) -> Option<Value> {
+        if path.is_empty() {
+            return Some(json.clone());
         }
 
-        Ok(())
+        let parts: Vec<&str> = path.splitn(2, '.').collect();
+        let current_key = parts[0];
+        let remaining_path = parts.get(1).unwrap_or(&"");
+
+        match json {
+            Value::Object(map) => {
+                if let Some(value) = map.get(current_key) {
+                    if remaining_path.is_empty() {
+                        Some(value.clone())
+                    } else {
+                        self.extract_nested_value(value, remaining_path)
+                    }
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        }
     }
 }
 
-/// Utility functions for recording management
-pub struct RecordingUtils;
-
-impl RecordingUtils {
-    /// Check if recording is enabled via environment variables
-    pub fn is_recording_enabled() -> bool {
-        env::var("RECORD_JOURNEY_RESPONSES")
-            .map(|v| v.to_lowercase() == "true")
-            .unwrap_or(false)
+/// Convenience function to record a journey from a file
+pub async fn record_journey_from_file(
+    journey_file: &str,
+) -> Result<RecordedJourney, Box<dyn std::error::Error>> {
+    if !RecordingConfig::is_recording_enabled() {
+        return Err("Recording not enabled. Set RECORD_JOURNEY_RESPONSES=true".into());
     }
 
-    /// Get recording configuration from environment
-    pub fn get_recording_config() -> Option<RecorderConfig> {
-        if Self::is_recording_enabled() {
-            Some(RecorderConfig::default())
-        } else {
-            None
-        }
-    }
+    let journey = JourneyLoader::load_journey(journey_file)?;
+    let mut recorder = JourneyRecorder::from_env()?;
 
-    /// Record all journeys if recording is enabled
-    pub async fn record_if_enabled() -> Result<(), Box<dyn std::error::Error>> {
-        if Self::is_recording_enabled() {
-            println!("Journey recording is enabled, recording all journeys...");
+    // Add some default variables that are commonly needed
+    let mut default_variables = HashMap::new();
+    default_variables.insert(
+        "timestamp".to_string(),
+        Value::String(Utc::now().timestamp().to_string()),
+    );
+    default_variables.insert(
+        "test_suffix".to_string(),
+        Value::String(uuid::Uuid::new_v4().to_string()[..8].to_string()),
+    );
 
-            let recorder = JourneyRecorder::from_env()?;
-            let recorded_files = recorder.record_all_journeys().await?;
-
-            println!("Recorded {} journey files:", recorded_files.len());
-            for file in recorded_files {
-                println!("  - {}", file);
-            }
-        } else {
-            println!("Journey recording is disabled. Set RECORD_JOURNEY_RESPONSES=true to enable.");
-        }
-
-        Ok(())
-    }
-
-    /// Clean up old recorded files
-    pub fn cleanup_old_recordings(days_old: u64) -> Result<(), Box<dyn std::error::Error>> {
-        let config = RecorderConfig::default();
-        let recorded_dir = Path::new(&config.output_dir);
-
-        if !recorded_dir.exists() {
-            return Ok(());
-        }
-
-        let cutoff_time =
-            std::time::SystemTime::now() - std::time::Duration::from_secs(days_old * 24 * 60 * 60);
-
-        for entry in fs::read_dir(recorded_dir)? {
-            let entry = entry?;
-            let metadata = entry.metadata()?;
-
-            if metadata.is_file() && metadata.modified()? < cutoff_time {
-                if let Some(filename) = entry.file_name().to_str() {
-                    if filename.contains("_20") && filename.ends_with(".json") {
-                        println!("Cleaning up old recording: {}", filename);
-                        fs::remove_file(entry.path())?;
-                    }
-                }
-            }
-        }
-
-        Ok(())
-    }
+    recorder = recorder.with_variables(default_variables);
+    recorder.record_journey(journey).await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
 
     #[test]
-    fn test_variable_substitution() {
-        let recorder = JourneyRecorder::new(RecorderConfig::default()).unwrap();
+    fn test_recording_config_from_env() {
+        // Set up environment variables
+        unsafe {
+            env::set_var("UC_SERVER_URL", "http://test.example.com");
+            env::set_var("UC_AUTH_TOKEN", "test-token");
+            env::set_var("RECORD_SUCCESS_ONLY", "false");
+        }
 
-        let mut context = HashMap::new();
-        context.insert("catalog_name".to_string(), json!("test_catalog"));
-        context.insert("user_id".to_string(), json!(12345));
+        let config = RecordingConfig::from_env().unwrap();
 
-        let template = "/catalogs/{catalog_name}/users/{user_id}";
-        let result = recorder.substitute_variables(template, &context);
+        assert_eq!(config.server_url, "http://test.example.com");
+        assert_eq!(config.auth_token, Some("test-token".to_string()));
+        assert!(!config.record_success_only);
 
-        assert_eq!(result, "/catalogs/test_catalog/users/12345");
+        // Clean up
+        unsafe {
+            env::remove_var("UC_SERVER_URL");
+            env::remove_var("UC_AUTH_TOKEN");
+            env::remove_var("RECORD_SUCCESS_ONLY");
+        }
     }
 
     #[test]
-    fn test_json_variable_substitution() {
-        let recorder = JourneyRecorder::new(RecorderConfig::default()).unwrap();
-
-        let mut context = HashMap::new();
-        context.insert("name".to_string(), json!("test_catalog"));
-        context.insert("environment".to_string(), json!("production"));
-
-        let json_template = json!({
-            "name": "{name}",
-            "properties": {
-                "env": "{environment}"
-            }
-        });
-
-        let result = recorder.substitute_variables_in_json(&json_template, &context);
-
-        assert_eq!(
-            result,
-            json!({
-                "name": "test_catalog",
-                "properties": {
-                    "env": "production"
-                }
-            })
+    fn test_variable_substitution() {
+        let mut variables = HashMap::new();
+        variables.insert(
+            "catalog_name".to_string(),
+            Value::String("test_catalog".to_string()),
         );
+        variables.insert(
+            "id".to_string(),
+            Value::Number(serde_json::Number::from(123)),
+        );
+
+        let config = RecordingConfig {
+            server_url: "http://test.example.com".to_string(),
+            auth_token: None,
+            output_dir: PathBuf::from("test"),
+            record_success_only: true,
+            overwrite_existing: false,
+            request_timeout_secs: 30,
+        };
+
+        let recorder = JourneyRecorder {
+            config,
+            client: UnityCatalogClient::new(
+                CloudClient::new_unauthenticated(),
+                Url::parse("http://test.example.com").unwrap(),
+            ),
+            variables,
+        };
+
+        let result = recorder.substitute_variables("/catalogs/{catalog_name}/items/{id}");
+        assert_eq!(result, "/catalogs/test_catalog/items/123");
     }
 
     #[test]
     fn test_json_path_extraction() {
-        let recorder = JourneyRecorder::new(RecorderConfig::default()).unwrap();
+        let recorder = JourneyRecorder {
+            config: RecordingConfig {
+                server_url: "http://test.example.com".to_string(),
+                auth_token: None,
+                output_dir: PathBuf::from("test"),
+                record_success_only: true,
+                overwrite_existing: false,
+                request_timeout_secs: 30,
+            },
+            client: UnityCatalogClient::new(
+                CloudClient::new_unauthenticated(),
+                Url::parse("http://test.example.com").unwrap(),
+            ),
+            variables: HashMap::new(),
+        };
 
-        let response = json!({
-            "name": "test_catalog",
-            "metadata": {
-                "id": "12345",
-                "created_at": 1699564800000i64
+        let json = serde_json::json!({
+            "catalog": {
+                "name": "test_catalog",
+                "id": "12345"
             }
         });
 
-        let name = recorder.simple_json_path_extract(&response, "$.name");
-        assert_eq!(name, Some(json!("test_catalog")));
+        let result = recorder.extract_value_from_json(&json, "$.catalog.name");
+        assert_eq!(result, Some(Value::String("test_catalog".to_string())));
 
-        let id = recorder.simple_json_path_extract(&response, "$.metadata.id");
-        assert_eq!(id, Some(json!("12345")));
-
-        let nonexistent = recorder.simple_json_path_extract(&response, "$.nonexistent");
-        assert_eq!(nonexistent, None);
-    }
-
-    #[test]
-    fn test_recording_config_from_env() {
-        // Test default configuration
-        let config = RecorderConfig::default();
-        assert!(!config.server_url.is_empty());
-        assert!(!config.output_dir.is_empty());
+        let result = recorder.extract_value_from_json(&json, "$.catalog.id");
+        assert_eq!(result, Some(Value::String("12345".to_string())));
     }
 }
