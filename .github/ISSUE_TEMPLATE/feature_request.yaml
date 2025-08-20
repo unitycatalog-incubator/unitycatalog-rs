@@ -1,6 +1,6 @@
 name: Feature Request
 description: Suggest a new feature or enhancement
-title: "[Feature]: "
+title: ""
 labels: []
 type: Feature
 assignees: []
@@ -45,6 +45,14 @@ body:
         - Critical - Blocking my work
     validations:
       required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context, screenshots, mockups, or examples about the feature request here.
+      placeholder: Screenshots, links to similar features in other projects, etc.
+    validations:
+      required: false
   - type: checkboxes
     id: contribution
     attributes:
@@ -57,11 +65,3 @@ body:
           required: false
         - label: I can help with documentation for this feature
           required: false
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional context
-      description: Add any other context, screenshots, mockups, or examples about the feature request here.
-      placeholder: Screenshots, links to similar features in other projects, etc.
-    validations:
-      required: false

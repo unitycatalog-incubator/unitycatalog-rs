@@ -80,9 +80,9 @@ impl TestResults {
             OutputFormatter::subsection_header("Category Breakdown");
             for (category, success) in &self.categories {
                 if *success {
-                    OutputFormatter::success(&format!("{}", category));
+                    OutputFormatter::success(&category.to_string());
                 } else {
-                    OutputFormatter::error(&format!("{}", category));
+                    OutputFormatter::error(&category.to_string());
                 }
             }
         }
