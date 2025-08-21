@@ -38,11 +38,11 @@ serde_json = { workspace = true }
 tempfile = "3.1"
 futures = "0.3"
 url = { workspace = true }
-toml = "0.8"
 chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 env_logger = "0.10"
 log = "0.4"
+unitycatalog-acceptance = { path = "../acceptance" }
 
 [features]
 sharing = ["delta_kernel", "chrono", "itertools", "unitycatalog-common/sharing"]

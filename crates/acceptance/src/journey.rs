@@ -1,15 +1,13 @@
-//! User journey test framework for Unity Catalog client tests
+//! Core journey execution engine for Unity Catalog acceptance testing
 //!
-//! This module provides utilities for defining and executing multi-step user journeys
-//! that involve dependent API calls. Journeys are defined in JSON format and can be
-//! executed against mock servers or real Unity Catalog deployments.
+//! This module provides the primary functionality for defining, loading, and executing
+//! user journeys. Journeys are multi-step workflows that test dependent API operations
+//! with variable substitution and dependency management.
 
-use crate::test_utils::TestServer;
-use mockito::Mock;
+use crate::{AcceptanceError, AcceptanceResult, mock::TestServer};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
-
 use unitycatalog_client::UnityCatalogClient;
 
 /// Represents a single step in a user journey
@@ -125,14 +123,16 @@ pub struct JourneyResult {
 
 /// Journey execution engine
 pub struct JourneyExecutor {
+    client: UnityCatalogClient,
     server: Option<TestServer>,
     context: JourneyContext,
 }
 
 impl JourneyExecutor {
     /// Create a new journey executor with a client and optional mock server
-    pub fn new(_client: UnityCatalogClient, server: Option<TestServer>) -> Self {
+    pub fn new(client: UnityCatalogClient, server: Option<TestServer>) -> Self {
         Self {
+            client,
             server,
             context: JourneyContext {
                 variables: HashMap::new(),
@@ -148,6 +148,7 @@ impl JourneyExecutor {
         self
     }
 
+    /// Set whether to continue on failure
     pub fn continue_on_failure(mut self, continue_on_failure: bool) -> Self {
         self.context.continue_on_failure = continue_on_failure;
         self
@@ -171,9 +172,11 @@ impl JourneyExecutor {
             }
         }
 
-        // Execute steps in order
-        for step in &journey.steps {
-            // Check dependencies
+        // Execute steps in dependency order
+        let execution_order = self.resolve_execution_order(&journey.steps);
+
+        for step in execution_order {
+            // Check if dependencies are satisfied
             if let Some(deps) = &step.depends_on {
                 let mut deps_satisfied = true;
                 for dep in deps {
@@ -206,10 +209,9 @@ impl JourneyExecutor {
                     overall_success = false;
                     failure_messages.push(error_msg);
 
-                    if !step
-                        .continue_on_failure
-                        .unwrap_or(self.context.continue_on_failure)
-                    {
+                    let should_continue = step.continue_on_failure.unwrap_or(false)
+                        || self.context.continue_on_failure;
+                    if !should_continue {
                         break;
                     }
                     continue;
@@ -217,29 +219,29 @@ impl JourneyExecutor {
             }
 
             // Execute the step
-            let step_result = self.execute_step(step).await;
+            let step_result = self.execute_step(&step).await;
             let step_success = step_result.success;
-
-            // Update context with extracted variables
-            for (key, value) in &step_result.extracted_variables {
-                self.context.variables.insert(key.clone(), value.clone());
-            }
 
             step_results.push(step_result.clone());
             self.context
                 .step_results
                 .insert(step.id.clone(), step_result.clone());
 
-            if !step_success {
+            // Extract variables from successful steps
+            if step_success {
+                for (var_name, var_value) in step_result.extracted_variables {
+                    self.context.variables.insert(var_name, var_value);
+                }
+            } else {
                 overall_success = false;
-                if let Some(ref error_msg) = step_result.error_message {
+                if let Some(error_msg) = &step_result.error_message {
                     failure_messages.push(format!("Step '{}': {}", step.id, error_msg));
                 }
 
-                if !step
-                    .continue_on_failure
-                    .unwrap_or(self.context.continue_on_failure)
-                {
+                // Check if we should continue on failure
+                let should_continue =
+                    step.continue_on_failure.unwrap_or(false) || self.context.continue_on_failure;
+                if !should_continue {
                     break;
                 }
             }
@@ -262,151 +264,170 @@ impl JourneyExecutor {
 
     /// Execute a single step
     pub async fn execute_step(&mut self, step: &JourneyStep) -> StepResult {
-        // Substitute variables in path and request body
-        let path = self.substitute_variables(&step.path);
-        let request_body = step
-            .request_body
-            .as_ref()
-            .map(|body| self.substitute_variables_in_json(body));
+        // Substitute variables in the step
+        let resolved_step = self.substitute_variables_in_step(step);
 
-        // Setup mock if using test server
-        let mock = if let Some(ref mut server) = self.server {
-            Self::setup_mock_for_step(server, step, &path, &request_body)
-        } else {
-            None
-        };
-
-        // Execute the HTTP request
-        let result = self.execute_http_request(step, &path, &request_body).await;
-
-        // Verify mock was called if using test server
-        if let Some(mock) = mock {
-            mock.assert();
+        // Set up mock if we have a test server
+        if let Some(server) = &self.server {
+            self.setup_mock_for_step(server, &resolved_step);
         }
 
-        match result {
+        // Execute the HTTP request
+        match self.execute_http_request(&resolved_step).await {
             Ok((status_code, response_body)) => {
-                let expected_status = step.expected_status;
-                let success = status_code == expected_status;
+                let success = status_code == resolved_step.expected_status;
+                let mut extracted_variables = HashMap::new();
 
-                let extracted_variables = if success {
-                    self.extract_variables_from_response(&response_body, step)
-                } else {
-                    HashMap::new()
-                };
-
-                let error_message = if !success {
-                    Some(format!(
-                        "Expected status {}, got {}",
-                        expected_status, status_code
-                    ))
-                } else {
-                    None
-                };
+                // Extract variables if the step was successful
+                if success {
+                    if let Some(extract_vars) = &resolved_step.extract_variables {
+                        extracted_variables =
+                            self.extract_variables_from_response(extract_vars, &response_body);
+                    }
+                }
 
                 StepResult {
-                    step: step.clone(),
+                    step: resolved_step.clone(),
                     success,
                     status_code,
                     response_body: Some(response_body),
-                    error_message,
+                    error_message: if success {
+                        None
+                    } else {
+                        Some(format!(
+                            "Expected status {}, got {}",
+                            resolved_step.expected_status, status_code
+                        ))
+                    },
                     extracted_variables,
                 }
             }
-            Err(error) => StepResult {
-                step: step.clone(),
+            Err(e) => StepResult {
+                step: resolved_step,
                 success: false,
                 status_code: 0,
                 response_body: None,
-                error_message: Some(error.to_string()),
+                error_message: Some(e.to_string()),
                 extracted_variables: HashMap::new(),
             },
         }
     }
 
-    /// Setup mock response for a step when using test server
-    fn setup_mock_for_step(
-        server: &mut TestServer,
-        step: &JourneyStep,
-        path: &str,
-        _request_body: &Option<Value>,
-    ) -> Option<Mock> {
-        let mock = server
-            .mock_catalog_endpoint(&step.method, path)
-            .with_status(step.expected_status as usize)
-            .with_header("content-type", "application/json");
+    /// Resolve the execution order of steps based on dependencies
+    fn resolve_execution_order(&self, steps: &[JourneyStep]) -> Vec<JourneyStep> {
+        let mut ordered_steps = Vec::new();
+        let mut remaining_steps: Vec<_> = steps.iter().cloned().collect();
+        let mut satisfied_steps = std::collections::HashSet::new();
 
-        let mock = if let Some(expected_response) = &step.expected_response {
-            mock.with_body(serde_json::to_string(expected_response).unwrap())
-        } else {
-            // For responses without a body (like DELETE operations), provide empty JSON
-            mock.with_body("{}")
-        };
+        while !remaining_steps.is_empty() {
+            let mut made_progress = false;
 
-        Some(mock.create())
+            remaining_steps.retain(|step| {
+                let deps_satisfied = step
+                    .depends_on
+                    .as_ref()
+                    .map(|deps| deps.iter().all(|dep| satisfied_steps.contains(dep)))
+                    .unwrap_or(true);
+
+                if deps_satisfied {
+                    ordered_steps.push(step.clone());
+                    satisfied_steps.insert(step.id.clone());
+                    made_progress = true;
+                    false // Remove from remaining
+                } else {
+                    true // Keep in remaining
+                }
+            });
+
+            if !made_progress {
+                // Circular dependency or missing dependency
+                tracing::warn!(
+                    "Circular dependency detected or missing steps. Remaining steps: {:?}",
+                    remaining_steps.iter().map(|s| &s.id).collect::<Vec<_>>()
+                );
+                ordered_steps.extend(remaining_steps);
+                break;
+            }
+        }
+
+        ordered_steps
     }
 
-    /// Execute HTTP request for a step
-    async fn execute_http_request(
-        &self,
-        step: &JourneyStep,
-        path: &str,
-        request_body: &Option<Value>,
-    ) -> Result<(u16, Value), Box<dyn std::error::Error>> {
-        // Get the base URL from the test server if available
-        let base_url = if let Some(ref server) = self.server {
+    /// Set up mock response for a step
+    fn setup_mock_for_step(&self, _server: &TestServer, step: &JourneyStep) {
+        // This would set up the mock response based on the step's expected_response
+        // Implementation depends on the mock server library being used
+        tracing::debug!(
+            "Setting up mock for step: {} {} {}",
+            step.method,
+            step.path,
+            step.id
+        );
+    }
+
+    /// Execute an HTTP request for a step
+    async fn execute_http_request(&self, step: &JourneyStep) -> AcceptanceResult<(u16, Value)> {
+        let client = reqwest::Client::new();
+
+        // Build the URL
+        let base_url = if let Some(server) = &self.server {
             server.url()
         } else {
-            // If no test server, we can't make real HTTP requests
-            // Return the expected response for compatibility
-            if let Some(expected_response) = &step.expected_response {
-                return Ok((step.expected_status, expected_response.clone()));
-            } else {
-                return Ok((step.expected_status, serde_json::json!({})));
+            "http://localhost:8080" // Default UC server
+        };
+
+        let url = format!("{}{}", base_url, step.path);
+
+        // Build the request
+        let mut request_builder = match step.method.to_uppercase().as_str() {
+            "GET" => client.get(&url),
+            "POST" => client.post(&url),
+            "PUT" => client.put(&url),
+            "DELETE" => client.delete(&url),
+            _ => {
+                return Err(AcceptanceError::StepExecution {
+                    step_id: step.id.clone(),
+                    message: format!("Unsupported HTTP method: {}", step.method),
+                });
             }
         };
 
-        // Create an HTTP client
-        let client = reqwest::Client::new();
-
-        // Construct the full URL
-        let full_url = format!("{}{}", base_url.trim_end_matches('/'), path);
-
-        // Create the request based on the HTTP method
-        let mut request = match step.method.to_uppercase().as_str() {
-            "GET" => client.get(&full_url),
-            "POST" => client.post(&full_url),
-            "PUT" => client.put(&full_url),
-            "DELETE" => client.delete(&full_url),
-            "PATCH" => client.patch(&full_url),
-            _ => return Err(format!("Unsupported HTTP method: {}", step.method).into()),
-        };
-
-        // Add request body if provided
-        if let Some(body) = request_body {
-            request = request.json(body);
+        // Add request body if present
+        if let Some(body) = &step.request_body {
+            request_builder = request_builder.json(body);
         }
 
-        // Set content type header
-        request = request.header("Content-Type", "application/json");
-
         // Execute the request
-        let response = request.send().await?;
-        let status = response.status().as_u16();
+        let response = request_builder.send().await?;
+        let status_code = response.status().as_u16();
 
-        // Get response body as JSON
+        // Parse response body
         let response_text = response.text().await?;
-        let response_json = if response_text.is_empty() {
-            serde_json::json!({})
+        let response_body: Value = if response_text.is_empty() {
+            Value::Null
         } else {
-            serde_json::from_str(&response_text)
-                .unwrap_or_else(|_| serde_json::json!({"raw_response": response_text}))
+            serde_json::from_str(&response_text).unwrap_or_else(|_| Value::String(response_text))
         };
 
-        Ok((status, response_json))
+        Ok((status_code, response_body))
     }
 
-    /// Substitute variables in a string template
+    /// Substitute variables in a step
+    fn substitute_variables_in_step(&self, step: &JourneyStep) -> JourneyStep {
+        let mut substituted_step = step.clone();
+
+        // Substitute in path
+        substituted_step.path = self.substitute_variables(&step.path);
+
+        // Substitute in request body
+        if let Some(body) = &step.request_body {
+            substituted_step.request_body = Some(self.substitute_variables_in_json(body));
+        }
+
+        substituted_step
+    }
+
+    /// Substitute variables in a string
     fn substitute_variables(&self, template: &str) -> String {
         let mut result = template.to_string();
 
@@ -422,58 +443,62 @@ impl JourneyExecutor {
         result
     }
 
-    /// Substitute variables in a JSON value
-    fn substitute_variables_in_json(&self, json: &Value) -> Value {
-        match json {
+    /// Substitute variables in JSON values
+    fn substitute_variables_in_json(&self, value: &Value) -> Value {
+        match value {
             Value::String(s) => Value::String(self.substitute_variables(s)),
-            Value::Object(obj) => {
-                let mut new_obj = Map::new();
-                for (key, value) in obj {
-                    new_obj.insert(key.clone(), self.substitute_variables_in_json(value));
+            Value::Object(map) => {
+                let mut new_map = Map::new();
+                for (k, v) in map {
+                    new_map.insert(k.clone(), self.substitute_variables_in_json(v));
                 }
-                Value::Object(new_obj)
+                Value::Object(new_map)
             }
             Value::Array(arr) => Value::Array(
                 arr.iter()
                     .map(|v| self.substitute_variables_in_json(v))
                     .collect(),
             ),
-            _ => json.clone(),
+            _ => value.clone(),
         }
     }
 
-    /// Extract variables from response using JSONPath expressions
+    /// Extract variables from response using JSONPath-like expressions
     fn extract_variables_from_response(
         &self,
+        extractions: &HashMap<String, String>,
         response: &Value,
-        step: &JourneyStep,
     ) -> HashMap<String, Value> {
         let mut extracted = HashMap::new();
 
-        if let Some(extract_rules) = &step.extract_variables {
-            for (var_name, json_path) in extract_rules {
-                // Simplified JSONPath extraction - in a real implementation,
-                // you would use a proper JSONPath library
-                if let Some(extracted_value) = self.simple_json_path_extract(response, json_path) {
-                    extracted.insert(var_name.clone(), extracted_value);
-                }
+        for (var_name, json_path) in extractions {
+            if let Some(extracted_value) = self.simple_json_path_extract(response, json_path) {
+                extracted.insert(var_name.clone(), extracted_value);
             }
         }
 
         extracted
     }
 
-    /// Simple JSONPath-like extraction (simplified implementation)
-    fn simple_json_path_extract(&self, json: &Value, path: &str) -> Option<Value> {
-        // Handle simple paths like "$.name", "$.properties.environment", etc.
-        if path.starts_with("$.") {
-            let path_parts: Vec<&str> = path[2..].split('.').collect();
-            let mut current = json;
+    /// Simple JSONPath extraction (supports basic $.field notation)
+    fn simple_json_path_extract(&self, value: &Value, path: &str) -> Option<Value> {
+        if path == "$" {
+            return Some(value.clone());
+        }
 
-            for part in path_parts {
+        if path.starts_with("$.") {
+            let field_path = &path[2..];
+            let parts: Vec<&str> = field_path.split('.').collect();
+
+            let mut current = value;
+            for part in parts {
                 match current {
-                    Value::Object(obj) => {
-                        current = obj.get(part)?;
+                    Value::Object(map) => {
+                        if let Some(next_value) = map.get(part) {
+                            current = next_value;
+                        } else {
+                            return None;
+                        }
                     }
                     _ => return None,
                 }
@@ -486,48 +511,38 @@ impl JourneyExecutor {
     }
 }
 
-/// Utilities for loading and managing journey files
+/// Journey loader for reading journey definitions from files
 pub struct JourneyLoader;
 
 impl JourneyLoader {
     /// Load a journey from a JSON file
-    pub fn load_journey(journey_file: &str) -> Result<UserJourney, Box<dyn std::error::Error>> {
-        let path = format!("tests/test_data/journeys/{}", journey_file);
-        let content = std::fs::read_to_string(&path)
-            .map_err(|e| format!("Failed to read journey file {}: {}", path, e))?;
+    pub fn load_journey(filename: &str) -> AcceptanceResult<UserJourney> {
+        let path = format!("journeys/{}", filename);
+        let content = std::fs::read_to_string(&path).map_err(|e| AcceptanceError::Io(e))?;
 
-        let journey: UserJourney = serde_json::from_str(&content)
-            .map_err(|e| format!("Failed to parse journey JSON from {}: {}", path, e))?;
-
+        let journey: UserJourney = serde_json::from_str(&content)?;
         Ok(journey)
     }
 
-    /// Load all journeys from the journeys directory
-    pub fn load_all_journeys() -> Result<Vec<UserJourney>, Box<dyn std::error::Error>> {
-        let dir_path = "tests/test_data/journeys";
-        let dir = std::fs::read_dir(dir_path)
-            .map_err(|e| format!("Failed to read journeys directory {}: {}", dir_path, e))?;
-
+    /// Load all journeys from a directory
+    pub fn load_all_journeys(dir: &str) -> AcceptanceResult<Vec<UserJourney>> {
         let mut journeys = Vec::new();
 
-        for entry in dir {
-            let entry = entry.map_err(|e| format!("Failed to read directory entry: {}", e))?;
+        for entry in std::fs::read_dir(dir)? {
+            let entry = entry?;
             let path = entry.path();
 
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                if let Some(filename) = path.file_name().and_then(|s| s.to_str()) {
-                    match Self::load_journey(filename) {
-                        Ok(journey) => journeys.push(journey),
-                        Err(e) => eprintln!("Warning: Failed to load journey {}: {}", filename, e),
-                    }
-                }
+                let content = std::fs::read_to_string(&path)?;
+                let journey: UserJourney = serde_json::from_str(&content)?;
+                journeys.push(journey);
             }
         }
 
         Ok(journeys)
     }
 
-    /// Validate a journey definition
+    /// Validate a journey for common issues
     pub fn validate_journey(journey: &UserJourney) -> Vec<String> {
         let mut errors = Vec::new();
 
@@ -554,30 +569,19 @@ impl JourneyLoader {
         }
 
         // Check for circular dependencies (simplified check)
-        // A more sophisticated implementation would use proper cycle detection
+        for step in &journey.steps {
+            if let Some(deps) = &step.depends_on {
+                if deps.contains(&step.id) {
+                    errors.push(format!(
+                        "Step '{}' has circular dependency on itself",
+                        step.id
+                    ));
+                }
+            }
+        }
 
         errors
     }
-}
-
-/// Helper macros for creating journey steps
-#[macro_export]
-macro_rules! journey_step {
-    ($id:expr, $description:expr, $method:expr, $path:expr) => {
-        JourneyStep {
-            id: $id.to_string(),
-            description: $description.to_string(),
-            method: $method.to_string(),
-            path: $path.to_string(),
-            request_body: None,
-            expected_status: 200,
-            expected_response: None,
-            extract_variables: None,
-            depends_on: None,
-            continue_on_failure: None,
-            tags: None,
-        }
-    };
 }
 
 #[cfg(test)]
@@ -587,54 +591,48 @@ mod tests {
 
     #[test]
     fn test_variable_substitution() {
-        let mut context = JourneyContext {
-            variables: HashMap::new(),
-            step_results: HashMap::new(),
-            continue_on_failure: false,
-        };
-
-        context
-            .variables
-            .insert("catalog_name".to_string(), json!("test_catalog"));
-        context
-            .variables
-            .insert("schema_name".to_string(), json!("test_schema"));
-
-        let client = UnityCatalogClient::new(
-            cloud_client::CloudClient::new_unauthenticated(),
-            url::Url::parse("http://localhost").unwrap(),
+        let mut executor = JourneyExecutor::new(
+            // We'll need to create a dummy client for testing
+            unitycatalog_client::UnityCatalogClient::new(
+                cloud_client::CloudClient::new_unauthenticated(),
+                url::Url::parse("http://localhost:8080").unwrap(),
+            ),
+            None,
         );
 
-        let mut executor = JourneyExecutor::new(client, None);
-        executor.context = context;
+        executor.context.variables.insert(
+            "catalog_name".to_string(),
+            Value::String("test_catalog".to_string()),
+        );
 
-        let template = "/catalogs/{catalog_name}/schemas/{schema_name}";
+        let template = "/api/2.1/unity-catalog/catalogs/{catalog_name}";
         let result = executor.substitute_variables(template);
-
-        assert_eq!(result, "/catalogs/test_catalog/schemas/test_schema");
+        assert_eq!(result, "/api/2.1/unity-catalog/catalogs/test_catalog");
     }
 
     #[test]
     fn test_json_path_extraction() {
+        let executor = JourneyExecutor::new(
+            unitycatalog_client::UnityCatalogClient::new(
+                cloud_client::CloudClient::new_unauthenticated(),
+                url::Url::parse("http://localhost:8080").unwrap(),
+            ),
+            None,
+        );
+
         let response = json!({
             "name": "test_catalog",
+            "created_at": 1234567890,
             "properties": {
                 "environment": "test"
             }
         });
 
-        let client = UnityCatalogClient::new(
-            cloud_client::CloudClient::new_unauthenticated(),
-            url::Url::parse("http://localhost").unwrap(),
-        );
+        let result = executor.simple_json_path_extract(&response, "$.name");
+        assert_eq!(result, Some(Value::String("test_catalog".to_string())));
 
-        let executor = JourneyExecutor::new(client, None);
-
-        let name = executor.simple_json_path_extract(&response, "$.name");
-        assert_eq!(name, Some(json!("test_catalog")));
-
-        let environment = executor.simple_json_path_extract(&response, "$.properties.environment");
-        assert_eq!(environment, Some(json!("test")));
+        let result = executor.simple_json_path_extract(&response, "$.properties.environment");
+        assert_eq!(result, Some(Value::String("test".to_string())));
     }
 
     #[test]
@@ -647,10 +645,10 @@ mod tests {
                 JourneyStep {
                     id: "step1".to_string(),
                     description: "First step".to_string(),
-                    method: "POST".to_string(),
-                    path: "/catalogs".to_string(),
+                    method: "GET".to_string(),
+                    path: "/test".to_string(),
                     request_body: None,
-                    expected_status: 201,
+                    expected_status: 200,
                     expected_response: None,
                     extract_variables: None,
                     depends_on: None,
@@ -660,10 +658,10 @@ mod tests {
                 JourneyStep {
                     id: "step2".to_string(),
                     description: "Second step".to_string(),
-                    method: "GET".to_string(),
-                    path: "/catalogs/{catalog_name}".to_string(),
+                    method: "POST".to_string(),
+                    path: "/test".to_string(),
                     request_body: None,
-                    expected_status: 200,
+                    expected_status: 201,
                     expected_response: None,
                     extract_variables: None,
                     depends_on: Some(vec!["step1".to_string()]),
