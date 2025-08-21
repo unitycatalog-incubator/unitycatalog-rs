@@ -59,10 +59,10 @@ impl CatalogClient {
     }
 
     /// Get a schema client for a schema contained in this catalog.
-    pub fn schema(&self, name: impl Into<String>) -> SchemaClient {
+    pub fn schema(&self, name: impl ToString) -> SchemaClient {
         SchemaClient::new(
-            self.name.clone(),
-            name.into(),
+            &self.name,
+            name,
             SchemaClientBase::new(self.client.client.clone(), self.client.base_url.clone()),
         )
     }

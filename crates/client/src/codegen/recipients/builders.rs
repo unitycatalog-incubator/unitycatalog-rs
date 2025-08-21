@@ -14,12 +14,12 @@ impl CreateRecipientBuilder {
     pub fn new(
         client: RecipientClient,
         name: impl Into<String>,
-        authentication_type: i32,
+        authentication_type: AuthenticationType,
         owner: impl Into<String>,
     ) -> Self {
         let request = CreateRecipientRequest {
             name: name.into(),
-            authentication_type,
+            authentication_type: authentication_type as i32,
             owner: owner.into(),
             ..Default::default()
         };
@@ -30,7 +30,7 @@ impl CreateRecipientBuilder {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -87,7 +87,7 @@ impl UpdateRecipientBuilder {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,

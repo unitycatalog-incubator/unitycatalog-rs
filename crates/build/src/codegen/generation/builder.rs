@@ -1,3 +1,4 @@
+use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
@@ -224,10 +225,10 @@ fn generate_with_methods(
             let method_name = format_ident!("with_{}", field.name);
             let field_name = &field.name;
 
-            if field.field_type.contains("map<") {
+            if field.field_type.contains("map<") || field.name == "properties" {
                 // Handle HashMap properties with generic method
                 quote! {
-                    #[doc = concat!("Set ", #field_name, " property")]
+                    #[doc = concat!("Set ", #field_name)]
                     pub fn #method_name<I, K, V>(mut self, #field_ident: I) -> Self
                     where
                         I: IntoIterator<Item = (K, V)>,
@@ -246,9 +247,9 @@ fn generate_with_methods(
                 || field.repeated
             {
                 // Handle complex types with direct assignment - no trait bounds needed
-                let field_type = if field.repeated {
-                    // For repeated fields, extract the inner type and create Vec<T>
+                let (field_type_str, is_repeated) = if field.repeated {
                     if field.field_type.starts_with("TYPE_MESSAGE:") {
+                        // For repeated message fields, extract the inner type
                         let inner_type = field
                             .field_type
                             .strip_prefix("TYPE_MESSAGE:")
@@ -256,11 +257,36 @@ fn generate_with_methods(
                             .trim_start_matches('.');
 
                         // Convert protobuf message names to Rust types
-                        let rust_type = inner_type.split('.').last().unwrap_or(inner_type);
+                        let parts: Vec<&str> = inner_type.split('.').collect();
+                        let rust_type = if parts.len() >= 2 {
+                            let parent_message = parts[parts.len() - 2];
+                            let nested_type = parts[parts.len() - 1];
 
-                        format!("Vec<{}>", rust_type)
+                            // For direct types like "v1::ColumnInfo", just use the type name
+                            if parent_message == "v1" {
+                                nested_type.to_string()
+                            } else {
+                                // For nested messages like "CreateCatalogRequest.PropertiesEntry"
+                                let snake_case_parent = parent_message.to_case(Case::Snake);
+                                format!("{}::{}", snake_case_parent, nested_type)
+                            }
+                        } else {
+                            inner_type
+                                .split('.')
+                                .next_back()
+                                .unwrap_or(inner_type)
+                                .to_string()
+                        };
+
+                        (rust_type, true)
                     } else {
-                        format!("Vec<{}>", &field.field_type)
+                        // For other repeated fields, determine the correct base type
+                        let base_type = if field.field_type.starts_with("TYPE_STRING") {
+                            "String".to_string()
+                        } else {
+                            get_with_method_param_type(&field.field_type).to_string()
+                        };
+                        (base_type, true)
                     }
                 } else if field.field_type.starts_with("TYPE_MESSAGE:") {
                     let inner_type = field
@@ -270,40 +296,105 @@ fn generate_with_methods(
                         .trim_start_matches('.');
 
                     // Convert protobuf message names to Rust types
-                    inner_type
+                    let rust_type = inner_type
                         .split('.')
-                        .last()
+                        .next_back()
                         .unwrap_or(inner_type)
-                        .to_string()
+                        .to_string();
+
+                    (rust_type, false)
                 } else if field.field_type.starts_with("TYPE_ONEOF:") {
                     let inner_type = field
                         .field_type
                         .strip_prefix("TYPE_ONEOF:")
-                        .unwrap_or(&field.field_type)
-                        .trim_start_matches('.');
+                        .unwrap_or(&field.field_type);
 
-                    // Convert protobuf oneof names to Rust types
-                    inner_type
-                        .split('.')
-                        .last()
-                        .unwrap_or(inner_type)
-                        .to_string()
+                    // The field type is already in the format "createcredentialrequest::Credential"
+                    // We need to convert it to snake_case: "create_credential_request::Credential"
+
+                    let rust_type = if inner_type.contains("::") {
+                        let parts: Vec<&str> = inner_type.split("::").collect();
+                        if parts.len() == 2 {
+                            let module_name = parts[0];
+                            let type_name = parts[1];
+
+                            // Convert module name to snake_case
+                            // Handle specific known cases like "createcredentialrequest" -> "create_credential_request"
+                            let snake_case_module = match module_name {
+                                "createcredentialrequest" => {
+                                    "create_credential_request".to_string()
+                                }
+                                "updatecredentialrequest" => {
+                                    "update_credential_request".to_string()
+                                }
+                                "createcataloguestrequest" => "create_catalogs_request".to_string(),
+                                "updatecataloguestrequest" => "update_catalogs_request".to_string(),
+                                _ => {
+                                    if module_name.chars().any(|c| c.is_uppercase()) {
+                                        // If there are uppercase letters, use the standard conversion
+                                        module_name.chars().fold(String::new(), |mut acc, c| {
+                                            if c.is_uppercase() && !acc.is_empty() {
+                                                acc.push('_');
+                                            }
+                                            acc.push(c.to_lowercase().next().unwrap());
+                                            acc
+                                        })
+                                    } else {
+                                        // For other cases, just use as-is
+                                        module_name.to_string()
+                                    }
+                                }
+                            };
+
+                            format!("{}::{}", snake_case_module, type_name)
+                        } else {
+                            inner_type.to_string()
+                        }
+                    } else {
+                        inner_type.to_string()
+                    };
+
+                    (rust_type, false)
                 } else {
-                    field.field_type.clone()
+                    (field.field_type.clone(), false)
                 };
-                let field_type_ident = format_ident!("{}", field_type);
 
-                let assignment = if field.optional {
-                    quote! { Some(#field_ident) }
+                if is_repeated {
+                    // For repeated fields, use generic IntoIterator
+                    let inner_type: syn::Type = syn::parse_str(&field_type_str)
+                        .unwrap_or_else(|_| syn::parse_str("String").unwrap());
+
+                    // For repeated fields, assignment is always collecting the iterator
+                    let assignment = quote! { #field_ident.into_iter().collect() };
+
+                    quote! {
+                        #[doc = concat!("Set ", #field_name)]
+                        pub fn #method_name<I>(mut self, #field_ident: I) -> Self
+                        where
+                            I: IntoIterator<Item = #inner_type>,
+                        {
+                            self.request.#field_ident = #assignment;
+                            self
+                        }
+                    }
                 } else {
-                    quote! { #field_ident }
-                };
+                    // Parse the type string as a proper Type token for non-repeated fields
+                    let field_type: syn::Type = syn::parse_str(&field_type_str)
+                        .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
-                quote! {
-                    #[doc = concat!("Set ", #field_name)]
-                    pub fn #method_name(mut self, #field_ident: #field_type_ident) -> Self {
-                        self.request.#field_ident = #assignment;
-                        self
+                    // For non-repeated fields, wrap in Some() if optional
+                    let assignment = if field.optional {
+                        quote! { Some(#field_ident) }
+                    } else {
+                        quote! { #field_ident }
+                    };
+
+                    quote! {
+                        #[doc = concat!("Set ", #field_name)]
+                        pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
+                            self.request.#field_ident = #assignment;
+                            self
+                        }
                     }
                 }
             } else {
@@ -357,7 +448,12 @@ fn get_constructor_param_type(field_type: &str) -> TokenStream {
         "TYPE_BOOL" => quote! { bool },
         "TYPE_DOUBLE" => quote! { f64 },
         "TYPE_FLOAT" => quote! { f32 },
-        _ if field_type.starts_with("TYPE_ENUM:") => quote! { i32 },
+        _ if field_type.starts_with("TYPE_ENUM:") => {
+            let enum_type = convert_protobuf_enum_to_rust_type(field_type);
+            let enum_ident: syn::Type =
+                syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
+            quote! { #enum_ident }
+        }
         _ if field_type.contains("map<") => {
             quote! { impl IntoIterator<Item = (impl Into<String>, impl Into<String>)> }
         }
@@ -374,7 +470,12 @@ fn get_with_method_param_type(field_type: &str) -> TokenStream {
         "TYPE_BOOL" => quote! { bool },
         "TYPE_DOUBLE" => quote! { f64 },
         "TYPE_FLOAT" => quote! { f32 },
-        _ if field_type.starts_with("TYPE_ENUM:") => quote! { i32 },
+        _ if field_type.starts_with("TYPE_ENUM:") => {
+            let enum_type = convert_protobuf_enum_to_rust_type(field_type);
+            let enum_ident: syn::Type =
+                syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
+            quote! { #enum_ident }
+        }
         _ if field_type.contains("map<") => {
             quote! { impl IntoIterator<Item = (impl Into<String>, impl Into<String>)> }
         }
@@ -389,7 +490,7 @@ fn get_field_assignment(field_type: &str, field_ident: &proc_macro2::Ident) -> T
         "TYPE_INT32" | "TYPE_INT64" | "TYPE_BOOL" | "TYPE_DOUBLE" | "TYPE_FLOAT" => {
             quote! { #field_ident }
         }
-        _ if field_type.starts_with("TYPE_ENUM:") => quote! { #field_ident },
+        _ if field_type.starts_with("TYPE_ENUM:") => quote! { #field_ident as i32 },
         _ if field_type.contains("map<") => quote! {
             #field_ident.into_iter().map(|(k, v)| (k.into(), v.into())).collect()
         },
@@ -407,8 +508,53 @@ fn get_optional_field_assignment(
         "TYPE_INT32" | "TYPE_INT64" | "TYPE_BOOL" | "TYPE_DOUBLE" | "TYPE_FLOAT" => {
             quote! { Some(#field_ident) }
         }
-        _ if field_type.starts_with("TYPE_ENUM:") => quote! { Some(#field_ident) },
+        _ if field_type.starts_with("TYPE_ENUM:") => quote! { Some(#field_ident as i32) },
         _ => quote! { Some(#field_ident.into()) },
+    }
+}
+
+/// Convert protobuf enum type to Rust enum type
+fn convert_protobuf_enum_to_rust_type(field_type: &str) -> String {
+    if let Some(enum_name) = field_type.strip_prefix("TYPE_ENUM:") {
+        // Remove leading dot if present
+        let enum_name = enum_name.trim_start_matches('.');
+
+        // Parse the enum name parts
+        let parts: Vec<&str> = enum_name.split('.').collect();
+
+        match parts.as_slice() {
+            // unitycatalog.tables.v1.TableType -> TableType
+            ["unitycatalog", "tables", "v1", enum_type] => enum_type.to_string(),
+            // unitycatalog.credentials.v1.Purpose -> Purpose
+            ["unitycatalog", "credentials", "v1", enum_type] => enum_type.to_string(),
+            // unitycatalog.recipients.v1.AuthenticationType -> AuthenticationType
+            ["unitycatalog", "recipients", "v1", enum_type] => enum_type.to_string(),
+            // unitycatalog.volumes.v1.VolumeType -> VolumeType
+            ["unitycatalog", "volumes", "v1", enum_type] => enum_type.to_string(),
+            // unitycatalog.temporary_credentials.v1.generate_temporary_table_credentials_request.Operation
+            [
+                "unitycatalog",
+                "temporary_credentials",
+                "v1",
+                nested_type,
+                enum_type,
+            ] => {
+                // Convert to snake_case module name
+                let snake_case_module = nested_type.chars().fold(String::new(), |mut acc, c| {
+                    if c.is_uppercase() && !acc.is_empty() {
+                        acc.push('_');
+                    }
+                    acc.push(c.to_lowercase().next().unwrap());
+                    acc
+                });
+                format!("{}::{}", snake_case_module, enum_type)
+            }
+            // Fallback: use the last part as the enum name
+            _ => parts.last().map_or("i32", |v| v).to_string(),
+        }
+    } else {
+        // Not an enum type, return as-is (fallback to i32)
+        "i32".to_string()
     }
 }
 
@@ -416,6 +562,63 @@ fn get_optional_field_assignment(
 mod tests {
     use super::super::tests::create_test_service_plan;
     use super::*;
+
+    #[test]
+    fn test_convert_protobuf_enum_to_rust_type() {
+        // Test table types
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type("TYPE_ENUM:.unitycatalog.tables.v1.TableType"),
+            "TableType"
+        );
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type(
+                "TYPE_ENUM:.unitycatalog.tables.v1.DataSourceFormat"
+            ),
+            "DataSourceFormat"
+        );
+
+        // Test credentials
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type("TYPE_ENUM:.unitycatalog.credentials.v1.Purpose"),
+            "Purpose"
+        );
+
+        // Test recipients
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type(
+                "TYPE_ENUM:.unitycatalog.recipients.v1.AuthenticationType"
+            ),
+            "AuthenticationType"
+        );
+
+        // Test volumes
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type("TYPE_ENUM:.unitycatalog.volumes.v1.VolumeType"),
+            "VolumeType"
+        );
+
+        // Test temporary credentials with nested types
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type(
+                "TYPE_ENUM:.unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest.Operation"
+            ),
+            "generate_temporary_table_credentials_request::Operation"
+        );
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type(
+                "TYPE_ENUM:.unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.Operation"
+            ),
+            "generate_temporary_path_credentials_request::Operation"
+        );
+
+        // Test fallback cases
+        assert_eq!(
+            convert_protobuf_enum_to_rust_type("TYPE_ENUM:.unknown.SomeEnum"),
+            "SomeEnum"
+        );
+        assert_eq!(convert_protobuf_enum_to_rust_type("TYPE_STRING"), "i32");
+        assert_eq!(convert_protobuf_enum_to_rust_type("not_enum_type"), "i32");
+    }
     use crate::{
         MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
     };
@@ -629,7 +832,7 @@ mod tests {
         // Verify the code contains expected elements
         assert!(code.contains("pub struct UpdateCatalogBuilder"));
         assert!(code.contains("impl UpdateCatalogBuilder"));
-        assert!(code.contains("pub fn new(client: CatalogClient, name: impl ToString)"));
+        assert!(code.contains("pub fn new(client: CatalogClient, name: impl Into<String>)"));
         assert!(code.contains("pub fn with_new_name"));
         assert!(code.contains("pub fn with_comment"));
         assert!(code.contains("pub fn with_owner"));
@@ -657,9 +860,9 @@ mod tests {
             println!("Generated builders module:\n{}", code);
 
             // Verify the code contains expected elements
-            assert!(code.contains("use std::collections::HashMap"));
+            assert!(code.contains("with_properties<I, K, V>"));
             assert!(code.contains("use futures::future::BoxFuture"));
-            assert!(code.contains("use futures::IntoFuture"));
+            assert!(code.contains("use std::future::IntoFuture"));
             assert!(code.contains("pub struct CreateCatalogBuilder"));
             assert!(code.contains("pub struct UpdateCatalogBuilder"));
             assert!(code.contains("impl CreateCatalogBuilder"));

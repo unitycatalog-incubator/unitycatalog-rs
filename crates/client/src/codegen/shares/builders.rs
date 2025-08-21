@@ -47,6 +47,14 @@ impl UpdateShareBuilder {
         };
         Self { client, request }
     }
+    #[doc = concat!("Set ", "updates")]
+    pub fn with_updates<I>(mut self, updates: I) -> Self
+    where
+        I: IntoIterator<Item = DataObjectUpdate>,
+    {
+        self.request.updates = updates.into_iter().collect();
+        self
+    }
     #[doc = concat!("Set ", "new_name")]
     pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
         self.request.new_name = Some(new_name.into());
@@ -60,11 +68,6 @@ impl UpdateShareBuilder {
     #[doc = concat!("Set ", "comment")]
     pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
         self.request.comment = Some(comment.into());
-        self
-    }
-    #[doc = concat!("Set ", "updates")]
-    pub fn with_updates(mut self, updates: Vec<DataObjectUpdate>) -> Self {
-        self.request.updates = updates;
         self
     }
 }

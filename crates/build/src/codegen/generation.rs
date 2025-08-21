@@ -17,6 +17,7 @@ use quote::{format_ident, quote};
 use super::templates;
 use super::{GeneratedCode, GenerationPlan, ServicePlan};
 
+mod builder;
 mod client;
 mod handler;
 mod server;
@@ -77,6 +78,9 @@ pub fn generate_client_code(
         // Generate client code
         let client_code = client::generate(service)?;
         files.insert(format!("{}/client.rs", service.base_path), client_code);
+
+        let client_code = builder::generate(service)?;
+        files.insert(format!("{}/builders.rs", service.base_path), client_code);
 
         // Generate service module
         let module_code = generate_client_module();

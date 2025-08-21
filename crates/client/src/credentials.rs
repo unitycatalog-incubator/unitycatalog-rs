@@ -55,7 +55,7 @@ impl CredentialClient {
 
     /// Create a new credential using the builder pattern.
     pub fn create(&self, purpose: Purpose) -> CreateCredentialBuilder {
-        CreateCredentialBuilder::new(self.client.clone(), &self.name, purpose.into())
+        CreateCredentialBuilder::new(self.client.clone(), &self.name, purpose)
     }
 
     pub async fn get(&self) -> Result<CredentialInfo> {

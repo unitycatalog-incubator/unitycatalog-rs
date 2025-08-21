@@ -16,13 +16,13 @@ impl CreateVolumeBuilder {
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
         name: impl Into<String>,
-        volume_type: i32,
+        volume_type: VolumeType,
     ) -> Self {
         let request = CreateVolumeRequest {
             catalog_name: catalog_name.into(),
             schema_name: schema_name.into(),
             name: name.into(),
-            volume_type,
+            volume_type: volume_type as i32,
             ..Default::default()
         };
         Self { client, request }

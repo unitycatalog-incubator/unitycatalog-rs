@@ -28,7 +28,7 @@ impl CreateSchemaBuilder {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -65,17 +65,12 @@ impl UpdateSchemaBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
-        self
-    }
     #[doc = concat!("Set ", "comment")]
     pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -86,6 +81,11 @@ impl UpdateSchemaBuilder {
             .into_iter()
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
+        self
+    }
+    #[doc = concat!("Set ", "new_name")]
+    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
+        self.request.new_name = Some(new_name.into());
         self
     }
 }

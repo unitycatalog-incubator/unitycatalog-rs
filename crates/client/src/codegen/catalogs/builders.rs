@@ -23,7 +23,7 @@ impl CreateCatalogBuilder {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -85,7 +85,7 @@ impl UpdateCatalogBuilder {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,

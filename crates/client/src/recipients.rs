@@ -59,7 +59,7 @@ impl RecipientClient {
         CreateRecipientBuilder::new(
             self.client.clone(),
             &self.name,
-            authentication_type.into(),
+            authentication_type,
             owner.into(),
         )
     }

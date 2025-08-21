@@ -11,10 +11,10 @@ pub struct CreateCredentialBuilder {
 }
 impl CreateCredentialBuilder {
     /// Create a new builder instance
-    pub fn new(client: CredentialClient, name: impl Into<String>, purpose: i32) -> Self {
+    pub fn new(client: CredentialClient, name: impl Into<String>, purpose: Purpose) -> Self {
         let request = CreateCredentialRequest {
             name: name.into(),
-            purpose,
+            purpose: purpose as i32,
             ..Default::default()
         };
         Self { client, request }
@@ -32,6 +32,11 @@ impl CreateCredentialBuilder {
     #[doc = concat!("Set ", "skip_validation")]
     pub fn with_skip_validation(mut self, skip_validation: bool) -> Self {
         self.request.skip_validation = Some(skip_validation);
+        self
+    }
+    #[doc = concat!("Set ", "credential")]
+    pub fn with_credential(mut self, credential: create_credential_request::Credential) -> Self {
+        self.request.credential = Some(credential);
         self
     }
 }
@@ -86,6 +91,11 @@ impl UpdateCredentialBuilder {
     #[doc = concat!("Set ", "force")]
     pub fn with_force(mut self, force: bool) -> Self {
         self.request.force = Some(force);
+        self
+    }
+    #[doc = concat!("Set ", "credential")]
+    pub fn with_credential(mut self, credential: update_credential_request::Credential) -> Self {
+        self.request.credential = Some(credential);
         self
     }
 }

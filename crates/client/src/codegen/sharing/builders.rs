@@ -30,7 +30,19 @@ impl QueryTableBuilder {
         self.request.starting_timestamp = Some(starting_timestamp.into());
         self
     }
-
+    #[doc = concat!("Set ", "predicate_hints")]
+    pub fn with_predicate_hints<I>(mut self, predicate_hints: I) -> Self
+    where
+        I: IntoIterator<Item = String>,
+    {
+        self.request.predicate_hints = predicate_hints.into_iter().collect();
+        self
+    }
+    #[doc = concat!("Set ", "json_predicate_hints")]
+    pub fn with_json_predicate_hints(mut self, json_predicate_hints: JsonPredicate) -> Self {
+        self.request.json_predicate_hints = Some(json_predicate_hints);
+        self
+    }
     #[doc = concat!("Set ", "limit_hint")]
     pub fn with_limit_hint(mut self, limit_hint: i32) -> Self {
         self.request.limit_hint = Some(limit_hint);

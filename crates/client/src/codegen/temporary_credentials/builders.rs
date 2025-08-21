@@ -14,11 +14,11 @@ impl GenerateTemporaryTableCredentialsBuilder {
     pub fn new(
         client: TemporaryCredentialClient,
         table_id: impl Into<String>,
-        operation: i32,
+        operation: generate_temporary_table_credentials_request::Operation,
     ) -> Self {
         let request = GenerateTemporaryTableCredentialsRequest {
             table_id: table_id.into(),
-            operation,
+            operation: operation as i32,
             ..Default::default()
         };
         Self { client, request }
@@ -40,10 +40,14 @@ pub struct GenerateTemporaryPathCredentialsBuilder {
 }
 impl GenerateTemporaryPathCredentialsBuilder {
     /// Create a new builder instance
-    pub fn new(client: TemporaryCredentialClient, url: impl Into<String>, operation: i32) -> Self {
+    pub fn new(
+        client: TemporaryCredentialClient,
+        url: impl Into<String>,
+        operation: generate_temporary_path_credentials_request::Operation,
+    ) -> Self {
         let request = GenerateTemporaryPathCredentialsRequest {
             url: url.into(),
-            operation,
+            operation: operation as i32,
             ..Default::default()
         };
         Self { client, request }

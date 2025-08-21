@@ -16,18 +16,26 @@ impl CreateTableBuilder {
         name: impl Into<String>,
         schema_name: impl Into<String>,
         catalog_name: impl Into<String>,
-        table_type: i32,
-        data_source_format: i32,
+        table_type: TableType,
+        data_source_format: DataSourceFormat,
     ) -> Self {
         let request = CreateTableRequest {
             name: name.into(),
             schema_name: schema_name.into(),
             catalog_name: catalog_name.into(),
-            table_type,
-            data_source_format,
+            table_type: table_type as i32,
+            data_source_format: data_source_format as i32,
             ..Default::default()
         };
         Self { client, request }
+    }
+    #[doc = concat!("Set ", "columns")]
+    pub fn with_columns<I>(mut self, columns: I) -> Self
+    where
+        I: IntoIterator<Item = ColumnInfo>,
+    {
+        self.request.columns = columns.into_iter().collect();
+        self
     }
     #[doc = concat!("Set ", "storage_location")]
     pub fn with_storage_location(mut self, storage_location: impl Into<String>) -> Self {
@@ -39,7 +47,7 @@ impl CreateTableBuilder {
         self.request.comment = Some(comment.into());
         self
     }
-    #[doc = concat!("Set ", "properties", " property")]
+    #[doc = concat!("Set ", "properties")]
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -50,11 +58,6 @@ impl CreateTableBuilder {
             .into_iter()
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
-        self
-    }
-    #[doc = concat!("Set ", "columns")]
-    pub fn with_columns(mut self, columns: Vec<ColumnInfo>) -> Self {
-        self.request.columns = columns;
         self
     }
 }

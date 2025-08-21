@@ -91,7 +91,7 @@ impl VolumeClient {
             &self.catalog_name,
             &self.schema_name,
             &self.name,
-            volume_type as i32,
+            volume_type,
         )
     }
 

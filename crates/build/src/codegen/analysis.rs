@@ -475,7 +475,7 @@ mod tests {
             },
             MessageField {
                 name: "credential".to_string(),
-                field_type: "TYPE_ONEOF:createcredentialrequest::Credential".to_string(),
+                field_type: "TYPE_ONEOF:create_credential_request::Credential".to_string(),
                 optional: true,
                 oneof_name: None,
                 repeated: false,

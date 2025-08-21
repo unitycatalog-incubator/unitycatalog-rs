@@ -98,8 +98,8 @@ impl SchemaClient {
             name.to_string(),
             &self.schema_name,
             &self.catalog_name,
-            table_type as i32,
-            data_source_format as i32,
+            table_type,
+            data_source_format,
         )
     }
 
