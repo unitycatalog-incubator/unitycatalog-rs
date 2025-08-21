@@ -1,10 +1,10 @@
 #![allow(unused_mut)]
-use unitycatalog_common::Result;
-use crate::api::RequestContext;
-use unitycatalog_common::models::volumes::v1::*;
 use super::handler::VolumeHandler;
+use crate::api::RequestContext;
 use crate::policy::Recipient;
-use axum::extract::{State, Extension};
+use axum::extract::{Extension, State};
+use unitycatalog_common::Result;
+use unitycatalog_common::models::volumes::v1::*;
 pub async fn list_volumes_handler<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,

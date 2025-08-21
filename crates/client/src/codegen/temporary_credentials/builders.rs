@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
+use super::client::*;
+use crate::error::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use crate::error::Result;
 use unitycatalog_common::models::temporary_credentials::v1::*;
-use super::client::*;
 /// Builder for creating requests
 pub struct GenerateTemporaryTableCredentialsBuilder {
     client: TemporaryCredentialClient,
@@ -30,9 +30,7 @@ impl IntoFuture for GenerateTemporaryTableCredentialsBuilder {
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
-        Box::pin(async move {
-            client.generate_temporary_table_credentials(&request).await
-        })
+        Box::pin(async move { client.generate_temporary_table_credentials(&request).await })
     }
 }
 /// Builder for creating requests
@@ -42,11 +40,7 @@ pub struct GenerateTemporaryPathCredentialsBuilder {
 }
 impl GenerateTemporaryPathCredentialsBuilder {
     /// Create a new builder instance
-    pub fn new(
-        client: TemporaryCredentialClient,
-        url: impl Into<String>,
-        operation: i32,
-    ) -> Self {
+    pub fn new(client: TemporaryCredentialClient, url: impl Into<String>, operation: i32) -> Self {
         let request = GenerateTemporaryPathCredentialsRequest {
             url: url.into(),
             operation,
@@ -66,8 +60,6 @@ impl IntoFuture for GenerateTemporaryPathCredentialsBuilder {
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
-        Box::pin(async move {
-            client.generate_temporary_path_credentials(&request).await
-        })
+        Box::pin(async move { client.generate_temporary_path_credentials(&request).await })
     }
 }

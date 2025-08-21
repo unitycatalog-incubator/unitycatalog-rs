@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
+use super::client::*;
+use crate::error::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use crate::error::Result;
 use unitycatalog_common::models::catalogs::v1::*;
-use super::client::*;
 /// Builder for creating requests
 pub struct CreateCatalogBuilder {
     client: CatalogClient,

@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
+use super::client::*;
+use crate::error::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use crate::error::Result;
 use unitycatalog_common::models::volumes::v1::*;
-use super::client::*;
 /// Builder for creating requests
 pub struct CreateVolumeBuilder {
     client: VolumeClient,

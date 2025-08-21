@@ -152,15 +152,27 @@ fn analyze_request_fields(fields: &[MessageField]) -> (Vec<&MessageField>, Vec<&
             || field.field_type.starts_with("TYPE_ONEOF:")
             || field.repeated
         {
-            // Complex message types, oneof fields, and repeated fields are too complex for simple builders - skip them
-            // Users should construct the request directly for these cases
-            continue;
+            // Complex message types, oneof fields, and repeated fields go to optional with direct setters
+            optional.push(field);
         } else {
             required.push(field);
         }
     }
 
     (required, optional)
+}
+
+fn extract_repeated_type(field_type: &str) -> &str {
+    if field_type.starts_with("repeated ") {
+        field_type.strip_prefix("repeated ").unwrap_or(field_type)
+    } else if field_type.starts_with("TYPE_MESSAGE:") && field_type.contains("repeated") {
+        // Handle protobuf repeated message types
+        field_type
+            .strip_prefix("TYPE_MESSAGE:")
+            .unwrap_or(field_type)
+    } else {
+        field_type
+    }
 }
 
 /// Generate the constructor for the builder
@@ -207,14 +219,14 @@ fn generate_with_methods(
 ) -> Vec<TokenStream> {
     optional_fields
         .iter()
-        .filter_map(|field| {
+        .map(|field| {
             let field_ident = format_ident!("{}", field.name);
             let method_name = format_ident!("with_{}", field.name);
             let field_name = &field.name;
 
             if field.field_type.contains("map<") {
                 // Handle HashMap properties with generic method
-                Some(quote! {
+                quote! {
                     #[doc = concat!("Set ", #field_name, " property")]
                     pub fn #method_name<I, K, V>(mut self, #field_ident: I) -> Self
                     where
@@ -228,13 +240,72 @@ fn generate_with_methods(
                             .collect();
                         self
                     }
-                })
+                }
             } else if field.field_type.starts_with("TYPE_MESSAGE:")
                 || field.field_type.starts_with("TYPE_ONEOF:")
                 || field.repeated
             {
-                // Skip complex message types, oneof fields, and repeated fields - too complex for simple builders
-                None
+                // Handle complex types with direct assignment - no trait bounds needed
+                let field_type = if field.repeated {
+                    // For repeated fields, extract the inner type and create Vec<T>
+                    if field.field_type.starts_with("TYPE_MESSAGE:") {
+                        let inner_type = field
+                            .field_type
+                            .strip_prefix("TYPE_MESSAGE:")
+                            .unwrap_or(&field.field_type)
+                            .trim_start_matches('.');
+
+                        // Convert protobuf message names to Rust types
+                        let rust_type = inner_type.split('.').last().unwrap_or(inner_type);
+
+                        format!("Vec<{}>", rust_type)
+                    } else {
+                        format!("Vec<{}>", &field.field_type)
+                    }
+                } else if field.field_type.starts_with("TYPE_MESSAGE:") {
+                    let inner_type = field
+                        .field_type
+                        .strip_prefix("TYPE_MESSAGE:")
+                        .unwrap_or(&field.field_type)
+                        .trim_start_matches('.');
+
+                    // Convert protobuf message names to Rust types
+                    inner_type
+                        .split('.')
+                        .last()
+                        .unwrap_or(inner_type)
+                        .to_string()
+                } else if field.field_type.starts_with("TYPE_ONEOF:") {
+                    let inner_type = field
+                        .field_type
+                        .strip_prefix("TYPE_ONEOF:")
+                        .unwrap_or(&field.field_type)
+                        .trim_start_matches('.');
+
+                    // Convert protobuf oneof names to Rust types
+                    inner_type
+                        .split('.')
+                        .last()
+                        .unwrap_or(inner_type)
+                        .to_string()
+                } else {
+                    field.field_type.clone()
+                };
+                let field_type_ident = format_ident!("{}", field_type);
+
+                let assignment = if field.optional {
+                    quote! { Some(#field_ident) }
+                } else {
+                    quote! { #field_ident }
+                };
+
+                quote! {
+                    #[doc = concat!("Set ", #field_name)]
+                    pub fn #method_name(mut self, #field_ident: #field_type_ident) -> Self {
+                        self.request.#field_ident = #assignment;
+                        self
+                    }
+                }
             } else {
                 // Handle all other fields with appropriate type conversion
                 let param_type = get_with_method_param_type(&field.field_type);
@@ -244,13 +315,13 @@ fn generate_with_methods(
                     get_field_assignment(&field.field_type, &field_ident)
                 };
 
-                Some(quote! {
+                quote! {
                     #[doc = concat!("Set ", #field_name)]
                     pub fn #method_name(mut self, #field_ident: #param_type) -> Self {
                         self.request.#field_ident = #assignment;
                         self
                     }
-                })
+                }
             }
         })
         .collect()

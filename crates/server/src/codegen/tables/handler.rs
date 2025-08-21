@@ -1,6 +1,6 @@
+use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::Result;
-use crate::api::RequestContext;
 use unitycatalog_common::models::tables::v1::*;
 #[async_trait]
 pub trait TableHandler: Send + Sync + 'static {

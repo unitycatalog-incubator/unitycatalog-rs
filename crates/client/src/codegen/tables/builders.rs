@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
+use super::client::*;
+use crate::error::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use crate::error::Result;
 use unitycatalog_common::models::tables::v1::*;
-use super::client::*;
 /// Builder for creating requests
 pub struct CreateTableBuilder {
     client: TableClient,
@@ -50,6 +50,11 @@ impl CreateTableBuilder {
             .into_iter()
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
+        self
+    }
+    #[doc = concat!("Set ", "columns")]
+    pub fn with_columns(mut self, columns: Vec<ColumnInfo>) -> Self {
+        self.request.columns = columns;
         self
     }
 }

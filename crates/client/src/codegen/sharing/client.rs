@@ -1,8 +1,8 @@
 #![allow(unused_mut)]
-use cloud_client::CloudClient;
-use url::Url;
 use crate::error::Result;
+use cloud_client::CloudClient;
 use unitycatalog_common::models::sharing::v1::*;
+use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct SharingClient {
@@ -17,16 +17,15 @@ impl SharingClient {
         }
         Self { client, base_url }
     }
-    pub async fn list_shares(
-        &self,
-        request: &ListSharesRequest,
-    ) -> Result<ListSharesResponse> {
+    pub async fn list_shares(&self, request: &ListSharesRequest) -> Result<ListSharesResponse> {
         let mut url = self.base_url.join("shares")?;
         if let Some(ref value) = request.max_results {
-            url.query_pairs_mut().append_pair("max_results", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
         }
         if let Some(ref value) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -48,10 +47,12 @@ impl SharingClient {
         let formatted_path = format!("shares/{}/schemas", request.share);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
-            url.query_pairs_mut().append_pair("max_results", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
         }
         if let Some(ref value) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -62,15 +63,15 @@ impl SharingClient {
         &self,
         request: &ListSchemaTablesRequest,
     ) -> Result<ListSchemaTablesResponse> {
-        let formatted_path = format!(
-            "shares/{}/schemas/{}/tables", request.share, request.name
-        );
+        let formatted_path = format!("shares/{}/schemas/{}/tables", request.share, request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
-            url.query_pairs_mut().append_pair("max_results", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
         }
         if let Some(ref value) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -84,10 +85,12 @@ impl SharingClient {
         let formatted_path = format!("shares/{}/all-tables", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
-            url.query_pairs_mut().append_pair("max_results", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
         }
         if let Some(ref value) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -99,12 +102,13 @@ impl SharingClient {
         request: &GetTableVersionRequest,
     ) -> Result<GetTableVersionResponse> {
         let formatted_path = format!(
-            "shares/{}/schemas/{}/tables/{}/version", request.share, request.schema,
-            request.name
+            "shares/{}/schemas/{}/tables/{}/version",
+            request.share, request.schema, request.name
         );
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.starting_timestamp {
-            url.query_pairs_mut().append_pair("starting_timestamp", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("starting_timestamp", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -116,8 +120,8 @@ impl SharingClient {
         request: &GetTableMetadataRequest,
     ) -> Result<QueryResponse> {
         let formatted_path = format!(
-            "shares/{}/schemas/{}/tables/{}/metadata", request.share, request.schema,
-            request.name
+            "shares/{}/schemas/{}/tables/{}/metadata",
+            request.share, request.schema, request.name
         );
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -125,13 +129,10 @@ impl SharingClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn query_table(
-        &self,
-        request: &QueryTableRequest,
-    ) -> Result<QueryResponse> {
+    pub async fn query_table(&self, request: &QueryTableRequest) -> Result<QueryResponse> {
         let formatted_path = format!(
-            "shares/{}/schemas/{}/tables/{}/query", request.share, request.schema,
-            request.name
+            "shares/{}/schemas/{}/tables/{}/query",
+            request.share, request.schema, request.name
         );
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.post(url).json(request).send().await?;

@@ -1,8 +1,8 @@
 #![allow(unused_mut)]
-use cloud_client::CloudClient;
-use url::Url;
 use crate::error::Result;
+use cloud_client::CloudClient;
 use unitycatalog_common::models::credentials::v1::*;
+use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct CredentialClient {
@@ -23,13 +23,16 @@ impl CredentialClient {
     ) -> Result<ListCredentialsResponse> {
         let mut url = self.base_url.join("credentials")?;
         if let Some(ref value) = request.max_results {
-            url.query_pairs_mut().append_pair("max_results", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
         }
         if let Some(ref value) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
         }
         if let Some(ref value) = request.purpose {
-            url.query_pairs_mut().append_pair("purpose", &value.to_string());
+            url.query_pairs_mut()
+                .append_pair("purpose", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
@@ -46,10 +49,7 @@ impl CredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_credential(
-        &self,
-        request: &GetCredentialRequest,
-    ) -> Result<CredentialInfo> {
+    pub async fn get_credential(&self, request: &GetCredentialRequest) -> Result<CredentialInfo> {
         let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -68,10 +68,7 @@ impl CredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn delete_credential(
-        &self,
-        request: &DeleteCredentialRequest,
-    ) -> Result<()> {
+    pub async fn delete_credential(&self, request: &DeleteCredentialRequest) -> Result<()> {
         let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;

@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
+use super::client::*;
+use crate::error::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use crate::error::Result;
 use unitycatalog_common::models::shares::v1::*;
-use super::client::*;
 /// Builder for creating requests
 pub struct CreateShareBuilder {
     client: ShareClient,
@@ -60,6 +60,11 @@ impl UpdateShareBuilder {
     #[doc = concat!("Set ", "comment")]
     pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
         self.request.comment = Some(comment.into());
+        self
+    }
+    #[doc = concat!("Set ", "updates")]
+    pub fn with_updates(mut self, updates: Vec<DataObjectUpdate>) -> Self {
+        self.request.updates = updates;
         self
     }
 }

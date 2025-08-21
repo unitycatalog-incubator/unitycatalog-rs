@@ -2,8 +2,7 @@
 use crate::Result;
 use crate::models::temporary_credentials::v1::*;
 use axum::{RequestExt, RequestPartsExt};
-impl<S: Send + Sync> axum::extract::FromRequest<S>
-for GenerateTemporaryTableCredentialsRequest {
+impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryTableCredentialsRequest {
     type Rejection = axum::response::Response;
     async fn from_request(
         req: axum::extract::Request<axum::body::Body>,
@@ -16,8 +15,7 @@ for GenerateTemporaryTableCredentialsRequest {
         Ok(request)
     }
 }
-impl<S: Send + Sync> axum::extract::FromRequest<S>
-for GenerateTemporaryPathCredentialsRequest {
+impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryPathCredentialsRequest {
     type Rejection = axum::response::Response;
     async fn from_request(
         req: axum::extract::Request<axum::body::Body>,

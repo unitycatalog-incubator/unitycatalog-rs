@@ -45,15 +45,68 @@ async fn main() -> Result<()> {
     println!("Created schema: {}", schema.name);
 
     // Create a table using the schema client
+    // Define table columns
+    let columns = vec![
+        ColumnInfo {
+            name: "sale_id".to_string(),
+            type_text: "BIGINT".to_string(),
+            type_name: unitycatalog_common::models::tables::v1::ColumnTypeName::Long.into(),
+            type_precision: None,
+            type_scale: None,
+            type_interval_type: None,
+            position: 0,
+            comment: Some("Unique sale identifier".to_string()),
+            nullable: Some(false),
+            partition_index: None,
+        },
+        ColumnInfo {
+            name: "amount".to_string(),
+            type_text: "DECIMAL(10,2)".to_string(),
+            type_name: unitycatalog_common::models::tables::v1::ColumnTypeName::Decimal.into(),
+            type_precision: Some(10),
+            type_scale: Some(2),
+            type_interval_type: None,
+            position: 1,
+            comment: Some("Sale amount".to_string()),
+            nullable: Some(false),
+            partition_index: None,
+        },
+        ColumnInfo {
+            name: "year".to_string(),
+            type_text: "INT".to_string(),
+            type_name: unitycatalog_common::models::tables::v1::ColumnTypeName::Int.into(),
+            type_precision: None,
+            type_scale: None,
+            type_interval_type: None,
+            position: 2,
+            comment: Some("Sale year for partitioning".to_string()),
+            nullable: Some(false),
+            partition_index: Some(0),
+        },
+        ColumnInfo {
+            name: "month".to_string(),
+            type_text: "INT".to_string(),
+            type_name: unitycatalog_common::models::tables::v1::ColumnTypeName::Int.into(),
+            type_precision: None,
+            type_scale: None,
+            type_interval_type: None,
+            position: 3,
+            comment: Some("Sale month for partitioning".to_string()),
+            nullable: Some(false),
+            partition_index: Some(1),
+        },
+    ];
+
     let table = client
-        .schema("analytics_catalog", "sales_data")
+        .schema("analytics", "sales")
         .create_table(
             "monthly_sales",
             TableType::Managed,
             DataSourceFormat::Delta
         )
+        .with_columns(columns)
         .with_comment("Monthly sales aggregation table")
-        .with_storage_location("s3://my-analytics-bucket/tables/monthly_sales/")
+        .with_storage_location("s3://analytics-bucket/tables/monthly_sales/")
         .with_properties([
             ("partition_columns", "year,month"),
             ("table_type", "fact"),
@@ -152,6 +205,22 @@ async fn main() -> Result<()> {
 
     println!("Updated schema: {}", updated_schema.name);
 
+    // Create data object updates for the share
+    let updates = vec![
+        DataObjectUpdate {
+            action: unitycatalog_common::models::shares::v1::data_object_update::Action::Add.into(),
+            data_object: Some(unitycatalog_common::models::shares::v1::SharedDataObject {
+                name: "analytics.sales.monthly_sales".to_string(),
+                comment: Some("Monthly sales data".to_string()),
+                shared_as: None,
+                cdf_enabled: Some(false),
+                start_version: None,
+                history_data_sharing_status: None,
+                partitions: vec![],
+            }),
+        },
+    ];
+
     // Update the share
     let updated_share = client
         .share("analytics_share")
@@ -159,6 +228,7 @@ async fn main() -> Result<()> {
         .with_new_name("external_analytics_share")
         .with_comment("Renamed and updated analytics share")
         .with_owner("data_governance_team")
+        .with_updates(updates)
         .await?;
 
     println!("Updated share: {}", updated_share.name);
