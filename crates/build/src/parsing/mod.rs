@@ -11,6 +11,7 @@ use crate::MessageInfo;
 use crate::MethodMetadata;
 use crate::gnostic::openapi::v3::Operation;
 use crate::google::api::HttpRule;
+use std::collections::HashMap;
 
 // Known extension field numbers
 const GOOGLE_API_HTTP_EXTENSION: u32 = 72295728; // google.api.http
@@ -26,15 +27,25 @@ pub fn process_file_descriptor(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let file_name = file_desc.name();
 
+    // Extract source code info for documentation
+    let source_code_info = file_desc.source_code_info.as_ref();
+
     // Process messages in the file
-    for message in &file_desc.message_type {
+    for (message_index, message) in file_desc.message_type.iter().enumerate() {
         let package_name = file_desc.package();
         let type_prefix = if package_name.is_empty() {
             String::new()
         } else {
             format!(".{}", package_name)
         };
-        process_message(message, file_name, codegen_metadata, &type_prefix)?;
+        process_message(
+            message,
+            file_name,
+            codegen_metadata,
+            &type_prefix,
+            source_code_info,
+            &[4, message_index as i32],
+        )?;
     }
 
     // Process services in the file
@@ -51,6 +62,8 @@ fn process_message(
     file_name: &str,
     codegen_metadata: &mut CodeGenMetadata,
     type_prefix: &str,
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    path_prefix: &[i32],
 ) -> Result<(), Box<dyn std::error::Error>> {
     let message_name = message.name();
     let full_type_name = if type_prefix.is_empty() {
@@ -64,8 +77,11 @@ fn process_message(
     let mut oneof_groups: std::collections::HashMap<String, Vec<String>> =
         std::collections::HashMap::new();
 
+    // Build a map of field paths to documentation
+    let field_docs = extract_field_documentation(source_code_info, path_prefix);
+
     // First pass: collect regular fields and identify oneof groups
-    for field in &message.field {
+    for (field_index, field) in message.field.iter().enumerate() {
         // In Proto3, fields are optional if:
         // 1. They have the LABEL_OPTIONAL label AND proto3_optional is true, OR
         // 2. They have LABEL_REPEATED (repeated fields are inherently optional)
@@ -78,6 +94,12 @@ fn process_message(
             }
             protobuf::descriptor::field_descriptor_proto::Label::LABEL_REQUIRED => false,
         };
+
+        // Check if this is a repeated field
+        let is_repeated = matches!(
+            field.label(),
+            protobuf::descriptor::field_descriptor_proto::Label::LABEL_REPEATED
+        );
 
         // Check if this field belongs to a oneof group
         if field.has_oneof_index() {
@@ -97,11 +119,19 @@ fn process_message(
         }
 
         // Add regular field (including proto3_optional fields)
+        let field_type_str = format_field_type(field);
+
+        // Get documentation for this field
+        let field_path = [path_prefix, &[2, field_index as i32]].concat();
+        let documentation = field_docs.get(&field_path).cloned();
+
         let field_info = MessageField {
             name: field.name().to_string(),
-            field_type: format_field_type(field),
+            field_type: field_type_str,
             optional: is_optional,
+            repeated: is_repeated,
             oneof_name: None,
+            documentation,
         };
         fields.push(field_info);
     }
@@ -119,8 +149,10 @@ fn process_message(
         let oneof_field = MessageField {
             name: oneof_name,
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
-            optional: true,   // oneof fields are always optional (Option<enum>)
-            oneof_name: None, // This is the oneof field itself, not a member
+            optional: true,      // oneof fields are always optional (Option<enum>)
+            repeated: false,     // oneof fields are never repeated
+            oneof_name: None,    // This is the oneof field itself, not a member
+            documentation: None, // TODO: Extract oneof documentation if needed
         };
 
         fields.push(oneof_field);
@@ -136,8 +168,16 @@ fn process_message(
         .insert(full_type_name.clone(), message_info);
 
     // Process nested messages
-    for nested_message in &message.nested_type {
-        process_message(nested_message, file_name, codegen_metadata, &full_type_name)?;
+    for (nested_index, nested_message) in message.nested_type.iter().enumerate() {
+        let nested_path = [path_prefix, &[3, nested_index as i32]].concat();
+        process_message(
+            nested_message,
+            file_name,
+            codegen_metadata,
+            &full_type_name,
+            source_code_info,
+            &nested_path,
+        )?;
     }
 
     Ok(())
@@ -311,4 +351,38 @@ fn capitalize_first_letter(s: &str) -> String {
         None => String::new(),
         Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
     }
+}
+
+/// Extract field documentation from source code info
+fn extract_field_documentation(
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    message_path: &[i32],
+) -> HashMap<Vec<i32>, String> {
+    let mut field_docs = HashMap::new();
+
+    if let Some(sci) = source_code_info {
+        for location in &sci.location {
+            if location.path.len() >= message_path.len() + 2 {
+                // Check if this path starts with our message path and has field info
+                let path_slice = &location.path[..message_path.len()];
+                if path_slice == message_path && location.path[message_path.len()] == 2 {
+                    // This is a field (type 2) in our message
+                    let mut documentation = String::new();
+
+                    // Prefer leading comments, fall back to trailing comments
+                    if location.has_leading_comments() {
+                        documentation = location.leading_comments().trim().to_string();
+                    } else if location.has_trailing_comments() {
+                        documentation = location.trailing_comments().trim().to_string();
+                    }
+
+                    if !documentation.is_empty() {
+                        field_docs.insert(location.path.clone(), documentation);
+                    }
+                }
+            }
+        }
+    }
+
+    field_docs
 }

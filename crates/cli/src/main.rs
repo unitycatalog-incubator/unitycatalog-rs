@@ -6,9 +6,11 @@ use crate::server::{ServerArgs, handle_server};
 
 mod client;
 mod config;
+mod demo;
 mod error;
+mod output;
 mod server;
-mod test;
+// mod test;
 
 #[derive(Parser)]
 #[command(name = "unity-catalog", version, about = "CLI to manage delta.sharing services.", long_about = None)]
@@ -48,6 +50,9 @@ enum Commands {
 
     #[clap(about = "run database migrations")]
     Migrate,
+
+    #[clap(about = "demo professional CLI output formatting")]
+    Demo,
 }
 
 #[derive(Parser)]
@@ -65,7 +70,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             handle_client(client_args, args.global_opts).await?;
         }
         Commands::Migrate => todo!(),
-        Commands::Test => test::run(&args.global_opts).await?,
+        Commands::Test => todo!(),
+        Commands::Demo => demo::run_demo().await?,
     };
     Ok(())
 }

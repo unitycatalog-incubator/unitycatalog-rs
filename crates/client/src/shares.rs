@@ -5,16 +5,26 @@ use unitycatalog_common::models::shares::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
+use crate::codegen::shares::builders::{CreateShareBuilder, GetShareBuilder, UpdateShareBuilder};
 
 impl ShareClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<ShareInfo>> {
         let max_results = max_results.into();
-        stream_paginated(max_results, move |max_results, page_token| async move {
+        stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListSharesRequest {
                 max_results,
                 page_token,
             };
             let res = self.list_shares(&request).await?;
+
+            // Update max_results for next page based on items received
+            if let Some(ref mut remaining) = max_results {
+                *remaining -= res.shares.len() as i32;
+                if *remaining <= 0 {
+                    max_results = Some(0);
+                }
+            }
+
             Ok((res.shares, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
@@ -37,20 +47,14 @@ impl ShareClient {
         }
     }
 
-    pub(super) async fn create(&self, comment: Option<impl ToString>) -> Result<ShareInfo> {
-        let request = CreateShareRequest {
-            name: self.name.clone(),
-            comment: comment.map(|c| c.to_string()),
-        };
-        self.client.create_share(&request).await
+    /// Create a new share using the builder pattern.
+    pub fn create(&self) -> CreateShareBuilder {
+        CreateShareBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn get(&self, include_shared_data: impl Into<Option<bool>>) -> Result<ShareInfo> {
-        let request = GetShareRequest {
-            name: self.name.clone(),
-            include_shared_data: include_shared_data.into(),
-        };
-        self.client.get_share(&request).await
+    /// Get a share using the builder pattern.
+    pub fn get(&self) -> GetShareBuilder {
+        GetShareBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self) -> Result<()> {
@@ -60,22 +64,8 @@ impl ShareClient {
         self.client.delete_share(&request).await
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        updates: Vec<DataObjectUpdate>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-    ) -> Result<ShareInfo> {
-        let request = UpdateShareRequest {
-            name: self.name.clone(),
-            new_name: new_name
-                .map(|s| s.to_string())
-                .and_then(|s| (!s.is_empty()).then_some(s)),
-            comment: comment.map(|c| c.to_string()),
-            owner: owner.map(|o| o.to_string()),
-            updates,
-        };
-        self.client.update_share(&request).await
+    /// Update this share using the builder pattern.
+    pub fn update(&self) -> UpdateShareBuilder {
+        UpdateShareBuilder::new(self.client.clone(), &self.name)
     }
 }

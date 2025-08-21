@@ -170,8 +170,8 @@ pub struct UpdateCatalogRequest {
     #[prost(map="string, string", tag="4")]
     pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Name of catalog.
-    #[prost(string, tag="5")]
-    pub new_name: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="5")]
+    pub new_name: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Delete a catalog
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

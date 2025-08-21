@@ -1,0 +1,52 @@
+[package]
+name = "unitycatalog-acceptance"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+rust-version.workspace = true
+version.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+description = "Acceptance testing framework for Unity Catalog"
+
+[dependencies]
+# Core Unity Catalog dependencies
+unitycatalog-client = { path = "../client" }
+unitycatalog-common = { path = "../common" }
+cloud-client = { path = "../cloud-client" }
+
+# HTTP and async
+reqwest = { workspace = true }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "fs"] }
+futures = { workspace = true }
+
+# Serialization and data handling
+serde = { workspace = true }
+serde_json = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+chrono = { workspace = true, features = ["serde"] }
+
+# Error handling and logging
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+# Testing framework
+mockito = "1.4"
+
+# Utilities
+itertools = { workspace = true }
+
+[dev-dependencies]
+rstest = "0.18"
+tokio-test = "0.4"
+tempfile = "3.1"
+env_logger = "0.10"
+log = "0.4"
+toml = "0.8"
+
+[features]
+default = []
+recording = []
+integration = []

@@ -408,7 +408,7 @@ impl serde::Serialize for CreateCredentialRequest {
         if self.read_only.is_some() {
             len += 1;
         }
-        if self.skip_validation {
+        if self.skip_validation.is_some() {
             len += 1;
         }
         if self.credential.is_some() {
@@ -429,8 +429,8 @@ impl serde::Serialize for CreateCredentialRequest {
         if let Some(v) = self.read_only.as_ref() {
             struct_ser.serialize_field("read_only", v)?;
         }
-        if self.skip_validation {
-            struct_ser.serialize_field("skip_validation", &self.skip_validation)?;
+        if let Some(v) = self.skip_validation.as_ref() {
+            struct_ser.serialize_field("skip_validation", v)?;
         }
         if let Some(v) = self.credential.as_ref() {
             match v {
@@ -565,7 +565,7 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             if skip_validation__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("skipValidation"));
                             }
-                            skip_validation__ = Some(map_.next_value()?);
+                            skip_validation__ = map_.next_value()?;
                         }
                         GeneratedField::AzureServicePrincipal => {
                             if credential__.is_some() {
@@ -598,7 +598,7 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                     purpose: purpose__.unwrap_or_default(),
                     comment: comment__,
                     read_only: read_only__,
-                    skip_validation: skip_validation__.unwrap_or_default(),
+                    skip_validation: skip_validation__,
                     credential: credential__,
                 })
             }

@@ -96,7 +96,7 @@ message UpdateSchemaRequest {
   map<string, string> properties = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Name of schema.
-  string new_name = 4 [
+  optional string new_name = 4 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
     (google.api.field_behavior) = OPTIONAL

@@ -79,17 +79,18 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
         let name = ResourceName::from_naive_str_split(request.full_name);
-        let [catalog_name, _schema_name] = name.as_ref() else {
+        let [catalog_name, schema_name] = name.as_ref() else {
             return Err(unitycatalog_common::Error::invalid_argument(
                 "Invalid schema name - expected <catalog_name>.<schema_name>",
             ));
         };
+        let new_name = request.new_name.unwrap_or(schema_name.to_owned());
         let resource = SchemaInfo {
-            name: request.new_name.clone(),
+            name: new_name.clone(),
             comment: request.comment,
             properties: request.properties,
             catalog_name: catalog_name.to_owned(),
-            full_name: Some(format!("{}.{}", catalog_name, request.new_name)),
+            full_name: Some(format!("{}.{}", catalog_name, new_name)),
             ..Default::default()
         };
         // TODO:

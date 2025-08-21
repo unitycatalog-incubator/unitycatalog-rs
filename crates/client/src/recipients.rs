@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use unitycatalog_common::models::recipients::v1::*;
@@ -7,6 +5,9 @@ use unitycatalog_common::models::recipients::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
+use crate::codegen::recipients::builders::{
+    CreateRecipientBuilder, GetRecipientBuilder, UpdateRecipientBuilder,
+};
 
 impl RecipientClientBase {
     pub fn list(
@@ -14,12 +15,21 @@ impl RecipientClientBase {
         max_results: impl Into<Option<i32>>,
     ) -> BoxStream<'_, Result<RecipientInfo>> {
         let max_results = max_results.into();
-        stream_paginated(max_results, move |max_results, page_token| async move {
+        stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListRecipientsRequest {
                 max_results,
                 page_token,
             };
             let res = self.list_recipients(&request).await?;
+
+            // Update max_results for next page based on items received
+            if let Some(ref mut remaining) = max_results {
+                *remaining -= res.recipients.len() as i32;
+                if *remaining <= 0 {
+                    max_results = Some(0);
+                }
+            }
+
             Ok((res.recipients, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
@@ -42,44 +52,28 @@ impl RecipientClient {
         }
     }
 
-    pub(super) async fn create(
+    /// Create a new recipient using the builder pattern.
+    pub fn create(
         &self,
         authentication_type: AuthenticationType,
-        comment: Option<impl ToString>,
-    ) -> Result<RecipientInfo> {
-        let request = CreateRecipientRequest {
-            name: self.name.clone(),
-            authentication_type: authentication_type.into(),
-            comment: comment.map(|c| c.to_string()),
-            ..Default::default()
-        };
-        self.client.create_recipient(&request).await
+        owner: impl Into<String>,
+    ) -> CreateRecipientBuilder {
+        CreateRecipientBuilder::new(
+            self.client.clone(),
+            &self.name,
+            authentication_type,
+            owner.into(),
+        )
     }
 
-    pub async fn get(&self) -> Result<RecipientInfo> {
-        let request = GetRecipientRequest {
-            name: self.name.clone(),
-        };
-        self.client.get_recipient(&request).await
+    /// Get a recipient using the builder pattern.
+    pub fn get(&self) -> GetRecipientBuilder {
+        GetRecipientBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-        properties: impl Into<Option<HashMap<String, String>>>,
-        expiration_time: Option<i64>,
-    ) -> Result<RecipientInfo> {
-        let request = UpdateRecipientRequest {
-            name: self.name.clone(),
-            new_name: new_name.map(|s| s.to_string()),
-            comment: comment.map(|s| s.to_string()),
-            owner: owner.map(|s| s.to_string()),
-            properties: properties.into().unwrap_or_default(),
-            expiration_time,
-        };
-        self.client.update_recipient(&request).await
+    /// Update this recipient using the builder pattern.
+    pub fn update(&self) -> UpdateRecipientBuilder {
+        UpdateRecipientBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self) -> Result<()> {

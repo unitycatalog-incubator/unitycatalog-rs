@@ -17,8 +17,10 @@ import "unitycatalog/catalogs/v1/models.proto";
 message ListCatalogsRequest {
   // The maximum number of results per page that should be returned.
   optional int32 max_results = 2 [
-    (buf.validate.field).int32.gt = 0,
-    (buf.validate.field).int32.lt = 1000,
+    (buf.validate.field).int32 = {
+      gt: 0
+      lte: 1000
+    },
     (google.api.field_behavior) = OPTIONAL
   ];
 
@@ -107,7 +109,7 @@ message UpdateCatalogRequest {
   map<string, string> properties = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Name of catalog.
-  string new_name = 5 [
+  optional string new_name = 5 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
     (google.api.field_behavior) = OPTIONAL

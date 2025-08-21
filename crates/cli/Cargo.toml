@@ -32,7 +32,10 @@ url = { workspace = true }
 
 # crates.io dependencies (in alphabetical order)
 clap = { version = "4.5", features = ["derive", "env"] }
+comfy-table = "7.1"
+console = "0.15"
 futures = "0.3"
+indicatif = "0.17"
 serde_yml = { version = "0.0.12" }
 swagger-ui-dist = { version = "5.18.3" }
 tokio = { version = "1", features = ["full"] }

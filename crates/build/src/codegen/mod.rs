@@ -64,7 +64,7 @@ pub struct GenerationPlan {
 }
 
 /// Plan for generating code for a single service
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ServicePlan {
     /// Service name (e.g., "CatalogsService")
     pub service_name: String,
@@ -77,7 +77,7 @@ pub struct ServicePlan {
 }
 
 /// Plan for generating code for a single method
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MethodPlan {
     /// Original method metadata
     pub metadata: MethodMetadata,
@@ -99,7 +99,7 @@ pub struct MethodPlan {
 }
 
 /// A path parameter in a URL template
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PathParam {
     /// Template parameter name (e.g., "name" from "/catalogs/{name}")
     pub template_param: String,
@@ -110,7 +110,7 @@ pub struct PathParam {
 }
 
 /// A query parameter for HTTP requests
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct QueryParam {
     /// Parameter name
     pub name: String,
@@ -121,7 +121,7 @@ pub struct QueryParam {
 }
 
 /// A body field that should be extracted from request body
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BodyField {
     /// Field name
     pub name: String,

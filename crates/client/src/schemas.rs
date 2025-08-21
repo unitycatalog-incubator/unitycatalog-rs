@@ -1,16 +1,16 @@
-use std::collections::HashMap;
-
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use unitycatalog_common::models::schemas::v1::*;
-use unitycatalog_common::models::tables::v1::{
-    ColumnInfo, CreateTableRequest, DataSourceFormat, TableInfo, TableType,
-};
+use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableType};
 
 use super::tables::{TableClient, TableClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::schemas::SchemaClient as SchemaClientBase;
+use crate::codegen::schemas::builders::{
+    CreateSchemaBuilder, GetSchemaBuilder, UpdateSchemaBuilder,
+};
+use crate::codegen::tables::builders::CreateTableBuilder;
 
 impl SchemaClientBase {
     pub fn list(
@@ -22,7 +22,7 @@ impl SchemaClientBase {
         let catalog_name = catalog_name.into();
         stream_paginated(
             (catalog_name, max_results),
-            move |(catalog_name, max_results), page_token| async move {
+            move |(catalog_name, mut max_results), page_token| async move {
                 let request = ListSchemasRequest {
                     catalog_name: catalog_name.clone(),
                     max_results,
@@ -30,6 +30,15 @@ impl SchemaClientBase {
                     include_browse: None,
                 };
                 let res = self.list_schemas(&request).await?;
+
+                // Update max_results for next page based on items received
+                if let Some(ref mut remaining) = max_results {
+                    *remaining -= res.schemas.len() as i32;
+                    if *remaining <= 0 {
+                        max_results = Some(0);
+                    }
+                }
+
                 Ok((
                     res.schemas,
                     (catalog_name, max_results),
@@ -70,67 +79,46 @@ impl SchemaClient {
         )
     }
 
-    pub(super) async fn create(&self, comment: Option<impl ToString>) -> Result<SchemaInfo> {
-        let request = CreateSchemaRequest {
-            catalog_name: self.catalog_name.clone(),
-            name: self.schema_name.clone(),
-            comment: comment.map(|s| s.to_string()),
-            ..Default::default()
-        };
-        self.client.create_schema(&request).await
+    /// Create a new schema using the builder pattern.
+    pub fn create(&self) -> CreateSchemaBuilder {
+        CreateSchemaBuilder::new(self.client.clone(), &self.schema_name, &self.catalog_name)
     }
 
-    /// Create a new table in this schema.
-    pub async fn create_table(
+    /// Create a new table in this schema using the builder pattern.
+    pub fn create_table(
         &self,
         name: impl ToString,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: Vec<ColumnInfo>,
-        storage_location: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        properties: impl Into<Option<HashMap<String, String>>>,
-    ) -> Result<TableInfo> {
-        let request = CreateTableRequest {
-            name: name.to_string(),
-            schema_name: self.schema_name.clone(),
-            catalog_name: self.catalog_name.clone(),
-            table_type: table_type as i32,
-            data_source_format: data_source_format as i32,
-            columns,
-            storage_location: storage_location.map(|s| s.to_string()),
-            comment: comment.map(|c| c.to_string()),
-            properties: properties.into().unwrap_or_default(),
-        };
+    ) -> CreateTableBuilder {
         let tables_client = super::tables::TableClientBase::new(
             self.client.client.clone(),
             self.client.base_url.clone(),
         );
-        tables_client.create_table(&request).await
+        CreateTableBuilder::new(
+            tables_client,
+            name.to_string(),
+            &self.schema_name,
+            &self.catalog_name,
+            table_type,
+            data_source_format,
+        )
     }
 
-    pub async fn get(&self) -> Result<SchemaInfo> {
-        let request = GetSchemaRequest {
-            full_name: format!("{}.{}", self.catalog_name, self.schema_name),
-        };
-        self.client.get_schema(&request).await
+    /// Get a schema using the builder pattern.
+    pub fn get(&self) -> GetSchemaBuilder {
+        GetSchemaBuilder::new(
+            self.client.clone(),
+            format!("{}.{}", self.catalog_name, self.schema_name),
+        )
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        properties: impl Into<Option<HashMap<String, String>>>,
-    ) -> Result<SchemaInfo> {
-        let request = UpdateSchemaRequest {
-            full_name: format!("{}.{}", self.catalog_name, self.schema_name),
-            new_name: new_name
-                .map(|s| s.to_string())
-                .unwrap_or_else(|| self.schema_name.clone()),
-            comment: comment.map(|s| s.to_string()),
-            properties: properties.into().unwrap_or_default(),
-        };
-        self.client.update_schema(&request).await
+    /// Update this schema using the builder pattern.
+    pub fn update(&self) -> UpdateSchemaBuilder {
+        UpdateSchemaBuilder::new(
+            self.client.clone(),
+            format!("{}.{}", self.catalog_name, self.schema_name),
+        )
     }
 
     pub async fn delete(&self, force: impl Into<Option<bool>>) -> Result<()> {

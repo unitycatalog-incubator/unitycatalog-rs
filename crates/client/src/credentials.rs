@@ -5,6 +5,9 @@ use unitycatalog_common::models::credentials::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
+use crate::codegen::credentials::builders::{
+    CreateCredentialBuilder, GetCredentialBuilder, UpdateCredentialBuilder,
+};
 
 impl CredentialClientBase {
     pub fn list(
@@ -14,13 +17,22 @@ impl CredentialClientBase {
     ) -> BoxStream<'_, Result<CredentialInfo>> {
         let max_results = max_results.into();
         let purpose = purpose.map(|p| p as i32);
-        stream_paginated(max_results, move |max_results, page_token| async move {
+        stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListCredentialsRequest {
                 max_results,
                 page_token,
                 purpose,
             };
             let res = self.list_credentials(&request).await?;
+
+            // Update max_results for next page based on items received
+            if let Some(ref mut remaining) = max_results {
+                *remaining -= res.credentials.len() as i32;
+                if *remaining <= 0 {
+                    max_results = Some(0);
+                }
+            }
+
             Ok((res.credentials, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
@@ -43,48 +55,19 @@ impl CredentialClient {
         }
     }
 
-    pub(super) async fn create(
-        &self,
-        purpose: Purpose,
-        comment: Option<impl ToString>,
-    ) -> Result<CredentialInfo> {
-        let request = CreateCredentialRequest {
-            name: self.name.clone(),
-            purpose: purpose.into(),
-            comment: comment.map(|s| s.to_string()),
-            ..Default::default()
-        };
-        self.client.create_credential(&request).await
+    /// Create a new credential using the builder pattern.
+    pub fn create(&self, purpose: Purpose) -> CreateCredentialBuilder {
+        CreateCredentialBuilder::new(self.client.clone(), &self.name, purpose)
     }
 
-    pub async fn get(&self) -> Result<CredentialInfo> {
-        let request = GetCredentialRequest {
-            name: self.name.clone(),
-        };
-        self.client.get_credential(&request).await
+    /// Get a credential using the builder pattern.
+    pub fn get(&self) -> GetCredentialBuilder {
+        GetCredentialBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-        read_only: Option<bool>,
-        skip_validation: Option<bool>,
-        force: Option<bool>,
-        credential: Option<update_credential_request::Credential>,
-    ) -> Result<CredentialInfo> {
-        let request = UpdateCredentialRequest {
-            name: self.name.clone(),
-            new_name: new_name.map(|s| s.to_string()),
-            comment: comment.map(|s| s.to_string()),
-            owner: owner.map(|s| s.to_string()),
-            read_only,
-            skip_validation,
-            force,
-            credential,
-        };
-        self.client.update_credential(&request).await
+    /// Update this credential using the builder pattern.
+    pub fn update(&self) -> UpdateCredentialBuilder {
+        UpdateCredentialBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self) -> Result<()> {
