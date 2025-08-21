@@ -97,9 +97,7 @@ pub async fn handle_client(
                 println!("List catalogs: {catalogs:?}");
             }
             Some(CatalogCommands::Create { name }) => {
-                let catalog = client
-                    .create_catalog(name, None::<String>, None::<String>, None)
-                    .await?;
+                let catalog = client.create_catalog(name).await?;
                 println!("Create catalog: {catalog:?}");
             }
             Some(CatalogCommands::Get { name }) => {

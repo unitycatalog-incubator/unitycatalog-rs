@@ -6,8 +6,8 @@ use super::schemas::{SchemaClient, SchemaClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::catalogs::CatalogClient as CatalogClientBase;
-use crate::codegen::catalogs::builders::UpdateCatalogBuilder;
-use crate::codegen::schemas::builders::CreateSchemaBuilder;
+use crate::codegen::catalogs::UpdateCatalogBuilder;
+use crate::codegen::schemas::CreateSchemaBuilder;
 
 impl CatalogClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<CatalogInfo>> {

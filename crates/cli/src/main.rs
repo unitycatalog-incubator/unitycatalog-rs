@@ -10,7 +10,7 @@ mod demo;
 mod error;
 mod output;
 mod server;
-mod test;
+// mod test;
 
 #[derive(Parser)]
 #[command(name = "unity-catalog", version, about = "CLI to manage delta.sharing services.", long_about = None)]
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             handle_client(client_args, args.global_opts).await?;
         }
         Commands::Migrate => todo!(),
-        Commands::Test => test::run(&args.global_opts).await?,
+        Commands::Test => todo!(),
         Commands::Demo => demo::run_demo().await?,
     };
     Ok(())

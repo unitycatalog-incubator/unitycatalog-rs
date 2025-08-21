@@ -105,7 +105,7 @@ impl VolumeClient {
 
     /// Update this volume using the builder pattern.
     pub fn update(&self) -> UpdateVolumeBuilder {
-        UpdateVolumeBuilder::new(self.client.clone(), &self.full_name())
+        UpdateVolumeBuilder::new(self.client.clone(), self.full_name())
     }
 
     pub async fn delete(&self) -> Result<()> {

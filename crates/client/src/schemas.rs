@@ -114,7 +114,7 @@ impl SchemaClient {
     pub fn update(&self) -> UpdateSchemaBuilder {
         UpdateSchemaBuilder::new(
             self.client.clone(),
-            &format!("{}.{}", self.catalog_name, self.schema_name),
+            format!("{}.{}", self.catalog_name, self.schema_name),
         )
     }
 
