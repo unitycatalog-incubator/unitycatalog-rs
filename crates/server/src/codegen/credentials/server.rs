@@ -1,10 +1,10 @@
 #![allow(unused_mut)]
-use super::handler::CredentialHandler;
-use crate::api::RequestContext;
-use crate::policy::Recipient;
-use axum::extract::{Extension, State};
 use unitycatalog_common::Result;
+use crate::api::RequestContext;
 use unitycatalog_common::models::credentials::v1::*;
+use super::handler::CredentialHandler;
+use crate::policy::Recipient;
+use axum::extract::{State, Extension};
 pub async fn list_credentials_handler<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,

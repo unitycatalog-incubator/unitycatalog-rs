@@ -1,10 +1,10 @@
 #![allow(unused_mut)]
-use super::handler::CatalogHandler;
-use crate::api::RequestContext;
-use crate::policy::Recipient;
-use axum::extract::{Extension, State};
 use unitycatalog_common::Result;
+use crate::api::RequestContext;
 use unitycatalog_common::models::catalogs::v1::*;
+use super::handler::CatalogHandler;
+use crate::policy::Recipient;
+use axum::extract::{State, Extension};
 pub async fn list_catalogs_handler<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,

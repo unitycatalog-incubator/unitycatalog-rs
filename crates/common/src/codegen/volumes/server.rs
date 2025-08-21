@@ -19,13 +19,15 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListVolumesRequest {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
-            catalog_name,
-            schema_name,
-            max_results,
-            page_token,
-            include_browse,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(
+            QueryParams {
+                catalog_name,
+                schema_name,
+                max_results,
+                page_token,
+                include_browse,
+            },
+        ) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(ListVolumesRequest {
             catalog_name,
             schema_name,
@@ -54,14 +56,17 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetVolumeRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { include_browse }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { include_browse }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(GetVolumeRequest {
             name,
             include_browse,
@@ -84,8 +89,12 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateVolumeRequest {
             .extract()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
-        let (new_name, comment, owner, include_browse) =
-            (body.new_name, body.comment, body.owner, body.include_browse);
+        let (new_name, comment, owner, include_browse) = (
+            body.new_name,
+            body.comment,
+            body.owner,
+            body.include_browse,
+        );
         Ok(UpdateVolumeRequest {
             name,
             new_name,
@@ -101,7 +110,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteVolumeRequest 
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(DeleteVolumeRequest { name })
     }
 }

@@ -1,19 +1,17 @@
 #![allow(unused_mut)]
-use super::handler::TemporaryCredentialHandler;
-use crate::api::RequestContext;
-use crate::policy::Recipient;
-use axum::extract::{Extension, State};
 use unitycatalog_common::Result;
+use crate::api::RequestContext;
 use unitycatalog_common::models::temporary_credentials::v1::*;
+use super::handler::TemporaryCredentialHandler;
+use crate::policy::Recipient;
+use axum::extract::{State, Extension};
 pub async fn generate_temporary_table_credentials_handler<T: TemporaryCredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GenerateTemporaryTableCredentialsRequest,
 ) -> Result<::axum::Json<TemporaryCredential>> {
     let context = RequestContext { recipient };
-    let result = handler
-        .generate_temporary_table_credentials(request, context)
-        .await?;
+    let result = handler.generate_temporary_table_credentials(request, context).await?;
     Ok(axum::Json(result))
 }
 pub async fn generate_temporary_path_credentials_handler<T: TemporaryCredentialHandler>(
@@ -22,8 +20,6 @@ pub async fn generate_temporary_path_credentials_handler<T: TemporaryCredentialH
     request: GenerateTemporaryPathCredentialsRequest,
 ) -> Result<::axum::Json<TemporaryCredential>> {
     let context = RequestContext { recipient };
-    let result = handler
-        .generate_temporary_path_credentials(request, context)
-        .await?;
+    let result = handler.generate_temporary_path_credentials(request, context).await?;
     Ok(axum::Json(result))
 }

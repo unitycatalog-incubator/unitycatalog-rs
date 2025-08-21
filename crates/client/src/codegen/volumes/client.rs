@@ -1,8 +1,8 @@
 #![allow(unused_mut)]
-use crate::error::Result;
 use cloud_client::CloudClient;
-use unitycatalog_common::models::volumes::v1::*;
 use url::Url;
+use crate::error::Result;
+use unitycatalog_common::models::volumes::v1::*;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct VolumeClient {
@@ -17,30 +17,33 @@ impl VolumeClient {
         }
         Self { client, base_url }
     }
-    pub async fn list_volumes(&self, request: &ListVolumesRequest) -> Result<ListVolumesResponse> {
+    pub async fn list_volumes(
+        &self,
+        request: &ListVolumesRequest,
+    ) -> Result<ListVolumesResponse> {
         let mut url = self.base_url.join("volumes")?;
         url.query_pairs_mut()
             .append_pair("catalog_name", &request.catalog_name.to_string());
         url.query_pairs_mut()
             .append_pair("schema_name", &request.schema_name.to_string());
         if let Some(ref value) = request.max_results {
-            url.query_pairs_mut()
-                .append_pair("max_results", &value.to_string());
+            url.query_pairs_mut().append_pair("max_results", &value.to_string());
         }
         if let Some(ref value) = request.page_token {
-            url.query_pairs_mut()
-                .append_pair("page_token", &value.to_string());
+            url.query_pairs_mut().append_pair("page_token", &value.to_string());
         }
         if let Some(ref value) = request.include_browse {
-            url.query_pairs_mut()
-                .append_pair("include_browse", &value.to_string());
+            url.query_pairs_mut().append_pair("include_browse", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_volume(&self, request: &CreateVolumeRequest) -> Result<VolumeInfo> {
+    pub async fn create_volume(
+        &self,
+        request: &CreateVolumeRequest,
+    ) -> Result<VolumeInfo> {
         let mut url = self.base_url.join("volumes")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -51,15 +54,17 @@ impl VolumeClient {
         let formatted_path = format!("volumes/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_browse {
-            url.query_pairs_mut()
-                .append_pair("include_browse", &value.to_string());
+            url.query_pairs_mut().append_pair("include_browse", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn update_volume(&self, request: &UpdateVolumeRequest) -> Result<VolumeInfo> {
+    pub async fn update_volume(
+        &self,
+        request: &UpdateVolumeRequest,
+    ) -> Result<VolumeInfo> {
         let formatted_path = format!("volumes/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;

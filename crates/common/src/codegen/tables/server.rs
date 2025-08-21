@@ -22,14 +22,16 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTableSummariesRe
             #[serde(default)]
             include_manifest_capabilities: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
-            catalog_name,
-            schema_name_pattern,
-            table_name_pattern,
-            max_results,
-            page_token,
-            include_manifest_capabilities,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(
+            QueryParams {
+                catalog_name,
+                schema_name_pattern,
+                table_name_pattern,
+                max_results,
+                page_token,
+                include_manifest_capabilities,
+            },
+        ) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(ListTableSummariesRequest {
             catalog_name,
             schema_name_pattern,
@@ -67,18 +69,20 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             #[serde(default)]
             include_manifest_capabilities: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
-            schema_name,
-            catalog_name,
-            max_results,
-            page_token,
-            include_delta_metadata,
-            omit_columns,
-            omit_properties,
-            omit_username,
-            include_browse,
-            include_manifest_capabilities,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(
+            QueryParams {
+                schema_name,
+                catalog_name,
+                max_results,
+                page_token,
+                include_delta_metadata,
+                omit_columns,
+                omit_properties,
+                omit_username,
+                include_browse,
+                include_manifest_capabilities,
+            },
+        ) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(ListTablesRequest {
             schema_name,
             catalog_name,
@@ -112,7 +116,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(full_name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -122,11 +128,13 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableRequest {
             #[serde(default)]
             include_manifest_capabilities: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
-            include_delta_metadata,
-            include_browse,
-            include_manifest_capabilities,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(
+            QueryParams {
+                include_delta_metadata,
+                include_browse,
+                include_manifest_capabilities,
+            },
+        ) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(GetTableRequest {
             full_name,
             include_delta_metadata,
@@ -141,7 +149,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableExistsReques
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(full_name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(GetTableExistsRequest { full_name })
     }
 }
@@ -151,7 +161,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteTableRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(full_name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(DeleteTableRequest { full_name })
     }
 }

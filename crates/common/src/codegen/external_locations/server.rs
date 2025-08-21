@@ -2,7 +2,8 @@
 use crate::Result;
 use crate::models::external_locations::v1::*;
 use axum::{RequestExt, RequestPartsExt};
-impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListExternalLocationsRequest {
+impl<S: Send + Sync> axum::extract::FromRequestParts<S>
+for ListExternalLocationsRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
@@ -17,11 +18,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListExternalLocation
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-            include_browse,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(
+            QueryParams { max_results, page_token, include_browse },
+        ) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(ListExternalLocationsRequest {
             max_results,
             page_token,
@@ -48,7 +47,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetExternalLocationR
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(GetExternalLocationRequest { name })
     }
 }
@@ -64,12 +65,20 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateExternalLocationReq
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
-        let axum::extract::Json::<UpdateExternalLocationRequest>(body) =
-            body_req
-                .extract()
-                .await
-                .map_err(axum::response::IntoResponse::into_response)?;
-        let (url, credential_name, read_only, owner, comment, new_name, force, skip_validation) = (
+        let axum::extract::Json::<UpdateExternalLocationRequest>(body) = body_req
+            .extract()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
+        let (
+            url,
+            credential_name,
+            read_only,
+            owner,
+            comment,
+            new_name,
+            force,
+            skip_validation,
+        ) = (
             body.url,
             body.credential_name,
             body.read_only,
@@ -92,20 +101,27 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateExternalLocationReq
         })
     }
 }
-impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteExternalLocationRequest {
+impl<S: Send + Sync> axum::extract::FromRequestParts<S>
+for DeleteExternalLocationRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
-        Ok(DeleteExternalLocationRequest { name, force })
+        let axum::extract::Query(QueryParams { force }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
+        Ok(DeleteExternalLocationRequest {
+            name,
+            force,
+        })
     }
 }

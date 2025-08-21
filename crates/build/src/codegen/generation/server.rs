@@ -512,18 +512,21 @@ mod tests {
                     field_type: "TYPE_STRING".to_string(),
                     optional: false,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "catalog".to_string(),
                     field_type: "TYPE_MESSAGE:.unitycatalog.CatalogInfo".to_string(),
                     optional: false,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "force".to_string(),
                     field_type: "TYPE_BOOL".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
             ],
         };
@@ -581,24 +584,28 @@ mod tests {
                     field_type: "TYPE_INT32".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "page_token".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "parent".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: false,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "include_browse".to_string(),
                     field_type: "TYPE_BOOL".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
             ],
         };
@@ -686,12 +693,14 @@ mod tests {
                     field_type: "TYPE_STRING".to_string(),
                     optional: false,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "name_pattern".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
             ],
         };
@@ -781,24 +790,28 @@ mod tests {
                     field_type: "TYPE_STRING".to_string(),
                     optional: false, // Required field
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "schema_name".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: false, // Required field
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "max_results".to_string(),
                     field_type: "TYPE_INT32".to_string(),
                     optional: true, // Optional field
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "page_token".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: true, // Optional field
                     oneof_name: None,
+                    repeated: false,
                 },
             ],
         };
@@ -885,31 +898,35 @@ mod tests {
                     field_type: "TYPE_STRING".to_string(),
                     optional: false,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "schema_name".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: false,
                     oneof_name: None,
+                    repeated: false,
                 },
-                // These should be optional (with proto3_optional flag)
                 MessageField {
                     name: "max_results".to_string(),
                     field_type: "TYPE_INT32".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "page_token".to_string(),
                     field_type: "TYPE_STRING".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
                 MessageField {
                     name: "include_history".to_string(),
                     field_type: "TYPE_BOOL".to_string(),
                     optional: true,
                     oneof_name: None,
+                    repeated: false,
                 },
             ],
         };

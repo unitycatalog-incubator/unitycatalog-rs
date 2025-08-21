@@ -15,10 +15,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCatalogsRequest 
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(ListCatalogsRequest {
             max_results,
             page_token,
@@ -44,14 +43,17 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetCatalogRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { include_browse }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { include_browse }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(GetCatalogRequest {
             name,
             include_browse,
@@ -74,8 +76,12 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCatalogRequest {
             .extract()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
-        let (owner, comment, properties, new_name) =
-            (body.owner, body.comment, body.properties, body.new_name);
+        let (owner, comment, properties, new_name) = (
+            body.owner,
+            body.comment,
+            body.properties,
+            body.new_name,
+        );
         Ok(UpdateCatalogRequest {
             name,
             owner,
@@ -91,14 +97,20 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteCatalogRequest
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
-        Ok(DeleteCatalogRequest { name, force })
+        let axum::extract::Query(QueryParams { force }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
+        Ok(DeleteCatalogRequest {
+            name,
+            force,
+        })
     }
 }

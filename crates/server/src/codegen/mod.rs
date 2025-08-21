@@ -1,10 +1,10 @@
-pub mod catalogs;
-pub mod credentials;
-pub mod external_locations;
-pub mod recipients;
 pub mod schemas;
+pub mod external_locations;
+pub mod catalogs;
+pub mod recipients;
 pub mod shares;
-pub mod sharing;
-pub mod tables;
 pub mod temporary_credentials;
+pub mod credentials;
 pub mod volumes;
+pub mod tables;
+pub mod sharing;

@@ -79,6 +79,12 @@ fn process_message(
             protobuf::descriptor::field_descriptor_proto::Label::LABEL_REQUIRED => false,
         };
 
+        // Check if this is a repeated field
+        let is_repeated = matches!(
+            field.label(),
+            protobuf::descriptor::field_descriptor_proto::Label::LABEL_REPEATED
+        );
+
         // Check if this field belongs to a oneof group
         if field.has_oneof_index() {
             let oneof_index = field.oneof_index() as usize;
@@ -97,10 +103,13 @@ fn process_message(
         }
 
         // Add regular field (including proto3_optional fields)
+        let field_type_str = format_field_type(field);
+
         let field_info = MessageField {
             name: field.name().to_string(),
-            field_type: format_field_type(field),
+            field_type: field_type_str,
             optional: is_optional,
+            repeated: is_repeated,
             oneof_name: None,
         };
         fields.push(field_info);
@@ -120,6 +129,7 @@ fn process_message(
             name: oneof_name,
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
             optional: true,   // oneof fields are always optional (Option<enum>)
+            repeated: false,  // oneof fields are never repeated
             oneof_name: None, // This is the oneof field itself, not a member
         };
 

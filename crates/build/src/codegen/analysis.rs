@@ -257,12 +257,14 @@ mod tests {
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "force".to_string(),
                 field_type: "TYPE_BOOL".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
         ];
 
@@ -320,18 +322,21 @@ mod tests {
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "share".to_string(), // This appears first in URL
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "schema".to_string(), // This appears second in URL
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
         ];
 
@@ -383,18 +388,21 @@ mod tests {
                 field_type: "TYPE_INT32".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "page_token".to_string(),
                 field_type: "TYPE_STRING".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "purpose".to_string(),
                 field_type: "TYPE_ENUM:.unitycatalog.credentials.v1.Purpose".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
         ];
 
@@ -435,36 +443,42 @@ mod tests {
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "purpose".to_string(),
                 field_type: "TYPE_ENUM:.unitycatalog.credentials.v1.Purpose".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "comment".to_string(),
                 field_type: "TYPE_STRING".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "read_only".to_string(),
                 field_type: "TYPE_BOOL".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "skip_validation".to_string(),
                 field_type: "TYPE_BOOL".to_string(),
                 optional: false,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "credential".to_string(),
                 field_type: "TYPE_ONEOF:createcredentialrequest::Credential".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
         ];
 
@@ -529,12 +543,14 @@ mod tests {
                 field_type: "TYPE_INT32".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "page_token".to_string(),
                 field_type: "TYPE_STRING".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
         ];
 
@@ -544,12 +560,14 @@ mod tests {
                 field_type: "TYPE_INT32".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
             MessageField {
                 name: "page_token".to_string(),
                 field_type: "TYPE_STRING".to_string(),
                 optional: true,
                 oneof_name: None,
+                repeated: false,
             },
         ];
 

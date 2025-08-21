@@ -200,8 +200,8 @@ pub struct CreateCredentialRequest {
     #[prost(bool, optional, tag="4")]
     pub read_only: ::core::option::Option<bool>,
     /// Supplying true to this argument skips validation of the created set of credentials.
-    #[prost(bool, tag="5")]
-    pub skip_validation: bool,
+    #[prost(bool, optional, tag="5")]
+    pub skip_validation: ::core::option::Option<bool>,
     #[prost(oneof="create_credential_request::Credential", tags="100, 101, 102")]
     pub credential: ::core::option::Option<create_credential_request::Credential>,
 }

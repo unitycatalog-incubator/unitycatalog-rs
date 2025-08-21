@@ -1,6 +1,6 @@
-use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::Result;
+use crate::api::RequestContext;
 use unitycatalog_common::models::sharing::v1::*;
 #[async_trait]
 pub trait SharingHandler: Send + Sync + 'static {
@@ -9,7 +9,11 @@ pub trait SharingHandler: Send + Sync + 'static {
         request: ListSharesRequest,
         context: RequestContext,
     ) -> Result<ListSharesResponse>;
-    async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share>;
+    async fn get_share(
+        &self,
+        request: GetShareRequest,
+        context: RequestContext,
+    ) -> Result<Share>;
     async fn list_sharing_schemas(
         &self,
         request: ListSharingSchemasRequest,

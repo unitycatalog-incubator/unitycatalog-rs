@@ -15,10 +15,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListRecipientsReques
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(ListRecipientsRequest {
             max_results,
             page_token,
@@ -44,7 +43,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetRecipientRequest 
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(GetRecipientRequest { name })
     }
 }
@@ -87,7 +88,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteRecipientReque
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(DeleteRecipientRequest { name })
     }
 }

@@ -41,6 +41,7 @@ Protobuf Descriptors → Parsing → Analysis → Planning → Generation → Ou
 ### Phase 4: Generation (`src/codegen/generation/`)
 - **Handler Generation** (`handler.rs`): Creates async trait definitions
 - **Client Generation** (`client.rs`): Builds HTTP client implementations with query parameter support
+- **Builder Generation** (`builder.rs`): Creates request builders with fluent API for Create/Update operations
 - **Server Generation** (`server.rs`): Generates Axum route handlers and request extractors
 
 ### Phase 5: Output (`src/codegen/output.rs`)
@@ -73,6 +74,39 @@ The utils module provides specialized functionality organized into sub-modules:
 Provides code formatting and template utilities for consistent Rust code generation.
 
 ## Generated Code Features
+
+### Request Builders
+
+Generated builders provide a fluent API for Create and Update operations, allowing for cleaner and more ergonomic code:
+
+```rust
+// Traditional verbose approach
+let request = CreateCatalogRequest {
+    name: "my_catalog".to_string(),
+    comment: Some("A catalog for my data".to_string()),
+    properties: HashMap::from([
+        ("owner".to_string(), "data_team".to_string()),
+        ("env".to_string(), "prod".to_string()),
+    ]),
+    storage_root: Some("s3://my-bucket/catalogs/".to_string()),
+    ..Default::default()
+};
+client.create_catalog(&request).await?;
+
+// With generated builders - much cleaner!
+client.create_catalog("my_catalog")
+    .with_comment("A catalog for my data")
+    .with_properties([("owner", "data_team"), ("env", "prod")])
+    .with_storage_root("s3://my-bucket/catalogs/")
+    .await?;
+```
+
+Key builder features:
+- **Required parameters** are constructor arguments
+- **Optional parameters** use fluent `with_*` methods
+- **Generic property setters** for HashMap fields accept various iterator types
+- **IntoFuture implementation** allows direct `.await` on builders
+- **Type flexibility** with `impl ToString` for string parameters
 
 ### HTTP Clients
 
@@ -171,6 +205,7 @@ output_directory/
 │   ├── mod.rs               # Service module definition
 │   ├── handler.rs           # Handler trait definition
 │   ├── client.rs            # HTTP client implementation
+│   ├── builders.rs          # Request builders (for Create/Update operations)
 │   └── server.rs            # Axum route handlers (if axum feature enabled)
 └── ...                      # Additional services
 ```

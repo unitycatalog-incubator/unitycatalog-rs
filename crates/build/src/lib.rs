@@ -35,6 +35,7 @@ pub struct MessageField {
     pub name: String,
     pub field_type: String,
     pub optional: bool,
+    pub repeated: bool,
     pub oneof_name: Option<String>,
 }
 

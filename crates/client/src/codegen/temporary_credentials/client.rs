@@ -1,8 +1,8 @@
 #![allow(unused_mut)]
-use crate::error::Result;
 use cloud_client::CloudClient;
-use unitycatalog_common::models::temporary_credentials::v1::*;
 use url::Url;
+use crate::error::Result;
+use unitycatalog_common::models::temporary_credentials::v1::*;
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct TemporaryCredentialClient {

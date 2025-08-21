@@ -15,10 +15,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(ListSharesRequest {
             max_results,
             page_token,
@@ -31,7 +30,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         Ok(GetShareRequest { name })
     }
 }
@@ -41,7 +42,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRe
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(share) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(share) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -49,10 +52,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRe
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(ListSharingSchemasRequest {
             share,
             max_results,
@@ -76,10 +78,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemaTablesRequ
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(ListSchemaTablesRequest {
             share,
             name,
@@ -94,7 +95,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesReque
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -102,10 +105,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesReque
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
-            max_results,
-            page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { max_results, page_token }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(ListShareTablesRequest {
             name,
             max_results,
@@ -127,8 +129,9 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableVersionReque
             #[serde(default)]
             starting_timestamp: Option<String>,
         }
-        let axum::extract::Query(QueryParams { starting_timestamp }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { starting_timestamp }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await?;
         Ok(GetTableVersionRequest {
             share,
             schema,
