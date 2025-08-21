@@ -14,12 +14,21 @@ impl RecipientClientBase {
         max_results: impl Into<Option<i32>>,
     ) -> BoxStream<'_, Result<RecipientInfo>> {
         let max_results = max_results.into();
-        stream_paginated(max_results, move |max_results, page_token| async move {
+        stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListRecipientsRequest {
                 max_results,
                 page_token,
             };
             let res = self.list_recipients(&request).await?;
+
+            // Update max_results for next page based on items received
+            if let Some(ref mut remaining) = max_results {
+                *remaining -= res.recipients.len() as i32;
+                if *remaining <= 0 {
+                    max_results = Some(0);
+                }
+            }
+
             Ok((res.recipients, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))

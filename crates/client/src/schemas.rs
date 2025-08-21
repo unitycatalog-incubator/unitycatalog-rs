@@ -22,7 +22,7 @@ impl SchemaClientBase {
         let catalog_name = catalog_name.into();
         stream_paginated(
             (catalog_name, max_results),
-            move |(catalog_name, max_results), page_token| async move {
+            move |(catalog_name, mut max_results), page_token| async move {
                 let request = ListSchemasRequest {
                     catalog_name: catalog_name.clone(),
                     max_results,
@@ -30,6 +30,15 @@ impl SchemaClientBase {
                     include_browse: None,
                 };
                 let res = self.list_schemas(&request).await?;
+
+                // Update max_results for next page based on items received
+                if let Some(ref mut remaining) = max_results {
+                    *remaining -= res.schemas.len() as i32;
+                    if *remaining <= 0 {
+                        max_results = Some(0);
+                    }
+                }
+
                 Ok((
                     res.schemas,
                     (catalog_name, max_results),

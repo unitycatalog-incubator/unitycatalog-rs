@@ -49,12 +49,21 @@ impl DeltaSharingClient {
 
     pub fn list_shares(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Share>> {
         let max_results = max_results.into();
-        stream_paginated(max_results, move |max_results, page_token| async move {
+        stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListSharesRequest {
                 max_results,
                 page_token,
             };
             let res = self.discovery.list_shares(&request).await?;
+
+            // Update max_results for next page based on items received
+            if let Some(ref mut remaining) = max_results {
+                *remaining -= res.items.len() as i32;
+                if *remaining <= 0 {
+                    max_results = Some(0);
+                }
+            }
+
             Ok((res.items, max_results, res.next_page_token))
         })
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
@@ -96,7 +105,7 @@ impl DeltaSharingClient {
         let max_results = max_results.into();
         stream_paginated(
             (share, max_results),
-            move |(share, max_results), page_token| async move {
+            move |(share, mut max_results), page_token| async move {
                 let request = ListSharingSchemasRequest {
                     share: share.clone(),
                     max_results,
@@ -106,6 +115,15 @@ impl DeltaSharingClient {
                     .list_share_schemas_inner(request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
+
+                // Update max_results for next page based on items received
+                if let Some(ref mut remaining) = max_results {
+                    *remaining -= res.items.len() as i32;
+                    if *remaining <= 0 {
+                        max_results = Some(0);
+                    }
+                }
+
                 Ok((res.items, (share, max_results), res.next_page_token))
             },
         )
@@ -143,7 +161,7 @@ impl DeltaSharingClient {
         let max_results = max_results.into();
         stream_paginated(
             (share, max_results),
-            move |(share, max_results), page_token| async move {
+            move |(share, mut max_results), page_token| async move {
                 let request = ListShareTablesRequest {
                     name: share.clone(),
                     max_results,
@@ -153,6 +171,15 @@ impl DeltaSharingClient {
                     .list_share_tables_inner(request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
+
+                // Update max_results for next page based on items received
+                if let Some(ref mut remaining) = max_results {
+                    *remaining -= res.items.len() as i32;
+                    if *remaining <= 0 {
+                        max_results = Some(0);
+                    }
+                }
+
                 Ok((res.items, (share, max_results), res.next_page_token))
             },
         )
@@ -193,7 +220,7 @@ impl DeltaSharingClient {
         let max_results = max_results.into();
         stream_paginated(
             (share, schema, max_results),
-            move |(share, schema, max_results), page_token| async move {
+            move |(share, schema, mut max_results), page_token| async move {
                 let request = ListSchemaTablesRequest {
                     share: share.clone(),
                     name: schema.clone(),
@@ -204,6 +231,15 @@ impl DeltaSharingClient {
                     .list_schema_tables_inner(request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
+
+                // Update max_results for next page based on items received
+                if let Some(ref mut remaining) = max_results {
+                    *remaining -= res.items.len() as i32;
+                    if *remaining <= 0 {
+                        max_results = Some(0);
+                    }
+                }
+
                 Ok((res.items, (share, schema, max_results), res.next_page_token))
             },
         )
