@@ -6,8 +6,8 @@
 //! - Write clean, maintainable journey code
 //! - Handle setup and cleanup properly
 
-pub mod simple_catalog_example;
-pub use simple_catalog_example::SimpleCatalogJourney;
+pub mod simple_catalog;
+pub use simple_catalog::SimpleCatalogJourney;
 
 use crate::simple_journey::UserJourney;
 

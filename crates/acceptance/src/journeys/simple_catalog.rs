@@ -13,6 +13,7 @@ use crate::simple_journey::{JourneyRecorder, UserJourney};
 /// A simple catalog journey that creates, reads, and deletes a catalog
 pub struct SimpleCatalogJourney {
     catalog_name: String,
+    storage_root: String,
 }
 
 impl SimpleCatalogJourney {
@@ -21,6 +22,7 @@ impl SimpleCatalogJourney {
         let timestamp = chrono::Utc::now().timestamp();
         Self {
             catalog_name: format!("simple_catalog_{}", timestamp),
+            storage_root: "s3://open-lakehouse-dev/".to_string(),
         }
     }
 
@@ -28,6 +30,7 @@ impl SimpleCatalogJourney {
     pub fn with_catalog_name(catalog_name: impl Into<String>) -> Self {
         Self {
             catalog_name: catalog_name.into(),
+            storage_root: "s3://open-lakehouse-dev/".to_string(),
         }
     }
 
@@ -65,6 +68,7 @@ impl UserJourney for SimpleCatalogJourney {
         println!("📁 Creating catalog '{}'", self.catalog_name);
         let created_catalog = client
             .create_catalog(&self.catalog_name)
+            .with_storage_root(self.storage_root.clone())
             .with_comment(Some("Simple test catalog".to_string()))
             .await
             .map_err(|e| {
@@ -155,7 +159,7 @@ impl UserJourney for SimpleCatalogJourney {
         println!("🧹 Cleaning up simple catalog journey");
 
         // Delete the catalog
-        match client.catalog(&self.catalog_name).delete(Some(false)).await {
+        match client.catalog(&self.catalog_name).delete(Some(true)).await {
             Ok(()) => {
                 recorder
                     .record_step(
@@ -164,7 +168,7 @@ impl UserJourney for SimpleCatalogJourney {
                         &serde_json::json!({
                             "deleted": true,
                             "catalog_name": self.catalog_name,
-                            "force": false
+                            "force": true
                         }),
                     )
                     .await?;

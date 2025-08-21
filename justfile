@@ -95,19 +95,29 @@ update-openapi:
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
 
-develop-py: develop-py-client
+# build python bindings
+[group('build')]
+build-py: build-py-client
 
-develop-py-client:
+# build python client bindings
+[group('build')]
+build-py-client:
     uv run maturin develop --uv \
       --manifest-path python/client/Cargo.toml
 
-develop-py-server:
+# build python server bindings
+[group('build')]
+build-py-server:
     uv run maturin develop --uv \
       --manifest-path crates/cli/Cargo.toml
 
+# build node bindings
+[group('build')]
 build-node:
     npm run build -w @unitycatalog/client
 
+# build node bindings
+[group('build')]
 build-docker:
     docker build -f docker/Dockerfile -t unitycatalog-rs:dev .
 
@@ -117,3 +127,12 @@ notebook:
 
 test-api:
     UC_SERVER_URL="http://localhost:8080/api/2.1/unity-catalog/" cargo run -p unitycatalog-cli -- test
+
+[group('test')]
+record-integration:
+    UC_INTEGRATION_URL="$DATABRICKS_HOST" \
+    UC_INTEGRATION_TOKEN="$DATABRICKS_TOKEN" \
+    UC_INTEGRATION_DIR="{{ justfile_directory() }}/test_data/recordings" \
+    UC_INTEGRATION_STORAGE_ROOT="$DATABRICKS_STORAGE_ROOT" \
+    UC_INTEGRATION_RECORD="true" \
+    cargo run --bin unitycatalog-acceptance

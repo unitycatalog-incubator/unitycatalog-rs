@@ -8,6 +8,7 @@
 
 use async_trait::async_trait;
 use serde_json::Value;
+use url::Url;
 
 use std::path::{Path, PathBuf};
 use tokio::fs;
@@ -346,23 +347,25 @@ pub struct JourneyConfig {
     pub server_url: String,
     pub auth_token: Option<String>,
     pub timeout_seconds: u64,
+    pub storage_root: String,
 }
 
 impl Default for JourneyConfig {
     fn default() -> Self {
         Self {
-            recording_enabled: std::env::var("RECORD_JOURNEY_RESPONSES").unwrap_or_default()
-                == "true",
-            output_dir: std::env::var("JOURNEY_RECORDING_DIR")
+            recording_enabled: std::env::var("UC_INTEGRATION_RECORD").unwrap_or_default() == "true",
+            output_dir: std::env::var("UC_INTEGRATION_DIR")
                 .unwrap_or_else(|_| "test_data/recordings".to_string())
                 .into(),
-            server_url: std::env::var("UC_SERVER_URL")
+            server_url: std::env::var("UC_INTEGRATION_URL")
                 .unwrap_or_else(|_| "http://localhost:8080".to_string()),
-            auth_token: std::env::var("UC_AUTH_TOKEN").ok(),
+            auth_token: std::env::var("UC_INTEGRATION_TOKEN").ok(),
             timeout_seconds: std::env::var("REQUEST_TIMEOUT_SECS")
                 .unwrap_or_else(|_| "30".to_string())
                 .parse()
                 .unwrap_or(30),
+            storage_root: std::env::var("UC_INTEGRATION_STORAGE_ROOT")
+                .unwrap_or_else(|_| "s3://open-lakehouse-dev/".to_string()),
         }
     }
 }
@@ -370,9 +373,10 @@ impl Default for JourneyConfig {
 impl JourneyConfig {
     /// Create client from configuration
     pub fn create_client(&self) -> AcceptanceResult<UnityCatalogClient> {
-        let base_url = self.server_url.parse().map_err(|e| {
+        let base_url: Url = self.server_url.parse().map_err(|e| {
             AcceptanceError::JourneyValidation(format!("Invalid server URL: {}", e))
         })?;
+        let base_url = base_url.join("/api/2.1/unity-catalog").unwrap();
 
         let client = if let Some(ref token) = self.auth_token {
             UnityCatalogClient::new_with_token(base_url, token)
