@@ -1,70 +1,69 @@
 //! Unity Catalog Acceptance Testing Framework
 //!
-//! This crate provides a comprehensive framework for testing Unity Catalog workflows
-//! through user journeys. It supports both mock testing for fast feedback and
-//! integration testing against real Unity Catalog deployments.
+//! This crate provides a simplified framework for testing Unity Catalog workflows
+//! through user journeys written in Rust. The framework emphasizes type safety,
+//! ease of use, and automatic response recording.
 //!
 //! ## Features
 //!
-//! - **Journey-based Testing**: Define multi-step workflows in JSON format
-//! - **Variable Substitution**: Pass data between steps using extracted variables
-//! - **Dependency Management**: Automatic step ordering based on dependencies
-//! - **Mock Server Support**: Fast testing with configurable mock responses
-//! - **Response Recording**: Capture real server responses for test data
+//! - **Type-safe Journeys**: Write journeys in Rust using the actual UnityCatalogClient
+//! - **Automatic Recording**: Capture server responses for later comparison and mocking
+//! - **Simple API**: Clean trait-based interface for defining test workflows
 //! - **Integration Testing**: Execute against live Unity Catalog instances
+//! - **Organized Output**: Responses saved as numbered files for easy review
 //!
 //! ## Quick Start
 //!
 //! ```rust
 //! use unitycatalog_acceptance::{
-//!     journey::{JourneyExecutor, JourneyLoader},
-//!     mock::TestServer,
+//!     AcceptanceResult,
+//!     simple_journey::{JourneyConfig, SimpleJourney, SimpleJourneyExecutor},
 //! };
-//! use std::collections::HashMap;
+//! use async_trait::async_trait;
+//!
+//! struct MyJourney;
+//!
+//! #[async_trait]
+//! impl SimpleJourney for MyJourney {
+//!     fn name(&self) -> &str { "my_test_journey" }
+//!     fn description(&self) -> &str { "Tests catalog operations" }
+//!
+//!     async fn execute(
+//!         &self,
+//!         client: &unitycatalog_client::UnityCatalogClient,
+//!         recorder: &mut unitycatalog_acceptance::simple_journey::JourneyRecorder,
+//!     ) -> AcceptanceResult<()> {
+//!         // Use the actual client to perform operations
+//!         let catalogs = client.list_catalogs(None, None).await?;
+//!         recorder.record_step("list_catalogs", "List all catalogs", &catalogs).await?;
+//!         Ok(())
+//!     }
+//! }
 //!
 //! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Load a journey definition
-//!     let journey = JourneyLoader::load_journey("catalog_lifecycle.json")?;
+//! async fn main() -> AcceptanceResult<()> {
+//!     let config = JourneyConfig::default();
+//!     let executor = config.create_executor()?;
+//!     let journey = MyJourney;
 //!
-//!     // Set up test environment
-//!     let server = TestServer::new().await;
-//!     let client = server.create_client();
-//!
-//!     // Execute the journey
-//!     let mut executor = JourneyExecutor::new(client, Some(server))
-//!         .with_variables(HashMap::new());
-//!
-//!     let result = executor.execute_journey(journey).await;
-//!     assert!(result.success);
-//!
+//!     let result = executor.execute_journey(&journey).await?;
+//!     assert!(result.is_success());
 //!     Ok(())
 //! }
 //! ```
 //!
 //! ## Module Organization
 //!
-//! - [`journey`] - Core journey execution engine and data structures
-//! - [`recorder`] - Response recording for integration testing
-//! - [`mock`] - Mock server utilities and test fixtures
-//! - [`models`] - Shared data models and utilities
-//! - [`assertions`] - Common assertion helpers for testing
+//! - [`simple_journey`] - Core journey framework with traits and execution logic
+//! - [`journeys`] - Example journey implementations
 
-pub mod assertions;
-pub mod journey;
-pub mod mock;
-pub mod models;
-pub mod recorder;
+pub mod journeys;
+pub mod simple_journey;
 
 // Re-export commonly used types for convenience
-pub use assertions::TestAssertions;
-pub use journey::{
-    JourneyContext, JourneyExecutor, JourneyLoader, JourneyResult, JourneyStep, StepResult,
-    UserJourney,
+pub use simple_journey::{
+    JourneyConfig, JourneyExecutionResult, JourneyExecutor, JourneyRecorder, UserJourney,
 };
-pub use mock::{TestDataLoader, TestServer};
-pub use models::*;
-pub use recorder::{JourneyRecorder, RecordedResponse, RecordingConfig};
 
 /// Result type commonly used throughout the framework
 pub type AcceptanceResult<T> = Result<T, AcceptanceError>;
@@ -96,11 +95,14 @@ pub enum AcceptanceError {
     #[error("Unity Catalog client error: {0}")]
     UnityCatalog(String),
 
-    #[error("Mock server error: {0}")]
-    MockServer(String),
-
     #[error("Recording error: {0}")]
     Recording(String),
+}
+
+impl From<unitycatalog_client::Error> for AcceptanceError {
+    fn from(err: unitycatalog_client::Error) -> Self {
+        AcceptanceError::UnityCatalog(err.to_string())
+    }
 }
 
 /// Framework version information
@@ -109,8 +111,5 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Default timeout for HTTP requests in seconds
 pub const DEFAULT_REQUEST_TIMEOUT_SECS: u64 = 30;
 
-/// Default directory for journey definitions
-pub const DEFAULT_JOURNEY_DIR: &str = "journeys";
-
 /// Default directory for recorded responses
-pub const DEFAULT_RECORDING_DIR: &str = "recorded";
+pub const DEFAULT_RECORDING_DIR: &str = "test_data/recordings";
