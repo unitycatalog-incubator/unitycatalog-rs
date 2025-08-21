@@ -19,17 +19,17 @@ impl CreateCredentialBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "comment")]
+    ///Comment associated with the credential.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "read_only")]
+    ///Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
     pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
         self.request.read_only = read_only.into();
         self
     }
-    #[doc = concat!("Set ", "skip_validation")]
+    ///Supplying true to this argument skips validation of the created set of credentials.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
@@ -87,32 +87,33 @@ impl UpdateCredentialBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///Name of credential.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///Comment associated with the credential.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "read_only")]
+    ///Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
     pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
         self.request.read_only = read_only.into();
         self
     }
-    #[doc = concat!("Set ", "owner")]
+    ///Username of current owner of credential.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    #[doc = concat!("Set ", "skip_validation")]
+    ///Supply true to this argument to skip validation of the updated credential.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
     }
-    #[doc = concat!("Set ", "force")]
+    /**Force an update even if there are dependent services (when purpose is SERVICE)
+    or dependent external locations and external tables (when purpose is STORAGE).*/
     pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
         self.request.force = force.into();
         self

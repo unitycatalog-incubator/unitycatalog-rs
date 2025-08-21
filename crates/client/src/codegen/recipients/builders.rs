@@ -25,12 +25,15 @@ impl CreateRecipientBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "comment")]
+    ///Description about the recipient.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    /**Recipient properties as map of string key-value pairs.
+
+    When provided in update request, the specified properties will override the existing properties.
+    To add and remove properties, one would need to perform a read-modify-write.*/
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -43,7 +46,7 @@ impl CreateRecipientBuilder {
             .collect();
         self
     }
-    #[doc = concat!("Set ", "expiration_time")]
+    ///Expiration timestamp of the token, in epoch milliseconds.
     pub fn with_expiration_time(mut self, expiration_time: impl Into<Option<i64>>) -> Self {
         self.request.expiration_time = expiration_time.into();
         self
@@ -96,22 +99,25 @@ impl UpdateRecipientBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///New name for the recipient
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    #[doc = concat!("Set ", "owner")]
+    ///Username of the recipient owner.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///Description about the recipient.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    /**Recipient properties as map of string key-value pairs.
+
+    When provided in update request, the specified properties will override the existing properties.
+    To add and remove properties, one would need to perform a read-modify-write.*/
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -124,7 +130,7 @@ impl UpdateRecipientBuilder {
             .collect();
         self
     }
-    #[doc = concat!("Set ", "expiration_time")]
+    ///Expiration timestamp of the token, in epoch milliseconds.
     pub fn with_expiration_time(mut self, expiration_time: impl Into<Option<i64>>) -> Self {
         self.request.expiration_time = expiration_time.into();
         self

@@ -49,7 +49,9 @@ impl GetTableVersionBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "starting_timestamp")]
+    /**The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,
+    such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
+    or after the provided timestamp, can be earlier than the timestamp of table version 0.*/
     pub fn with_starting_timestamp(
         mut self,
         starting_timestamp: impl Into<Option<String>>,
@@ -119,7 +121,7 @@ impl QueryTableBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "starting_timestamp")]
+    ///The starting timestamp to query from.
     pub fn with_starting_timestamp(
         mut self,
         starting_timestamp: impl Into<Option<String>>,
@@ -135,7 +137,7 @@ impl QueryTableBuilder {
         self.request.predicate_hints = predicate_hints.into_iter().collect();
         self
     }
-    #[doc = concat!("Set ", "json_predicate_hints")]
+    ///The predicate to apply to the table.
     pub fn with_json_predicate_hints(mut self, json_predicate_hints: JsonPredicate) -> Self {
         self.request.json_predicate_hints = Some(json_predicate_hints);
         self

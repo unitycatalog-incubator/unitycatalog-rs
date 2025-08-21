@@ -27,12 +27,12 @@ impl CreateVolumeBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "storage_location")]
+    ///The storage location on the cloud
     pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
         self.request.storage_location = storage_location.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///The storage location on the cloud
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
@@ -61,7 +61,7 @@ impl GetVolumeBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "include_browse")]
+    ///Whether to include schemas in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self
@@ -90,22 +90,22 @@ impl UpdateVolumeBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///New name for the volume.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///The comment attached to the volume
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "owner")]
+    ///The identifier of the user who owns the volume
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    #[doc = concat!("Set ", "include_browse")]
+    ///Whether to include schemas in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self

@@ -212,10 +212,17 @@ fn generate_with_methods(
             let method_name = format_ident!("with_{}", field.name);
             let field_name = &field.name;
 
+            // Generate appropriate documentation for the method
+            let doc_attr = if let Some(ref doc) = field.documentation {
+                quote! { #[doc = #doc] }
+            } else {
+                quote! { #[doc = concat!("Set ", #field_name)] }
+            };
+
             if field.field_type.contains("map<") || field.name == "properties" {
                 // Handle HashMap properties with generic method
                 quote! {
-                    #[doc = concat!("Set ", #field_name)]
+                    #doc_attr
                     pub fn #method_name<I, K, V>(mut self, #field_ident: I) -> Self
                     where
                         I: IntoIterator<Item = (K, V)>,
@@ -355,7 +362,7 @@ fn generate_with_methods(
                     let assignment = quote! { #field_ident.into_iter().collect() };
 
                     quote! {
-                        #[doc = concat!("Set ", #field_name)]
+                        #doc_attr
                         pub fn #method_name<I>(mut self, #field_ident: I) -> Self
                         where
                             I: IntoIterator<Item = #inner_type>,
@@ -377,7 +384,7 @@ fn generate_with_methods(
                     };
 
                     quote! {
-                        #[doc = concat!("Set ", #field_name)]
+                        #doc_attr
                         pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
                             self.request.#field_ident = #assignment;
                             self
@@ -393,7 +400,7 @@ fn generate_with_methods(
                     match field.field_type.as_str() {
                         "TYPE_STRING" => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<String>>) -> Self {
                                     self.request.#field_ident = #field_ident.into();
                                     self
@@ -402,7 +409,7 @@ fn generate_with_methods(
                         }
                         "TYPE_INT32" => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<i32>>) -> Self {
                                     self.request.#field_ident = #assignment;
                                     self
@@ -411,7 +418,7 @@ fn generate_with_methods(
                         }
                         "TYPE_INT64" => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<i64>>) -> Self {
                                     self.request.#field_ident = #assignment;
                                     self
@@ -420,7 +427,7 @@ fn generate_with_methods(
                         }
                         "TYPE_BOOL" => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<bool>>) -> Self {
                                     self.request.#field_ident = #assignment;
                                     self
@@ -429,7 +436,7 @@ fn generate_with_methods(
                         }
                         "TYPE_DOUBLE" => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<f64>>) -> Self {
                                     self.request.#field_ident = #assignment;
                                     self
@@ -438,7 +445,7 @@ fn generate_with_methods(
                         }
                         "TYPE_FLOAT" => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<f32>>) -> Self {
                                     self.request.#field_ident = #assignment;
                                     self
@@ -450,7 +457,7 @@ fn generate_with_methods(
                             let enum_ident: syn::Type =
                                 syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<#enum_ident>>) -> Self {
                                     self.request.#field_ident = #assignment;
                                     self
@@ -459,7 +466,7 @@ fn generate_with_methods(
                         }
                         _ => {
                             quote! {
-                                #[doc = concat!("Set ", #field_name)]
+                                #doc_attr
                                 pub fn #method_name(mut self, #field_ident: impl Into<Option<String>>) -> Self {
                                     self.request.#field_ident = #field_ident.into();
                                     self
@@ -473,7 +480,7 @@ fn generate_with_methods(
                     let assignment = get_field_assignment(&field.field_type, &field_ident);
 
                     quote! {
-                        #[doc = concat!("Set ", #field_name)]
+                        #doc_attr
                         pub fn #method_name(mut self, #field_ident: #param_type) -> Self {
                             self.request.#field_ident = #assignment;
                             self
@@ -720,6 +727,7 @@ mod tests {
                     optional: false,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -727,6 +735,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -734,6 +743,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "storage_root".to_string(),
@@ -741,6 +751,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
             ],
         };
@@ -767,6 +778,7 @@ mod tests {
                 optional: false,
                 repeated: false,
                 oneof_name: None,
+                documentation: None,
             },
             MessageField {
                 name: "comment".to_string(),
@@ -774,6 +786,7 @@ mod tests {
                 optional: true,
                 repeated: false,
                 oneof_name: None,
+                documentation: None,
             },
             MessageField {
                 name: "properties".to_string(),
@@ -781,6 +794,7 @@ mod tests {
                 optional: true,
                 repeated: false,
                 oneof_name: None,
+                documentation: None,
             },
         ];
 
@@ -842,6 +856,7 @@ mod tests {
                     optional: false,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "new_name".to_string(),
@@ -849,6 +864,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -856,6 +872,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "owner".to_string(),
@@ -863,6 +880,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -870,6 +888,7 @@ mod tests {
                     optional: true,
                     repeated: false,
                     oneof_name: None,
+                    documentation: None,
                 },
             ],
         };

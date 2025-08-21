@@ -18,7 +18,7 @@ impl CreateShareBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
@@ -47,7 +47,7 @@ impl GetShareBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "include_shared_data")]
+    ///Query for data to include in the share.
     pub fn with_include_shared_data(
         mut self,
         include_shared_data: impl Into<Option<bool>>,
@@ -79,7 +79,7 @@ impl UpdateShareBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "updates")]
+    ///Array of shared data object updates.
     pub fn with_updates<I>(mut self, updates: I) -> Self
     where
         I: IntoIterator<Item = DataObjectUpdate>,
@@ -87,17 +87,17 @@ impl UpdateShareBuilder {
         self.request.updates = updates.into_iter().collect();
         self
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///A new name for the share.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    #[doc = concat!("Set ", "owner")]
+    ///Owner of the share.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self

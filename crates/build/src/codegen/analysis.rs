@@ -258,6 +258,7 @@ mod tests {
                 optional: false,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "force".to_string(),
@@ -265,6 +266,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
         ];
 
@@ -323,6 +325,7 @@ mod tests {
                 optional: false,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "share".to_string(), // This appears first in URL
@@ -330,6 +333,7 @@ mod tests {
                 optional: false,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "schema".to_string(), // This appears second in URL
@@ -337,6 +341,7 @@ mod tests {
                 optional: false,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
         ];
 
@@ -389,6 +394,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -396,6 +402,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "purpose".to_string(),
@@ -403,6 +410,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
         ];
 
@@ -444,6 +452,7 @@ mod tests {
                 optional: false,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "purpose".to_string(),
@@ -451,6 +460,7 @@ mod tests {
                 optional: false,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "comment".to_string(),
@@ -458,6 +468,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "read_only".to_string(),
@@ -465,13 +476,15 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "skip_validation".to_string(),
                 field_type: "TYPE_BOOL".to_string(),
-                optional: false,
+                optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "credential".to_string(),
@@ -479,6 +492,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
         ];
 
@@ -544,6 +558,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -551,6 +566,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
         ];
 
@@ -561,6 +577,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -568,6 +585,7 @@ mod tests {
                 optional: true,
                 oneof_name: None,
                 repeated: false,
+                documentation: None,
             },
         ];
 

@@ -18,12 +18,12 @@ impl CreateCatalogBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    ///A map of key-value properties attached to the securable.
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -36,17 +36,19 @@ impl CreateCatalogBuilder {
             .collect();
         self
     }
-    #[doc = concat!("Set ", "storage_root")]
+    ///Storage root URL for managed tables within catalog.
     pub fn with_storage_root(mut self, storage_root: impl Into<Option<String>>) -> Self {
         self.request.storage_root = storage_root.into();
         self
     }
-    #[doc = concat!("Set ", "provider_name")]
+    /**The name of delta sharing provider.
+
+    A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.*/
     pub fn with_provider_name(mut self, provider_name: impl Into<Option<String>>) -> Self {
         self.request.provider_name = provider_name.into();
         self
     }
-    #[doc = concat!("Set ", "share_name")]
+    ///The name of the share under the share provider.
     pub fn with_share_name(mut self, share_name: impl Into<Option<String>>) -> Self {
         self.request.share_name = share_name.into();
         self
@@ -75,7 +77,7 @@ impl GetCatalogBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "include_browse")]
+    ///Whether to include catalogs in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self
@@ -104,17 +106,20 @@ impl UpdateCatalogBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "owner")]
+    ///Username of new owner of catalog.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    /**A map of key-value properties attached to the securable.
+
+    When provided in update request, the specified properties will override the existing properties.
+    To add and remove properties, one would need to perform a read-modify-write.*/
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -127,7 +132,7 @@ impl UpdateCatalogBuilder {
             .collect();
         self
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///Name of catalog.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self

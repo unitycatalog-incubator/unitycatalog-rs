@@ -37,6 +37,7 @@ pub struct MessageField {
     pub optional: bool,
     pub repeated: bool,
     pub oneof_name: Option<String>,
+    pub documentation: Option<String>,
 }
 
 impl MethodMetadata {

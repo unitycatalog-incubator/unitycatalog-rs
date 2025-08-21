@@ -23,12 +23,12 @@ impl CreateSchemaBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    ///A map of key-value properties attached to the securable.
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -89,12 +89,15 @@ impl UpdateSchemaBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    /**A map of key-value properties attached to the securable.
+
+    When provided in update request, the specified properties will override the existing properties.
+    To add and remove properties, one would need to perform a read-modify-write.*/
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -107,7 +110,7 @@ impl UpdateSchemaBuilder {
             .collect();
         self
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///Name of schema.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self

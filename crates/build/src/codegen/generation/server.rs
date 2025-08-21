@@ -513,13 +513,15 @@ mod tests {
                     optional: false,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "catalog".to_string(),
-                    field_type: "TYPE_MESSAGE:.unitycatalog.CatalogInfo".to_string(),
-                    optional: false,
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "force".to_string(),
@@ -527,6 +529,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
             ],
         };
@@ -585,6 +588,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -592,6 +596,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "parent".to_string(),
@@ -599,6 +604,7 @@ mod tests {
                     optional: false,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "include_browse".to_string(),
@@ -606,6 +612,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
             ],
         };
@@ -694,6 +701,7 @@ mod tests {
                     optional: false,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "name_pattern".to_string(),
@@ -701,6 +709,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
             ],
         };
@@ -791,6 +800,7 @@ mod tests {
                     optional: false, // Required field
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "schema_name".to_string(),
@@ -798,6 +808,7 @@ mod tests {
                     optional: false, // Required field
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "max_results".to_string(),
@@ -805,6 +816,7 @@ mod tests {
                     optional: true, // Optional field
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -812,6 +824,7 @@ mod tests {
                     optional: true, // Optional field
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
             ],
         };
@@ -899,6 +912,7 @@ mod tests {
                     optional: false,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "schema_name".to_string(),
@@ -906,6 +920,7 @@ mod tests {
                     optional: false,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "max_results".to_string(),
@@ -913,6 +928,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -920,6 +936,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
                 MessageField {
                     name: "include_history".to_string(),
@@ -927,6 +944,7 @@ mod tests {
                     optional: true,
                     oneof_name: None,
                     repeated: false,
+                    documentation: None,
                 },
             ],
         };

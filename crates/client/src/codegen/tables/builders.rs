@@ -29,7 +29,7 @@ impl CreateTableBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "columns")]
+    ///The array of ColumnInfo definitions of the table's columns.
     pub fn with_columns<I>(mut self, columns: I) -> Self
     where
         I: IntoIterator<Item = ColumnInfo>,
@@ -37,17 +37,17 @@ impl CreateTableBuilder {
         self.request.columns = columns.into_iter().collect();
         self
     }
-    #[doc = concat!("Set ", "storage_location")]
+    ///Storage root URL for external table.
     pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
         self.request.storage_location = storage_location.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "properties")]
+    ///A map of key-value properties attached to the securable.
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -84,7 +84,7 @@ impl GetTableBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "include_delta_metadata")]
+    ///Whether delta metadata should be included in the response.
     pub fn with_include_delta_metadata(
         mut self,
         include_delta_metadata: impl Into<Option<bool>>,
@@ -92,12 +92,12 @@ impl GetTableBuilder {
         self.request.include_delta_metadata = include_delta_metadata.into();
         self
     }
-    #[doc = concat!("Set ", "include_browse")]
+    ///Whether to include tables in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self
     }
-    #[doc = concat!("Set ", "include_manifest_capabilities")]
+    ///Whether to include a manifest containing capabilities the table has.
     pub fn with_include_manifest_capabilities(
         mut self,
         include_manifest_capabilities: impl Into<Option<bool>>,

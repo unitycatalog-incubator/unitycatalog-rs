@@ -25,17 +25,17 @@ impl CreateExternalLocationBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "read_only")]
+    ///Indicates whether the external location is read-only.
     pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
         self.request.read_only = read_only.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "skip_validation")]
+    ///Skips validation of the storage credential associated with the external location.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
@@ -88,42 +88,42 @@ impl UpdateExternalLocationBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "url")]
+    ///Path URL of the external location.
     pub fn with_url(mut self, url: impl Into<Option<String>>) -> Self {
         self.request.url = url.into();
         self
     }
-    #[doc = concat!("Set ", "credential_name")]
+    ///Name of the storage credential used with this location.
     pub fn with_credential_name(mut self, credential_name: impl Into<Option<String>>) -> Self {
         self.request.credential_name = credential_name.into();
         self
     }
-    #[doc = concat!("Set ", "read_only")]
+    ///Indicates whether the external location is read-only.
     pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
         self.request.read_only = read_only.into();
         self
     }
-    #[doc = concat!("Set ", "owner")]
+    ///owner of the external location.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    #[doc = concat!("Set ", "comment")]
+    ///User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    #[doc = concat!("Set ", "new_name")]
+    ///new name of the external location.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    #[doc = concat!("Set ", "force")]
+    ///force update of the external location.
     pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
         self.request.force = force.into();
         self
     }
-    #[doc = concat!("Set ", "skip_validation")]
+    ///Skips validation of the storage credential associated with the external location.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
