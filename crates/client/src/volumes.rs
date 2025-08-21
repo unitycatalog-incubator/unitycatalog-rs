@@ -4,6 +4,7 @@ use unitycatalog_common::models::volumes::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
+use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
 pub(super) use crate::codegen::volumes::client::VolumeClient as VolumeClientBase;
 
 impl VolumeClientBase {
@@ -83,21 +84,15 @@ impl VolumeClient {
         format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
     }
 
-    pub(super) async fn create(
-        &self,
-        volume_type: VolumeType,
-        storage_location: Option<impl ToString>,
-        comment: Option<impl ToString>,
-    ) -> Result<VolumeInfo> {
-        let request = CreateVolumeRequest {
-            catalog_name: self.catalog_name.clone(),
-            schema_name: self.schema_name.clone(),
-            name: self.name.clone(),
-            volume_type: volume_type as i32,
-            storage_location: storage_location.map(|s| s.to_string()),
-            comment: comment.map(|s| s.to_string()),
-        };
-        self.client.create_volume(&request).await
+    /// Create a new volume using the builder pattern.
+    pub fn create(&self, volume_type: VolumeType) -> CreateVolumeBuilder {
+        CreateVolumeBuilder::new(
+            self.client.clone(),
+            &self.catalog_name,
+            &self.schema_name,
+            &self.name,
+            volume_type as i32,
+        )
     }
 
     pub async fn get(&self, include_browse: impl Into<Option<bool>>) -> Result<VolumeInfo> {
@@ -108,21 +103,9 @@ impl VolumeClient {
         self.client.get_volume(&request).await
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-        include_browse: impl Into<Option<bool>>,
-    ) -> Result<VolumeInfo> {
-        let request = UpdateVolumeRequest {
-            name: self.full_name(),
-            new_name: new_name.map(|s| s.to_string()),
-            comment: comment.map(|s| s.to_string()),
-            owner: owner.map(|s| s.to_string()),
-            include_browse: include_browse.into(),
-        };
-        self.client.update_volume(&request).await
+    /// Update this volume using the builder pattern.
+    pub fn update(&self) -> UpdateVolumeBuilder {
+        UpdateVolumeBuilder::new(self.client.clone(), &self.full_name())
     }
 
     pub async fn delete(&self) -> Result<()> {

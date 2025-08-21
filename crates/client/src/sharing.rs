@@ -10,6 +10,7 @@ use unitycatalog_common::models::sharing_ext::{
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;
+use crate::codegen::sharing::builders::QueryTableBuilder;
 use crate::{Error, Result};
 
 #[derive(Clone)]
@@ -314,5 +315,20 @@ impl DeltaSharingClient {
             return Err(Error::generic("Metadata not found"));
         }
         Ok((protocol.unwrap(), metadata.unwrap()))
+    }
+
+    /// Create a query table request using the builder pattern.
+    pub fn query_table(
+        &self,
+        share: impl Into<String>,
+        schema: impl Into<String>,
+        name: impl Into<String>,
+    ) -> QueryTableBuilder {
+        QueryTableBuilder::new(
+            self.discovery.clone(),
+            share.into(),
+            schema.into(),
+            name.into(),
+        )
     }
 }

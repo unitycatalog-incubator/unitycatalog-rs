@@ -5,6 +5,7 @@ use unitycatalog_common::models::credentials::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
+use crate::codegen::credentials::builders::{CreateCredentialBuilder, UpdateCredentialBuilder};
 
 impl CredentialClientBase {
     pub fn list(
@@ -52,18 +53,9 @@ impl CredentialClient {
         }
     }
 
-    pub(super) async fn create(
-        &self,
-        purpose: Purpose,
-        comment: Option<impl ToString>,
-    ) -> Result<CredentialInfo> {
-        let request = CreateCredentialRequest {
-            name: self.name.clone(),
-            purpose: purpose.into(),
-            comment: comment.map(|s| s.to_string()),
-            ..Default::default()
-        };
-        self.client.create_credential(&request).await
+    /// Create a new credential using the builder pattern.
+    pub fn create(&self, purpose: Purpose) -> CreateCredentialBuilder {
+        CreateCredentialBuilder::new(self.client.clone(), &self.name, purpose.into())
     }
 
     pub async fn get(&self) -> Result<CredentialInfo> {
@@ -73,27 +65,9 @@ impl CredentialClient {
         self.client.get_credential(&request).await
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-        read_only: Option<bool>,
-        skip_validation: Option<bool>,
-        force: Option<bool>,
-        credential: Option<update_credential_request::Credential>,
-    ) -> Result<CredentialInfo> {
-        let request = UpdateCredentialRequest {
-            name: self.name.clone(),
-            new_name: new_name.map(|s| s.to_string()),
-            comment: comment.map(|s| s.to_string()),
-            owner: owner.map(|s| s.to_string()),
-            read_only,
-            skip_validation,
-            force,
-            credential,
-        };
-        self.client.update_credential(&request).await
+    /// Update this credential using the builder pattern.
+    pub fn update(&self) -> UpdateCredentialBuilder {
+        UpdateCredentialBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self) -> Result<()> {

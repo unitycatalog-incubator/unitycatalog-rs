@@ -20,6 +20,23 @@ use unitycatalog_common::{
 };
 pub use volumes::*;
 
+// Re-export all builders for public API
+pub use crate::codegen::catalogs::builders::{CreateCatalogBuilder, UpdateCatalogBuilder};
+pub use crate::codegen::credentials::builders::{CreateCredentialBuilder, UpdateCredentialBuilder};
+pub use crate::codegen::external_locations::builders::{
+    CreateExternalLocationBuilder, UpdateExternalLocationBuilder,
+};
+pub use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
+pub use crate::codegen::schemas::builders::{CreateSchemaBuilder, UpdateSchemaBuilder};
+pub use crate::codegen::shares::builders::{CreateShareBuilder, UpdateShareBuilder};
+#[cfg(feature = "sharing")]
+pub use crate::codegen::sharing::builders::QueryTableBuilder;
+pub use crate::codegen::tables::builders::CreateTableBuilder;
+pub use crate::codegen::temporary_credentials::builders::{
+    GenerateTemporaryPathCredentialsBuilder, GenerateTemporaryTableCredentialsBuilder,
+};
+pub use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
+
 mod catalogs;
 mod codegen;
 mod credentials;
@@ -95,29 +112,8 @@ impl UnityCatalogClient {
         self.catalogs.list(max_results)
     }
 
-    pub async fn create_catalog(
-        &self,
-        name: impl ToString,
-        storage_root: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        properties: impl Into<Option<std::collections::HashMap<String, String>>>,
-    ) -> Result<CatalogInfo> {
-        let catalog = CatalogClient::new(name, self.catalogs.clone());
-        catalog.create(storage_root, comment, properties).await
-    }
-
-    pub async fn create_sharing_catalog(
-        &self,
-        name: impl ToString,
-        provider_name: impl Into<String>,
-        share_name: impl Into<String>,
-        comment: Option<impl ToString>,
-        properties: impl Into<Option<std::collections::HashMap<String, String>>>,
-    ) -> Result<CatalogInfo> {
-        let catalog = CatalogClient::new(name, self.catalogs.clone());
-        catalog
-            .create_sharing(provider_name, share_name, comment, properties)
-            .await
+    pub fn create_catalog(&self, name: impl ToString) -> CreateCatalogBuilder {
+        CreateCatalogBuilder::new(self.catalogs.clone(), name.to_string())
     }
 
     pub fn catalog(&self, name: impl ToString) -> CatalogClient {
@@ -133,14 +129,13 @@ impl UnityCatalogClient {
         self.credentials.list(purpose, max_results)
     }
 
-    pub async fn create_credential(
+    pub fn create_credential(
         &self,
         name: impl ToString,
         purpose: Purpose,
-        comment: Option<impl ToString>,
-    ) -> Result<CredentialInfo> {
+    ) -> CreateCredentialBuilder {
         let credential = CredentialClient::new(name, self.credentials.clone());
-        credential.create(purpose, comment).await
+        credential.create(purpose)
     }
 
     pub fn credential(&self, name: impl ToString) -> CredentialClient {
@@ -156,14 +151,13 @@ impl UnityCatalogClient {
         self.schemas.list(catalog_name, max_results)
     }
 
-    pub async fn create_schema(
+    pub fn create_schema(
         &self,
         catalog_name: impl ToString,
         schema_name: impl ToString,
-        comment: Option<impl ToString>,
-    ) -> Result<SchemaInfo> {
+    ) -> CreateSchemaBuilder {
         let schema = SchemaClient::new(catalog_name, schema_name, self.schemas.clone());
-        schema.create(comment).await
+        schema.create()
     }
 
     pub fn schema(&self, catalog_name: impl ToString, schema_name: impl ToString) -> SchemaClient {
@@ -211,13 +205,9 @@ impl UnityCatalogClient {
         TableClient::new(full_name, self.tables.clone())
     }
 
-    pub async fn create_share(
-        &self,
-        name: impl ToString,
-        comment: Option<impl ToString>,
-    ) -> Result<ShareInfo> {
+    pub fn create_share(&self, name: impl ToString) -> CreateShareBuilder {
         let share = ShareClient::new(name, self.shares.clone());
-        share.create(comment).await
+        share.create()
     }
 
     // Share methods
@@ -232,14 +222,14 @@ impl UnityCatalogClient {
         ShareClient::new(name, self.shares.clone())
     }
 
-    pub async fn create_recipient(
+    pub fn create_recipient(
         &self,
         name: impl ToString,
         authentication_type: AuthenticationType,
-        comment: Option<impl ToString>,
-    ) -> Result<RecipientInfo> {
+        owner: impl Into<String>,
+    ) -> CreateRecipientBuilder {
         let recipient = RecipientClient::new(name, self.recipients.clone());
-        recipient.create(authentication_type, comment).await
+        recipient.create(authentication_type, owner)
     }
 
     // Recipient methods
@@ -262,17 +252,14 @@ impl UnityCatalogClient {
         self.external_locations.list(max_results)
     }
 
-    pub async fn create_external_location(
+    pub fn create_external_location(
         &self,
         name: impl ToString,
         url: impl reqwest::IntoUrl,
         credential_name: impl Into<String>,
-        comment: Option<impl ToString>,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<CreateExternalLocationBuilder> {
         let external_location = ExternalLocationClient::new(name, self.external_locations.clone());
-        external_location
-            .create(url, credential_name, comment)
-            .await
+        external_location.create(url, credential_name)
     }
 
     pub fn external_location(&self, name: impl ToString) -> ExternalLocationClient {
@@ -295,18 +282,16 @@ impl UnityCatalogClient {
             .list(catalog_name, schema_name, max_results, include_browse)
     }
 
-    pub async fn create_volume(
+    pub fn create_volume(
         &self,
         catalog_name: impl ToString,
         schema_name: impl ToString,
         volume_name: impl ToString,
         volume_type: VolumeType,
-        storage_location: Option<impl ToString>,
-        comment: Option<impl ToString>,
-    ) -> Result<VolumeInfo> {
+    ) -> CreateVolumeBuilder {
         let volume =
             VolumeClient::new(catalog_name, schema_name, volume_name, self.volumes.clone());
-        volume.create(volume_type, storage_location, comment).await
+        volume.create(volume_type)
     }
 
     pub fn volume(

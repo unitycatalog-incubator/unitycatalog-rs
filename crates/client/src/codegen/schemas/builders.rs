@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
+use super::client::*;
+use crate::error::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use crate::error::Result;
 use unitycatalog_common::models::schemas::v1::*;
-use super::client::*;
 /// Builder for creating requests
 pub struct CreateSchemaBuilder {
     client: SchemaClient,
@@ -58,17 +58,17 @@ pub struct UpdateSchemaBuilder {
 }
 impl UpdateSchemaBuilder {
     /// Create a new builder instance
-    pub fn new(
-        client: SchemaClient,
-        full_name: impl Into<String>,
-        new_name: impl Into<String>,
-    ) -> Self {
+    pub fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
         let request = UpdateSchemaRequest {
             full_name: full_name.into(),
-            new_name: new_name.into(),
             ..Default::default()
         };
         Self { client, request }
+    }
+    #[doc = concat!("Set ", "new_name")]
+    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
+        self.request.new_name = Some(new_name.into());
+        self
     }
     #[doc = concat!("Set ", "comment")]
     pub fn with_comment(mut self, comment: impl Into<String>) -> Self {

@@ -116,8 +116,8 @@ pub struct UpdateSchemaRequest {
     #[prost(map="string, string", tag="3")]
     pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Name of schema.
-    #[prost(string, tag="4")]
-    pub new_name: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="4")]
+    pub new_name: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Delete a Schema
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

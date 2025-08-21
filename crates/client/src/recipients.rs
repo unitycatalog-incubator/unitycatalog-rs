@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use unitycatalog_common::models::recipients::v1::*;
@@ -7,6 +5,7 @@ use unitycatalog_common::models::recipients::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
+use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
 
 impl RecipientClientBase {
     pub fn list(
@@ -51,18 +50,18 @@ impl RecipientClient {
         }
     }
 
-    pub(super) async fn create(
+    /// Create a new recipient using the builder pattern.
+    pub fn create(
         &self,
         authentication_type: AuthenticationType,
-        comment: Option<impl ToString>,
-    ) -> Result<RecipientInfo> {
-        let request = CreateRecipientRequest {
-            name: self.name.clone(),
-            authentication_type: authentication_type.into(),
-            comment: comment.map(|c| c.to_string()),
-            ..Default::default()
-        };
-        self.client.create_recipient(&request).await
+        owner: impl Into<String>,
+    ) -> CreateRecipientBuilder {
+        CreateRecipientBuilder::new(
+            self.client.clone(),
+            &self.name,
+            authentication_type.into(),
+            owner.into(),
+        )
     }
 
     pub async fn get(&self) -> Result<RecipientInfo> {
@@ -72,23 +71,9 @@ impl RecipientClient {
         self.client.get_recipient(&request).await
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-        properties: impl Into<Option<HashMap<String, String>>>,
-        expiration_time: Option<i64>,
-    ) -> Result<RecipientInfo> {
-        let request = UpdateRecipientRequest {
-            name: self.name.clone(),
-            new_name: new_name.map(|s| s.to_string()),
-            comment: comment.map(|s| s.to_string()),
-            owner: owner.map(|s| s.to_string()),
-            properties: properties.into().unwrap_or_default(),
-            expiration_time,
-        };
-        self.client.update_recipient(&request).await
+    /// Update this recipient using the builder pattern.
+    pub fn update(&self) -> UpdateRecipientBuilder {
+        UpdateRecipientBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self) -> Result<()> {

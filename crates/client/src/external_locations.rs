@@ -5,6 +5,9 @@ use unitycatalog_common::models::external_locations::v1::*;
 
 use super::utils::stream_paginated;
 pub(super) use crate::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
+use crate::codegen::external_locations::builders::{
+    CreateExternalLocationBuilder, UpdateExternalLocationBuilder,
+};
 use crate::{Error, Result};
 
 impl ExternalLocationClientBase {
@@ -51,23 +54,22 @@ impl ExternalLocationClient {
         }
     }
 
-    pub(super) async fn create(
+    /// Create a new external location using the builder pattern.
+    pub fn create(
         &self,
         url: impl IntoUrl,
         credential_name: impl Into<String>,
-        comment: Option<impl ToString>,
-    ) -> Result<ExternalLocationInfo> {
-        let request = CreateExternalLocationRequest {
-            name: self.name.clone(),
-            url: url
-                .into_url()
-                .map(|u| u.to_string())
-                .map_err(|e| Error::generic(e.to_string()))?,
-            credential_name: credential_name.into(),
-            comment: comment.map(|c| c.to_string()),
-            ..Default::default()
-        };
-        self.client.create_external_location(&request).await
+    ) -> Result<CreateExternalLocationBuilder> {
+        let url = url
+            .into_url()
+            .map(|u| u.to_string())
+            .map_err(|e| Error::generic(e.to_string()))?;
+        Ok(CreateExternalLocationBuilder::new(
+            self.client.clone(),
+            &self.name,
+            url,
+            credential_name.into(),
+        ))
     }
 
     pub async fn get(&self) -> Result<ExternalLocationInfo> {
@@ -77,39 +79,9 @@ impl ExternalLocationClient {
         self.client.get_external_location(&request).await
     }
 
-    pub async fn update(
-        &self,
-        new_name: Option<impl ToString>,
-        url: Option<impl IntoUrl>,
-        credential_name: Option<impl Into<String>>,
-        comment: Option<impl ToString>,
-        owner: Option<impl ToString>,
-        read_only: Option<bool>,
-        skip_validation: Option<bool>,
-        force: Option<bool>,
-    ) -> Result<ExternalLocationInfo> {
-        let url = if let Some(url) = url {
-            Some(
-                url.into_url()
-                    .map(|u| u.to_string())
-                    .map_err(|e| Error::generic(e.to_string()))?,
-            )
-        } else {
-            None
-        };
-
-        let request = UpdateExternalLocationRequest {
-            name: self.name.clone(),
-            new_name: new_name.map(|s| s.to_string()),
-            url,
-            credential_name: credential_name.map(|s| s.into()),
-            comment: comment.map(|s| s.to_string()),
-            owner: owner.map(|s| s.to_string()),
-            read_only,
-            skip_validation,
-            force,
-        };
-        self.client.update_external_location(&request).await
+    /// Update this external location using the builder pattern.
+    pub fn update(&self) -> UpdateExternalLocationBuilder {
+        UpdateExternalLocationBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self, force: impl Into<Option<bool>>) -> Result<()> {

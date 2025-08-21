@@ -234,13 +234,19 @@ impl PyUnityCatalogClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<CatalogInfo> {
+        let mut request = self.0.create_catalog(name);
+        if let Some(storage_root) = storage_root {
+            request = request.with_storage_root(storage_root);
+        }
+        if let Some(comment) = comment {
+            request = request.with_comment(comment);
+        }
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info =
-                runtime.block_on(
-                    self.0
-                        .create_catalog(name, storage_root, comment, properties),
-                )?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -255,15 +261,20 @@ impl PyUnityCatalogClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<CatalogInfo> {
+        let mut request = self
+            .0
+            .create_catalog(name)
+            .with_provider_name(provider_name)
+            .with_share_name(share_name);
+        if let Some(comment) = comment {
+            request = request.with_comment(comment);
+        }
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.0.create_sharing_catalog(
-                name,
-                provider_name,
-                share_name,
-                comment,
-                properties,
-            ))?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -278,8 +289,11 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<SchemaInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info =
-                runtime.block_on(self.0.create_schema(catalog_name, schema_name, comment))?;
+            let mut request = self.0.create_schema(catalog_name, schema_name);
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -293,7 +307,11 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<ShareInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.0.create_share(name, comment))?;
+            let mut request = self.0.create_share(name);
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -308,8 +326,11 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<RecipientInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info =
-                runtime.block_on(self.0.create_recipient(name, authentication_type, comment))?;
+            let mut request = self.0.create_recipient(name, authentication_type, "");
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -324,7 +345,11 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.0.create_credential(name, purpose, comment))?;
+            let mut request = self.0.create_credential(name, purpose);
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -340,12 +365,13 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<ExternalLocationInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.0.create_external_location(
-                name,
-                url,
-                credential_name,
-                comment,
-            ))?;
+            let mut request = self
+                .0
+                .create_external_location(name, url, credential_name)?;
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -405,15 +431,17 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<VolumeInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let volume = runtime.block_on(self.0.create_volume(
-                catalog_name,
-                schema_name,
-                volume_name,
-                volume_type,
-                storage_location,
-                comment,
-            ))?;
-            Ok::<_, PyUnityCatalogError>(volume)
+            let mut request =
+                self.0
+                    .create_volume(catalog_name, schema_name, volume_name, volume_type);
+            if let Some(storage_location) = storage_location {
+                request = request.with_storage_location(storage_location);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            let info = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(info)
         })
     }
 }
@@ -441,8 +469,12 @@ impl PyCatalogClient {
         comment: Option<String>,
     ) -> PyUnityCatalogResult<SchemaInfo> {
         let runtime = get_runtime(py)?;
+        let mut request = self.client.create_schema(name);
+        if let Some(comment) = comment {
+            request = request.with_comment(comment);
+        }
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.create_schema(name, comment))?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -456,10 +488,22 @@ impl PyCatalogClient {
         owner: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<CatalogInfo> {
+        let mut request = self.client.update();
+        if let Some(new_name) = new_name {
+            request = request.with_new_name(new_name);
+        }
+        if let Some(comment) = comment {
+            request = request.with_comment(comment);
+        }
+        if let Some(owner) = owner {
+            request = request.with_owner(owner);
+        }
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info =
-                runtime.block_on(self.client.update(new_name, comment, owner, properties))?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -514,17 +558,21 @@ impl PySchemaClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<TableInfo> {
+        let mut request = self
+            .client
+            .create_table(name, table_type, data_source_format);
+        if let Some(storage_location) = storage_location {
+            request = request.with_storage_location(storage_location);
+        }
+        if let Some(comment) = comment {
+            request = request.with_comment(comment);
+        }
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.create_table(
-                name,
-                table_type,
-                data_source_format,
-                columns,
-                storage_location,
-                comment,
-                properties,
-            ))?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -539,7 +587,17 @@ impl PySchemaClient {
     ) -> PyUnityCatalogResult<SchemaInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.update(new_name, comment, properties))?;
+            let mut request = self.client.update();
+            if let Some(new_name) = new_name {
+                request = request.with_new_name(new_name);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            if let Some(properties) = properties {
+                request = request.with_properties(properties);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -620,12 +678,17 @@ impl PyShareClient {
     ) -> PyUnityCatalogResult<ShareInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.update(
-                new_name,
-                updates.unwrap_or_default(),
-                comment,
-                owner,
-            ))?;
+            let mut request = self.client.update();
+            if let Some(new_name) = new_name {
+                request = request.with_new_name(new_name);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            if let Some(owner) = owner {
+                request = request.with_owner(owner);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -666,13 +729,23 @@ impl PyRecipientClient {
     ) -> PyUnityCatalogResult<RecipientInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.update(
-                new_name,
-                comment,
-                owner,
-                properties,
-                expiration_time,
-            ))?;
+            let mut request = self.client.update();
+            if let Some(new_name) = new_name {
+                request = request.with_new_name(new_name);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            if let Some(owner) = owner {
+                request = request.with_owner(owner);
+            }
+            if let Some(properties) = properties {
+                request = request.with_properties(properties);
+            }
+            if let Some(expiration_time) = expiration_time {
+                request = request.with_expiration_time(expiration_time);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -717,15 +790,26 @@ impl PyCredentialClient {
     ) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.update(
-                new_name,
-                comment,
-                owner,
-                read_only,
-                skip_validation,
-                force,
-                credential,
-            ))?;
+            let mut request = self.client.update();
+            if let Some(new_name) = new_name {
+                request = request.with_new_name(new_name);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            if let Some(owner) = owner {
+                request = request.with_owner(owner);
+            }
+            if let Some(read_only) = read_only {
+                request = request.with_read_only(read_only);
+            }
+            if let Some(skip_validation) = skip_validation {
+                request = request.with_skip_validation(skip_validation);
+            }
+            if let Some(force) = force {
+                request = request.with_force(force);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -769,16 +853,32 @@ impl PyExternalLocationClient {
     ) -> PyUnityCatalogResult<ExternalLocationInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.update(
-                new_name,
-                url,
-                credential_name,
-                comment,
-                owner,
-                read_only,
-                skip_validation,
-                force,
-            ))?;
+            let mut request = self.client.update();
+            if let Some(new_name) = new_name {
+                request = request.with_new_name(new_name);
+            }
+            if let Some(url) = url {
+                request = request.with_url(url.to_string());
+            }
+            if let Some(credential_name) = credential_name {
+                request = request.with_credential_name(credential_name);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            if let Some(owner) = owner {
+                request = request.with_owner(owner);
+            }
+            if let Some(read_only) = read_only {
+                request = request.with_read_only(read_only);
+            }
+            if let Some(skip_validation) = skip_validation {
+                request = request.with_skip_validation(skip_validation);
+            }
+            if let Some(force) = force {
+                request = request.with_force(force);
+            }
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -1025,8 +1125,20 @@ impl PyVolumeClient {
     ) -> PyUnityCatalogResult<VolumeInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let volume =
-                runtime.block_on(self.client.update(new_name, comment, owner, include_browse))?;
+            let mut request = self.client.update();
+            if let Some(new_name) = new_name {
+                request = request.with_new_name(new_name);
+            }
+            if let Some(comment) = comment {
+                request = request.with_comment(comment);
+            }
+            if let Some(owner) = owner {
+                request = request.with_owner(owner);
+            }
+            if let Some(include_browse) = include_browse {
+                request = request.with_include_browse(include_browse);
+            }
+            let volume = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(volume)
         })
     }
