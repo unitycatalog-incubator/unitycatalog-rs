@@ -5,6 +5,7 @@ use unitycatalog_common::models::tables::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::tables::TableClient as TableClientBase;
+use crate::codegen::tables::builders::GetTableBuilder;
 
 impl TableClientBase {
     pub fn list_summaries(
@@ -131,19 +132,9 @@ impl TableClient {
         }
     }
 
-    pub async fn get(
-        &self,
-        include_delta_metadata: impl Into<Option<bool>>,
-        include_browse: impl Into<Option<bool>>,
-        include_manifest_capabilities: impl Into<Option<bool>>,
-    ) -> Result<TableInfo> {
-        let request = GetTableRequest {
-            full_name: self.full_name.clone(),
-            include_delta_metadata: include_delta_metadata.into(),
-            include_browse: include_browse.into(),
-            include_manifest_capabilities: include_manifest_capabilities.into(),
-        };
-        self.client.get_table(&request).await
+    /// Get a table using the builder pattern.
+    pub fn get(&self) -> GetTableBuilder {
+        GetTableBuilder::new(self.client.clone(), &self.full_name)
     }
 
     pub async fn delete(&self) -> Result<()> {

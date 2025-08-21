@@ -4,7 +4,9 @@ use unitycatalog_common::models::volumes::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
+use crate::codegen::volumes::builders::{
+    CreateVolumeBuilder, GetVolumeBuilder, UpdateVolumeBuilder,
+};
 pub(super) use crate::codegen::volumes::client::VolumeClient as VolumeClientBase;
 
 impl VolumeClientBase {
@@ -95,12 +97,9 @@ impl VolumeClient {
         )
     }
 
-    pub async fn get(&self, include_browse: impl Into<Option<bool>>) -> Result<VolumeInfo> {
-        let request = GetVolumeRequest {
-            name: self.full_name(),
-            include_browse: include_browse.into(),
-        };
-        self.client.get_volume(&request).await
+    /// Get a volume using the builder pattern.
+    pub fn get(&self) -> GetVolumeBuilder {
+        GetVolumeBuilder::new(self.client.clone(), self.full_name())
     }
 
     /// Update this volume using the builder pattern.

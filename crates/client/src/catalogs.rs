@@ -6,7 +6,7 @@ use super::schemas::{SchemaClient, SchemaClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::catalogs::CatalogClient as CatalogClientBase;
-use crate::codegen::catalogs::UpdateCatalogBuilder;
+use crate::codegen::catalogs::builders::{GetCatalogBuilder, UpdateCatalogBuilder};
 use crate::codegen::schemas::CreateSchemaBuilder;
 
 impl CatalogClientBase {
@@ -67,12 +67,9 @@ impl CatalogClient {
         )
     }
 
-    pub async fn get(&self) -> Result<CatalogInfo> {
-        let request = GetCatalogRequest {
-            name: self.name.clone(),
-            include_browse: None,
-        };
-        self.client.get_catalog(&request).await
+    /// Get a catalog using the builder pattern.
+    pub fn get(&self) -> GetCatalogBuilder {
+        GetCatalogBuilder::new(self.client.clone(), &self.name)
     }
 
     pub fn update(&self) -> UpdateCatalogBuilder {

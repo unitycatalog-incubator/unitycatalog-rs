@@ -12,10 +12,10 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
     let mut builder_impls = Vec::new();
 
     for method in &service.methods {
-        // Only generate builders for Create and Update operations
+        // Generate builders for Create, Update, and Get operations
         if matches!(
             method.metadata.request_type(),
-            RequestType::Create | RequestType::Update
+            RequestType::Create | RequestType::Update | RequestType::Get
         ) {
             let builder_code = generate_request_builder(method, service)?;
             builder_impls.push(builder_code);
@@ -42,7 +42,7 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
 
 /// Generate the complete builders module
 fn generate_builders_module(
-    client_name: &str,
+    _client_name: &str,
     builders: &[String],
     service_namespace: &str,
 ) -> String {
@@ -161,19 +161,6 @@ fn analyze_request_fields(fields: &[MessageField]) -> (Vec<&MessageField>, Vec<&
     }
 
     (required, optional)
-}
-
-fn extract_repeated_type(field_type: &str) -> &str {
-    if field_type.starts_with("repeated ") {
-        field_type.strip_prefix("repeated ").unwrap_or(field_type)
-    } else if field_type.starts_with("TYPE_MESSAGE:") && field_type.contains("repeated") {
-        // Handle protobuf repeated message types
-        field_type
-            .strip_prefix("TYPE_MESSAGE:")
-            .unwrap_or(field_type)
-    } else {
-        field_type
-    }
 }
 
 /// Generate the constructor for the builder
@@ -399,18 +386,98 @@ fn generate_with_methods(
                 }
             } else {
                 // Handle all other fields with appropriate type conversion
-                let param_type = get_with_method_param_type(&field.field_type);
-                let assignment = if field.optional {
-                    get_optional_field_assignment(&field.field_type, &field_ident)
-                } else {
-                    get_field_assignment(&field.field_type, &field_ident)
-                };
+                if field.optional {
+                    // Use flexible impl Into<Option<T>> pattern for optional fields
+                    let assignment = get_flexible_optional_field_assignment(&field.field_type, &field_ident);
 
-                quote! {
-                    #[doc = concat!("Set ", #field_name)]
-                    pub fn #method_name(mut self, #field_ident: #param_type) -> Self {
-                        self.request.#field_ident = #assignment;
-                        self
+                    match field.field_type.as_str() {
+                        "TYPE_STRING" => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<String>>) -> Self {
+                                    self.request.#field_ident = #field_ident.into();
+                                    self
+                                }
+                            }
+                        }
+                        "TYPE_INT32" => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<i32>>) -> Self {
+                                    self.request.#field_ident = #assignment;
+                                    self
+                                }
+                            }
+                        }
+                        "TYPE_INT64" => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<i64>>) -> Self {
+                                    self.request.#field_ident = #assignment;
+                                    self
+                                }
+                            }
+                        }
+                        "TYPE_BOOL" => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<bool>>) -> Self {
+                                    self.request.#field_ident = #assignment;
+                                    self
+                                }
+                            }
+                        }
+                        "TYPE_DOUBLE" => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<f64>>) -> Self {
+                                    self.request.#field_ident = #assignment;
+                                    self
+                                }
+                            }
+                        }
+                        "TYPE_FLOAT" => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<f32>>) -> Self {
+                                    self.request.#field_ident = #assignment;
+                                    self
+                                }
+                            }
+                        }
+                        _ if field.field_type.starts_with("TYPE_ENUM:") => {
+                            let enum_type = convert_protobuf_enum_to_rust_type(&field.field_type);
+                            let enum_ident: syn::Type =
+                                syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<#enum_ident>>) -> Self {
+                                    self.request.#field_ident = #assignment;
+                                    self
+                                }
+                            }
+                        }
+                        _ => {
+                            quote! {
+                                #[doc = concat!("Set ", #field_name)]
+                                pub fn #method_name(mut self, #field_ident: impl Into<Option<String>>) -> Self {
+                                    self.request.#field_ident = #field_ident.into();
+                                    self
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Use the original pattern for required fields
+                    let param_type = get_with_method_param_type(&field.field_type);
+                    let assignment = get_field_assignment(&field.field_type, &field_ident);
+
+                    quote! {
+                        #[doc = concat!("Set ", #field_name)]
+                        pub fn #method_name(mut self, #field_ident: #param_type) -> Self {
+                            self.request.#field_ident = #assignment;
+                            self
+                        }
                     }
                 }
             }
@@ -498,18 +565,20 @@ fn get_field_assignment(field_type: &str, field_ident: &proc_macro2::Ident) -> T
     }
 }
 
-/// Get the appropriate field assignment for optional fields
-fn get_optional_field_assignment(
+/// Get the flexible field assignment for optional fields using impl Into<Option<T>>
+fn get_flexible_optional_field_assignment(
     field_type: &str,
     field_ident: &proc_macro2::Ident,
 ) -> TokenStream {
     match field_type {
-        "TYPE_STRING" => quote! { Some(#field_ident.into()) },
+        "TYPE_STRING" => quote! { #field_ident.into().map(|s| s.into()) },
         "TYPE_INT32" | "TYPE_INT64" | "TYPE_BOOL" | "TYPE_DOUBLE" | "TYPE_FLOAT" => {
-            quote! { Some(#field_ident) }
+            quote! { #field_ident.into() }
         }
-        _ if field_type.starts_with("TYPE_ENUM:") => quote! { Some(#field_ident as i32) },
-        _ => quote! { Some(#field_ident.into()) },
+        _ if field_type.starts_with("TYPE_ENUM:") => {
+            quote! { #field_ident.into().map(|e| e as i32) }
+        }
+        _ => quote! { #field_ident.into().map(|s| s.to_string()) },
     }
 }
 

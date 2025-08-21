@@ -5,7 +5,9 @@ use unitycatalog_common::models::recipients::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
-use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
+use crate::codegen::recipients::builders::{
+    CreateRecipientBuilder, GetRecipientBuilder, UpdateRecipientBuilder,
+};
 
 impl RecipientClientBase {
     pub fn list(
@@ -64,11 +66,9 @@ impl RecipientClient {
         )
     }
 
-    pub async fn get(&self) -> Result<RecipientInfo> {
-        let request = GetRecipientRequest {
-            name: self.name.clone(),
-        };
-        self.client.get_recipient(&request).await
+    /// Get a recipient using the builder pattern.
+    pub fn get(&self) -> GetRecipientBuilder {
+        GetRecipientBuilder::new(self.client.clone(), &self.name)
     }
 
     /// Update this recipient using the builder pattern.

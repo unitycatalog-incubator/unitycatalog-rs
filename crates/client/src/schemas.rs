@@ -7,7 +7,9 @@ use super::tables::{TableClient, TableClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::schemas::SchemaClient as SchemaClientBase;
-use crate::codegen::schemas::builders::{CreateSchemaBuilder, UpdateSchemaBuilder};
+use crate::codegen::schemas::builders::{
+    CreateSchemaBuilder, GetSchemaBuilder, UpdateSchemaBuilder,
+};
 use crate::codegen::tables::builders::CreateTableBuilder;
 
 impl SchemaClientBase {
@@ -103,11 +105,12 @@ impl SchemaClient {
         )
     }
 
-    pub async fn get(&self) -> Result<SchemaInfo> {
-        let request = GetSchemaRequest {
-            full_name: format!("{}.{}", self.catalog_name, self.schema_name),
-        };
-        self.client.get_schema(&request).await
+    /// Get a schema using the builder pattern.
+    pub fn get(&self) -> GetSchemaBuilder {
+        GetSchemaBuilder::new(
+            self.client.clone(),
+            format!("{}.{}", self.catalog_name, self.schema_name),
+        )
     }
 
     /// Update this schema using the builder pattern.

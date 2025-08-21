@@ -6,7 +6,7 @@ use unitycatalog_common::models::external_locations::v1::*;
 use super::utils::stream_paginated;
 pub(super) use crate::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
 use crate::codegen::external_locations::builders::{
-    CreateExternalLocationBuilder, UpdateExternalLocationBuilder,
+    CreateExternalLocationBuilder, GetExternalLocationBuilder, UpdateExternalLocationBuilder,
 };
 use crate::{Error, Result};
 
@@ -72,11 +72,9 @@ impl ExternalLocationClient {
         ))
     }
 
-    pub async fn get(&self) -> Result<ExternalLocationInfo> {
-        let request = GetExternalLocationRequest {
-            name: self.name.clone(),
-        };
-        self.client.get_external_location(&request).await
+    /// Get an external location using the builder pattern.
+    pub fn get(&self) -> GetExternalLocationBuilder {
+        GetExternalLocationBuilder::new(self.client.clone(), &self.name)
     }
 
     /// Update this external location using the builder pattern.

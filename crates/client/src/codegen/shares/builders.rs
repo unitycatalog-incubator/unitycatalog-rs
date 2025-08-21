@@ -19,8 +19,8 @@ impl CreateShareBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
 }
@@ -31,6 +31,38 @@ impl IntoFuture for CreateShareBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.create_share(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetShareBuilder {
+    client: ShareClient,
+    request: GetShareRequest,
+}
+impl GetShareBuilder {
+    /// Create a new builder instance
+    pub fn new(client: ShareClient, name: impl Into<String>) -> Self {
+        let request = GetShareRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    #[doc = concat!("Set ", "include_shared_data")]
+    pub fn with_include_shared_data(
+        mut self,
+        include_shared_data: impl Into<Option<bool>>,
+    ) -> Self {
+        self.request.include_shared_data = include_shared_data.into();
+        self
+    }
+}
+impl IntoFuture for GetShareBuilder {
+    type Output = Result<ShareInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_share(&request).await })
     }
 }
 /// Builder for creating requests
@@ -56,18 +88,18 @@ impl UpdateShareBuilder {
         self
     }
     #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
+    pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
+        self.request.new_name = new_name.into();
         self
     }
     #[doc = concat!("Set ", "owner")]
-    pub fn with_owner(mut self, owner: impl Into<String>) -> Self {
-        self.request.owner = Some(owner.into());
+    pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
+        self.request.owner = owner.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
 }

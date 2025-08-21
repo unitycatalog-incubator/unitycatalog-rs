@@ -24,8 +24,8 @@ impl CreateSchemaBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -52,6 +52,30 @@ impl IntoFuture for CreateSchemaBuilder {
     }
 }
 /// Builder for creating requests
+pub struct GetSchemaBuilder {
+    client: SchemaClient,
+    request: GetSchemaRequest,
+}
+impl GetSchemaBuilder {
+    /// Create a new builder instance
+    pub fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+        let request = GetSchemaRequest {
+            full_name: full_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for GetSchemaBuilder {
+    type Output = Result<SchemaInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_schema(&request).await })
+    }
+}
+/// Builder for creating requests
 pub struct UpdateSchemaBuilder {
     client: SchemaClient,
     request: UpdateSchemaRequest,
@@ -66,8 +90,8 @@ impl UpdateSchemaBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -84,8 +108,8 @@ impl UpdateSchemaBuilder {
         self
     }
     #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
+    pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
+        self.request.new_name = new_name.into();
         self
     }
 }

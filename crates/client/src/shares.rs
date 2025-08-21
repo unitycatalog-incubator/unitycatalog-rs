@@ -5,7 +5,7 @@ use unitycatalog_common::models::shares::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
-use crate::codegen::shares::builders::{CreateShareBuilder, UpdateShareBuilder};
+use crate::codegen::shares::builders::{CreateShareBuilder, GetShareBuilder, UpdateShareBuilder};
 
 impl ShareClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<ShareInfo>> {
@@ -52,12 +52,9 @@ impl ShareClient {
         CreateShareBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn get(&self, include_shared_data: impl Into<Option<bool>>) -> Result<ShareInfo> {
-        let request = GetShareRequest {
-            name: self.name.clone(),
-            include_shared_data: include_shared_data.into(),
-        };
-        self.client.get_share(&request).await
+    /// Get a share using the builder pattern.
+    pub fn get(&self) -> GetShareBuilder {
+        GetShareBuilder::new(self.client.clone(), &self.name)
     }
 
     pub async fn delete(&self) -> Result<()> {

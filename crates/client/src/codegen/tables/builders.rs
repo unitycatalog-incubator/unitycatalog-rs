@@ -38,13 +38,13 @@ impl CreateTableBuilder {
         self
     }
     #[doc = concat!("Set ", "storage_location")]
-    pub fn with_storage_location(mut self, storage_location: impl Into<String>) -> Self {
-        self.request.storage_location = Some(storage_location.into());
+    pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
+        self.request.storage_location = storage_location.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -68,5 +68,74 @@ impl IntoFuture for CreateTableBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.create_table(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetTableBuilder {
+    client: TableClient,
+    request: GetTableRequest,
+}
+impl GetTableBuilder {
+    /// Create a new builder instance
+    pub fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+        let request = GetTableRequest {
+            full_name: full_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    #[doc = concat!("Set ", "include_delta_metadata")]
+    pub fn with_include_delta_metadata(
+        mut self,
+        include_delta_metadata: impl Into<Option<bool>>,
+    ) -> Self {
+        self.request.include_delta_metadata = include_delta_metadata.into();
+        self
+    }
+    #[doc = concat!("Set ", "include_browse")]
+    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
+        self.request.include_browse = include_browse.into();
+        self
+    }
+    #[doc = concat!("Set ", "include_manifest_capabilities")]
+    pub fn with_include_manifest_capabilities(
+        mut self,
+        include_manifest_capabilities: impl Into<Option<bool>>,
+    ) -> Self {
+        self.request.include_manifest_capabilities = include_manifest_capabilities.into();
+        self
+    }
+}
+impl IntoFuture for GetTableBuilder {
+    type Output = Result<TableInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_table(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetTableExistsBuilder {
+    client: TableClient,
+    request: GetTableExistsRequest,
+}
+impl GetTableExistsBuilder {
+    /// Create a new builder instance
+    pub fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+        let request = GetTableExistsRequest {
+            full_name: full_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for GetTableExistsBuilder {
+    type Output = Result<GetTableExistsResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_table_exists(&request).await })
     }
 }

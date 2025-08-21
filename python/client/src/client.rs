@@ -234,13 +234,11 @@ impl PyUnityCatalogClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<CatalogInfo> {
-        let mut request = self.0.create_catalog(name);
-        if let Some(storage_root) = storage_root {
-            request = request.with_storage_root(storage_root);
-        }
-        if let Some(comment) = comment {
-            request = request.with_comment(comment);
-        }
+        let mut request = self
+            .0
+            .create_catalog(name)
+            .with_storage_root(storage_root)
+            .with_comment(comment);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
@@ -456,7 +454,7 @@ impl PyCatalogClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<CatalogInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get())?;
+            let info = runtime.block_on(self.client.get().into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -534,7 +532,7 @@ impl PySchemaClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<SchemaInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get())?;
+            let info = runtime.block_on(self.client.get().into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -560,13 +558,10 @@ impl PySchemaClient {
     ) -> PyUnityCatalogResult<TableInfo> {
         let mut request = self
             .client
-            .create_table(name, table_type, data_source_format);
-        if let Some(storage_location) = storage_location {
-            request = request.with_storage_location(storage_location);
-        }
-        if let Some(comment) = comment {
-            request = request.with_comment(comment);
-        }
+            .create_table(name, table_type, data_source_format)
+            .with_storage_location(storage_location)
+            .with_comment(comment)
+            .with_columns(columns);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
@@ -587,13 +582,11 @@ impl PySchemaClient {
     ) -> PyUnityCatalogResult<SchemaInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self.client.update();
-            if let Some(new_name) = new_name {
-                request = request.with_new_name(new_name);
-            }
-            if let Some(comment) = comment {
-                request = request.with_comment(comment);
-            }
+            let mut request = self
+                .client
+                .update()
+                .with_new_name(new_name)
+                .with_comment(comment);
             if let Some(properties) = properties {
                 request = request.with_properties(properties);
             }
@@ -627,13 +620,15 @@ impl PyTableClient {
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
     ) -> PyUnityCatalogResult<TableInfo> {
+        let request = self
+            .client
+            .get()
+            .with_include_delta_metadata(include_delta_metadata)
+            .with_include_browse(include_browse)
+            .with_include_manifest_capabilities(include_manifest_capabilities);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get(
-                include_delta_metadata,
-                include_browse,
-                include_manifest_capabilities,
-            ))?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -660,9 +655,13 @@ impl PyShareClient {
         py: Python,
         include_shared_data: Option<bool>,
     ) -> PyUnityCatalogResult<ShareInfo> {
+        let request = self
+            .client
+            .get()
+            .with_include_shared_data(include_shared_data);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get(include_shared_data))?;
+            let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -678,15 +677,14 @@ impl PyShareClient {
     ) -> PyUnityCatalogResult<ShareInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self.client.update();
-            if let Some(new_name) = new_name {
-                request = request.with_new_name(new_name);
-            }
-            if let Some(comment) = comment {
-                request = request.with_comment(comment);
-            }
-            if let Some(owner) = owner {
-                request = request.with_owner(owner);
+            let mut request = self
+                .client
+                .update()
+                .with_new_name(new_name)
+                .with_comment(comment)
+                .with_owner(owner);
+            if let Some(updates) = updates {
+                request = request.with_updates(updates);
             }
             let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
@@ -712,7 +710,7 @@ impl PyRecipientClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<RecipientInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get())?;
+            let info = runtime.block_on(self.client.get().into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -729,21 +727,15 @@ impl PyRecipientClient {
     ) -> PyUnityCatalogResult<RecipientInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self.client.update();
-            if let Some(new_name) = new_name {
-                request = request.with_new_name(new_name);
-            }
-            if let Some(comment) = comment {
-                request = request.with_comment(comment);
-            }
-            if let Some(owner) = owner {
-                request = request.with_owner(owner);
-            }
+            let mut request = self
+                .client
+                .update()
+                .with_new_name(new_name)
+                .with_comment(comment)
+                .with_owner(owner)
+                .with_expiration_time(expiration_time);
             if let Some(properties) = properties {
                 request = request.with_properties(properties);
-            }
-            if let Some(expiration_time) = expiration_time {
-                request = request.with_expiration_time(expiration_time);
             }
             let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
@@ -769,7 +761,7 @@ impl PyCredentialClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get())?;
+            let info = runtime.block_on(self.client.get().into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -790,24 +782,17 @@ impl PyCredentialClient {
     ) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self.client.update();
-            if let Some(new_name) = new_name {
-                request = request.with_new_name(new_name);
-            }
-            if let Some(comment) = comment {
-                request = request.with_comment(comment);
-            }
-            if let Some(owner) = owner {
-                request = request.with_owner(owner);
-            }
-            if let Some(read_only) = read_only {
-                request = request.with_read_only(read_only);
-            }
-            if let Some(skip_validation) = skip_validation {
-                request = request.with_skip_validation(skip_validation);
-            }
-            if let Some(force) = force {
-                request = request.with_force(force);
+            let mut request = self
+                .client
+                .update()
+                .with_new_name(new_name)
+                .with_comment(comment)
+                .with_owner(owner)
+                .with_read_only(read_only)
+                .with_skip_validation(skip_validation)
+                .with_force(force);
+            if let Some(credential) = credential {
+                request = request.with_credential(credential);
             }
             let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
@@ -833,7 +818,7 @@ impl PyExternalLocationClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocationInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get())?;
+            let info = runtime.block_on(self.client.get().into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
     }
@@ -853,31 +838,17 @@ impl PyExternalLocationClient {
     ) -> PyUnityCatalogResult<ExternalLocationInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self.client.update();
-            if let Some(new_name) = new_name {
-                request = request.with_new_name(new_name);
-            }
-            if let Some(url) = url {
-                request = request.with_url(url.to_string());
-            }
-            if let Some(credential_name) = credential_name {
-                request = request.with_credential_name(credential_name);
-            }
-            if let Some(comment) = comment {
-                request = request.with_comment(comment);
-            }
-            if let Some(owner) = owner {
-                request = request.with_owner(owner);
-            }
-            if let Some(read_only) = read_only {
-                request = request.with_read_only(read_only);
-            }
-            if let Some(skip_validation) = skip_validation {
-                request = request.with_skip_validation(skip_validation);
-            }
-            if let Some(force) = force {
-                request = request.with_force(force);
-            }
+            let request = self
+                .client
+                .update()
+                .with_new_name(new_name)
+                .with_url(url)
+                .with_credential_name(credential_name)
+                .with_comment(comment)
+                .with_owner(owner)
+                .with_read_only(read_only)
+                .with_skip_validation(skip_validation)
+                .with_force(force);
             let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })
@@ -1108,9 +1079,10 @@ impl PyVolumeClient {
         py: Python,
         include_browse: Option<bool>,
     ) -> PyUnityCatalogResult<VolumeInfo> {
+        let request = self.client.get().with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let volume = runtime.block_on(self.client.get(include_browse))?;
+            let volume = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(volume)
         })
     }

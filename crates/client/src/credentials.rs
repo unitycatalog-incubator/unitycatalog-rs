@@ -5,7 +5,9 @@ use unitycatalog_common::models::credentials::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
-use crate::codegen::credentials::builders::{CreateCredentialBuilder, UpdateCredentialBuilder};
+use crate::codegen::credentials::builders::{
+    CreateCredentialBuilder, GetCredentialBuilder, UpdateCredentialBuilder,
+};
 
 impl CredentialClientBase {
     pub fn list(
@@ -58,11 +60,9 @@ impl CredentialClient {
         CreateCredentialBuilder::new(self.client.clone(), &self.name, purpose)
     }
 
-    pub async fn get(&self) -> Result<CredentialInfo> {
-        let request = GetCredentialRequest {
-            name: self.name.clone(),
-        };
-        self.client.get_credential(&request).await
+    /// Get a credential using the builder pattern.
+    pub fn get(&self) -> GetCredentialBuilder {
+        GetCredentialBuilder::new(self.client.clone(), &self.name)
     }
 
     /// Update this credential using the builder pattern.

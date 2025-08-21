@@ -53,8 +53,8 @@ impl GenerateTemporaryPathCredentialsBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "dry_run")]
-    pub fn with_dry_run(mut self, dry_run: bool) -> Self {
-        self.request.dry_run = Some(dry_run);
+    pub fn with_dry_run(mut self, dry_run: impl Into<Option<bool>>) -> Self {
+        self.request.dry_run = dry_run.into();
         self
     }
 }

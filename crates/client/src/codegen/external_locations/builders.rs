@@ -26,18 +26,18 @@ impl CreateExternalLocationBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "read_only")]
-    pub fn with_read_only(mut self, read_only: bool) -> Self {
-        self.request.read_only = Some(read_only);
+    pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
+        self.request.read_only = read_only.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "skip_validation")]
-    pub fn with_skip_validation(mut self, skip_validation: bool) -> Self {
-        self.request.skip_validation = Some(skip_validation);
+    pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
+        self.request.skip_validation = skip_validation.into();
         self
     }
 }
@@ -48,6 +48,30 @@ impl IntoFuture for CreateExternalLocationBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.create_external_location(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetExternalLocationBuilder {
+    client: ExternalLocationClient,
+    request: GetExternalLocationRequest,
+}
+impl GetExternalLocationBuilder {
+    /// Create a new builder instance
+    pub fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+        let request = GetExternalLocationRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for GetExternalLocationBuilder {
+    type Output = Result<ExternalLocationInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_external_location(&request).await })
     }
 }
 /// Builder for creating requests
@@ -65,43 +89,43 @@ impl UpdateExternalLocationBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "url")]
-    pub fn with_url(mut self, url: impl Into<String>) -> Self {
-        self.request.url = Some(url.into());
+    pub fn with_url(mut self, url: impl Into<Option<String>>) -> Self {
+        self.request.url = url.into();
         self
     }
     #[doc = concat!("Set ", "credential_name")]
-    pub fn with_credential_name(mut self, credential_name: impl Into<String>) -> Self {
-        self.request.credential_name = Some(credential_name.into());
+    pub fn with_credential_name(mut self, credential_name: impl Into<Option<String>>) -> Self {
+        self.request.credential_name = credential_name.into();
         self
     }
     #[doc = concat!("Set ", "read_only")]
-    pub fn with_read_only(mut self, read_only: bool) -> Self {
-        self.request.read_only = Some(read_only);
+    pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
+        self.request.read_only = read_only.into();
         self
     }
     #[doc = concat!("Set ", "owner")]
-    pub fn with_owner(mut self, owner: impl Into<String>) -> Self {
-        self.request.owner = Some(owner.into());
+    pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
+        self.request.owner = owner.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
+    pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
+        self.request.new_name = new_name.into();
         self
     }
     #[doc = concat!("Set ", "force")]
-    pub fn with_force(mut self, force: bool) -> Self {
-        self.request.force = Some(force);
+    pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
+        self.request.force = force.into();
         self
     }
     #[doc = concat!("Set ", "skip_validation")]
-    pub fn with_skip_validation(mut self, skip_validation: bool) -> Self {
-        self.request.skip_validation = Some(skip_validation);
+    pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
+        self.request.skip_validation = skip_validation.into();
         self
     }
 }

@@ -26,8 +26,8 @@ impl CreateRecipientBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -44,8 +44,8 @@ impl CreateRecipientBuilder {
         self
     }
     #[doc = concat!("Set ", "expiration_time")]
-    pub fn with_expiration_time(mut self, expiration_time: i64) -> Self {
-        self.request.expiration_time = Some(expiration_time);
+    pub fn with_expiration_time(mut self, expiration_time: impl Into<Option<i64>>) -> Self {
+        self.request.expiration_time = expiration_time.into();
         self
     }
 }
@@ -56,6 +56,30 @@ impl IntoFuture for CreateRecipientBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.create_recipient(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetRecipientBuilder {
+    client: RecipientClient,
+    request: GetRecipientRequest,
+}
+impl GetRecipientBuilder {
+    /// Create a new builder instance
+    pub fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+        let request = GetRecipientRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for GetRecipientBuilder {
+    type Output = Result<RecipientInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_recipient(&request).await })
     }
 }
 /// Builder for creating requests
@@ -73,18 +97,18 @@ impl UpdateRecipientBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
+    pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
+        self.request.new_name = new_name.into();
         self
     }
     #[doc = concat!("Set ", "owner")]
-    pub fn with_owner(mut self, owner: impl Into<String>) -> Self {
-        self.request.owner = Some(owner.into());
+    pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
+        self.request.owner = owner.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -101,8 +125,8 @@ impl UpdateRecipientBuilder {
         self
     }
     #[doc = concat!("Set ", "expiration_time")]
-    pub fn with_expiration_time(mut self, expiration_time: i64) -> Self {
-        self.request.expiration_time = Some(expiration_time);
+    pub fn with_expiration_time(mut self, expiration_time: impl Into<Option<i64>>) -> Self {
+        self.request.expiration_time = expiration_time.into();
         self
     }
 }

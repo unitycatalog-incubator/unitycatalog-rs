@@ -19,8 +19,8 @@ impl CreateCatalogBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -37,18 +37,18 @@ impl CreateCatalogBuilder {
         self
     }
     #[doc = concat!("Set ", "storage_root")]
-    pub fn with_storage_root(mut self, storage_root: impl Into<String>) -> Self {
-        self.request.storage_root = Some(storage_root.into());
+    pub fn with_storage_root(mut self, storage_root: impl Into<Option<String>>) -> Self {
+        self.request.storage_root = storage_root.into();
         self
     }
     #[doc = concat!("Set ", "provider_name")]
-    pub fn with_provider_name(mut self, provider_name: impl Into<String>) -> Self {
-        self.request.provider_name = Some(provider_name.into());
+    pub fn with_provider_name(mut self, provider_name: impl Into<Option<String>>) -> Self {
+        self.request.provider_name = provider_name.into();
         self
     }
     #[doc = concat!("Set ", "share_name")]
-    pub fn with_share_name(mut self, share_name: impl Into<String>) -> Self {
-        self.request.share_name = Some(share_name.into());
+    pub fn with_share_name(mut self, share_name: impl Into<Option<String>>) -> Self {
+        self.request.share_name = share_name.into();
         self
     }
 }
@@ -59,6 +59,35 @@ impl IntoFuture for CreateCatalogBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.create_catalog(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetCatalogBuilder {
+    client: CatalogClient,
+    request: GetCatalogRequest,
+}
+impl GetCatalogBuilder {
+    /// Create a new builder instance
+    pub fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+        let request = GetCatalogRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    #[doc = concat!("Set ", "include_browse")]
+    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
+        self.request.include_browse = include_browse.into();
+        self
+    }
+}
+impl IntoFuture for GetCatalogBuilder {
+    type Output = Result<CatalogInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_catalog(&request).await })
     }
 }
 /// Builder for creating requests
@@ -76,13 +105,13 @@ impl UpdateCatalogBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "owner")]
-    pub fn with_owner(mut self, owner: impl Into<String>) -> Self {
-        self.request.owner = Some(owner.into());
+    pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
+        self.request.owner = owner.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "properties")]
@@ -99,8 +128,8 @@ impl UpdateCatalogBuilder {
         self
     }
     #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
+    pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
+        self.request.new_name = new_name.into();
         self
     }
 }

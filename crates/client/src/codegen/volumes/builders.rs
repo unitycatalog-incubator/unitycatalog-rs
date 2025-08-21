@@ -28,13 +28,13 @@ impl CreateVolumeBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "storage_location")]
-    pub fn with_storage_location(mut self, storage_location: impl Into<String>) -> Self {
-        self.request.storage_location = Some(storage_location.into());
+    pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
+        self.request.storage_location = storage_location.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
 }
@@ -45,6 +45,35 @@ impl IntoFuture for CreateVolumeBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.create_volume(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetVolumeBuilder {
+    client: VolumeClient,
+    request: GetVolumeRequest,
+}
+impl GetVolumeBuilder {
+    /// Create a new builder instance
+    pub fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+        let request = GetVolumeRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    #[doc = concat!("Set ", "include_browse")]
+    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
+        self.request.include_browse = include_browse.into();
+        self
+    }
+}
+impl IntoFuture for GetVolumeBuilder {
+    type Output = Result<VolumeInfo>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_volume(&request).await })
     }
 }
 /// Builder for creating requests
@@ -62,23 +91,23 @@ impl UpdateVolumeBuilder {
         Self { client, request }
     }
     #[doc = concat!("Set ", "new_name")]
-    pub fn with_new_name(mut self, new_name: impl Into<String>) -> Self {
-        self.request.new_name = Some(new_name.into());
+    pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
+        self.request.new_name = new_name.into();
         self
     }
     #[doc = concat!("Set ", "comment")]
-    pub fn with_comment(mut self, comment: impl Into<String>) -> Self {
-        self.request.comment = Some(comment.into());
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
         self
     }
     #[doc = concat!("Set ", "owner")]
-    pub fn with_owner(mut self, owner: impl Into<String>) -> Self {
-        self.request.owner = Some(owner.into());
+    pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
+        self.request.owner = owner.into();
         self
     }
     #[doc = concat!("Set ", "include_browse")]
-    pub fn with_include_browse(mut self, include_browse: bool) -> Self {
-        self.request.include_browse = Some(include_browse);
+    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
+        self.request.include_browse = include_browse.into();
         self
     }
 }
