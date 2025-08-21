@@ -11,7 +11,7 @@ pub struct CreateRecipientBuilder {
 }
 impl CreateRecipientBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: RecipientClient,
         name: impl Into<String>,
         authentication_type: AuthenticationType,
@@ -68,7 +68,7 @@ pub struct GetRecipientBuilder {
 }
 impl GetRecipientBuilder {
     /// Create a new builder instance
-    pub fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
         let request = GetRecipientRequest {
             name: name.into(),
             ..Default::default()
@@ -92,7 +92,7 @@ pub struct UpdateRecipientBuilder {
 }
 impl UpdateRecipientBuilder {
     /// Create a new builder instance
-    pub fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
         let request = UpdateRecipientRequest {
             name: name.into(),
             ..Default::default()

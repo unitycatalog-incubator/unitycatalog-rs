@@ -11,7 +11,7 @@ pub struct GenerateTemporaryTableCredentialsBuilder {
 }
 impl GenerateTemporaryTableCredentialsBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: TemporaryCredentialClient,
         table_id: impl Into<String>,
         operation: generate_temporary_table_credentials_request::Operation,
@@ -40,7 +40,7 @@ pub struct GenerateTemporaryPathCredentialsBuilder {
 }
 impl GenerateTemporaryPathCredentialsBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: TemporaryCredentialClient,
         url: impl Into<String>,
         operation: generate_temporary_path_credentials_request::Operation,

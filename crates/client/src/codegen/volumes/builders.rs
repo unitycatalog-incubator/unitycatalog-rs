@@ -11,7 +11,7 @@ pub struct CreateVolumeBuilder {
 }
 impl CreateVolumeBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: VolumeClient,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
@@ -54,7 +54,7 @@ pub struct GetVolumeBuilder {
 }
 impl GetVolumeBuilder {
     /// Create a new builder instance
-    pub fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
         let request = GetVolumeRequest {
             name: name.into(),
             ..Default::default()
@@ -83,7 +83,7 @@ pub struct UpdateVolumeBuilder {
 }
 impl UpdateVolumeBuilder {
     /// Create a new builder instance
-    pub fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
         let request = UpdateVolumeRequest {
             name: name.into(),
             ..Default::default()

@@ -11,7 +11,7 @@ pub struct CreateCatalogBuilder {
 }
 impl CreateCatalogBuilder {
     /// Create a new builder instance
-    pub fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = CreateCatalogRequest {
             name: name.into(),
             ..Default::default()
@@ -70,7 +70,7 @@ pub struct GetCatalogBuilder {
 }
 impl GetCatalogBuilder {
     /// Create a new builder instance
-    pub fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = GetCatalogRequest {
             name: name.into(),
             ..Default::default()
@@ -99,7 +99,7 @@ pub struct UpdateCatalogBuilder {
 }
 impl UpdateCatalogBuilder {
     /// Create a new builder instance
-    pub fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = UpdateCatalogRequest {
             name: name.into(),
             ..Default::default()
