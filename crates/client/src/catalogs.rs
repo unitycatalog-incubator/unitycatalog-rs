@@ -121,9 +121,7 @@ impl CatalogClient {
     ) -> Result<CatalogInfo> {
         let request = UpdateCatalogRequest {
             name: self.name.clone(),
-            new_name: new_name
-                .map(|s| s.to_string())
-                .unwrap_or_else(|| self.name.clone()),
+            new_name: new_name.map(|s| s.to_string()),
             comment: comment.map(|s| s.to_string()),
             owner: owner.map(|s| s.to_string()),
             properties: properties.into().unwrap_or_default(),

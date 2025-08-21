@@ -88,7 +88,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
         let resource = CatalogInfo {
-            name: request.new_name,
+            name: request.new_name.unwrap_or(request.name),
             comment: request.comment,
             properties: request.properties,
             ..Default::default()

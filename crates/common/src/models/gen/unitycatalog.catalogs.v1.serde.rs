@@ -1072,7 +1072,7 @@ impl serde::Serialize for UpdateCatalogRequest {
         if !self.properties.is_empty() {
             len += 1;
         }
-        if !self.new_name.is_empty() {
+        if self.new_name.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.UpdateCatalogRequest", len)?;
@@ -1088,8 +1088,8 @@ impl serde::Serialize for UpdateCatalogRequest {
         if !self.properties.is_empty() {
             struct_ser.serialize_field("properties", &self.properties)?;
         }
-        if !self.new_name.is_empty() {
-            struct_ser.serialize_field("new_name", &self.new_name)?;
+        if let Some(v) = self.new_name.as_ref() {
+            struct_ser.serialize_field("new_name", v)?;
         }
         struct_ser.end()
     }
@@ -1199,7 +1199,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                             if new_name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("newName"));
                             }
-                            new_name__ = Some(map_.next_value()?);
+                            new_name__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1211,7 +1211,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                     owner: owner__,
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),
-                    new_name: new_name__.unwrap_or_default(),
+                    new_name: new_name__,
                 })
             }
         }

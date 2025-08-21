@@ -453,7 +453,7 @@ impl JourneyRecorder {
     /// Resolve step dependencies to determine execution order
     fn resolve_step_dependencies(&self, steps: &[JourneyStep]) -> Vec<JourneyStep> {
         let mut ordered_steps = Vec::new();
-        let mut remaining_steps: Vec<_> = steps.iter().cloned().collect();
+        let mut remaining_steps: Vec<_> = steps.to_vec();
         let mut satisfied_steps = std::collections::HashSet::new();
 
         while !remaining_steps.is_empty() {
@@ -564,8 +564,7 @@ impl JourneyRecorder {
             return Some(value.clone());
         }
 
-        if path.starts_with("$.") {
-            let field_path = &path[2..];
+        if let Some(field_path) = path.strip_prefix("$.") {
             self.extract_nested_value(value, field_path)
         } else {
             None

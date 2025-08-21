@@ -316,7 +316,7 @@ impl JourneyExecutor {
     /// Resolve the execution order of steps based on dependencies
     fn resolve_execution_order(&self, steps: &[JourneyStep]) -> Vec<JourneyStep> {
         let mut ordered_steps = Vec::new();
-        let mut remaining_steps: Vec<_> = steps.iter().cloned().collect();
+        let mut remaining_steps: Vec<_> = steps.to_vec();
         let mut satisfied_steps = std::collections::HashSet::new();
 
         while !remaining_steps.is_empty() {
@@ -486,8 +486,7 @@ impl JourneyExecutor {
             return Some(value.clone());
         }
 
-        if path.starts_with("$.") {
-            let field_path = &path[2..];
+        if let Some(field_path) = path.strip_prefix("$.") {
             let parts: Vec<&str> = field_path.split('.').collect();
 
             let mut current = value;
@@ -518,7 +517,7 @@ impl JourneyLoader {
     /// Load a journey from a JSON file
     pub fn load_journey(filename: &str) -> AcceptanceResult<UserJourney> {
         let path = format!("journeys/{}", filename);
-        let content = std::fs::read_to_string(&path).map_err(|e| AcceptanceError::Io(e))?;
+        let content = std::fs::read_to_string(&path).map_err(AcceptanceError::Io)?;
 
         let journey: UserJourney = serde_json::from_str(&content)?;
         Ok(journey)

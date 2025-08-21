@@ -96,7 +96,7 @@ impl TestServer {
                         self.mock_endpoint(method, path)
                             .with_status(200)
                             .with_header("content-type", "application/json")
-                            .with_body(&response.to_string())
+                            .with_body(response.to_string())
                             .create_async()
                             .await;
                     }
@@ -115,7 +115,7 @@ impl TestDataLoader {
     /// Load a JSON response from the test_data directory
     pub fn load_response(category: &str, filename: &str) -> AcceptanceResult<Value> {
         let path = format!("test_data/{}/{}", category, filename);
-        let content = std::fs::read_to_string(&path).map_err(|e| AcceptanceError::Io(e))?;
+        let content = std::fs::read_to_string(&path).map_err(AcceptanceError::Io)?;
 
         let value: Value = serde_json::from_str(&content)?;
         Ok(value)
@@ -127,8 +127,8 @@ impl TestDataLoader {
         filename: &str,
         variables: &std::collections::HashMap<String, Value>,
     ) -> AcceptanceResult<Value> {
-        let mut content = std::fs::read_to_string(&format!("test_data/{}/{}", category, filename))
-            .map_err(|e| AcceptanceError::Io(e))?;
+        let mut content = std::fs::read_to_string(format!("test_data/{}/{}", category, filename))
+            .map_err(AcceptanceError::Io)?;
 
         // Simple variable substitution
         for (key, value) in variables {

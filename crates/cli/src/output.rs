@@ -252,7 +252,6 @@ impl OutputFormatter {
 
     /// Print operation start (with optional spinner)
     pub fn operation_start(operation: &str) -> ProgressBar {
-        
         Self::spinner(operation)
     }
 
