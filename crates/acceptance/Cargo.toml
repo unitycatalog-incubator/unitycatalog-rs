@@ -37,6 +37,10 @@ tracing = { workspace = true }
 # Utilities
 itertools = { workspace = true }
 
+# Rich terminal output and reporting
+console = "0.15"
+comfy-table = "7.1"
+
 # Testing and mocking
 mockito = "1.4"
 

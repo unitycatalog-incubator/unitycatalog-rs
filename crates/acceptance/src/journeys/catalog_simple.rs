@@ -159,7 +159,7 @@ mod tests {
     fn test_simple_catalog_journey_properties() {
         let journey = SimpleCatalogJourney::new();
 
-        assert_eq!(journey.name(), "simple_catalog_example");
+        assert_eq!(journey.name(), "simple_catalog");
         assert!(!journey.description().is_empty());
         assert!(journey.tags().contains(&"catalog"));
         assert!(journey.tags().contains(&"simple"));

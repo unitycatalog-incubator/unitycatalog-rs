@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "POST",
+    "url_path": "/api/2.1/unity-catalog/catalogs",
+    "body": "{\"name\":\"enhanced_catalog_1755886797\",\"comment\":\"Enhanced test catalog with rich reporting\",\"storage_root\":\"s3://open-lakehouse-dev/\"}"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "date": "Fri, 22 Aug 2025 18:20:00 GMT",
+      "content-type": "application/json",
+      "content-length": "1195",
+      "vary": "Accept-Encoding",
+      "server": "databricks",
+      "x-request-id": "3a9864fe-ffa3-4658-8d96-4a47e54cf02c",
+      "alt-svc": "clear",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+      "x-databricks-org-id": "310942840210298",
+      "x-content-type-options": "nosniff"
+    },
+    "body": "{\"name\":\"enhanced_catalog_1755886797\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Enhanced test catalog with rich reporting\",\"storage_root\":\"s3://open-lakehouse-dev/\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"catalog_type\":\"MANAGED_CATALOG\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"created_at\":1755886800572,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1755886800572,\"updated_by\":\"robert.pack@databricks.com\",\"storage_location\":\"s3://open-lakehouse-dev/__unitystorage/catalogs/8949f0d1-5bea-4fe5-8d69-f43453a38cd9\",\"isolation_mode\":\"OPEN\",\"effective_auto_maintenance_flag\":{\"value\":\"DISABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"DISABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"browse_only\":false,\"id\":\"8949f0d1-5bea-4fe5-8d69-f43453a38cd9\",\"full_name\":\"enhanced_catalog_1755886797\",\"securable_type\":\"CATALOG\",\"securable_kind\":\"CATALOG_STANDARD\",\"resource_name\":\"/metastores/d588dff9-484f-45ac-a020-cc4961a362c7/catalogs/8949f0d1-5bea-4fe5-8d69-f43453a38cd9\",\"metastore_version\":-1}"
+  }
+}
