@@ -10,6 +10,7 @@
 use async_trait::async_trait;
 use cloud_client::{CloudClient, RequestResponseInfo};
 use mockito::ServerGuard;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -45,6 +46,72 @@ pub trait UserJourney: Send + Sync {
     /// Tags for organizing journeys
     fn tags(&self) -> Vec<&str> {
         vec![]
+    }
+
+    /// Save journey state for replay
+    fn save_state(&self) -> AcceptanceResult<JourneyState> {
+        Ok(JourneyState::empty())
+    }
+
+    /// Restore journey state from replay data
+    fn load_state(&mut self, _state: &JourneyState) -> AcceptanceResult<()> {
+        Ok(())
+    }
+}
+
+/// Journey state that can be persisted and restored
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JourneyState {
+    /// Generic key-value store for journey-specific data
+    pub data: HashMap<String, serde_json::Value>,
+}
+
+impl JourneyState {
+    /// Create an empty state
+    pub fn empty() -> Self {
+        Self {
+            data: HashMap::new(),
+        }
+    }
+
+    /// Set a string value
+    pub fn set_string(&mut self, key: &str, value: String) {
+        self.data
+            .insert(key.to_string(), serde_json::Value::String(value));
+    }
+
+    /// Get a string value
+    pub fn get_string(&self, key: &str) -> Option<String> {
+        self.data.get(key)?.as_str().map(|s| s.to_string())
+    }
+
+    /// Set an integer value
+    pub fn set_i64(&mut self, key: &str, value: i64) {
+        self.data.insert(
+            key.to_string(),
+            serde_json::Value::Number(serde_json::Number::from(value)),
+        );
+    }
+
+    /// Get an integer value
+    pub fn get_i64(&self, key: &str) -> Option<i64> {
+        self.data.get(key)?.as_i64()
+    }
+
+    /// Set a boolean value
+    pub fn set_bool(&mut self, key: &str, value: bool) {
+        self.data
+            .insert(key.to_string(), serde_json::Value::Bool(value));
+    }
+
+    /// Get a boolean value
+    pub fn get_bool(&self, key: &str) -> Option<bool> {
+        self.data.get(key)?.as_bool()
+    }
+
+    /// Check if state is empty
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 }
 
@@ -94,6 +161,10 @@ impl JourneyExecutor {
                 let entry = entry.ok()?;
                 let path = entry.path();
                 if path.extension()? == "json" {
+                    // Exclude journey_state.json from recordings
+                    if path.file_name()? == "journey_state.json" {
+                        return None;
+                    }
                     Some(path)
                 } else {
                     None
@@ -125,6 +196,55 @@ impl JourneyExecutor {
         }
 
         Ok(recordings)
+    }
+
+    /// Save journey state to the recordings directory
+    fn save_journey_state(recordings_dir: &PathBuf, state: &JourneyState) -> AcceptanceResult<()> {
+        if state.is_empty() {
+            return Ok(());
+        }
+
+        let state_file = recordings_dir.join("journey_state.json");
+        let content = serde_json::to_string_pretty(state).map_err(|e| {
+            AcceptanceError::Recording(format!("Failed to serialize journey state: {}", e))
+        })?;
+
+        fs::write(&state_file, content).map_err(|e| {
+            AcceptanceError::Recording(format!(
+                "Failed to write journey state to {}: {}",
+                state_file.display(),
+                e
+            ))
+        })?;
+
+        Ok(())
+    }
+
+    /// Load journey state from the recordings directory
+    async fn load_journey_state(recordings_dir: &PathBuf) -> AcceptanceResult<JourneyState> {
+        let state_file = recordings_dir.join("journey_state.json");
+
+        if !state_file.exists() {
+            return Ok(JourneyState::empty());
+        }
+
+        let content = fs::read_to_string(&state_file).map_err(|e| {
+            AcceptanceError::JourneyValidation(format!(
+                "Failed to read journey state from {}: {}",
+                state_file.display(),
+                e
+            ))
+        })?;
+
+        let state: JourneyState = serde_json::from_str(&content).map_err(|e| {
+            AcceptanceError::JourneyValidation(format!(
+                "Failed to parse journey state from {}: {}",
+                state_file.display(),
+                e
+            ))
+        })?;
+
+        Ok(state)
     }
 
     /// Set up mock server with recorded interactions
@@ -216,7 +336,7 @@ impl JourneyExecutor {
     /// Execute a journey
     pub async fn execute_journey(
         &self,
-        journey: &dyn UserJourney,
+        journey: &mut dyn UserJourney,
     ) -> AcceptanceResult<JourneyExecutionResult> {
         let start_time = std::time::Instant::now();
         let mut result = JourneyExecutionResult {
@@ -273,7 +393,7 @@ impl JourneyExecutor {
     /// Execute multiple journeys
     pub async fn execute_journeys(
         &self,
-        journeys: Vec<&dyn UserJourney>,
+        journeys: Vec<&mut dyn UserJourney>,
     ) -> AcceptanceResult<Vec<JourneyExecutionResult>> {
         let mut results = Vec::new();
 
@@ -376,36 +496,6 @@ impl JourneyConfig {
         Ok(UnityCatalogClient::new(client, base_url))
     }
 
-    /// Create executor from configuration
-    pub async fn create_executor(
-        &self,
-        journey_name: impl Into<String>,
-    ) -> AcceptanceResult<JourneyExecutor> {
-        let journey_name = journey_name.into();
-
-        if self.recording_enabled {
-            // Live mode with recording
-            let out_dir = std::fs::canonicalize(self.output_dir.clone())?;
-            let out_dir = out_dir.join(&journey_name);
-            let client = self.create_client(out_dir)?;
-            Ok(JourneyExecutor::new(client))
-        } else {
-            // Replay mode - use recorded interactions
-            let recordings_dir =
-                std::fs::canonicalize(self.output_dir.clone())?.join(&journey_name);
-
-            println!(
-                "🎬 Starting replay mode for journey '{}' from {}",
-                journey_name,
-                recordings_dir.display()
-            );
-
-            let (mock_server, client) = JourneyExecutor::setup_mock_server(&recordings_dir).await?;
-
-            Ok(JourneyExecutor::new_with_mock(client, mock_server))
-        }
-    }
-
     /// Enable/disable recording (true = live mode with recording, false = replay mode)
     pub fn with_recording(mut self, enabled: bool) -> Self {
         self.recording_enabled = enabled;
@@ -416,6 +506,48 @@ impl JourneyConfig {
     pub fn with_output_dir(mut self, dir: PathBuf) -> Self {
         self.output_dir = dir;
         self
+    }
+
+    /// Execute a journey with state management
+    pub async fn execute_journey(
+        &self,
+        journey: &mut dyn UserJourney,
+    ) -> AcceptanceResult<JourneyExecutionResult> {
+        if self.recording_enabled {
+            // Live mode with recording - save state after execution
+            let out_dir = std::fs::canonicalize(self.output_dir.clone())?;
+            let out_dir = out_dir.join(journey.name());
+            let client = self.create_client(out_dir.clone())?;
+            let executor = JourneyExecutor::new(client);
+            let result = executor.execute_journey(journey).await?;
+
+            // Save journey state if journey was successful
+            if result.is_success() {
+                let state = journey.save_state()?;
+                JourneyExecutor::save_journey_state(&out_dir, &state)?;
+            }
+
+            Ok(result)
+        } else {
+            // Replay mode - load state and use recorded interactions
+            let recordings_dir =
+                std::fs::canonicalize(self.output_dir.clone())?.join(journey.name());
+
+            println!(
+                "🎬 Starting replay mode for journey '{}' from {}",
+                journey.name(),
+                recordings_dir.display()
+            );
+
+            // Load and apply journey state
+            let state = JourneyExecutor::load_journey_state(&recordings_dir).await?;
+            journey.load_state(&state)?;
+
+            let (mock_server, client) = JourneyExecutor::setup_mock_server(&recordings_dir).await?;
+            let executor = JourneyExecutor::new_with_mock(client, mock_server);
+
+            executor.execute_journey(journey).await
+        }
     }
 }
 

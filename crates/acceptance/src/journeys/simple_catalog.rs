@@ -8,7 +8,7 @@ use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
 
 use crate::AcceptanceResult;
-use crate::simple_journey::UserJourney;
+use crate::simple_journey::{JourneyState, UserJourney};
 
 /// A simple catalog journey that creates, reads, and deletes a catalog
 pub struct SimpleCatalogJourney {
@@ -19,9 +19,12 @@ pub struct SimpleCatalogJourney {
 impl SimpleCatalogJourney {
     /// Create a new simple catalog journey
     pub fn new() -> Self {
+        // Always use timestamp-based name initially; state management will handle replay
         let timestamp = chrono::Utc::now().timestamp();
+        let catalog_name = format!("simple_catalog_{}", timestamp);
+
         Self {
-            catalog_name: format!("simple_catalog_{}", timestamp),
+            catalog_name,
             storage_root: "s3://open-lakehouse-dev/".to_string(),
         }
     }
@@ -43,7 +46,7 @@ impl SimpleCatalogJourney {
 #[async_trait]
 impl UserJourney for SimpleCatalogJourney {
     fn name(&self) -> &str {
-        "simple_catalog_example"
+        "simple_catalog"
     }
 
     fn description(&self) -> &str {
@@ -52,6 +55,23 @@ impl UserJourney for SimpleCatalogJourney {
 
     fn tags(&self) -> Vec<&str> {
         vec!["catalog", "simple", "example", "smoke"]
+    }
+
+    fn save_state(&self) -> AcceptanceResult<JourneyState> {
+        let mut state = JourneyState::empty();
+        state.set_string("catalog_name", self.catalog_name.clone());
+        state.set_string("storage_root", self.storage_root.clone());
+        Ok(state)
+    }
+
+    fn load_state(&mut self, state: &JourneyState) -> AcceptanceResult<()> {
+        if let Some(catalog_name) = state.get_string("catalog_name") {
+            self.catalog_name = catalog_name;
+        }
+        if let Some(storage_root) = state.get_string("storage_root") {
+            self.storage_root = storage_root;
+        }
+        Ok(())
     }
 
     async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {

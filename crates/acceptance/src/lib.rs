@@ -46,10 +46,9 @@
 //! #[tokio::main]
 //! async fn main() -> AcceptanceResult<()> {
 //!     let config = JourneyConfig::default();
-//!     let executor = config.create_executor("my_test_journey").await?;
-//!     let journey = MyJourney;
+//!     let mut journey = MyJourney;
 //!
-//!     let result = executor.execute_journey(&journey).await?;
+//!     let result = config.execute_journey_with_state(&mut journey).await?;
 //!     assert!(result.is_success());
 //!     Ok(())
 //! }

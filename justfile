@@ -130,7 +130,7 @@ test-api:
 
 [group('test')]
 integration:
-    UC_INTEGRATION_DIR="{{ justfile_directory() }}/test_data/recordings" \
+    UC_INTEGRATION_DIR="{{ justfile_directory() }}/crates/acceptance/recordings" \
     UC_INTEGRATION_STORAGE_ROOT="$DATABRICKS_STORAGE_ROOT" \
     UC_INTEGRATION_RECORD="false" \
     cargo run --bin unitycatalog-acceptance
@@ -139,7 +139,7 @@ integration:
 integration-record:
     UC_INTEGRATION_URL="$DATABRICKS_HOST" \
     UC_INTEGRATION_TOKEN="$DATABRICKS_TOKEN" \
-    UC_INTEGRATION_DIR="{{ justfile_directory() }}/test_data/recordings" \
+    UC_INTEGRATION_DIR="{{ justfile_directory() }}/crates/acceptance/recordings" \
     UC_INTEGRATION_STORAGE_ROOT="$DATABRICKS_STORAGE_ROOT" \
     UC_INTEGRATION_RECORD="true" \
     cargo run --bin unitycatalog-acceptance

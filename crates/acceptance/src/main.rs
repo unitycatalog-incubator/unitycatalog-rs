@@ -1,6 +1,6 @@
 use unitycatalog_acceptance::AcceptanceResult;
 use unitycatalog_acceptance::journeys::SimpleCatalogJourney;
-use unitycatalog_acceptance::simple_journey::{JourneyConfig, UserJourney};
+use unitycatalog_acceptance::simple_journey::JourneyConfig;
 
 #[tokio::main]
 async fn main() -> AcceptanceResult<()> {
@@ -8,9 +8,8 @@ async fn main() -> AcceptanceResult<()> {
 
     let config = JourneyConfig::default();
 
-    let journey = SimpleCatalogJourney::new();
-    let executor = config.create_executor(journey.name()).await?;
-    let result = executor.execute_journey(&journey).await?;
+    let mut journey = SimpleCatalogJourney::new();
+    let result = config.execute_journey(&mut journey).await?;
 
     assert!(result.is_success());
 
