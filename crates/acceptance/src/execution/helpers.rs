@@ -277,7 +277,7 @@ macro_rules! journey_step {
 #[macro_export]
 macro_rules! init_journey {
     ($name:expr, $description:expr) => {{
-        let logger = $crate::journey_helpers::JourneyLogger::new($name);
+        let logger = $crate::execution::JourneyLogger::new($name);
         logger.start($description)?;
         logger
     }};

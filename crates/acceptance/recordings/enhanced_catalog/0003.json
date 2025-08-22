@@ -1,21 +1,21 @@
 {
   "request": {
     "method": "DELETE",
-    "url_path": "/api/2.1/unity-catalog/catalogs/enhanced_catalog_1755886797?force=true",
+    "url_path": "/api/2.1/unity-catalog/catalogs/enhanced_catalog_1755897933?force=true",
     "body": null
   },
   "response": {
     "status": 200,
     "headers": {
-      "x-content-type-options": "nosniff",
-      "server": "databricks",
-      "content-type": "application/json",
-      "content-length": "2",
-      "x-request-id": "4aea4a93-398b-4fe0-a354-b03fa9a270d6",
+      "date": "Fri, 22 Aug 2025 21:25:35 GMT",
       "x-databricks-org-id": "310942840210298",
+      "content-length": "2",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+      "x-content-type-options": "nosniff",
+      "x-request-id": "c35179ce-fddb-4e73-979d-dcc2a1e91ca1",
+      "server": "databricks",
       "alt-svc": "clear",
-      "date": "Fri, 22 Aug 2025 18:20:01 GMT",
-      "strict-transport-security": "max-age=31536000; includeSubDomains; preload"
+      "content-type": "application/json"
     },
     "body": "{}"
   }

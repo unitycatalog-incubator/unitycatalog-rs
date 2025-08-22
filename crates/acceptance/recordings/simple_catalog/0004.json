@@ -1,23 +1,23 @@
 {
   "request": {
     "method": "DELETE",
-    "url_path": "/api/2.1/unity-catalog/catalogs/simple_catalog_1755886797?force=true",
+    "url_path": "/api/2.1/unity-catalog/catalogs/simple_catalog_1755897933?force=true",
     "body": null
   },
   "response": {
     "status": 404,
     "headers": {
-      "vary": "Accept-Encoding",
-      "x-databricks-org-id": "310942840210298",
+      "server": "databricks",
       "alt-svc": "clear",
       "content-length": "455",
-      "date": "Fri, 22 Aug 2025 18:20:00 GMT",
-      "x-request-id": "7181ff0f-d68e-4fbe-a729-37a856758d9c",
-      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
       "content-type": "application/json",
+      "x-databricks-org-id": "310942840210298",
       "x-content-type-options": "nosniff",
-      "server": "databricks"
+      "x-request-id": "621f9938-e487-4dc7-a6e4-4c0a98c3aa33",
+      "vary": "Accept-Encoding",
+      "date": "Fri, 22 Aug 2025 21:25:34 GMT",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload"
     },
-    "body": "{\"error_code\":\"CATALOG_DOES_NOT_EXIST\",\"message\":\"Catalog 'simple_catalog_1755886797' does not exist.\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"RESOURCE_DOES_NOT_EXIST\",\"domain\":\"unity-catalog.databricks.com\",\"metadata\":{\"resourceType\":\"Catalog\",\"resourceIdentifier\":\"simple_catalog_1755886797\"}},{\"@type\":\"type.googleapis.com/google.rpc.RequestInfo\",\"request_id\":\"7181ff0f-d68e-4fbe-a729-37a856758d9c\",\"serving_data\":\"\"}]}"
+    "body": "{\"error_code\":\"CATALOG_DOES_NOT_EXIST\",\"message\":\"Catalog 'simple_catalog_1755897933' does not exist.\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"RESOURCE_DOES_NOT_EXIST\",\"domain\":\"unity-catalog.databricks.com\",\"metadata\":{\"resourceType\":\"Catalog\",\"resourceIdentifier\":\"simple_catalog_1755897933\"}},{\"@type\":\"type.googleapis.com/google.rpc.RequestInfo\",\"request_id\":\"621f9938-e487-4dc7-a6e4-4c0a98c3aa33\",\"serving_data\":\"\"}]}"
   }
 }

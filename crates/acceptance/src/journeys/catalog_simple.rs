@@ -1,31 +1,35 @@
-//! Simple Catalog Example Journey
+//! Enhanced Catalog Journey Example
 //!
-//! A minimal, working example of the simplified journey framework that demonstrates
-//! basic catalog operations without complex API interactions.
+//! This example demonstrates how to use the new reporting utilities to create
+//! rich, well-structured journey logs with progress tracking, performance metrics,
+//! and condensed output.
 
 use async_trait::async_trait;
 use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
 
-use crate::AcceptanceResult;
-use crate::journey::{JourneyState, UserJourney};
+use crate::execution::{JourneyLogger, JourneyState, UserJourney, cleanup_step};
+use crate::init_journey;
+use crate::reporting::ReportingConfig;
+use crate::{AcceptanceError, AcceptanceResult};
 
-/// A simple catalog journey that creates, reads, and deletes a catalog
-pub struct SimpleCatalogJourney {
+/// Enhanced catalog journey with rich reporting
+pub struct CatalogSimpleJourney {
     catalog_name: String,
     storage_root: String,
+    logger: Option<JourneyLogger>,
 }
 
-impl SimpleCatalogJourney {
-    /// Create a new simple catalog journey
+impl CatalogSimpleJourney {
+    /// Create a new enhanced catalog journey
     pub fn new() -> Self {
-        // Always use timestamp-based name initially; state management will handle replay
         let timestamp = chrono::Utc::now().timestamp();
-        let catalog_name = format!("simple_catalog_{}", timestamp);
+        let catalog_name = format!("enhanced_catalog_{}", timestamp);
 
         Self {
             catalog_name,
             storage_root: "s3://open-lakehouse-dev/".to_string(),
+            logger: None,
         }
     }
 
@@ -34,6 +38,18 @@ impl SimpleCatalogJourney {
         Self {
             catalog_name: catalog_name.into(),
             storage_root: "s3://open-lakehouse-dev/".to_string(),
+            logger: None,
+        }
+    }
+
+    /// Create with custom configuration
+    pub fn with_config(catalog_name: impl Into<String>, config: ReportingConfig) -> Self {
+        let logger = JourneyLogger::with_config("enhanced_catalog", config);
+
+        Self {
+            catalog_name: catalog_name.into(),
+            storage_root: "s3://open-lakehouse-dev/".to_string(),
+            logger: Some(logger),
         }
     }
 
@@ -44,17 +60,13 @@ impl SimpleCatalogJourney {
 }
 
 #[async_trait]
-impl UserJourney for SimpleCatalogJourney {
+impl UserJourney for CatalogSimpleJourney {
     fn name(&self) -> &str {
-        "simple_catalog"
+        "enhanced_catalog"
     }
 
     fn description(&self) -> &str {
-        "Simple catalog lifecycle: create, list, delete"
-    }
-
-    fn tags(&self) -> Vec<&str> {
-        vec!["catalog", "simple", "example", "smoke"]
+        "Enhanced catalog lifecycle with rich reporting: create, list, inspect, delete"
     }
 
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
@@ -75,77 +87,150 @@ impl UserJourney for SimpleCatalogJourney {
     }
 
     async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        println!(
-            "🚀 Starting simple catalog journey for '{}'",
-            self.catalog_name
-        );
+        // Create logger directly since we can't mutate self
+        let logger = if let Some(ref logger) = self.logger {
+            logger.clone()
+        } else {
+            init_journey!(
+                "enhanced_catalog",
+                &format!("Enhanced catalog lifecycle for '{}'", self.catalog_name)
+            )
+        };
 
-        // Step 1: Create catalog with minimal configuration
-        println!("📁 Creating catalog '{}'", self.catalog_name);
-        let created_catalog = client
+        // Step 1: Create catalog
+        logger.info("📁 Creating catalog")?;
+        let exec = client
             .create_catalog(&self.catalog_name)
             .with_storage_root(self.storage_root.clone())
-            .with_comment(Some("Simple test catalog".to_string()))
-            .await
-            .map_err(|e| {
-                crate::AcceptanceError::UnityCatalog(format!("Failed to create catalog: {}", e))
-            })?;
+            .with_comment(Some(
+                "Enhanced test catalog with rich reporting".to_string(),
+            ));
+        let created_catalog = logger.step("create_catalog", exec.into_future()).await?;
 
-        println!("✅ Created catalog: {}", created_catalog.name);
-
-        // Step 2: List catalogs to verify our catalog exists
-        println!("📋 Listing catalogs to verify creation");
-        let catalogs = client.list_catalogs(Some(10)); // Limit to 10 for demo
-        let found_our_catalog = catalogs
-            .any(|c| async {
-                c.ok()
-                    .map(|catalog| catalog.name == self.catalog_name)
-                    .unwrap_or(false)
+        // Step 2: Verify creation by checking the returned catalog
+        logger.info("🔍 Verifying catalog creation")?;
+        logger
+            .step("verify_creation", async {
+                if created_catalog.name != self.catalog_name {
+                    return Err(AcceptanceError::JourneyValidation(format!(
+                        "Created catalog name '{}' doesn't match expected '{}'",
+                        created_catalog.name, self.catalog_name
+                    )));
+                }
+                Ok(())
             })
-            .await;
-
-        // Verify our catalog is in the list
-        if !found_our_catalog {
-            return Err(crate::AcceptanceError::JourneyExecution(format!(
-                "Created catalog '{}' was not found in the catalog list",
-                self.catalog_name
-            )));
-        }
-
-        // Step 3: Get specific catalog information
-        println!("🔍 Getting detailed catalog information");
-        let catalog_info = client
-            .catalog(&self.catalog_name)
-            .get()
-            .await
-            .map_err(|e| {
-                crate::AcceptanceError::UnityCatalog(format!("Failed to get catalog info: {}", e))
-            })?;
-
-        client
-            .catalog(&self.catalog_name)
-            .delete(Some(true))
             .await?;
-        println!("🗑️ Successfully deleted catalog '{}'", self.catalog_name);
 
-        // Verify catalog properties
-        assert_eq!(catalog_info.name, self.catalog_name);
-        println!("✅ Verified catalog properties");
+        // Step 3: List catalogs and find ours
+        logger.info("📋 Listing all catalogs")?;
+        let _catalog_found = logger
+            .step("list_catalogs", async {
+                let catalogs = client.list_catalogs(Some(50));
+                let found = catalogs
+                    .any(|c| async {
+                        c.ok()
+                            .map(|catalog| catalog.name == self.catalog_name)
+                            .unwrap_or(false)
+                    })
+                    .await;
 
-        println!("🎉 Simple catalog journey completed successfully!");
+                if !found {
+                    return Err(AcceptanceError::JourneyExecution(format!(
+                        "Created catalog '{}' was not found in the catalog list",
+                        self.catalog_name
+                    )));
+                }
+
+                logger.info(&format!("Found catalog '{}' in listing", self.catalog_name))?;
+                Ok(found)
+            })
+            .await?;
+
+        // Step 4: Get detailed catalog information
+        logger.info("🔍 Getting catalog details")?;
+        let exec = client.catalog(&self.catalog_name).get();
+        let catalog_info = logger.step("inspect_catalog", exec.into_future()).await?;
+
+        // Step 5: Validate catalog properties
+        logger.info("🔍 Validating catalog properties")?;
+        logger
+            .step("validate_properties", async {
+                // Validate name
+                if catalog_info.name != self.catalog_name {
+                    return Err(AcceptanceError::JourneyValidation(format!(
+                        "Catalog name mismatch: expected '{}', got '{}'",
+                        self.catalog_name, catalog_info.name
+                    )));
+                }
+
+                // Validate storage root if provided
+                if let Some(storage_root) = &catalog_info.storage_root {
+                    if storage_root != &self.storage_root {
+                        logger.warn(&format!(
+                            "Storage root mismatch: expected '{}', got '{}'",
+                            self.storage_root, storage_root
+                        ))?;
+                    }
+                }
+
+                // Validate comment
+                if let Some(comment) = &catalog_info.comment {
+                    if !comment.contains("Enhanced test catalog") {
+                        logger.warn("Catalog comment doesn't match expected content")?;
+                    }
+                }
+
+                // Log detailed information
+                logger.info("Catalog validation successful:")?;
+                logger.info(&format!("  • Name: {}", catalog_info.name))?;
+                logger.info(&format!(
+                    "  • ID: {}",
+                    catalog_info.id.unwrap_or_else(|| "N/A".to_string())
+                ))?;
+                if let Some(storage_root) = &catalog_info.storage_root {
+                    logger.info(&format!("  • Storage Root: {}", storage_root))?;
+                }
+                if let Some(comment) = &catalog_info.comment {
+                    logger.info(&format!("  • Comment: {}", comment))?;
+                }
+
+                Ok(())
+            })
+            .await?;
+
+        // Step 6: Clean up by deleting the catalog
+        logger.info("🗑️ Deleting catalog")?;
+        let exec = async { client.catalog(&self.catalog_name).delete(Some(true)).await };
+        logger.step("cleanup_catalog", exec).await?;
+
+        // Note: Performance summary removed due to immutability constraints
+        logger.info("Journey completed successfully")?;
+
+        // Finish successfully
+        logger.finish(true)?;
+
         Ok(())
     }
 
     async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        println!("🧹 Cleaning up simple catalog journey");
-        // Delete the catalog just in case it wasn't deleted
-        // TODO: once we have proper error types in the client this should only allow not-found errors
-        let _ = client.catalog(&self.catalog_name).delete(Some(true)).await;
+        if let Some(logger) = &self.logger {
+            logger.info("Starting cleanup operations")?;
+
+            // Try to delete the catalog if it still exists
+            cleanup_step(
+                logger,
+                "cleanup_delete_catalog",
+                client.catalog(&self.catalog_name).delete(Some(true)),
+            )
+            .await?;
+
+            logger.info("Cleanup completed")?;
+        }
         Ok(())
     }
 }
 
-impl Default for SimpleCatalogJourney {
+impl Default for CatalogSimpleJourney {
     fn default() -> Self {
         Self::new()
     }
@@ -154,28 +239,54 @@ impl Default for SimpleCatalogJourney {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_simple_catalog_journey_properties() {
-        let journey = SimpleCatalogJourney::new();
-
-        assert_eq!(journey.name(), "simple_catalog");
-        assert!(!journey.description().is_empty());
-        assert!(journey.tags().contains(&"catalog"));
-        assert!(journey.tags().contains(&"simple"));
-        assert!(journey.tags().contains(&"example"));
-        assert!(journey.tags().contains(&"smoke"));
-    }
+    use crate::reporting::ReportingConfig;
 
     #[test]
     fn test_custom_catalog_name() {
-        let journey = SimpleCatalogJourney::with_catalog_name("my_custom_catalog");
-        assert_eq!(journey.catalog_name, "my_custom_catalog");
+        let journey = CatalogSimpleJourney::with_catalog_name("my_enhanced_catalog");
+        assert_eq!(journey.catalog_name, "my_enhanced_catalog");
+    }
+
+    #[test]
+    fn test_with_custom_config() {
+        let config = ReportingConfig {
+            verbosity: 2,
+            ..ReportingConfig::default()
+        };
+
+        let journey = CatalogSimpleJourney::with_config("test_catalog", config);
+        assert_eq!(journey.catalog_name, "test_catalog");
+        assert!(journey.logger.is_some());
     }
 
     #[test]
     fn test_default_journey() {
-        let journey = SimpleCatalogJourney::default();
-        assert!(journey.catalog_name.starts_with("simple_catalog_"));
+        let journey = CatalogSimpleJourney::default();
+        assert!(journey.catalog_name.starts_with("enhanced_catalog_"));
+    }
+
+    #[test]
+    fn test_state_management() {
+        let journey = CatalogSimpleJourney::new();
+
+        // Save state
+        let state = journey.save_state().unwrap();
+        assert!(state.get_string("catalog_name").is_some());
+        assert!(state.get_string("storage_root").is_some());
+
+        // Create new journey and load state
+        let mut new_journey = CatalogSimpleJourney::with_catalog_name("different_name");
+        new_journey.load_state(&state).unwrap();
+
+        assert_eq!(new_journey.catalog_name, journey.catalog_name);
+        assert_eq!(new_journey.storage_root, journey.storage_root);
+    }
+
+    #[test]
+    fn test_journey_initialization() {
+        let journey = CatalogSimpleJourney::new();
+        assert!(journey.catalog_name.starts_with("enhanced_catalog_"));
+        assert_eq!(journey.storage_root, "s3://open-lakehouse-dev/");
+        assert!(journey.logger.is_none());
     }
 }

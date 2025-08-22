@@ -88,14 +88,13 @@
 //! - [`simple_journey`] - Core journey framework with traits and execution logic
 //! - [`journeys`] - Example journey implementations
 
-pub mod journey;
-pub mod journey_helpers;
+pub mod execution;
 pub mod journeys;
 pub mod reporting;
 
 // Re-export commonly used types for convenience
-pub use journey::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
-pub use journey_helpers::{JourneyLogger, PerformanceMetrics, ProgressTracker, cleanup_step};
+pub use execution::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
+pub use execution::{JourneyLogger, PerformanceMetrics, ProgressTracker, cleanup_step};
 pub use reporting::{JourneyReporter, ReportingConfig, generate_journeys_summary_table};
 
 /// Result type commonly used throughout the framework

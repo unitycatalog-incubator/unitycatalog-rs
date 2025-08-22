@@ -1,10 +1,9 @@
 use std::time::Instant;
 
 use console::{Term, style};
-use unitycatalog_acceptance::AcceptanceResult;
-use unitycatalog_acceptance::journey::JourneyConfig;
 use unitycatalog_acceptance::journeys::all_journeys;
 use unitycatalog_acceptance::reporting::generate_journeys_summary_table;
+use unitycatalog_acceptance::{AcceptanceResult, JourneyConfig};
 
 #[tokio::main]
 async fn main() -> AcceptanceResult<()> {

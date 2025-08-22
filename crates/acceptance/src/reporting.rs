@@ -398,7 +398,7 @@ impl JourneyReporter {
 
 /// Generate a summary table for multiple journey results
 pub fn generate_journeys_summary_table(
-    results: &[crate::journey::JourneyExecutionResult],
+    results: &[crate::execution::JourneyExecutionResult],
 ) -> AcceptanceResult<String> {
     let mut table = Table::new();
     table.set_content_arrangement(ContentArrangement::Dynamic);
