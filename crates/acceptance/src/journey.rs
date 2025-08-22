@@ -88,7 +88,7 @@ impl<T: UserJourney> UserJourney for Box<T> {
 
     /// Save journey state for replay
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
-        T::save_state(&self)
+        T::save_state(self)
     }
 
     /// Restore journey state from replay data

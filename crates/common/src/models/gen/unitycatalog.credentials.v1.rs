@@ -64,6 +64,31 @@ pub struct AzureStorageKey {
     #[prost(string, tag="2")]
     pub account_key: ::prost::alloc::string::String,
 }
+/// The AWS IAM role configuration.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AwsIamRoleConfig {
+    /// The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
+    #[prost(string, tag="1")]
+    pub role_arn: ::prost::alloc::string::String,
+}
+/// The AWS IAM role configuration.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AwsIamRole {
+    /// The external ID used in role assumption to prevent the confused deputy problem.
+    #[prost(string, tag="1")]
+    pub external_id: ::prost::alloc::string::String,
+    /// The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
+    #[prost(string, tag="2")]
+    pub role_arn: ::prost::alloc::string::String,
+    /// The Amazon Resource Name (ARN) of the AWS IAM user managed by Databricks.
+    /// This is the identity that is going to assume the AWS IAM role.
+    #[prost(string, tag="3")]
+    pub unity_catalog_iam_arn: ::prost::alloc::string::String,
+}
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]

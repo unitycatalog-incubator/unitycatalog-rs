@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file unitycatalog/credentials/v1/models.proto.
  */
 export const file_unitycatalog_credentials_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiKhBQoOQ3JlZGVudGlhbEluZm8SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRI1CgdwdXJwb3NlGAMgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2USEQoJcmVhZF9vbmx5GAQgASgIEhQKB2NvbW1lbnQYBSABKAlIAYgBARISCgVvd25lchgGIAEoCUgCiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIA4gBARIXCgpjcmVhdGVkX2J5GAggASgJSASIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gFiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBogBARIgChh1c2VkX2Zvcl9tYW5hZ2VkX3N0b3JhZ2UYCyABKAgSFgoJZnVsbF9uYW1lGAwgASgJSAeIAQESVQoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAASUwoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgAEkkKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgAQgwKCmNyZWRlbnRpYWxCCgoIX2NvbW1lbnRCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9mdWxsX25hbWUqPAoHUHVycG9zZRIXChNQVVJQT1NFX1VOU1BFQ0lGSUVEEAASCwoHU1RPUkFHRRABEgsKB1NFUlZJQ0UQAkKWAgofY29tLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MUILTW9kZWxzUHJvdG9QAVpYZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjE7Y3JlZGVudGlhbHN2MaICA1VDWKoCG1VuaXR5Y2F0YWxvZy5DcmVkZW50aWFscy5WMcoCG1VuaXR5Y2F0YWxvZ1xDcmVkZW50aWFsc1xWMeICJ1VuaXR5Y2F0YWxvZ1xDcmVkZW50aWFsc1xWMVxHUEJNZXRhZGF0YeoCHVVuaXR5Y2F0YWxvZzo6Q3JlZGVudGlhbHM6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
+  fileDesc("Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIioQUKDkNyZWRlbnRpYWxJbmZvEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSNQoHcHVycG9zZRgDIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlEhEKCXJlYWRfb25seRgEIAEoCBIUCgdjb21tZW50GAUgASgJSAGIAQESEgoFb3duZXIYBiABKAlIAogBARIXCgpjcmVhdGVkX2F0GAcgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCSABKANIBYgBARIXCgp1cGRhdGVkX2J5GAogASgJSAaIAQESIAoYdXNlZF9mb3JfbWFuYWdlZF9zdG9yYWdlGAsgASgIEhYKCWZ1bGxfbmFtZRgMIAEoCUgHiAEBElUKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgAElMKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIABJJChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlIAEIMCgpjcmVkZW50aWFsQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfZnVsbF9uYW1lKjwKB1B1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgsKB1NUT1JBR0UQARILCgdTRVJWSUNFEAJClgIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCC01vZGVsc1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
 
 /**
  * @generated from message unitycatalog.credentials.v1.AzureServicePrincipal
@@ -133,6 +133,63 @@ export type AzureStorageKey = Message<"unitycatalog.credentials.v1.AzureStorageK
  */
 export const AzureStorageKeySchema: GenMessage<AzureStorageKey> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 2);
+
+/**
+ * The AWS IAM role configuration.
+ *
+ * @generated from message unitycatalog.credentials.v1.AwsIamRoleConfig
+ */
+export type AwsIamRoleConfig = Message<"unitycatalog.credentials.v1.AwsIamRoleConfig"> & {
+  /**
+   * The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
+   *
+   * @generated from field: string role_arn = 1;
+   */
+  roleArn: string;
+};
+
+/**
+ * Describes the message unitycatalog.credentials.v1.AwsIamRoleConfig.
+ * Use `create(AwsIamRoleConfigSchema)` to create a new message.
+ */
+export const AwsIamRoleConfigSchema: GenMessage<AwsIamRoleConfig> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_credentials_v1_models, 3);
+
+/**
+ * The AWS IAM role configuration.
+ *
+ * @generated from message unitycatalog.credentials.v1.AwsIamRole
+ */
+export type AwsIamRole = Message<"unitycatalog.credentials.v1.AwsIamRole"> & {
+  /**
+   * The external ID used in role assumption to prevent the confused deputy problem.
+   *
+   * @generated from field: string external_id = 1;
+   */
+  externalId: string;
+
+  /**
+   * The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
+   *
+   * @generated from field: string role_arn = 2;
+   */
+  roleArn: string;
+
+  /**
+   * The Amazon Resource Name (ARN) of the AWS IAM user managed by Databricks.
+   * This is the identity that is going to assume the AWS IAM role.
+   *
+   * @generated from field: string unity_catalog_iam_arn = 3;
+   */
+  unityCatalogIamArn: string;
+};
+
+/**
+ * Describes the message unitycatalog.credentials.v1.AwsIamRole.
+ * Use `create(AwsIamRoleSchema)` to create a new message.
+ */
+export const AwsIamRoleSchema: GenMessage<AwsIamRole> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_credentials_v1_models, 4);
 
 /**
  * @generated from message unitycatalog.credentials.v1.CredentialInfo
@@ -257,7 +314,7 @@ export type CredentialInfo = Message<"unitycatalog.credentials.v1.CredentialInfo
  * Use `create(CredentialInfoSchema)` to create a new message.
  */
 export const CredentialInfoSchema: GenMessage<CredentialInfo> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_credentials_v1_models, 3);
+  messageDesc(file_unitycatalog_credentials_v1_models, 5);
 
 /**
  * @generated from enum unitycatalog.credentials.v1.Purpose

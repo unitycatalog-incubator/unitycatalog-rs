@@ -43,6 +43,7 @@ message CreateCatalogRequest {
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -80,6 +81,7 @@ message GetCatalogRequest {
   // Name of catalog.
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -93,6 +95,7 @@ message UpdateCatalogRequest {
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 
@@ -122,6 +125,7 @@ message DeleteCatalogRequest {
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).required = true,
     (google.api.field_behavior) = REQUIRED
   ];
 

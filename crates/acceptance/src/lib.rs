@@ -107,9 +107,3 @@ impl From<unitycatalog_client::Error> for AcceptanceError {
 
 /// Framework version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-/// Default timeout for HTTP requests in seconds
-pub const DEFAULT_REQUEST_TIMEOUT_SECS: u64 = 30;
-
-/// Default directory for recorded responses
-pub const DEFAULT_RECORDING_DIR: &str = "test_data/recordings";

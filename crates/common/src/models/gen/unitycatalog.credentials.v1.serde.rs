@@ -1,4 +1,232 @@
 // @generated
+impl serde::Serialize for AwsIamRole {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.external_id.is_empty() {
+            len += 1;
+        }
+        if !self.role_arn.is_empty() {
+            len += 1;
+        }
+        if !self.unity_catalog_iam_arn.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRole", len)?;
+        if !self.external_id.is_empty() {
+            struct_ser.serialize_field("external_id", &self.external_id)?;
+        }
+        if !self.role_arn.is_empty() {
+            struct_ser.serialize_field("role_arn", &self.role_arn)?;
+        }
+        if !self.unity_catalog_iam_arn.is_empty() {
+            struct_ser.serialize_field("unity_catalog_iam_arn", &self.unity_catalog_iam_arn)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AwsIamRole {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "external_id",
+            "externalId",
+            "role_arn",
+            "roleArn",
+            "unity_catalog_iam_arn",
+            "unityCatalogIamArn",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            ExternalId,
+            RoleArn,
+            UnityCatalogIamArn,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "externalId" | "external_id" => Ok(GeneratedField::ExternalId),
+                            "roleArn" | "role_arn" => Ok(GeneratedField::RoleArn),
+                            "unityCatalogIamArn" | "unity_catalog_iam_arn" => Ok(GeneratedField::UnityCatalogIamArn),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AwsIamRole;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct unitycatalog.credentials.v1.AwsIamRole")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AwsIamRole, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut external_id__ = None;
+                let mut role_arn__ = None;
+                let mut unity_catalog_iam_arn__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::ExternalId => {
+                            if external_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("externalId"));
+                            }
+                            external_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RoleArn => {
+                            if role_arn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("roleArn"));
+                            }
+                            role_arn__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::UnityCatalogIamArn => {
+                            if unity_catalog_iam_arn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("unityCatalogIamArn"));
+                            }
+                            unity_catalog_iam_arn__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(AwsIamRole {
+                    external_id: external_id__.unwrap_or_default(),
+                    role_arn: role_arn__.unwrap_or_default(),
+                    unity_catalog_iam_arn: unity_catalog_iam_arn__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("unitycatalog.credentials.v1.AwsIamRole", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for AwsIamRoleConfig {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.role_arn.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", len)?;
+        if !self.role_arn.is_empty() {
+            struct_ser.serialize_field("role_arn", &self.role_arn)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "role_arn",
+            "roleArn",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            RoleArn,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "roleArn" | "role_arn" => Ok(GeneratedField::RoleArn),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AwsIamRoleConfig;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct unitycatalog.credentials.v1.AwsIamRoleConfig")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AwsIamRoleConfig, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut role_arn__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::RoleArn => {
+                            if role_arn__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("roleArn"));
+                            }
+                            role_arn__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(AwsIamRoleConfig {
+                    role_arn: role_arn__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for AzureManagedIdentity {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
