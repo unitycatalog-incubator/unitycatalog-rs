@@ -1,6 +1,6 @@
 use unitycatalog_acceptance::AcceptanceResult;
-use unitycatalog_acceptance::journeys::SimpleCatalogJourney;
-use unitycatalog_acceptance::simple_journey::JourneyConfig;
+use unitycatalog_acceptance::journey::JourneyConfig;
+use unitycatalog_acceptance::journeys::all_journeys;
 
 #[tokio::main]
 async fn main() -> AcceptanceResult<()> {
@@ -8,10 +8,10 @@ async fn main() -> AcceptanceResult<()> {
 
     let config = JourneyConfig::default();
 
-    let mut journey = SimpleCatalogJourney::new();
-    let result = config.execute_journey(&mut journey).await?;
-
-    assert!(result.is_success());
+    for journey in all_journeys().iter_mut() {
+        let result = config.execute_journey(journey.as_mut()).await?;
+        assert!(result.is_success());
+    }
 
     Ok(())
 }

@@ -59,11 +59,11 @@
 //! - [`simple_journey`] - Core journey framework with traits and execution logic
 //! - [`journeys`] - Example journey implementations
 
+pub mod journey;
 pub mod journeys;
-pub mod simple_journey;
 
 // Re-export commonly used types for convenience
-pub use simple_journey::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
+pub use journey::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
 
 /// Result type commonly used throughout the framework
 pub type AcceptanceResult<T> = Result<T, AcceptanceError>;

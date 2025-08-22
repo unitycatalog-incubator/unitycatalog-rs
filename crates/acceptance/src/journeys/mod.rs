@@ -9,7 +9,7 @@
 pub mod simple_catalog;
 pub use simple_catalog::SimpleCatalogJourney;
 
-use crate::simple_journey::UserJourney;
+use crate::journey::UserJourney;
 
 /// Get all available example journeys
 pub fn all_journeys() -> Vec<Box<dyn UserJourney>> {

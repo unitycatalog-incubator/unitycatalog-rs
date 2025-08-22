@@ -8,7 +8,7 @@ use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
 
 use crate::AcceptanceResult;
-use crate::simple_journey::{JourneyState, UserJourney};
+use crate::journey::{JourneyState, UserJourney};
 
 /// A simple catalog journey that creates, reads, and deletes a catalog
 pub struct SimpleCatalogJourney {

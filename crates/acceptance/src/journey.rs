@@ -28,14 +28,14 @@ pub trait UserJourney: Send + Sync {
     /// Human-readable description of what this journey tests
     fn description(&self) -> &str;
 
-    /// Execute the journey steps using the provided client
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()>;
-
     /// Optional setup that runs before the journey
     #[allow(unused_variables)]
     async fn setup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         Ok(())
     }
+
+    /// Execute the journey steps using the provided client
+    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()>;
 
     /// Optional cleanup that runs after the journey (even on failure)
     #[allow(unused_variables)]
@@ -56,6 +56,44 @@ pub trait UserJourney: Send + Sync {
     /// Restore journey state from replay data
     fn load_state(&mut self, _state: &JourneyState) -> AcceptanceResult<()> {
         Ok(())
+    }
+}
+
+#[async_trait]
+impl<T: UserJourney> UserJourney for Box<T> {
+    fn name(&self) -> &str {
+        T::name(self)
+    }
+
+    fn description(&self) -> &str {
+        T::description(self)
+    }
+
+    async fn setup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+        T::setup(self, client).await
+    }
+
+    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+        T::execute(self, client).await
+    }
+
+    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+        T::cleanup(self, client).await
+    }
+
+    /// Tags for organizing journeys
+    fn tags(&self) -> Vec<&str> {
+        T::tags(self)
+    }
+
+    /// Save journey state for replay
+    fn save_state(&self) -> AcceptanceResult<JourneyState> {
+        T::save_state(&self)
+    }
+
+    /// Restore journey state from replay data
+    fn load_state(&mut self, state: &JourneyState) -> AcceptanceResult<()> {
+        T::load_state(self, state)
     }
 }
 
