@@ -1,6 +1,0 @@
-{
-  "data": {
-    "storage_root": "s3://open-lakehouse-dev/",
-    "catalog_name": "simple_catalog_1755897933"
-  }
-}
