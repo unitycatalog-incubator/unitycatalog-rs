@@ -262,10 +262,8 @@ impl PyUnityCatalogClient {
             .0
             .create_catalog(name)
             .with_provider_name(provider_name)
-            .with_share_name(share_name);
-        if let Some(comment) = comment {
-            request = request.with_comment(comment);
-        }
+            .with_share_name(share_name)
+            .with_comment(comment);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
@@ -485,16 +483,12 @@ impl PyCatalogClient {
         owner: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> PyUnityCatalogResult<CatalogInfo> {
-        let mut request = self.client.update();
-        if let Some(new_name) = new_name {
-            request = request.with_new_name(new_name);
-        }
-        if let Some(comment) = comment {
-            request = request.with_comment(comment);
-        }
-        if let Some(owner) = owner {
-            request = request.with_owner(owner);
-        }
+        let mut request = self
+            .client
+            .update()
+            .with_new_name(new_name)
+            .with_comment(comment)
+            .with_owner(owner);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }

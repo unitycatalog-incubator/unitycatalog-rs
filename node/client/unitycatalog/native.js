@@ -310,8 +310,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { UnityCatalogClient, CatalogClient, SchemaClient } = nativeBinding
+const { UnityCatalogClient, CatalogClient } = nativeBinding
 
 module.exports.UnityCatalogClient = UnityCatalogClient
 module.exports.CatalogClient = CatalogClient
-module.exports.SchemaClient = SchemaClient
