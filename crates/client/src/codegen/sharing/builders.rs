@@ -11,7 +11,7 @@ pub struct GetShareBuilder {
 }
 impl GetShareBuilder {
     /// Create a new builder instance
-    pub fn new(client: SharingClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: SharingClient, name: impl Into<String>) -> Self {
         let request = GetShareRequest {
             name: name.into(),
             ..Default::default()
@@ -35,7 +35,7 @@ pub struct GetTableVersionBuilder {
 }
 impl GetTableVersionBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: SharingClient,
         name: impl Into<String>,
         schema: impl Into<String>,
@@ -76,7 +76,7 @@ pub struct GetTableMetadataBuilder {
 }
 impl GetTableMetadataBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: SharingClient,
         name: impl Into<String>,
         share: impl Into<String>,
@@ -107,7 +107,7 @@ pub struct QueryTableBuilder {
 }
 impl QueryTableBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: SharingClient,
         share: impl Into<String>,
         schema: impl Into<String>,

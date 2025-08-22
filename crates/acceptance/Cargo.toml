@@ -14,12 +14,14 @@ description = "Acceptance testing framework for Unity Catalog"
 # Core Unity Catalog dependencies
 unitycatalog-client = { path = "../client" }
 unitycatalog-common = { path = "../common" }
-cloud-client = { path = "../cloud-client" }
+cloud-client = { path = "../cloud-client", features = ["recording"] }
 
 # HTTP and async
+dotenv = "0.15.0"
 reqwest = { workspace = true }
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "fs"] }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 futures = { workspace = true }
+async-trait = "0.1"
 
 # Serialization and data handling
 serde = { workspace = true }
@@ -32,21 +34,18 @@ chrono = { workspace = true, features = ["serde"] }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 
-# Testing framework
-mockito = "1.4"
-
 # Utilities
 itertools = { workspace = true }
 
+# Testing and mocking
+mockito = "1.4"
+
 [dev-dependencies]
-rstest = "0.18"
-tokio-test = "0.4"
-tempfile = "3.1"
 env_logger = "0.10"
 log = "0.4"
-toml = "0.8"
+rstest = "0.18"
+tempfile = "3.1"
 
 [features]
 default = []
-recording = []
 integration = []

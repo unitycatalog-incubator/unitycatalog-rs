@@ -11,13 +11,40 @@ pub struct CreateCredentialBuilder {
 }
 impl CreateCredentialBuilder {
     /// Create a new builder instance
-    pub fn new(client: CredentialClient, name: impl Into<String>, purpose: Purpose) -> Self {
+    pub(crate) fn new(client: CredentialClient, name: impl Into<String>, purpose: Purpose) -> Self {
         let request = CreateCredentialRequest {
             name: name.into(),
             purpose: purpose as i32,
             ..Default::default()
         };
         Self { client, request }
+    }
+    #[doc = concat!("Set ", "azure_service_principal")]
+    pub fn with_azure_service_principal(
+        mut self,
+        azureserviceprincipal: AzureServicePrincipal,
+    ) -> Self {
+        self.request.credential = Some(
+            create_credential_request::Credential::AzureServicePrincipal(azureserviceprincipal),
+        );
+        self
+    }
+    #[doc = concat!("Set ", "azure_managed_identity")]
+    pub fn with_azure_managed_identity(
+        mut self,
+        azuremanagedidentity: AzureManagedIdentity,
+    ) -> Self {
+        self.request.credential = Some(
+            create_credential_request::Credential::AzureManagedIdentity(azuremanagedidentity),
+        );
+        self
+    }
+    #[doc = concat!("Set ", "azure_storage_key")]
+    pub fn with_azure_storage_key(mut self, azurestoragekey: AzureStorageKey) -> Self {
+        self.request.credential = Some(create_credential_request::Credential::AzureStorageKey(
+            azurestoragekey,
+        ));
+        self
     }
     ///Comment associated with the credential.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
@@ -32,11 +59,6 @@ impl CreateCredentialBuilder {
     ///Supplying true to this argument skips validation of the created set of credentials.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
-        self
-    }
-    #[doc = concat!("Set ", "credential")]
-    pub fn with_credential(mut self, credential: create_credential_request::Credential) -> Self {
-        self.request.credential = Some(credential);
         self
     }
 }
@@ -56,7 +78,7 @@ pub struct GetCredentialBuilder {
 }
 impl GetCredentialBuilder {
     /// Create a new builder instance
-    pub fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
         let request = GetCredentialRequest {
             name: name.into(),
             ..Default::default()
@@ -80,12 +102,39 @@ pub struct UpdateCredentialBuilder {
 }
 impl UpdateCredentialBuilder {
     /// Create a new builder instance
-    pub fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
         let request = UpdateCredentialRequest {
             name: name.into(),
             ..Default::default()
         };
         Self { client, request }
+    }
+    #[doc = concat!("Set ", "azure_service_principal")]
+    pub fn with_azure_service_principal(
+        mut self,
+        azureserviceprincipal: AzureServicePrincipal,
+    ) -> Self {
+        self.request.credential = Some(
+            update_credential_request::Credential::AzureServicePrincipal(azureserviceprincipal),
+        );
+        self
+    }
+    #[doc = concat!("Set ", "azure_managed_identity")]
+    pub fn with_azure_managed_identity(
+        mut self,
+        azuremanagedidentity: AzureManagedIdentity,
+    ) -> Self {
+        self.request.credential = Some(
+            update_credential_request::Credential::AzureManagedIdentity(azuremanagedidentity),
+        );
+        self
+    }
+    #[doc = concat!("Set ", "azure_storage_key")]
+    pub fn with_azure_storage_key(mut self, azurestoragekey: AzureStorageKey) -> Self {
+        self.request.credential = Some(update_credential_request::Credential::AzureStorageKey(
+            azurestoragekey,
+        ));
+        self
     }
     ///Name of credential.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
@@ -116,11 +165,6 @@ impl UpdateCredentialBuilder {
     or dependent external locations and external tables (when purpose is STORAGE).*/
     pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
         self.request.force = force.into();
-        self
-    }
-    #[doc = concat!("Set ", "credential")]
-    pub fn with_credential(mut self, credential: update_credential_request::Credential) -> Self {
-        self.request.credential = Some(credential);
         self
     }
 }

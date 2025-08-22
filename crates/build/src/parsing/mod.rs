@@ -76,6 +76,8 @@ fn process_message(
     let mut fields = Vec::new();
     let mut oneof_groups: std::collections::HashMap<String, Vec<String>> =
         std::collections::HashMap::new();
+    let mut oneof_field_info: std::collections::HashMap<String, Vec<crate::OneofVariant>> =
+        std::collections::HashMap::new();
 
     // Build a map of field paths to documentation
     let field_docs = extract_field_documentation(source_code_info, path_prefix);
@@ -109,10 +111,59 @@ fn process_message(
 
                 // Skip proto3_optional fields - they're not true oneofs
                 if !field.proto3_optional() {
+                    let field_name = field.name().to_string();
                     oneof_groups
+                        .entry(oneof_name.clone())
+                        .or_default()
+                        .push(field_name.clone());
+
+                    // Collect variant information for oneof fields
+                    let field_type_str = match field.type_() {
+                        protobuf::descriptor::field_descriptor_proto::Type::TYPE_MESSAGE => {
+                            if field.has_type_name() {
+                                format!("TYPE_MESSAGE:{}", field.type_name())
+                            } else {
+                                "TYPE_MESSAGE".to_string()
+                            }
+                        }
+                        _ => format!("TYPE_{:?}", field.type_()),
+                    };
+
+                    // Get field documentation
+                    let field_path = [path_prefix, &[2, field_index as i32]].concat();
+                    let documentation = field_docs.get(&field_path).cloned();
+
+                    // Extract the rust type name from the field type
+                    let rust_type = if field.has_type_name() {
+                        // Remove leading dot and extract the type name
+                        let clean_type = field.type_name().trim_start_matches('.');
+                        clean_type
+                            .split('.')
+                            .next_back()
+                            .unwrap_or(clean_type)
+                            .to_string()
+                    } else {
+                        field_name.clone()
+                    };
+
+                    // Create variant name by capitalizing the field name segments
+                    let variant_name = field_name
+                        .split('_')
+                        .map(capitalize_first_letter)
+                        .collect::<String>();
+
+                    let variant = crate::OneofVariant {
+                        field_name: field_name.clone(),
+                        variant_name,
+                        rust_type,
+                        documentation,
+                    };
+
+                    oneof_field_info
                         .entry(oneof_name)
                         .or_default()
-                        .push(field.name().to_string());
+                        .push(variant);
+
                     continue; // Skip adding this field individually
                 }
             }
@@ -132,6 +183,7 @@ fn process_message(
             repeated: is_repeated,
             oneof_name: None,
             documentation,
+            oneof_variants: None,
         };
         fields.push(field_info);
     }
@@ -146,13 +198,17 @@ fn process_message(
             capitalize_first_letter(&oneof_name)
         );
 
+        // Get the collected variant information for this oneof
+        let variants = oneof_field_info.get(&oneof_name).cloned();
+
         let oneof_field = MessageField {
-            name: oneof_name,
+            name: oneof_name.clone(),
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
             optional: true,      // oneof fields are always optional (Option<enum>)
             repeated: false,     // oneof fields are never repeated
             oneof_name: None,    // This is the oneof field itself, not a member
             documentation: None, // TODO: Extract oneof documentation if needed
+            oneof_variants: variants.clone(),
         };
 
         fields.push(oneof_field);

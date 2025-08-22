@@ -259,6 +259,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "force".to_string(),
@@ -267,6 +268,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 
@@ -326,6 +328,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "share".to_string(), // This appears first in URL
@@ -334,6 +337,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "schema".to_string(), // This appears second in URL
@@ -342,6 +346,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 
@@ -395,6 +400,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -403,6 +409,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "purpose".to_string(),
@@ -411,6 +418,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 
@@ -453,6 +461,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "purpose".to_string(),
@@ -461,6 +470,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "comment".to_string(),
@@ -469,6 +479,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "read_only".to_string(),
@@ -477,6 +488,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "skip_validation".to_string(),
@@ -485,6 +497,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "credential".to_string(),
@@ -493,6 +506,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 
@@ -559,6 +573,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -567,6 +582,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 
@@ -578,6 +594,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -586,6 +603,7 @@ mod tests {
                 oneof_name: None,
                 repeated: false,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 

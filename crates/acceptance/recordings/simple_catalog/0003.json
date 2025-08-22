@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "DELETE",
+    "url_path": "/api/2.1/unity-catalog/catalogs/simple_catalog_1755858989?force=true",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "x-databricks-org-id": "310942840210298",
+      "content-length": "2",
+      "date": "Fri, 22 Aug 2025 10:36:31 GMT",
+      "x-request-id": "3364820f-5b2d-4727-b637-e70059560393",
+      "x-content-type-options": "nosniff",
+      "content-type": "application/json",
+      "alt-svc": "clear",
+      "server": "databricks",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload"
+    },
+    "body": "{}"
+  }
+}

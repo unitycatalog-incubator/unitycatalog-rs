@@ -190,7 +190,7 @@ fn generate_constructor(
 
     quote! {
         /// Create a new builder instance
-        pub fn new(client: #client_type_ident, #(#param_list),*) -> Self {
+        pub(crate) fn new(client: #client_type_ident, #(#param_list),*) -> Self {
             let request = #request_type_ident {
                 #(#field_assignments,)*
                 ..Default::default()
@@ -205,8 +205,20 @@ fn generate_with_methods(
     _builder_ident: &proc_macro2::Ident,
     optional_fields: &[&MessageField],
 ) -> Vec<TokenStream> {
-    optional_fields
+    let mut methods = Vec::new();
+
+    // First, generate individual methods for oneof variants
+    for field in optional_fields {
+        if field.field_type.starts_with("TYPE_ONEOF:") && field.oneof_variants.is_some() {
+            methods.extend(generate_oneof_variant_methods(field));
+            continue; // Skip the regular oneof method generation
+        }
+    }
+
+    // Then generate regular methods for non-oneof fields
+    let regular_methods: Vec<TokenStream> = optional_fields
         .iter()
+        .filter(|field| !(field.field_type.starts_with("TYPE_ONEOF:") && field.oneof_variants.is_some()))
         .map(|field| {
             let field_ident = format_ident!("{}", field.name);
             let method_name = format_ident!("with_{}", field.name);
@@ -489,6 +501,89 @@ fn generate_with_methods(
                 }
             }
         })
+        .collect();
+
+    methods.extend(regular_methods);
+    methods
+}
+
+/// Generate individual methods for each variant of a oneof field
+fn generate_oneof_variant_methods(field: &MessageField) -> Vec<TokenStream> {
+    let variants = field.oneof_variants.as_ref().unwrap();
+    let oneof_field_ident = format_ident!("{}", field.name);
+
+    // Extract the enum type name from the field type
+    let enum_type = field
+        .field_type
+        .strip_prefix("TYPE_ONEOF:")
+        .unwrap_or(&field.field_type);
+
+    let enum_type_rust = if enum_type.contains("::") {
+        let parts: Vec<&str> = enum_type.split("::").collect();
+        if parts.len() == 2 {
+            let module_name = parts[0];
+            let type_name = parts[1];
+
+            // Convert module name to snake_case for known patterns
+            let snake_case_module = match module_name {
+                "createcredentialrequest" => "create_credential_request".to_string(),
+                "updatecredentialrequest" => "update_credential_request".to_string(),
+                "createcataloguestrequest" => "create_catalogs_request".to_string(),
+                "updatecataloguestrequest" => "update_catalogs_request".to_string(),
+                _ => {
+                    if module_name.chars().any(|c| c.is_uppercase()) {
+                        module_name.chars().fold(String::new(), |mut acc, c| {
+                            if c.is_uppercase() && !acc.is_empty() {
+                                acc.push('_');
+                            }
+                            acc.push(c.to_lowercase().next().unwrap());
+                            acc
+                        })
+                    } else {
+                        module_name.to_string()
+                    }
+                }
+            };
+
+            format!("{}::{}", snake_case_module, type_name)
+        } else {
+            enum_type.to_string()
+        }
+    } else {
+        enum_type.to_string()
+    };
+
+    variants
+        .iter()
+        .map(|variant| {
+            let method_name = format_ident!("with_{}", variant.field_name);
+            let param_ident = format_ident!("{}", variant.field_name.replace("_", ""));
+            let variant_name = format_ident!("{}", variant.variant_name);
+
+            // Parse the rust type for the parameter
+            let param_type: syn::Type = syn::parse_str(&variant.rust_type)
+                .unwrap_or_else(|_| syn::parse_str("String").unwrap());
+
+            // Generate documentation
+            let doc_attr = if let Some(ref doc) = variant.documentation {
+                quote! { #[doc = #doc] }
+            } else {
+                let field_name = &variant.field_name;
+                quote! { #[doc = concat!("Set ", #field_name)] }
+            };
+
+            // Parse the enum type for the assignment
+            let enum_type_tokens: syn::Type = syn::parse_str(&enum_type_rust)
+                .unwrap_or_else(|_| syn::parse_str("String").unwrap());
+
+            quote! {
+                #doc_attr
+                pub fn #method_name(mut self, #param_ident: #param_type) -> Self {
+                    self.request.#oneof_field_ident = Some(#enum_type_tokens::#variant_name(#param_ident));
+                    self
+                }
+            }
+        })
         .collect()
 }
 
@@ -728,6 +823,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -736,6 +832,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -744,6 +841,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "storage_root".to_string(),
@@ -752,6 +850,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
             ],
         };
@@ -779,6 +878,7 @@ mod tests {
                 repeated: false,
                 oneof_name: None,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "comment".to_string(),
@@ -787,6 +887,7 @@ mod tests {
                 repeated: false,
                 oneof_name: None,
                 documentation: None,
+                oneof_variants: None,
             },
             MessageField {
                 name: "properties".to_string(),
@@ -795,6 +896,7 @@ mod tests {
                 repeated: false,
                 oneof_name: None,
                 documentation: None,
+                oneof_variants: None,
             },
         ];
 
@@ -857,6 +959,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "new_name".to_string(),
@@ -865,6 +968,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -873,6 +977,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "owner".to_string(),
@@ -881,6 +986,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -889,6 +995,7 @@ mod tests {
                     repeated: false,
                     oneof_name: None,
                     documentation: None,
+                    oneof_variants: None,
                 },
             ],
         };

@@ -38,6 +38,17 @@ pub struct MessageField {
     pub repeated: bool,
     pub oneof_name: Option<String>,
     pub documentation: Option<String>,
+    /// For oneof fields, contains the variants with their field names and types
+    pub oneof_variants: Option<Vec<OneofVariant>>,
+}
+
+/// Information about a variant in a oneof field
+#[derive(Debug, Clone)]
+pub struct OneofVariant {
+    pub field_name: String,   // e.g., "azure_service_principal"
+    pub variant_name: String, // e.g., "AzureServicePrincipal"
+    pub rust_type: String,    // e.g., "AzureServicePrincipal"
+    pub documentation: Option<String>,
 }
 
 impl MethodMetadata {

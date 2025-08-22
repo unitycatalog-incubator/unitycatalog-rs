@@ -11,7 +11,7 @@ pub struct CreateTableBuilder {
 }
 impl CreateTableBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: TableClient,
         name: impl Into<String>,
         schema_name: impl Into<String>,
@@ -77,7 +77,7 @@ pub struct GetTableBuilder {
 }
 impl GetTableBuilder {
     /// Create a new builder instance
-    pub fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
         let request = GetTableRequest {
             full_name: full_name.into(),
             ..Default::default()
@@ -122,7 +122,7 @@ pub struct GetTableExistsBuilder {
 }
 impl GetTableExistsBuilder {
     /// Create a new builder instance
-    pub fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
         let request = GetTableExistsRequest {
             full_name: full_name.into(),
             ..Default::default()

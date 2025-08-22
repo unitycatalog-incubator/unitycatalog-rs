@@ -8,6 +8,7 @@ use unitycatalog_client::{
     RecipientClient, SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
     TemporaryCredentialClient, UnityCatalogClient, VolumeClient,
 };
+use unitycatalog_common::credentials::v1::credential_info::Credential;
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
@@ -776,9 +777,7 @@ impl PyCredentialClient {
         read_only: Option<bool>,
         skip_validation: Option<bool>,
         force: Option<bool>,
-        credential: Option<
-            unitycatalog_common::models::credentials::v1::update_credential_request::Credential,
-        >,
+        credential: Option<Credential>,
     ) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -791,8 +790,17 @@ impl PyCredentialClient {
                 .with_read_only(read_only)
                 .with_skip_validation(skip_validation)
                 .with_force(force);
-            if let Some(credential) = credential {
-                request = request.with_credential(credential);
+            match credential {
+                Some(Credential::AzureManagedIdentity(az)) => {
+                    request = request.with_azure_managed_identity(az)
+                }
+                Some(Credential::AzureServicePrincipal(sp)) => {
+                    request = request.with_azure_service_principal(sp)
+                }
+                Some(Credential::AzureStorageKey(key)) => {
+                    request = request.with_azure_storage_key(key)
+                }
+                None => {}
             }
             let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)

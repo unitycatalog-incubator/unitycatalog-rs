@@ -11,7 +11,7 @@ pub struct CreateSchemaBuilder {
 }
 impl CreateSchemaBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: SchemaClient,
         name: impl Into<String>,
         catalog_name: impl Into<String>,
@@ -58,7 +58,7 @@ pub struct GetSchemaBuilder {
 }
 impl GetSchemaBuilder {
     /// Create a new builder instance
-    pub fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
         let request = GetSchemaRequest {
             full_name: full_name.into(),
             ..Default::default()
@@ -82,7 +82,7 @@ pub struct UpdateSchemaBuilder {
 }
 impl UpdateSchemaBuilder {
     /// Create a new builder instance
-    pub fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
         let request = UpdateSchemaRequest {
             full_name: full_name.into(),
             ..Default::default()

@@ -1,245 +1,232 @@
 # Unity Catalog Acceptance Testing Framework
 
-A comprehensive testing framework for Unity Catalog that provides journey-based testing, mock server support, and response recording capabilities.
+A comprehensive testing framework for Unity Catalog that provides both simplified trait-based journeys and legacy JSON-based testing capabilities.
 
 ## Overview
 
-The Unity Catalog Acceptance Testing Framework enables you to test complete user workflows through "journeys" - multi-step sequences of API calls with dependency management and variable passing between steps. This approach provides more realistic testing scenarios compared to isolated unit tests.
+The Unity Catalog Acceptance Testing Framework enables you to test complete user workflows through "journeys" - sequences of operations that exercise Unity Catalog functionality. The framework now offers two approaches:
+
+1. **Simplified Journey Framework** (Recommended): Type-safe Rust traits using the actual Unity Catalog client
+2. **Legacy JSON Framework**: JSON-based configurations with HTTP requests (deprecated)
+
+## Key Benefits
+
+- **Type Safety**: Use the actual `UnityCatalogClient` instead of raw HTTP requests
+- **Simplicity**: Write journeys in Rust code instead of complex JSON configurations
+- **Automatic Recording**: Responses are recorded to numbered files for easy comparison
+- **Real Client Integration**: Test the actual API surface your applications use
+- **Better Error Handling**: Leverage Rust's type system for robust error handling
+- **IDE Support**: Full IntelliSense, refactoring, and debugging support
 
 ## Features
 
-- **Journey-Based Testing**: Define multi-step workflows in JSON format
-- **Dependency Management**: Automatic step ordering based on dependencies
-- **Variable Substitution**: Pass data between steps using extracted variables
-- **Mock Server Support**: Fast testing with configurable mock responses
-- **Response Recording**: Capture real server responses for test data
+- **Simplified Journey Framework**: Write journeys as Rust traits with full type safety
+- **Automatic Response Recording**: Capture real server responses to numbered files
+- **Mock Server Support**: Fast testing with configurable mock responses (legacy)
 - **Integration Testing**: Execute against live Unity Catalog instances
-- **Assertion Helpers**: Rich set of assertion functions for validation
-- **Test Data Builders**: Convenient builders for creating test data
+- **Multiple Journey Execution**: Run journeys in sequence or parallel
+- **Comprehensive Examples**: Ready-to-use journeys for common workflows
 
 ## Quick Start
 
-### Basic Usage
+### Simplified Journey Framework (Recommended)
 
 ```rust
 use unitycatalog_acceptance::{
-    journey::{JourneyExecutor, JourneyLoader},
-    mock::TestServer,
+    simple_journey::{JourneyConfig, SimpleJourneyExecutor},
+    journeys::SimpleCatalogJourney,
 };
-use std::collections::HashMap;
 
 #[tokio::test]
 async fn test_catalog_lifecycle() {
-    // Set up mock server
-    let server = TestServer::new().await;
-    let client = server.create_client();
+    // Configuration from environment variables
+    let config = JourneyConfig::default();
+    let executor = config.create_executor().unwrap();
 
-    // Load journey definition
-    let journey = JourneyLoader::load_journey("catalog_lifecycle.json").unwrap();
-
-    // Execute journey
-    let mut executor = JourneyExecutor::new(client, Some(server))
-        .with_variables(HashMap::new());
-
-    let result = executor.execute_journey(journey).await;
-    assert!(result.success);
+    // Execute a pre-built journey
+    let journey = SimpleCatalogJourney::new();
+    let result = executor.execute_journey(&journey).await.unwrap();
+    
+    assert!(result.is_success());
+    println!("Completed {} steps in {:?}", result.steps_completed, result.duration);
 }
 ```
 
-### Creating Test Data
+### Creating Custom Journeys
 
 ```rust
-use unitycatalog_acceptance::models::{CatalogBuilder, TestDataUtils};
+use async_trait::async_trait;
+use unitycatalog_client::UnityCatalogClient;
+use unitycatalog_acceptance::{
+    AcceptanceResult,
+    simple_journey::{SimpleJourney, JourneyRecorder},
+};
 
-// Using builders
-let catalog = CatalogBuilder::new("test_catalog")
-    .with_comment("Test catalog")
-    .with_storage_root("s3://test-bucket/catalogs/test")
-    .with_property("environment", "test")
-    .build_json();
+struct MyCustomJourney {
+    catalog_name: String,
+}
 
-// Using utilities
-let unique_name = TestDataUtils::sanitize_name("test-catalog-123");
-let timestamp = TestDataUtils::timestamp();
+#[async_trait]
+impl SimpleJourney for MyCustomJourney {
+    fn name(&self) -> &str { "my_custom_journey" }
+    fn description(&self) -> &str { "Custom journey example" }
+    fn tags(&self) -> Vec<&str> { vec!["custom", "example"] }
+
+    async fn execute(
+        &self,
+        client: &UnityCatalogClient,
+        recorder: &mut JourneyRecorder,
+    ) -> AcceptanceResult<()> {
+        // Create catalog using typed client
+        let catalog = client
+            .create_catalog(&self.catalog_name)
+            .with_comment("My test catalog")
+            .execute()
+            .await?;
+
+        // Record response automatically
+        recorder
+            .record_step("create_catalog", "Create test catalog", &catalog)
+            .await?;
+
+        Ok(())
+    }
+
+    async fn cleanup(
+        &self,
+        client: &UnityCatalogClient,
+        _recorder: &mut JourneyRecorder,
+    ) -> AcceptanceResult<()> {
+        // Clean up resources
+        let _ = client.catalog(&self.catalog_name).delete().await;
+        Ok(())
+    }
+}
 ```
 
-### Journey Definitions
+### Environment Configuration
 
-Journeys are defined in JSON format and stored in `test_data/journeys/`:
+```bash
+# Enable response recording
+export RECORD_JOURNEY_RESPONSES=true
+export JOURNEY_RECORDING_DIR="./recordings"
 
-```json
-{
-  "name": "catalog_lifecycle",
-  "description": "Complete catalog CRUD operations",
-  "variables": {
-    "catalog_name": "test_catalog_{timestamp}"
-  },
-  "steps": [
-    {
-      "id": "create_catalog",
-      "description": "Create a test catalog",
-      "method": "POST",
-      "path": "/api/2.1/unity-catalog/catalogs",
-      "request_body": {
-        "name": "{catalog_name}",
-        "comment": "Test catalog"
-      },
-      "expected_status": 201,
-      "extract_variables": {
-        "catalog_id": "$.name"
-      },
-      "tags": ["setup"]
-    },
-    {
-      "id": "get_catalog",
-      "description": "Verify catalog creation",
-      "method": "GET",
-      "path": "/api/2.1/unity-catalog/catalogs/{catalog_name}",
-      "expected_status": 200,
-      "depends_on": ["create_catalog"],
-      "tags": ["verification"]
-    },
-    {
-      "id": "delete_catalog",
-      "description": "Cleanup test catalog",
-      "method": "DELETE",
-      "path": "/api/2.1/unity-catalog/catalogs/{catalog_name}",
-      "expected_status": 200,
-      "depends_on": ["get_catalog"],
-      "continue_on_failure": true,
-      "tags": ["cleanup"]
-    }
-  ]
-}
+# Unity Catalog server configuration
+export UC_SERVER_URL="http://localhost:8080"
+export UC_AUTH_TOKEN="your-auth-token"  # Optional
+
+# Test configuration
+export RUN_INTEGRATION_TESTS=true
+export REQUEST_TIMEOUT_SECS=30
+```
+
+### Available Journeys
+
+The framework includes several pre-built journeys:
+
+```rust
+use unitycatalog_acceptance::journeys::*;
+
+// Basic CRUD operations
+let catalog_journey = CatalogLifecycleJourney::new();
+let schema_journey = SchemaOperationsJourney::new();
+let table_journey = TableOperationsJourney::new();
+
+// Advanced workflows
+let sharing_journey = SharingWorkflowJourney::new();
+
+// Execute multiple journeys
+let journeys: Vec<Box<dyn SimpleJourney>> = vec![
+    Box::new(catalog_journey),
+    Box::new(schema_journey),
+    Box::new(table_journey),
+];
+
+let journey_refs: Vec<&dyn SimpleJourney> = journeys.iter().map(|j| j.as_ref()).collect();
+let results = executor.execute_journeys(journey_refs).await?;
+```
+
+### Response Recording
+
+When `RECORD_JOURNEY_RESPONSES=true`, the framework automatically records all responses:
+
+```
+recordings/
+├── catalog_lifecycle/
+│   ├── 001_create_catalog.json      # First step response
+│   ├── 002_get_catalog.json         # Second step response
+│   ├── 003_update_catalog.json      # Third step response
+│   └── journey_summary.json         # Complete journey summary
+├── schema_operations/
+│   ├── 001_setup_create_catalog.json
+│   ├── 002_create_primary_schema.json
+│   └── journey_summary.json
+└── table_operations/
+    ├── 001_setup_create_catalog.json
+    ├── 002_setup_create_schema.json
+    ├── 003_create_managed_table.json
+    └── journey_summary.json
 ```
 
 ## Module Organization
 
-### Core Modules
+### Simplified Journey Framework
 
-- **`journey`**: Journey execution engine and data structures
-- **`mock`**: Mock server utilities and test fixtures
-- **`recorder`**: Response recording for integration testing
+- **`simple_journey`**: Core trait-based journey system
+- **`journeys`**: Pre-built journey implementations
 - **`models`**: Shared data models and builders
 - **`assertions`**: Common assertion helpers
 
-### Journey Module
+### Simplified Journey Module
 
-The journey module provides the core execution engine:
+The main module for the new framework:
 
 ```rust
-use unitycatalog_acceptance::journey::{
-    JourneyExecutor, JourneyLoader, UserJourney, JourneyStep
+use unitycatalog_acceptance::simple_journey::{
+    SimpleJourney, JourneyConfig, JourneyRecorder
 };
 
-// Load journey from file
-let journey = JourneyLoader::load_journey("my_journey.json")?;
+// Create executor from environment configuration
+let config = JourneyConfig::default();
+let executor = config.create_executor()?;
 
-// Create executor
-let mut executor = JourneyExecutor::new(client, Some(server));
-
-// Execute journey
-let result = executor.execute_journey(journey).await;
+// Execute a journey
+let journey = MyCustomJourney::new();
+let result = executor.execute_journey(&journey).await?;
 ```
 
-### Mock Module
+### Pre-built Journeys
 
-Mock server functionality for fast testing:
-
-```rust
-use unitycatalog_acceptance::mock::{TestServer, TestFixtures};
-
-// Create mock server
-let mut server = TestServer::new().await;
-
-// Set up default mocks
-server.setup_default_mocks().await;
-
-// Create custom mock
-server.mock_catalog_endpoint("GET", "/api/2.1/unity-catalog/catalogs")
-    .with_status(200)
-    .with_body(&TestFixtures::catalog_info("test").to_string())
-    .create_async()
-    .await;
-```
-
-### Recorder Module
-
-Record real API responses for test data:
+Ready-to-use journey implementations:
 
 ```rust
-use unitycatalog_acceptance::recorder::{JourneyRecorder, RecordingConfig};
-
-// Configure recording
-let config = RecordingConfig::from_env()?;
-let mut recorder = JourneyRecorder::new(config)?;
-
-// Record journey
-let recorded = recorder.record_journey(journey).await?;
-```
-
-### Models Module
-
-Data builders and test utilities:
-
-```rust
-use unitycatalog_acceptance::models::{
-    CatalogBuilder, SchemaBuilder, TableBuilder, TestContext
+use unitycatalog_acceptance::journeys::{
+    CatalogLifecycleJourney,    // Basic catalog CRUD operations
+    SchemaOperationsJourney,    // Schema management
+    TableOperationsJourney,     // Table creation and management
+    SharingWorkflowJourney,     // Data sharing scenarios
 };
 
-// Create test context
-let mut context = TestContext::new("test_run_123");
-context.set_variable("environment", "test");
-
-// Build test data
-let catalog = CatalogBuilder::new("test_catalog")
-    .with_comment("Test catalog")
-    .build_json();
+// Use with custom names
+let journey = CatalogLifecycleJourney::with_catalog_name("my_test_catalog");
+let result = executor.execute_journey(&journey).await?;
 ```
 
-### Assertions Module
+### Legacy Framework (Deprecated)
 
-Rich assertion helpers:
+The original JSON-based framework is still available but deprecated:
 
-```rust
-use unitycatalog_acceptance::assertions::TestAssertions;
+- **`journey`**: Legacy JSON-based journey execution
+- **`mock`**: Mock server utilities
+- **`recorder`**: Legacy response recording
 
-// Journey assertions
-TestAssertions::assert_journey_success(&result);
-TestAssertions::assert_variables_extracted(&result, &["catalog_id"]);
-
-// JSON assertions
-TestAssertions::assert_json_contains_fields(&response, &["name", "created_at"]);
-TestAssertions::assert_json_field_equals(&response, "name", &expected_name);
-
-// Unity Catalog specific assertions
-TestAssertions::assert_unity_catalog_naming("test_catalog", "Catalog");
-TestAssertions::assert_timestamp_is_recent(&response, "created_at");
-```
+For new development, use the simplified framework. See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for migration instructions.
 
 ## Testing Modes
 
-### Mock Testing (Default)
+### Integration Testing (Recommended)
 
-Fast testing with mock servers:
-
-```rust
-#[tokio::test]
-async fn test_with_mocks() {
-    let server = TestServer::new().await;
-    let client = server.create_client();
-    
-    // Mock server provides predictable responses
-    let mut executor = JourneyExecutor::new(client, Some(server));
-    let result = executor.execute_journey(journey).await;
-    
-    assert!(result.success);
-}
-```
-
-### Integration Testing
-
-Testing against real Unity Catalog servers:
+Test against real Unity Catalog servers for maximum confidence:
 
 ```bash
 # Enable integration testing
@@ -247,193 +234,311 @@ export RUN_INTEGRATION_TESTS=true
 export UC_SERVER_URL="http://localhost:8080"
 export UC_AUTH_TOKEN="your-auth-token"
 
+# Enable response recording
+export RECORD_JOURNEY_RESPONSES=true
+export JOURNEY_RECORDING_DIR="./recordings"
+
 cargo test
 ```
 
 ```rust
 #[tokio::test]
 async fn test_integration() {
-    let config = IntegrationConfig::from_env();
-    
-    if !config.enabled {
+    if std::env::var("RUN_INTEGRATION_TESTS").unwrap_or_default() != "true" {
         return; // Skip when not configured
     }
     
-    // Test against real server
-    let client = create_integration_client(&config);
-    let mut executor = JourneyExecutor::new(client, None);
-    let result = executor.execute_journey(journey).await;
+    let config = JourneyConfig::default();
+    let executor = config.create_executor()?;
     
-    assert!(result.success);
+    let journey = CatalogLifecycleJourney::new();
+    let result = executor.execute_journey(&journey).await?;
+    
+    assert!(result.is_success());
 }
 ```
 
-### Response Recording
+### Unit Testing
 
-Capture real responses for mock data:
+For fast development feedback, journeys can be unit tested:
 
-```bash
-# Enable recording
-export RECORD_JOURNEY_RESPONSES=true
-export UC_SERVER_URL="http://localhost:8080"
-export UC_AUTH_TOKEN="your-auth-token"
-
-cargo test
+```rust
+#[test]
+fn test_journey_properties() {
+    let journey = CatalogLifecycleJourney::new();
+    assert_eq!(journey.name(), "catalog_lifecycle");
+    assert!(journey.tags().contains(&"catalog"));
+}
 ```
 
-Recorded responses are saved to `test_data/journeys/recorded/` and can be used to create more accurate mocks.
+### Response Recording and Comparison
+
+Recorded responses can be used to:
+- Compare behavior between different Unity Catalog implementations
+- Create mock data for faster tests
+- Validate API contract compliance
+- Generate documentation from real examples
+
+```bash
+# Record against reference server
+export UC_SERVER_URL="http://reference-server:8080"
+cargo test -- catalog_lifecycle
+
+# Compare against another implementation
+export UC_SERVER_URL="http://other-server:8080"
+cargo test -- catalog_lifecycle
+
+# Diff the recorded responses
+diff -r recordings/catalog_lifecycle/ other_recordings/catalog_lifecycle/
+```
 
 ## Environment Variables
 
-### Integration Testing
-- `RUN_INTEGRATION_TESTS`: Enable integration tests (default: false)
-- `UC_SERVER_URL`: Unity Catalog server URL
-- `UC_AUTH_TOKEN`: Authentication token for server
+### Core Configuration
+- `UC_SERVER_URL`: Unity Catalog server URL (default: "http://localhost:8080")
+- `UC_AUTH_TOKEN`: Authentication token for server (optional)
+- `REQUEST_TIMEOUT_SECS`: HTTP request timeout in seconds (default: 30)
 
-### Response Recording
+### Testing Configuration
+- `RUN_INTEGRATION_TESTS`: Enable integration tests (default: false)
 - `RECORD_JOURNEY_RESPONSES`: Enable response recording (default: false)
-- `JOURNEY_RECORDING_DIR`: Output directory for recordings (default: test_data/journeys/recorded)
+- `JOURNEY_RECORDING_DIR`: Output directory for recordings (default: "test_data/recordings")
+
+### Legacy Configuration (Deprecated)
 - `RECORD_SUCCESS_ONLY`: Only record successful responses (default: true)
 - `OVERWRITE_JOURNEY_RESPONSES`: Overwrite existing recordings (default: false)
-
-### Test Configuration
 - `TEST_CATALOG_PREFIX`: Prefix for test catalogs (default: test)
 - `TEST_SUFFIX`: Suffix for test resources (default: random)
-- `REQUEST_TIMEOUT_SECS`: HTTP request timeout (default: 30)
 
-## Journey Definition Reference
+## Journey Implementation Reference
 
-### Journey Structure
+### SimpleJourney Trait
 
-```json
-{
-  "name": "journey_name",
-  "description": "What this journey tests",
-  "variables": {
-    "variable_name": "default_value"
-  },
-  "steps": [...],
-  "metadata": {
-    "author": "test_author",
-    "tags": ["integration", "smoke"]
-  }
+All journeys implement the `SimpleJourney` trait:
+
+```rust
+#[async_trait]
+pub trait SimpleJourney: Send + Sync {
+    /// Unique identifier for this journey
+    fn name(&self) -> &str;
+    
+    /// Human-readable description
+    fn description(&self) -> &str;
+    
+    /// Execute the main journey logic
+    async fn execute(
+        &self,
+        client: &UnityCatalogClient,
+        recorder: &mut JourneyRecorder,
+    ) -> AcceptanceResult<()>;
+    
+    /// Optional setup (runs before execute)
+    async fn setup(
+        &self,
+        client: &UnityCatalogClient,
+        recorder: &mut JourneyRecorder,
+    ) -> AcceptanceResult<()> { Ok(()) }
+    
+    /// Optional cleanup (runs after execute, even on failure)
+    async fn cleanup(
+        &self,
+        client: &UnityCatalogClient,
+        recorder: &mut JourneyRecorder,
+    ) -> AcceptanceResult<()> { Ok(()) }
+    
+    /// Tags for organizing journeys
+    fn tags(&self) -> Vec<&str> { vec![] }
 }
 ```
 
-### Step Structure
+### Recording Steps
 
-```json
-{
-  "id": "unique_step_id",
-  "description": "What this step does",
-  "method": "GET|POST|PUT|DELETE|PATCH",
-  "path": "/api/path/with/{variables}",
-  "request_body": {...},
-  "expected_status": 200,
-  "expected_response": {...},
-  "extract_variables": {
-    "var_name": "$.json.path"
-  },
-  "depends_on": ["other_step_id"],
-  "continue_on_failure": false,
-  "tags": ["setup", "main", "cleanup"]
+Use the recorder to capture responses for later analysis:
+
+```rust
+async fn execute(&self, client: &UnityCatalogClient, recorder: &mut JourneyRecorder) -> AcceptanceResult<()> {
+    // Perform operation
+    let catalog = client.create_catalog("test").execute().await?;
+    
+    // Record the response
+    recorder.record_step(
+        "step_name",           // Becomes part of filename
+        "Step description",    // Human-readable description
+        &catalog,             // Response object (must be Serializable)
+    ).await?;
+    
+    // Record errors if needed
+    if let Err(e) = some_operation().await {
+        recorder.record_error("error_step", "Operation failed", &e).await?;
+    }
+    
+    Ok(())
 }
 ```
 
-### Variable Substitution
+### Error Handling
 
-Variables use `{variable_name}` syntax and can be:
-- Defined in the journey variables section
-- Extracted from previous step responses using JSONPath
-- Set by the test environment
+Journeys use standard Rust error handling:
 
-### Dependency Management
+```rust
+async fn execute(&self, client: &UnityCatalogClient, recorder: &mut JourneyRecorder) -> AcceptanceResult<()> {
+    // Use ? operator for error propagation
+    let catalog = client.create_catalog("test").execute().await
+        .map_err(|e| AcceptanceError::UnityCatalog(format!("Create failed: {}", e)))?;
+    
+    // Custom error handling
+    match client.catalog("test").get().await {
+        Ok(info) => recorder.record_step("get_catalog", "Retrieved catalog", &info).await?,
+        Err(e) => {
+            recorder.record_error("get_catalog_error", "Failed to get catalog", &e).await?;
+            return Err(AcceptanceError::UnityCatalog(format!("Get failed: {}", e)));
+        }
+    }
+    
+    Ok(())
+}
+```
 
-Steps can depend on other steps using the `depends_on` field:
-- Dependencies are resolved automatically
-- Dependent steps only run if their dependencies succeed
-- Circular dependencies are detected and reported
+### Resource Management
 
-### Tags
+Always clean up resources in the `cleanup` method:
 
-Steps can be tagged for organization:
-- `setup`: Resource creation steps
-- `main`: Core test logic
-- `cleanup`: Resource cleanup (usually with `continue_on_failure: true`)
-- `verification`: Validation steps
+```rust
+async fn cleanup(&self, client: &UnityCatalogClient, recorder: &mut JourneyRecorder) -> AcceptanceResult<()> {
+    // Clean up in reverse order of creation
+    let _ = client.table("catalog.schema.table").delete().await;
+    let _ = client.schema("catalog", "schema").delete().await;
+    let _ = client.catalog("catalog").delete().await;
+    
+    // Record cleanup results
+    recorder.record_step(
+        "cleanup_complete",
+        "Cleanup completed",
+        &serde_json::json!({"status": "cleaned_up"}),
+    ).await?;
+    
+    Ok(())
+}
+```
 
 ## Best Practices
 
 ### Journey Design
 
-1. **Start Simple**: Begin with basic workflows, add complexity gradually
-2. **Use Dependencies**: Model real-world step dependencies properly
-3. **Extract Variables**: Pass important data between steps
-4. **Plan Cleanup**: Always include cleanup steps with error tolerance
-5. **Tag Appropriately**: Use tags to organize step purposes
+1. **Single Responsibility**: Each journey should test one workflow or feature
+2. **Meaningful Names**: Use descriptive names for journeys, steps, and resources
+3. **Proper Cleanup**: Always implement cleanup, even if operations fail
+4. **Resource Isolation**: Use timestamps or UUIDs to avoid name conflicts
+5. **Error Resilience**: Handle errors gracefully and continue cleanup
 
-### Test Organization
+### Code Organization
 
-1. **One Journey Per Test**: Keep journeys focused on single workflows
-2. **Reusable Components**: Use builders and utilities for common patterns
-3. **Clear Naming**: Use descriptive names for resources and steps
-4. **Error Testing**: Include negative test scenarios
-5. **Resource Cleanup**: Always clean up test resources
+1. **Reusable Journeys**: Create generic journeys that can be configured
+2. **Helper Methods**: Extract common operations into helper methods
+3. **Clear Documentation**: Document complex workflows and edge cases
+4. **Type Safety**: Leverage Rust's type system for better reliability
+5. **Consistent Structure**: Follow the setup -> execute -> cleanup pattern
 
-### Performance
+### Testing Strategy
 
-1. **Mock by Default**: Use mocks for fast feedback during development
-2. **Integration for Validation**: Run integration tests for final validation
-3. **Parallel Testing**: Design tests to run independently
-4. **Resource Isolation**: Use unique names to avoid conflicts
+1. **Integration First**: Test against real servers for confidence
+2. **Record Responses**: Enable recording to capture real behavior
+3. **Compare Implementations**: Use recordings to validate different servers
+4. **Parallel Safe**: Design journeys to run independently
+5. **Environment Aware**: Make tests configurable for different environments
 
-## Migration from Old Framework
+### Performance and Reliability
 
-### Before (test_utils)
+1. **Resource Cleanup**: Always clean up, even on test failure
+2. **Timeout Handling**: Set appropriate timeouts for operations
+3. **Retry Logic**: Consider retries for transient failures
+4. **Concurrent Testing**: Design for parallel execution
+5. **Monitoring**: Use recordings to monitor API changes over time
 
-```rust
-mod test_utils;
-use test_utils::journeys::{JourneyExecutor, JourneyLoader};
-use test_utils::TestServer;
+## Migration from Legacy Framework
 
-// Old approach with inline test utilities
+The framework includes both the new simplified approach and the legacy JSON-based system for backward compatibility.
+
+### Migrating to Simplified Journeys
+
+See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed migration instructions.
+
+**Quick Migration Steps:**
+
+1. **Replace JSON with Rust**: Convert JSON journey definitions to `SimpleJourney` implementations
+2. **Use Typed Client**: Replace raw HTTP calls with `UnityCatalogClient` methods
+3. **Implement Trait**: Implement the `SimpleJourney` trait for your workflows
+4. **Update Tests**: Use the simplified journey framework
+5. **Enable Recording**: Set environment variables for automatic response recording
+
+### Benefits of Migration
+
+- **Type Safety**: Compile-time validation instead of runtime JSON parsing
+- **Better Errors**: Clear Rust error messages instead of generic HTTP errors
+- **IDE Support**: Full IntelliSense, go-to-definition, and refactoring
+- **Maintainability**: Easier to refactor and modify journey logic
+- **Real API**: Test the actual client API your applications use
+
+## Examples and Documentation
+
+### Examples
+
+- `examples/simple_journey_example.rs`: Complete usage demonstration
+- `src/journeys/`: Pre-built journey implementations
+- `tests/simple_journey_tests.rs`: Comprehensive test examples
+
+### Documentation
+
+- [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md): Detailed migration instructions
+- [Examples Directory](examples/): Complete working examples
+- [Journey Implementations](src/journeys/): Reference implementations
+
+### Running Examples
+
+```bash
+# Set up environment
+export UC_SERVER_URL="http://localhost:8080"
+export RECORD_JOURNEY_RESPONSES="true"
+
+# Run the main example
+cargo run --example simple_journey_example
+
+# Run integration tests
+export RUN_INTEGRATION_TESTS="true"
+cargo test --test simple_journey_tests
 ```
-
-### After (acceptance crate)
-
-```rust
-use unitycatalog_acceptance::{
-    journey::{JourneyExecutor, JourneyLoader},
-    mock::TestServer,
-    assertions::TestAssertions,
-    models::CatalogBuilder,
-};
-
-// New approach with dedicated crate
-```
-
-### Migration Steps
-
-1. **Update Dependencies**: Add `unitycatalog-acceptance` to dev-dependencies
-2. **Update Imports**: Change imports from `test_utils::` to `unitycatalog_acceptance::`
-3. **Use New Assertions**: Replace custom assertions with `TestAssertions`
-4. **Use Builders**: Replace inline JSON with builder patterns
-5. **Move Journey Files**: Copy journey definitions to acceptance crate
-
-## Examples
-
-See the `tests/` directory for complete examples:
-- `acceptance_example_test.rs`: Basic usage patterns
-- Journey definitions in `test_data/journeys/`
 
 ## Contributing
 
-When adding new functionality:
+When adding new journeys or functionality:
 
-1. **Add Tests**: Include unit tests for new features
-2. **Update Documentation**: Keep README and code comments current
-3. **Follow Patterns**: Use existing patterns for consistency
-4. **Add Examples**: Include usage examples for new features
+1. **Implement SimpleJourney**: Use the trait-based approach for new journeys
+2. **Add Tests**: Include both unit and integration tests
+3. **Document Examples**: Provide clear usage examples
+4. **Follow Patterns**: Use existing journey implementations as templates
+5. **Update Documentation**: Keep README and migration guide current
+
+### Adding New Journeys
+
+1. Create a new file in `src/journeys/`
+2. Implement the `SimpleJourney` trait
+3. Add comprehensive tests
+4. Export from `src/journeys/mod.rs`
+5. Add example usage to documentation
+
+### Testing Contributions
+
+```bash
+# Run all tests
+cargo test
+
+# Run with integration tests
+export RUN_INTEGRATION_TESTS=true
+cargo test
+
+# Test specific journey
+cargo test --test simple_journey_tests -- catalog_lifecycle
+```
 
 ## License
 

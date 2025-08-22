@@ -11,7 +11,7 @@ pub struct CreateExternalLocationBuilder {
 }
 impl CreateExternalLocationBuilder {
     /// Create a new builder instance
-    pub fn new(
+    pub(crate) fn new(
         client: ExternalLocationClient,
         name: impl Into<String>,
         url: impl Into<String>,
@@ -57,7 +57,7 @@ pub struct GetExternalLocationBuilder {
 }
 impl GetExternalLocationBuilder {
     /// Create a new builder instance
-    pub fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
         let request = GetExternalLocationRequest {
             name: name.into(),
             ..Default::default()
@@ -81,7 +81,7 @@ pub struct UpdateExternalLocationBuilder {
 }
 impl UpdateExternalLocationBuilder {
     /// Create a new builder instance
-    pub fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+    pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
         let request = UpdateExternalLocationRequest {
             name: name.into(),
             ..Default::default()

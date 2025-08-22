@@ -200,6 +200,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -208,6 +209,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
             ],
         };
@@ -274,6 +276,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "include_browse".to_string(),
@@ -282,6 +285,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
             ],
         };
@@ -324,6 +328,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -332,6 +337,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -340,6 +346,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
             ],
         };
@@ -383,6 +390,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "catalog".to_string(),
@@ -391,6 +399,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
                 MessageField {
                     name: "force".to_string(),
@@ -399,6 +408,7 @@ mod tests {
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
+                    oneof_variants: None,
                 },
             ],
         };

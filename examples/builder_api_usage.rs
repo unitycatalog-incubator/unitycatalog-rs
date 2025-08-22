@@ -302,6 +302,77 @@ async fn main() -> Result<()> {
 
     println!("Generated temporary path credentials");
 
+    // Examples of using the new Get builders with optional parameters
+
+    // Get a catalog with optional browse parameter
+    let catalog_info = client
+        .catalog("analytics_catalog")
+        .get()
+        .with_include_browse(true)
+        .await?;
+
+    println!("Retrieved catalog: {} with browse info", catalog_info.name);
+
+    // Get a table with all optional parameters
+    let table_info = client
+        .table("analytics_catalog.sales_data.monthly_sales")
+        .get()
+        .with_include_delta_metadata(true)
+        .with_include_browse(true)
+        .with_include_manifest_capabilities(true)
+        .await?;
+
+    println!("Retrieved table: {} with full metadata", table_info.name);
+
+    // Get a share with shared data information
+    let share_info = client
+        .share("external_analytics_share")
+        .get()
+        .with_include_shared_data(true)
+        .await?;
+
+    println!("Retrieved share: {} with shared data info", share_info.name);
+
+    // Get a volume with browse information
+    let volume_info = client
+        .volume("analytics_catalog", "sales_data", "raw_files")
+        .get()
+        .with_include_browse(true)
+        .await?;
+
+    println!("Retrieved volume: {} with browse info", volume_info.name);
+
+    // Examples showing builder flexibility - all of these work:
+
+    // 1. Pass None explicitly
+    let table1 = client
+        .table("analytics_catalog.sales_data.monthly_sales")
+        .get()
+        .with_include_delta_metadata(None)
+        .await?;
+
+    // 2. Pass Some(value)
+    let table2 = client
+        .table("analytics_catalog.sales_data.monthly_sales")
+        .get()
+        .with_include_delta_metadata(Some(true))
+        .await?;
+
+    // 3. Pass raw boolean
+    let table3 = client
+        .table("analytics_catalog.sales_data.monthly_sales")
+        .get()
+        .with_include_delta_metadata(true)
+        .await?;
+
+    // 4. Don't set optional parameters at all (they default to None)
+    let table4 = client
+        .table("analytics_catalog.sales_data.monthly_sales")
+        .get()
+        .await?;
+
+    println!("Retrieved tables with different parameter styles - all successful!");
+
     println!("All operations completed successfully!");
 
     Ok(())
