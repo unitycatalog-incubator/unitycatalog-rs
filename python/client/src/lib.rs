@@ -1,7 +1,6 @@
 use self::client::{
     PyCatalogClient, PyCredentialClient, PyExternalLocationClient, PyRecipientClient,
-    PySchemaClient, PyShareClient, PySharingClient, PyTableClient, PyUnityCatalogClient,
-    PyVolumeClient,
+    PySchemaClient, PyShareClient, PyTableClient, PyUnityCatalogClient, PyVolumeClient,
 };
 use pyo3::prelude::*;
 use unitycatalog_common::models::catalogs::v1::{CatalogInfo, CatalogType};
@@ -58,7 +57,6 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyRecipientClient>()?;
     m.add_class::<PySchemaClient>()?;
     m.add_class::<PyShareClient>()?;
-    m.add_class::<PySharingClient>()?;
     m.add_class::<PyTableClient>()?;
     m.add_class::<PyUnityCatalogClient>()?;
     m.add_class::<PyVolumeClient>()?;

@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 
-use chrono::{DateTime, Utc};
 use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
 use unitycatalog_client::{
-    CatalogClient, CredentialClient, DeltaSharingClient, ExternalLocationClient, PathOperation,
-    RecipientClient, SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
+    CatalogClient, CredentialClient, ExternalLocationClient, PathOperation, RecipientClient,
+    SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
     TemporaryCredentialClient, UnityCatalogClient, VolumeClient,
 };
 use unitycatalog_common::credentials::v1::credential_info::Credential;
@@ -15,7 +14,6 @@ use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::{DataObjectUpdate, ShareInfo};
-use unitycatalog_common::models::sharing::v1::{Share, SharingSchema, SharingTable};
 use unitycatalog_common::models::sharing_ext::{MetadataResponseData, ProtocolResponseData};
 use unitycatalog_common::models::tables::v1::{ColumnInfo, DataSourceFormat, TableInfo, TableType};
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
@@ -917,161 +915,6 @@ impl PyMetadata {
             self.partition_columns(),
             self.configuration()
         )
-    }
-}
-
-#[pyclass]
-pub struct PySharingClient {
-    client: DeltaSharingClient,
-}
-
-#[pymethods]
-impl PySharingClient {
-    #[new]
-    #[pyo3(signature = (base_url, token = None, prefix = None))]
-    pub fn new(base_url: String, token: Option<String>, prefix: Option<String>) -> PyResult<Self> {
-        let client = if let Some(token) = token {
-            cloud_client::CloudClient::new_with_token(token)
-        } else {
-            cloud_client::CloudClient::new_unauthenticated()
-        };
-        let base_url = base_url.parse().unwrap();
-        let sharing_client = if let Some(prefix) = prefix {
-            DeltaSharingClient::new_with_prefix(client, base_url, prefix)
-        } else {
-            DeltaSharingClient::new(client, base_url)
-        };
-        Ok(Self {
-            client: sharing_client,
-        })
-    }
-
-    #[pyo3(signature = (max_results = None))]
-    pub fn list_shares(
-        &self,
-        py: Python,
-        max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<Share>> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let shares = runtime.block_on(async move {
-                self.client
-                    .list_shares(max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
-            Ok::<_, PyUnityCatalogError>(shares)
-        })
-    }
-
-    pub fn get_share(&self, py: Python, name: String) -> PyUnityCatalogResult<Share> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let share = runtime.block_on(self.client.get_share(name))?;
-            Ok::<_, PyUnityCatalogError>(share)
-        })
-    }
-
-    #[pyo3(signature = (share, max_results = None))]
-    pub fn list_share_schemas(
-        &self,
-        py: Python,
-        share: String,
-        max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<SharingSchema>> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let schemas = runtime.block_on(async move {
-                self.client
-                    .list_share_schemas(share, max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
-            Ok::<_, PyUnityCatalogError>(schemas)
-        })
-    }
-
-    #[pyo3(signature = (share, max_results = None))]
-    pub fn list_share_tables(
-        &self,
-        py: Python,
-        share: String,
-        max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<SharingTable>> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let tables = runtime.block_on(async move {
-                self.client
-                    .list_share_tables(share, max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
-            Ok::<_, PyUnityCatalogError>(tables)
-        })
-    }
-
-    #[pyo3(signature = (share, schema, max_results = None))]
-    pub fn list_schema_tables(
-        &self,
-        py: Python,
-        share: String,
-        schema: String,
-        max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<SharingTable>> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let tables = runtime.block_on(async move {
-                self.client
-                    .list_schema_tables(share, schema, max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
-            Ok::<_, PyUnityCatalogError>(tables)
-        })
-    }
-
-    #[pyo3(signature = (share, schema, table, starting_timestamp = None))]
-    pub fn get_table_version(
-        &self,
-        py: Python,
-        share: String,
-        schema: String,
-        table: String,
-        starting_timestamp: Option<String>,
-    ) -> PyUnityCatalogResult<u64> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let timestamp = starting_timestamp
-                .map(|s| s.parse::<DateTime<Utc>>())
-                .transpose()
-                .map_err(|e| {
-                    unitycatalog_common::error::Error::invalid_argument(format!(
-                        "Invalid timestamp: {}",
-                        e
-                    ))
-                })?;
-            let version = runtime.block_on(
-                self.client
-                    .get_table_version(share, schema, table, timestamp),
-            )?;
-            Ok::<_, PyUnityCatalogError>(version)
-        })
-    }
-
-    #[pyo3(signature = (share, schema, table))]
-    pub fn get_table_metadata(
-        &self,
-        py: Python,
-        share: String,
-        schema: String,
-        table: String,
-    ) -> PyUnityCatalogResult<(PyProtocol, PyMetadata)> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let (protocol, metadata) =
-                runtime.block_on(self.client.get_table_metadata(share, schema, table))?;
-            Ok::<_, PyUnityCatalogError>((PyProtocol { protocol }, PyMetadata { metadata }))
-        })
     }
 }
 

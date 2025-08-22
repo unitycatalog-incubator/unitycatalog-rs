@@ -2,6 +2,12 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("Delta Kernel Error: {source}")]
+    DeltaKernel {
+        #[from]
+        source: delta_kernel::Error,
+    },
+
     #[error("Common Error: {source}")]
     Common {
         #[from]
