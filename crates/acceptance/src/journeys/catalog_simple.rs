@@ -95,22 +95,14 @@ impl UserJourney for SimpleCatalogJourney {
 
         // Step 2: List catalogs to verify our catalog exists
         println!("📋 Listing catalogs to verify creation");
-        let mut catalogs = client.list_catalogs(Some(10)); // Limit to 10 for demo
-        let mut catalog_list = Vec::new();
-        let mut found_our_catalog = false;
-
-        while let Some(catalog_result) = catalogs.next().await {
-            let catalog = catalog_result.map_err(|e| {
-                crate::AcceptanceError::UnityCatalog(format!("Failed to list catalogs: {}", e))
-            })?;
-
-            if catalog.name == self.catalog_name {
-                found_our_catalog = true;
-                println!("✅ Found our catalog in the list: {}", catalog.name);
-            }
-
-            catalog_list.push(catalog);
-        }
+        let catalogs = client.list_catalogs(Some(10)); // Limit to 10 for demo
+        let found_our_catalog = catalogs
+            .any(|c| async {
+                c.ok()
+                    .map(|catalog| catalog.name == self.catalog_name)
+                    .unwrap_or(false)
+            })
+            .await;
 
         // Verify our catalog is in the list
         if !found_our_catalog {
@@ -130,6 +122,12 @@ impl UserJourney for SimpleCatalogJourney {
                 crate::AcceptanceError::UnityCatalog(format!("Failed to get catalog info: {}", e))
             })?;
 
+        client
+            .catalog(&self.catalog_name)
+            .delete(Some(true))
+            .await?;
+        println!("🗑️ Successfully deleted catalog '{}'", self.catalog_name);
+
         // Verify catalog properties
         assert_eq!(catalog_info.name, self.catalog_name);
         println!("✅ Verified catalog properties");
@@ -140,18 +138,9 @@ impl UserJourney for SimpleCatalogJourney {
 
     async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         println!("🧹 Cleaning up simple catalog journey");
-
-        // Delete the catalog
-        match client.catalog(&self.catalog_name).delete(Some(true)).await {
-            Ok(()) => {
-                println!("🗑️ Successfully deleted catalog '{}'", self.catalog_name);
-            }
-            Err(e) => {
-                // Log the error but don't fail cleanup
-                eprintln!("⚠️ Failed to delete catalog '{}': {}", self.catalog_name, e);
-            }
-        }
-
+        // Delete the catalog just in case it wasn't deleted
+        // TODO: once we have proper error types in the client this should only allow not-found errors
+        let _ = client.catalog(&self.catalog_name).delete(Some(true)).await;
         Ok(())
     }
 }
