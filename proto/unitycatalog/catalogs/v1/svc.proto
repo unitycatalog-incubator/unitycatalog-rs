@@ -100,7 +100,11 @@ message UpdateCatalogRequest {
   ];
 
   // Username of new owner of catalog.
-  optional string owner = 2 [(google.api.field_behavior) = OPTIONAL];
+  optional string owner = 2 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).required = false,
+    (google.api.field_behavior) = OPTIONAL
+  ];
 
   // User-provided free-form text description.
   optional string comment = 3 [(google.api.field_behavior) = OPTIONAL];

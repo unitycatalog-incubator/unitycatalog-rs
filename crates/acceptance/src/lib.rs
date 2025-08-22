@@ -14,42 +14,71 @@
 //!
 //! ## Quick Start
 //!
+//! ### Basic Journey with Auto-Registration
+//!
 //! ```rust,no_run
 //! use unitycatalog_acceptance::{
 //!     AcceptanceResult,
-//!     simple_journey::{JourneyConfig, UserJourney},
+//!     journey_helpers::JourneyLogger,
 //! };
-//! use async_trait::async_trait;
-//! use futures::StreamExt;
-//!
-//! struct MyJourney;
-//!
-//! #[async_trait]
-//! impl UserJourney for MyJourney {
-//!     fn name(&self) -> &str { "my_test_journey" }
-//!     fn description(&self) -> &str { "Tests catalog operations" }
-//!
-//!     async fn execute(
-//!         &self,
-//!         client: &unitycatalog_client::UnityCatalogClient,
-//!     ) -> AcceptanceResult<()> {
-//!         // Use the actual client to perform operations
-//!         let mut catalogs = client.list_catalogs(None);
-//!         while let Some(catalog) = catalogs.next().await {
-//!             let _catalog = catalog?;
-//!             // Process catalog...
-//!         }
-//!         Ok(())
-//!     }
-//! }
 //!
 //! #[tokio::main]
 //! async fn main() -> AcceptanceResult<()> {
-//!     let config = JourneyConfig::default();
-//!     let mut journey = MyJourney;
+//!     let logger = JourneyLogger::new("my_journey");
+//!     logger.start("Testing catalog operations")?;
 //!
-//!     let result = config.execute_journey_with_state(&mut journey).await?;
-//!     assert!(result.is_success());
+//!     // Steps are auto-registered when executed
+//!     logger.step("create_catalog", async {
+//!         // Your operation here
+//!         Ok::<_, String>("Catalog created")
+//!     }).await?;
+//!
+//!     logger.step_with_description("list_catalogs", "📋 List all catalogs", async {
+//!         // Your operation here
+//!         Ok::<_, String>("Listed catalogs")
+//!     }).await?;
+//!
+//!     logger.finish(true)?;
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Structured Journey with Pre-Registration
+//!
+//! ```rust,no_run
+//! use unitycatalog_acceptance::{
+//!     AcceptanceResult,
+//!     journey_helpers::JourneyLogger,
+//!     setup_journey_steps,
+//! };
+//!
+//! #[tokio::main]
+//! async fn main() -> AcceptanceResult<()> {
+//!     let logger = JourneyLogger::new("structured_journey");
+//!     logger.start("Structured catalog testing")?;
+//!
+//!     // Optional: Pre-register steps for planning/documentation
+//!     setup_journey_steps!(
+//!         logger,
+//!         "create" => "Create test catalog",
+//!         "verify" => "Verify catalog exists",
+//!         "cleanup" => "Delete test catalog"
+//!     );
+//!
+//!     // Execute the pre-registered steps
+//!     logger.step("create", async {
+//!         Ok::<_, String>("Created")
+//!     }).await?;
+//!
+//!     logger.step("verify", async {
+//!         Ok::<_, String>("Verified")
+//!     }).await?;
+//!
+//!     logger.step("cleanup", async {
+//!         Ok::<_, String>("Cleaned up")
+//!     }).await?;
+//!
+//!     logger.finish(true)?;
 //!     Ok(())
 //! }
 //! ```
@@ -59,11 +88,14 @@
 //! - [`simple_journey`] - Core journey framework with traits and execution logic
 //! - [`journeys`] - Example journey implementations
 
-pub mod journey;
+pub mod execution;
 pub mod journeys;
+pub mod reporting;
 
 // Re-export commonly used types for convenience
-pub use journey::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
+pub use execution::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
+pub use execution::{JourneyLogger, PerformanceMetrics, ProgressTracker, cleanup_step};
+pub use reporting::{JourneyReporter, ReportingConfig, generate_journeys_summary_table};
 
 /// Result type commonly used throughout the framework
 pub type AcceptanceResult<T> = Result<T, AcceptanceError>;

@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "GET",
+    "url_path": "/api/2.1/unity-catalog/catalogs/hierarchy_catalog_1755899503",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json",
+      "x-databricks-org-id": "310942840210298",
+      "x-request-id": "91b10650-b836-4e74-a539-1a15ccfb70a6",
+      "alt-svc": "clear",
+      "content-length": "1199",
+      "server": "databricks",
+      "vary": "Accept-Encoding",
+      "x-content-type-options": "nosniff",
+      "date": "Fri, 22 Aug 2025 21:51:45 GMT",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload"
+    },
+    "body": "{\"name\":\"hierarchy_catalog_1755899503\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Hierarchy test catalog for schema management\",\"storage_root\":\"s3://open-lakehouse-dev/\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"catalog_type\":\"MANAGED_CATALOG\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"created_at\":1755899504881,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1755899504881,\"updated_by\":\"robert.pack@databricks.com\",\"storage_location\":\"s3://open-lakehouse-dev/__unitystorage/catalogs/9526c600-af7d-4d98-a3d3-135b73f452a0\",\"isolation_mode\":\"OPEN\",\"effective_auto_maintenance_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"browse_only\":false,\"id\":\"9526c600-af7d-4d98-a3d3-135b73f452a0\",\"full_name\":\"hierarchy_catalog_1755899503\",\"securable_type\":\"CATALOG\",\"securable_kind\":\"CATALOG_STANDARD\",\"resource_name\":\"/metastores/d588dff9-484f-45ac-a020-cc4961a362c7/catalogs/9526c600-af7d-4d98-a3d3-135b73f452a0\",\"metastore_version\":156}"
+  }
+}

@@ -3,12 +3,12 @@ syntax = "proto3";
 package unitycatalog.tables.v1;
 
 import "buf/validate/validate.proto";
-import "unitycatalog/tables/v1/models.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
+import "unitycatalog/tables/v1/models.proto";
 
 message ListTableSummariesRequest {
   // Name of parent catalog for tables of interest.

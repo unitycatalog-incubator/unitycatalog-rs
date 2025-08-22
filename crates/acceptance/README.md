@@ -21,10 +21,12 @@ The Unity Catalog Acceptance Testing Framework enables you to test complete user
 ## Features
 
 - **Simplified Journey Framework**: Write journeys as Rust traits with full type safety
+- **Rich Reporting & Logging**: Enhanced terminal output with progress bars, tables, and structured logging
 - **Automatic Response Recording**: Capture real server responses to numbered files
 - **Mock Server Support**: Fast testing with configurable mock responses (legacy)
 - **Integration Testing**: Execute against live Unity Catalog instances
 - **Multiple Journey Execution**: Run journeys in sequence or parallel
+- **Performance Tracking**: Built-in metrics collection and reporting
 - **Comprehensive Examples**: Ready-to-use journeys for common workflows
 
 ## Quick Start
@@ -478,6 +480,86 @@ See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed migration instructions
 - **IDE Support**: Full IntelliSense, go-to-definition, and refactoring
 - **Maintainability**: Easier to refactor and modify journey logic
 - **Real API**: Test the actual client API your applications use
+
+## Rich Reporting and Logging
+
+The framework includes enhanced reporting capabilities that provide rich, condensed output with progress indicators, tables, and structured logging to improve the development experience.
+
+### Key Features
+
+- **Progress Tracking**: Visual progress bars and step-by-step logging
+- **Rich Terminal Output**: Colored output, tables, and emojis for better readability
+- **Performance Metrics**: Built-in timing and performance analysis
+- **Configurable Verbosity**: Multiple verbosity levels (0=minimal, 1=normal, 2=verbose)
+- **Summary Tables**: Condensed tabular reports of journey results
+
+### Quick Start with Rich Reporting
+
+```rust
+use unitycatalog_acceptance::{init_journey, setup_journey_steps};
+use unitycatalog_acceptance::journey_helpers::JourneyLogger;
+
+#[async_trait]
+impl UserJourney for MyJourney {
+    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+        // Initialize rich logging
+        let logger = init_journey!("my_journey", "Testing catalog operations");
+        
+        // Setup progress tracking
+        setup_journey_steps!(
+            logger,
+            "create_catalog" => "Create test catalog",
+            "verify_catalog" => "Verify catalog properties",
+            "cleanup" => "Clean up resources"
+        );
+        
+        // Execute with automatic progress tracking
+        let catalog = logger.step("create_catalog", async {
+            client.create_catalog("test_catalog").await
+        }).await?;
+        
+        logger.info("✅ Catalog created successfully")?;
+        logger.finish(true)?;
+        Ok(())
+    }
+}
+```
+
+### Output Example
+
+```
+🚀 my_journey Testing catalog operations
+
+  📁 Creating test catalog
+  ✅ Created test catalog (245ms)
+
+  🔍 Verifying catalog properties  
+  ✅ Verified catalog properties (89ms)
+
+🎉 Journey my_journey COMPLETED (334ms)
+
+┌──────────────┬────────────┬──────────┬───────┬───────┐
+│ Journey      │ Status     │ Duration │ Steps │ Error │
+├──────────────┼────────────┼──────────┼───────┼───────┤
+│ my_journey   │ ✓ Success  │ 334ms    │ 2     │ -     │
+└──────────────┴────────────┴──────────┴───────┴───────┘
+```
+
+### Configuration Options
+
+```rust
+use unitycatalog_acceptance::reporting::ReportingConfig;
+
+let config = ReportingConfig {
+    verbosity: 2,           // 0=minimal, 1=normal, 2=verbose
+    show_progress: true,    // Show progress bars
+    show_timing: true,      // Show timing information
+    use_colors: true,       // Use colored output
+    table_width: Some(120), // Custom table width
+};
+```
+
+For detailed documentation on reporting features, see [`docs/REPORTING.md`](docs/REPORTING.md).
 
 ## Examples and Documentation
 

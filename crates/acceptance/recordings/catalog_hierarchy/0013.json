@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "DELETE",
+    "url_path": "/api/2.1/unity-catalog/schemas/hierarchy_catalog_1755899503.analytics_schema_1755899503?force=false",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "alt-svc": "clear",
+      "content-type": "application/json",
+      "x-content-type-options": "nosniff",
+      "x-databricks-org-id": "310942840210298",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+      "content-length": "2",
+      "server": "databricks",
+      "x-request-id": "74c71a33-81c1-4a26-8443-5dfa255b1976",
+      "date": "Fri, 22 Aug 2025 21:51:46 GMT"
+    },
+    "body": "{}"
+  }
+}

@@ -101,7 +101,11 @@ message UpdateExternalLocationRequest {
   optional bool read_only = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // owner of the external location.
-  optional string owner = 5 [(google.api.field_behavior) = OPTIONAL];
+  optional string owner = 5 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).required = false,
+    (google.api.field_behavior) = OPTIONAL
+  ];
 
   // User-provided free-form text description.
   optional string comment = 6 [(google.api.field_behavior) = OPTIONAL];

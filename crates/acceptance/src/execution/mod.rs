@@ -18,6 +18,9 @@ use unitycatalog_client::UnityCatalogClient;
 use url::Url;
 
 use crate::{AcceptanceError, AcceptanceResult};
+pub use helpers::*;
+
+mod helpers;
 
 /// A user journey that can be executed against Unity Catalog
 #[async_trait]
@@ -41,11 +44,6 @@ pub trait UserJourney: Send + Sync {
     #[allow(unused_variables)]
     async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         Ok(())
-    }
-
-    /// Tags for organizing journeys
-    fn tags(&self) -> Vec<&str> {
-        vec![]
     }
 
     /// Save journey state for replay
@@ -79,11 +77,6 @@ impl<T: UserJourney> UserJourney for Box<T> {
 
     async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         T::cleanup(self, client).await
-    }
-
-    /// Tags for organizing journeys
-    fn tags(&self) -> Vec<&str> {
-        T::tags(self)
     }
 
     /// Save journey state for replay

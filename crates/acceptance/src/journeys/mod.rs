@@ -6,30 +6,43 @@
 //! - Write clean, maintainable journey code
 //! - Handle setup and cleanup properly
 
-pub mod simple_catalog;
-pub use simple_catalog::SimpleCatalogJourney;
+mod catalog_hierarchy;
+mod catalog_simple;
 
-use crate::journey::UserJourney;
+pub use catalog_hierarchy::CatalogHierarchyJourney;
+pub use catalog_simple::CatalogSimpleJourney;
+
+use crate::execution::UserJourney;
 
 /// Get all available example journeys
 pub fn all_journeys() -> Vec<Box<dyn UserJourney>> {
-    vec![Box::new(SimpleCatalogJourney::new())]
+    vec![
+        Box::new(CatalogSimpleJourney::new()),
+        Box::new(CatalogHierarchyJourney::new()),
+    ]
 }
 
-/// Get journeys by tag
-pub fn journeys_with_tag(tag: &str) -> Vec<Box<dyn UserJourney>> {
-    all_journeys()
-        .into_iter()
-        .filter(|journey| journey.tags().contains(&tag))
-        .collect()
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-/// Get smoke test journeys (quick validation)
-pub fn smoke_test_journeys() -> Vec<Box<dyn UserJourney>> {
-    vec![Box::new(SimpleCatalogJourney::new())]
-}
+    #[test]
+    fn test_all_journeys_registration() {
+        let journeys = all_journeys();
+        assert_eq!(journeys.len(), 2);
 
-/// Get comprehensive integration test journeys
-pub fn integration_test_journeys() -> Vec<Box<dyn UserJourney>> {
-    journeys_with_tag("integration")
+        let journey_names: Vec<&str> = journeys.iter().map(|j| j.name()).collect();
+        assert!(journey_names.contains(&"enhanced_catalog"));
+        assert!(journey_names.contains(&"catalog_hierarchy"));
+    }
+
+    #[test]
+    fn test_journey_descriptions() {
+        let journeys = all_journeys();
+
+        for journey in journeys {
+            assert!(!journey.name().is_empty());
+            assert!(!journey.description().is_empty());
+        }
+    }
 }
