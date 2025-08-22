@@ -16,9 +16,18 @@ generate-full: generate-common-ext generate-build-ext generate-proto generate-co
 [group('generate')]
 generate-proto:
     buf generate proto
+    just generate-openapi
+    cargo clippy --fix --allow-dirty --allow-staged
+
+# Update the generated openapi spec with validation extraced from generated jsonschema.
+[group('generate')]
+generate-openapi:
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
-    cargo clippy --fix --allow-dirty --allow-staged
+    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
+    uv run scripts/update_openapi_schemas.py
+    rm -rf openapi/jsonschema
+    npm run openapi
 
 # generate rest server and client code with build crate.
 [group('generate')]

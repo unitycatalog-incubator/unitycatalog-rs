@@ -145,9 +145,7 @@ message DeleteVolumeRequest {
 service VolumesService {
   // Lists volumes.
   rpc ListVolumes(ListVolumesRequest) returns (ListVolumesResponse) {
-    option (google.api.http) = {
-      get: "/volumes"
-    };
+    option (google.api.http) = {get: "/volumes"};
     option (gnostic.openapi.v3.operation) = {operation_id: "ListVolumes"};
   }
 
@@ -160,9 +158,7 @@ service VolumesService {
   }
 
   rpc GetVolume(GetVolumeRequest) returns (VolumeInfo) {
-    option (google.api.http) = {
-      get: "/volumes/{name}"
-    };
+    option (google.api.http) = {get: "/volumes/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetVolume"};
   }
 
@@ -175,9 +171,7 @@ service VolumesService {
   }
 
   rpc DeleteVolume(DeleteVolumeRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/volumes/{name}"
-    };
+    option (google.api.http) = {delete: "/volumes/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "DeleteVolume"};
   }
 }
