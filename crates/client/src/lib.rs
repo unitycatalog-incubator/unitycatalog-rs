@@ -8,8 +8,6 @@ use futures::stream::BoxStream;
 pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
-#[cfg(feature = "sharing")]
-pub use sharing::*;
 pub use tables::*;
 pub use temporary_credentials::*;
 use unitycatalog_common::CatalogInfo;
@@ -29,8 +27,6 @@ pub use crate::codegen::external_locations::builders::{
 pub use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
 pub use crate::codegen::schemas::builders::{CreateSchemaBuilder, UpdateSchemaBuilder};
 pub use crate::codegen::shares::builders::{CreateShareBuilder, UpdateShareBuilder};
-#[cfg(feature = "sharing")]
-pub use crate::codegen::sharing::builders::QueryTableBuilder;
 pub use crate::codegen::tables::builders::CreateTableBuilder;
 pub use crate::codegen::temporary_credentials::builders::{
     GenerateTemporaryPathCredentialsBuilder, GenerateTemporaryTableCredentialsBuilder,
@@ -45,8 +41,6 @@ mod external_locations;
 mod recipients;
 mod schemas;
 mod shares;
-#[cfg(feature = "sharing")]
-mod sharing;
 mod tables;
 mod temporary_credentials;
 mod utils;

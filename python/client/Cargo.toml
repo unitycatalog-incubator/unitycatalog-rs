@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 cloud-client = { path = "../../crates/cloud-client" }
-unitycatalog-client = { path = "../../crates/client", features = ["sharing"] }
+unitycatalog-client = { path = "../../crates/client" }
 unitycatalog-common = { path = "../../crates/common", features = ["python"] }
 delta_kernel = { workspace = true }
 
