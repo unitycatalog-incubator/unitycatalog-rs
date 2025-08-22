@@ -129,7 +129,14 @@ test-api:
     UC_SERVER_URL="http://localhost:8080/api/2.1/unity-catalog/" cargo run -p unitycatalog-cli -- test
 
 [group('test')]
-record-integration:
+integration:
+    UC_INTEGRATION_DIR="{{ justfile_directory() }}/test_data/recordings" \
+    UC_INTEGRATION_STORAGE_ROOT="$DATABRICKS_STORAGE_ROOT" \
+    UC_INTEGRATION_RECORD="false" \
+    cargo run --bin unitycatalog-acceptance
+
+[group('test')]
+integration-record:
     UC_INTEGRATION_URL="$DATABRICKS_HOST" \
     UC_INTEGRATION_TOKEN="$DATABRICKS_TOKEN" \
     UC_INTEGRATION_DIR="{{ justfile_directory() }}/test_data/recordings" \

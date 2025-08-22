@@ -14,28 +14,31 @@
 //!
 //! ## Quick Start
 //!
-//! ```rust
+//! ```rust,no_run
 //! use unitycatalog_acceptance::{
 //!     AcceptanceResult,
-//!     simple_journey::{JourneyConfig, SimpleJourney, SimpleJourneyExecutor},
+//!     simple_journey::{JourneyConfig, UserJourney},
 //! };
 //! use async_trait::async_trait;
+//! use futures::StreamExt;
 //!
 //! struct MyJourney;
 //!
 //! #[async_trait]
-//! impl SimpleJourney for MyJourney {
+//! impl UserJourney for MyJourney {
 //!     fn name(&self) -> &str { "my_test_journey" }
 //!     fn description(&self) -> &str { "Tests catalog operations" }
 //!
 //!     async fn execute(
 //!         &self,
 //!         client: &unitycatalog_client::UnityCatalogClient,
-//!         recorder: &mut unitycatalog_acceptance::simple_journey::JourneyRecorder,
 //!     ) -> AcceptanceResult<()> {
 //!         // Use the actual client to perform operations
-//!         let catalogs = client.list_catalogs(None, None).await?;
-//!         recorder.record_step("list_catalogs", "List all catalogs", &catalogs).await?;
+//!         let mut catalogs = client.list_catalogs(None);
+//!         while let Some(catalog) = catalogs.next().await {
+//!             let _catalog = catalog?;
+//!             // Process catalog...
+//!         }
 //!         Ok(())
 //!     }
 //! }
@@ -43,7 +46,7 @@
 //! #[tokio::main]
 //! async fn main() -> AcceptanceResult<()> {
 //!     let config = JourneyConfig::default();
-//!     let executor = config.create_executor()?;
+//!     let executor = config.create_executor("my_test_journey").await?;
 //!     let journey = MyJourney;
 //!
 //!     let result = executor.execute_journey(&journey).await?;
@@ -61,9 +64,7 @@ pub mod journeys;
 pub mod simple_journey;
 
 // Re-export commonly used types for convenience
-pub use simple_journey::{
-    JourneyConfig, JourneyExecutionResult, JourneyExecutor, JourneyRecorder, UserJourney,
-};
+pub use simple_journey::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
 
 /// Result type commonly used throughout the framework
 pub type AcceptanceResult<T> = Result<T, AcceptanceError>;

@@ -14,7 +14,7 @@ description = "Acceptance testing framework for Unity Catalog"
 # Core Unity Catalog dependencies
 unitycatalog-client = { path = "../client" }
 unitycatalog-common = { path = "../common" }
-cloud-client = { path = "../cloud-client" }
+cloud-client = { path = "../cloud-client", features = ["recording"] }
 
 # HTTP and async
 dotenv = "0.15.0"
@@ -36,6 +36,9 @@ tracing = { workspace = true }
 
 # Utilities
 itertools = { workspace = true }
+
+# Testing and mocking
+mockito = "1.4"
 
 [dev-dependencies]
 tempfile = "3.1"

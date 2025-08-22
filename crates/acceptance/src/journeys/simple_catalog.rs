@@ -8,7 +8,7 @@ use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
 
 use crate::AcceptanceResult;
-use crate::simple_journey::{JourneyRecorder, UserJourney};
+use crate::simple_journey::UserJourney;
 
 /// A simple catalog journey that creates, reads, and deletes a catalog
 pub struct SimpleCatalogJourney {
@@ -54,11 +54,7 @@ impl UserJourney for SimpleCatalogJourney {
         vec!["catalog", "simple", "example", "smoke"]
     }
 
-    async fn execute(
-        &self,
-        client: &UnityCatalogClient,
-        recorder: &mut JourneyRecorder,
-    ) -> AcceptanceResult<()> {
+    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         println!(
             "🚀 Starting simple catalog journey for '{}'",
             self.catalog_name
@@ -74,14 +70,6 @@ impl UserJourney for SimpleCatalogJourney {
             .map_err(|e| {
                 crate::AcceptanceError::UnityCatalog(format!("Failed to create catalog: {}", e))
             })?;
-
-        recorder
-            .record_step(
-                "create_catalog",
-                format!("Create simple catalog '{}'", self.catalog_name),
-                &created_catalog,
-            )
-            .await?;
 
         println!("✅ Created catalog: {}", created_catalog.name);
 
@@ -104,19 +92,6 @@ impl UserJourney for SimpleCatalogJourney {
             catalog_list.push(catalog);
         }
 
-        recorder
-            .record_step(
-                "list_catalogs",
-                "List catalogs for verification",
-                &serde_json::json!({
-                    "total_catalogs": catalog_list.len(),
-                    "found_our_catalog": found_our_catalog,
-                    "our_catalog_name": self.catalog_name,
-                    "catalog_names": catalog_list.iter().map(|c| &c.name).collect::<Vec<_>>()
-                }),
-            )
-            .await?;
-
         // Verify our catalog is in the list
         if !found_our_catalog {
             return Err(crate::AcceptanceError::JourneyExecution(format!(
@@ -135,14 +110,6 @@ impl UserJourney for SimpleCatalogJourney {
                 crate::AcceptanceError::UnityCatalog(format!("Failed to get catalog info: {}", e))
             })?;
 
-        recorder
-            .record_step(
-                "get_catalog_info",
-                format!("Get detailed info for catalog '{}'", self.catalog_name),
-                &catalog_info,
-            )
-            .await?;
-
         // Verify catalog properties
         assert_eq!(catalog_info.name, self.catalog_name);
         println!("✅ Verified catalog properties");
@@ -151,44 +118,17 @@ impl UserJourney for SimpleCatalogJourney {
         Ok(())
     }
 
-    async fn cleanup(
-        &self,
-        client: &UnityCatalogClient,
-        recorder: &mut JourneyRecorder,
-    ) -> AcceptanceResult<()> {
+    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         println!("🧹 Cleaning up simple catalog journey");
 
         // Delete the catalog
         match client.catalog(&self.catalog_name).delete(Some(true)).await {
             Ok(()) => {
-                recorder
-                    .record_step(
-                        "cleanup_delete_catalog",
-                        format!("Cleanup: Delete catalog '{}'", self.catalog_name),
-                        &serde_json::json!({
-                            "deleted": true,
-                            "catalog_name": self.catalog_name,
-                            "force": true
-                        }),
-                    )
-                    .await?;
                 println!("🗑️ Successfully deleted catalog '{}'", self.catalog_name);
             }
             Err(e) => {
                 // Log the error but don't fail cleanup
                 eprintln!("⚠️ Failed to delete catalog '{}': {}", self.catalog_name, e);
-                recorder
-                    .record_step(
-                        "cleanup_delete_catalog_failed",
-                        format!("Cleanup: Failed to delete catalog '{}'", self.catalog_name),
-                        &serde_json::json!({
-                            "deleted": false,
-                            "catalog_name": self.catalog_name,
-                            "error": e.to_string(),
-                            "error_type": "cleanup_error"
-                        }),
-                    )
-                    .await?;
             }
         }
 

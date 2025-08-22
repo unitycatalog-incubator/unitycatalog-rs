@@ -21,4 +21,58 @@ identity and access management systems of the major cloud providers.
 Specifically, for scenarios where OSS or other projects want to build client libraries that can interact
 that can make use of the various IdPs without having to pull in the SDKs of the respective cloud providers.
 
+## Recording Feature
+
+The `cloud-client` supports recording HTTP requests and responses for testing and debugging purposes. This feature is controlled by the `recording` feature flag.
+
+### Usage
+
+To enable recording, build with the `recording` feature:
+
+```toml
+[dependencies]
+cloud-client = { version = "0.0.1", features = ["recording"] }
+```
+
+Then configure recording on your client:
+
+```rust
+use cloud_client::CloudClient;
+
+let mut client = CloudClient::new_unauthenticated();
+client.set_recording_dir("/path/to/recordings")?;
+
+// All HTTP requests and responses will now be recorded
+let response = client.get("https://api.example.com/data").send().await?;
+```
+
+### Recording Format
+
+Each HTTP interaction is recorded as a JSON file with deterministic counter-based
+naming (0000.json, 0001.json, etc.). Each file contains the following structure:
+
+```json
+{
+  "request": {
+    "method": "GET",
+    "url_path": "/data",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": "{\"message\": \"Hello, World!\"}"
+  }
+}
+```
+
+The counter-based file naming ensures deterministic ordering, which is essential for:
+- Predictable test replay scenarios
+- Creating deterministic mock servers
+- Debug HTTP interactions in sequence
+- Analyze API usage patterns
+- Build reliable test suites
+
 [object_store]: https://crates.io/crates/object_store

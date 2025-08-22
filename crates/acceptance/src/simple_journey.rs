@@ -4,15 +4,17 @@
 //! - Uses manual Rust code instead of JSON configurations
 //! - Leverages the actual UnityCatalogClient for type safety
 //! - Records responses to numbered files for later comparison
+//! - Replays recorded interactions using mock servers
 //! - Focuses on user journeys rather than low-level HTTP details
 
 use async_trait::async_trait;
-use serde_json::Value;
-use url::Url;
-
-use std::path::{Path, PathBuf};
-use tokio::fs;
+use cloud_client::{CloudClient, RequestResponseInfo};
+use mockito::ServerGuard;
+use std::collections::HashMap;
+use std::fs;
+use std::path::PathBuf;
 use unitycatalog_client::UnityCatalogClient;
+use url::Url;
 
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -26,29 +28,17 @@ pub trait UserJourney: Send + Sync {
     fn description(&self) -> &str;
 
     /// Execute the journey steps using the provided client
-    async fn execute(
-        &self,
-        client: &UnityCatalogClient,
-        recorder: &mut JourneyRecorder,
-    ) -> AcceptanceResult<()>;
+    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()>;
 
     /// Optional setup that runs before the journey
     #[allow(unused_variables)]
-    async fn setup(
-        &self,
-        client: &UnityCatalogClient,
-        recorder: &mut JourneyRecorder,
-    ) -> AcceptanceResult<()> {
+    async fn setup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         Ok(())
     }
 
     /// Optional cleanup that runs after the journey (even on failure)
     #[allow(unused_variables)]
-    async fn cleanup(
-        &self,
-        client: &UnityCatalogClient,
-        recorder: &mut JourneyRecorder,
-    ) -> AcceptanceResult<()> {
+    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
         Ok(())
     }
 
@@ -58,146 +48,169 @@ pub trait UserJourney: Send + Sync {
     }
 }
 
-/// Records responses during journey execution
-pub struct JourneyRecorder {
-    journey_name: String,
-    output_dir: PathBuf,
-    step_counter: usize,
-    recorded_responses: Vec<RecordedStep>,
-}
-
-/// A recorded step with its response
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct RecordedStep {
-    pub step_number: usize,
-    pub step_name: String,
-    pub description: String,
-    pub response: Value,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
-}
-
-impl JourneyRecorder {
-    /// Create a new recorder for a journey
-    pub fn new(journey_name: impl Into<String>, output_dir: impl AsRef<Path>) -> Self {
-        Self {
-            journey_name: journey_name.into(),
-            output_dir: output_dir.as_ref().to_path_buf(),
-            step_counter: 0,
-            recorded_responses: Vec::new(),
-        }
-    }
-
-    /// Record a response from a journey step
-    pub async fn record_step<T: serde::Serialize>(
-        &mut self,
-        step_name: impl Into<String>,
-        description: impl Into<String>,
-        response: &T,
-    ) -> AcceptanceResult<()> {
-        self.step_counter += 1;
-
-        let response_value = serde_json::to_value(response).map_err(|e| {
-            AcceptanceError::Recording(format!("Failed to serialize response: {}", e))
-        })?;
-
-        let recorded_step = RecordedStep {
-            step_number: self.step_counter,
-            step_name: step_name.into(),
-            description: description.into(),
-            response: response_value.clone(),
-            timestamp: chrono::Utc::now(),
-        };
-
-        self.recorded_responses.push(recorded_step.clone());
-
-        // Write individual step file
-        let step_file = self.output_dir.join(&self.journey_name).join(format!(
-            "{:03}_{}.json",
-            self.step_counter, recorded_step.step_name
-        ));
-
-        if let Some(parent) = step_file.parent() {
-            fs::create_dir_all(parent).await?;
-        }
-
-        let pretty_json = serde_json::to_string_pretty(&response_value)?;
-        fs::write(&step_file, pretty_json).await?;
-
-        println!(
-            "📝 Recorded step {}: {} -> {}",
-            self.step_counter,
-            recorded_step.step_name,
-            step_file.display()
-        );
-
-        Ok(())
-    }
-
-    /// Record an error that occurred during a step
-    pub async fn record_error(
-        &mut self,
-        step_name: impl Into<String>,
-        description: impl Into<String>,
-        error: &(dyn std::error::Error + Send + Sync),
-    ) -> AcceptanceResult<()> {
-        let error_response = serde_json::json!({
-            "error": true,
-            "message": error.to_string(),
-            "type": std::any::type_name_of_val(error)
-        });
-
-        self.record_step(step_name, description, &error_response)
-            .await
-    }
-
-    /// Finalize recording and write summary
-    pub async fn finalize(&self) -> AcceptanceResult<()> {
-        let summary_file = self
-            .output_dir
-            .join(&self.journey_name)
-            .join("journey_summary.json");
-
-        let summary = serde_json::json!({
-            "journey_name": self.journey_name,
-            "total_steps": self.recorded_responses.len(),
-            "recorded_at": chrono::Utc::now(),
-            "steps": self.recorded_responses
-        });
-
-        if let Some(parent) = summary_file.parent() {
-            fs::create_dir_all(parent).await?;
-        }
-
-        let pretty_json = serde_json::to_string_pretty(&summary)?;
-        fs::write(&summary_file, pretty_json).await?;
-
-        println!("📋 Journey summary written to {}", summary_file.display());
-
-        Ok(())
-    }
-}
-
-/// Executes simple journeys and manages recording
+/// Executes simple journeys and manages recording/replay
 pub struct JourneyExecutor {
     client: UnityCatalogClient,
-    recording_enabled: bool,
-    output_dir: PathBuf,
+    _mock_server: Option<ServerGuard>,
 }
 
 impl JourneyExecutor {
-    /// Create a new executor
-    pub fn new(client: UnityCatalogClient, output_dir: impl AsRef<Path>) -> Self {
+    /// Create a new executor for live mode
+    pub fn new(client: UnityCatalogClient) -> Self {
         Self {
             client,
-            recording_enabled: true,
-            output_dir: output_dir.as_ref().to_path_buf(),
+            _mock_server: None,
         }
     }
 
-    /// Enable or disable response recording
-    pub fn with_recording(mut self, enabled: bool) -> Self {
-        self.recording_enabled = enabled;
-        self
+    /// Create a new executor with mock server for replay mode
+    pub fn new_with_mock(client: UnityCatalogClient, mock_server: ServerGuard) -> Self {
+        Self {
+            client,
+            _mock_server: Some(mock_server),
+        }
+    }
+
+    /// Read recorded interactions from a directory
+    async fn read_recorded_interactions(
+        recordings_dir: &PathBuf,
+    ) -> AcceptanceResult<Vec<RequestResponseInfo>> {
+        if !recordings_dir.exists() {
+            return Err(AcceptanceError::JourneyValidation(format!(
+                "Recordings directory does not exist: {}",
+                recordings_dir.display()
+            )));
+        }
+
+        let mut recordings = Vec::new();
+        let mut entries: Vec<_> = fs::read_dir(recordings_dir)
+            .map_err(|e| {
+                AcceptanceError::JourneyValidation(format!(
+                    "Failed to read recordings directory: {}",
+                    e
+                ))
+            })?
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                let path = entry.path();
+                if path.extension()? == "json" {
+                    Some(path)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // Sort by filename to ensure deterministic order
+        entries.sort();
+
+        for path in entries {
+            let content = fs::read_to_string(&path).map_err(|e| {
+                AcceptanceError::JourneyValidation(format!(
+                    "Failed to read recording file {}: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+
+            let recording: RequestResponseInfo = serde_json::from_str(&content).map_err(|e| {
+                AcceptanceError::JourneyValidation(format!(
+                    "Failed to parse recording file {}: {}",
+                    path.display(),
+                    e
+                ))
+            })?;
+
+            recordings.push(recording);
+        }
+
+        Ok(recordings)
+    }
+
+    /// Set up mock server with recorded interactions
+    pub async fn setup_mock_server(
+        recordings_dir: &PathBuf,
+    ) -> AcceptanceResult<(ServerGuard, UnityCatalogClient)> {
+        let recordings = Self::read_recorded_interactions(recordings_dir).await?;
+
+        if recordings.is_empty() {
+            return Err(AcceptanceError::JourneyValidation(
+                "No recordings found for replay".to_string(),
+            ));
+        }
+
+        println!(
+            "🎬 Setting up mock server with {} recorded interactions from {}",
+            recordings.len(),
+            recordings_dir.display()
+        );
+
+        let mut server = mockito::Server::new_async().await;
+        let mut mocks = Vec::new();
+
+        // Group recordings by method and path for better mock setup
+        let mut path_method_counts: HashMap<(String, String), usize> = HashMap::new();
+
+        for recording in &recordings {
+            let key = (
+                recording.request.method.clone(),
+                recording.request.url_path.clone(),
+            );
+            let count = path_method_counts.entry(key).or_insert(0);
+            *count += 1;
+        }
+
+        // Set up mocks for each recording
+        for recording in recordings {
+            let method_str = recording.request.method.as_str();
+            let path = recording.request.url_path.as_str();
+
+            let mut mock = server
+                .mock(method_str, path)
+                .with_status(recording.response.status as usize);
+
+            // Add response headers
+            for (header_name, header_value) in &recording.response.headers {
+                mock = mock.with_header(header_name, header_value);
+            }
+
+            // Add response body if present
+            if let Some(ref body) = recording.response.body {
+                mock = mock.with_body(body);
+            }
+
+            // For endpoints that might be called multiple times, allow multiple calls
+            let key = (
+                recording.request.method.clone(),
+                recording.request.url_path.clone(),
+            );
+            if let Some(&count) = path_method_counts.get(&key) {
+                if count > 1 {
+                    mock = mock.expect_at_least(1);
+                }
+            }
+
+            let created_mock = mock.create_async().await;
+            mocks.push(created_mock);
+
+            println!(
+                "  📝 Mock: {} {} -> {}",
+                recording.request.method, recording.request.url_path, recording.response.status
+            );
+        }
+
+        // Create client pointing to mock server
+        let mock_url = format!("{}/api/2.1/unity-catalog", server.url());
+        let base_url: Url = mock_url.parse().map_err(|e| {
+            AcceptanceError::JourneyValidation(format!("Invalid mock server URL: {}", e))
+        })?;
+
+        let cloud_client = CloudClient::new_unauthenticated();
+        let client = UnityCatalogClient::new(cloud_client, base_url);
+
+        println!("🚀 Mock server ready at: {}", server.url());
+
+        Ok((server, client))
     }
 
     /// Execute a journey
@@ -205,12 +218,6 @@ impl JourneyExecutor {
         &self,
         journey: &dyn UserJourney,
     ) -> AcceptanceResult<JourneyExecutionResult> {
-        let mut recorder = if self.recording_enabled {
-            JourneyRecorder::new(journey.name(), &self.output_dir)
-        } else {
-            JourneyRecorder::new(journey.name(), "/dev/null") // Dummy recorder
-        };
-
         let start_time = std::time::Instant::now();
         let mut result = JourneyExecutionResult {
             journey_name: journey.name().to_string(),
@@ -221,34 +228,24 @@ impl JourneyExecutor {
         };
 
         // Execute setup
-        if let Err(e) = journey.setup(&self.client, &mut recorder).await {
+        if let Err(e) = journey.setup(&self.client).await {
             result.error_message = Some(format!("Setup failed: {}", e));
-            if self.recording_enabled {
-                let _ = recorder.record_error("setup", "Journey setup", &e).await;
-                let _ = recorder.finalize().await;
-            }
             return Ok(result);
         }
 
         // Execute main journey
-        let journey_result = journey.execute(&self.client, &mut recorder).await;
+        let journey_result = journey.execute(&self.client).await;
 
         // Always run cleanup
-        if let Err(cleanup_err) = journey.cleanup(&self.client, &mut recorder).await {
+        if let Err(cleanup_err) = journey.cleanup(&self.client).await {
             eprintln!(
                 "⚠️ Cleanup failed for journey '{}': {}",
                 journey.name(),
                 cleanup_err
             );
-            if self.recording_enabled {
-                let _ = recorder
-                    .record_error("cleanup", "Journey cleanup", &cleanup_err)
-                    .await;
-            }
         }
 
         result.duration = start_time.elapsed();
-        result.steps_completed = recorder.step_counter;
 
         match journey_result {
             Ok(()) => {
@@ -267,18 +264,6 @@ impl JourneyExecutor {
                     result.duration,
                     e
                 );
-                if self.recording_enabled {
-                    let _ = recorder
-                        .record_error("journey_failure", "Journey execution failed", &e)
-                        .await;
-                }
-            }
-        }
-
-        // Finalize recording
-        if self.recording_enabled {
-            if let Err(e) = recorder.finalize().await {
-                eprintln!("⚠️ Failed to finalize recording: {}", e);
             }
         }
 
@@ -371,87 +356,133 @@ impl Default for JourneyConfig {
 }
 
 impl JourneyConfig {
-    /// Create client from configuration
-    pub fn create_client(&self) -> AcceptanceResult<UnityCatalogClient> {
+    /// Create client from configuration for live mode
+    pub fn create_client(&self, out_dir: PathBuf) -> AcceptanceResult<UnityCatalogClient> {
         let base_url: Url = self.server_url.parse().map_err(|e| {
             AcceptanceError::JourneyValidation(format!("Invalid server URL: {}", e))
         })?;
         let base_url = base_url.join("/api/2.1/unity-catalog").unwrap();
 
-        let client = if let Some(ref token) = self.auth_token {
-            UnityCatalogClient::new_with_token(base_url, token)
+        let mut client = if let Some(ref token) = self.auth_token {
+            CloudClient::new_with_token(token)
         } else {
-            UnityCatalogClient::new_unauthenticated(base_url)
+            CloudClient::new_unauthenticated()
         };
+        if self.recording_enabled {
+            std::fs::create_dir_all(&out_dir)?;
+            client.set_recording_dir(out_dir)?;
+        }
 
-        Ok(client)
+        Ok(UnityCatalogClient::new(client, base_url))
     }
 
     /// Create executor from configuration
-    pub fn create_executor(&self) -> AcceptanceResult<JourneyExecutor> {
-        let client = self.create_client()?;
-        let executor =
-            JourneyExecutor::new(client, &self.output_dir).with_recording(self.recording_enabled);
-        Ok(executor)
+    pub async fn create_executor(
+        &self,
+        journey_name: impl Into<String>,
+    ) -> AcceptanceResult<JourneyExecutor> {
+        let journey_name = journey_name.into();
+
+        if self.recording_enabled {
+            // Live mode with recording
+            let out_dir = std::fs::canonicalize(self.output_dir.clone())?;
+            let out_dir = out_dir.join(&journey_name);
+            let client = self.create_client(out_dir)?;
+            Ok(JourneyExecutor::new(client))
+        } else {
+            // Replay mode - use recorded interactions
+            let recordings_dir =
+                std::fs::canonicalize(self.output_dir.clone())?.join(&journey_name);
+
+            println!(
+                "🎬 Starting replay mode for journey '{}' from {}",
+                journey_name,
+                recordings_dir.display()
+            );
+
+            let (mock_server, client) = JourneyExecutor::setup_mock_server(&recordings_dir).await?;
+
+            Ok(JourneyExecutor::new_with_mock(client, mock_server))
+        }
+    }
+
+    /// Enable/disable recording (true = live mode with recording, false = replay mode)
+    pub fn with_recording(mut self, enabled: bool) -> Self {
+        self.recording_enabled = enabled;
+        self
+    }
+
+    /// Set output directory for recordings
+    pub fn with_output_dir(mut self, dir: PathBuf) -> Self {
+        self.output_dir = dir;
+        self
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
     use tempfile::TempDir;
 
-    struct TestJourney;
+    #[tokio::test]
+    async fn test_mock_server_replay() {
+        // Create a temporary directory with mock recordings
+        let temp_dir = TempDir::new().unwrap();
+        let recordings_dir = temp_dir.path().join("test_journey");
+        fs::create_dir_all(&recordings_dir).unwrap();
 
-    #[async_trait]
-    impl UserJourney for TestJourney {
-        fn name(&self) -> &str {
-            "test_journey"
-        }
+        // Create a mock recording file
+        let recording = RequestResponseInfo {
+            request: cloud_client::RequestInfo {
+                method: "GET".to_string(),
+                url_path: "/api/2.1/unity-catalog/catalogs".to_string(),
+                body: None,
+            },
+            response: cloud_client::ResponseInfo {
+                status: 200,
+                headers: {
+                    let mut headers = std::collections::HashMap::new();
+                    headers.insert("content-type".to_string(), "application/json".to_string());
+                    headers
+                },
+                body: Some(r#"{"catalogs":[]}"#.to_string()),
+            },
+        };
 
-        fn description(&self) -> &str {
-            "A test journey for unit testing"
-        }
+        let recording_file = recordings_dir.join("000000.json");
+        let file = fs::File::create(recording_file).unwrap();
+        serde_json::to_writer_pretty(file, &recording).unwrap();
 
-        async fn execute(
-            &self,
-            _client: &UnityCatalogClient,
-            recorder: &mut JourneyRecorder,
-        ) -> AcceptanceResult<()> {
-            recorder
-                .record_step(
-                    "test_step",
-                    "Test step description",
-                    &serde_json::json!({"test": "data"}),
-                )
-                .await?;
-            Ok(())
-        }
+        // Test mock server setup
+        let (_mock_server, client) = JourneyExecutor::setup_mock_server(&recordings_dir)
+            .await
+            .unwrap();
+
+        // Verify that the client can make requests to the mock server
+        // We'll test this by trying to list catalogs - if the mock server is working,
+        // it should return our mocked empty catalogs response
+        let mut catalogs_stream = client.list_catalogs(None);
+        use futures::StreamExt;
+
+        // Since we mocked an empty catalogs response, the stream should be empty
+        let first_item = catalogs_stream.next().await;
+        assert!(first_item.is_none());
     }
 
     #[tokio::test]
-    async fn test_journey_recorder() {
-        let temp_dir = TempDir::new().unwrap();
-        let mut recorder = JourneyRecorder::new("test_journey", temp_dir.path());
+    async fn test_execution_mode_configuration() {
+        let config = JourneyConfig::default();
 
-        let test_data = serde_json::json!({"key": "value"});
-        recorder
-            .record_step("test_step", "Test description", &test_data)
-            .await
-            .unwrap();
-        recorder.finalize().await.unwrap();
+        // Test default mode (replay if UC_INTEGRATION_RECORD is not set)
+        assert_eq!(config.recording_enabled, false);
 
-        // Check that files were created
-        let step_file = temp_dir
-            .path()
-            .join("test_journey")
-            .join("001_test_step.json");
-        let summary_file = temp_dir
-            .path()
-            .join("test_journey")
-            .join("journey_summary.json");
+        // Test recording flag (live mode with recording)
+        let recording_config = config.clone().with_recording(true);
+        assert!(recording_config.recording_enabled);
 
-        assert!(step_file.exists());
-        assert!(summary_file.exists());
+        // Test replay mode (recording disabled)
+        let replay_config = config.clone().with_recording(false);
+        assert!(!replay_config.recording_enabled);
     }
 }

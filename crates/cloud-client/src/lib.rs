@@ -1,5 +1,11 @@
 #![allow(unused, dead_code)]
 
+#[cfg(feature = "recording")]
+use std::collections::HashMap;
+#[cfg(feature = "recording")]
+use std::path::PathBuf;
+#[cfg(feature = "recording")]
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
 use aws::AmazonConfig;
@@ -46,6 +52,10 @@ pub struct CloudClient {
     credential: Credential,
     http_client: Client,
     retry_config: RetryConfig,
+    #[cfg(feature = "recording")]
+    out_dir: Option<PathBuf>,
+    #[cfg(feature = "recording")]
+    recording_counter: std::sync::Arc<AtomicU64>,
 }
 
 impl CloudClient {
@@ -70,6 +80,10 @@ impl CloudClient {
             http_client: config.client_options.client()?,
             retry_config: config.retry_config.clone(),
             credential: Credential::Aws(config),
+            #[cfg(feature = "recording")]
+            out_dir: None,
+            #[cfg(feature = "recording")]
+            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
         })
     }
 
@@ -94,6 +108,10 @@ impl CloudClient {
             http_client: config.client_options.client()?,
             retry_config: config.retry_config.clone(),
             credential: Credential::Google(config),
+            #[cfg(feature = "recording")]
+            out_dir: None,
+            #[cfg(feature = "recording")]
+            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
         })
     }
 
@@ -118,6 +136,10 @@ impl CloudClient {
             http_client: config.client_options.client()?,
             retry_config: config.retry_config.clone(),
             credential: Credential::Azure(config),
+            #[cfg(feature = "recording")]
+            out_dir: None,
+            #[cfg(feature = "recording")]
+            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
         })
     }
 
@@ -126,6 +148,10 @@ impl CloudClient {
             http_client: Client::new(),
             retry_config: RetryConfig::default(),
             credential: Credential::PersonalAccessToken(token.to_string()),
+            #[cfg(feature = "recording")]
+            out_dir: None,
+            #[cfg(feature = "recording")]
+            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -134,6 +160,10 @@ impl CloudClient {
             http_client: Client::new(),
             retry_config: RetryConfig::default(),
             credential: Credential::Unauthenticated,
+            #[cfg(feature = "recording")]
+            out_dir: None,
+            #[cfg(feature = "recording")]
+            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -141,6 +171,8 @@ impl CloudClient {
         CloudRequestBuilder {
             builder: self.http_client.request(method, url),
             client: self.clone(),
+            #[cfg(feature = "recording")]
+            out_dir: self.out_dir.clone(),
         }
     }
 
@@ -179,11 +211,19 @@ impl CloudClient {
     pub fn connect<U: IntoUrl>(&self, url: U) -> CloudRequestBuilder {
         self.request(Method::CONNECT, url)
     }
+
+    #[cfg(feature = "recording")]
+    pub fn set_recording_dir(&mut self, out_dir: PathBuf) -> Result<(), std::io::Error> {
+        self.out_dir = Some(std::fs::canonicalize(out_dir)?);
+        Ok(())
+    }
 }
 
 pub struct CloudRequestBuilder {
     builder: RequestBuilder,
     client: CloudClient,
+    #[cfg(feature = "recording")]
+    out_dir: Option<PathBuf>,
 }
 
 impl CloudRequestBuilder {
@@ -277,7 +317,389 @@ impl CloudRequestBuilder {
                 // Do nothing
             }
         };
+        #[cfg(not(feature = "recording"))]
         let response = self.builder.send().await?;
+        #[cfg(feature = "recording")]
+        let response = send_record(self).await?;
         Ok(response)
+    }
+}
+
+#[cfg(feature = "recording")]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct RequestResponseInfo {
+    pub request: RequestInfo,
+    pub response: ResponseInfo,
+}
+
+#[cfg(feature = "recording")]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct RequestInfo {
+    pub method: String,
+    pub url_path: String,
+    pub body: Option<String>,
+}
+
+#[cfg(feature = "recording")]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ResponseInfo {
+    pub status: u16,
+    pub headers: HashMap<String, String>,
+    pub body: Option<String>,
+}
+
+#[cfg(feature = "recording")]
+async fn send_record(
+    mut builder: CloudRequestBuilder,
+) -> Result<reqwest::Response, reqwest::Error> {
+    let Some(out_dir) = builder.out_dir else {
+        return builder.builder.send().await;
+    };
+    let (client, request) = builder.builder.build_split();
+    let request = request.expect("request to be valid");
+
+    let request_info = RequestInfo {
+        method: request.method().as_str().to_string(),
+        url_path: {
+            let url = request.url();
+            match url.query() {
+                Some(query) => format!("{}?{}", url.path(), query),
+                None => url.path().to_string(),
+            }
+        },
+        body: request
+            .body()
+            .and_then(|b| b.as_bytes().map(|b| String::from_utf8_lossy(b).to_string())),
+    };
+
+    let response = client.execute(request).await?;
+
+    // Record the response
+    let status = response.status().as_u16();
+    let headers: HashMap<String, String> = response
+        .headers()
+        .iter()
+        .map(|(k, v)| (k.as_str().to_string(), v.to_str().unwrap_or("").to_string()))
+        .collect();
+
+    // Get response body while preserving it for the caller
+    let response_bytes = response.bytes().await?;
+    let response_body = if response_bytes.is_empty() {
+        None
+    } else {
+        Some(String::from_utf8_lossy(&response_bytes).to_string())
+    };
+
+    let response_info = ResponseInfo {
+        status,
+        headers: headers.clone(),
+        body: response_body,
+    };
+
+    let recording = RequestResponseInfo {
+        request: request_info,
+        response: response_info,
+    };
+
+    let counter = builder
+        .client
+        .recording_counter
+        .fetch_add(1, Ordering::SeqCst);
+    let file_path = out_dir.join(format!("{:04}.json", counter));
+    let file = std::fs::File::create(file_path).unwrap();
+    serde_json::to_writer_pretty(file, &recording).unwrap();
+
+    // Return a new response built from the recorded data
+    let mut mock_response = http::Response::builder().status(status);
+    for header in headers {
+        mock_response = mock_response.header(header.0, header.1);
+    }
+    let mock_response = mock_response.body(response_bytes).unwrap();
+
+    Ok(reqwest::Response::from(mock_response))
+}
+
+#[cfg(all(test, feature = "recording"))]
+mod tests {
+    use super::*;
+    use mockito::ServerGuard;
+    use std::fs;
+    use tempfile::TempDir;
+
+    #[tokio::test]
+    async fn test_request_response_recording() {
+        // Create a temporary directory for recordings
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        // Set up a mock server
+        let mut server = mockito::Server::new_async().await;
+        let mock = server
+            .mock("GET", "/test")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(r#"{"message": "Hello, World!"}"#)
+            .create_async()
+            .await;
+
+        // Create a cloud client with recording enabled
+        let mut client = CloudClient::new_unauthenticated();
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        // Make a request
+        let url = format!("{}/test", server.url());
+        let response = client.get(&url).send().await.unwrap();
+
+        // Verify the response is correct
+        assert_eq!(response.status(), 200);
+        let body = response.text().await.unwrap();
+        assert_eq!(body, r#"{"message": "Hello, World!"}"#);
+
+        // Verify that a recording file was created
+        let recordings: Vec<_> = fs::read_dir(&temp_path)
+            .unwrap()
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                let path = entry.path();
+                if path.extension()? == "json" {
+                    Some(path)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        assert_eq!(recordings.len(), 1, "Expected exactly one recording file");
+
+        // Read and verify the recording content
+        let recording_content = fs::read_to_string(&recordings[0]).unwrap();
+        let recording: RequestResponseInfo = serde_json::from_str(&recording_content).unwrap();
+
+        // Verify request information
+        assert_eq!(recording.request.method, "GET");
+        assert_eq!(recording.request.url_path, "/test");
+        assert_eq!(recording.request.body, None);
+
+        // Verify response information
+        assert_eq!(recording.response.status, 200);
+        assert_eq!(
+            recording.response.headers.get("content-type").unwrap(),
+            "application/json"
+        );
+        assert_eq!(
+            recording.response.body.as_ref().unwrap(),
+            r#"{"message": "Hello, World!"}"#
+        );
+
+        mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_recording_with_request_body() {
+        // Create a temporary directory for recordings
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        // Set up a mock server
+        let mut server = mockito::Server::new_async().await;
+        let mock = server
+            .mock("POST", "/create")
+            .with_status(201)
+            .with_header("location", "/resource/123")
+            .with_body(r#"{"id": 123, "status": "created"}"#)
+            .create_async()
+            .await;
+
+        // Create a cloud client with recording enabled
+        let mut client = CloudClient::new_unauthenticated();
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        // Make a POST request with body
+        let url = format!("{}/create", server.url());
+        let response = client
+            .post(&url)
+            .json(&serde_json::json!({"name": "test resource"}))
+            .send()
+            .await
+            .unwrap();
+
+        // Verify the response
+        assert_eq!(response.status(), 201);
+
+        // Verify that a recording file was created
+        let recordings: Vec<_> = fs::read_dir(&temp_path)
+            .unwrap()
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                let path = entry.path();
+                if path.extension()? == "json" {
+                    Some(path)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        assert_eq!(recordings.len(), 1);
+
+        // Read and verify the recording content
+        let recording_content = fs::read_to_string(&recordings[0]).unwrap();
+        let recording: RequestResponseInfo = serde_json::from_str(&recording_content).unwrap();
+
+        // Verify request information
+        assert_eq!(recording.request.method, "POST");
+        assert_eq!(recording.request.url_path, "/create");
+        assert!(recording.request.body.is_some());
+        assert!(recording.request.body.unwrap().contains("test resource"));
+
+        // Verify response information
+        assert_eq!(recording.response.status, 201);
+        assert_eq!(
+            recording.response.headers.get("location").unwrap(),
+            "/resource/123"
+        );
+        assert!(recording.response.body.unwrap().contains("created"));
+
+        mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_counter_based_file_naming() {
+        // Create a temporary directory for recordings
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        // Set up a mock server
+        let mut server = mockito::Server::new_async().await;
+        let mock1 = server
+            .mock("GET", "/first")
+            .with_status(200)
+            .with_body("first response")
+            .create_async()
+            .await;
+        let mock2 = server
+            .mock("GET", "/second")
+            .with_status(200)
+            .with_body("second response")
+            .create_async()
+            .await;
+
+        // Create a cloud client with recording enabled
+        let mut client = CloudClient::new_unauthenticated();
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        // Make multiple requests
+        let url1 = format!("{}/first", server.url());
+        let url2 = format!("{}/second", server.url());
+
+        let _response1 = client.get(&url1).send().await.unwrap();
+        let _response2 = client.get(&url2).send().await.unwrap();
+
+        // Verify that files are named with incrementing counter
+        let mut recordings: Vec<_> = fs::read_dir(&temp_path)
+            .unwrap()
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                let path = entry.path();
+                if path.extension()? == "json" {
+                    Some(path)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        recordings.sort();
+        assert_eq!(recordings.len(), 2);
+
+        // Check that files are named 000000.json and 000001.json
+        assert!(recordings[0].file_name().unwrap().to_str().unwrap() == "0000.json");
+        assert!(recordings[1].file_name().unwrap().to_str().unwrap() == "0001.json");
+
+        // Verify content matches the order of requests
+        let first_content = fs::read_to_string(&recordings[0]).unwrap();
+        let first_recording: RequestResponseInfo = serde_json::from_str(&first_content).unwrap();
+        assert_eq!(first_recording.request.url_path, "/first");
+        assert_eq!(
+            first_recording.response.body.as_ref().unwrap(),
+            "first response"
+        );
+
+        let second_content = fs::read_to_string(&recordings[1]).unwrap();
+        let second_recording: RequestResponseInfo = serde_json::from_str(&second_content).unwrap();
+        assert_eq!(second_recording.request.url_path, "/second");
+        assert_eq!(
+            second_recording.response.body.as_ref().unwrap(),
+            "second response"
+        );
+
+        mock1.assert_async().await;
+        mock2.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_query_parameter_recording() {
+        // Create a temporary directory for recordings
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        // Start a mock server
+        let mut server = mockito::Server::new_async().await;
+
+        // Create a mock that expects query parameters
+        let mock = server
+            .mock("GET", "/catalogs?max_results=10&page_token=abc123")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(r#"{"catalogs": []}"#)
+            .create_async()
+            .await;
+
+        // Create a client with recording enabled
+        let mut client = CloudClient::new_unauthenticated();
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        // Make a request with query parameters
+        let url = format!("{}/catalogs?max_results=10&page_token=abc123", server.url());
+        let response = client.get(&url).send().await.unwrap();
+
+        assert!(response.status().is_success());
+
+        // Verify that the recording file was created
+        let recordings: Vec<_> = fs::read_dir(&temp_path)
+            .unwrap()
+            .filter_map(|entry| {
+                let entry = entry.ok()?;
+                let path = entry.path();
+                if path.extension()? == "json" {
+                    Some(path)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        assert_eq!(recordings.len(), 1);
+
+        // Read and verify the recording content includes query parameters
+        let recording_content = fs::read_to_string(&recordings[0]).unwrap();
+        let recording: RequestResponseInfo = serde_json::from_str(&recording_content).unwrap();
+
+        // Verify request information includes query parameters
+        assert_eq!(recording.request.method, "GET");
+        assert_eq!(
+            recording.request.url_path,
+            "/catalogs?max_results=10&page_token=abc123"
+        );
+        assert_eq!(recording.request.body, None);
+
+        // Verify response information
+        assert_eq!(recording.response.status, 200);
+        assert_eq!(
+            recording.response.body.as_ref().unwrap(),
+            r#"{"catalogs": []}"#
+        );
+
+        mock.assert_async().await;
     }
 }
