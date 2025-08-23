@@ -38,10 +38,10 @@ generate-code:
       --output-common crates/common/src/codegen \
       --output-server crates/server/src/codegen \
       --output-client crates/client/src/codegen \
+      --output-python python/client/src/codegen \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
-    cargo clippy --fix --allow-dirty --allow-staged --all-features
-    cargo fmt
+    just fmt
 
 # generate auxiliary types in common crate. (custom google.protobuf build)
 [group('codegen')]
@@ -147,6 +147,7 @@ lint-node:
     npm run lint -w @unitycatalog/client
 
 fix: fix-rust fix-node
+  just fmt
 
 fix-node:
     # fix nodejs bindings

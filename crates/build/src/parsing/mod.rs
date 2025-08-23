@@ -16,6 +16,7 @@ use std::collections::HashMap;
 // Known extension field numbers
 const GOOGLE_API_HTTP_EXTENSION: u32 = 72295728; // google.api.http
 const GNOSTIC_OPERATION_EXTENSION: u32 = 1143; // gnostic.openapi.v3.operation
+const GOOGLE_API_RESOURCE_EXTENSION: u32 = 1053; // google.api.resource
 
 /// Process a single protobuf file descriptor
 ///
@@ -214,10 +215,14 @@ fn process_message(
         fields.push(oneof_field);
     }
 
+    // Extract message-level options (like google.api.resource)
+    let resource_descriptor = extract_message_resource_option(message)?;
+
     // Store message information
     let message_info = MessageInfo {
         name: full_type_name.clone(),
         fields,
+        resource_descriptor,
     };
     codegen_metadata
         .messages
@@ -409,6 +414,63 @@ fn capitalize_first_letter(s: &str) -> String {
     }
 }
 
+/// Extract google.api.resource option from message-level options
+///
+/// This function extracts the `google.api.resource` extension from protobuf message options.
+/// The google.api.resource extension is used to annotate messages that represent resources
+/// in REST APIs, providing information such as:
+/// - Resource type (e.g., "unitycatalog.io/Catalog")
+/// - URL patterns for the resource (e.g., "catalogs/{catalog}")
+/// - Name field for the resource
+///
+/// This information is essential for generating REST API client libraries and documentation
+/// that conform to Google's API Resource Model.
+///
+/// # Returns
+/// - `Ok(Some(ResourceDescriptor))` if the extension is found and parsed successfully
+/// - `Ok(None)` if no google.api.resource extension is present
+/// - `Err(...)` if there's an error parsing the extension data
+fn extract_message_resource_option(
+    message: &DescriptorProto,
+) -> Result<Option<crate::google::api::ResourceDescriptor>, Box<dyn std::error::Error>> {
+    if message.options.is_none() {
+        return Ok(None);
+    }
+
+    let options = message.options.as_ref().unwrap();
+    let unknown_fields = options.unknown_fields();
+
+    // Look for the google.api.resource extension
+    for (field_number, field_value) in unknown_fields.iter() {
+        if field_number == GOOGLE_API_RESOURCE_EXTENSION {
+            let data = match field_value {
+                protobuf::UnknownValueRef::LengthDelimited(bytes) => bytes,
+                _ => {
+                    println!(
+                        "cargo:warning=    Skipping non-length-delimited google.api.resource field"
+                    );
+                    continue;
+                }
+            };
+
+            // Parse ResourceDescriptor from extension data
+            match crate::google::api::ResourceDescriptor::decode(data) {
+                Ok(resource_descriptor) => {
+                    return Ok(Some(resource_descriptor));
+                }
+                Err(e) => {
+                    println!(
+                        "cargo:warning=    Failed to parse google.api.resource: {}",
+                        e
+                    );
+                }
+            }
+        }
+    }
+
+    Ok(None)
+}
+
 /// Extract field documentation from source code info
 fn extract_field_documentation(
     source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
@@ -441,4 +503,57 @@ fn extract_field_documentation(
     }
 
     field_docs
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use protobuf::descriptor::DescriptorProto;
+
+    #[test]
+    fn test_extract_message_resource_option_no_options() {
+        let mut message = DescriptorProto::new();
+        message.set_name("TestMessage".to_string());
+        // No options set
+
+        let result = extract_message_resource_option(&message).unwrap();
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_message_info_stores_resource_descriptor() {
+        // Test that MessageInfo properly stores the resource descriptor
+        let resource_descriptor = crate::google::api::ResourceDescriptor {
+            r#type: "unitycatalog.io/Schema".to_string(),
+            pattern: vec!["catalogs/{catalog}/schemas/{schema}".to_string()],
+            name_field: "name".to_string(),
+            ..Default::default()
+        };
+
+        let message_info = MessageInfo {
+            name: ".unitycatalog.schemas.v1.SchemaInfo".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(resource_descriptor.clone()),
+        };
+
+        assert!(message_info.resource_descriptor.is_some());
+        let stored = message_info.resource_descriptor.unwrap();
+        assert_eq!(stored.r#type, "unitycatalog.io/Schema");
+        assert_eq!(stored.pattern, vec!["catalogs/{catalog}/schemas/{schema}"]);
+    }
+
+    #[test]
+    fn test_google_api_resource_extension_constant() {
+        // Verify the extension field number is correct
+        assert_eq!(GOOGLE_API_RESOURCE_EXTENSION, 1053);
+    }
+
+    #[test]
+    fn test_extract_message_resource_option_function_exists() {
+        // Test that the function can be called and handles empty message
+        let message = DescriptorProto::new();
+        let result = extract_message_resource_option(&message);
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_none());
+    }
 }

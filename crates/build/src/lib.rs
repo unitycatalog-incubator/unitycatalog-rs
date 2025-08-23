@@ -119,6 +119,7 @@ pub struct CodeGenMetadata {
 pub struct MessageInfo {
     pub name: String,
     pub fields: Vec<MessageField>,
+    pub resource_descriptor: Option<google::api::ResourceDescriptor>,
 }
 
 impl CodeGenMetadata {
@@ -148,5 +149,166 @@ impl CodeGenMetadata {
             .iter()
             .filter(|m| m.operation_id().is_some() && m.http_info().is_some())
             .collect()
+    }
+
+    /// Get all messages that have google.api.resource descriptors
+    pub fn messages_with_resources(&self) -> std::collections::HashMap<String, &MessageInfo> {
+        self.messages
+            .iter()
+            .filter(|(_, msg)| msg.resource_descriptor.is_some())
+            .map(|(name, msg)| (name.clone(), msg))
+            .collect()
+    }
+
+    /// Get resource descriptor for a specific message type
+    pub fn get_resource_descriptor(
+        &self,
+        type_name: &str,
+    ) -> Option<&google::api::ResourceDescriptor> {
+        self.messages
+            .get(type_name)
+            .and_then(|msg| msg.resource_descriptor.as_ref())
+    }
+
+    /// Get all resource types defined in the messages
+    pub fn resource_types(&self) -> Vec<String> {
+        self.messages
+            .values()
+            .filter_map(|msg| msg.resource_descriptor.as_ref())
+            .map(|rd| rd.r#type.clone())
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_messages_with_resources() {
+        let mut codegen_metadata = CodeGenMetadata {
+            methods: Vec::new(),
+            messages: std::collections::HashMap::new(),
+        };
+
+        // Add a message without resource descriptor
+        let message_without_resource = MessageInfo {
+            name: ".test.MessageWithoutResource".to_string(),
+            fields: vec![],
+            resource_descriptor: None,
+        };
+        codegen_metadata.messages.insert(
+            ".test.MessageWithoutResource".to_string(),
+            message_without_resource,
+        );
+
+        // Add a message with resource descriptor
+        let resource_descriptor = google::api::ResourceDescriptor {
+            r#type: "test.io/TestResource".to_string(),
+            pattern: vec!["test/{test}".to_string()],
+            name_field: "name".to_string(),
+            ..Default::default()
+        };
+        let message_with_resource = MessageInfo {
+            name: ".test.MessageWithResource".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(resource_descriptor),
+        };
+        codegen_metadata.messages.insert(
+            ".test.MessageWithResource".to_string(),
+            message_with_resource,
+        );
+
+        let messages_with_resources = codegen_metadata.messages_with_resources();
+        assert_eq!(messages_with_resources.len(), 1);
+        assert!(messages_with_resources.contains_key(".test.MessageWithResource"));
+        assert!(!messages_with_resources.contains_key(".test.MessageWithoutResource"));
+    }
+
+    #[test]
+    fn test_get_resource_descriptor() {
+        let mut codegen_metadata = CodeGenMetadata {
+            methods: Vec::new(),
+            messages: std::collections::HashMap::new(),
+        };
+
+        let resource_descriptor = google::api::ResourceDescriptor {
+            r#type: "test.io/TestResource".to_string(),
+            pattern: vec!["test/{test}".to_string()],
+            name_field: "name".to_string(),
+            ..Default::default()
+        };
+        let message_info = MessageInfo {
+            name: ".test.TestMessage".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(resource_descriptor.clone()),
+        };
+        codegen_metadata
+            .messages
+            .insert(".test.TestMessage".to_string(), message_info);
+
+        // Test getting existing resource descriptor
+        let result = codegen_metadata.get_resource_descriptor(".test.TestMessage");
+        assert!(result.is_some());
+        let retrieved = result.unwrap();
+        assert_eq!(retrieved.r#type, "test.io/TestResource");
+        assert_eq!(retrieved.pattern, vec!["test/{test}"]);
+
+        // Test getting non-existent resource descriptor
+        let result = codegen_metadata.get_resource_descriptor(".test.NonExistent");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_resource_types() {
+        let mut codegen_metadata = CodeGenMetadata {
+            methods: Vec::new(),
+            messages: std::collections::HashMap::new(),
+        };
+
+        // Add multiple messages with different resource types
+        let resource1 = google::api::ResourceDescriptor {
+            r#type: "test.io/TypeA".to_string(),
+            pattern: vec!["typea/{id}".to_string()],
+            ..Default::default()
+        };
+        let message1 = MessageInfo {
+            name: ".test.MessageA".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(resource1),
+        };
+
+        let resource2 = google::api::ResourceDescriptor {
+            r#type: "test.io/TypeB".to_string(),
+            pattern: vec!["typeb/{id}".to_string()],
+            ..Default::default()
+        };
+        let message2 = MessageInfo {
+            name: ".test.MessageB".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(resource2),
+        };
+
+        // Add a message without resource descriptor
+        let message3 = MessageInfo {
+            name: ".test.MessageC".to_string(),
+            fields: vec![],
+            resource_descriptor: None,
+        };
+
+        codegen_metadata
+            .messages
+            .insert(".test.MessageA".to_string(), message1);
+        codegen_metadata
+            .messages
+            .insert(".test.MessageB".to_string(), message2);
+        codegen_metadata
+            .messages
+            .insert(".test.MessageC".to_string(), message3);
+
+        let resource_types = codegen_metadata.resource_types();
+        assert_eq!(resource_types.len(), 2);
+        assert!(resource_types.contains(&"test.io/TypeA".to_string()));
+        assert!(resource_types.contains(&"test.io/TypeB".to_string()));
     }
 }
