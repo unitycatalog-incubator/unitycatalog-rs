@@ -14,9 +14,6 @@ Features:
 - Creates backup of original OpenAPI file before modification
 - Provides detailed logging of the update process
 
-Usage:
-    python scripts/update_openapi_schemas.py
-
 The script expects to be run from the project root directory and will:
 1. Read all *.json files from openapi/jsonschema/
 2. Parse schema names from filenames (format: unitycatalog.{service}.v1.{TypeName}.schema.strict.bundle.json)
