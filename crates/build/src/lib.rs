@@ -54,13 +54,14 @@ pub struct MethodMetadata {
     pub input_type: String,
     pub output_type: String,
     pub operation: Option<Operation>,
-    pub http_rule: Option<HttpRule>,
+    pub http_rule: HttpRule,
     pub input_fields: Vec<MessageField>,
     pub documentation: Option<String>,
 }
 
 impl MethodMetadata {
     /// Extract the operation ID from gnostic annotations
+    /// Note: This is primarily used for OpenAPI spec generation, not request classification
     pub fn operation_id(&self) -> Option<&str> {
         let operation = self.operation.as_ref()?;
         if operation.operation_id.is_empty() {
@@ -71,11 +72,10 @@ impl MethodMetadata {
     }
 
     /// Extract HTTP method and path from google.api.http annotations
+    /// Get HTTP method and path from the rule if available
     pub fn http_info(&self) -> Option<(String, String)> {
-        let rule = self.http_rule.as_ref()?;
-
         // Extract HTTP method and path from the rule
-        if let Some(pattern) = &rule.pattern {
+        if let Some(pattern) = &self.http_rule.pattern {
             use crate::google::api::http_rule::Pattern;
             match pattern {
                 Pattern::Get(path) => Some(("GET".to_string(), path.clone())),
@@ -101,7 +101,7 @@ impl MethodMetadata {
 
     /// Determine the request type category (List, Create, Get, Update, Delete)
     pub fn request_type(&self) -> RequestType {
-        utils::requests::classify_request_type(self.operation_id(), &self.method_name)
+        utils::requests::classify_request_type_from_http(&self.http_rule, &self.method_name)
     }
 
     pub fn is_root_method(&self) -> bool {
@@ -157,10 +157,10 @@ impl CodeGenMetadata {
             .unwrap_or_default()
     }
 
-    /// Get all methods that have complete REST metadata (operation_id + http_rule)
+    /// Get all methods that have complete REST metadata (http_rule required)
     pub fn complete_methods(&self) -> Vec<&MethodMetadata> {
         self.all_methods()
-            .filter(|m| m.operation_id().is_some() && m.http_info().is_some())
+            .filter(|m| m.http_info().is_some())
             .collect()
     }
 
@@ -572,13 +572,20 @@ mod tests {
         };
 
         // Add a method to the service
+        let http_rule = crate::google::api::HttpRule {
+            pattern: Some(crate::google::api::http_rule::Pattern::Get(
+                "/test".to_string(),
+            )),
+            ..Default::default()
+        };
+
         let method = MethodMetadata {
             service_name: "TestService".to_string(),
             method_name: "TestMethod".to_string(),
             input_type: ".test.TestRequest".to_string(),
             output_type: ".test.TestResponse".to_string(),
             operation: None,
-            http_rule: None,
+            http_rule: http_rule,
             input_fields: Vec::new(),
             documentation: Some("Test method documentation".to_string()),
         };

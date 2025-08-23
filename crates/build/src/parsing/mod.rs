@@ -319,20 +319,20 @@ fn process_method(
     // Get input message fields
     let input_fields = codegen_metadata.get_message_fields(input_type);
 
-    // Initialize method metadata
-    let mut method_metadata = MethodMetadata {
+    // Extract gnostic method-level annotations first to get required http_rule
+    let (operation, http_rule) = extract_method_annotations(method, service_name, method_name)?;
+
+    // Initialize method metadata with required http_rule
+    let method_metadata = MethodMetadata {
         service_name: service_name.to_string(),
         method_name: method_name.to_string(),
         input_type: input_type.to_string(),
         output_type: output_type.to_string(),
-        operation: None,
-        http_rule: None,
+        operation,
+        http_rule,
         input_fields,
         documentation: method_documentation,
     };
-
-    // Extract gnostic method-level annotations
-    extract_method_annotations(method, service_name, method_name, &mut method_metadata)?;
 
     // Add to the service's methods
     if let Some(service_info) = codegen_metadata.services.get_mut(service_name) {
@@ -351,19 +351,20 @@ fn extract_method_annotations(
     method: &MethodDescriptorProto,
     service_name: &str,
     method_name: &str,
-    method_metadata: &mut MethodMetadata,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(Option<Operation>, HttpRule), Box<dyn std::error::Error>> {
     if method.options.is_none() {
-        println!(
-            "cargo:warning=    Method {}.{} has no options",
+        return Err(format!(
+            "Method {}.{} has no options - HTTP rule annotation is required",
             service_name, method_name
-        );
-        return Ok(());
+        )
+        .into());
     }
 
     let options = method.options.as_ref().unwrap();
-
     let unknown_fields = options.unknown_fields();
+
+    let mut operation = None;
+    let mut http_rule = None;
 
     // Process each extension field
     for (field_number, field_value) in unknown_fields.iter() {
@@ -392,10 +393,14 @@ fn extract_method_annotations(
                             "cargo:warning=      Successfully parsed HTTP rule: {:?}",
                             rule
                         );
-                        method_metadata.http_rule = Some(rule);
+                        http_rule = Some(rule);
                     }
                     Err(e) => {
-                        println!("cargo:warning=      Failed to parse HTTP rule: {}", e);
+                        return Err(format!(
+                            "Failed to parse HTTP rule for {}.{}: {}",
+                            service_name, method_name, e
+                        )
+                        .into());
                     }
                 }
             }
@@ -407,9 +412,9 @@ fn extract_method_annotations(
 
                 // Parse operation from extension data
                 match Operation::decode(data) {
-                    Ok(operation) => {
-                        println!("cargo:warning=      Operation: {:?}", operation);
-                        method_metadata.operation = Some(operation);
+                    Ok(op) => {
+                        println!("cargo:warning=      Operation: {:?}", op);
+                        operation = Some(op);
                     }
                     Err(e) => {
                         println!(
@@ -429,7 +434,15 @@ fn extract_method_annotations(
         }
     }
 
-    Ok(())
+    // Ensure HTTP rule was found
+    let http_rule = http_rule.ok_or_else(|| {
+        format!(
+            "Method {}.{} is missing required google.api.http annotation",
+            service_name, method_name
+        )
+    })?;
+
+    Ok((operation, http_rule))
 }
 
 /// Format a protobuf field type for use in Rust code generation
@@ -914,5 +927,47 @@ mod tests {
             assert!(converted_back.is_ok());
             assert_eq!(converted_back.unwrap(), behavior);
         }
+    }
+
+    #[test]
+    fn test_missing_http_rule_causes_error() {
+        use protobuf::descriptor::{MethodDescriptorProto, MethodOptions};
+
+        // Create a method without any HTTP rule annotation
+        let method = MethodDescriptorProto {
+            name: Some("TestMethod".to_string()),
+            input_type: Some(".test.TestRequest".to_string()),
+            output_type: Some(".test.TestResponse".to_string()),
+            options: Some(MethodOptions::default()).into(), // Empty options, no HTTP rule
+            ..Default::default()
+        };
+
+        // This should return an error since HTTP rule is required
+        let result = extract_method_annotations(&method, "TestService", "TestMethod");
+        assert!(result.is_err());
+
+        let error_message = result.unwrap_err().to_string();
+        assert!(error_message.contains("missing required google.api.http annotation"));
+    }
+
+    #[test]
+    fn test_method_without_options_causes_error() {
+        use protobuf::descriptor::MethodDescriptorProto;
+
+        // Create a method without any options at all
+        let method = MethodDescriptorProto {
+            name: Some("TestMethod".to_string()),
+            input_type: Some(".test.TestRequest".to_string()),
+            output_type: Some(".test.TestResponse".to_string()),
+            options: None.into(), // No options at all
+            ..Default::default()
+        };
+
+        // This should return an error since HTTP rule is required
+        let result = extract_method_annotations(&method, "TestService", "TestMethod");
+        assert!(result.is_err());
+
+        let error_message = result.unwrap_err().to_string();
+        assert!(error_message.contains("has no options - HTTP rule annotation is required"));
     }
 }

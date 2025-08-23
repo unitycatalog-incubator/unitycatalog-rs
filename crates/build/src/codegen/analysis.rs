@@ -9,9 +9,9 @@
 //! - Planning the structure of generated code
 
 use super::{BodyField, GenerationPlan, MethodPlan, PathParam, QueryParam, ServicePlan};
+use crate::utils::paths::extract_http_rule_pattern;
 use crate::utils::{paths, requests, strings, types};
 use crate::{CodeGenMetadata, MessageField, MethodMetadata};
-use std::collections::HashSet;
 
 /// Analyze collected metadata and create a generation plan
 pub fn analyze_metadata(
@@ -60,18 +60,6 @@ fn analyze_service(
 pub fn analyze_method(
     method: &MethodMetadata,
 ) -> Result<Option<MethodPlan>, Box<dyn std::error::Error>> {
-    // Check if we have the required metadata
-    let operation_id = match method.operation_id() {
-        Some(id) => id,
-        None => {
-            println!(
-                "cargo:warning=Method {}.{} missing operation_id",
-                method.service_name, method.method_name
-            );
-            return Ok(None);
-        }
-    };
-
     let (http_method, http_path) = match method.http_info() {
         Some(info) => info,
         None => {
@@ -84,15 +72,14 @@ pub fn analyze_method(
     };
 
     // Generate function names
-    let handler_function_name = strings::operation_to_method_name(operation_id);
-    let route_function_name = strings::operation_to_route_name(operation_id);
+    let handler_function_name = strings::operation_to_method_name(&method.method_name);
+    let route_function_name = strings::operation_to_route_name(&method.method_name);
 
     // Get input message fields from metadata
     let input_fields = method.input_fields.clone();
 
     // Extract parameters based on HTTP rule
-    let (path_params, query_params, body_fields) =
-        extract_request_fields(method, &http_path, &input_fields)?;
+    let (path_params, query_params, body_fields) = extract_request_fields(method, &input_fields)?;
 
     // Determine if method has response
     let request_type = method.request_type();
@@ -114,23 +101,18 @@ pub fn analyze_method(
 /// Extract request fields based on HTTP rule analysis
 fn extract_request_fields(
     method: &MethodMetadata,
-    http_path: &str,
     input_fields: &[MessageField],
 ) -> Result<(Vec<PathParam>, Vec<QueryParam>, Vec<BodyField>), Box<dyn std::error::Error>> {
     let mut path_params = Vec::new();
     let mut query_params = Vec::new();
     let mut body_fields = Vec::new();
 
-    // Extract path parameters from URL template in order
-    let path_param_names_ordered: Vec<String> = paths::extract_path_parameters(http_path);
-    let _path_param_names: HashSet<String> = path_param_names_ordered.iter().cloned().collect();
+    // Extract path parameters from HTTP pattern in order
+    let http_pattern = extract_http_rule_pattern(&method.http_rule).unwrap();
+    let path_param_names_ordered = http_pattern.parameter_names().to_vec();
 
     // Get body field specification from HTTP rule
-    let body_spec = method
-        .http_rule
-        .as_ref()
-        .map(|rule| rule.body.as_str())
-        .unwrap_or("");
+    let body_spec = method.http_rule.body.as_str();
 
     // Track which fields we've already processed to avoid duplicates
     let mut processed_fields = std::collections::HashSet::new();
@@ -243,7 +225,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.ListCatalogsRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             input_fields: vec![],
             documentation: None,
         }
@@ -293,13 +275,13 @@ mod tests {
             input_type: ".unitycatalog.schemas.v1.DeleteSchemaRequest".to_string(),
             output_type: ".google.protobuf.Empty".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             input_fields,
             documentation: None,
         };
 
         let (path_params, query_params, body_fields) =
-            extract_request_fields(&method, "/schemas/{name}", &method.input_fields).unwrap();
+            extract_request_fields(&method, &method.input_fields).unwrap();
 
         // With the fallback logic, {name} should match full_name field
         assert_eq!(
@@ -375,17 +357,13 @@ mod tests {
             input_type: ".unitycatalog.sharing.v1.GetTableMetadataRequest".to_string(),
             output_type: ".unitycatalog.sharing.v1.QueryResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             input_fields,
             documentation: None,
         };
 
-        let (path_params, query_params, body_fields) = extract_request_fields(
-            &method,
-            "/shares/{share}/schemas/{schema}/tables/{name}/metadata",
-            &method.input_fields,
-        )
-        .unwrap();
+        let (path_params, query_params, body_fields) =
+            extract_request_fields(&method, &method.input_fields).unwrap();
 
         assert_eq!(path_params.len(), 3);
         assert_eq!(query_params.len(), 0);
@@ -451,14 +429,13 @@ mod tests {
             input_type: ".unitycatalog.credentials.v1.ListCredentialsRequest".to_string(),
             output_type: ".unitycatalog.credentials.v1.ListCredentialsResponse".to_string(),
             operation: Some(list_operation),
-            http_rule: Some(list_http_rule),
+            http_rule: list_http_rule,
             input_fields: list_fields,
             documentation: None,
         };
 
         let (path_params, query_params, body_fields) =
-            extract_request_fields(&list_method, "/credentials", &list_method.input_fields)
-                .unwrap();
+            extract_request_fields(&list_method, &list_method.input_fields).unwrap();
 
         assert_eq!(path_params.len(), 0);
         assert_eq!(query_params.len(), 3); // max_results, page_token, purpose
@@ -547,14 +524,13 @@ mod tests {
             input_type: ".unitycatalog.credentials.v1.CreateCredentialRequest".to_string(),
             output_type: ".unitycatalog.credentials.v1.CredentialInfo".to_string(),
             operation: Some(create_operation),
-            http_rule: Some(create_http_rule),
+            http_rule: create_http_rule,
             input_fields: create_fields,
             documentation: None,
         };
 
         let (path_params, query_params, body_fields) =
-            extract_request_fields(&create_method, "/credentials", &create_method.input_fields)
-                .unwrap();
+            extract_request_fields(&create_method, &create_method.input_fields).unwrap();
 
         assert_eq!(path_params.len(), 0);
         assert_eq!(query_params.len(), 0);
@@ -631,7 +607,7 @@ mod tests {
         ];
 
         let (path_params, query_params, body_fields) =
-            extract_request_fields(&method, "/catalogs", &input_fields).unwrap();
+            extract_request_fields(&method, &input_fields).unwrap();
 
         assert_eq!(path_params.len(), 0);
         assert_eq!(query_params.len(), 2); // Only 2 from fields, no duplicates

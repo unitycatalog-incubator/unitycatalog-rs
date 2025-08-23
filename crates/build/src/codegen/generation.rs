@@ -210,7 +210,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.ListCatalogsRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -289,7 +289,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.GetCatalogRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(get_operation),
-            http_rule: Some(get_http_rule),
+            http_rule: get_http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -344,7 +344,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.CreateCatalogRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(post_operation),
-            http_rule: Some(post_http_rule),
+            http_rule: post_http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -410,7 +410,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.UpdateCatalogRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(update_operation),
-            http_rule: Some(update_http_rule),
+            http_rule: update_http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {

@@ -819,7 +819,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.CreateCatalogRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             input_fields: vec![
                 MessageField {
                     name: "name".to_string(),
@@ -963,7 +963,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.UpdateCatalogRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             input_fields: vec![
                 MessageField {
                     name: "name".to_string(),

@@ -505,7 +505,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.UpdateCatalogRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -587,7 +587,7 @@ mod tests {
             input_type: ".unitycatalog.catalogs.v1.ListCatalogsRequest".to_string(),
             output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -709,7 +709,7 @@ mod tests {
             input_type: ".unitycatalog.schemas.v1.ListSchemasRequest".to_string(),
             output_type: ".unitycatalog.schemas.v1.ListSchemasResponse".to_string(),
             operation: Some(operation.clone()),
-            http_rule: Some(http_rule.clone()),
+            http_rule: http_rule.clone(),
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -741,7 +741,7 @@ mod tests {
             input_type: ".test.EdgeCaseRequest".to_string(),
             output_type: ".test.EdgeCaseResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -845,7 +845,7 @@ mod tests {
             input_type: ".unitycatalog.tables.v1.ListTablesRequest".to_string(),
             output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             documentation: None,
             input_fields: vec![
                 MessageField {
@@ -965,7 +965,7 @@ mod tests {
             input_type: ".unitycatalog.tables.v1.ListTablesRequest".to_string(),
             output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
             operation: Some(operation.clone()),
-            http_rule: Some(http_rule.clone()),
+            http_rule: http_rule.clone(),
             documentation: None,
             input_fields: vec![
                 // These should be required in Proto3 (no proto3_optional flag)
@@ -1028,7 +1028,7 @@ mod tests {
             input_type: ".test.ListTablesRequest".to_string(),
             output_type: ".test.ListTablesResponse".to_string(),
             operation: Some(operation),
-            http_rule: Some(http_rule),
+            http_rule: http_rule,
             documentation: None,
             input_fields: vec![
                 // These should be required in Proto3 (no proto3_optional flag)

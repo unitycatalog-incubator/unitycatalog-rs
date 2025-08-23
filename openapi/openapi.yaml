@@ -1417,7 +1417,7 @@ paths:
     post:
       tags:
         - TemporaryCredentialsService
-      description: Generate a new set of credentials for a volume.
+      description: Generate a new set of credentials for a path.
       operationId: GenerateTemporaryPathCredentials
       requestBody:
         content:
