@@ -135,22 +135,12 @@ pub struct CredentialInfo {
     /// The full name of the credential.
     #[prost(string, optional, tag="12")]
     pub full_name: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(oneof="credential_info::Credential", tags="100, 101, 102")]
-    pub credential: ::core::option::Option<credential_info::Credential>,
-}
-/// Nested message and enum types in `CredentialInfo`.
-pub mod credential_info {
-    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Credential {
-        #[prost(message, tag="100")]
-        AzureServicePrincipal(super::AzureServicePrincipal),
-        #[prost(message, tag="101")]
-        AzureManagedIdentity(super::AzureManagedIdentity),
-        #[prost(message, tag="102")]
-        AzureStorageKey(super::AzureStorageKey),
-    }
+    #[prost(message, optional, tag="100")]
+    pub azure_service_principal: ::core::option::Option<AzureServicePrincipal>,
+    #[prost(message, optional, tag="101")]
+    pub azure_managed_identity: ::core::option::Option<AzureManagedIdentity>,
+    #[prost(message, optional, tag="102")]
+    pub azure_storage_key: ::core::option::Option<AzureStorageKey>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -227,22 +217,12 @@ pub struct CreateCredentialRequest {
     /// Supplying true to this argument skips validation of the created set of credentials.
     #[prost(bool, optional, tag="5")]
     pub skip_validation: ::core::option::Option<bool>,
-    #[prost(oneof="create_credential_request::Credential", tags="100, 101, 102")]
-    pub credential: ::core::option::Option<create_credential_request::Credential>,
-}
-/// Nested message and enum types in `CreateCredentialRequest`.
-pub mod create_credential_request {
-    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Credential {
-        #[prost(message, tag="100")]
-        AzureServicePrincipal(super::AzureServicePrincipal),
-        #[prost(message, tag="101")]
-        AzureManagedIdentity(super::AzureManagedIdentity),
-        #[prost(message, tag="102")]
-        AzureStorageKey(super::AzureStorageKey),
-    }
+    #[prost(message, optional, tag="100")]
+    pub azure_service_principal: ::core::option::Option<AzureServicePrincipal>,
+    #[prost(message, optional, tag="101")]
+    pub azure_managed_identity: ::core::option::Option<AzureManagedIdentity>,
+    #[prost(message, optional, tag="102")]
+    pub azure_storage_key: ::core::option::Option<AzureStorageKey>,
 }
 /// Get a credential
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -280,22 +260,12 @@ pub struct UpdateCredentialRequest {
     /// or dependent external locations and external tables (when purpose is STORAGE).
     #[prost(bool, optional, tag="7")]
     pub force: ::core::option::Option<bool>,
-    #[prost(oneof="update_credential_request::Credential", tags="100, 101, 102")]
-    pub credential: ::core::option::Option<update_credential_request::Credential>,
-}
-/// Nested message and enum types in `UpdateCredentialRequest`.
-pub mod update_credential_request {
-    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Credential {
-        #[prost(message, tag="100")]
-        AzureServicePrincipal(super::AzureServicePrincipal),
-        #[prost(message, tag="101")]
-        AzureManagedIdentity(super::AzureManagedIdentity),
-        #[prost(message, tag="102")]
-        AzureStorageKey(super::AzureStorageKey),
-    }
+    #[prost(message, optional, tag="100")]
+    pub azure_service_principal: ::core::option::Option<AzureServicePrincipal>,
+    #[prost(message, optional, tag="101")]
+    pub azure_managed_identity: ::core::option::Option<AzureManagedIdentity>,
+    #[prost(message, optional, tag="102")]
+    pub azure_storage_key: ::core::option::Option<AzureStorageKey>,
 }
 /// Delete a credential
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

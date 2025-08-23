@@ -68,15 +68,38 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             .extract()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
+        let (
+            new_name,
+            comment,
+            read_only,
+            owner,
+            skip_validation,
+            force,
+            azure_service_principal,
+            azure_managed_identity,
+            azure_storage_key,
+        ) = (
+            body.new_name,
+            body.comment,
+            body.read_only,
+            body.owner,
+            body.skip_validation,
+            body.force,
+            body.azure_service_principal,
+            body.azure_managed_identity,
+            body.azure_storage_key,
+        );
         Ok(UpdateCredentialRequest {
             name,
-            new_name: body.new_name,
-            comment: body.comment,
-            read_only: body.read_only,
-            owner: body.owner,
-            skip_validation: body.skip_validation,
-            force: body.force,
-            credential: body.credential,
+            new_name,
+            comment,
+            read_only,
+            owner,
+            skip_validation,
+            force,
+            azure_service_principal,
+            azure_managed_identity,
+            azure_storage_key,
         })
     }
 }

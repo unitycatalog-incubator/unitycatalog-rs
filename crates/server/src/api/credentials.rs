@@ -27,7 +27,7 @@ pub trait CredentialHandlerExt: Send + Sync + 'static {
     ) -> Result<CredentialInfo>;
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 struct CredentialContainer {
     pub azure_sp: Option<AzureServicePrincipal>,
     pub azure_msi: Option<AzureManagedIdentity>,
@@ -35,55 +35,11 @@ struct CredentialContainer {
 }
 
 impl CredentialContainer {
-    fn from_get(cred: create_credential_request::Credential) -> Self {
-        match cred {
-            create_credential_request::Credential::AzureServicePrincipal(azure_sp) => Self {
-                azure_sp: Some(azure_sp),
-                azure_msi: None,
-                azure_key: None,
-            },
-            create_credential_request::Credential::AzureManagedIdentity(azure_msi) => Self {
-                azure_sp: None,
-                azure_msi: Some(azure_msi),
-                azure_key: None,
-            },
-            create_credential_request::Credential::AzureStorageKey(azure_key) => Self {
-                azure_sp: None,
-                azure_msi: None,
-                azure_key: Some(azure_key),
-            },
-        }
-    }
-
-    fn from_update(cred: update_credential_request::Credential) -> Self {
-        match cred {
-            update_credential_request::Credential::AzureServicePrincipal(azure_sp) => Self {
-                azure_sp: Some(azure_sp),
-                azure_msi: None,
-                azure_key: None,
-            },
-            update_credential_request::Credential::AzureManagedIdentity(azure_msi) => Self {
-                azure_sp: None,
-                azure_msi: Some(azure_msi),
-                azure_key: None,
-            },
-            update_credential_request::Credential::AzureStorageKey(azure_key) => Self {
-                azure_sp: None,
-                azure_msi: None,
-                azure_key: Some(azure_key),
-            },
-        }
-    }
-
-    fn into_cred(self) -> Result<credential_info::Credential> {
-        if let Some(azure_sp) = self.azure_sp {
-            Ok(credential_info::Credential::AzureServicePrincipal(azure_sp))
-        } else if let Some(azure_msi) = self.azure_msi {
-            Ok(credential_info::Credential::AzureManagedIdentity(azure_msi))
-        } else if let Some(azure_key) = self.azure_key {
-            Ok(credential_info::Credential::AzureStorageKey(azure_key))
+    fn validate(&self) -> Result<()> {
+        if self.azure_sp.is_none() && self.azure_msi.is_none() && self.azure_key.is_none() {
+            Err(Error::invalid_argument("No credentials provided"))
         } else {
-            Err(Error::invalid_argument("credential is required"))
+            Ok(())
         }
     }
 
@@ -120,14 +76,14 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         context: RequestContext,
     ) -> Result<CredentialInfo> {
         self.check_required(&request, context.recipient()).await?;
-        let secret = request
-            .credential
-            .ok_or_else(|| Error::invalid_argument("credential is required"))?;
-        self.create_secret(
-            &request.name,
-            CredentialContainer::from_get(secret).to_vec()?.into(),
-        )
-        .await?;
+        let credential = CredentialContainer {
+            azure_msi: request.azure_managed_identity,
+            azure_sp: request.azure_service_principal,
+            azure_key: request.azure_storage_key,
+        };
+        credential.validate()?;
+        self.create_secret(&request.name, credential.to_vec()?.into())
+            .await?;
         let cred = CredentialInfo {
             name: request.name.clone(),
             full_name: Some(request.name),
@@ -138,7 +94,9 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             id: None,
             created_at: None,
             updated_at: None,
-            credential: None,
+            azure_managed_identity: None,
+            azure_service_principal: None,
+            azure_storage_key: None,
             owner: None,
             created_by: None,
             updated_by: None,
@@ -161,14 +119,15 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         context: RequestContext,
     ) -> Result<CredentialInfo> {
         self.check_required(&request, context.recipient()).await?;
-        if let Some(credential) = request.credential {
-            self.update_secret(
-                &request.name,
-                CredentialContainer::from_update(credential.clone())
-                    .to_vec()?
-                    .into(),
-            )
-            .await?;
+        let credential = CredentialContainer {
+            azure_msi: request.azure_managed_identity,
+            azure_sp: request.azure_service_principal,
+            azure_key: request.azure_storage_key,
+        };
+        credential.validate()?;
+        if credential.validate().is_ok() {
+            self.update_secret(&request.name, credential.to_vec()?.into())
+                .await?;
         }
         let curr = self
             .get_credential(
@@ -188,7 +147,9 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             id: None,
             created_at: None,
             updated_at: None,
-            credential: None,
+            azure_managed_identity: None,
+            azure_service_principal: None,
+            azure_storage_key: None,
             owner: None,
             created_by: None,
             updated_by: None,
@@ -224,7 +185,13 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandlerExt for T {
         let mut cred: CredentialInfo = self.get(&request.resource()).await?.0.try_into()?;
         let (_, secret_data) = self.get_secret(&cred.name).await?;
         let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;
-        cred.credential = Some(secret.into_cred()?);
+        if secret.azure_msi.is_some() {
+            cred.azure_managed_identity = secret.azure_msi;
+        } else if secret.azure_sp.is_some() {
+            cred.azure_service_principal = secret.azure_sp;
+        } else if secret.azure_key.is_some() {
+            cred.azure_storage_key = secret.azure_key;
+        }
         Ok(cred)
     }
 }

@@ -22,7 +22,7 @@ import { file_google_api_resource } from "../../../google/api/resource_pb";
 export const file_unitycatalog_credentials_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIigQYKDkNyZWRlbnRpYWxJbmZvEgwKBG5hbWUYASABKAkSDwoCaWQYAiABKAlIAYgBARI1CgdwdXJwb3NlGAMgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2USEQoJcmVhZF9vbmx5GAQgASgIEhQKB2NvbW1lbnQYBSABKAlIAogBARISCgVvd25lchgGIAEoCUgDiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIBIgBARIXCgpjcmVhdGVkX2J5GAggASgJSAWIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gGiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIB4gBARIgChh1c2VkX2Zvcl9tYW5hZ2VkX3N0b3JhZ2UYCyABKAgSFgoJZnVsbF9uYW1lGAwgASgJSAiIAQESVQoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAASUwoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgAEkkKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgAOlLqQU8KGnVuaXR5Y2F0YWxvZy5pby9DcmVkZW50aWFsEhhjcmVkZW50aWFscy97Y3JlZGVudGlhbH0qC2NyZWRlbnRpYWxzMgpjcmVkZW50aWFsQgwKCmNyZWRlbnRpYWxCBQoDX2lkQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfZnVsbF9uYW1lKjwKB1B1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgsKB1NUT1JBR0UQARILCgdTRVJWSUNFEAJClgIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCC01vZGVsc1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z",
+    "Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIilQcKDkNyZWRlbnRpYWxJbmZvEgwKBG5hbWUYASABKAkSDwoCaWQYAiABKAlIAIgBARI1CgdwdXJwb3NlGAMgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2USEQoJcmVhZF9vbmx5GAQgASgIEhQKB2NvbW1lbnQYBSABKAlIAYgBARISCgVvd25lchgGIAEoCUgCiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIA4gBARIXCgpjcmVhdGVkX2J5GAggASgJSASIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gFiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBogBARIgChh1c2VkX2Zvcl9tYW5hZ2VkX3N0b3JhZ2UYCyABKAgSFgoJZnVsbF9uYW1lGAwgASgJSAeIAQESWAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAiIAQESVgoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgJiAEBEkwKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgKiAEBOp0B6kFPChp1bml0eWNhdGFsb2cuaW8vQ3JlZGVudGlhbBIYY3JlZGVudGlhbHMve2NyZWRlbnRpYWx9KgtjcmVkZW50aWFsczIKY3JlZGVudGlhbLpISCJGChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkQAUIFCgNfaWRCCgoIX2NvbW1lbnRCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9mdWxsX25hbWVCGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleSo8CgdQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABILCgdTVE9SQUdFEAESCwoHU0VSVklDRRACQpYCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQgtNb2RlbHNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw",
     [
       file_buf_validate_validate,
       file_google_api_annotations,
@@ -318,31 +318,19 @@ export type CredentialInfo =
     fullName?: string;
 
     /**
-     * @generated from oneof unitycatalog.credentials.v1.CredentialInfo.credential
+     * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
      */
-    credential:
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
-           */
-          value: AzureServicePrincipal;
-          case: "azureServicePrincipal";
-        }
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
-           */
-          value: AzureManagedIdentity;
-          case: "azureManagedIdentity";
-        }
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
-           */
-          value: AzureStorageKey;
-          case: "azureStorageKey";
-        }
-      | { case: undefined; value?: undefined };
+    azureServicePrincipal?: AzureServicePrincipal;
+
+    /**
+     * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+     */
+    azureManagedIdentity?: AzureManagedIdentity;
+
+    /**
+     * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+     */
+    azureStorageKey?: AzureStorageKey;
   };
 
 /**

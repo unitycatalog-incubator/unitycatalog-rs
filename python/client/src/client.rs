@@ -7,7 +7,9 @@ use unitycatalog_client::{
     SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
     TemporaryCredentialClient, UnityCatalogClient, VolumeClient,
 };
-use unitycatalog_common::credentials::v1::credential_info::Credential;
+use unitycatalog_common::credentials::v1::{
+    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey,
+};
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
@@ -766,7 +768,17 @@ impl PyCredentialClient {
         })
     }
 
-    #[pyo3(signature = (new_name = None, comment = None, owner = None, read_only = None, skip_validation = None, force = None, credential = None))]
+    #[pyo3(signature = (
+        new_name = None,
+        comment = None,
+        owner = None,
+        read_only = None,
+        skip_validation = None,
+        force = None,
+        azure_managed_identity = None,
+        azure_service_principal = None,
+        azure_storage_key = None
+    ))]
     pub fn update(
         &self,
         py: Python,
@@ -776,11 +788,13 @@ impl PyCredentialClient {
         read_only: Option<bool>,
         skip_validation: Option<bool>,
         force: Option<bool>,
-        credential: Option<Credential>,
+        azure_managed_identity: Option<AzureManagedIdentity>,
+        azure_service_principal: Option<AzureServicePrincipal>,
+        azure_storage_key: Option<AzureStorageKey>,
     ) -> PyUnityCatalogResult<CredentialInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self
+            let request = self
                 .client
                 .update()
                 .with_new_name(new_name)
@@ -788,19 +802,10 @@ impl PyCredentialClient {
                 .with_owner(owner)
                 .with_read_only(read_only)
                 .with_skip_validation(skip_validation)
-                .with_force(force);
-            match credential {
-                Some(Credential::AzureManagedIdentity(az)) => {
-                    request = request.with_azure_managed_identity(az)
-                }
-                Some(Credential::AzureServicePrincipal(sp)) => {
-                    request = request.with_azure_service_principal(sp)
-                }
-                Some(Credential::AzureStorageKey(key)) => {
-                    request = request.with_azure_storage_key(key)
-                }
-                None => {}
-            }
+                .with_force(force)
+                .with_azure_managed_identity(azure_managed_identity)
+                .with_azure_service_principal(azure_service_principal)
+                .with_azure_storage_key(azure_storage_key);
             let info = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(info)
         })

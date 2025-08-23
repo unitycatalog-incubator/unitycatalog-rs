@@ -5,14 +5,13 @@ use delta_kernel::object_store::DynObjectStore;
 use delta_kernel::object_store::azure::MicrosoftAzureBuilder;
 use deltalake_datafusion::ObjectStoreFactory;
 use itertools::Itertools;
-use url::Url;
-
-use unitycatalog_common::models::credentials::v1::credential_info::Credential;
+use unitycatalog_common::credentials::v1::AzureManagedIdentity;
 use unitycatalog_common::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
     azure_service_principal::Credential as AzureSpCredential,
 };
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
+use url::Url;
 
 use super::ServerHandlerInner;
 use super::location::{StorageLocationScheme, StorageLocationUrl};
@@ -77,19 +76,19 @@ pub(crate) async fn get_object_store(
             name: ext_loc.credential_name.clone(),
         })
         .await?;
-    let Some(cred) = credential.credential else {
-        return Err(Error::NotFound);
-    };
-    match cred {
-        Credential::AzureStorageKey(_)
-        | Credential::AzureServicePrincipal(_)
-        | Credential::AzureManagedIdentity(_) => get_azure_store(location, cred),
-    }
+    get_azure_store(
+        location,
+        credential.azure_managed_identity,
+        credential.azure_service_principal,
+        credential.azure_storage_key,
+    )
 }
 
 fn get_azure_store(
     location: &StorageLocationUrl,
-    credential: Credential,
+    azure_managed_identity: Option<AzureManagedIdentity>,
+    azure_service_principal: Option<AzureServicePrincipal>,
+    azure_storage_key: Option<AzureStorageKey>,
 ) -> Result<Arc<DynObjectStore>> {
     tracing::debug!("get_azure_store: {:?}", location.location());
     let url_err = || {
@@ -111,42 +110,42 @@ fn get_azure_store(
     } else {
         MicrosoftAzureBuilder::new().with_url(location.raw().as_str())
     };
-    match credential {
-        Credential::AzureStorageKey(AzureStorageKey {
-            account_name,
-            account_key,
-        }) => {
-            builder = builder
-                .with_account(account_name)
-                .with_access_key(account_key);
-        }
-        Credential::AzureServicePrincipal(AzureServicePrincipal {
-            directory_id,
-            application_id,
-            credential,
-        }) => {
-            builder = builder
-                .with_tenant_id(directory_id)
-                .with_client_id(application_id);
-            match credential {
-                Some(AzureSpCredential::ClientSecret(client_secret)) => {
-                    builder = builder.with_client_secret(client_secret);
-                }
-                Some(AzureSpCredential::FederatedTokenFile(federated_token_file)) => {
-                    builder = builder.with_federated_token_file(federated_token_file);
-                }
-                _ => {
-                    return Err(Error::invalid_argument(
-                        "Azure service principal requires a credential.",
-                    ));
-                }
+
+    if let Some(AzureServicePrincipal {
+        directory_id,
+        application_id,
+        credential,
+    }) = azure_service_principal
+    {
+        builder = builder
+            .with_tenant_id(directory_id)
+            .with_client_id(application_id);
+        match credential {
+            Some(AzureSpCredential::ClientSecret(client_secret)) => {
+                builder = builder.with_client_secret(client_secret);
             }
-        }
-        _ => {
-            return Err(Error::invalid_argument(
-                "Invalid credential for Azure Blob Storage.",
-            ));
-        }
+            Some(AzureSpCredential::FederatedTokenFile(federated_token_file)) => {
+                builder = builder.with_federated_token_file(federated_token_file);
+            }
+            _ => {
+                return Err(Error::invalid_argument(
+                    "Azure service principal requires a credential.",
+                ));
+            }
+        };
+    } else if let Some(AzureStorageKey {
+        account_name,
+        account_key,
+    }) = azure_storage_key
+    {
+        builder = builder
+            .with_account(account_name)
+            .with_access_key(account_key);
+    } else {
+        return Err(Error::invalid_argument(
+            "Azure service principal requires a credential.",
+        ));
     }
+
     Ok(Arc::new(builder.build()?))
 }

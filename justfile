@@ -8,11 +8,11 @@ _default:
 
 # main code generation command. This will run all generation for unity types.
 [group('codegen')]
-generate: generate-proto generate-code
+generate: generate-proto generate-code fix
 
 # run all code generation for unitycatalog and external types.
 [group('codegen')]
-generate-full: generate-common-ext generate-build-ext generate-proto generate-code
+generate-full: generate-common-ext generate-build-ext generate-proto generate-code fix
 
 # run code generation for proto files.
 [group('codegen')]

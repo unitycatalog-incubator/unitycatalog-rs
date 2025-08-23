@@ -406,21 +406,11 @@ impl RecipientToken {
 #[pymethods]
 impl CredentialInfo {
     pub fn __repr__(&self) -> String {
-        let credential_str = match &self.credential {
-            Some(cred) => match cred {
-                crate::models::credentials::v1::credential_info::Credential::AzureServicePrincipal(_) => "AzureServicePrincipal(...)",
-                crate::models::credentials::v1::credential_info::Credential::AzureManagedIdentity(_) => "AzureManagedIdentity(...)",
-                crate::models::credentials::v1::credential_info::Credential::AzureStorageKey(_) => "AzureStorageKey(...)",
-            }
-            None => "None"
-        };
-
         format!(
-            "CredentialInfo(id={}, name={}, purpose={}, credential={}, read_only={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
+            "CredentialInfo(id={}, name={}, purpose={}, credential='***', read_only={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
             self.id.as_ref().unwrap_or(&"None".to_owned()),
             self.name,
             self.purpose,
-            credential_str,
             self.read_only,
             self.owner.as_ref().unwrap_or(&"None".to_owned()),
             self.comment.as_ref().unwrap_or(&"None".to_owned()),

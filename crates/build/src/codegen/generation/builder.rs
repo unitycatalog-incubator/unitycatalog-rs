@@ -388,18 +388,23 @@ fn generate_with_methods(
                     let field_type: syn::Type = syn::parse_str(&field_type_str)
                         .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
-                    // For non-repeated fields, wrap in Some() if optional
-                    let assignment = if field.optional {
-                        quote! { Some(#field_ident) }
+                    if field.optional {
+                        // For optional complex types, use impl Into<Option<T>> pattern
+                        quote! {
+                            #doc_attr
+                            pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
+                                self.request.#field_ident = #field_ident.into();
+                                self
+                            }
+                        }
                     } else {
-                        quote! { #field_ident }
-                    };
-
-                    quote! {
-                        #doc_attr
-                        pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
-                            self.request.#field_ident = #assignment;
-                            self
+                        // For required complex types, use direct assignment
+                        quote! {
+                            #doc_attr
+                            pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
+                                self.request.#field_ident = #field_ident;
+                                self
+                            }
                         }
                     }
                 }

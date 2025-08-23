@@ -138,8 +138,11 @@ impl QueryTableBuilder {
         self
     }
     ///The predicate to apply to the table.
-    pub fn with_json_predicate_hints(mut self, json_predicate_hints: JsonPredicate) -> Self {
-        self.request.json_predicate_hints = Some(json_predicate_hints);
+    pub fn with_json_predicate_hints(
+        mut self,
+        json_predicate_hints: impl Into<Option<JsonPredicate>>,
+    ) -> Self {
+        self.request.json_predicate_hints = json_predicate_hints.into();
         self
     }
     #[doc = concat!("Set ", "limit_hint")]

@@ -40,7 +40,7 @@ import { file_unitycatalog_credentials_v1_models } from "./models_pb";
 export const file_unitycatalog_credentials_v1_svc: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiV1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvc3ZjLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEiywEKFkxpc3RDcmVkZW50aWFsc1JlcXVlc3QSJwoLbWF4X3Jlc3VsdHMYAiABKAVCDeBBAbpIBxoFEOgHIABIAIgBARIcCgpwYWdlX3Rva2VuGAMgASgJQgPgQQFIAYgBARI/CgdwdXJwb3NlGAQgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2VCA+BBAUgCiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIKCghfcHVycG9zZSKNAQoXTGlzdENyZWRlbnRpYWxzUmVzcG9uc2USQAoLY3JlZGVudGlhbHMYASADKAsyKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm8SHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSACIAQFCEgoQX25leHRfcGFnZV90b2tlbiKoBAoXQ3JlYXRlQ3JlZGVudGlhbFJlcXVlc3QSNgoEbmFtZRgBIAEoCUIo4EECukgiyAEBch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBJACgdwdXJwb3NlGAIgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2VCCeBBArpIA8gBARIZCgdjb21tZW50GAMgASgJQgPgQQFIAYgBARIbCglyZWFkX29ubHkYBCABKAhCA+BBAUgCiAEBEiEKD3NraXBfdmFsaWRhdGlvbhgFIAEoCEID4EEBSAOIAQESVQoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAASUwoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgAEkkKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBQgoKCF9jb21tZW50QgwKCl9yZWFkX29ubHlCEgoQX3NraXBfdmFsaWRhdGlvbiJOChRHZXRDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kIvoEChdVcGRhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjwKCG5ld19uYW1lGAIgASgJQiXgQQG6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kSAGIAQESGQoHY29tbWVudBgDIAEoCUID4EEBSAKIAQESGwoJcmVhZF9vbmx5GAQgASgIQgPgQQFIA4gBARIhCgVvd25lchgFIAEoCUIN4EEBukgHyAEAcgJgAUgEiAEBEiEKD3NraXBfdmFsaWRhdGlvbhgGIAEoCEID4EEBSAWIAQESFwoFZm9yY2UYByABKAhCA+BBAUgGiAEBElUKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgAElMKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIABJJChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlIAEIMCgpjcmVkZW50aWFsQgsKCV9uZXdfbmFtZUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QggKBl9vd25lckISChBfc2tpcF92YWxpZGF0aW9uQggKBl9mb3JjZSJQChdEZWxldGVDcmVkZW50aWFsUmVxdWVzdBI1CgRuYW1lGAEgASgJQifgQQK6SCHIAQFyHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQyxgYKEkNyZWRlbnRpYWxzU2VydmljZRKmAQoPTGlzdENyZWRlbnRpYWxzEjMudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkxpc3RDcmVkZW50aWFsc1JlcXVlc3QaNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuTGlzdENyZWRlbnRpYWxzUmVzcG9uc2UiKLpHESoPTGlzdENyZWRlbnRpYWxzgtPkkwIOEgwvY3JlZGVudGlhbHMSowEKEENyZWF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlYXRlQ3JlZGVudGlhbFJlcXVlc3QaKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm8iLLpHEioQQ3JlYXRlQ3JlZGVudGlhbILT5JMCEToBKiIML2NyZWRlbnRpYWxzEp4BCg1HZXRDcmVkZW50aWFsEjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkdldENyZWRlbnRpYWxSZXF1ZXN0GisudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkNyZWRlbnRpYWxJbmZvIi26Rw8qDUdldENyZWRlbnRpYWyC0+STAhUSEy9jcmVkZW50aWFscy97bmFtZX0SqgEKEFVwZGF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuVXBkYXRlQ3JlZGVudGlhbFJlcXVlc3QaKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm8iM7pHEioQVXBkYXRlQ3JlZGVudGlhbILT5JMCGDoBKjITL2NyZWRlbnRpYWxzL3tuYW1lfRKSAQoQRGVsZXRlQ3JlZGVudGlhbBI0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5EZWxldGVDcmVkZW50aWFsUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIwukcSKhBEZWxldGVDcmVkZW50aWFsgtPkkwIVKhMvY3JlZGVudGlhbHMve25hbWV9QpMCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQghTdmNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw",
+    "CiV1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvc3ZjLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEiywEKFkxpc3RDcmVkZW50aWFsc1JlcXVlc3QSJwoLbWF4X3Jlc3VsdHMYAiABKAVCDeBBAbpIBxoFEOgHIABIAIgBARIcCgpwYWdlX3Rva2VuGAMgASgJQgPgQQFIAYgBARI/CgdwdXJwb3NlGAQgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2VCA+BBAUgCiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIKCghfcHVycG9zZSKNAQoXTGlzdENyZWRlbnRpYWxzUmVzcG9uc2USQAoLY3JlZGVudGlhbHMYASADKAsyKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm8SHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSACIAQFCEgoQX25leHRfcGFnZV90b2tlbiK2BQoXQ3JlYXRlQ3JlZGVudGlhbFJlcXVlc3QSNgoEbmFtZRgBIAEoCUIo4EECukgiyAEBch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBJACgdwdXJwb3NlGAIgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2VCCeBBArpIA8gBARIZCgdjb21tZW50GAMgASgJQgPgQQFIAIgBARIbCglyZWFkX29ubHkYBCABKAhCA+BBAUgBiAEBEiEKD3NraXBfdmFsaWRhdGlvbhgFIAEoCEID4EEBSAKIAQESWAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAOIAQESVgoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgEiAEBEkwKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgFiAEBOku6SEgiRgoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkKEWF6dXJlX3N0b3JhZ2Vfa2V5EAFCCgoIX2NvbW1lbnRCDAoKX3JlYWRfb25seUISChBfc2tpcF92YWxpZGF0aW9uQhoKGF9henVyZV9zZXJ2aWNlX3ByaW5jaXBhbEIZChdfYXp1cmVfbWFuYWdlZF9pZGVudGl0eUIUChJfYXp1cmVfc3RvcmFnZV9rZXkiTgoUR2V0Q3JlZGVudGlhbFJlcXVlc3QSNgoEbmFtZRgBIAEoCUIo4EECukgiyAEBch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJCKPBgoXVXBkYXRlQ3JlZGVudGlhbFJlcXVlc3QSNgoEbmFtZRgBIAEoCUIo4EECukgiyAEBch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI8CghuZXdfbmFtZRgCIAEoCUIl4EEBukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJEgAiAEBEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgBiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAKIAQESIQoFb3duZXIYBSABKAlCDeBBAbpIB8gBAHICYAFIA4gBARIhCg9za2lwX3ZhbGlkYXRpb24YBiABKAhCA+BBAUgEiAEBEhcKBWZvcmNlGAcgASgIQgPgQQFIBYgBARJYChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbBhkIAEoCzIyLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVNlcnZpY2VQcmluY2lwYWxIBogBARJWChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5GGUgASgLMjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlTWFuYWdlZElkZW50aXR5SAeIAQESTAoRYXp1cmVfc3RvcmFnZV9rZXkYZiABKAsyLC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTdG9yYWdlS2V5SAiIAQE6S7pISCJGChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkQAUILCglfbmV3X25hbWVCCgoIX2NvbW1lbnRCDAoKX3JlYWRfb25seUIICgZfb3duZXJCEgoQX3NraXBfdmFsaWRhdGlvbkIICgZfZm9yY2VCGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleSJQChdEZWxldGVDcmVkZW50aWFsUmVxdWVzdBI1CgRuYW1lGAEgASgJQifgQQK6SCHIAQFyHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQyxgYKEkNyZWRlbnRpYWxzU2VydmljZRKmAQoPTGlzdENyZWRlbnRpYWxzEjMudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkxpc3RDcmVkZW50aWFsc1JlcXVlc3QaNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuTGlzdENyZWRlbnRpYWxzUmVzcG9uc2UiKLpHESoPTGlzdENyZWRlbnRpYWxzgtPkkwIOEgwvY3JlZGVudGlhbHMSowEKEENyZWF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlYXRlQ3JlZGVudGlhbFJlcXVlc3QaKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm8iLLpHEioQQ3JlYXRlQ3JlZGVudGlhbILT5JMCEToBKiIML2NyZWRlbnRpYWxzEp4BCg1HZXRDcmVkZW50aWFsEjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkdldENyZWRlbnRpYWxSZXF1ZXN0GisudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkNyZWRlbnRpYWxJbmZvIi26Rw8qDUdldENyZWRlbnRpYWyC0+STAhUSEy9jcmVkZW50aWFscy97bmFtZX0SqgEKEFVwZGF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuVXBkYXRlQ3JlZGVudGlhbFJlcXVlc3QaKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm8iM7pHEioQVXBkYXRlQ3JlZGVudGlhbILT5JMCGDoBKjITL2NyZWRlbnRpYWxzL3tuYW1lfRKSAQoQRGVsZXRlQ3JlZGVudGlhbBI0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5EZWxldGVDcmVkZW50aWFsUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIwukcSKhBEZWxldGVDcmVkZW50aWFsgtPkkwIVKhMvY3JlZGVudGlhbHMve25hbWV9QpMCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQghTdmNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw",
     [
       file_buf_validate_validate,
       file_gnostic_openapi_v3_annotations,
@@ -160,31 +160,19 @@ export type CreateCredentialRequest =
     skipValidation?: boolean;
 
     /**
-     * @generated from oneof unitycatalog.credentials.v1.CreateCredentialRequest.credential
+     * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
      */
-    credential:
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
-           */
-          value: AzureServicePrincipal;
-          case: "azureServicePrincipal";
-        }
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
-           */
-          value: AzureManagedIdentity;
-          case: "azureManagedIdentity";
-        }
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
-           */
-          value: AzureStorageKey;
-          case: "azureStorageKey";
-        }
-      | { case: undefined; value?: undefined };
+    azureServicePrincipal?: AzureServicePrincipal;
+
+    /**
+     * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+     */
+    azureManagedIdentity?: AzureManagedIdentity;
+
+    /**
+     * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+     */
+    azureStorageKey?: AzureStorageKey;
   };
 
 /**
@@ -276,31 +264,19 @@ export type UpdateCredentialRequest =
     force?: boolean;
 
     /**
-     * @generated from oneof unitycatalog.credentials.v1.UpdateCredentialRequest.credential
+     * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
      */
-    credential:
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
-           */
-          value: AzureServicePrincipal;
-          case: "azureServicePrincipal";
-        }
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
-           */
-          value: AzureManagedIdentity;
-          case: "azureManagedIdentity";
-        }
-      | {
-          /**
-           * @generated from field: unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
-           */
-          value: AzureStorageKey;
-          case: "azureStorageKey";
-        }
-      | { case: undefined; value?: undefined };
+    azureServicePrincipal?: AzureServicePrincipal;
+
+    /**
+     * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+     */
+    azureManagedIdentity?: AzureManagedIdentity;
+
+    /**
+     * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+     */
+    azureStorageKey?: AzureStorageKey;
   };
 
 /**
