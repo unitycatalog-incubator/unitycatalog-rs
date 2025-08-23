@@ -18,8 +18,6 @@ pub use volumes::v1::{VolumeInfo, VolumeType};
 
 mod object;
 mod resources;
-#[cfg(feature = "sharing")]
-pub mod sharing_ext;
 
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 

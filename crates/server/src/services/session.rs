@@ -15,11 +15,11 @@ use deltalake_datafusion::table_provider::DeltaLogReplayProvider;
 use deltalake_datafusion::{KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory};
 use itertools::Itertools;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
-use unitycatalog_common::{Error, Result};
 
 use super::location::StorageLocationUrl;
 use super::sharing::{SharingExt, SharingTableReference};
 use crate::api::tables::TableManager;
+use crate::{Error, Result};
 
 const UC_RS_SYSTEM_CATALOG_NAME: &str = "uc_rs_system";
 const UC_RS_LOG_REPLAY_SCHEMA_NAME: &str = "uc_rs_log_replay";

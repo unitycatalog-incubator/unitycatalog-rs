@@ -4,16 +4,17 @@ use delta_kernel::schema::{DataType, PrimitiveType, Schema, StructField};
 use delta_kernel::{Snapshot, Version};
 use itertools::Itertools;
 
+use unitycatalog_common::ResourceIdent;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::ResourceName;
 use unitycatalog_common::models::tables::v1::*;
-use unitycatalog_common::{Error, ResourceIdent, Result};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::tables::TableHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::services::location::StorageLocationUrl;
 use crate::store::ResourceStore;
+use crate::{Error, Result};
 
 const MAX_RESULTS_TABLES: usize = 50;
 
@@ -192,7 +193,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         };
         // TODO: update the table with the current actor as owner
         // TODO: create updated_* relations
-        self.create(info.into()).await?.0.try_into()
+        Ok(self.create(info.into()).await?.0.try_into()?)
     }
 
     async fn get_table(
@@ -202,7 +203,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
     ) -> Result<TableInfo> {
         self.check_required(&request, context.as_ref()).await?;
         // TODO: get columns etc ...
-        self.get(&request.resource()).await?.0.try_into()
+        Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
     async fn get_table_exists(
@@ -216,7 +217,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
             Err(Error::NotFound) => Ok(GetTableExistsResponse {
                 table_exists: false,
             }),
-            Err(e) => Err(e),
+            Err(e) => Err(e.into()),
         }
     }
 
@@ -226,7 +227,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         self.check_required(&request, context.as_ref()).await?;
-        self.delete(&request.resource()).await
+        Ok(self.delete(&request.resource()).await?)
     }
 }
 

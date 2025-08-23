@@ -1,6 +1,7 @@
-use super::{Decision, Permission, Policy, Recipient};
-use unitycatalog_common::Result;
 use unitycatalog_common::models::ResourceIdent;
+
+use super::{Decision, Permission, Policy, Recipient};
+use crate::Result;
 
 /// Policy that always returns a constant decision.
 ///

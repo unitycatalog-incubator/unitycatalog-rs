@@ -5,13 +5,13 @@ use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::{
     ObjectLabel, ResourceExt, ResourceIdent, ResourceName, ResourceRef,
 };
-use unitycatalog_common::{Error, Result};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::credentials::CredentialHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::services::secrets::SecretManager;
 use crate::store::ResourceStore;
+use crate::{Error, Result};
 
 #[async_trait::async_trait]
 pub trait CredentialHandlerExt: Send + Sync + 'static {
@@ -143,7 +143,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             created_by: None,
             updated_by: None,
         };
-        self.create(cred.into()).await?.0.try_into()
+        Ok(self.create(cred.into()).await?.0.try_into()?)
     }
 
     async fn get_credential(
@@ -193,10 +193,11 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             created_by: None,
             updated_by: None,
         };
-        self.update(&curr.resource_ident(), cred.into())
+        Ok(self
+            .update(&curr.resource_ident(), cred.into())
             .await?
             .0
-            .try_into()
+            .try_into()?)
     }
 
     async fn delete_credential(
@@ -208,8 +209,8 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         match self.delete_secret(&request.name).await {
             // Delete the resource even if the secret is not found to allow cleanup
             // when the secret is deleted manually.
-            Ok(_) | Err(Error::NotFound) => self.delete(&request.resource()).await,
-            Err(e) => Err(e),
+            Ok(_) | Err(Error::NotFound) => Ok(self.delete(&request.resource()).await?),
+            Err(e) => Err(e.into()),
         }
     }
 }

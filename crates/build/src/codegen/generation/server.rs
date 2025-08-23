@@ -80,7 +80,7 @@ pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use unitycatalog_common::Result;
+        use crate::Result;
         use crate::api::RequestContext;
         use #mod_path::*;
         use #trait_path;

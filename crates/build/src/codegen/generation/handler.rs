@@ -36,7 +36,7 @@ pub fn handler_trait(trait_name: &str, methods: &[TokenStream], service_base: St
     let tokens = quote! {
         use async_trait::async_trait;
 
-        use unitycatalog_common::Result;
+        use crate::Result;
         use crate::api::RequestContext;
         use #mod_path::*;
 

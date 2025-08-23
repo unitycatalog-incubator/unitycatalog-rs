@@ -4,12 +4,12 @@ use std::collections::HashMap;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
-use unitycatalog_common::{Error, Result};
 
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::shares::ShareHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
+use crate::{Error, Result};
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ShareHandler for T {
@@ -27,7 +27,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         // TODO:
         // - update the share with the current actor as owner
         // - create updated_* relations
-        self.create(resource.into()).await?.0.try_into()
+        Ok(self.create(resource.into()).await?.0.try_into()?)
     }
 
     async fn delete_share(
@@ -36,7 +36,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         self.check_required(&request, context.as_ref()).await?;
-        self.delete(&request.resource()).await
+        Ok(self.delete(&request.resource()).await?)
     }
 
     async fn list_shares(
@@ -66,7 +66,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<ShareInfo> {
         self.check_required(&request, context.as_ref()).await?;
-        self.get(&request.resource()).await?.0.try_into()
+        Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
     async fn update_share(
@@ -123,7 +123,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         };
         // TODO:
         // - add update_* relations
-        self.update(&ident, resource.into()).await?.0.try_into()
+        Ok(self.update(&ident, resource.into()).await?.0.try_into()?)
     }
 }
 

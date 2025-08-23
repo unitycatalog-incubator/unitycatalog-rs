@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
 use super::handler::ExternalLocationHandler;
+use crate::Result;
 use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
-use unitycatalog_common::Result;
 use unitycatalog_common::models::external_locations::v1::*;
 pub async fn list_external_locations_handler<T: ExternalLocationHandler>(
     State(handler): State<T>,

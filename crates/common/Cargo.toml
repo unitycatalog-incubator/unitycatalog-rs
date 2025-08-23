@@ -35,9 +35,6 @@ reqwest = { version = "0.12", default-features = false, features = [
   "stream",
 ] }
 
-# used in delta-sharing implementaions
-delta_kernel = { workspace = true, optional = true }
-
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
 
@@ -87,5 +84,3 @@ integration = ["http-body-util", "mime", "axum"]
 
 # derives pyclass for generated messages
 python = ["pyo3"]
-
-sharing = ["delta_kernel"]

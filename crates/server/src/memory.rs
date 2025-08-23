@@ -5,10 +5,10 @@ use uuid::Uuid;
 
 use unitycatalog_common::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 use unitycatalog_common::models::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
-use unitycatalog_common::{Error, Result};
 
 use crate::services::secrets::SecretManager;
 use crate::store::{ResourceStore, ResourceStoreReader};
+use crate::{Error, Result};
 
 const MAX_PAGE_SIZE: usize = 10000;
 

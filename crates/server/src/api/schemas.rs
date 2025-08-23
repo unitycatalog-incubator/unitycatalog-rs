@@ -1,6 +1,5 @@
 use itertools::Itertools;
 
-use unitycatalog_common::Result;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
@@ -9,6 +8,7 @@ use super::{RequestContext, SecuredAction};
 pub use crate::codegen::schemas::SchemaHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
+use crate::{Error, Result};
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> SchemaHandler for T {
@@ -29,7 +29,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         // TODO:
         // - update the schema with the current actor as owner
         // - create updated_* relations
-        self.create(resource.into()).await?.0.try_into()
+        Ok(self.create(resource.into()).await?.0.try_into()?)
     }
 
     async fn delete_schema(
@@ -38,7 +38,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         self.check_required(&request, context.as_ref()).await?;
-        self.delete(&request.resource()).await
+        Ok(self.delete(&request.resource()).await?)
     }
 
     async fn list_schemas(
@@ -68,7 +68,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         context: RequestContext,
     ) -> Result<SchemaInfo> {
         self.check_required(&request, context.as_ref()).await?;
-        self.get(&request.resource()).await?.0.try_into()
+        Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
     async fn update_schema(
@@ -80,7 +80,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         let ident = request.resource();
         let name = ResourceName::from_naive_str_split(request.full_name);
         let [catalog_name, schema_name] = name.as_ref() else {
-            return Err(unitycatalog_common::Error::invalid_argument(
+            return Err(Error::invalid_argument(
                 "Invalid schema name - expected <catalog_name>.<schema_name>",
             ));
         };
@@ -96,7 +96,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         // TODO:
         // - add update_* relations
         // - update owner if necessary
-        self.update(&ident, resource.into()).await?.0.try_into()
+        Ok(self.update(&ident, resource.into()).await?.0.try_into()?)
     }
 }
 

@@ -1,11 +1,11 @@
 use itertools::Itertools;
 
-use unitycatalog_common::Result;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 
 use super::{RequestContext, SecuredAction};
+use crate::Result;
 pub use crate::codegen::recipients::RecipientHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
@@ -39,7 +39,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         self.check_required(&request, context.as_ref()).await?;
-        self.delete(&request.resource()).await
+        Ok(self.delete(&request.resource()).await?)
     }
 
     async fn get_recipient(
@@ -48,7 +48,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         context: RequestContext,
     ) -> Result<RecipientInfo> {
         self.check_required(&request, context.recipient()).await?;
-        self.get(&request.resource()).await?.0.try_into()
+        Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
     async fn list_recipients(

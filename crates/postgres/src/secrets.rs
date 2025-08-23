@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use unitycatalog_common::Result;
+use unitycatalog_server::Result;
 use unitycatalog_server::services::secrets::SecretManager;
 use uuid::Uuid;
 

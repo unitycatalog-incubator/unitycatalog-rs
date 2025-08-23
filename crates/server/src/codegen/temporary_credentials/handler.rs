@@ -1,6 +1,6 @@
+use crate::Result;
 use crate::api::RequestContext;
 use async_trait::async_trait;
-use unitycatalog_common::Result;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 #[async_trait]
 pub trait TemporaryCredentialHandler: Send + Sync + 'static {

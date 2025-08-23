@@ -5,15 +5,15 @@
 //! [`Resource`]. The [`Decision`] represents whether the action is allowed or denied for the given
 //! recipient.
 
-use bytes::Bytes;
 use std::sync::Arc;
+
+use bytes::Bytes;
 use strum::AsRefStr;
-
-use crate::api::SecuredAction;
 use unitycatalog_common::models::{ResourceExt, ResourceIdent};
-use unitycatalog_common::{Error, Result};
 
-pub use constant::*;
+pub use self::constant::*;
+use crate::api::SecuredAction;
+use crate::{Error, Result};
 
 mod constant;
 
