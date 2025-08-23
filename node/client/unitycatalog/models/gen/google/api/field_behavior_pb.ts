@@ -16,7 +16,11 @@
 // @generated from file google/api/field_behavior.proto (package google.api, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenExtension, GenFile } from "@bufbuild/protobuf/codegenv2";
+import type {
+  GenEnum,
+  GenExtension,
+  GenFile,
+} from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, extDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
 import type { FieldOptions } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
@@ -24,8 +28,12 @@ import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
 /**
  * Describes the file google/api/field_behavior.proto.
  */
-export const file_google_api_field_behavior: GenFile = /*@__PURE__*/
-  fileDesc("Ch9nb29nbGUvYXBpL2ZpZWxkX2JlaGF2aW9yLnByb3RvEgpnb29nbGUuYXBpKrYBCg1GaWVsZEJlaGF2aW9yEh4KGkZJRUxEX0JFSEFWSU9SX1VOU1BFQ0lGSUVEEAASDAoIT1BUSU9OQUwQARIMCghSRVFVSVJFRBACEg8KC09VVFBVVF9PTkxZEAMSDgoKSU5QVVRfT05MWRAEEg0KCUlNTVVUQUJMRRAFEhIKDlVOT1JERVJFRF9MSVNUEAYSFQoRTk9OX0VNUFRZX0RFRkFVTFQQBxIOCgpJREVOVElGSUVSEAg6ZAoOZmllbGRfYmVoYXZpb3ISHS5nb29nbGUucHJvdG9idWYuRmllbGRPcHRpb25zGJwIIAMoDjIZLmdvb2dsZS5hcGkuRmllbGRCZWhhdmlvckICEABSDWZpZWxkQmVoYXZpb3JCsAEKDmNvbS5nb29nbGUuYXBpQhJGaWVsZEJlaGF2aW9yUHJvdG9QAVpBZ29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9hcGkvYW5ub3RhdGlvbnM7YW5ub3RhdGlvbnOiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z", [file_google_protobuf_descriptor]);
+export const file_google_api_field_behavior: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Ch9nb29nbGUvYXBpL2ZpZWxkX2JlaGF2aW9yLnByb3RvEgpnb29nbGUuYXBpKrYBCg1GaWVsZEJlaGF2aW9yEh4KGkZJRUxEX0JFSEFWSU9SX1VOU1BFQ0lGSUVEEAASDAoIT1BUSU9OQUwQARIMCghSRVFVSVJFRBACEg8KC09VVFBVVF9PTkxZEAMSDgoKSU5QVVRfT05MWRAEEg0KCUlNTVVUQUJMRRAFEhIKDlVOT1JERVJFRF9MSVNUEAYSFQoRTk9OX0VNUFRZX0RFRkFVTFQQBxIOCgpJREVOVElGSUVSEAg6ZAoOZmllbGRfYmVoYXZpb3ISHS5nb29nbGUucHJvdG9idWYuRmllbGRPcHRpb25zGJwIIAMoDjIZLmdvb2dsZS5hcGkuRmllbGRCZWhhdmlvckICEABSDWZpZWxkQmVoYXZpb3JCsAEKDmNvbS5nb29nbGUuYXBpQhJGaWVsZEJlaGF2aW9yUHJvdG9QAVpBZ29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9hcGkvYW5ub3RhdGlvbnM7YW5ub3RhdGlvbnOiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z",
+    [file_google_protobuf_descriptor],
+  );
 
 /**
  * An indicator of the behavior of a given field (for example, that a field
@@ -133,7 +141,8 @@ export enum FieldBehavior {
 /**
  * Describes the enum google.api.FieldBehavior.
  */
-export const FieldBehaviorSchema: GenEnum<FieldBehavior> = /*@__PURE__*/
+export const FieldBehaviorSchema: GenEnum<FieldBehavior> =
+  /*@__PURE__*/
   enumDesc(file_google_api_field_behavior, 0);
 
 /**
@@ -152,6 +161,6 @@ export const FieldBehaviorSchema: GenEnum<FieldBehavior> = /*@__PURE__*/
  *
  * @generated from extension: repeated google.api.FieldBehavior field_behavior = 1052 [packed = false];
  */
-export const field_behavior: GenExtension<FieldOptions, FieldBehavior[]> = /*@__PURE__*/
+export const field_behavior: GenExtension<FieldOptions, FieldBehavior[]> =
+  /*@__PURE__*/
   extDesc(file_google_api_field_behavior, 0);
-

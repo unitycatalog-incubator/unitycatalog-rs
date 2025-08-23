@@ -2,15 +2,18 @@
 // @generated from file unitycatalog/profiles/v1/svc.proto (package unitycatalog.profiles.v1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/profiles/v1/svc.proto.
  */
-export const file_unitycatalog_profiles_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("CiJ1bml0eWNhdGFsb2cvcHJvZmlsZXMvdjEvc3ZjLnByb3RvEhh1bml0eWNhdGFsb2cucHJvZmlsZXMudjEihgEKB1Byb2ZpbGUSIQoZc2hhcmVfY3JlZGVudGlhbHNfdmVyc2lvbhgBIAEoBRIQCghlbmRwb2ludBgCIAEoCRIUCgxiZWFyZXJfdG9rZW4YAyABKAkSHAoPZXhwaXJhdGlvbl90aW1lGAQgASgJSACIAQFCEgoQX2V4cGlyYXRpb25fdGltZSImChRDcmVhdGVQcm9maWxlUmVxdWVzdBIOCgZjbGFpbXMYASABKAwiSwoVQ3JlYXRlUHJvZmlsZVJlc3BvbnNlEjIKB3Byb2ZpbGUYASABKAsyIS51bml0eWNhdGFsb2cucHJvZmlsZXMudjEuUHJvZmlsZUL+AQocY29tLnVuaXR5Y2F0YWxvZy5wcm9maWxlcy52MUIIU3ZjUHJvdG9QAVpSZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvcHJvZmlsZXMvdjE7cHJvZmlsZXN2MaICA1VQWKoCGFVuaXR5Y2F0YWxvZy5Qcm9maWxlcy5WMcoCGFVuaXR5Y2F0YWxvZ1xQcm9maWxlc1xWMeICJFVuaXR5Y2F0YWxvZ1xQcm9maWxlc1xWMVxHUEJNZXRhZGF0YeoCGlVuaXR5Y2F0YWxvZzo6UHJvZmlsZXM6OlYxYgZwcm90bzM");
+export const file_unitycatalog_profiles_v1_svc: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiJ1bml0eWNhdGFsb2cvcHJvZmlsZXMvdjEvc3ZjLnByb3RvEhh1bml0eWNhdGFsb2cucHJvZmlsZXMudjEihgEKB1Byb2ZpbGUSIQoZc2hhcmVfY3JlZGVudGlhbHNfdmVyc2lvbhgBIAEoBRIQCghlbmRwb2ludBgCIAEoCRIUCgxiZWFyZXJfdG9rZW4YAyABKAkSHAoPZXhwaXJhdGlvbl90aW1lGAQgASgJSACIAQFCEgoQX2V4cGlyYXRpb25fdGltZSImChRDcmVhdGVQcm9maWxlUmVxdWVzdBIOCgZjbGFpbXMYASABKAwiSwoVQ3JlYXRlUHJvZmlsZVJlc3BvbnNlEjIKB3Byb2ZpbGUYASABKAsyIS51bml0eWNhdGFsb2cucHJvZmlsZXMudjEuUHJvZmlsZUL+AQocY29tLnVuaXR5Y2F0YWxvZy5wcm9maWxlcy52MUIIU3ZjUHJvdG9QAVpSZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvcHJvZmlsZXMvdjE7cHJvZmlsZXN2MaICA1VQWKoCGFVuaXR5Y2F0YWxvZy5Qcm9maWxlcy5WMcoCGFVuaXR5Y2F0YWxvZ1xQcm9maWxlc1xWMeICJFVuaXR5Y2F0YWxvZ1xQcm9maWxlc1xWMVxHUEJNZXRhZGF0YeoCGlVuaXR5Y2F0YWxvZzo6UHJvZmlsZXM6OlYxYgZwcm90bzM",
+  );
 
 /**
  * @generated from message unitycatalog.profiles.v1.Profile
@@ -53,7 +56,8 @@ export type Profile = Message<"unitycatalog.profiles.v1.Profile"> & {
  * Describes the message unitycatalog.profiles.v1.Profile.
  * Use `create(ProfileSchema)` to create a new message.
  */
-export const ProfileSchema: GenMessage<Profile> = /*@__PURE__*/
+export const ProfileSchema: GenMessage<Profile> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_profiles_v1_svc, 0);
 
 /**
@@ -61,20 +65,22 @@ export const ProfileSchema: GenMessage<Profile> = /*@__PURE__*/
  *
  * @generated from message unitycatalog.profiles.v1.CreateProfileRequest
  */
-export type CreateProfileRequest = Message<"unitycatalog.profiles.v1.CreateProfileRequest"> & {
-  /**
-   * serialized profile claims
-   *
-   * @generated from field: bytes claims = 1;
-   */
-  claims: Uint8Array;
-};
+export type CreateProfileRequest =
+  Message<"unitycatalog.profiles.v1.CreateProfileRequest"> & {
+    /**
+     * serialized profile claims
+     *
+     * @generated from field: bytes claims = 1;
+     */
+    claims: Uint8Array;
+  };
 
 /**
  * Describes the message unitycatalog.profiles.v1.CreateProfileRequest.
  * Use `create(CreateProfileRequestSchema)` to create a new message.
  */
-export const CreateProfileRequestSchema: GenMessage<CreateProfileRequest> = /*@__PURE__*/
+export const CreateProfileRequestSchema: GenMessage<CreateProfileRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_profiles_v1_svc, 1);
 
 /**
@@ -82,19 +88,20 @@ export const CreateProfileRequestSchema: GenMessage<CreateProfileRequest> = /*@_
  *
  * @generated from message unitycatalog.profiles.v1.CreateProfileResponse
  */
-export type CreateProfileResponse = Message<"unitycatalog.profiles.v1.CreateProfileResponse"> & {
-  /**
-   * the profile file
-   *
-   * @generated from field: unitycatalog.profiles.v1.Profile profile = 1;
-   */
-  profile?: Profile;
-};
+export type CreateProfileResponse =
+  Message<"unitycatalog.profiles.v1.CreateProfileResponse"> & {
+    /**
+     * the profile file
+     *
+     * @generated from field: unitycatalog.profiles.v1.Profile profile = 1;
+     */
+    profile?: Profile;
+  };
 
 /**
  * Describes the message unitycatalog.profiles.v1.CreateProfileResponse.
  * Use `create(CreateProfileResponseSchema)` to create a new message.
  */
-export const CreateProfileResponseSchema: GenMessage<CreateProfileResponse> = /*@__PURE__*/
+export const CreateProfileResponseSchema: GenMessage<CreateProfileResponse> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_profiles_v1_svc, 2);
-

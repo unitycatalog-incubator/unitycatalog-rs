@@ -347,7 +347,7 @@ pub mod quota_failure {
         /// exceeded".
         #[prost(string, tag="2")]
         pub description: ::prost::alloc::string::String,
-        /// The API Service from which the `QuotaFailure.Violation` orginates. In
+        /// The API Service from which the `QuotaFailure.Violation` originates. In
         /// some cases, Quota issues originate from an API Service other than the one
         /// that was called. In other words, a dependency of the called API Service
         /// could be the cause of the `QuotaFailure`, and this field would have the

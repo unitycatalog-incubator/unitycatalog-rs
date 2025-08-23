@@ -17,17 +17,21 @@
 // @generated from file google/api/expr/v1beta1/decl.proto (package google.api.expr.v1beta1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Expr } from "./expr_pb";
 import { file_google_api_expr_v1beta1_expr } from "./expr_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/expr/v1beta1/decl.proto.
  */
-export const file_google_api_expr_v1beta1_decl: GenFile = /*@__PURE__*/
-  fileDesc("CiJnb29nbGUvYXBpL2V4cHIvdjFiZXRhMS9kZWNsLnByb3RvEhdnb29nbGUuYXBpLmV4cHIudjFiZXRhMSKlAQoERGVjbBIKCgJpZBgBIAEoBRIMCgRuYW1lGAIgASgJEgsKA2RvYxgDIAEoCRIzCgVpZGVudBgEIAEoCzIiLmdvb2dsZS5hcGkuZXhwci52MWJldGExLklkZW50RGVjbEgAEjkKCGZ1bmN0aW9uGAUgASgLMiUuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRnVuY3Rpb25EZWNsSABCBgoEa2luZCJcCghEZWNsVHlwZRIKCgJpZBgBIAEoBRIMCgR0eXBlGAIgASgJEjYKC3R5cGVfcGFyYW1zGAQgAygLMiEuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRGVjbFR5cGUiagoJSWRlbnREZWNsEi8KBHR5cGUYAyABKAsyIS5nb29nbGUuYXBpLmV4cHIudjFiZXRhMS5EZWNsVHlwZRIsCgV2YWx1ZRgEIAEoCzIdLmdvb2dsZS5hcGkuZXhwci52MWJldGExLkV4cHIikwEKDEZ1bmN0aW9uRGVjbBIwCgRhcmdzGAEgAygLMiIuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuSWRlbnREZWNsEjYKC3JldHVybl90eXBlGAIgASgLMiEuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRGVjbFR5cGUSGQoRcmVjZWl2ZXJfZnVuY3Rpb24YAyABKAhC5wEKG2NvbS5nb29nbGUuYXBpLmV4cHIudjFiZXRhMUIJRGVjbFByb3RvUAFaO2dvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2V4cHIvdjFiZXRhMTtleHBy+AEBogIDR0FFqgIXR29vZ2xlLkFwaS5FeHByLlYxYmV0YTHKAhdHb29nbGVcQXBpXEV4cHJcVjFiZXRhMeICI0dvb2dsZVxBcGlcRXhwclxWMWJldGExXEdQQk1ldGFkYXRh6gIaR29vZ2xlOjpBcGk6OkV4cHI6OlYxYmV0YTFiBnByb3RvMw", [file_google_api_expr_v1beta1_expr]);
+export const file_google_api_expr_v1beta1_decl: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiJnb29nbGUvYXBpL2V4cHIvdjFiZXRhMS9kZWNsLnByb3RvEhdnb29nbGUuYXBpLmV4cHIudjFiZXRhMSKlAQoERGVjbBIKCgJpZBgBIAEoBRIMCgRuYW1lGAIgASgJEgsKA2RvYxgDIAEoCRIzCgVpZGVudBgEIAEoCzIiLmdvb2dsZS5hcGkuZXhwci52MWJldGExLklkZW50RGVjbEgAEjkKCGZ1bmN0aW9uGAUgASgLMiUuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRnVuY3Rpb25EZWNsSABCBgoEa2luZCJcCghEZWNsVHlwZRIKCgJpZBgBIAEoBRIMCgR0eXBlGAIgASgJEjYKC3R5cGVfcGFyYW1zGAQgAygLMiEuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRGVjbFR5cGUiagoJSWRlbnREZWNsEi8KBHR5cGUYAyABKAsyIS5nb29nbGUuYXBpLmV4cHIudjFiZXRhMS5EZWNsVHlwZRIsCgV2YWx1ZRgEIAEoCzIdLmdvb2dsZS5hcGkuZXhwci52MWJldGExLkV4cHIikwEKDEZ1bmN0aW9uRGVjbBIwCgRhcmdzGAEgAygLMiIuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuSWRlbnREZWNsEjYKC3JldHVybl90eXBlGAIgASgLMiEuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRGVjbFR5cGUSGQoRcmVjZWl2ZXJfZnVuY3Rpb24YAyABKAhC5wEKG2NvbS5nb29nbGUuYXBpLmV4cHIudjFiZXRhMUIJRGVjbFByb3RvUAFaO2dvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2V4cHIvdjFiZXRhMTtleHBy+AEBogIDR0FFqgIXR29vZ2xlLkFwaS5FeHByLlYxYmV0YTHKHadHb29nbGVcQXBpXEV4cHJcVjFiZXRhMeICI0dvb2dsZVxBcGlcRXhwclxWMWJldGExXEdQQk1ldGFkYXRh6gIaR29vZ2xlOjpBcGk6OkV4cHI6OlYxYmV0YTFiBnByb3RvMw",
+    [file_google_api_expr_v1beta1_expr],
+  );
 
 /**
  * A declaration.
@@ -61,30 +65,34 @@ export type Decl = Message<"google.api.expr.v1beta1.Decl"> & {
    *
    * @generated from oneof google.api.expr.v1beta1.Decl.kind
    */
-  kind: {
-    /**
-     * An identifier declaration.
-     *
-     * @generated from field: google.api.expr.v1beta1.IdentDecl ident = 4;
-     */
-    value: IdentDecl;
-    case: "ident";
-  } | {
-    /**
-     * A function declaration.
-     *
-     * @generated from field: google.api.expr.v1beta1.FunctionDecl function = 5;
-     */
-    value: FunctionDecl;
-    case: "function";
-  } | { case: undefined; value?: undefined };
+  kind:
+    | {
+        /**
+         * An identifier declaration.
+         *
+         * @generated from field: google.api.expr.v1beta1.IdentDecl ident = 4;
+         */
+        value: IdentDecl;
+        case: "ident";
+      }
+    | {
+        /**
+         * A function declaration.
+         *
+         * @generated from field: google.api.expr.v1beta1.FunctionDecl function = 5;
+         */
+        value: FunctionDecl;
+        case: "function";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.api.expr.v1beta1.Decl.
  * Use `create(DeclSchema)` to create a new message.
  */
-export const DeclSchema: GenMessage<Decl> = /*@__PURE__*/
+export const DeclSchema: GenMessage<Decl> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_decl, 0);
 
 /**
@@ -123,7 +131,8 @@ export type DeclType = Message<"google.api.expr.v1beta1.DeclType"> & {
  * Describes the message google.api.expr.v1beta1.DeclType.
  * Use `create(DeclTypeSchema)` to create a new message.
  */
-export const DeclTypeSchema: GenMessage<DeclType> = /*@__PURE__*/
+export const DeclTypeSchema: GenMessage<DeclType> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_decl, 1);
 
 /**
@@ -151,7 +160,8 @@ export type IdentDecl = Message<"google.api.expr.v1beta1.IdentDecl"> & {
  * Describes the message google.api.expr.v1beta1.IdentDecl.
  * Use `create(IdentDeclSchema)` to create a new message.
  */
-export const IdentDeclSchema: GenMessage<IdentDecl> = /*@__PURE__*/
+export const IdentDeclSchema: GenMessage<IdentDecl> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_decl, 2);
 
 /**
@@ -186,6 +196,6 @@ export type FunctionDecl = Message<"google.api.expr.v1beta1.FunctionDecl"> & {
  * Describes the message google.api.expr.v1beta1.FunctionDecl.
  * Use `create(FunctionDeclSchema)` to create a new message.
  */
-export const FunctionDeclSchema: GenMessage<FunctionDecl> = /*@__PURE__*/
+export const FunctionDeclSchema: GenMessage<FunctionDecl> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_decl, 3);
-

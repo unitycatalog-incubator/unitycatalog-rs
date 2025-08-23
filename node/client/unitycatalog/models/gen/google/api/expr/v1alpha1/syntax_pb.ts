@@ -16,17 +16,33 @@
 // @generated from file google/api/expr/v1alpha1/syntax.proto (package google.api.expr.v1alpha1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenEnum,
+  GenFile,
+  GenMessage,
+} from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Duration, NullValue, Timestamp } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_duration, file_google_protobuf_struct, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
+import {
+  file_google_protobuf_duration,
+  file_google_protobuf_struct,
+  file_google_protobuf_timestamp,
+} from "@bufbuild/protobuf/wkt";
 
 /**
  * Describes the file google/api/expr/v1alpha1/syntax.proto.
  */
-export const file_google_api_expr_v1alpha1_syntax: GenFile = /*@__PURE__*/
-  fileDesc("CiVnb29nbGUvYXBpL2V4cHIvdjFhbHBoYTEvc3ludGF4LnByb3RvEhhnb29nbGUuYXBpLmV4cHIudjFhbHBoYTEidQoKUGFyc2VkRXhwchIsCgRleHByGAIgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHISOQoLc291cmNlX2luZm8YAyABKAsyJC5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuU291cmNlSW5mbyKKCwoERXhwchIKCgJpZBgCIAEoAxI4Cgpjb25zdF9leHByGAMgASgLMiIuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkNvbnN0YW50SAASOgoKaWRlbnRfZXhwchgEIAEoCzIkLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByLklkZW50SAASPAoLc2VsZWN0X2V4cHIYBSABKAsyJS5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwci5TZWxlY3RIABI4CgljYWxsX2V4cHIYBiABKAsyIy5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwci5DYWxsSAASPgoJbGlzdF9leHByGAcgASgLMikuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIuQ3JlYXRlTGlzdEgAEkIKC3N0cnVjdF9leHByGAggASgLMisuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIuQ3JlYXRlU3RydWN0SAASSgoSY29tcHJlaGVuc2lvbl9leHByGAkgASgLMiwuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIuQ29tcHJlaGVuc2lvbkgAGhUKBUlkZW50EgwKBG5hbWUYASABKAkaWwoGU2VsZWN0Ei8KB29wZXJhbmQYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwchINCgVmaWVsZBgCIAEoCRIRCgl0ZXN0X29ubHkYAyABKAgadgoEQ2FsbBIuCgZ0YXJnZXQYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwchIQCghmdW5jdGlvbhgCIAEoCRIsCgRhcmdzGAMgAygLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIaWAoKQ3JlYXRlTGlzdBIwCghlbGVtZW50cxgBIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByEhgKEG9wdGlvbmFsX2luZGljZXMYAiADKAUamQIKDENyZWF0ZVN0cnVjdBIUCgxtZXNzYWdlX25hbWUYASABKAkSQgoHZW50cmllcxgCIAMoCzIxLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByLkNyZWF0ZVN0cnVjdC5FbnRyeRquAQoFRW50cnkSCgoCaWQYASABKAMSEwoJZmllbGRfa2V5GAIgASgJSAASMQoHbWFwX2tleRgDIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHBySAASLQoFdmFsdWUYBCABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwchIWCg5vcHRpb25hbF9lbnRyeRgFIAEoCEIKCghrZXlfa2luZBrIAgoNQ29tcHJlaGVuc2lvbhIQCghpdGVyX3ZhchgBIAEoCRIRCglpdGVyX3ZhcjIYCCABKAkSMgoKaXRlcl9yYW5nZRgCIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByEhAKCGFjY3VfdmFyGAMgASgJEjEKCWFjY3VfaW5pdBgEIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByEjYKDmxvb3BfY29uZGl0aW9uGAUgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHISMQoJbG9vcF9zdGVwGAYgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHISLgoGcmVzdWx0GAcgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHJCCwoJZXhwcl9raW5kIs0CCghDb25zdGFudBIwCgpudWxsX3ZhbHVlGAEgASgOMhouZ29vZ2xlLnByb3RvYnVmLk51bGxWYWx1ZUgAEhQKCmJvb2xfdmFsdWUYAiABKAhIABIVCgtpbnQ2NF92YWx1ZRgDIAEoA0gAEhYKDHVpbnQ2NF92YWx1ZRgEIAEoBEgAEhYKDGRvdWJsZV92YWx1ZRgFIAEoAUgAEhYKDHN0cmluZ192YWx1ZRgGIAEoCUgAEhUKC2J5dGVzX3ZhbHVlGAcgASgMSAASNwoOZHVyYXRpb25fdmFsdWUYCCABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb25CAhgBSAASOQoPdGltZXN0YW1wX3ZhbHVlGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEICGAFIAEIPCg1jb25zdGFudF9raW5kIvwFCgpTb3VyY2VJbmZvEhYKDnN5bnRheF92ZXJzaW9uGAEgASgJEhAKCGxvY2F0aW9uGAIgASgJEhQKDGxpbmVfb2Zmc2V0cxgDIAMoBRJGCglwb3NpdGlvbnMYBCADKAsyMy5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuU291cmNlSW5mby5Qb3NpdGlvbnNFbnRyeRJJCgttYWNyb19jYWxscxgFIAMoCzI0Lmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvLk1hY3JvQ2FsbHNFbnRyeRJCCgpleHRlbnNpb25zGAYgAygLMi4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlNvdXJjZUluZm8uRXh0ZW5zaW9uGtECCglFeHRlbnNpb24SCgoCaWQYASABKAkSVQoTYWZmZWN0ZWRfY29tcG9uZW50cxgCIAMoDjI4Lmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvLkV4dGVuc2lvbi5Db21wb25lbnQSRwoHdmVyc2lvbhgDIAEoCzI2Lmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvLkV4dGVuc2lvbi5WZXJzaW9uGicKB1ZlcnNpb24SDQoFbWFqb3IYASABKAMSDQoFbWlub3IYAiABKAMibwoJQ29tcG9uZW50EhkKFUNPTVBPTkVOVF9VTlNQRUNJRklFRBAAEhQKEENPTVBPTkVOVF9QQVJTRVIQARIaChZDT01QT05FTlRfVFlQRV9DSEVDS0VSEAISFQoRQ09NUE9ORU5UX1JVTlRJTUUQAxowCg5Qb3NpdGlvbnNFbnRyeRILCgNrZXkYASABKAMSDQoFdmFsdWUYAiABKAU6AjgBGlEKD01hY3JvQ2FsbHNFbnRyeRILCgNrZXkYASABKAMSLQoFdmFsdWUYAiABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwcjoCOAEiUAoOU291cmNlUG9zaXRpb24SEAoIbG9jYXRpb24YASABKAkSDgoGb2Zmc2V0GAIgASgFEgwKBGxpbmUYAyABKAUSDgoGY29sdW1uGAQgASgFQu8BChxjb20uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExQgtTeW50YXhQcm90b1ABWjxnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9leHByL3YxYWxwaGExO2V4cHL4AQGiAgNHQUWqAhhHb29nbGUuQXBpLkV4cHIuVjFhbHBoYTHKAhhHb29nbGVcQXBpXEV4cHJcVjFhbHBoYTHiAiRHb29nbGVcQXBpXEV4cHJcVjFhbHBoYTFcR1BCTWV0YWRhdGHqAhtHb29nbGU6OkFwaTo6RXhwcjo6VjFhbHBoYTFiBnByb3RvMw", [file_google_protobuf_duration, file_google_protobuf_struct, file_google_protobuf_timestamp]);
+export const file_google_api_expr_v1alpha1_syntax: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiVnb29nbGUvYXBpL2V4cHIvdjFhbHBoYTEvc3ludGF4LnByb3RvEhhnb29nbGUuYXBpLmV4cHIudjFhbHBoYTEidQoKUGFyc2VkRXhwchIsCgRleHByGAIgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHISOQoLc291cmNlX2luZm8YAyABKAsyJC5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuU291cmNlSW5mbyKKCwoERXhwchIKCgJpZBgCIAEoAxI4Cgpjb25zdF9leHByGAMgASgLMiIuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkNvbnN0YW50SAASOgoKaWRlbnRfZXhwchgEIAEoCzIkLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByLklkZW50SAASPAoLc2VsZWN0X2V4cHIYBSABKAsyJS5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwci5TZWxlY3RIABI4CgljYWxsX2V4cHIYBiABKAsyIt5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwci5DYWxsSAASPgoJbGlzdF9leHByGAcgASgLMikuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIuQ3JlYXRlTGlzdEgAEkIKC3N0cnVjdF9leHByGAggASgLMisuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIuQ3JlYXRlU3RydWN0SAASSgoSY29tcHJlaGVuc2lvbl9leHByGAkgASgLMiwuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIuQ29tcHJlaGVuc2lvbkgAGhUKBUlkZW50EgwKBG5hbWUYASABKAkaWwoGU2VsZWN0Ei8KB29wZXJhbmQYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwchINCgVmaWVsZBgCIAEoCRIRCgl0ZXN0X29ubHkYAyABKAgadgoEQ2FsbBIuCgZ0YXJnZXQYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwchIQCghmdW5jdGlvbhgCIAEoCRIsCgRhcmdzGAMgAygLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIaWAoKQ3JlYXRlTGlzdBIwCghlbGVtZW50cxgBIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByEhgKEG9wdGlvbmFsX2luZGljZXMYAiADKAUamQIKDENyZWF0ZVN0cnVjdBIUCgxtZXNzYWdlX25hbWUYASABKAkSQgoHZW50cmllcxgCIAMoCzIxLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByLkNyZWF0ZVN0cnVjdC5FbnRyeRquAQoFRW50cnkSCgoCaWQYASABKAMSEwoJZmllbGRfa2V5GAIgASgJSAASMQoHbWFwX2tleRgDIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHBySAASLQoFdmFsdWUYBCABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwchIWCg5vcHRpb25hbF9lbnRyeRgFIAEoCEIKCghrZXlfa2luZBrIAgoNQ29tcHJlaGVuc2lvbhIQCghpdGVyX3ZhchgBIAEoCRIRCglpdGVyX3ZhcjIYCCABKAkSMgoKaXRlcl9yYW5nZRgCIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByEhAKCGFjY3VfdmFyGAMgASgJEjEKCWFjY3VfaW5pdBgEIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5FeHByEjYKDmxvb3BfY29uZGl0aW9uGAUgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHISMQoJbG9vcF9zdGVwGAYgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHISLgoGcmVzdWx0GAcgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHJCCwoJZXhwcl9raW5kIs0CCghDb25zdGFudBIwCgpudWxsX3ZhbHVlGAEgASgOMhouZ29vZ2xlLnByb3RvYnVmLk51bGxWYWx1ZUgAEhQKCmJvb2xfdmFsdWUYAiABKAhIABIVCgtpbnQ2NF92YWx1ZRgDIAEoA0gAEhYKDHVpbnQ2NF92YWx1ZRgEIAEoBEgAEhYKDGRvdWJsZV92YWx1ZRgFIAEoAUgAEhYKDHN0cmluZ192YWx1ZRgGIAEoCUgAEhUKC2J5dGVzX3ZhbHVlGAcgASgMSAASNowOZHVyYXRpb25fdmFsdWUYCCABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb25CAhgBSAASOQoPdGltZXN0YW1wX3ZhbHVlGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEICGAFIAEIPCg1jb25zdGFudF9raW5kIvwFCgpTb3VyY2VJbmZvEhYKDnN5bnTheF92ZXJzaW9uGAEgASgJEhAKCGxvY2F0aW9uGAIgASgJEhQKDGxpbmVfb2Zmc2V0cxgDIAMoBRJGCglwb3NpdGlvbnMYBCADKAsyMy5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuU291cmNlSW5mby5Qb3NpdGlvbnNFbnRyeRJJCgttYWNyb19jYWxscxgFIAMoCzI0Lmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvLk1hY3JvQ2FsbHNFbnRyeRJCCgpleHRlbnNpb25zGAYgAygLMi4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlNvdXJjZUluZm8uRXh0ZW5zaW9uGtECCglFeHRlbnNpb24SCgoCaWQYASABKAkSVQoTYWZmZWN0ZWRfY29tcG9uZW50cxgCIAMoDjI4Lmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvLkV4dGVuc2lvbi5Db21wb25lbnQSRwoHdmVyc2lvbhgDIAEoCzI2Lmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvLkV4dGVuc2lvbi5WZXJzaW9uGicKB1ZlcnNpb24SDQoFbWFqb3IYASABKAMSDQoFbWlub3ITAiABKAMibwoJQ29tcG9uZW50EhkKFUNPTVBPTkVOVF9VTlNQRUNJRklFRBAAEhQKEENPTVBPTkVOVF9QQVJTRVIQARIaChZDT01QT05FTlRfVFlQRV9DSEVDS0VSEAISFQoRQ09NUE9OUR5UX1JVTlRJTUUQAxowCg5Qb3NpdGlvbnNFbnRyeRILCgNrZXkYASABKAMSDQoFdmFsdWUYAiABKAU6AjgBGlEKD01hY3JvQ2FsbHNFbnRyeRILCgNrZXkYASABKAMSLQoFdmFsdWUYAiABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRXhwcjoCOAEiUAoOU291cmNlUG9zaXRpb24SEAoIbG9jYXRpb24YASABKAkSDgoGb2Zmc2V0GAIgASgFEgwKBGxpbmUYAyABKAUSDgoGY29sdW1uGAQgASgFQu8BChxjb20uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExQgtTeW50YXhQcm90b1ABWjxnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9leHByL3YxYWxwaGExO2V4cHL4AQGiAgNHQUWqAhhHb29nbGUuQXBpLkV4cHIuVjFhbHBoYTHKAhhHb29nbGVcQXBpXEV4cHJcVjFhbHBoYTHiAiRHb29nbGVcQXBpXEV4cHJcVjFhbHBoYTFcR1BCTWV0YWRhdGHqAhtHb29nbGU6OkFwaTo6RXhwcjo6VjFhbHBoYTFiBnByb3RvMw",
+    [
+      file_google_protobuf_duration,
+      file_google_protobuf_struct,
+      file_google_protobuf_timestamp,
+    ],
+  );
 
 /**
  * An expression together with source information as returned by the parser.
@@ -53,7 +69,8 @@ export type ParsedExpr = Message<"google.api.expr.v1alpha1.ParsedExpr"> & {
  * Describes the message google.api.expr.v1alpha1.ParsedExpr.
  * Use `create(ParsedExprSchema)` to create a new message.
  */
-export const ParsedExprSchema: GenMessage<ParsedExpr> = /*@__PURE__*/
+export const ParsedExprSchema: GenMessage<ParsedExpr> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 0);
 
 /**
@@ -92,70 +109,79 @@ export type Expr = Message<"google.api.expr.v1alpha1.Expr"> & {
    *
    * @generated from oneof google.api.expr.v1alpha1.Expr.expr_kind
    */
-  exprKind: {
-    /**
-     * A literal expression.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Constant const_expr = 3;
-     */
-    value: Constant;
-    case: "constExpr";
-  } | {
-    /**
-     * An identifier expression.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Expr.Ident ident_expr = 4;
-     */
-    value: Expr_Ident;
-    case: "identExpr";
-  } | {
-    /**
-     * A field selection expression, e.g. `request.auth`.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Expr.Select select_expr = 5;
-     */
-    value: Expr_Select;
-    case: "selectExpr";
-  } | {
-    /**
-     * A call expression, including calls to predefined functions and operators.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Expr.Call call_expr = 6;
-     */
-    value: Expr_Call;
-    case: "callExpr";
-  } | {
-    /**
-     * A list creation expression.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Expr.CreateList list_expr = 7;
-     */
-    value: Expr_CreateList;
-    case: "listExpr";
-  } | {
-    /**
-     * A map or message creation expression.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Expr.CreateStruct struct_expr = 8;
-     */
-    value: Expr_CreateStruct;
-    case: "structExpr";
-  } | {
-    /**
-     * A comprehension expression.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Expr.Comprehension comprehension_expr = 9;
-     */
-    value: Expr_Comprehension;
-    case: "comprehensionExpr";
-  } | { case: undefined; value?: undefined };
+  exprKind:
+    | {
+        /**
+         * A literal expression.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Constant const_expr = 3;
+         */
+        value: Constant;
+        case: "constExpr";
+      }
+    | {
+        /**
+         * An identifier expression.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Expr.Ident ident_expr = 4;
+         */
+        value: Expr_Ident;
+        case: "identExpr";
+      }
+    | {
+        /**
+         * A field selection expression, e.g. `request.auth`.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Expr.Select select_expr = 5;
+         */
+        value: Expr_Select;
+        case: "selectExpr";
+      }
+    | {
+        /**
+         * A call expression, including calls to predefined functions and operators.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Expr.Call call_expr = 6;
+         */
+        value: Expr_Call;
+        case: "callExpr";
+      }
+    | {
+        /**
+         * A list creation expression.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Expr.CreateList list_expr = 7;
+         */
+        value: Expr_CreateList;
+        case: "listExpr";
+      }
+    | {
+        /**
+         * A map or message creation expression.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Expr.CreateStruct struct_expr = 8;
+         */
+        value: Expr_CreateStruct;
+        case: "structExpr";
+      }
+    | {
+        /**
+         * A comprehension expression.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Expr.Comprehension comprehension_expr = 9;
+         */
+        value: Expr_Comprehension;
+        case: "comprehensionExpr";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Expr.
  * Use `create(ExprSchema)` to create a new message.
  */
-export const ExprSchema: GenMessage<Expr> = /*@__PURE__*/
+export const ExprSchema: GenMessage<Expr> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1);
 
 /**
@@ -180,7 +206,8 @@ export type Expr_Ident = Message<"google.api.expr.v1alpha1.Expr.Ident"> & {
  * Describes the message google.api.expr.v1alpha1.Expr.Ident.
  * Use `create(Expr_IdentSchema)` to create a new message.
  */
-export const Expr_IdentSchema: GenMessage<Expr_Ident> = /*@__PURE__*/
+export const Expr_IdentSchema: GenMessage<Expr_Ident> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 0);
 
 /**
@@ -223,7 +250,8 @@ export type Expr_Select = Message<"google.api.expr.v1alpha1.Expr.Select"> & {
  * Describes the message google.api.expr.v1alpha1.Expr.Select.
  * Use `create(Expr_SelectSchema)` to create a new message.
  */
-export const Expr_SelectSchema: GenMessage<Expr_Select> = /*@__PURE__*/
+export const Expr_SelectSchema: GenMessage<Expr_Select> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 1);
 
 /**
@@ -261,7 +289,8 @@ export type Expr_Call = Message<"google.api.expr.v1alpha1.Expr.Call"> & {
  * Describes the message google.api.expr.v1alpha1.Expr.Call.
  * Use `create(Expr_CallSchema)` to create a new message.
  */
-export const Expr_CallSchema: GenMessage<Expr_Call> = /*@__PURE__*/
+export const Expr_CallSchema: GenMessage<Expr_Call> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 2);
 
 /**
@@ -272,32 +301,34 @@ export const Expr_CallSchema: GenMessage<Expr_Call> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.Expr.CreateList
  */
-export type Expr_CreateList = Message<"google.api.expr.v1alpha1.Expr.CreateList"> & {
-  /**
-   * The elements part of the list.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.Expr elements = 1;
-   */
-  elements: Expr[];
+export type Expr_CreateList =
+  Message<"google.api.expr.v1alpha1.Expr.CreateList"> & {
+    /**
+     * The elements part of the list.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.Expr elements = 1;
+     */
+    elements: Expr[];
 
-  /**
-   * The indices within the elements list which are marked as optional
-   * elements.
-   *
-   * When an optional-typed value is present, the value it contains
-   * is included in the list. If the optional-typed value is absent, the list
-   * element is omitted from the CreateList result.
-   *
-   * @generated from field: repeated int32 optional_indices = 2;
-   */
-  optionalIndices: number[];
-};
+    /**
+     * The indices within the elements list which are marked as optional
+     * elements.
+     *
+     * When an optional-typed value is present, the value it contains
+     * is included in the list. If the optional-typed value is absent, the list
+     * element is omitted from the CreateList result.
+     *
+     * @generated from field: repeated int32 optional_indices = 2;
+     */
+    optionalIndices: number[];
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Expr.CreateList.
  * Use `create(Expr_CreateListSchema)` to create a new message.
  */
-export const Expr_CreateListSchema: GenMessage<Expr_CreateList> = /*@__PURE__*/
+export const Expr_CreateListSchema: GenMessage<Expr_CreateList> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 3);
 
 /**
@@ -309,28 +340,30 @@ export const Expr_CreateListSchema: GenMessage<Expr_CreateList> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.Expr.CreateStruct
  */
-export type Expr_CreateStruct = Message<"google.api.expr.v1alpha1.Expr.CreateStruct"> & {
-  /**
-   * The type name of the message to be created, empty when creating map
-   * literals.
-   *
-   * @generated from field: string message_name = 1;
-   */
-  messageName: string;
+export type Expr_CreateStruct =
+  Message<"google.api.expr.v1alpha1.Expr.CreateStruct"> & {
+    /**
+     * The type name of the message to be created, empty when creating map
+     * literals.
+     *
+     * @generated from field: string message_name = 1;
+     */
+    messageName: string;
 
-  /**
-   * The entries in the creation expression.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.Expr.CreateStruct.Entry entries = 2;
-   */
-  entries: Expr_CreateStruct_Entry[];
-};
+    /**
+     * The entries in the creation expression.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.Expr.CreateStruct.Entry entries = 2;
+     */
+    entries: Expr_CreateStruct_Entry[];
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Expr.CreateStruct.
  * Use `create(Expr_CreateStructSchema)` to create a new message.
  */
-export const Expr_CreateStructSchema: GenMessage<Expr_CreateStruct> = /*@__PURE__*/
+export const Expr_CreateStructSchema: GenMessage<Expr_CreateStruct> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 4);
 
 /**
@@ -338,63 +371,68 @@ export const Expr_CreateStructSchema: GenMessage<Expr_CreateStruct> = /*@__PURE_
  *
  * @generated from message google.api.expr.v1alpha1.Expr.CreateStruct.Entry
  */
-export type Expr_CreateStruct_Entry = Message<"google.api.expr.v1alpha1.Expr.CreateStruct.Entry"> & {
-  /**
-   * Required. An id assigned to this node by the parser which is unique
-   * in a given expression tree. This is used to associate type
-   * information and other attributes to the node.
-   *
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
-
-  /**
-   * The `Entry` key kinds.
-   *
-   * @generated from oneof google.api.expr.v1alpha1.Expr.CreateStruct.Entry.key_kind
-   */
-  keyKind: {
+export type Expr_CreateStruct_Entry =
+  Message<"google.api.expr.v1alpha1.Expr.CreateStruct.Entry"> & {
     /**
-     * The field key for a message creator statement.
+     * Required. An id assigned to this node by the parser which is unique
+     * in a given expression tree. This is used to associate type
+     * information and other attributes to the node.
      *
-     * @generated from field: string field_key = 2;
+     * @generated from field: int64 id = 1;
      */
-    value: string;
-    case: "fieldKey";
-  } | {
+    id: bigint;
+
     /**
-     * The key expression for a map creation statement.
+     * The `Entry` key kinds.
      *
-     * @generated from field: google.api.expr.v1alpha1.Expr map_key = 3;
+     * @generated from oneof google.api.expr.v1alpha1.Expr.CreateStruct.Entry.key_kind
      */
-    value: Expr;
-    case: "mapKey";
-  } | { case: undefined; value?: undefined };
+    keyKind:
+      | {
+          /**
+           * The field key for a message creator statement.
+           *
+           * @generated from field: string field_key = 2;
+           */
+          value: string;
+          case: "fieldKey";
+        }
+      | {
+          /**
+           * The key expression for a map creation statement.
+           *
+           * @generated from field: google.api.expr.v1alpha1.Expr map_key = 3;
+           */
+          value: Expr;
+          case: "mapKey";
+        }
+      | { case: undefined; value?: undefined };
 
-  /**
-   * Required. The value assigned to the key.
-   *
-   * If the optional_entry field is true, the expression must resolve to an
-   * optional-typed value. If the optional value is present, the key will be
-   * set; however, if the optional value is absent, the key will be unset.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Expr value = 4;
-   */
-  value?: Expr;
+    /**
+     * Required. The value assigned to the key.
+     *
+     * If the optional_entry field is true, the expression must resolve to an
+     * optional-typed value. If the optional value is present, the key will be
+     * set; however, if the optional value is absent, the key will be unset.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Expr value = 4;
+     */
+    value?: Expr;
 
-  /**
-   * Whether the key-value pair is optional.
-   *
-   * @generated from field: bool optional_entry = 5;
-   */
-  optionalEntry: boolean;
-};
+    /**
+     * Whether the key-value pair is optional.
+     *
+     * @generated from field: bool optional_entry = 5;
+     */
+    optionalEntry: boolean;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Expr.CreateStruct.Entry.
  * Use `create(Expr_CreateStruct_EntrySchema)` to create a new message.
  */
-export const Expr_CreateStruct_EntrySchema: GenMessage<Expr_CreateStruct_Entry> = /*@__PURE__*/
+export const Expr_CreateStruct_EntrySchema: GenMessage<Expr_CreateStruct_Entry> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 4, 0);
 
 /**
@@ -457,81 +495,83 @@ export const Expr_CreateStruct_EntrySchema: GenMessage<Expr_CreateStruct_Entry> 
  *
  * @generated from message google.api.expr.v1alpha1.Expr.Comprehension
  */
-export type Expr_Comprehension = Message<"google.api.expr.v1alpha1.Expr.Comprehension"> & {
-  /**
-   * The name of the first iteration variable.
-   * When the iter_range is a list, this variable is the list element.
-   * When the iter_range is a map, this variable is the map entry key.
-   *
-   * @generated from field: string iter_var = 1;
-   */
-  iterVar: string;
+export type Expr_Comprehension =
+  Message<"google.api.expr.v1alpha1.Expr.Comprehension"> & {
+    /**
+     * The name of the first iteration variable.
+     * When the iter_range is a list, this variable is the list element.
+     * When the iter_range is a map, this variable is the map entry key.
+     *
+     * @generated from field: string iter_var = 1;
+     */
+    iterVar: string;
 
-  /**
-   * The name of the second iteration variable, empty if not set.
-   * When the iter_range is a list, this variable is the integer index.
-   * When the iter_range is a map, this variable is the map entry value.
-   * This field is only set for comprehension v2 macros.
-   *
-   * @generated from field: string iter_var2 = 8;
-   */
-  iterVar2: string;
+    /**
+     * The name of the second iteration variable, empty if not set.
+     * When the iter_range is a list, this variable is the integer index.
+     * When the iter_range is a map, this variable is the map entry value.
+     * This field is only set for comprehension v2 macros.
+     *
+     * @generated from field: string iter_var2 = 8;
+     */
+    iterVar2: string;
 
-  /**
-   * The range over which the comprehension iterates.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Expr iter_range = 2;
-   */
-  iterRange?: Expr;
+    /**
+     * The range over which the comprehension iterates.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Expr iter_range = 2;
+     */
+    iterRange?: Expr;
 
-  /**
-   * The name of the variable used for accumulation of the result.
-   *
-   * @generated from field: string accu_var = 3;
-   */
-  accuVar: string;
+    /**
+     * The name of the variable used for accumulation of the result.
+     *
+     * @generated from field: string accu_var = 3;
+     */
+    accuVar: string;
 
-  /**
-   * The initial value of the accumulator.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Expr accu_init = 4;
-   */
-  accuInit?: Expr;
+    /**
+     * The initial value of the accumulator.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Expr accu_init = 4;
+     */
+    accuInit?: Expr;
 
-  /**
-   * An expression which can contain iter_var, iter_var2, and accu_var.
-   *
-   * Returns false when the result has been computed and may be used as
-   * a hint to short-circuit the remainder of the comprehension.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Expr loop_condition = 5;
-   */
-  loopCondition?: Expr;
+    /**
+     * An expression which can contain iter_var, iter_var2, and accu_var.
+     *
+     * Returns false when the result has been computed and may be used as
+     * a hint to short-circuit the remainder of the comprehension.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Expr loop_condition = 5;
+     */
+    loopCondition?: Expr;
 
-  /**
-   * An expression which can contain iter_var, iter_var2, and accu_var.
-   *
-   * Computes the next value of accu_var.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Expr loop_step = 6;
-   */
-  loopStep?: Expr;
+    /**
+     * An expression which can contain iter_var, iter_var2, and accu_var.
+     *
+     * Computes the next value of accu_var.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Expr loop_step = 6;
+     */
+    loopStep?: Expr;
 
-  /**
-   * An expression which can contain accu_var.
-   *
-   * Computes the result.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Expr result = 7;
-   */
-  result?: Expr;
-};
+    /**
+     * An expression which can contain accu_var.
+     *
+     * Computes the result.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Expr result = 7;
+     */
+    result?: Expr;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Expr.Comprehension.
  * Use `create(Expr_ComprehensionSchema)` to create a new message.
  */
-export const Expr_ComprehensionSchema: GenMessage<Expr_Comprehension> = /*@__PURE__*/
+export const Expr_ComprehensionSchema: GenMessage<Expr_Comprehension> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 1, 5);
 
 /**
@@ -558,92 +598,103 @@ export type Constant = Message<"google.api.expr.v1alpha1.Constant"> & {
    *
    * @generated from oneof google.api.expr.v1alpha1.Constant.constant_kind
    */
-  constantKind: {
-    /**
-     * null value.
-     *
-     * @generated from field: google.protobuf.NullValue null_value = 1;
-     */
-    value: NullValue;
-    case: "nullValue";
-  } | {
-    /**
-     * boolean value.
-     *
-     * @generated from field: bool bool_value = 2;
-     */
-    value: boolean;
-    case: "boolValue";
-  } | {
-    /**
-     * int64 value.
-     *
-     * @generated from field: int64 int64_value = 3;
-     */
-    value: bigint;
-    case: "int64Value";
-  } | {
-    /**
-     * uint64 value.
-     *
-     * @generated from field: uint64 uint64_value = 4;
-     */
-    value: bigint;
-    case: "uint64Value";
-  } | {
-    /**
-     * double value.
-     *
-     * @generated from field: double double_value = 5;
-     */
-    value: number;
-    case: "doubleValue";
-  } | {
-    /**
-     * string value.
-     *
-     * @generated from field: string string_value = 6;
-     */
-    value: string;
-    case: "stringValue";
-  } | {
-    /**
-     * bytes value.
-     *
-     * @generated from field: bytes bytes_value = 7;
-     */
-    value: Uint8Array;
-    case: "bytesValue";
-  } | {
-    /**
-     * protobuf.Duration value.
-     *
-     * Deprecated: duration is no longer considered a builtin cel type.
-     *
-     * @generated from field: google.protobuf.Duration duration_value = 8 [deprecated = true];
-     * @deprecated
-     */
-    value: Duration;
-    case: "durationValue";
-  } | {
-    /**
-     * protobuf.Timestamp value.
-     *
-     * Deprecated: timestamp is no longer considered a builtin cel type.
-     *
-     * @generated from field: google.protobuf.Timestamp timestamp_value = 9 [deprecated = true];
-     * @deprecated
-     */
-    value: Timestamp;
-    case: "timestampValue";
-  } | { case: undefined; value?: undefined };
+  constantKind:
+    | {
+        /**
+         * null value.
+         *
+         * @generated from field: google.protobuf.NullValue null_value = 1;
+         */
+        value: NullValue;
+        case: "nullValue";
+      }
+    | {
+        /**
+         * boolean value.
+         *
+         * @generated from field: bool bool_value = 2;
+         */
+        value: boolean;
+        case: "boolValue";
+      }
+    | {
+        /**
+         * int64 value.
+         *
+         * @generated from field: int64 int64_value = 3;
+         */
+        value: bigint;
+        case: "int64Value";
+      }
+    | {
+        /**
+         * uint64 value.
+         *
+         * @generated from field: uint64 uint64_value = 4;
+         */
+        value: bigint;
+        case: "uint64Value";
+      }
+    | {
+        /**
+         * double value.
+         *
+         * @generated from field: double double_value = 5;
+         */
+        value: number;
+        case: "doubleValue";
+      }
+    | {
+        /**
+         * string value.
+         *
+         * @generated from field: string string_value = 6;
+         */
+        value: string;
+        case: "stringValue";
+      }
+    | {
+        /**
+         * bytes value.
+         *
+         * @generated from field: bytes bytes_value = 7;
+         */
+        value: Uint8Array;
+        case: "bytesValue";
+      }
+    | {
+        /**
+         * protobuf.Duration value.
+         *
+         * Deprecated: duration is no longer considered a builtin cel type.
+         *
+         * @generated from field: google.protobuf.Duration duration_value = 8 [deprecated = true];
+         * @deprecated
+         */
+        value: Duration;
+        case: "durationValue";
+      }
+    | {
+        /**
+         * protobuf.Timestamp value.
+         *
+         * Deprecated: timestamp is no longer considered a builtin cel type.
+         *
+         * @generated from field: google.protobuf.Timestamp timestamp_value = 9 [deprecated = true];
+         * @deprecated
+         */
+        value: Timestamp;
+        case: "timestampValue";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Constant.
  * Use `create(ConstantSchema)` to create a new message.
  */
-export const ConstantSchema: GenMessage<Constant> = /*@__PURE__*/
+export const ConstantSchema: GenMessage<Constant> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 2);
 
 /**
@@ -722,7 +773,8 @@ export type SourceInfo = Message<"google.api.expr.v1alpha1.SourceInfo"> & {
  * Describes the message google.api.expr.v1alpha1.SourceInfo.
  * Use `create(SourceInfoSchema)` to create a new message.
  */
-export const SourceInfoSchema: GenMessage<SourceInfo> = /*@__PURE__*/
+export const SourceInfoSchema: GenMessage<SourceInfo> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 3);
 
 /**
@@ -730,38 +782,40 @@ export const SourceInfoSchema: GenMessage<SourceInfo> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.SourceInfo.Extension
  */
-export type SourceInfo_Extension = Message<"google.api.expr.v1alpha1.SourceInfo.Extension"> & {
-  /**
-   * Identifier for the extension. Example: constant_folding
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
+export type SourceInfo_Extension =
+  Message<"google.api.expr.v1alpha1.SourceInfo.Extension"> & {
+    /**
+     * Identifier for the extension. Example: constant_folding
+     *
+     * @generated from field: string id = 1;
+     */
+    id: string;
 
-  /**
-   * If set, the listed components must understand the extension for the
-   * expression to evaluate correctly.
-   *
-   * This field has set semantics, repeated values should be deduplicated.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.SourceInfo.Extension.Component affected_components = 2;
-   */
-  affectedComponents: SourceInfo_Extension_Component[];
+    /**
+     * If set, the listed components must understand the extension for the
+     * expression to evaluate correctly.
+     *
+     * This field has set semantics, repeated values should be deduplicated.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.SourceInfo.Extension.Component affected_components = 2;
+     */
+    affectedComponents: SourceInfo_Extension_Component[];
 
-  /**
-   * Version info. May be skipped if it isn't meaningful for the extension.
-   * (for example constant_folding might always be v0.0).
-   *
-   * @generated from field: google.api.expr.v1alpha1.SourceInfo.Extension.Version version = 3;
-   */
-  version?: SourceInfo_Extension_Version;
-};
+    /**
+     * Version info. May be skipped if it isn't meaningful for the extension.
+     * (for example constant_folding might always be v0.0).
+     *
+     * @generated from field: google.api.expr.v1alpha1.SourceInfo.Extension.Version version = 3;
+     */
+    version?: SourceInfo_Extension_Version;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.SourceInfo.Extension.
  * Use `create(SourceInfo_ExtensionSchema)` to create a new message.
  */
-export const SourceInfo_ExtensionSchema: GenMessage<SourceInfo_Extension> = /*@__PURE__*/
+export const SourceInfo_ExtensionSchema: GenMessage<SourceInfo_Extension> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 3, 0);
 
 /**
@@ -769,29 +823,31 @@ export const SourceInfo_ExtensionSchema: GenMessage<SourceInfo_Extension> = /*@_
  *
  * @generated from message google.api.expr.v1alpha1.SourceInfo.Extension.Version
  */
-export type SourceInfo_Extension_Version = Message<"google.api.expr.v1alpha1.SourceInfo.Extension.Version"> & {
-  /**
-   * Major version changes indicate different required support level from
-   * the required components.
-   *
-   * @generated from field: int64 major = 1;
-   */
-  major: bigint;
+export type SourceInfo_Extension_Version =
+  Message<"google.api.expr.v1alpha1.SourceInfo.Extension.Version"> & {
+    /**
+     * Major version changes indicate different required support level from
+     * the required components.
+     *
+     * @generated from field: int64 major = 1;
+     */
+    major: bigint;
 
-  /**
-   * Minor version changes must not change the observed behavior from
-   * existing implementations, but may be provided informationally.
-   *
-   * @generated from field: int64 minor = 2;
-   */
-  minor: bigint;
-};
+    /**
+     * Minor version changes must not change the observed behavior from
+     * existing implementations, but may be provided informationally.
+     *
+     * @generated from field: int64 minor = 2;
+     */
+    minor: bigint;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.SourceInfo.Extension.Version.
  * Use `create(SourceInfo_Extension_VersionSchema)` to create a new message.
  */
-export const SourceInfo_Extension_VersionSchema: GenMessage<SourceInfo_Extension_Version> = /*@__PURE__*/
+export const SourceInfo_Extension_VersionSchema: GenMessage<SourceInfo_Extension_Version> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 3, 0, 0);
 
 /**
@@ -834,7 +890,8 @@ export enum SourceInfo_Extension_Component {
 /**
  * Describes the enum google.api.expr.v1alpha1.SourceInfo.Extension.Component.
  */
-export const SourceInfo_Extension_ComponentSchema: GenEnum<SourceInfo_Extension_Component> = /*@__PURE__*/
+export const SourceInfo_Extension_ComponentSchema: GenEnum<SourceInfo_Extension_Component> =
+  /*@__PURE__*/
   enumDesc(file_google_api_expr_v1alpha1_syntax, 3, 0, 0);
 
 /**
@@ -842,42 +899,43 @@ export const SourceInfo_Extension_ComponentSchema: GenEnum<SourceInfo_Extension_
  *
  * @generated from message google.api.expr.v1alpha1.SourcePosition
  */
-export type SourcePosition = Message<"google.api.expr.v1alpha1.SourcePosition"> & {
-  /**
-   * The soucre location name (e.g. file name).
-   *
-   * @generated from field: string location = 1;
-   */
-  location: string;
+export type SourcePosition =
+  Message<"google.api.expr.v1alpha1.SourcePosition"> & {
+    /**
+     * The source location name (e.g. file name).
+     *
+     * @generated from field: string location = 1;
+     */
+    location: string;
 
-  /**
-   * The UTF-8 code unit offset.
-   *
-   * @generated from field: int32 offset = 2;
-   */
-  offset: number;
+    /**
+     * The UTF-8 code unit offset.
+     *
+     * @generated from field: int32 offset = 2;
+     */
+    offset: number;
 
-  /**
-   * The 1-based index of the starting line in the source text
-   * where the issue occurs, or 0 if unknown.
-   *
-   * @generated from field: int32 line = 3;
-   */
-  line: number;
+    /**
+     * The 1-based index of the starting line in the source text
+     * where the issue occurs, or 0 if unknown.
+     *
+     * @generated from field: int32 line = 3;
+     */
+    line: number;
 
-  /**
-   * The 0-based index of the starting position within the line of source text
-   * where the issue occurs.  Only meaningful if line is nonzero.
-   *
-   * @generated from field: int32 column = 4;
-   */
-  column: number;
-};
+    /**
+     * The 0-based index of the starting position within the line of source text
+     * where the issue occurs.  Only meaningful if line is nonzero.
+     *
+     * @generated from field: int32 column = 4;
+     */
+    column: number;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.SourcePosition.
  * Use `create(SourcePositionSchema)` to create a new message.
  */
-export const SourcePositionSchema: GenMessage<SourcePosition> = /*@__PURE__*/
+export const SourcePositionSchema: GenMessage<SourcePosition> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_syntax, 4);
-

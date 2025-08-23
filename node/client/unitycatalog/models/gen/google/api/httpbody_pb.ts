@@ -16,17 +16,21 @@
 // @generated from file google/api/httpbody.proto (package google.api, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_any } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/httpbody.proto.
  */
-export const file_google_api_httpbody: GenFile = /*@__PURE__*/
-  fileDesc("Chlnb29nbGUvYXBpL2h0dHBib2R5LnByb3RvEgpnb29nbGUuYXBpIlgKCEh0dHBCb2R5EhQKDGNvbnRlbnRfdHlwZRgBIAEoCRIMCgRkYXRhGAIgASgMEigKCmV4dGVuc2lvbnMYAyADKAsyFC5nb29nbGUucHJvdG9idWYuQW55QqUBCg5jb20uZ29vZ2xlLmFwaUINSHR0cGJvZHlQcm90b1ABWjtnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9odHRwYm9keTtodHRwYm9keaICA0dBWKoCCkdvb2dsZS5BcGnKAgpHb29nbGVcQXBp4gIWR29vZ2xlXEFwaVxHUEJNZXRhZGF0YeoCC0dvb2dsZTo6QXBpYgZwcm90bzM", [file_google_protobuf_any]);
+export const file_google_api_httpbody: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chlnb29nbGUvYXBpL2h0dHBib2R5LnByb3RvEgpnb29nbGUuYXBpIlgKCEh0dHBCb2R5EhQKDGNvbnRlbnRfdHlwZRgBIAEoCRIMCgRkYXRhGAIgASgMEigKCmV4dGVuc2lvbnMYAyADKAsyFC5nb29nbGUucHJvdG9idWYuQW55QqUBCg5jb20uZ29vZ2xlLmFwaUINSHR0cGJvZHlQcm90b1ABWjtnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9odHRwYm9keTtodHRwYm9keaICA0dBWKoCCkdvb2dsZS5BcGnKAgpHb29nbGVcQXBp4gIWR29vZ2xlXEFwaVxHUEJNZXRhZGF0YeoCC0dvb2dsZTo6QXBpYgZwcm90bzM",
+    [file_google_protobuf_any],
+  );
 
 /**
  * Message that represents an arbitrary HTTP body. It should only be used for
@@ -103,6 +107,6 @@ export type HttpBody = Message<"google.api.HttpBody"> & {
  * Describes the message google.api.HttpBody.
  * Use `create(HttpBodySchema)` to create a new message.
  */
-export const HttpBodySchema: GenMessage<HttpBody> = /*@__PURE__*/
+export const HttpBodySchema: GenMessage<HttpBody> =
+  /*@__PURE__*/
   messageDesc(file_google_api_httpbody, 0);
-

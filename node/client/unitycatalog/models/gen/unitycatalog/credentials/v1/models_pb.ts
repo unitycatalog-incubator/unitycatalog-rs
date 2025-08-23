@@ -2,136 +2,164 @@
 // @generated from file unitycatalog/credentials/v1/models.proto (package unitycatalog.credentials.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenEnum,
+  GenFile,
+  GenMessage,
+} from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_client } from "../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/credentials/v1/models.proto.
  */
-export const file_unitycatalog_credentials_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIioQUKDkNyZWRlbnRpYWxJbmZvEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSNQoHcHVycG9zZRgDIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlEhEKCXJlYWRfb25seRgEIAEoCBIUCgdjb21tZW50GAUgASgJSAGIAQESEgoFb3duZXIYBiABKAlIAogBARIXCgpjcmVhdGVkX2F0GAcgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCSABKANIBYgBARIXCgp1cGRhdGVkX2J5GAogASgJSAaIAQESIAoYdXNlZF9mb3JfbWFuYWdlZF9zdG9yYWdlGAsgASgIEhYKCWZ1bGxfbmFtZRgMIAEoCUgHiAEBElUKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgAElMKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIABJJChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlIAEIMCgpjcmVkZW50aWFsQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfZnVsbF9uYW1lKjwKB1B1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgsKB1NUT1JBR0UQARILCgdTRVJWSUNFEAJClgIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCC01vZGVsc1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
+export const file_unitycatalog_credentials_v1_models: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIioQUKDkNyZWRlbnRpYWxJbmZvEgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSNQoHcHVycG9zZRgDIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlEhEKCXJlYWRfb25seRgEIAEoCBIUCgdjb21tZW50GAUgASgJSAGIAQESEgoFb3duZXIYBiABKAlIAogBARIXCgpjcmVhdGVkX2F0GAcgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCSABKANIBYgBARIXCgp1cGRhdGVkX2J5GAogASgJSAaIAQESIAoYdXNlZF9mb3JfbWFuYWdlZF9zdG9yYWdlGAsgASgIEhYKCWZ1bGxfbmFtZRgMIAEoCUgHiAEBElUKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgAElMKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIABJJChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlIAEIMCgpjcmVkZW50aWFsQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfZnVsbF9uYW1lKjwKB1B1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgsKB1NUT1JBR0UQARILCgdTRVJWSUNFEAJClgIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCC01vZGVsc1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z",
+    [
+      file_buf_validate_validate,
+      file_google_api_annotations,
+      file_google_api_client,
+      file_google_api_field_behavior,
+      file_google_api_resource,
+      file_google_protobuf_struct,
+    ],
+  );
 
 /**
  * @generated from message unitycatalog.credentials.v1.AzureServicePrincipal
  */
-export type AzureServicePrincipal = Message<"unitycatalog.credentials.v1.AzureServicePrincipal"> & {
-  /**
-   * The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application.
-   *
-   * @generated from field: string directory_id = 1;
-   */
-  directoryId: string;
-
-  /**
-   * The application ID of the application registration within the referenced AAD tenant.
-   *
-   * @generated from field: string application_id = 2;
-   */
-  applicationId: string;
-
-  /**
-   * @generated from oneof unitycatalog.credentials.v1.AzureServicePrincipal.credential
-   */
-  credential: {
+export type AzureServicePrincipal =
+  Message<"unitycatalog.credentials.v1.AzureServicePrincipal"> & {
     /**
-     * The client secret generated for the above app ID in AAD.
+     * The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application.
      *
-     * @generated from field: string client_secret = 3;
+     * @generated from field: string directory_id = 1;
      */
-    value: string;
-    case: "clientSecret";
-  } | {
-    /**
-     * Location of the file containing a federated token.
-     *
-     * Specifically useful for workload identity federation.
-     *
-     * @generated from field: string federated_token_file = 5;
-     */
-    value: string;
-    case: "federatedTokenFile";
-  } | { case: undefined; value?: undefined };
-};
+    directoryId: string;
 
-/**
- * Describes the message unitycatalog.credentials.v1.AzureServicePrincipal.
- * Use `create(AzureServicePrincipalSchema)` to create a new message.
- */
-export const AzureServicePrincipalSchema: GenMessage<AzureServicePrincipal> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_credentials_v1_models, 0);
-
-/**
- * @generated from message unitycatalog.credentials.v1.AzureManagedIdentity
- */
-export type AzureManagedIdentity = Message<"unitycatalog.credentials.v1.AzureManagedIdentity"> & {
-  /**
-   * @generated from oneof unitycatalog.credentials.v1.AzureManagedIdentity.identifier
-   */
-  identifier: {
-    /**
-     * Object id for use with managed identity authentication
-     *
-     * @generated from field: string object_id = 1;
-     */
-    value: string;
-    case: "objectId";
-  } | {
     /**
      * The application ID of the application registration within the referenced AAD tenant.
      *
      * @generated from field: string application_id = 2;
      */
-    value: string;
-    case: "applicationId";
-  } | {
+    applicationId: string;
+
     /**
-     * Msi resource id for use with managed identity authentication
-     *
-     * @generated from field: string msi_resource_id = 3;
+     * @generated from oneof unitycatalog.credentials.v1.AzureServicePrincipal.credential
      */
-    value: string;
-    case: "msiResourceId";
-  } | { case: undefined; value?: undefined };
-};
+    credential:
+      | {
+          /**
+           * The client secret generated for the above app ID in AAD.
+           *
+           * @generated from field: string client_secret = 3;
+           */
+          value: string;
+          case: "clientSecret";
+        }
+      | {
+          /**
+           * Location of the file containing a federated token.
+           *
+           * Specifically useful for workload identity federation.
+           *
+           * @generated from field: string federated_token_file = 5;
+           */
+          value: string;
+          case: "federatedTokenFile";
+        }
+      | { case: undefined; value?: undefined };
+  };
+
+/**
+ * Describes the message unitycatalog.credentials.v1.AzureServicePrincipal.
+ * Use `create(AzureServicePrincipalSchema)` to create a new message.
+ */
+export const AzureServicePrincipalSchema: GenMessage<AzureServicePrincipal> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_credentials_v1_models, 0);
+
+/**
+ * @generated from message unitycatalog.credentials.v1.AzureManagedIdentity
+ */
+export type AzureManagedIdentity =
+  Message<"unitycatalog.credentials.v1.AzureManagedIdentity"> & {
+    /**
+     * @generated from oneof unitycatalog.credentials.v1.AzureManagedIdentity.identifier
+     */
+    identifier:
+      | {
+          /**
+           * Object id for use with managed identity authentication
+           *
+           * @generated from field: string object_id = 1;
+           */
+          value: string;
+          case: "objectId";
+        }
+      | {
+          /**
+           * The application ID of the application registration within the referenced AAD tenant.
+           *
+           * @generated from field: string application_id = 2;
+           */
+          value: string;
+          case: "applicationId";
+        }
+      | {
+          /**
+           * Msi resource id for use with managed identity authentication
+           *
+           * @generated from field: string msi_resource_id = 3;
+           */
+          value: string;
+          case: "msiResourceId";
+        }
+      | { case: undefined; value?: undefined };
+  };
 
 /**
  * Describes the message unitycatalog.credentials.v1.AzureManagedIdentity.
  * Use `create(AzureManagedIdentitySchema)` to create a new message.
  */
-export const AzureManagedIdentitySchema: GenMessage<AzureManagedIdentity> = /*@__PURE__*/
+export const AzureManagedIdentitySchema: GenMessage<AzureManagedIdentity> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 1);
 
 /**
  * @generated from message unitycatalog.credentials.v1.AzureStorageKey
  */
-export type AzureStorageKey = Message<"unitycatalog.credentials.v1.AzureStorageKey"> & {
-  /**
-   * The name of the storage account.
-   *
-   * @generated from field: string account_name = 1;
-   */
-  accountName: string;
+export type AzureStorageKey =
+  Message<"unitycatalog.credentials.v1.AzureStorageKey"> & {
+    /**
+     * The name of the storage account.
+     *
+     * @generated from field: string account_name = 1;
+     */
+    accountName: string;
 
-  /**
-   * The account key of the storage account.
-   *
-   * @generated from field: string account_key = 2;
-   */
-  accountKey: string;
-};
+    /**
+     * The account key of the storage account.
+     *
+     * @generated from field: string account_key = 2;
+     */
+    accountKey: string;
+  };
 
 /**
  * Describes the message unitycatalog.credentials.v1.AzureStorageKey.
  * Use `create(AzureStorageKeySchema)` to create a new message.
  */
-export const AzureStorageKeySchema: GenMessage<AzureStorageKey> = /*@__PURE__*/
+export const AzureStorageKeySchema: GenMessage<AzureStorageKey> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 2);
 
 /**
@@ -139,20 +167,22 @@ export const AzureStorageKeySchema: GenMessage<AzureStorageKey> = /*@__PURE__*/
  *
  * @generated from message unitycatalog.credentials.v1.AwsIamRoleConfig
  */
-export type AwsIamRoleConfig = Message<"unitycatalog.credentials.v1.AwsIamRoleConfig"> & {
-  /**
-   * The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
-   *
-   * @generated from field: string role_arn = 1;
-   */
-  roleArn: string;
-};
+export type AwsIamRoleConfig =
+  Message<"unitycatalog.credentials.v1.AwsIamRoleConfig"> & {
+    /**
+     * The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
+     *
+     * @generated from field: string role_arn = 1;
+     */
+    roleArn: string;
+  };
 
 /**
  * Describes the message unitycatalog.credentials.v1.AwsIamRoleConfig.
  * Use `create(AwsIamRoleConfigSchema)` to create a new message.
  */
-export const AwsIamRoleConfigSchema: GenMessage<AwsIamRoleConfig> = /*@__PURE__*/
+export const AwsIamRoleConfigSchema: GenMessage<AwsIamRoleConfig> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 3);
 
 /**
@@ -188,132 +218,139 @@ export type AwsIamRole = Message<"unitycatalog.credentials.v1.AwsIamRole"> & {
  * Describes the message unitycatalog.credentials.v1.AwsIamRole.
  * Use `create(AwsIamRoleSchema)` to create a new message.
  */
-export const AwsIamRoleSchema: GenMessage<AwsIamRole> = /*@__PURE__*/
+export const AwsIamRoleSchema: GenMessage<AwsIamRole> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 4);
 
 /**
  * @generated from message unitycatalog.credentials.v1.CredentialInfo
  */
-export type CredentialInfo = Message<"unitycatalog.credentials.v1.CredentialInfo"> & {
-  /**
-   * The unique identifier of the credential.
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * The credential name.
-   *
-   * The name must be unique among storage and service credentials within the metastore.
-   *
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * Indicates the purpose of the credential.
-   *
-   * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 3;
-   */
-  purpose: Purpose;
-
-  /**
-   * Whether the credential is usable only for read operations.
-   *
-   * Only applicable when purpose is STORAGE.
-   *
-   * @generated from field: bool read_only = 4;
-   */
-  readOnly: boolean;
-
-  /**
-   * User-provided free-form text description.
-   *
-   * @generated from field: optional string comment = 5;
-   */
-  comment?: string;
-
-  /**
-   * Username of current owner of credential.
-   *
-   * @generated from field: optional string owner = 6;
-   */
-  owner?: string;
-
-  /**
-   * Time at which this credential was created, in epoch milliseconds.
-   *
-   * @generated from field: optional int64 created_at = 7;
-   */
-  createdAt?: bigint;
-
-  /**
-   * Username of credential creator.
-   *
-   * @generated from field: optional string created_by = 8;
-   */
-  createdBy?: string;
-
-  /**
-   * Time at which this credential was last updated, in epoch milliseconds.
-   *
-   * @generated from field: optional int64 updated_at = 9;
-   */
-  updatedAt?: bigint;
-
-  /**
-   * Username of user who last modified credential.
-   *
-   * @generated from field: optional string updated_by = 10;
-   */
-  updatedBy?: string;
-
-  /**
-   * Whether this credential is the current metastore's root storage credential.
-   *
-   * Only applicable when purpose is STORAGE.
-   *
-   * @generated from field: bool used_for_managed_storage = 11;
-   */
-  usedForManagedStorage: boolean;
-
-  /**
-   * The full name of the credential.
-   *
-   * @generated from field: optional string full_name = 12;
-   */
-  fullName?: string;
-
-  /**
-   * @generated from oneof unitycatalog.credentials.v1.CredentialInfo.credential
-   */
-  credential: {
+export type CredentialInfo =
+  Message<"unitycatalog.credentials.v1.CredentialInfo"> & {
     /**
-     * @generated from field: unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
+     * The unique identifier of the credential.
+     *
+     * @generated from field: string id = 1;
      */
-    value: AzureServicePrincipal;
-    case: "azureServicePrincipal";
-  } | {
+    id: string;
+
     /**
-     * @generated from field: unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+     * The credential name.
+     *
+     * The name must be unique among storage and service credentials within the metastore.
+     *
+     * @generated from field: string name = 2;
      */
-    value: AzureManagedIdentity;
-    case: "azureManagedIdentity";
-  } | {
+    name: string;
+
     /**
-     * @generated from field: unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+     * Indicates the purpose of the credential.
+     *
+     * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 3;
      */
-    value: AzureStorageKey;
-    case: "azureStorageKey";
-  } | { case: undefined; value?: undefined };
-};
+    purpose: Purpose;
+
+    /**
+     * Whether the credential is usable only for read operations.
+     *
+     * Only applicable when purpose is STORAGE.
+     *
+     * @generated from field: bool read_only = 4;
+     */
+    readOnly: boolean;
+
+    /**
+     * User-provided free-form text description.
+     *
+     * @generated from field: optional string comment = 5;
+     */
+    comment?: string;
+
+    /**
+     * Username of current owner of credential.
+     *
+     * @generated from field: optional string owner = 6;
+     */
+    owner?: string;
+
+    /**
+     * Time at which this credential was created, in epoch milliseconds.
+     *
+     * @generated from field: optional int64 created_at = 7;
+     */
+    createdAt?: bigint;
+
+    /**
+     * Username of credential creator.
+     *
+     * @generated from field: optional string created_by = 8;
+     */
+    createdBy?: string;
+
+    /**
+     * Time at which this credential was last updated, in epoch milliseconds.
+     *
+     * @generated from field: optional int64 updated_at = 9;
+     */
+    updatedAt?: bigint;
+
+    /**
+     * Username of user who last modified credential.
+     *
+     * @generated from field: optional string updated_by = 10;
+     */
+    updatedBy?: string;
+
+    /**
+     * Whether this credential is the current metastore's root storage credential.
+     *
+     * Only applicable when purpose is STORAGE.
+     *
+     * @generated from field: bool used_for_managed_storage = 11;
+     */
+    usedForManagedStorage: boolean;
+
+    /**
+     * The full name of the credential.
+     *
+     * @generated from field: optional string full_name = 12;
+     */
+    fullName?: string;
+
+    /**
+     * @generated from oneof unitycatalog.credentials.v1.CredentialInfo.credential
+     */
+    credential:
+      | {
+          /**
+           * @generated from field: unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
+           */
+          value: AzureServicePrincipal;
+          case: "azureServicePrincipal";
+        }
+      | {
+          /**
+           * @generated from field: unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+           */
+          value: AzureManagedIdentity;
+          case: "azureManagedIdentity";
+        }
+      | {
+          /**
+           * @generated from field: unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+           */
+          value: AzureStorageKey;
+          case: "azureStorageKey";
+        }
+      | { case: undefined; value?: undefined };
+  };
 
 /**
  * Describes the message unitycatalog.credentials.v1.CredentialInfo.
  * Use `create(CredentialInfoSchema)` to create a new message.
  */
-export const CredentialInfoSchema: GenMessage<CredentialInfo> = /*@__PURE__*/
+export const CredentialInfoSchema: GenMessage<CredentialInfo> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 5);
 
 /**
@@ -339,6 +376,6 @@ export enum Purpose {
 /**
  * Describes the enum unitycatalog.credentials.v1.Purpose.
  */
-export const PurposeSchema: GenEnum<Purpose> = /*@__PURE__*/
+export const PurposeSchema: GenEnum<Purpose> =
+  /*@__PURE__*/
   enumDesc(file_unitycatalog_credentials_v1_models, 0);
-

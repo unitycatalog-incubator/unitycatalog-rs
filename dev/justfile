@@ -1,6 +1,14 @@
 _default:
     @just --list
 
+# basic setup
+setup:
+  uvx pre-commit install
+
+# Update pre-commit hooks
+update-hooks:
+  uvx pre-commit autoupdate
+
 # Run local development environment
 start profile='':
     #!/bin/bash

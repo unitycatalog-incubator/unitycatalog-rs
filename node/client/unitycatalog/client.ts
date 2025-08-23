@@ -1,7 +1,7 @@
 import { fromBinary } from "@bufbuild/protobuf";
-import { CatalogInfo, CatalogInfoSchema } from "./models";
+import { type CatalogInfo, CatalogInfoSchema } from "./models";
 import {
-  CatalogClient as NativeCatalogClient,
+  type CatalogClient as NativeCatalogClient,
   UnityCatalogClient as NativeClient,
 } from "./native";
 
@@ -65,7 +65,7 @@ export class CatalogClient {
   // }
 
   async update(options?: UpdateCatalogOptions): Promise<CatalogInfo> {
-    let { newName, comment, owner, properties } = options || {};
+    const { newName, comment, owner, properties } = options || {};
     return fromBinary(
       CatalogInfoSchema,
       await this.inner.update(newName, comment, owner, properties),

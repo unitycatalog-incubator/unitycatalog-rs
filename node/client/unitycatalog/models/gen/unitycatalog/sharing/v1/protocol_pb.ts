@@ -2,16 +2,20 @@
 // @generated from file unitycatalog/sharing/v1/protocol.proto (package unitycatalog.sharing.v1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/sharing/v1/protocol.proto.
  */
-export const file_unitycatalog_sharing_v1_protocol: GenFile = /*@__PURE__*/
-  fileDesc("CiZ1bml0eWNhdGFsb2cvc2hhcmluZy92MS9wcm90b2NvbC5wcm90bxIXdW5pdHljYXRhbG9nLnNoYXJpbmcudjEiiQEKBkZvcm1hdBIQCghwcm92aWRlchgBIAEoCRI9CgdvcHRpb25zGAIgAygLMiwudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRm9ybWF0Lk9wdGlvbnNFbnRyeRouCgxPcHRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASLcAgoITWV0YWRhdGESCgoCaWQYASABKAkSEQoEbmFtZRgCIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAMgASgJSAGIAQESLwoGZm9ybWF0GAQgASgLMh8udW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRm9ybWF0EhUKDXNjaGVtYV9zdHJpbmcYBSABKAkSGQoRcGFydGl0aW9uX2NvbHVtbnMYBiADKAkSGQoMY3JlYXRlZF90aW1lGAcgASgDSAKIAQESPwoHb3B0aW9ucxgIIAMoCzIuLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLk1ldGFkYXRhLk9wdGlvbnNFbnRyeRouCgxPcHRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIHCgVfbmFtZUIOCgxfZGVzY3JpcHRpb25CDwoNX2NyZWF0ZWRfdGltZUL8AQobY29tLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxQg1Qcm90b2NvbFByb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJpbmcvdjE7c2hhcmluZ3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNoYXJpbmcuVjHKAhdVbml0eWNhdGFsb2dcU2hhcmluZ1xWMeICI1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTaGFyaW5nOjpWMWIGcHJvdG8z", [file_buf_validate_validate]);
+export const file_unitycatalog_sharing_v1_protocol: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiZ1bml0eWNhdGFsb2cvc2hhcmluZy92MS9wcm90b2NvbC5wcm90bxIXdW5pdHljYXRhbG9nLnNoYXJpbmcudjEiiQEKBkZvcm1hdBIQCghwcm92aWRlchgBIAEoCRI9CgdvcHRpb25zGAIgAygLMiwudW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRm9ybWF0Lk9wdGlvbnNFbnRyeRouCgxPcHRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASLcAgoITWV0YWRhdGESCgoCaWQYASABKAkSEQoEbmFtZRgCIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAMgASgJSAGIAQESLwoGZm9ybWF0GAQgASgLMh8udW5pdHljYXRhbG9nLnNoYXJpbmcudjEuRm9ybWF0EhUKDXNjaGVtYV9zdHJpbmcYBSABKAkSGQoRcGFydGl0aW9uX2NvbHVtbnMYBiADKAkSGQoMY3JlYXRlZF90aW1lGAcgASgDSAKIAQESPwoHb3B0aW9ucxgIIAMoCzIuLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxLk1ldGFkYXRhLk9wdGlvbnNFbnRyeRouCgxPcHRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIHCgVfbmFtZUIOCgxfZGVzY3JpcHRpb25CDwoNX2NyZWF0ZWRfdGltZUL8AQobY29tLnVuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxQg1Qcm90b2NvbFByb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJpbmcvdjE7c2hhcmluZ3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNoYXJpbmcuVjHKAhdVbml0eWNhdGFsb2dcU2hhcmluZ1xWMeICI1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTaGFyaW5nOjpWMWIGcHJvdG8z",
+    [file_buf_validate_validate],
+  );
 
 /**
  * File format for data files in a table
@@ -38,7 +42,8 @@ export type Format = Message<"unitycatalog.sharing.v1.Format"> & {
  * Describes the message unitycatalog.sharing.v1.Format.
  * Use `create(FormatSchema)` to create a new message.
  */
-export const FormatSchema: GenMessage<Format> = /*@__PURE__*/
+export const FormatSchema: GenMessage<Format> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_sharing_v1_protocol, 0);
 
 /**
@@ -109,6 +114,6 @@ export type Metadata = Message<"unitycatalog.sharing.v1.Metadata"> & {
  * Describes the message unitycatalog.sharing.v1.Metadata.
  * Use `create(MetadataSchema)` to create a new message.
  */
-export const MetadataSchema: GenMessage<Metadata> = /*@__PURE__*/
+export const MetadataSchema: GenMessage<Metadata> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_sharing_v1_protocol, 1);
-

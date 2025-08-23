@@ -17,9 +17,10 @@ describe("UnityCatalogClient", () => {
     server.close();
   });
 
-  it("should create a new instance", async () => {
-    let _client = new UnityCatalogClient(
+  it("should create a new instance", () => {
+    const client = new UnityCatalogClient(
       "http://unitycatalog.io/api/2.1/unity-catalog/",
     );
+    expect(client).toBeDefined();
   });
 });

@@ -16,15 +16,18 @@
 // @generated from file google/type/postal_address.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/postal_address.proto.
  */
-export const file_google_type_postal_address: GenFile = /*@__PURE__*/
-  fileDesc("CiBnb29nbGUvdHlwZS9wb3N0YWxfYWRkcmVzcy5wcm90bxILZ29vZ2xlLnR5cGUi/QEKDVBvc3RhbEFkZHJlc3MSEAoIcmV2aXNpb24YASABKAUSEwoLcmVnaW9uX2NvZGUYAiABKAkSFQoNbGFuZ3VhZ2VfY29kZRgDIAEoCRITCgtwb3N0YWxfY29kZRgEIAEoCRIUCgxzb3J0aW5nX2NvZGUYBSABKAkSGwoTYWRtaW5pc3RyYXRpdmVfYXJlYRgGIAEoCRIQCghsb2NhbGl0eRgHIAEoCRITCgtzdWJsb2NhbGl0eRgIIAEoCRIVCg1hZGRyZXNzX2xpbmVzGAkgAygJEhIKCnJlY2lwaWVudHMYCiADKAkSFAoMb3JnYW5pemF0aW9uGAsgASgJQr0BCg9jb20uZ29vZ2xlLnR5cGVCElBvc3RhbEFkZHJlc3NQcm90b1ABWkZnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL3R5cGUvcG9zdGFsYWRkcmVzcztwb3N0YWxhZGRyZXNz+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM");
+export const file_google_type_postal_address: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiBnb29nbGUvdHlwZS9wb3N0YWxfYWRkcmVzcy5wcm90bxILZ29vZ2xlLnR5cGUi/QEKDVBvc3RhbEFkZHJlc3MSEAoIcmV2aXNpb24YASABKAUSEwoLcmVnaW9uX2NvZGUYAiABKAkSFQoNbGFuZ3VhZ2VfY29kZRgDIAEoCRITCgtwb3N0YWxfY29kZRgEIAEoCRIUCgxzb3J0aW5nX2NvZGUYBSABKAkSGwoTYWRtaW5pc3RyYXRpdmVfYXJlYRgGIAEoCRIQCghsb2NhbGl0eRgHIAEoCRITCgtzdWJsb2NhbGl0eRgIIAEoCRIVCg1hZGRyZXNzX2xpbmVzGAkgAygJEhIKCnJlY2lwaWVudHMYCiADKAkSFAoMb3JnYW5pemF0aW9uGAsgASgJQr0BCg9jb20uZ29vZ2xlLnR5cGVCElBvc3RhbEFkZHJlc3NQcm90b1ABWkZnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL3R5cGUvcG9zdGFsYWRkcmVzcztwb3N0YWxhZGRyZXNz+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+  );
 
 /**
  * Represents a postal address, e.g. for postal delivery or payments addresses.
@@ -123,7 +126,7 @@ export type PostalAddress = Message<"google.type.PostalAddress"> & {
 
   /**
    * Optional. Generally refers to the city/town portion of the address.
-   * Examples: US city, IT comune, UK post town.
+   * Examples: US city, IT commune, UK post town.
    * In regions of the world where localities are not well defined or do not fit
    * into this structure well, leave locality empty and use address_lines.
    *
@@ -188,6 +191,6 @@ export type PostalAddress = Message<"google.type.PostalAddress"> & {
  * Describes the message google.type.PostalAddress.
  * Use `create(PostalAddressSchema)` to create a new message.
  */
-export const PostalAddressSchema: GenMessage<PostalAddress> = /*@__PURE__*/
+export const PostalAddressSchema: GenMessage<PostalAddress> =
+  /*@__PURE__*/
   messageDesc(file_google_type_postal_address, 0);
-

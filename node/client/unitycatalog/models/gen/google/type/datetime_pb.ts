@@ -16,17 +16,21 @@
 // @generated from file google/type/datetime.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Duration } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_duration } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/datetime.proto.
  */
-export const file_google_type_datetime: GenFile = /*@__PURE__*/
-  fileDesc("Chpnb29nbGUvdHlwZS9kYXRldGltZS5wcm90bxILZ29vZ2xlLnR5cGUi4AEKCERhdGVUaW1lEgwKBHllYXIYASABKAUSDQoFbW9udGgYAiABKAUSCwoDZGF5GAMgASgFEg0KBWhvdXJzGAQgASgFEg8KB21pbnV0ZXMYBSABKAUSDwoHc2Vjb25kcxgGIAEoBRINCgVuYW5vcxgHIAEoBRIvCgp1dGNfb2Zmc2V0GAggASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uSAASKgoJdGltZV96b25lGAkgASgLMhUuZ29vZ2xlLnR5cGUuVGltZVpvbmVIAEINCgt0aW1lX29mZnNldCInCghUaW1lWm9uZRIKCgJpZBgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJQq4BCg9jb20uZ29vZ2xlLnR5cGVCDURhdGV0aW1lUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2RhdGV0aW1lO2RhdGV0aW1l+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM", [file_google_protobuf_duration]);
+export const file_google_type_datetime: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chpnb29nbGUvdHlwZS9kYXRldGltZS5wcm90bxILZ29vZ2xlLnR5cGUi4AEKCERhdGVUaW1lEgwKBHllYXIYASABKAUSDQoFbW9udGgYAiABKAUSCwoDZGF5GAMgASgFEg0KBWhvdXJzGAQgASgFEg8KB21pbnV0ZXMYBSABKAUSDwoHc2Vjb25kcxgGIAEoBRINCgVuYW5vcxgHIAEoBRIvCgp1dGNfb2Zmc2V0GAggASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uSAASKgoJdGltZV96b25lGAkgASgLMhUuZ29vZ2xlLnR5cGUuVGltZVpvbmVIAEINCgt0aW1lX29mZnNldCInCghUaW1lWm9uZRIKCgJpZBgBIAEoCRIPCgd2ZXJzaW9uGAIgASgJQq4BCg9jb20uZ29vZ2xlLnR5cGVCDURhdGV0aW1lUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2RhdGV0aW1lO2RhdGV0aW1l+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+    [file_google_protobuf_duration],
+  );
 
 /**
  * Represents civil time (or occasionally physical time).
@@ -121,32 +125,36 @@ export type DateTime = Message<"google.type.DateTime"> & {
    *
    * @generated from oneof google.type.DateTime.time_offset
    */
-  timeOffset: {
-    /**
-     * UTC offset. Must be whole seconds, between -18 hours and +18 hours.
-     * For example, a UTC offset of -4:00 would be represented as
-     * { seconds: -14400 }.
-     *
-     * @generated from field: google.protobuf.Duration utc_offset = 8;
-     */
-    value: Duration;
-    case: "utcOffset";
-  } | {
-    /**
-     * Time zone.
-     *
-     * @generated from field: google.type.TimeZone time_zone = 9;
-     */
-    value: TimeZone;
-    case: "timeZone";
-  } | { case: undefined; value?: undefined };
+  timeOffset:
+    | {
+        /**
+         * UTC offset. Must be whole seconds, between -18 hours and +18 hours.
+         * For example, a UTC offset of -4:00 would be represented as
+         * { seconds: -14400 }.
+         *
+         * @generated from field: google.protobuf.Duration utc_offset = 8;
+         */
+        value: Duration;
+        case: "utcOffset";
+      }
+    | {
+        /**
+         * Time zone.
+         *
+         * @generated from field: google.type.TimeZone time_zone = 9;
+         */
+        value: TimeZone;
+        case: "timeZone";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.type.DateTime.
  * Use `create(DateTimeSchema)` to create a new message.
  */
-export const DateTimeSchema: GenMessage<DateTime> = /*@__PURE__*/
+export const DateTimeSchema: GenMessage<DateTime> =
+  /*@__PURE__*/
   messageDesc(file_google_type_datetime, 0);
 
 /**
@@ -175,6 +183,6 @@ export type TimeZone = Message<"google.type.TimeZone"> & {
  * Describes the message google.type.TimeZone.
  * Use `create(TimeZoneSchema)` to create a new message.
  */
-export const TimeZoneSchema: GenMessage<TimeZone> = /*@__PURE__*/
+export const TimeZoneSchema: GenMessage<TimeZone> =
+  /*@__PURE__*/
   messageDesc(file_google_type_datetime, 1);
-

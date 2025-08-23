@@ -16,21 +16,53 @@
 // @generated from file google/longrunning/operations.proto (package google.longrunning, syntax proto3)
 /* eslint-disable */
 
-import type { GenExtension, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { extDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenExtension,
+  GenFile,
+  GenMessage,
+  GenService,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  extDesc,
+  fileDesc,
+  messageDesc,
+  serviceDesc,
+} from "@bufbuild/protobuf/codegenv2";
+import type {
+  Any,
+  Duration,
+  EmptySchema,
+  MethodOptions,
+} from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_any,
+  file_google_protobuf_descriptor,
+  file_google_protobuf_duration,
+  file_google_protobuf_empty,
+} from "@bufbuild/protobuf/wkt";
 import { file_google_api_annotations } from "../api/annotations_pb";
 import { file_google_api_client } from "../api/client_pb";
-import type { Any, Duration, EmptySchema, MethodOptions } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_any, file_google_protobuf_descriptor, file_google_protobuf_duration, file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 import type { Status } from "../rpc/status_pb";
 import { file_google_rpc_status } from "../rpc/status_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/longrunning/operations.proto.
  */
-export const file_google_longrunning_operations: GenFile = /*@__PURE__*/
-  fileDesc("CiNnb29nbGUvbG9uZ3J1bm5pbmcvb3BlcmF0aW9ucy5wcm90bxISZ29vZ2xlLmxvbmdydW5uaW5nIqgBCglPcGVyYXRpb24SDAoEbmFtZRgBIAEoCRImCghtZXRhZGF0YRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSDAoEZG9uZRgDIAEoCBIjCgVlcnJvchgEIAEoCzISLmdvb2dsZS5ycGMuU3RhdHVzSAASKAoIcmVzcG9uc2UYBSABKAsyFC5nb29nbGUucHJvdG9idWYuQW55SABCCAoGcmVzdWx0IiMKE0dldE9wZXJhdGlvblJlcXVlc3QSDAoEbmFtZRgBIAEoCSJcChVMaXN0T3BlcmF0aW9uc1JlcXVlc3QSDAoEbmFtZRgEIAEoCRIOCgZmaWx0ZXIYASABKAkSEQoJcGFnZV9zaXplGAIgASgFEhIKCnBhZ2VfdG9rZW4YAyABKAkiZAoWTGlzdE9wZXJhdGlvbnNSZXNwb25zZRIxCgpvcGVyYXRpb25zGAEgAygLMh0uZ29vZ2xlLmxvbmdydW5uaW5nLk9wZXJhdGlvbhIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiJgoWQ2FuY2VsT3BlcmF0aW9uUmVxdWVzdBIMCgRuYW1lGAEgASgJIiYKFkRlbGV0ZU9wZXJhdGlvblJlcXVlc3QSDAoEbmFtZRgBIAEoCSJQChRXYWl0T3BlcmF0aW9uUmVxdWVzdBIMCgRuYW1lGAEgASgJEioKB3RpbWVvdXQYAiABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24iPQoNT3BlcmF0aW9uSW5mbxIVCg1yZXNwb25zZV90eXBlGAEgASgJEhUKDW1ldGFkYXRhX3R5cGUYAiABKAkyqgUKCk9wZXJhdGlvbnMSlAEKDkxpc3RPcGVyYXRpb25zEikuZ29vZ2xlLmxvbmdydW5uaW5nLkxpc3RPcGVyYXRpb25zUmVxdWVzdBoqLmdvb2dsZS5sb25ncnVubmluZy5MaXN0T3BlcmF0aW9uc1Jlc3BvbnNlIivaQQtuYW1lLGZpbHRlcoLT5JMCFxIVL3YxL3tuYW1lPW9wZXJhdGlvbnN9En8KDEdldE9wZXJhdGlvbhInLmdvb2dsZS5sb25ncnVubmluZy5HZXRPcGVyYXRpb25SZXF1ZXN0Gh0uZ29vZ2xlLmxvbmdydW5uaW5nLk9wZXJhdGlvbiIn2kEEbmFtZYLT5JMCGhIYL3YxL3tuYW1lPW9wZXJhdGlvbnMvKip9En4KD0RlbGV0ZU9wZXJhdGlvbhIqLmdvb2dsZS5sb25ncnVubmluZy5EZWxldGVPcGVyYXRpb25SZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IifaQQRuYW1lgtPkkwIaKhgvdjEve25hbWU9b3BlcmF0aW9ucy8qKn0SiAEKD0NhbmNlbE9wZXJhdGlvbhIqLmdvb2dsZS5sb25ncnVubmluZy5DYW5jZWxPcGVyYXRpb25SZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IjHaQQRuYW1lgtPkkwIkOgEqIh8vdjEve25hbWU9b3BlcmF0aW9ucy8qKn06Y2FuY2VsEloKDVdhaXRPcGVyYXRpb24SKC5nb29nbGUubG9uZ3J1bm5pbmcuV2FpdE9wZXJhdGlvblJlcXVlc3QaHS5nb29nbGUubG9uZ3J1bm5pbmcuT3BlcmF0aW9uIgAaHcpBGmxvbmdydW5uaW5nLmdvb2dsZWFwaXMuY29tOmkKDm9wZXJhdGlvbl9pbmZvEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYmQggASgLMiEuZ29vZ2xlLmxvbmdydW5uaW5nLk9wZXJhdGlvbkluZm9SDW9wZXJhdGlvbkluZm9C2gEKFmNvbS5nb29nbGUubG9uZ3J1bm5pbmdCD09wZXJhdGlvbnNQcm90b1ABWkNjbG91ZC5nb29nbGUuY29tL2dvL2xvbmdydW5uaW5nL2F1dG9nZW4vbG9uZ3J1bm5pbmdwYjtsb25ncnVubmluZ3Bi+AEBogIDR0xYqgISR29vZ2xlLkxvbmdydW5uaW5nygISR29vZ2xlXExvbmdydW5uaW5n4gIeR29vZ2xlXExvbmdydW5uaW5nXEdQQk1ldGFkYXRh6gITR29vZ2xlOjpMb25ncnVubmluZ2IGcHJvdG8z", [file_google_api_annotations, file_google_api_client, file_google_protobuf_any, file_google_protobuf_descriptor, file_google_protobuf_duration, file_google_protobuf_empty, file_google_rpc_status]);
+export const file_google_longrunning_operations: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiNnb29nbGUvbG9uZ3J1bm5pbmcvb3BlcmF0aW9ucy5wcm90bxISZ29vZ2xlLmxvbmdydW5uaW5nIqgBCglPcGVyYXRpb24SDAoEbmFtZRgBIAEoCRImCghtZXRhZGF0YRgCIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSDAoEZG9uZRgDIAEoCBIjCgVlcnJvchgEIAEoCzISLmdvb2dsZS5ycGMuU3RhdHVzSAASKAoIcmVzcG9uc2UYBSABKAsyFC5nb29nbGUucHJvdG9idWYuQW55SABCCAoGcmVzdWx0IiMKE0dldE9wZXJhdGlvblJlcXVlc3QSDAoEbmFtZRgBIAEoCSJcChVMaXN0T3BlcmF0aW9uc1JlcXVlc3QSDAoEbmFtZRgEIAEoCRIOCgZmaWx0ZXIYASABKAkSEQoJcGFnZV9zaXplGAIgASgFEhIKCnBhZ2VfdG9rZW4YAyABKAkiZAoWTGlzdE9wZXJhdGlvbnNSZXNwb25zZRIxCgpvcGVyYXRpb25zGAEgAygLMh0uZ29vZ2xlLmxvbmdydW5uaW5nLk9wZXJhdGlvbhIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiJgoWQ2FuY2VsT3BlcmF0aW9uUmVxdWVzdBIMCgRuYW1lGAEgASgJIiYKFkRlbGV0ZU9wZXJhdGlvblJlcXVlc3QSDAoEbmFtZRgBIAEoCSJQChRXYWl0T3BlcmF0aW9uUmVxdWVzdBIMCgRuYW1lGAEgASgJEioKB3RpbWVvdXQYAiABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24iPQoNT3BlcmF0aW9uSW5mbxIVCg1yZXNwb25zZV90eXBlGAEgASgJEhUKDW1ldGFkYXRhX3R5cGUYAiABKAkyqgUKCk9wZXJhdGlvbnMSlAEKDkxpc3RPcGVyYXRpb25zEikuZ29vZ2xlLmxvbmdydW5uaW5nLkxpc3RPcGVyYXRpb25zUmVxdWVzdBoqLmdvb2dsZS5sb25ncnVubmluZy5MaXN0T3BlcmF0aW9uc1Jlc3BvbnNlIivaQQtuYW1lLGZpbHRlcoLT5JMCFxIVL3YxL3tuYW1lPW9wZXJhdGlvbnN9En8KDEdldE9wZXJhdGlvbhInLmdvb2dsZS5sb25ncnVubmluZy5HZXRPcGVyYXRpb25SZXF1ZXN0Gh0uZ29vZ2xlLmxvbmdydW5uaW5nLk9wZXJhdGlvbiIn2kEEbmFtZYLT5JMCGhIYL3YxL3tuYW1lPW9wZXJhdGlvbnMvKip9En4KD0RlbGV0ZU9wZXJhdGlvbhIqLmdvb2dsZS5sb25ncnVubmluZy5EZWxldGVPcGVyYXRpb25SZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IifaQQRuYW1lgtPkkwIaKhgvdjEve25hbWU9b3BlcmF0aW9ucy8qKn0SiAEKD0NhbmNlbE9wZXJhdGlvbhIqLmdvb2dsZS5sb25ncnVubmluZy5DYW5jZWxPcGVyYXRpb25SZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IjHaQQRuYW1lgtPkkwIkOgEqIh8vdjEve25hbWU9b3BlcmF0aW9ucy8qKn06Y2FuY2VsEloKDVdhaXRPcGVyYXRpb24SKC5nb29nbGUubG9uZ3J1bm5pbmcuV2FpdE9wZXJhdGlvblJlcXVlc3QaHS5nb29nbGUubG9uZ3J1bm5pbmcuT3BlcmF0aW9uIgAaHcpBGmxvbmdydW5uaW5nLmdvb2dsZWFwaXMuY29tOmkKDm9wZXJhdGlvbl9pbmZvEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYmQggASgLMiEuZ29vZ2xlLmxvbmdydW5uaW5nLk9wZXJhdGlvbkluZm9SDW9wZXJhdGlvbkluZm9C2gEKFmNvbS5nb29nbGUubG9uZ3J1bm5pbmdCD09wZXJhdGlvbnNQcm90b1ABWkNjbG91ZC5nb29nbGUuY29tL2dvL2xvbmdydW5uaW5nL2F1dG9nZW4vbG9uZ3J1bm5pbmdwYjtsb25ncnVubmluZ3Bi+AEBogIDR0xYqgISR29vZ2xlLkxvbmdydW5uaW5nygISR29vZ2xlXExvbmdydW5uaW5n4gIeR29vZ2xlXExvbmdydW5uaW5nXEdQQk1ldGFkYXRh6gITR29vZ2xlOjpMb25ncnVubmluZ2IGcHJvdG8z",
+    [
+      file_google_api_annotations,
+      file_google_api_client,
+      file_google_protobuf_any,
+      file_google_protobuf_descriptor,
+      file_google_protobuf_duration,
+      file_google_protobuf_empty,
+      file_google_rpc_status,
+    ],
+  );
 
 /**
  * This resource represents a long-running operation that is the result of a
@@ -75,37 +107,41 @@ export type Operation = Message<"google.longrunning.Operation"> & {
    *
    * @generated from oneof google.longrunning.Operation.result
    */
-  result: {
-    /**
-     * The error result of the operation in case of failure or cancellation.
-     *
-     * @generated from field: google.rpc.Status error = 4;
-     */
-    value: Status;
-    case: "error";
-  } | {
-    /**
-     * The normal, successful response of the operation.  If the original
-     * method returns no data on success, such as `Delete`, the response is
-     * `google.protobuf.Empty`.  If the original method is standard
-     * `Get`/`Create`/`Update`, the response should be the resource.  For other
-     * methods, the response should have the type `XxxResponse`, where `Xxx`
-     * is the original method name.  For example, if the original method name
-     * is `TakeSnapshot()`, the inferred response type is
-     * `TakeSnapshotResponse`.
-     *
-     * @generated from field: google.protobuf.Any response = 5;
-     */
-    value: Any;
-    case: "response";
-  } | { case: undefined; value?: undefined };
+  result:
+    | {
+        /**
+         * The error result of the operation in case of failure or cancellation.
+         *
+         * @generated from field: google.rpc.Status error = 4;
+         */
+        value: Status;
+        case: "error";
+      }
+    | {
+        /**
+         * The normal, successful response of the operation.  If the original
+         * method returns no data on success, such as `Delete`, the response is
+         * `google.protobuf.Empty`.  If the original method is standard
+         * `Get`/`Create`/`Update`, the response should be the resource.  For other
+         * methods, the response should have the type `XxxResponse`, where `Xxx`
+         * is the original method name.  For example, if the original method name
+         * is `TakeSnapshot()`, the inferred response type is
+         * `TakeSnapshotResponse`.
+         *
+         * @generated from field: google.protobuf.Any response = 5;
+         */
+        value: Any;
+        case: "response";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.longrunning.Operation.
  * Use `create(OperationSchema)` to create a new message.
  */
-export const OperationSchema: GenMessage<Operation> = /*@__PURE__*/
+export const OperationSchema: GenMessage<Operation> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 0);
 
 /**
@@ -114,20 +150,22 @@ export const OperationSchema: GenMessage<Operation> = /*@__PURE__*/
  *
  * @generated from message google.longrunning.GetOperationRequest
  */
-export type GetOperationRequest = Message<"google.longrunning.GetOperationRequest"> & {
-  /**
-   * The name of the operation resource.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type GetOperationRequest =
+  Message<"google.longrunning.GetOperationRequest"> & {
+    /**
+     * The name of the operation resource.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message google.longrunning.GetOperationRequest.
  * Use `create(GetOperationRequestSchema)` to create a new message.
  */
-export const GetOperationRequestSchema: GenMessage<GetOperationRequest> = /*@__PURE__*/
+export const GetOperationRequestSchema: GenMessage<GetOperationRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 1);
 
 /**
@@ -136,41 +174,43 @@ export const GetOperationRequestSchema: GenMessage<GetOperationRequest> = /*@__P
  *
  * @generated from message google.longrunning.ListOperationsRequest
  */
-export type ListOperationsRequest = Message<"google.longrunning.ListOperationsRequest"> & {
-  /**
-   * The name of the operation's parent resource.
-   *
-   * @generated from field: string name = 4;
-   */
-  name: string;
+export type ListOperationsRequest =
+  Message<"google.longrunning.ListOperationsRequest"> & {
+    /**
+     * The name of the operation's parent resource.
+     *
+     * @generated from field: string name = 4;
+     */
+    name: string;
 
-  /**
-   * The standard list filter.
-   *
-   * @generated from field: string filter = 1;
-   */
-  filter: string;
+    /**
+     * The standard list filter.
+     *
+     * @generated from field: string filter = 1;
+     */
+    filter: string;
 
-  /**
-   * The standard list page size.
-   *
-   * @generated from field: int32 page_size = 2;
-   */
-  pageSize: number;
+    /**
+     * The standard list page size.
+     *
+     * @generated from field: int32 page_size = 2;
+     */
+    pageSize: number;
 
-  /**
-   * The standard list page token.
-   *
-   * @generated from field: string page_token = 3;
-   */
-  pageToken: string;
-};
+    /**
+     * The standard list page token.
+     *
+     * @generated from field: string page_token = 3;
+     */
+    pageToken: string;
+  };
 
 /**
  * Describes the message google.longrunning.ListOperationsRequest.
  * Use `create(ListOperationsRequestSchema)` to create a new message.
  */
-export const ListOperationsRequestSchema: GenMessage<ListOperationsRequest> = /*@__PURE__*/
+export const ListOperationsRequestSchema: GenMessage<ListOperationsRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 2);
 
 /**
@@ -179,27 +219,29 @@ export const ListOperationsRequestSchema: GenMessage<ListOperationsRequest> = /*
  *
  * @generated from message google.longrunning.ListOperationsResponse
  */
-export type ListOperationsResponse = Message<"google.longrunning.ListOperationsResponse"> & {
-  /**
-   * A list of operations that matches the specified filter in the request.
-   *
-   * @generated from field: repeated google.longrunning.Operation operations = 1;
-   */
-  operations: Operation[];
+export type ListOperationsResponse =
+  Message<"google.longrunning.ListOperationsResponse"> & {
+    /**
+     * A list of operations that matches the specified filter in the request.
+     *
+     * @generated from field: repeated google.longrunning.Operation operations = 1;
+     */
+    operations: Operation[];
 
-  /**
-   * The standard List next-page token.
-   *
-   * @generated from field: string next_page_token = 2;
-   */
-  nextPageToken: string;
-};
+    /**
+     * The standard List next-page token.
+     *
+     * @generated from field: string next_page_token = 2;
+     */
+    nextPageToken: string;
+  };
 
 /**
  * Describes the message google.longrunning.ListOperationsResponse.
  * Use `create(ListOperationsResponseSchema)` to create a new message.
  */
-export const ListOperationsResponseSchema: GenMessage<ListOperationsResponse> = /*@__PURE__*/
+export const ListOperationsResponseSchema: GenMessage<ListOperationsResponse> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 3);
 
 /**
@@ -208,20 +250,22 @@ export const ListOperationsResponseSchema: GenMessage<ListOperationsResponse> = 
  *
  * @generated from message google.longrunning.CancelOperationRequest
  */
-export type CancelOperationRequest = Message<"google.longrunning.CancelOperationRequest"> & {
-  /**
-   * The name of the operation resource to be cancelled.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type CancelOperationRequest =
+  Message<"google.longrunning.CancelOperationRequest"> & {
+    /**
+     * The name of the operation resource to be cancelled.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message google.longrunning.CancelOperationRequest.
  * Use `create(CancelOperationRequestSchema)` to create a new message.
  */
-export const CancelOperationRequestSchema: GenMessage<CancelOperationRequest> = /*@__PURE__*/
+export const CancelOperationRequestSchema: GenMessage<CancelOperationRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 4);
 
 /**
@@ -230,20 +274,22 @@ export const CancelOperationRequestSchema: GenMessage<CancelOperationRequest> = 
  *
  * @generated from message google.longrunning.DeleteOperationRequest
  */
-export type DeleteOperationRequest = Message<"google.longrunning.DeleteOperationRequest"> & {
-  /**
-   * The name of the operation resource to be deleted.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type DeleteOperationRequest =
+  Message<"google.longrunning.DeleteOperationRequest"> & {
+    /**
+     * The name of the operation resource to be deleted.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message google.longrunning.DeleteOperationRequest.
  * Use `create(DeleteOperationRequestSchema)` to create a new message.
  */
-export const DeleteOperationRequestSchema: GenMessage<DeleteOperationRequest> = /*@__PURE__*/
+export const DeleteOperationRequestSchema: GenMessage<DeleteOperationRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 5);
 
 /**
@@ -252,29 +298,31 @@ export const DeleteOperationRequestSchema: GenMessage<DeleteOperationRequest> = 
  *
  * @generated from message google.longrunning.WaitOperationRequest
  */
-export type WaitOperationRequest = Message<"google.longrunning.WaitOperationRequest"> & {
-  /**
-   * The name of the operation resource to wait on.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type WaitOperationRequest =
+  Message<"google.longrunning.WaitOperationRequest"> & {
+    /**
+     * The name of the operation resource to wait on.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * The maximum duration to wait before timing out. If left blank, the wait
-   * will be at most the time permitted by the underlying HTTP/RPC protocol.
-   * If RPC context deadline is also specified, the shorter one will be used.
-   *
-   * @generated from field: google.protobuf.Duration timeout = 2;
-   */
-  timeout?: Duration;
-};
+    /**
+     * The maximum duration to wait before timing out. If left blank, the wait
+     * will be at most the time permitted by the underlying HTTP/RPC protocol.
+     * If RPC context deadline is also specified, the shorter one will be used.
+     *
+     * @generated from field: google.protobuf.Duration timeout = 2;
+     */
+    timeout?: Duration;
+  };
 
 /**
  * Describes the message google.longrunning.WaitOperationRequest.
  * Use `create(WaitOperationRequestSchema)` to create a new message.
  */
-export const WaitOperationRequestSchema: GenMessage<WaitOperationRequest> = /*@__PURE__*/
+export const WaitOperationRequestSchema: GenMessage<WaitOperationRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 6);
 
 /**
@@ -324,7 +372,8 @@ export type OperationInfo = Message<"google.longrunning.OperationInfo"> & {
  * Describes the message google.longrunning.OperationInfo.
  * Use `create(OperationInfoSchema)` to create a new message.
  */
-export const OperationInfoSchema: GenMessage<OperationInfo> = /*@__PURE__*/
+export const OperationInfoSchema: GenMessage<OperationInfo> =
+  /*@__PURE__*/
   messageDesc(file_google_longrunning_operations, 7);
 
 /**
@@ -351,7 +400,7 @@ export const Operations: GenService<{
     methodKind: "unary";
     input: typeof ListOperationsRequestSchema;
     output: typeof ListOperationsResponseSchema;
-  },
+  };
   /**
    * Gets the latest state of a long-running operation.  Clients can use this
    * method to poll the operation result at intervals as recommended by the API
@@ -363,7 +412,7 @@ export const Operations: GenService<{
     methodKind: "unary";
     input: typeof GetOperationRequestSchema;
     output: typeof OperationSchema;
-  },
+  };
   /**
    * Deletes a long-running operation. This method indicates that the client is
    * no longer interested in the operation result. It does not cancel the
@@ -376,7 +425,7 @@ export const Operations: GenService<{
     methodKind: "unary";
     input: typeof DeleteOperationRequestSchema;
     output: typeof EmptySchema;
-  },
+  };
   /**
    * Starts asynchronous cancellation on a long-running operation.  The server
    * makes a best effort to cancel the operation, but success is not
@@ -396,7 +445,7 @@ export const Operations: GenService<{
     methodKind: "unary";
     input: typeof CancelOperationRequestSchema;
     output: typeof EmptySchema;
-  },
+  };
   /**
    * Waits until the specified long-running operation is done or reaches at most
    * a specified timeout, returning the latest state.  If the operation is
@@ -414,9 +463,8 @@ export const Operations: GenService<{
     methodKind: "unary";
     input: typeof WaitOperationRequestSchema;
     output: typeof OperationSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_google_longrunning_operations, 0);
+  };
+}> = /*@__PURE__*/ serviceDesc(file_google_longrunning_operations, 0);
 
 /**
  * Additional information regarding long-running operations.
@@ -428,6 +476,6 @@ export const Operations: GenService<{
  *
  * @generated from extension: google.longrunning.OperationInfo operation_info = 1049;
  */
-export const operation_info: GenExtension<MethodOptions, OperationInfo> = /*@__PURE__*/
+export const operation_info: GenExtension<MethodOptions, OperationInfo> =
+  /*@__PURE__*/
   extDesc(file_google_longrunning_operations, 0);
-

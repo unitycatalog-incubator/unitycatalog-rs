@@ -16,15 +16,18 @@
 // @generated from file google/type/latlng.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/latlng.proto.
  */
-export const file_google_type_latlng: GenFile = /*@__PURE__*/
-  fileDesc("Chhnb29nbGUvdHlwZS9sYXRsbmcucHJvdG8SC2dvb2dsZS50eXBlIi0KBkxhdExuZxIQCghsYXRpdHVkZRgBIAEoARIRCglsb25naXR1ZGUYAiABKAFCqAEKD2NvbS5nb29nbGUudHlwZUILTGF0bG5nUHJvdG9QAVo4Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2xhdGxuZztsYXRsbmf4AQGiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw");
+export const file_google_type_latlng: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chhnb29nbGUvdHlwZS9sYXRsbmcucHJvdG8SC2dvb2dsZS50eXBlIi0KBkxhdExuZxIQCghsYXRpdHVkZRgBIAEoARIRCglsb25naXR1ZGUYAiABKAFCqAEKD2NvbS5nb29nbGUudHlwZUILTGF0bG5nUHJvdG9QAVo4Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2xhdGxuZztsYXRsbmf4AQGiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw",
+  );
 
 /**
  * An object that represents a latitude/longitude pair. This is expressed as a
@@ -55,6 +58,6 @@ export type LatLng = Message<"google.type.LatLng"> & {
  * Describes the message google.type.LatLng.
  * Use `create(LatLngSchema)` to create a new message.
  */
-export const LatLngSchema: GenMessage<LatLng> = /*@__PURE__*/
+export const LatLngSchema: GenMessage<LatLng> =
+  /*@__PURE__*/
   messageDesc(file_google_type_latlng, 0);
-

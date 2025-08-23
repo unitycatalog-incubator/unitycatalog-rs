@@ -16,15 +16,18 @@
 // @generated from file google/type/decimal.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/decimal.proto.
  */
-export const file_google_type_decimal: GenFile = /*@__PURE__*/
-  fileDesc("Chlnb29nbGUvdHlwZS9kZWNpbWFsLnByb3RvEgtnb29nbGUudHlwZSIYCgdEZWNpbWFsEg0KBXZhbHVlGAEgASgJQqsBCg9jb20uZ29vZ2xlLnR5cGVCDERlY2ltYWxQcm90b1ABWjpnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL3R5cGUvZGVjaW1hbDtkZWNpbWFs+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM");
+export const file_google_type_decimal: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chlnb29nbGUvdHlwZS9kZWNpbWFsLnByb3RvEgtnb29nbGUudHlwZSIYCgdEZWNpbWFsEg0KBXZhbHVlGAEgASgJQqsBCg9jb20uZ29vZ2xlLnR5cGVCDERlY2ltYWxQcm90b1ABWjpnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL3R5cGUvZGVjaW1hbDtkZWNpbWFs+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+  );
 
 /**
  * A representation of a decimal value, such as 2.5. Clients may convert values
@@ -109,6 +112,6 @@ export type Decimal = Message<"google.type.Decimal"> & {
  * Describes the message google.type.Decimal.
  * Use `create(DecimalSchema)` to create a new message.
  */
-export const DecimalSchema: GenMessage<Decimal> = /*@__PURE__*/
+export const DecimalSchema: GenMessage<Decimal> =
+  /*@__PURE__*/
   messageDesc(file_google_type_decimal, 0);
-

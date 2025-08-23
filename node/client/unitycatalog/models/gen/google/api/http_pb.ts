@@ -16,15 +16,18 @@
 // @generated from file google/api/http.proto (package google.api, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/http.proto.
  */
-export const file_google_api_http: GenFile = /*@__PURE__*/
-  fileDesc("ChVnb29nbGUvYXBpL2h0dHAucHJvdG8SCmdvb2dsZS5hcGkiVAoESHR0cBIjCgVydWxlcxgBIAMoCzIULmdvb2dsZS5hcGkuSHR0cFJ1bGUSJwofZnVsbHlfZGVjb2RlX3Jlc2VydmVkX2V4cGFuc2lvbhgCIAEoCCKBAgoISHR0cFJ1bGUSEAoIc2VsZWN0b3IYASABKAkSDQoDZ2V0GAIgASgJSAASDQoDcHV0GAMgASgJSAASDgoEcG9zdBgEIAEoCUgAEhAKBmRlbGV0ZRgFIAEoCUgAEg8KBXBhdGNoGAYgASgJSAASLwoGY3VzdG9tGAggASgLMh0uZ29vZ2xlLmFwaS5DdXN0b21IdHRwUGF0dGVybkgAEgwKBGJvZHkYByABKAkSFQoNcmVzcG9uc2VfYm9keRgMIAEoCRIxChNhZGRpdGlvbmFsX2JpbmRpbmdzGAsgAygLMhQuZ29vZ2xlLmFwaS5IdHRwUnVsZUIJCgdwYXR0ZXJuIi8KEUN1c3RvbUh0dHBQYXR0ZXJuEgwKBGtpbmQYASABKAkSDAoEcGF0aBgCIAEoCUKnAQoOY29tLmdvb2dsZS5hcGlCCUh0dHBQcm90b1ABWkFnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9hbm5vdGF0aW9uczthbm5vdGF0aW9uc6ICA0dBWKoCCkdvb2dsZS5BcGnKAgpHb29nbGVcQXBp4gIWR29vZ2xlXEFwaVxHUEJNZXRhZGF0YeoCC0dvb2dsZTo6QXBpYgZwcm90bzM");
+export const file_google_api_http: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "ChVnb29nbGUvYXBpL2h0dHAucHJvdG8SCmdvb2dsZS5hcGkiVAoESHR0cBIjCgVydWxlcxgBIAMoCzIULmdvb2dsZS5hcGkuSHR0cFJ1bGUSJwofZnVsbHlfZGVjb2RlX3Jlc2VydmVkX2V4cGFuc2lvbhgCIAEoCCKBAgoISHR0cFJ1bGUSEAoIc2VsZWN0b3IYASABKAkSDQoDZ2V0GAIgASgJSAASDQoDcHV0GAMgASgJSAASDgoEcG9zdBgEIAEoCUgAEhAKBmRlbGV0ZRgFIAEoCUgAEg8KBXBhdGNoGAYgASgJSAASLwoGY3VzdG9tGAggASgLMh0uZ29vZ2xlLmFwaS5DdXN0b21IdHRwUGF0dGVybkgAEgwKBGJvZHkYByABKAkSFQoNcmVzcG9uc2VfYm9keRgMIAEoCRIxChNhZGRpdGlvbmFsX2JpbmRpbmdzGAsgAygLMhQuZ29vZ2xlLmFwaS5IdHRwUnVsZUIJCgdwYXR0ZXJuIi8KEUN1c3RvbUh0dHBQYXR0ZXJuEgwKBGtpbmQYASABKAkSDAoEcGF0aBgCIAEoCUKnAQoOY29tLmdvb2dsZS5hcGlCCUh0dHBQcm90b1ABWkFnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9hbm5vdGF0aW9uczthbm5vdGF0aW9uc6ICA0dBWKoCCkdvb2dsZS5BcGnKAgpHb29nbGVcQXBp4gIWR29vZ2xlXEFwaVxHUEJNZXRhZGF0YeoCC0dvb2dsZTo6QXBpYgZwcm90bzM",
+  );
 
 /**
  * Defines the HTTP configuration for an API service. It contains a list of
@@ -60,7 +63,8 @@ export type Http = Message<"google.api.Http"> & {
  * Describes the message google.api.Http.
  * Use `create(HttpSchema)` to create a new message.
  */
-export const HttpSchema: GenMessage<Http> = /*@__PURE__*/
+export const HttpSchema: GenMessage<Http> =
+  /*@__PURE__*/
   messageDesc(file_google_api_http, 0);
 
 /**
@@ -349,59 +353,66 @@ export type HttpRule = Message<"google.api.HttpRule"> & {
    *
    * @generated from oneof google.api.HttpRule.pattern
    */
-  pattern: {
-    /**
-     * Maps to HTTP GET. Used for listing and getting information about
-     * resources.
-     *
-     * @generated from field: string get = 2;
-     */
-    value: string;
-    case: "get";
-  } | {
-    /**
-     * Maps to HTTP PUT. Used for replacing a resource.
-     *
-     * @generated from field: string put = 3;
-     */
-    value: string;
-    case: "put";
-  } | {
-    /**
-     * Maps to HTTP POST. Used for creating a resource or performing an action.
-     *
-     * @generated from field: string post = 4;
-     */
-    value: string;
-    case: "post";
-  } | {
-    /**
-     * Maps to HTTP DELETE. Used for deleting a resource.
-     *
-     * @generated from field: string delete = 5;
-     */
-    value: string;
-    case: "delete";
-  } | {
-    /**
-     * Maps to HTTP PATCH. Used for updating a resource.
-     *
-     * @generated from field: string patch = 6;
-     */
-    value: string;
-    case: "patch";
-  } | {
-    /**
-     * The custom pattern is used for specifying an HTTP method that is not
-     * included in the `pattern` field, such as HEAD, or "*" to leave the
-     * HTTP method unspecified for this rule. The wild-card rule is useful
-     * for services that provide content to Web (HTML) clients.
-     *
-     * @generated from field: google.api.CustomHttpPattern custom = 8;
-     */
-    value: CustomHttpPattern;
-    case: "custom";
-  } | { case: undefined; value?: undefined };
+  pattern:
+    | {
+        /**
+         * Maps to HTTP GET. Used for listing and getting information about
+         * resources.
+         *
+         * @generated from field: string get = 2;
+         */
+        value: string;
+        case: "get";
+      }
+    | {
+        /**
+         * Maps to HTTP PUT. Used for replacing a resource.
+         *
+         * @generated from field: string put = 3;
+         */
+        value: string;
+        case: "put";
+      }
+    | {
+        /**
+         * Maps to HTTP POST. Used for creating a resource or performing an action.
+         *
+         * @generated from field: string post = 4;
+         */
+        value: string;
+        case: "post";
+      }
+    | {
+        /**
+         * Maps to HTTP DELETE. Used for deleting a resource.
+         *
+         * @generated from field: string delete = 5;
+         */
+        value: string;
+        case: "delete";
+      }
+    | {
+        /**
+         * Maps to HTTP PATCH. Used for updating a resource.
+         *
+         * @generated from field: string patch = 6;
+         */
+        value: string;
+        case: "patch";
+      }
+    | {
+        /**
+         * The custom pattern is used for specifying an HTTP method that is not
+         * included in the `pattern` field, such as HEAD, or "*" to leave the
+         * HTTP method unspecified for this rule. The wild-card rule is useful
+         * for services that provide content to Web (HTML) clients.
+         *
+         * @generated from field: google.api.CustomHttpPattern custom = 8;
+         */
+        value: CustomHttpPattern;
+        case: "custom";
+      }
+    | { case: undefined; value?: undefined };
 
   /**
    * The name of the request field whose value is mapped to the HTTP request
@@ -441,7 +452,8 @@ export type HttpRule = Message<"google.api.HttpRule"> & {
  * Describes the message google.api.HttpRule.
  * Use `create(HttpRuleSchema)` to create a new message.
  */
-export const HttpRuleSchema: GenMessage<HttpRule> = /*@__PURE__*/
+export const HttpRuleSchema: GenMessage<HttpRule> =
+  /*@__PURE__*/
   messageDesc(file_google_api_http, 1);
 
 /**
@@ -469,6 +481,6 @@ export type CustomHttpPattern = Message<"google.api.CustomHttpPattern"> & {
  * Describes the message google.api.CustomHttpPattern.
  * Use `create(CustomHttpPatternSchema)` to create a new message.
  */
-export const CustomHttpPatternSchema: GenMessage<CustomHttpPattern> = /*@__PURE__*/
+export const CustomHttpPatternSchema: GenMessage<CustomHttpPattern> =
+  /*@__PURE__*/
   messageDesc(file_google_api_http, 2);
-

@@ -2,19 +2,28 @@
 // @generated from file unitycatalog/sharing/v1/models.proto (package unitycatalog.sharing.v1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/sharing/v1/models.proto.
  */
-export const file_unitycatalog_sharing_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("CiR1bml0eWNhdGFsb2cvc2hhcmluZy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxIj4KBVNoYXJlEhgKBG5hbWUYASABKAlCCuBBCLpIBHICEAESFAoCaWQYAiABKAlCA+BBA0gAiAEBQgUKA19pZCJJCg1TaGFyaW5nU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL7AQoMU2hhcmluZ1RhYmxlEjcKBG5hbWUYASABKAlCKeBBCLpII3IhEAEY/wEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjUKBnNjaGVtYRgCIAEoCUIlukgiciAQARj/ATIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI1CgVzaGFyZRgDIAEoCUImukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSFAoCaWQYBCABKAlCA+BBA0gAiAEBEhoKCHNoYXJlX2lkGAUgASgJQgPgQQNIAYgBAUIFCgNfaWRCCwoJX3NoYXJlX2lkIrICChFTaGFyaW5nU2NoZW1hSW5mbxIPCgJpZBgBIAEoCUID4EEDEhgKBG5hbWUYAiABKAlCCuBBCLpIBHICEAESEgoFc2hhcmUYAyABKAlCA+BBAxIaCghzaGFyZV9pZBgEIAEoCUID4EEDSACIAQESHQoLZGVzY3JpcHRpb24YBSABKAlCA+BBAUgBiAEBElMKCnByb3BlcnRpZXMYBiADKAsyOi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5TaGFyaW5nU2NoZW1hSW5mby5Qcm9wZXJ0aWVzRW50cnlCA+BBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUILCglfc2hhcmVfaWRCDgoMX2Rlc2NyaXB0aW9uQvoBChtjb20udW5pdHljYXRhbG9nLnNoYXJpbmcudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJpbmcvdjE7c2hhcmluZ3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNoYXJpbmcuVjHKAhdVbml0eWNhdGFsb2dcU2hhcmluZ1xWMeICI1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTaGFyaW5nOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
+export const file_unitycatalog_sharing_v1_models: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiR1bml0eWNhdGFsb2cvc2hhcmluZy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zaGFyaW5nLnYxIj4KBVNoYXJlEhgKBG5hbWUYASABKAlCCuBBCLpIBHICEAESFAoCaWQYAiABKAlCA+BBA0gAiAEBQgUKA19pZCJJCg1TaGFyaW5nU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL7AQoMU2hhcmluZ1RhYmxlEjcKBG5hbWUYASABKAlCKeBBCLpII3IhEAEY/wEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjUKBnNjaGVtYRgCIAEoCUIlukgiciAQARj/ATIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI1CgVzaGFyZRgDIAEoCUImukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSFAoCaWQYBCABKAlCA+BBA0gAiAEBEhoKCHNoYXJlX2lkGAUgASgJQgPgQQNIAYgBAUIFCgNfaWRCCwoJX3NoYXJlX2lkIrICChFTaGFyaW5nU2NoZW1hSW5mbxIPCgJpZBgBIAEoCUID4EEDEhgKBG5hbWUYAiABKAlCCuBBCLpIBHICEAESEgoFc2hhcmUYAyABKAlCA+BBAxIaCghzaGFyZV9pZBgEIAEoCUID4EEDSACIAQESHQoLZGVzY3JpcHRpb24YBSABKAlCA+BBAUgBiAEBElMKCnByb3BlcnRpZXMYBiADKAsyOi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5TaGFyaW5nU2NoZW1hSW5mby5Qcm9wZXJ0aWVzRW50cnlCA+BBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUILCglfc2hhcmVfaWRCDgoMX2Rlc2NyaXB0aW9uQvoBChtjb20udW5pdHljYXRhbG9nLnNoYXJpbmcudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJpbmcvdjE7c2hhcmluZ3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNoYXJpbmcuVjHKAhdVbml0eWNhdGFsb2dcU2hhcmluZ1xWMeICI1VuaXR5Y2F0YWxvZ1xTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTaGFyaW5nOjpWMWIGcHJvdG8z",
+    [
+      file_buf_validate_validate,
+      file_google_api_field_behavior,
+      file_google_api_resource,
+      file_google_protobuf_struct,
+    ],
+  );
 
 /**
  * A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.
@@ -42,7 +51,8 @@ export type Share = Message<"unitycatalog.sharing.v1.Share"> & {
  * Describes the message unitycatalog.sharing.v1.Share.
  * Use `create(ShareSchema)` to create a new message.
  */
-export const ShareSchema: GenMessage<Share> = /*@__PURE__*/
+export const ShareSchema: GenMessage<Share> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_sharing_v1_models, 0);
 
 /**
@@ -77,7 +87,8 @@ export type SharingSchema = Message<"unitycatalog.sharing.v1.SharingSchema"> & {
  * Describes the message unitycatalog.sharing.v1.SharingSchema.
  * Use `create(SharingSchemaSchema)` to create a new message.
  */
-export const SharingSchemaSchema: GenMessage<SharingSchema> = /*@__PURE__*/
+export const SharingSchemaSchema: GenMessage<SharingSchema> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_sharing_v1_models, 1);
 
 /**
@@ -126,7 +137,8 @@ export type SharingTable = Message<"unitycatalog.sharing.v1.SharingTable"> & {
  * Describes the message unitycatalog.sharing.v1.SharingTable.
  * Use `create(SharingTableSchema)` to create a new message.
  */
-export const SharingTableSchema: GenMessage<SharingTable> = /*@__PURE__*/
+export const SharingTableSchema: GenMessage<SharingTable> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_sharing_v1_models, 2);
 
 /**
@@ -137,54 +149,55 @@ export const SharingTableSchema: GenMessage<SharingTable> = /*@__PURE__*/
  *
  * @generated from message unitycatalog.sharing.v1.SharingSchemaInfo
  */
-export type SharingSchemaInfo = Message<"unitycatalog.sharing.v1.SharingSchemaInfo"> & {
-  /**
-   * Unique identifier for the schema.
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
+export type SharingSchemaInfo =
+  Message<"unitycatalog.sharing.v1.SharingSchemaInfo"> & {
+    /**
+     * Unique identifier for the schema.
+     *
+     * @generated from field: string id = 1;
+     */
+    id: string;
 
-  /**
-   * The name of the schema.
-   *
-   * @generated from field: string name = 2;
-   */
-  name: string;
+    /**
+     * The name of the schema.
+     *
+     * @generated from field: string name = 2;
+     */
+    name: string;
 
-  /**
-   * The share name that the schema belongs to.
-   *
-   * @generated from field: string share = 3;
-   */
-  share: string;
+    /**
+     * The share name that the schema belongs to.
+     *
+     * @generated from field: string share = 3;
+     */
+    share: string;
 
-  /**
-   * The unique identifier for the share this schema belongs to.
-   *
-   * @generated from field: optional string share_id = 4;
-   */
-  shareId?: string;
+    /**
+     * The unique identifier for the share this schema belongs to.
+     *
+     * @generated from field: optional string share_id = 4;
+     */
+    shareId?: string;
 
-  /**
-   * User-provided free-form text description.
-   *
-   * @generated from field: optional string description = 5;
-   */
-  description?: string;
+    /**
+     * User-provided free-form text description.
+     *
+     * @generated from field: optional string description = 5;
+     */
+    description?: string;
 
-  /**
-   * A map of key-value properties attached to the securable.
-   *
-   * @generated from field: map<string, string> properties = 6;
-   */
-  properties: { [key: string]: string };
-};
+    /**
+     * A map of key-value properties attached to the securable.
+     *
+     * @generated from field: map<string, string> properties = 6;
+     */
+    properties: { [key: string]: string };
+  };
 
 /**
  * Describes the message unitycatalog.sharing.v1.SharingSchemaInfo.
  * Use `create(SharingSchemaInfoSchema)` to create a new message.
  */
-export const SharingSchemaInfoSchema: GenMessage<SharingSchemaInfo> = /*@__PURE__*/
+export const SharingSchemaInfoSchema: GenMessage<SharingSchemaInfo> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_sharing_v1_models, 3);
-

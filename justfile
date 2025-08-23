@@ -19,9 +19,8 @@ generate-full: generate-common-ext generate-build-ext generate-proto generate-co
 generate-proto:
     buf generate proto
     just generate-openapi
-    cargo clippy --fix --allow-dirty --allow-staged
 
-# Update the generated openapi spec with validation extraced from generated jsonschema.
+# Update the generated openapi spec with validation extracted from generated jsonschema.
 [group('codegen')]
 generate-openapi:
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
@@ -69,7 +68,6 @@ rest-db:
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
         cargo run -p unitycatalog-cli -- server --rest --use-db
 
-
 docs:
     npm run dev -w docs
 
@@ -99,7 +97,7 @@ build-node:
 build-docker:
     docker build -f crates/cli/Dockerfile -t unitycatalog-rs:dev .
 
-# build sqlx quieries to support offline mode
+# build sqlx queries to support offline mode
 [group('build')]
 build-sqlx: _start_pg_sqlx
     # Wait for PostgreSQL to be ready
@@ -143,3 +141,18 @@ integration-record:
     UC_INTEGRATION_STORAGE_ROOT="$DATABRICKS_STORAGE_ROOT" \
     UC_INTEGRATION_RECORD="true" \
     cargo run --bin unitycatalog-acceptance
+
+lint-node:
+    # lint nodejs bindings
+    npm run lint -w @unitycatalog/client
+
+fix: fix-rust fix-node
+
+fix-node:
+    # fix nodejs bindings
+    npm run lint-fix -w @unitycatalog/client
+
+fix-rust:
+    # fix nodejs bindings
+    cargo clippy --fix --workspace --allow-dirty --all-features
+    cargo fmt

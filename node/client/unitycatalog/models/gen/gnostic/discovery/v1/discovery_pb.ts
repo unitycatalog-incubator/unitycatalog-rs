@@ -18,17 +18,21 @@
 // @generated from file gnostic/discovery/v1/discovery.proto (package gnostic.discovery.v1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any as Any$1 } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_any } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file gnostic/discovery/v1/discovery.proto.
  */
-export const file_gnostic_discovery_v1_discovery: GenFile = /*@__PURE__*/
-  fileDesc("CiRnbm9zdGljL2Rpc2NvdmVyeS92MS9kaXNjb3ZlcnkucHJvdG8SFGdub3N0aWMuZGlzY292ZXJ5LnYxIh8KC0Fubm90YXRpb25zEhAKCHJlcXVpcmVkGAEgAygJIjgKA0FueRIjCgV2YWx1ZRgBIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSDAoEeWFtbBgCIAEoCSI0CgRBdXRoEiwKBm9hdXRoMhgBIAEoCzIcLmdub3N0aWMuZGlzY292ZXJ5LnYxLk9hdXRoMiKjBgoIRG9jdW1lbnQSDAoEa2luZBgBIAEoCRIZChFkaXNjb3ZlcnlfdmVyc2lvbhgCIAEoCRIKCgJpZBgDIAEoCRIMCgRuYW1lGAQgASgJEg8KB3ZlcnNpb24YBSABKAkSEAoIcmV2aXNpb24YBiABKAkSDQoFdGl0bGUYByABKAkSEwoLZGVzY3JpcHRpb24YCCABKAkSKgoFaWNvbnMYCSABKAsyGy5nbm9zdGljLmRpc2NvdmVyeS52MS5JY29ucxIaChJkb2N1bWVudGF0aW9uX2xpbmsYCiABKAkSDgoGbGFiZWxzGAsgAygJEhAKCHByb3RvY29sGAwgASgJEhAKCGJhc2VfdXJsGA0gASgJEhEKCWJhc2VfcGF0aBgOIAEoCRIQCghyb290X3VybBgPIAEoCRIUCgxzZXJ2aWNlX3BhdGgYECABKAkSEgoKYmF0Y2hfcGF0aBgRIAEoCRI0CgpwYXJhbWV0ZXJzGBIgASgLMiAuZ25vc3RpYy5kaXNjb3ZlcnkudjEuUGFyYW1ldGVycxIoCgRhdXRoGBMgASgLMhouZ25vc3RpYy5kaXNjb3ZlcnkudjEuQXV0aBIQCghmZWF0dXJlcxgUIAMoCRIuCgdzY2hlbWFzGBUgASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hcxIuCgdtZXRob2RzGBYgASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuTWV0aG9kcxIyCglyZXNvdXJjZXMYFyABKAsyHy5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNvdXJjZXMSDAoEZXRhZxgYIAEoCRIUCgxvd25lcl9kb21haW4YGSABKAkSEgoKb3duZXJfbmFtZRgaIAEoCRIWCg52ZXJzaW9uX21vZHVsZRgbIAEoCBIWCg5jYW5vbmljYWxfbmFtZRgcIAEoCRInCh9mdWxseV9lbmNvZGVfcmVzZXJ2ZWRfZXhwYW5zaW9uGB0gASgIEhQKDHBhY2thZ2VfcGF0aBgeIAEoCRIVCg1tdGxzX3Jvb3RfdXJsGB8gASgJIiEKBUljb25zEgsKA3gxNhgBIAEoCRILCgN4MzIYAiABKAkiggEKC01lZGlhVXBsb2FkEg4KBmFjY2VwdBgBIAMoCRIQCghtYXhfc2l6ZRgCIAEoCRIyCglwcm90b2NvbHMYAyABKAsyHy5nbm9zdGljLmRpc2NvdmVyeS52MS5Qcm90b2NvbHMSHQoVc3VwcG9ydHNfc3Vic2NyaXB0aW9uGAQgASgIIosECgZNZXRob2QSCgoCaWQYASABKAkSDAoEcGF0aBgCIAEoCRITCgtodHRwX21ldGhvZBgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRI0CgpwYXJhbWV0ZXJzGAUgASgLMiAuZ25vc3RpYy5kaXNjb3ZlcnkudjEuUGFyYW1ldGVycxIXCg9wYXJhbWV0ZXJfb3JkZXIYBiADKAkSLgoHcmVxdWVzdBgHIAEoCzIdLmdub3N0aWMuZGlzY292ZXJ5LnYxLlJlcXVlc3QSMAoIcmVzcG9uc2UYCCABKAsyHi5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNwb25zZRIOCgZzY29wZXMYCSADKAkSHwoXc3VwcG9ydHNfbWVkaWFfZG93bmxvYWQYCiABKAgSHQoVc3VwcG9ydHNfbWVkaWFfdXBsb2FkGAsgASgIEiIKGnVzZV9tZWRpYV9kb3dubG9hZF9zZXJ2aWNlGAwgASgIEjcKDG1lZGlhX3VwbG9hZBgNIAEoCzIhLmdub3N0aWMuZGlzY292ZXJ5LnYxLk1lZGlhVXBsb2FkEh0KFXN1cHBvcnRzX3N1YnNjcmlwdGlvbhgOIAEoCBIRCglmbGF0X3BhdGgYDyABKAkSFQoNZXRhZ19yZXF1aXJlZBgQIAEoCBIWCg5zdHJlYW1pbmdfdHlwZRgRIAEoCSJLCgdNZXRob2RzEkAKFWFkZGl0aW9uYWxfcHJvcGVydGllcxgBIAMoCzIhLmdub3N0aWMuZGlzY292ZXJ5LnYxLk5hbWVkTWV0aG9kIkgKC05hbWVkTWV0aG9kEgwKBG5hbWUYASABKAkSKwoFdmFsdWUYAiABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5NZXRob2QiTgoOTmFtZWRQYXJhbWV0ZXISDAoEbmFtZRgBIAEoCRIuCgV2YWx1ZRgCIAEoCzIfLmdub3N0aWMuZGlzY292ZXJ5LnYxLlBhcmFtZXRlciJMCg1OYW1lZFJlc291cmNlEgwKBG5hbWUYASABKAkSLQoFdmFsdWUYAiABKAsyHi5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNvdXJjZSJICgtOYW1lZFNjaGVtYRIMCgRuYW1lGAEgASgJEisKBXZhbHVlGAIgASgLMhwuZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hIkYKCk5hbWVkU2NvcGUSDAoEbmFtZRgBIAEoCRIqCgV2YWx1ZRgCIAEoCzIbLmdub3N0aWMuZGlzY292ZXJ5LnYxLlNjb3BlIjYKBk9hdXRoMhIsCgZzY29wZXMYASABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TY29wZXMi0AMKCVBhcmFtZXRlchIKCgJpZBgBIAEoCRIMCgR0eXBlGAIgASgJEgwKBF9yZWYYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDwoHZGVmYXVsdBgFIAEoCRIQCghyZXF1aXJlZBgGIAEoCBIOCgZmb3JtYXQYByABKAkSDwoHcGF0dGVybhgIIAEoCRIPCgdtaW5pbXVtGAkgASgJEg8KB21heGltdW0YCiABKAkSDAoEZW51bRgLIAMoCRIZChFlbnVtX2Rlc2NyaXB0aW9ucxgMIAMoCRIQCghyZXBlYXRlZBgNIAEoCBIQCghsb2NhdGlvbhgOIAEoCRIxCgpwcm9wZXJ0aWVzGA8gASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hcxI7ChVhZGRpdGlvbmFsX3Byb3BlcnRpZXMYECABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TY2hlbWESKwoFaXRlbXMYESABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TY2hlbWESNgoLYW5ub3RhdGlvbnMYEiABKAsyIS5nbm9zdGljLmRpc2NvdmVyeS52MS5Bbm5vdGF0aW9ucyJRCgpQYXJhbWV0ZXJzEkMKFWFkZGl0aW9uYWxfcHJvcGVydGllcxgBIAMoCzIkLmdub3N0aWMuZGlzY292ZXJ5LnYxLk5hbWVkUGFyYW1ldGVyIm0KCVByb3RvY29scxIsCgZzaW1wbGUYASABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TaW1wbGUSMgoJcmVzdW1hYmxlGAIgASgLMh8uZ25vc3RpYy5kaXNjb3ZlcnkudjEuUmVzdW1hYmxlIi8KB1JlcXVlc3QSDAoEX3JlZhgBIAEoCRIWCg5wYXJhbWV0ZXJfbmFtZRgCIAEoCSJuCghSZXNvdXJjZRIuCgdtZXRob2RzGAEgASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuTWV0aG9kcxIyCglyZXNvdXJjZXMYAiABKAsyHy5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNvdXJjZXMiTwoJUmVzb3VyY2VzEkIKFWFkZGl0aW9uYWxfcHJvcGVydGllcxgBIAMoCzIjLmdub3N0aWMuZGlzY292ZXJ5LnYxLk5hbWVkUmVzb3VyY2UiGAoIUmVzcG9uc2USDAoEX3JlZhgBIAEoCSIsCglSZXN1bWFibGUSEQoJbXVsdGlwYXJ0GAEgASgIEgwKBHBhdGgYAiABKAki4AMKBlNjaGVtYRIKCgJpZBgBIAEoCRIMCgR0eXBlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEg8KB2RlZmF1bHQYBCABKAkSEAoIcmVxdWlyZWQYBSABKAgSDgoGZm9ybWF0GAYgASgJEg8KB3BhdHRlcm4YByABKAkSDwoHbWluaW11bRgIIAEoCRIPCgdtYXhpbXVtGAkgASgJEgwKBGVudW0YCiADKAkSGQoRZW51bV9kZXNjcmlwdGlvbnMYCyADKAkSEAoIcmVwZWF0ZWQYDCABKAgSEAoIbG9jYXRpb24YDSABKAkSMQoKcHJvcGVydGllcxgOIAEoCzIdLmdub3N0aWMuZGlzY292ZXJ5LnYxLlNjaGVtYXMSOwoVYWRkaXRpb25hbF9wcm9wZXJ0aWVzGA8gASgLMhwuZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hEisKBWl0ZW1zGBAgASgLMhwuZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hEgwKBF9yZWYYESABKAkSNgoLYW5ub3RhdGlvbnMYEiABKAsyIS5nbm9zdGljLmRpc2NvdmVyeS52MS5Bbm5vdGF0aW9ucxIRCglyZWFkX29ubHkYEyABKAgiSwoHU2NoZW1hcxJAChVhZGRpdGlvbmFsX3Byb3BlcnRpZXMYASADKAsyIS5nbm9zdGljLmRpc2NvdmVyeS52MS5OYW1lZFNjaGVtYSIcCgVTY29wZRITCgtkZXNjcmlwdGlvbhgBIAEoCSJJCgZTY29wZXMSPwoVYWRkaXRpb25hbF9wcm9wZXJ0aWVzGAEgAygLMiAuZ25vc3RpYy5kaXNjb3ZlcnkudjEuTmFtZWRTY29wZSIpCgZTaW1wbGUSEQoJbXVsdGlwYXJ0GAEgASgIEgwKBHBhdGgYAiABKAkiHAoLU3RyaW5nQXJyYXkSDQoFdmFsdWUYASADKAlCzgEKGGNvbS5nbm9zdGljLmRpc2NvdmVyeS52MUIORGlzY292ZXJ5UHJvdG9QAVowZ2l0aHViLmNvbS9nb29nbGUvZ25vc3RpYy9kaXNjb3Zlcnk7ZGlzY292ZXJ5X3YxogIDR0RYqgIUR25vc3RpYy5EaXNjb3ZlcnkuVjHKAhRHbm9zdGljXERpc2NvdmVyeVxWMeICIEdub3N0aWNcRGlzY292ZXJ5XFYxXEdQQk1ldGFkYXRh6gIWR25vc3RpYzo6RGlzY292ZXJ5OjpWMWIGcHJvdG8z", [file_google_protobuf_any]);
+export const file_gnostic_discovery_v1_discovery: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiRnbm9zdGljL2Rpc2NvdmVyeS92MS9kaXNjb3ZlcnkucHJvdG8SFGdub3N0aWMuZGlzY292ZXJ5LnYxIh8KC0Fubm90YXRpb25zEhAKCHJlcXVpcmVkGAEgAygJIjgKA0FueRIjCgV2YWx1ZRgBIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSDAoEeWFtbBgCIAEoCSI0CgRBdXRoEiwKBm9hdXRoMhgBIAEoCzIcLmdub3N0aWMuZGlzY292ZXJ5LnYxLk9hdXRoMiKjBgoIRG9jdW1lbnQSDAoEa2luZBgBIAEoCRIZChFkaXNjb3ZlcnlfdmVyc2lvbhgCIAEoCRIKCgJpZBgDIAEoCRIMCgRuYW1lGAQgASgJEg8KB3ZlcnNpb24YBSABKAkSEAoIcmV2aXNpb24YBiABKAkSDQoFdGl0bGUYByABKAkSEwoLZGVzY3JpcHRpb24YCCABKAkSKgoFaWNvbnMYCSABKAsyGy5nbm9zdGljLmRpc2NvdmVyeS52MS5JY29ucxIaChJkb2N1bWVudGF0aW9uX2xpbmsYCiABKAkSDgoGbGFiZWxzGAsgAygJEhAKCHByb3RvY29sGAwgASgJEhAKCGJhc2VfdXJsGA0gASgJEhEKCWJhc2VfcGF0aBgOIAEoCRIQCghyb290X3VybBgPIAEoCRIUCgxzZXJ2aWNlX3BhdGgYECABKAkSEgoKYmF0Y2hfcGF0aBgRIAEoCRI0CgpwYXJhbWV0ZXJzGBIgASgLMiAuZ25vc3RpYy5kaXNjb3ZlcnkudjEuUGFyYW1ldGVycxIoCgRhdXRoGBMgASgLMhouZ25vc3RpYy5kaXNjb3ZlcnkudjEuQXV0aBIQCghmZWF0dXJlcxgUIAMoCRIuCgdzY2hlbWFzGBUgASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hcxIuCgdtZXRob2RzGBYgASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuTWV0aG9kcxIyCglyZXNvdXJjZXMYFyABKAsyHy5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNvdXJjZXMSDAoEZXRhZxgYIAEoCRIUCgxvd25lcl9kb21haW4YGSABKAkSEgoKb3duZXJfbmFtZRgaIAEoCRIWCg52ZXJzaW9uX21vZHVsZRgbIAEoCBIWCg5jYW5vbmljYWxfbmFtZRgcIAEoCRInCh9mdWxseV9lbmNvZGVfcmVzZXJ2ZWRfZXhwYW5zaW9uGB0gASgIEhQKDHBhY2thZ2VfcGF0aBgeIAEoCRIVCg1tdGxzX3Jvb3RfdXJsGB8gASgJIiEKBUljb25zEgsKA3gxNhgBIAEoCRILCgN4MzIYAiABKAkiggEKC01lZGlhVXBsb2FkEg4KBmFjY2VwdBgBIAMoCRIQCghtYXhfc2l6ZRgCIAEoCRIyCglwcm90b2NvbHMYAyABKAsyHy5nbm9zdGljLmRpc2NvdmVyeS52MS5Qcm90b2NvbHMSHQoVc3VwcG9ydHNfc3Vic2NyaXB0aW9uGAQgASgIIosECgZNZXRob2QSCgoCaWQYASABKAkSDAoEcGF0aBgCIAEoCRITCgtodHRwX21ldGhvZBgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRI0CgpwYXJhbWV0ZXJzGAUgASgLMiAuZ25vc3RpYy5kaXNjb3ZlcnkudjEuUGFyYW1ldGVycxIXCg9wYXJhbWV0ZXJfb3JkZXIYBiADKAkSLgoHcmVxdWVzdBgHIAEoCzIdLmdub3N0aWMuZGlzY292ZXJ5LnYxLlJlcXVlc3QSMAoIcmVzcG9uc2UYCCABKAsyHi5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNwb25zZRIOCgZzY29wZXMYCSADKAkSHwoXc3VwcG9ydHNfbWVkaWFfZG93bmxvYWQYCiABKAgSHQoVc3VwcG9ydHNfbWVkaWFfdXBsb2FkGAsgASgIEiIKGnVzZV9tZWRpYV9kb3dubG9hZF9zZXJ2aWNlGAwgASgIEjcKDG1lZGlhX3VwbG9hZBgNIAEoCzIhLmdub3N0aWMuZGlzY292ZXJ5LnYxLk1lZGlhVXBsb2FkEh0KFXN1cHBvcnRzX3N1YnNjcmlwdGlvbhgOIAEoCBIRCglmbGF0X3BhdGgYDyABKAkSFQoNZXRhZ19yZXF1aXJlZBgQIAEoCBIWCg5zdHJlYW1pbmdfdHlwZRgRIAEoCSJLCgdNZXRob2RzEkAKFWFkZGl0aW9uYWxfcHJvcGVydGllcxgBIAMoCzIhLmdub3N0aWMuZGlzY292ZXJ5LnYxLk5hbWVkTWV0aG9kIkgKC05hbWVkTWV0aG9kEgwKBG5hbWUYASABKAkSKwoFdmFsdWUYAiABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5NZXRob2QiTgoOTmFtZWRQYXJhbWV0ZXISDAoEbmFtZRgBIAEoCRIuCgV2YWx1ZRgCIAEoCzIfLmdub3N0aWMuZGlzY292ZXJ5LnYxLlBhcmFtZXRlciJMCg1OYW1lZFJlc291cmNlEgwKBG5hbWUYASABKAkSLQoFdmFsdWUYAiABKAsyHi5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNvdXJjZSJICgtOYW1lZFNjaGVtYRIMCgRuYW1lGAEgASgJEisKBXZhbHVlGAIgASgLMhwuZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hIkYKCk5hbWVkU2NvcGUSDAoEbmFtZRgBIAEoCRIqCgV2YWx1ZRgCIAEoCzIbLmdub3N0aWMuZGlzY292ZXJ5LnYxLlNjb3BlIjYKBk9hdXRoMhIsCgZzY29wZXMYASABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TY29wZXMi0AMKCVBhcmFtZXRlchIKCgJpZBgBIAEoCRIMCgR0eXBlGAIgASgJEgwKBF9yZWYYAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDwoHZGVmYXVsdBgFIAEoCRIQCghyZXF1aXJlZBgGIAEoCBIOCgZmb3JtYXQYByABKAkSDwoHcGF0dGVybhgIIAEoCRIPCgdtaW5pbXVtGAkgASgJEg8KB21heGltdW0YCiABKAkSDAoEZW51bRgLIAMoCRIZChFlbnVtX2Rlc2NyaXB0aW9ucxgMIAMoCRIQCghyZXBlYXRlZBgNIAEoCBIQCghsb2NhdGlvbhgOIAEoCRIxCgpwcm9wZXJ0aWVzGA8gASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hcxI7ChVhZGRpdGlvbmFsX3Byb3BlcnRpZXMYECABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TY2hlbWESKwoFaXRlbXMYESABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TY2hlbWESNgoLYW5ub3RhdGlvbnMYEiABKAsyIS5nbm9zdGljLmRpc2NvdmVyeS52MS5Bbm5vdGF0aW9ucyJRCgpQYXJhbWV0ZXJzEkMKFWFkZGl0aW9uYWxfcHJvcGVydGllcxgBIAMoCzIkLmdub3N0aWMuZGlzY292ZXJ5LnYxLk5hbWVkUGFyYW1ldGVyIm0KCVByb3RvY29scxIsCgZzaW1wbGUYASABKAsyHC5nbm9zdGljLmRpc2NvdmVyeS52MS5TaW1wbGUSMgoJcmVzdW1hYmxlGAIgASgLMh8uZ25vc3RpYy5kaXNjb3ZlcnkudjEuUmVzdW1hYmxlIi8KB1JlcXVlc3QSDAoEX3JlZhgBIAEoCRIWCg5wYXJhbWV0ZXJfbmFtZRgCIAEoCSJuCghSZXNvdXJjZRIuCgdtZXRob2RzGAEgASgLMh0uZ25vc3RpYy5kaXNjb3ZlcnkudjEuTWV0aG9kcxIyCglyZXNvdXJjZXMYAiABKAsyHy5nbm9zdGljLmRpc2NvdmVyeS52MS5SZXNvdXJjZXMiTwoJUmVzb3VyY2VzEkIKFWFkZGl0aW9uYWxfcHJvcGVydGllcxgBIAMoCzIjLmdub3N0aWMuZGlzY292ZXJ5LnYxLk5hbWVkUmVzb3VyY2UiGAoIUmVzcG9uc2USDAoEX3JlZhgBIAEoCSIsCglSZXN1bWFibGUSEQoJbXVsdGlwYXJ0GAEgASgIEgwKBHBhdGgYAiABKAki4AMKBlNjaGVtYRIKCgJpZBgBIAEoCRIMCgR0eXBlGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEg8KB2RlZmF1bHQYBCABKAkSEAoIcmVxdWlyZWQYBSABKAgSDgoGZm9ybWF0GAYgASgJEg8KB3BhdHRlcm4YByABKAkSDwoHbWluaW11bRgIIAEoCRIPCgdtYXhpbXVtGAkgASgJEgwKBGVudW0YCiADKAkSGQoRZW51bV9kZXNjcmlwdGlvbnMYCyADKAkSEAoIcmVwZWF0ZWQYDCABKAgSEAoIbG9jYXRpb24YDSABKAkSMQoKcHJvcGVydGllcxgOIAEoCzIdLmdub3N0aWMuZGlzY292ZXJ5LnYxLlNjaGVtYXMSOwoVYWRkaXRpb25hbF9wcm9wZXJ0aWVzGA8gASgLMhwuZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hEisKBWl0ZW1zGBAgASgLMhwuZ25vc3RpYy5kaXNjb3ZlcnkudjEuU2NoZW1hEgwKBF9yZWYYESABKAkSNgoLYW5ub3RhdGlvbnMYEiABKAsyIS5nbm9zdGljLmRpc2NvdmVyeS52MS5Bbm5vdGF0aW9ucxIRCglyZWFkX29ubHkYEyABKAgiSwoHU2NoZW1hcxJAChVhZGRpdGlvbmFsX3Byb3BlcnRpZXMYASADKAsyIS5nbm9zdGljLmRpc2NvdmVyeS52MS5OYW1lZFNjaGVtYSIcCgVTY29wZRITCgtkZXNjcmlwdGlvbhgBIAEoCSJJCgZTY29wZXMSPwoVYWRkaXRpb25hbF9wcm9wZXJ0aWVzGAEgAygLMiAuZ25vc3RpYy5kaXNjb3ZlcnkudjEuTmFtZWRTY29wZSIpCgZTaW1wbGUSEQoJbXVsdGlwYXJ0GAEgASgIEgwKBHBhdGgYAiABKAkiHAoLU3RyaW5nQXJyYXkSDQoFdmFsdWUYASADKAlCzgEKGGNvbS5nbm9zdGljLmRpc2NvdmVyeS52MUIORGlzY292ZXJ5UHJvdG9QAVowZ2l0aHViLmNvbS9nb29nbGUvZ25vc3RpYy9kaXNjb3Zlcnk7ZGlzY292ZXJ5X3YxogIDR0RYqgIUR25vc3RpYy5EaXNjb3ZlcnkuVjHKAhRHbm9zdGljXERpc2NvdmVyeVxWMeICIEdub3N0aWNcRGlzY292ZXJ5XFYxXEdQQk1ldGFkYXRh6gIWR25vc3RpYzo6RGlzY292ZXJ5OjpWMWIGcHJvdG8z",
+    [file_google_protobuf_any],
+  );
 
 /**
  * @generated from message gnostic.discovery.v1.Annotations
@@ -44,7 +48,8 @@ export type Annotations = Message<"gnostic.discovery.v1.Annotations"> & {
  * Describes the message gnostic.discovery.v1.Annotations.
  * Use `create(AnnotationsSchema)` to create a new message.
  */
-export const AnnotationsSchema: GenMessage<Annotations> = /*@__PURE__*/
+export const AnnotationsSchema: GenMessage<Annotations> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 0);
 
 /**
@@ -66,7 +71,8 @@ export type Any = Message<"gnostic.discovery.v1.Any"> & {
  * Describes the message gnostic.discovery.v1.Any.
  * Use `create(AnySchema)` to create a new message.
  */
-export const AnySchema: GenMessage<Any> = /*@__PURE__*/
+export const AnySchema: GenMessage<Any> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 1);
 
 /**
@@ -83,7 +89,8 @@ export type Auth = Message<"gnostic.discovery.v1.Auth"> & {
  * Describes the message gnostic.discovery.v1.Auth.
  * Use `create(AuthSchema)` to create a new message.
  */
-export const AuthSchema: GenMessage<Auth> = /*@__PURE__*/
+export const AuthSchema: GenMessage<Auth> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 2);
 
 /**
@@ -250,7 +257,8 @@ export type Document = Message<"gnostic.discovery.v1.Document"> & {
  * Describes the message gnostic.discovery.v1.Document.
  * Use `create(DocumentSchema)` to create a new message.
  */
-export const DocumentSchema: GenMessage<Document> = /*@__PURE__*/
+export const DocumentSchema: GenMessage<Document> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 3);
 
 /**
@@ -274,7 +282,8 @@ export type Icons = Message<"gnostic.discovery.v1.Icons"> & {
  * Describes the message gnostic.discovery.v1.Icons.
  * Use `create(IconsSchema)` to create a new message.
  */
-export const IconsSchema: GenMessage<Icons> = /*@__PURE__*/
+export const IconsSchema: GenMessage<Icons> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 4);
 
 /**
@@ -306,7 +315,8 @@ export type MediaUpload = Message<"gnostic.discovery.v1.MediaUpload"> & {
  * Describes the message gnostic.discovery.v1.MediaUpload.
  * Use `create(MediaUploadSchema)` to create a new message.
  */
-export const MediaUploadSchema: GenMessage<MediaUpload> = /*@__PURE__*/
+export const MediaUploadSchema: GenMessage<MediaUpload> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 5);
 
 /**
@@ -403,7 +413,8 @@ export type Method = Message<"gnostic.discovery.v1.Method"> & {
  * Describes the message gnostic.discovery.v1.Method.
  * Use `create(MethodSchema)` to create a new message.
  */
-export const MethodSchema: GenMessage<Method> = /*@__PURE__*/
+export const MethodSchema: GenMessage<Method> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 6);
 
 /**
@@ -420,7 +431,8 @@ export type Methods = Message<"gnostic.discovery.v1.Methods"> & {
  * Describes the message gnostic.discovery.v1.Methods.
  * Use `create(MethodsSchema)` to create a new message.
  */
-export const MethodsSchema: GenMessage<Methods> = /*@__PURE__*/
+export const MethodsSchema: GenMessage<Methods> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 7);
 
 /**
@@ -448,7 +460,8 @@ export type NamedMethod = Message<"gnostic.discovery.v1.NamedMethod"> & {
  * Describes the message gnostic.discovery.v1.NamedMethod.
  * Use `create(NamedMethodSchema)` to create a new message.
  */
-export const NamedMethodSchema: GenMessage<NamedMethod> = /*@__PURE__*/
+export const NamedMethodSchema: GenMessage<NamedMethod> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 8);
 
 /**
@@ -476,7 +489,8 @@ export type NamedParameter = Message<"gnostic.discovery.v1.NamedParameter"> & {
  * Describes the message gnostic.discovery.v1.NamedParameter.
  * Use `create(NamedParameterSchema)` to create a new message.
  */
-export const NamedParameterSchema: GenMessage<NamedParameter> = /*@__PURE__*/
+export const NamedParameterSchema: GenMessage<NamedParameter> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 9);
 
 /**
@@ -504,7 +518,8 @@ export type NamedResource = Message<"gnostic.discovery.v1.NamedResource"> & {
  * Describes the message gnostic.discovery.v1.NamedResource.
  * Use `create(NamedResourceSchema)` to create a new message.
  */
-export const NamedResourceSchema: GenMessage<NamedResource> = /*@__PURE__*/
+export const NamedResourceSchema: GenMessage<NamedResource> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 10);
 
 /**
@@ -532,7 +547,8 @@ export type NamedSchema = Message<"gnostic.discovery.v1.NamedSchema"> & {
  * Describes the message gnostic.discovery.v1.NamedSchema.
  * Use `create(NamedSchemaSchema)` to create a new message.
  */
-export const NamedSchemaSchema: GenMessage<NamedSchema> = /*@__PURE__*/
+export const NamedSchemaSchema: GenMessage<NamedSchema> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 11);
 
 /**
@@ -560,7 +576,8 @@ export type NamedScope = Message<"gnostic.discovery.v1.NamedScope"> & {
  * Describes the message gnostic.discovery.v1.NamedScope.
  * Use `create(NamedScopeSchema)` to create a new message.
  */
-export const NamedScopeSchema: GenMessage<NamedScope> = /*@__PURE__*/
+export const NamedScopeSchema: GenMessage<NamedScope> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 12);
 
 /**
@@ -577,7 +594,8 @@ export type Oauth2 = Message<"gnostic.discovery.v1.Oauth2"> & {
  * Describes the message gnostic.discovery.v1.Oauth2.
  * Use `create(Oauth2Schema)` to create a new message.
  */
-export const Oauth2Schema: GenMessage<Oauth2> = /*@__PURE__*/
+export const Oauth2Schema: GenMessage<Oauth2> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 13);
 
 /**
@@ -679,7 +697,8 @@ export type Parameter = Message<"gnostic.discovery.v1.Parameter"> & {
  * Describes the message gnostic.discovery.v1.Parameter.
  * Use `create(ParameterSchema)` to create a new message.
  */
-export const ParameterSchema: GenMessage<Parameter> = /*@__PURE__*/
+export const ParameterSchema: GenMessage<Parameter> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 14);
 
 /**
@@ -696,7 +715,8 @@ export type Parameters = Message<"gnostic.discovery.v1.Parameters"> & {
  * Describes the message gnostic.discovery.v1.Parameters.
  * Use `create(ParametersSchema)` to create a new message.
  */
-export const ParametersSchema: GenMessage<Parameters> = /*@__PURE__*/
+export const ParametersSchema: GenMessage<Parameters> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 15);
 
 /**
@@ -718,7 +738,8 @@ export type Protocols = Message<"gnostic.discovery.v1.Protocols"> & {
  * Describes the message gnostic.discovery.v1.Protocols.
  * Use `create(ProtocolsSchema)` to create a new message.
  */
-export const ProtocolsSchema: GenMessage<Protocols> = /*@__PURE__*/
+export const ProtocolsSchema: GenMessage<Protocols> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 16);
 
 /**
@@ -740,7 +761,8 @@ export type Request = Message<"gnostic.discovery.v1.Request"> & {
  * Describes the message gnostic.discovery.v1.Request.
  * Use `create(RequestSchema)` to create a new message.
  */
-export const RequestSchema: GenMessage<Request> = /*@__PURE__*/
+export const RequestSchema: GenMessage<Request> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 17);
 
 /**
@@ -762,7 +784,8 @@ export type Resource = Message<"gnostic.discovery.v1.Resource"> & {
  * Describes the message gnostic.discovery.v1.Resource.
  * Use `create(ResourceSchema)` to create a new message.
  */
-export const ResourceSchema: GenMessage<Resource> = /*@__PURE__*/
+export const ResourceSchema: GenMessage<Resource> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 18);
 
 /**
@@ -779,7 +802,8 @@ export type Resources = Message<"gnostic.discovery.v1.Resources"> & {
  * Describes the message gnostic.discovery.v1.Resources.
  * Use `create(ResourcesSchema)` to create a new message.
  */
-export const ResourcesSchema: GenMessage<Resources> = /*@__PURE__*/
+export const ResourcesSchema: GenMessage<Resources> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 19);
 
 /**
@@ -796,7 +820,8 @@ export type Response = Message<"gnostic.discovery.v1.Response"> & {
  * Describes the message gnostic.discovery.v1.Response.
  * Use `create(ResponseSchema)` to create a new message.
  */
-export const ResponseSchema: GenMessage<Response> = /*@__PURE__*/
+export const ResponseSchema: GenMessage<Response> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 20);
 
 /**
@@ -818,7 +843,8 @@ export type Resumable = Message<"gnostic.discovery.v1.Resumable"> & {
  * Describes the message gnostic.discovery.v1.Resumable.
  * Use `create(ResumableSchema)` to create a new message.
  */
-export const ResumableSchema: GenMessage<Resumable> = /*@__PURE__*/
+export const ResumableSchema: GenMessage<Resumable> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 21);
 
 /**
@@ -925,7 +951,8 @@ export type Schema = Message<"gnostic.discovery.v1.Schema"> & {
  * Describes the message gnostic.discovery.v1.Schema.
  * Use `create(SchemaSchema)` to create a new message.
  */
-export const SchemaSchema: GenMessage<Schema> = /*@__PURE__*/
+export const SchemaSchema: GenMessage<Schema> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 22);
 
 /**
@@ -942,7 +969,8 @@ export type Schemas = Message<"gnostic.discovery.v1.Schemas"> & {
  * Describes the message gnostic.discovery.v1.Schemas.
  * Use `create(SchemasSchema)` to create a new message.
  */
-export const SchemasSchema: GenMessage<Schemas> = /*@__PURE__*/
+export const SchemasSchema: GenMessage<Schemas> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 23);
 
 /**
@@ -959,7 +987,8 @@ export type Scope = Message<"gnostic.discovery.v1.Scope"> & {
  * Describes the message gnostic.discovery.v1.Scope.
  * Use `create(ScopeSchema)` to create a new message.
  */
-export const ScopeSchema: GenMessage<Scope> = /*@__PURE__*/
+export const ScopeSchema: GenMessage<Scope> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 24);
 
 /**
@@ -976,7 +1005,8 @@ export type Scopes = Message<"gnostic.discovery.v1.Scopes"> & {
  * Describes the message gnostic.discovery.v1.Scopes.
  * Use `create(ScopesSchema)` to create a new message.
  */
-export const ScopesSchema: GenMessage<Scopes> = /*@__PURE__*/
+export const ScopesSchema: GenMessage<Scopes> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 25);
 
 /**
@@ -998,7 +1028,8 @@ export type Simple = Message<"gnostic.discovery.v1.Simple"> & {
  * Describes the message gnostic.discovery.v1.Simple.
  * Use `create(SimpleSchema)` to create a new message.
  */
-export const SimpleSchema: GenMessage<Simple> = /*@__PURE__*/
+export const SimpleSchema: GenMessage<Simple> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 26);
 
 /**
@@ -1015,6 +1046,6 @@ export type StringArray = Message<"gnostic.discovery.v1.StringArray"> & {
  * Describes the message gnostic.discovery.v1.StringArray.
  * Use `create(StringArraySchema)` to create a new message.
  */
-export const StringArraySchema: GenMessage<StringArray> = /*@__PURE__*/
+export const StringArraySchema: GenMessage<StringArray> =
+  /*@__PURE__*/
   messageDesc(file_gnostic_discovery_v1_discovery, 27);
-

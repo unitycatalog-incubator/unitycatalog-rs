@@ -79,6 +79,8 @@ files.extend-exclude = [
   "crates/common/src/models/gen/**/*",
   "app/src/gen/**/*",
   "openapi/**/*",
+  "node/client/unitycatalog/models/gen/**/*",
+  "crates/build/src/gen/**/*",
 ]
 
 [workspace.metadata.typos.default.extend-words]

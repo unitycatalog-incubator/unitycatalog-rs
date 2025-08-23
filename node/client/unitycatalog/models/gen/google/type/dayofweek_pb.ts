@@ -22,8 +22,11 @@ import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
 /**
  * Describes the file google/type/dayofweek.proto.
  */
-export const file_google_type_dayofweek: GenFile = /*@__PURE__*/
-  fileDesc("Chtnb29nbGUvdHlwZS9kYXlvZndlZWsucHJvdG8SC2dvb2dsZS50eXBlKoQBCglEYXlPZldlZWsSGwoXREFZX09GX1dFRUtfVU5TUEVDSUZJRUQQABIKCgZNT05EQVkQARILCgdUVUVTREFZEAISDQoJV0VETkVTREFZEAMSDAoIVEhVUlNEQVkQBBIKCgZGUklEQVkQBRIMCghTQVRVUkRBWRAGEgoKBlNVTkRBWRAHQq4BCg9jb20uZ29vZ2xlLnR5cGVCDkRheW9md2Vla1Byb3RvUAFaPmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9kYXlvZndlZWs7ZGF5b2Z3ZWVrogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM");
+export const file_google_type_dayofweek: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chtnb29nbGUvdHlwZS9kYXlvZndlZWsucHJvdG8SC2dvb2dsZS50eXBlKoQBCglEYXlPZldlZWsSGwoXREFZX09GX1dFRUtfVU5TUEVDSUZJRUQQABIKCgZNT05EQVkQARILCgdUVUVTREFZEAISDQoJV0VETkVTREFZEAMSDAoIVEhVUlNEQVkQBBIKCgZGUklEQVkQBRIMCghTQVRVUkRBWRAGEgoKBlNVTkRBWRAHQq4BCg9jb20uZ29vZ2xlLnR5cGVCDkTheW9md2Vla1Byb3RvUAFaPmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9kYXlvZndlZWs7ZGF5b2Z3ZWVrogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+  );
 
 /**
  * Represents a day of the week.
@@ -91,6 +94,6 @@ export enum DayOfWeek {
 /**
  * Describes the enum google.type.DayOfWeek.
  */
-export const DayOfWeekSchema: GenEnum<DayOfWeek> = /*@__PURE__*/
+export const DayOfWeekSchema: GenEnum<DayOfWeek> =
+  /*@__PURE__*/
   enumDesc(file_google_type_dayofweek, 0);
-
