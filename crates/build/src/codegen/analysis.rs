@@ -260,6 +260,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "force".to_string(),
@@ -269,6 +270,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -329,6 +331,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "share".to_string(), // This appears first in URL
@@ -338,6 +341,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "schema".to_string(), // This appears second in URL
@@ -347,6 +351,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -401,6 +406,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -410,6 +416,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "purpose".to_string(),
@@ -419,6 +426,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -462,6 +470,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "purpose".to_string(),
@@ -471,6 +480,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "comment".to_string(),
@@ -480,6 +490,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "read_only".to_string(),
@@ -489,6 +500,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "skip_validation".to_string(),
@@ -498,6 +510,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "credential".to_string(),
@@ -507,6 +520,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -574,6 +588,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -583,6 +598,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -595,6 +611,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "page_token".to_string(),
@@ -604,6 +621,7 @@ mod tests {
                 repeated: false,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 

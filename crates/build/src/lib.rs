@@ -40,6 +40,8 @@ pub struct MessageField {
     pub documentation: Option<String>,
     /// For oneof fields, contains the variants with their field names and types
     pub oneof_variants: Option<Vec<OneofVariant>>,
+    /// Field behavior annotations from google.api.field_behavior
+    pub field_behavior: Vec<google::api::FieldBehavior>,
 }
 
 /// Information about a variant in a oneof field
@@ -178,6 +180,63 @@ impl CodeGenMetadata {
             .map(|rd| rd.r#type.clone())
             .collect()
     }
+
+    /// Get all messages that have fields with specific field behaviors
+    pub fn messages_with_field_behavior(
+        &self,
+        behavior: google::api::FieldBehavior,
+    ) -> std::collections::HashMap<String, &MessageInfo> {
+        self.messages
+            .iter()
+            .filter(|(_, msg)| {
+                msg.fields
+                    .iter()
+                    .any(|field| field.field_behavior.contains(&behavior))
+            })
+            .map(|(name, msg)| (name.clone(), msg))
+            .collect()
+    }
+
+    /// Get all fields with a specific field behavior across all messages
+    pub fn fields_with_behavior(
+        &self,
+        behavior: google::api::FieldBehavior,
+    ) -> Vec<(&str, &MessageField)> {
+        self.messages
+            .values()
+            .flat_map(|msg| {
+                msg.fields
+                    .iter()
+                    .filter(|field| field.field_behavior.contains(&behavior))
+                    .map(|field| (msg.name.as_str(), field))
+            })
+            .collect()
+    }
+
+    /// Get all unique field behaviors used across all messages
+    pub fn all_field_behaviors(&self) -> std::collections::HashSet<google::api::FieldBehavior> {
+        self.messages
+            .values()
+            .flat_map(|msg| &msg.fields)
+            .flat_map(|field| &field.field_behavior)
+            .cloned()
+            .collect()
+    }
+
+    /// Get field behavior statistics
+    pub fn field_behavior_stats(
+        &self,
+    ) -> std::collections::HashMap<google::api::FieldBehavior, usize> {
+        let mut stats = std::collections::HashMap::new();
+        for msg in self.messages.values() {
+            for field in &msg.fields {
+                for behavior in &field.field_behavior {
+                    *stats.entry(*behavior).or_insert(0) += 1;
+                }
+            }
+        }
+        stats
+    }
 }
 
 #[cfg(test)]
@@ -310,5 +369,184 @@ mod tests {
         assert_eq!(resource_types.len(), 2);
         assert!(resource_types.contains(&"test.io/TypeA".to_string()));
         assert!(resource_types.contains(&"test.io/TypeB".to_string()));
+    }
+
+    #[test]
+    fn test_messages_with_field_behavior() {
+        let mut codegen_metadata = CodeGenMetadata {
+            methods: Vec::new(),
+            messages: std::collections::HashMap::new(),
+        };
+
+        // Add a message with required fields
+        let message_with_required = MessageInfo {
+            name: ".test.MessageWithRequired".to_string(),
+            fields: vec![
+                MessageField {
+                    name: "required_field".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![google::api::FieldBehavior::Required],
+                },
+                MessageField {
+                    name: "optional_field".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: true,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![google::api::FieldBehavior::Optional],
+                },
+            ],
+            resource_descriptor: None,
+        };
+        codegen_metadata.messages.insert(
+            ".test.MessageWithRequired".to_string(),
+            message_with_required,
+        );
+
+        // Add a message without required fields
+        let message_without_required = MessageInfo {
+            name: ".test.MessageWithoutRequired".to_string(),
+            fields: vec![MessageField {
+                name: "output_field".to_string(),
+                field_type: "TYPE_STRING".to_string(),
+                optional: true,
+                repeated: false,
+                oneof_name: None,
+                documentation: None,
+                oneof_variants: None,
+                field_behavior: vec![google::api::FieldBehavior::OutputOnly],
+            }],
+            resource_descriptor: None,
+        };
+        codegen_metadata.messages.insert(
+            ".test.MessageWithoutRequired".to_string(),
+            message_without_required,
+        );
+
+        let required_messages =
+            codegen_metadata.messages_with_field_behavior(google::api::FieldBehavior::Required);
+        assert_eq!(required_messages.len(), 1);
+        assert!(required_messages.contains_key(".test.MessageWithRequired"));
+
+        let output_only_messages =
+            codegen_metadata.messages_with_field_behavior(google::api::FieldBehavior::OutputOnly);
+        assert_eq!(output_only_messages.len(), 1);
+        assert!(output_only_messages.contains_key(".test.MessageWithoutRequired"));
+    }
+
+    #[test]
+    fn test_fields_with_behavior() {
+        let mut codegen_metadata = CodeGenMetadata {
+            methods: Vec::new(),
+            messages: std::collections::HashMap::new(),
+        };
+
+        let message_info = MessageInfo {
+            name: ".test.TestMessage".to_string(),
+            fields: vec![
+                MessageField {
+                    name: "id_field".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![
+                        google::api::FieldBehavior::Required,
+                        google::api::FieldBehavior::Identifier,
+                    ],
+                },
+                MessageField {
+                    name: "readonly_field".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: true,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![google::api::FieldBehavior::OutputOnly],
+                },
+            ],
+            resource_descriptor: None,
+        };
+        codegen_metadata
+            .messages
+            .insert(".test.TestMessage".to_string(), message_info);
+
+        let required_fields =
+            codegen_metadata.fields_with_behavior(google::api::FieldBehavior::Required);
+        assert_eq!(required_fields.len(), 1);
+        assert_eq!(required_fields[0].1.name, "id_field");
+
+        let identifier_fields =
+            codegen_metadata.fields_with_behavior(google::api::FieldBehavior::Identifier);
+        assert_eq!(identifier_fields.len(), 1);
+        assert_eq!(identifier_fields[0].1.name, "id_field");
+
+        let output_only_fields =
+            codegen_metadata.fields_with_behavior(google::api::FieldBehavior::OutputOnly);
+        assert_eq!(output_only_fields.len(), 1);
+        assert_eq!(output_only_fields[0].1.name, "readonly_field");
+    }
+
+    #[test]
+    fn test_field_behavior_stats() {
+        let mut codegen_metadata = CodeGenMetadata {
+            methods: Vec::new(),
+            messages: std::collections::HashMap::new(),
+        };
+
+        let message_info = MessageInfo {
+            name: ".test.TestMessage".to_string(),
+            fields: vec![
+                MessageField {
+                    name: "field1".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![google::api::FieldBehavior::Required],
+                },
+                MessageField {
+                    name: "field2".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![google::api::FieldBehavior::Required],
+                },
+                MessageField {
+                    name: "field3".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: true,
+                    repeated: false,
+                    oneof_name: None,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![google::api::FieldBehavior::Optional],
+                },
+            ],
+            resource_descriptor: None,
+        };
+        codegen_metadata
+            .messages
+            .insert(".test.TestMessage".to_string(), message_info);
+
+        let stats = codegen_metadata.field_behavior_stats();
+        assert_eq!(stats.get(&google::api::FieldBehavior::Required), Some(&2));
+        assert_eq!(stats.get(&google::api::FieldBehavior::Optional), Some(&1));
+        assert_eq!(stats.get(&google::api::FieldBehavior::OutputOnly), None);
     }
 }

@@ -220,6 +220,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -229,6 +230,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -296,6 +298,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "include_browse".to_string(),
@@ -305,6 +308,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -348,6 +352,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -357,6 +362,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -366,6 +372,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -410,15 +417,17 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "catalog".to_string(),
-                    field_type: "TYPE_MESSAGE:.unitycatalog.CatalogInfo".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
                     optional: true,
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "force".to_string(),
@@ -428,6 +437,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };

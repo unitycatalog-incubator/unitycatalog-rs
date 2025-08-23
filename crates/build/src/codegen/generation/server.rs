@@ -515,6 +515,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "catalog".to_string(),
@@ -524,6 +525,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "force".to_string(),
@@ -533,6 +535,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -593,6 +596,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -602,6 +606,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "parent".to_string(),
@@ -611,6 +616,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "include_browse".to_string(),
@@ -620,6 +626,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -699,6 +706,37 @@ mod tests {
             method_name: "ListSchemas".to_string(),
             input_type: ".unitycatalog.schemas.v1.ListSchemasRequest".to_string(),
             output_type: ".unitycatalog.schemas.v1.ListSchemasResponse".to_string(),
+            operation: Some(operation.clone()),
+            http_rule: Some(http_rule.clone()),
+            input_fields: vec![
+                MessageField {
+                    name: "catalog_name".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+                MessageField {
+                    name: "name_pattern".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: true,
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+            ],
+        };
+
+        let method = MethodMetadata {
+            service_name: "TablesService".to_string(),
+            method_name: "EdgeCaseMethod".to_string(),
+            input_type: ".test.EdgeCaseRequest".to_string(),
+            output_type: ".test.EdgeCaseResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
             input_fields: vec![
@@ -710,6 +748,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "name_pattern".to_string(),
@@ -719,6 +758,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -811,6 +851,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "schema_name".to_string(),
@@ -820,6 +861,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "max_results".to_string(),
@@ -829,6 +871,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -838,6 +881,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -915,6 +959,68 @@ mod tests {
             method_name: "ListTables".to_string(),
             input_type: ".unitycatalog.tables.v1.ListTablesRequest".to_string(),
             output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
+            operation: Some(operation.clone()),
+            http_rule: Some(http_rule.clone()),
+            input_fields: vec![
+                // These should be required in Proto3 (no proto3_optional flag)
+                MessageField {
+                    name: "catalog_name".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+                MessageField {
+                    name: "schema_name".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: false,
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+                MessageField {
+                    name: "max_results".to_string(),
+                    field_type: "TYPE_INT32".to_string(),
+                    optional: true, // This has proto3_optional flag
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+                MessageField {
+                    name: "page_token".to_string(),
+                    field_type: "TYPE_STRING".to_string(),
+                    optional: true,
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+                MessageField {
+                    name: "include_history".to_string(),
+                    field_type: "TYPE_BOOL".to_string(),
+                    optional: true,
+                    oneof_name: None,
+                    repeated: false,
+                    documentation: None,
+                    oneof_variants: None,
+                    field_behavior: vec![],
+                },
+            ],
+        };
+
+        let method = MethodMetadata {
+            service_name: "TablesService".to_string(),
+            method_name: "ListTables".to_string(),
+            input_type: ".test.ListTablesRequest".to_string(),
+            output_type: ".test.ListTablesResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
             input_fields: vec![
@@ -927,6 +1033,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "schema_name".to_string(),
@@ -936,15 +1043,17 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "max_results".to_string(),
                     field_type: "TYPE_INT32".to_string(),
-                    optional: true,
+                    optional: true, // This has proto3_optional flag
                     oneof_name: None,
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "page_token".to_string(),
@@ -954,6 +1063,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "include_history".to_string(),
@@ -963,6 +1073,7 @@ mod tests {
                     repeated: false,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };

@@ -17,6 +17,7 @@ use std::collections::HashMap;
 const GOOGLE_API_HTTP_EXTENSION: u32 = 72295728; // google.api.http
 const GNOSTIC_OPERATION_EXTENSION: u32 = 1143; // gnostic.openapi.v3.operation
 const GOOGLE_API_RESOURCE_EXTENSION: u32 = 1053; // google.api.resource
+const GOOGLE_API_FIELD_BEHAVIOR_EXTENSION: u32 = 1052; // google.api.field_behavior
 
 /// Process a single protobuf file descriptor
 ///
@@ -177,6 +178,9 @@ fn process_message(
         let field_path = [path_prefix, &[2, field_index as i32]].concat();
         let documentation = field_docs.get(&field_path).cloned();
 
+        // Extract field behavior annotations
+        let field_behavior = extract_field_behavior_option(field)?;
+
         let field_info = MessageField {
             name: field.name().to_string(),
             field_type: field_type_str,
@@ -185,6 +189,7 @@ fn process_message(
             oneof_name: None,
             documentation,
             oneof_variants: None,
+            field_behavior,
         };
         fields.push(field_info);
     }
@@ -210,6 +215,7 @@ fn process_message(
             oneof_name: None,    // This is the oneof field itself, not a member
             documentation: None, // TODO: Extract oneof documentation if needed
             oneof_variants: variants.clone(),
+            field_behavior: vec![], // Oneof fields don't have field behavior
         };
 
         fields.push(oneof_field);
@@ -471,6 +477,110 @@ fn extract_message_resource_option(
     Ok(None)
 }
 
+/// Extract google.api.field_behavior option from field-level options
+///
+/// This function extracts the `google.api.field_behavior` extension from protobuf field options.
+/// The google.api.field_behavior extension is used to annotate fields with behavioral
+/// information such as:
+/// - REQUIRED: Field must be provided in requests
+/// - OPTIONAL: Field is explicitly optional (for emphasis)
+/// - OUTPUT_ONLY: Field is only included in responses
+/// - INPUT_ONLY: Field is only included in requests
+/// - IMMUTABLE: Field can only be set once during creation
+/// - IDENTIFIER: Field is used as a unique identifier
+/// - UNORDERED_LIST: Repeated field order is not guaranteed
+/// - NON_EMPTY_DEFAULT: Field returns non-empty default if not set
+///
+/// # Returns
+/// - `Ok(Vec<FieldBehavior>)` containing all field behaviors found
+/// - `Err(...)` if there's an error parsing the extension data
+fn extract_field_behavior_option(
+    field: &FieldDescriptorProto,
+) -> Result<Vec<crate::google::api::FieldBehavior>, Box<dyn std::error::Error>> {
+    if field.options.is_none() {
+        return Ok(vec![]);
+    }
+
+    let options = field.options.as_ref().unwrap();
+    let unknown_fields = options.unknown_fields();
+
+    // Look for the google.api.field_behavior extension
+    let mut behaviors = Vec::new();
+
+    for (field_number, field_value) in unknown_fields.iter() {
+        if field_number == GOOGLE_API_FIELD_BEHAVIOR_EXTENSION {
+            match field_value {
+                protobuf::UnknownValueRef::Varint(value) => {
+                    // Single varint value - this is the common case
+                    if let Ok(behavior) = crate::google::api::FieldBehavior::try_from(value as i32)
+                    {
+                        behaviors.push(behavior);
+                    }
+                }
+                protobuf::UnknownValueRef::LengthDelimited(bytes) => {
+                    // Packed repeated field - multiple varints in one field
+                    let mut cursor = std::io::Cursor::new(bytes);
+                    while cursor.position() < bytes.len() as u64 {
+                        match decode_varint(&mut cursor) {
+                            Ok(value) => {
+                                if let Ok(behavior) =
+                                    crate::google::api::FieldBehavior::try_from(value as i32)
+                                {
+                                    behaviors.push(behavior);
+                                }
+                            }
+                            Err(_) => break,
+                        }
+                    }
+                }
+                _ => {
+                    // Skip unsupported field types
+                }
+            }
+        }
+    }
+
+    if !behaviors.is_empty() {
+        return Ok(behaviors);
+    }
+
+    Ok(vec![])
+}
+
+/// Decode a varint from the given cursor
+fn decode_varint(cursor: &mut std::io::Cursor<&[u8]>) -> Result<u64, std::io::Error> {
+    let mut result = 0u64;
+    let mut shift = 0;
+
+    loop {
+        if cursor.position() >= cursor.get_ref().len() as u64 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "Unexpected end of data while reading varint",
+            ));
+        }
+
+        let byte = cursor.get_ref()[cursor.position() as usize];
+        cursor.set_position(cursor.position() + 1);
+
+        result |= ((byte & 0x7F) as u64) << shift;
+
+        if (byte & 0x80) == 0 {
+            break;
+        }
+
+        shift += 7;
+        if shift >= 64 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Varint too long",
+            ));
+        }
+    }
+
+    Ok(result)
+}
+
 /// Extract field documentation from source code info
 fn extract_field_documentation(
     source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
@@ -508,7 +618,7 @@ fn extract_field_documentation(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use protobuf::descriptor::DescriptorProto;
+    use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto};
 
     #[test]
     fn test_extract_message_resource_option_no_options() {
@@ -549,11 +659,84 @@ mod tests {
     }
 
     #[test]
-    fn test_extract_message_resource_option_function_exists() {
-        // Test that the function can be called and handles empty message
-        let message = DescriptorProto::new();
-        let result = extract_message_resource_option(&message);
+    fn test_google_api_field_behavior_extension_constant() {
+        // Verify the extension field number is correct
+        assert_eq!(GOOGLE_API_FIELD_BEHAVIOR_EXTENSION, 1052);
+    }
+
+    #[test]
+    fn test_extract_field_behavior_option_no_options() {
+        let field = FieldDescriptorProto::new();
+        let result = extract_field_behavior_option(&field).unwrap();
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_extract_field_behavior_option_function_exists() {
+        // Test that the function can be called and handles empty field
+        let field = FieldDescriptorProto::new();
+        let result = extract_field_behavior_option(&field);
         assert!(result.is_ok());
-        assert!(result.unwrap().is_none());
+        assert!(result.unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_message_field_includes_field_behavior() {
+        // Test that MessageField properly stores field behavior
+        let field_behavior = vec![
+            crate::google::api::FieldBehavior::Required,
+            crate::google::api::FieldBehavior::OutputOnly,
+        ];
+
+        let message_field = MessageField {
+            name: "test_field".to_string(),
+            field_type: "TYPE_STRING".to_string(),
+            optional: false,
+            repeated: false,
+            oneof_name: None,
+            documentation: None,
+            oneof_variants: None,
+            field_behavior: field_behavior.clone(),
+        };
+
+        assert_eq!(message_field.field_behavior.len(), 2);
+        assert!(
+            message_field
+                .field_behavior
+                .contains(&crate::google::api::FieldBehavior::Required)
+        );
+        assert!(
+            message_field
+                .field_behavior
+                .contains(&crate::google::api::FieldBehavior::OutputOnly)
+        );
+    }
+
+    #[test]
+    fn test_field_behavior_types() {
+        // Test different field behavior variants
+        use crate::google::api::FieldBehavior;
+
+        let behaviors = vec![
+            FieldBehavior::Required,
+            FieldBehavior::Optional,
+            FieldBehavior::OutputOnly,
+            FieldBehavior::InputOnly,
+            FieldBehavior::Immutable,
+            FieldBehavior::Identifier,
+            FieldBehavior::UnorderedList,
+            FieldBehavior::NonEmptyDefault,
+        ];
+
+        // Verify all enum variants are accessible
+        assert_eq!(behaviors.len(), 8);
+
+        // Test conversion to/from i32 values
+        for behavior in behaviors {
+            let value = behavior as i32;
+            let converted_back = FieldBehavior::try_from(value);
+            assert!(converted_back.is_ok());
+            assert_eq!(converted_back.unwrap(), behavior);
+        }
     }
 }

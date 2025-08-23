@@ -824,6 +824,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -833,6 +834,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -842,6 +844,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "storage_root".to_string(),
@@ -851,6 +854,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -879,6 +883,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "comment".to_string(),
@@ -888,6 +893,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "properties".to_string(),
@@ -897,6 +903,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -924,7 +931,7 @@ mod tests {
         // Verify the code contains expected elements
         assert!(code.contains("pub struct CreateCatalogBuilder"));
         assert!(code.contains("impl CreateCatalogBuilder"));
-        assert!(code.contains("pub fn new"));
+        assert!(code.contains("pub(crate) fn new"));
         assert!(code.contains("pub fn with_comment"));
         assert!(code.contains("pub fn with_properties"));
         assert!(code.contains("impl IntoFuture"));
@@ -960,6 +967,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "new_name".to_string(),
@@ -969,6 +977,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "comment".to_string(),
@@ -978,6 +987,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "owner".to_string(),
@@ -987,6 +997,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
                 MessageField {
                     name: "properties".to_string(),
@@ -996,6 +1007,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
+                    field_behavior: vec![],
                 },
             ],
         };
@@ -1027,7 +1039,7 @@ mod tests {
         // Verify the code contains expected elements
         assert!(code.contains("pub struct UpdateCatalogBuilder"));
         assert!(code.contains("impl UpdateCatalogBuilder"));
-        assert!(code.contains("pub fn new(client: CatalogClient, name: impl Into<String>)"));
+        assert!(code.contains("pub(crate) fn new(client: CatalogClient, name: impl Into<String>)"));
         assert!(code.contains("pub fn with_new_name"));
         assert!(code.contains("pub fn with_comment"));
         assert!(code.contains("pub fn with_owner"));
