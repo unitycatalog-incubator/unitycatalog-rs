@@ -202,7 +202,7 @@ def main():
         int: Exit code (0 for success, 1 for error)
     """
     script_dir = Path(__file__).parent
-    project_root = script_dir.parent
+    project_root = script_dir.parent.parent
 
     jsonschema_dir = project_root / "openapi" / "jsonschema"
     openapi_file = project_root / "openapi" / "openapi.yaml"

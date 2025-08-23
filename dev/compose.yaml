@@ -1,3 +1,6 @@
+# Available profiles:
+# - full: run all services including unity catalog
+
 networks:
   sharing:
 
@@ -6,6 +9,7 @@ services:
     image: unitycatalog-rs:dev
     container_name: uc
     hostname: uc
+    profiles: ["full"]
     restart: always
     networks:
       - sharing
@@ -15,13 +19,14 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
     depends_on:
-      - azurite
-      - postgres
+      - azurite_uc_dev
+      - postgres_uc_dev
 
-  azurite:
+  azurite_uc_dev:
     image: mcr.microsoft.com/azure-storage/azurite
     container_name: azurite
     hostname: azurite
+    profiles: ["azurite", "full"]
     restart: always
     networks:
       - sharing
@@ -30,9 +35,10 @@ services:
       # - "10001:10001"
       # - "10002:10002"
 
-  postgres:
+  postgres_uc_dev:
     image: postgres:16
-    container_name: postgres
+    container_name: postgres_uc_dev
+    hostname: postgres
     networks:
       - sharing
     ports:

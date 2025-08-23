@@ -1,36 +1,38 @@
+mod dev 'dev/justfile'
+
 set dotenv-load := true
 
 # Show available commands
-default:
+_default:
     @just --list --justfile {{ justfile() }}
 
 # main code generation command. This will run all generation for unity types.
-[group('generate')]
+[group('codegen')]
 generate: generate-proto generate-code
 
 # run all code generation for unitycatalog and external types.
-[group('generate')]
+[group('codegen')]
 generate-full: generate-common-ext generate-build-ext generate-proto generate-code
 
 # run code generation for proto files.
-[group('generate')]
+[group('codegen')]
 generate-proto:
     buf generate proto
     just generate-openapi
     cargo clippy --fix --allow-dirty --allow-staged
 
 # Update the generated openapi spec with validation extraced from generated jsonschema.
-[group('generate')]
+[group('codegen')]
 generate-openapi:
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
     buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
-    uv run scripts/update_openapi_schemas.py
+    uv run dev/scripts/update_openapi_schemas.py
     rm -rf openapi/jsonschema
     npm run openapi
 
 # generate rest server and client code with build crate.
-[group('generate')]
+[group('codegen')]
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto
     cargo run --bin unitycatalog-build -- \
@@ -43,66 +45,33 @@ generate-code:
     cargo fmt
 
 # generate auxiliary types in common crate. (custom google.protobuf build)
-[group('generate')]
+[group('codegen')]
 generate-common-ext:
     just crates/common/generate
 
 # generate types for build crate. (google.api and gnostic file extensions)
-[group('generate')]
+[group('codegen')]
 generate-build-ext:
     just crates/build/generate
 
 # generate types for node client. these are all slow changing external types
-[group('generate')]
+[group('codegen')]
 generate-node:
     just node/client/generate
 
-sqlx-prepare: start_pg
-    # Wait for PostgreSQL to be ready
-    sleep 1
-    # Run migrations to create tables
-    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
-    # Prepare SQLx
-    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx prepare --workspace -- --tests
-    # Clean up
-    @just stop_pg
-
-# Start PostgreSQL container to prepare SQLx or to run tests
-start_pg:
-    docker run -d \
-        --name unitycatalog-pg \
-        -e POSTGRES_PASSWORD=postgres \
-        -e POSTGRES_USER=postgres \
-        -e POSTGRES_DB=postgres \
-        -p 5432:5432 \
-        postgres:16
-
-# Stop PostgreSQL container
-stop_pg:
-    docker stop unitycatalog-pg && docker rm unitycatalog-pg
-
+[group('dev')]
 rest:
     @RUST_LOG=INFO cargo run --bin uc server --rest
 
+[group('dev')]
 rest-db:
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
         cargo run -p unitycatalog-cli -- server --rest --use-db
 
-# Run local docker emvironment
-compose:
-    docker-compose -p unitycatalog-rs -f compose/local.compose.yaml up -d
-
-compose-full:
-    docker-compose -p unitycatalog-rs -f compose/sandbox.compose.yaml up -d
 
 docs:
     npm run dev -w docs
-
-update-openapi:
-    just app/update-openapi
-    npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
-    mv tmp.yaml openapi/openapi.yaml
 
 # build python bindings
 [group('build')]
@@ -128,16 +97,37 @@ build-node:
 # build node bindings
 [group('build')]
 build-docker:
-    docker build -f docker/Dockerfile -t unitycatalog-rs:dev .
+    docker build -f crates/cli/Dockerfile -t unitycatalog-rs:dev .
 
-# run marimo notebook server
-notebook:
-    uv run --directory notebooks marimo edit client.py
+# build sqlx quieries to support offline mode
+[group('build')]
+build-sqlx: _start_pg_sqlx
+    # Wait for PostgreSQL to be ready
+    sleep 1
+    # Run migrations to create tables
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
+    # Prepare SQLx
+    DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx prepare --workspace -- --tests
+    # Clean up
+    @just _stop_pg_sqlx
+
+_start_pg_sqlx:
+    docker run -d \
+        --name unitycatalog-sqlx-pg \
+        -e POSTGRES_PASSWORD=postgres \
+        -e POSTGRES_USER=postgres \
+        -e POSTGRES_DB=postgres \
+        -p 5432:5432 \
+        postgres:16
+
+_stop_pg_sqlx:
+    docker stop unitycatalog-sqlx-pg && docker rm unitycatalog-sqlx-pg
 
 [group('test')]
 test-node:
     npm run test -w @unitycatalog/client
 
+# run integration tests using mocked server responses
 [group('test')]
 integration:
     UC_INTEGRATION_DIR="{{ justfile_directory() }}/crates/acceptance/recordings" \
