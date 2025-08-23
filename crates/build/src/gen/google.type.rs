@@ -840,7 +840,7 @@ pub struct PostalAddress {
     #[prost(string, tag="6")]
     pub administrative_area: ::prost::alloc::string::String,
     /// Optional. Generally refers to the city/town portion of the address.
-    /// Examples: US city, IT commune, UK post town.
+    /// Examples: US city, IT comune, UK post town.
     /// In regions of the world where localities are not well defined or do not fit
     /// into this structure well, leave locality empty and use address_lines.
     #[prost(string, tag="7")]
