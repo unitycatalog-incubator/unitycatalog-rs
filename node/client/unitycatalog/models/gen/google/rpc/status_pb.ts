@@ -16,17 +16,21 @@
 // @generated from file google/rpc/status.proto (package google.rpc, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Any } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_any } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/rpc/status.proto.
  */
-export const file_google_rpc_status: GenFile = /*@__PURE__*/
-  fileDesc("Chdnb29nbGUvcnBjL3N0YXR1cy5wcm90bxIKZ29vZ2xlLnJwYyJOCgZTdGF0dXMSDAoEY29kZRgBIAEoBRIPCgdtZXNzYWdlGAIgASgJEiUKB2RldGFpbHMYAyADKAsyFC5nb29nbGUucHJvdG9idWYuQW55QqIBCg5jb20uZ29vZ2xlLnJwY0ILU3RhdHVzUHJvdG9QAVo3Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9ycGMvc3RhdHVzO3N0YXR1c/gBAaICA0dSWKoCCkdvb2dsZS5ScGPKAgpHb29nbGVcUnBj4gIWR29vZ2xlXFJwY1xHUEJNZXRhZGF0YeoCC0dvb2dsZTo6UnBjYgZwcm90bzM", [file_google_protobuf_any]);
+export const file_google_rpc_status: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chdnb29nbGUvcnBjL3N0YXR1cy5wcm90bxIKZ29vZ2xlLnJwYyJOCgZTdGF0dXMSDAoEY29kZRgBIAEoBRIPCgdtZXNzYWdlGAIgASgJEiUKB2RldGFpbHMYAyADKAsyFC5nb29nbGUucHJvdG9idWYuQW55QqIBCg5jb20uZ29vZ2xlLnJwY0ILU3RhdHVzUHJvdG9QAVo3Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9ycGMvc3RhdHVzO3N0YXR1c/gBAaICA0dSWKoCCkdvb2dsZS5ScGPKAgpHb29nbGVcUnBj4gIWR29vZ2xlXFJwY1xHUEJNZXRhZGF0YeoCC0dvb2dsZTo6UnBjYgZwcm90bzM",
+    [file_google_protobuf_any],
+  );
 
 /**
  * The `Status` type defines a logical error model that is suitable for
@@ -71,6 +75,6 @@ export type Status = Message<"google.rpc.Status"> & {
  * Describes the message google.rpc.Status.
  * Use `create(StatusSchema)` to create a new message.
  */
-export const StatusSchema: GenMessage<Status> = /*@__PURE__*/
+export const StatusSchema: GenMessage<Status> =
+  /*@__PURE__*/
   messageDesc(file_google_rpc_status, 0);
-

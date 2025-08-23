@@ -17,15 +17,18 @@
 // @generated from file google/api/expr/v1beta1/source.proto (package google.api.expr.v1beta1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/expr/v1beta1/source.proto.
  */
-export const file_google_api_expr_v1beta1_source: GenFile = /*@__PURE__*/
-  fileDesc("CiRnb29nbGUvYXBpL2V4cHIvdjFiZXRhMS9zb3VyY2UucHJvdG8SF2dvb2dsZS5hcGkuZXhwci52MWJldGExIq0BCgpTb3VyY2VJbmZvEhAKCGxvY2F0aW9uGAIgASgJEhQKDGxpbmVfb2Zmc2V0cxgDIAMoBRJFCglwb3NpdGlvbnMYBCADKAsyMi5nb29nbGUuYXBpLmV4cHIudjFiZXRhMS5Tb3VyY2VJbmZvLlBvc2l0aW9uc0VudHJ5GjAKDlBvc2l0aW9uc0VudHJ5EgsKA2tleRgBIAEoBRINCgV2YWx1ZRgCIAEoBToCOAEiUAoOU291cmNlUG9zaXRpb24SEAoIbG9jYXRpb24YASABKAkSDgoGb2Zmc2V0GAIgASgFEgwKBGxpbmUYAyABKAUSDgoGY29sdW1uGAQgASgFQukBChtjb20uZ29vZ2xlLmFwaS5leHByLnYxYmV0YTFCC1NvdXJjZVByb3RvUAFaO2dvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2V4cHIvdjFiZXRhMTtleHBy+AEBogIDR0FFqgIXR29vZ2xlLkFwaS5FeHByLlYxYmV0YTHKAhdHb29nbGVcQXBpXEV4cHJcVjFiZXRhMeICI0dvb2dsZVxBcGlcRXhwclxWMWJldGExXEdQQk1ldGFkYXRh6gIaR29vZ2xlOjpBcGk6OkV4cHI6OlYxYmV0YTFiBnByb3RvMw");
+export const file_google_api_expr_v1beta1_source: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiRnb29nbGUvYXBpL2V4cHIvdjFiZXRhMS9zb3VyY2UucHJvdG8SF2dvb2dsZS5hcGkuZXhwci52MWJldGExIq0BCgpTb3VyY2VJbmZvEhAKCGxvY2F0aW9uGAIgASgJEhQKDGxpbmVfb2Zmc2V0cxgDIAMoBRJFCglwb3NpdGlvbnMYBCADKAsyMi5nb29nbGUuYXBpLmV4cHIudjFiZXRhMS5Tb3VyY2VJbmZvLlBvc2l0aW9uc0VudHJ5GjAKDlBvc2l0aW9uc0VudHJ5EgsKA2tleRgBIAEoBRINCgV2YWx1ZRgCIAEoBToCOAEiUAoOU291cmNlUG9zaXRpb24SEAoIbG9jYXRpb24YASABKAkSDgoGb2Zmc2V0GAIgASgFEgwKBGxpbmUYAyABKAUSDgoGY29sdW1uGAQgASgFQukBChtjb20uZ29vZ2xlLmFwaS5leHByLnYxYmV0YTFCC1NvdXJjZVByb3RvUAFaO2dvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2V4cHIvdjFiZXRhMTtleHBy+AEBogIDR0FFqgIXR29vZ2xlLkFwaS5FeHByLlYxYmV0YTHKHadHb29nbGVcQXBpXEV4cHJcVjFiZXRhMeICI0dvb2dsZVxBcGlcRXhwclxWMWJldGExXEdQQk1ldGFkYXRh6gIaR29vZ2xlOjpBcGk6OkV4cHI6OlYxYmV0YTFiBnByb3RvMw",
+  );
 
 /**
  * Source information collected at parse time.
@@ -68,7 +71,8 @@ export type SourceInfo = Message<"google.api.expr.v1beta1.SourceInfo"> & {
  * Describes the message google.api.expr.v1beta1.SourceInfo.
  * Use `create(SourceInfoSchema)` to create a new message.
  */
-export const SourceInfoSchema: GenMessage<SourceInfo> = /*@__PURE__*/
+export const SourceInfoSchema: GenMessage<SourceInfo> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_source, 0);
 
 /**
@@ -76,42 +80,43 @@ export const SourceInfoSchema: GenMessage<SourceInfo> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1beta1.SourcePosition
  */
-export type SourcePosition = Message<"google.api.expr.v1beta1.SourcePosition"> & {
-  /**
-   * The soucre location name (e.g. file name).
-   *
-   * @generated from field: string location = 1;
-   */
-  location: string;
+export type SourcePosition =
+  Message<"google.api.expr.v1beta1.SourcePosition"> & {
+    /**
+     * The source location name (e.g. file name).
+     *
+     * @generated from field: string location = 1;
+     */
+    location: string;
 
-  /**
-   * The character offset.
-   *
-   * @generated from field: int32 offset = 2;
-   */
-  offset: number;
+    /**
+     * The character offset.
+     *
+     * @generated from field: int32 offset = 2;
+     */
+    offset: number;
 
-  /**
-   * The 1-based index of the starting line in the source text
-   * where the issue occurs, or 0 if unknown.
-   *
-   * @generated from field: int32 line = 3;
-   */
-  line: number;
+    /**
+     * The 1-based index of the starting line in the source text
+     * where the issue occurs, or 0 if unknown.
+     *
+     * @generated from field: int32 line = 3;
+     */
+    line: number;
 
-  /**
-   * The 0-based index of the starting position within the line of source text
-   * where the issue occurs.  Only meaningful if line is nonzer..
-   *
-   * @generated from field: int32 column = 4;
-   */
-  column: number;
-};
+    /**
+     * The 0-based index of the starting position within the line of source text
+     * where the issue occurs.  Only meaningful if line is nonzer..
+     *
+     * @generated from field: int32 column = 4;
+     */
+    column: number;
+  };
 
 /**
  * Describes the message google.api.expr.v1beta1.SourcePosition.
  * Use `create(SourcePositionSchema)` to create a new message.
  */
-export const SourcePositionSchema: GenMessage<SourcePosition> = /*@__PURE__*/
+export const SourcePositionSchema: GenMessage<SourcePosition> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_source, 1);
-

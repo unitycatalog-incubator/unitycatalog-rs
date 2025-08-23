@@ -2,8 +2,22 @@
 // @generated from file unitycatalog/volumes/v1/svc.proto (package unitycatalog.volumes.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenFile,
+  GenMessage,
+  GenService,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  fileDesc,
+  messageDesc,
+  serviceDesc,
+} from "@bufbuild/protobuf/codegenv2";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_empty,
+  file_google_protobuf_struct,
+} from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_gnostic_openapi_v3_openapiv3 } from "../../../gnostic/openapi/v3/openapiv3_pb";
@@ -11,65 +25,79 @@ import { file_google_api_annotations } from "../../../google/api/annotations_pb"
 import { file_google_api_client } from "../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import type { VolumeInfo, VolumeInfoSchema, VolumeType } from "./models_pb";
 import { file_unitycatalog_volumes_v1_models } from "./models_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/volumes/v1/svc.proto.
  */
-export const file_unitycatalog_volumes_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("CiF1bml0eWNhdGFsb2cvdm9sdW1lcy92MS9zdmMucHJvdG8SF3VuaXR5Y2F0YWxvZy52b2x1bWVzLnYxIqgCChJMaXN0Vm9sdW1lc1JlcXVlc3QSOwoMY2F0YWxvZ19uYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjoKC3NjaGVtYV9uYW1lGAIgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAMgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgEIAEoCUID4EEBSAGIAQESIAoOaW5jbHVkZV9icm93c2UYBSABKAhCA+BBAUgCiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIRCg9faW5jbHVkZV9icm93c2UifQoTTGlzdFZvbHVtZXNSZXNwb25zZRI0Cgd2b2x1bWVzGAEgAygLMiMudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuVm9sdW1lSW5mbxIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIu0CChNDcmVhdGVWb2x1bWVSZXF1ZXN0EjsKDGNhdGFsb2dfbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6CgtzY2hlbWFfbmFtZRgCIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIzCgRuYW1lGAMgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEj0KC3ZvbHVtZV90eXBlGAQgASgOMiMudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuVm9sdW1lVHlwZUID4EECEiIKEHN0b3JhZ2VfbG9jYXRpb24YBSABKAlCA+BBAUgAiAEBEiQKB2NvbW1lbnQYBiABKAlCDuBBAbpICHIGEAEYgIAESAGIAQFCEwoRX3N0b3JhZ2VfbG9jYXRpb25CCgoIX2NvbW1lbnQiYgoQR2V0Vm9sdW1lUmVxdWVzdBIYCgRuYW1lGAEgASgJQgrgQQK6SARyAhADEiEKDmluY2x1ZGVfYnJvd3NlGO0HIAEoCEID4EEBSACIAQFCEQoPX2luY2x1ZGVfYnJvd3NlIukBChNVcGRhdGVWb2x1bWVSZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAMSIQoIbmV3X25hbWUYAiABKAlCCuBBAbpIBHICEANIAIgBARIkCgdjb21tZW50GAMgASgJQg7gQQG6SAhyBhABGICABEgBiAEBEhcKBW93bmVyGAQgASgJQgPgQQFIAogBARIgCg5pbmNsdWRlX2Jyb3dzZRgFIAEoCEID4EEBSAOIAQFCCwoJX25ld19uYW1lQgoKCF9jb21tZW50QggKBl9vd25lckIRCg9faW5jbHVkZV9icm93c2UiLwoTRGVsZXRlVm9sdW1lUmVxdWVzdBIYCgRuYW1lGAEgASgJQgrgQQK6SARyAhADMr0FCg5Wb2x1bWVzU2VydmljZRKKAQoLTGlzdFZvbHVtZXMSKy51bml0eWNhdGFsb2cudm9sdW1lcy52MS5MaXN0Vm9sdW1lc1JlcXVlc3QaLC51bml0eWNhdGFsb2cudm9sdW1lcy52MS5MaXN0Vm9sdW1lc1Jlc3BvbnNlIiC6Rw0qC0xpc3RWb2x1bWVzgtPkkwIKEggvdm9sdW1lcxKHAQoMQ3JlYXRlVm9sdW1lEiwudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuQ3JlYXRlVm9sdW1lUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLlZvbHVtZUluZm8iJLpHDioMQ3JlYXRlVm9sdW1lgtPkkwINOgEqIggvdm9sdW1lcxKCAQoJR2V0Vm9sdW1lEikudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuR2V0Vm9sdW1lUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLlZvbHVtZUluZm8iJbpHCyoJR2V0Vm9sdW1lgtPkkwIREg8vdm9sdW1lcy97bmFtZX0SjgEKDFVwZGF0ZVZvbHVtZRIsLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLlVwZGF0ZVZvbHVtZVJlcXVlc3QaIy51bml0eWNhdGFsb2cudm9sdW1lcy52MS5Wb2x1bWVJbmZvIiu6Rw4qDFVwZGF0ZVZvbHVtZYLT5JMCFDoBKjIPL3ZvbHVtZXMve25hbWV9En4KDERlbGV0ZVZvbHVtZRIsLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLkRlbGV0ZVZvbHVtZVJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiKLpHDioMRGVsZXRlVm9sdW1lgtPkkwIRKg8vdm9sdW1lcy97bmFtZX1C9wEKG2NvbS51bml0eWNhdGFsb2cudm9sdW1lcy52MUIIU3ZjUHJvdG9QAVpQZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvdm9sdW1lcy92MTt2b2x1bWVzdjGiAgNVVliqAhdVbml0eWNhdGFsb2cuVm9sdW1lcy5WMcoCF1VuaXR5Y2F0YWxvZ1xWb2x1bWVzXFYx4gIjVW5pdHljYXRhbG9nXFZvbHVtZXNcVjFcR1BCTWV0YWRhdGHqAhlVbml0eWNhdGFsb2c6OlZvbHVtZXM6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_gnostic_openapi_v3_openapiv3, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_volumes_v1_models]);
+export const file_unitycatalog_volumes_v1_svc: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiF1bml0eWNhdGFsb2cvdm9sdW1lcy92MS9zdmMuchHJvdG8SF3VuaXR5Y2F0YWxvZy52b2x1bWVzLnYxIqgCChJMaXN0Vm9sdW1lc1JlcXVlc3QSOwoMY2F0YWxvZ19uYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjoKC3NjaGVtYV9uYW1lGAIgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAMgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgEIAEoCUID4EEBSAGIAQESIAoOaW5jbHVkZV9icm93c2UYBSABKAhCA+BBAUgCiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIRCg9faW5jbHVkZV9icm93c2UifQoTTGlzdFZvbHVtZXNSZXNwb25zZRI0Cgd2b2x1bWVzGAEgAygLMiMudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuVm9sdW1lSW5mbxIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIu0CChNDcmVhdGVWb2x1bWVSZXF1ZXN0EjsKDGNhdGFsb2dfbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6CgtzY2hlbWFfbmFtZRgCIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIzCgRuYW1lGAMgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEj0KC3ZvbHVtZV90eXBlGAQgASgOMiMudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuVm9sdW1lVHlwZUID4EECEiIKEHN0b3JhZ2VfbG9jYXRpb24YBSABKAlCA+BBAUgAiAEBEiQKB2NvbW1lbnQYBiABKAlCDuBBAbpICHIGEAEYgIAESAGIAQFCEwoRX3N0b3JhZ2VfbG9jYXRpb25CCgoIX2NvbW1lbnQiYgoQR2V0Vm9sdW1lUmVxdWVzdBIYCgRuYW1lGAEgASgJQgrgQQK6SARyAhADEiEKDmluY2x1ZGVfYnJvd3NlGO0HIAEoCEID4EEBSACIAQFCEQoPX2luY2x1ZGVfYnJvd3NlIukBChNVcGRhdGVWb2x1bWVSZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAMSIQoIbmV3X25hbWUYAiABKAlCCuBBAbpIBHICEANIAIgBARIkCgdjb21tZW50GAMgASgJQg7gQQG6SAhyBhABGICABEgBiAEBEhcKBW93bmVyGAQgASgJQgPgQQFIAogBARIgCg5pbmNsdWRlX2Jyb3dzZRgFIAEoCEID4EEBSAOIAQFCCwoJX25ld19uYW1lQgoKCF9jb21tZW50QggKBl9vd25lckIRCg9faW5jbHVkZV9icm93c2UiLwoTRGVsZXRlVm9sdW1lUmVxdWVzdBIYCgRuYW1lGAEgASgJQgrgQQK6SARyAhADMr0FCg5Wb2x1bWVzU2VydmljZRKKAQoLTGlzdFZvbHVtZXMSKy51bml0eWNhdGFsb2cudm9sdW1lcy52MS5MaXN0Vm9sdW1lc1JlcXVlc3QaLC51bml0eWNhdGFsb2cudm9sdW1lcy52MS5MaXN0Vm9sdW1lc1Jlc3BvbnNlIiC6Rw0qC0xpc3RWb2x1bWVzgtPkkwIKEggvdm9sdW1lcxKHAQoMQ3JlYXRlVm9sdW1lEiwudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuQ3JlYXRlVm9sdW1lUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLlZvbHVtZUluZm8iJLpHDioMQ3JlYXRlVm9sdW1lgtPkkwINOgEqIggvdm9sdW1lcxKCAQoJR2V0Vm9sdW1lEikudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuR2V0Vm9sdW1lUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLlZvbHVtZUluZm8iJbpHCyoJR2V0Vm9sdW1lgtPkkwIREg8vdm9sdW1lcy97bmFtZX0SjgEKDFVwZGF0ZVZvbHVtZRIsLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLlVwZGF0ZVZvbHVtZVJlcXVlc3QaIt51bml0eWNhdGFsb2cudm9sdW1lcy52MS5Wb2x1bWVJbmZvIiu6Rw4qDFVwZGF0ZVZvbHVtZYLT5JMCFDoBKjIPL3ZvbHVtZXMve25hbWV9En4KDERlbGV0ZVZvbHVtZRIsLnVuaXR5Y2F0YWxvZy52b2x1bWVzLnYxLkRlbGV0ZVZvbHVtZVJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiKLpHDioMRGVsZXRlVm9sdW1lgtPkkwIRKg8vdm9sdW1lcy97bmFtZX1C9wEKG2NvbS51bml0eWNhdGFsb2cudm9sdW1lcy52MUIIU3ZjUHJvdG9QAVpQZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvdm9sdW1lcy92MTt2b2x1bWVzdjGiAgNVVliqHadVbml0eWNhdGFsb2cuVm9sdW1lcy5WMcoCF1VuaXR5Y2F0YWxvZ1xWb2x1bWVzXFYx4gIjVW5pdHljYXRhbG9nXFZvbHVtZXNcVjFcR1BCTWV0YWRhdGHqAhlVbml0eWNhdGFsb2c6OlZvbHVtZXM6OlYxYgZwcm90bzM",
+    [
+      file_buf_validate_validate,
+      file_gnostic_openapi_v3_annotations,
+      file_gnostic_openapi_v3_openapiv3,
+      file_google_api_annotations,
+      file_google_api_client,
+      file_google_api_field_behavior,
+      file_google_api_resource,
+      file_google_protobuf_empty,
+      file_google_protobuf_struct,
+      file_unitycatalog_volumes_v1_models,
+    ],
+  );
 
 /**
  * List volumes
  *
  * @generated from message unitycatalog.volumes.v1.ListVolumesRequest
  */
-export type ListVolumesRequest = Message<"unitycatalog.volumes.v1.ListVolumesRequest"> & {
-  /**
-   * The identifier of the catalog
-   *
-   * @generated from field: string catalog_name = 1;
-   */
-  catalogName: string;
+export type ListVolumesRequest =
+  Message<"unitycatalog.volumes.v1.ListVolumesRequest"> & {
+    /**
+     * The identifier of the catalog
+     *
+     * @generated from field: string catalog_name = 1;
+     */
+    catalogName: string;
 
-  /**
-   * The identifier of the schema
-   *
-   * @generated from field: string schema_name = 2;
-   */
-  schemaName: string;
+    /**
+     * The identifier of the schema
+     *
+     * @generated from field: string schema_name = 2;
+     */
+    schemaName: string;
 
-  /**
-   * The maximum number of results per page that should be returned.
-   *
-   * @generated from field: optional int32 max_results = 3;
-   */
-  maxResults?: number;
+    /**
+     * The maximum number of results per page that should be returned.
+     *
+     * @generated from field: optional int32 max_results = 3;
+     */
+    maxResults?: number;
 
-  /**
-   * Opaque pagination token to go to next page based on previous query.
-   *
-   * @generated from field: optional string page_token = 4;
-   */
-  pageToken?: string;
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string page_token = 4;
+     */
+    pageToken?: string;
 
-  /**
-   * Whether to include schemas in the response for which the principal can only access selective metadata for
-   *
-   * @generated from field: optional bool include_browse = 5;
-   */
-  includeBrowse?: boolean;
-};
+    /**
+     * Whether to include schemas in the response for which the principal can only access selective metadata for
+     *
+     * @generated from field: optional bool include_browse = 5;
+     */
+    includeBrowse?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.volumes.v1.ListVolumesRequest.
  * Use `create(ListVolumesRequestSchema)` to create a new message.
  */
-export const ListVolumesRequestSchema: GenMessage<ListVolumesRequest> = /*@__PURE__*/
+export const ListVolumesRequestSchema: GenMessage<ListVolumesRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_svc, 0);
 
 /**
@@ -77,30 +105,32 @@ export const ListVolumesRequestSchema: GenMessage<ListVolumesRequest> = /*@__PUR
  *
  * @generated from message unitycatalog.volumes.v1.ListVolumesResponse
  */
-export type ListVolumesResponse = Message<"unitycatalog.volumes.v1.ListVolumesResponse"> & {
-  /**
-   * The volumes returned.
-   *
-   * @generated from field: repeated unitycatalog.volumes.v1.VolumeInfo volumes = 1;
-   */
-  volumes: VolumeInfo[];
+export type ListVolumesResponse =
+  Message<"unitycatalog.volumes.v1.ListVolumesResponse"> & {
+    /**
+     * The volumes returned.
+     *
+     * @generated from field: repeated unitycatalog.volumes.v1.VolumeInfo volumes = 1;
+     */
+    volumes: VolumeInfo[];
 
-  /**
-   * Opaque token to retrieve the next page of results.
-   *
-   * Absent if there are no more pages. page_token should be set to
-   * this value for the next request to retrieve the next page of results.
-   *
-   * @generated from field: optional string next_page_token = 2;
-   */
-  nextPageToken?: string;
-};
+    /**
+     * Opaque token to retrieve the next page of results.
+     *
+     * Absent if there are no more pages. page_token should be set to
+     * this value for the next request to retrieve the next page of results.
+     *
+     * @generated from field: optional string next_page_token = 2;
+     */
+    nextPageToken?: string;
+  };
 
 /**
  * Describes the message unitycatalog.volumes.v1.ListVolumesResponse.
  * Use `create(ListVolumesResponseSchema)` to create a new message.
  */
-export const ListVolumesResponseSchema: GenMessage<ListVolumesResponse> = /*@__PURE__*/
+export const ListVolumesResponseSchema: GenMessage<ListVolumesResponse> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_svc, 1);
 
 /**
@@ -108,151 +138,159 @@ export const ListVolumesResponseSchema: GenMessage<ListVolumesResponse> = /*@__P
  *
  * @generated from message unitycatalog.volumes.v1.CreateVolumeRequest
  */
-export type CreateVolumeRequest = Message<"unitycatalog.volumes.v1.CreateVolumeRequest"> & {
-  /**
-   * The identifier of the catalog
-   *
-   * @generated from field: string catalog_name = 1;
-   */
-  catalogName: string;
+export type CreateVolumeRequest =
+  Message<"unitycatalog.volumes.v1.CreateVolumeRequest"> & {
+    /**
+     * The identifier of the catalog
+     *
+     * @generated from field: string catalog_name = 1;
+     */
+    catalogName: string;
 
-  /**
-   * The identifier of the schema
-   *
-   * @generated from field: string schema_name = 2;
-   */
-  schemaName: string;
+    /**
+     * The identifier of the schema
+     *
+     * @generated from field: string schema_name = 2;
+     */
+    schemaName: string;
 
-  /**
-   * The identifier of the volume
-   *
-   * @generated from field: string name = 3;
-   */
-  name: string;
+    /**
+     * The identifier of the volume
+     *
+     * @generated from field: string name = 3;
+     */
+    name: string;
 
-  /**
-   * The type of the volume.
-   *
-   * An external volume is located in the specified external location.
-   * A managed volume is located in the default location which is specified
-   * by the parent schema, or the parent catalog, or the Metastore.
-   *
-   * @generated from field: unitycatalog.volumes.v1.VolumeType volume_type = 4;
-   */
-  volumeType: VolumeType;
+    /**
+     * The type of the volume.
+     *
+     * An external volume is located in the specified external location.
+     * A managed volume is located in the default location which is specified
+     * by the parent schema, or the parent catalog, or the Metastore.
+     *
+     * @generated from field: unitycatalog.volumes.v1.VolumeType volume_type = 4;
+     */
+    volumeType: VolumeType;
 
-  /**
-   * The storage location on the cloud
-   *
-   * @generated from field: optional string storage_location = 5;
-   */
-  storageLocation?: string;
+    /**
+     * The storage location on the cloud
+     *
+     * @generated from field: optional string storage_location = 5;
+     */
+    storageLocation?: string;
 
-  /**
-   * The storage location on the cloud
-   *
-   * @generated from field: optional string comment = 6;
-   */
-  comment?: string;
-};
+    /**
+     * The storage location on the cloud
+     *
+     * @generated from field: optional string comment = 6;
+     */
+    comment?: string;
+  };
 
 /**
  * Describes the message unitycatalog.volumes.v1.CreateVolumeRequest.
  * Use `create(CreateVolumeRequestSchema)` to create a new message.
  */
-export const CreateVolumeRequestSchema: GenMessage<CreateVolumeRequest> = /*@__PURE__*/
+export const CreateVolumeRequestSchema: GenMessage<CreateVolumeRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_svc, 2);
 
 /**
  * @generated from message unitycatalog.volumes.v1.GetVolumeRequest
  */
-export type GetVolumeRequest = Message<"unitycatalog.volumes.v1.GetVolumeRequest"> & {
-  /**
-   * The three-level (fully qualified) name of the volume
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type GetVolumeRequest =
+  Message<"unitycatalog.volumes.v1.GetVolumeRequest"> & {
+    /**
+     * The three-level (fully qualified) name of the volume
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * Whether to include schemas in the response for which the principal can only access selective metadata for
-   *
-   * @generated from field: optional bool include_browse = 1005;
-   */
-  includeBrowse?: boolean;
-};
+    /**
+     * Whether to include schemas in the response for which the principal can only access selective metadata for
+     *
+     * @generated from field: optional bool include_browse = 1005;
+     */
+    includeBrowse?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.volumes.v1.GetVolumeRequest.
  * Use `create(GetVolumeRequestSchema)` to create a new message.
  */
-export const GetVolumeRequestSchema: GenMessage<GetVolumeRequest> = /*@__PURE__*/
+export const GetVolumeRequestSchema: GenMessage<GetVolumeRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_svc, 3);
 
 /**
  * @generated from message unitycatalog.volumes.v1.UpdateVolumeRequest
  */
-export type UpdateVolumeRequest = Message<"unitycatalog.volumes.v1.UpdateVolumeRequest"> & {
-  /**
-   * The three-level (fully qualified) name of the volume
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type UpdateVolumeRequest =
+  Message<"unitycatalog.volumes.v1.UpdateVolumeRequest"> & {
+    /**
+     * The three-level (fully qualified) name of the volume
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * New name for the volume.
-   *
-   * @generated from field: optional string new_name = 2;
-   */
-  newName?: string;
+    /**
+     * New name for the volume.
+     *
+     * @generated from field: optional string new_name = 2;
+     */
+    newName?: string;
 
-  /**
-   * The comment attached to the volume
-   *
-   * @generated from field: optional string comment = 3;
-   */
-  comment?: string;
+    /**
+     * The comment attached to the volume
+     *
+     * @generated from field: optional string comment = 3;
+     */
+    comment?: string;
 
-  /**
-   * The identifier of the user who owns the volume
-   *
-   * @generated from field: optional string owner = 4;
-   */
-  owner?: string;
+    /**
+     * The identifier of the user who owns the volume
+     *
+     * @generated from field: optional string owner = 4;
+     */
+    owner?: string;
 
-  /**
-   * Whether to include schemas in the response for which the principal can only access selective metadata for
-   *
-   * @generated from field: optional bool include_browse = 5;
-   */
-  includeBrowse?: boolean;
-};
+    /**
+     * Whether to include schemas in the response for which the principal can only access selective metadata for
+     *
+     * @generated from field: optional bool include_browse = 5;
+     */
+    includeBrowse?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.volumes.v1.UpdateVolumeRequest.
  * Use `create(UpdateVolumeRequestSchema)` to create a new message.
  */
-export const UpdateVolumeRequestSchema: GenMessage<UpdateVolumeRequest> = /*@__PURE__*/
+export const UpdateVolumeRequestSchema: GenMessage<UpdateVolumeRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_svc, 4);
 
 /**
  * @generated from message unitycatalog.volumes.v1.DeleteVolumeRequest
  */
-export type DeleteVolumeRequest = Message<"unitycatalog.volumes.v1.DeleteVolumeRequest"> & {
-  /**
-   * The three-level (fully qualified) name of the volume
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type DeleteVolumeRequest =
+  Message<"unitycatalog.volumes.v1.DeleteVolumeRequest"> & {
+    /**
+     * The three-level (fully qualified) name of the volume
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message unitycatalog.volumes.v1.DeleteVolumeRequest.
  * Use `create(DeleteVolumeRequestSchema)` to create a new message.
  */
-export const DeleteVolumeRequestSchema: GenMessage<DeleteVolumeRequest> = /*@__PURE__*/
+export const DeleteVolumeRequestSchema: GenMessage<DeleteVolumeRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_svc, 5);
 
 /**
@@ -268,7 +306,7 @@ export const VolumesService: GenService<{
     methodKind: "unary";
     input: typeof ListVolumesRequestSchema;
     output: typeof ListVolumesResponseSchema;
-  },
+  };
   /**
    * @generated from rpc unitycatalog.volumes.v1.VolumesService.CreateVolume
    */
@@ -276,7 +314,7 @@ export const VolumesService: GenService<{
     methodKind: "unary";
     input: typeof CreateVolumeRequestSchema;
     output: typeof VolumeInfoSchema;
-  },
+  };
   /**
    * @generated from rpc unitycatalog.volumes.v1.VolumesService.GetVolume
    */
@@ -284,7 +322,7 @@ export const VolumesService: GenService<{
     methodKind: "unary";
     input: typeof GetVolumeRequestSchema;
     output: typeof VolumeInfoSchema;
-  },
+  };
   /**
    * @generated from rpc unitycatalog.volumes.v1.VolumesService.UpdateVolume
    */
@@ -292,7 +330,7 @@ export const VolumesService: GenService<{
     methodKind: "unary";
     input: typeof UpdateVolumeRequestSchema;
     output: typeof VolumeInfoSchema;
-  },
+  };
   /**
    * @generated from rpc unitycatalog.volumes.v1.VolumesService.DeleteVolume
    */
@@ -300,7 +338,5 @@ export const VolumesService: GenService<{
     methodKind: "unary";
     input: typeof DeleteVolumeRequestSchema;
     output: typeof EmptySchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_unitycatalog_volumes_v1_svc, 0);
-
+  };
+}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_volumes_v1_svc, 0);

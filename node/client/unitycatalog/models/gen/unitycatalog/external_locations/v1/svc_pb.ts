@@ -2,59 +2,89 @@
 // @generated from file unitycatalog/external_locations/v1/svc.proto (package unitycatalog.external_locations.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenFile,
+  GenMessage,
+  GenService,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  fileDesc,
+  messageDesc,
+  serviceDesc,
+} from "@bufbuild/protobuf/codegenv2";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_empty,
+  file_google_protobuf_struct,
+} from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_client } from "../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { ExternalLocationInfo, ExternalLocationInfoSchema } from "./models_pb";
+import type {
+  ExternalLocationInfo,
+  ExternalLocationInfoSchema,
+} from "./models_pb";
 import { file_unitycatalog_external_locations_v1_models } from "./models_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/external_locations/v1/svc.proto.
  */
-export const file_unitycatalog_external_locations_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("Cix1bml0eWNhdGFsb2cvZXh0ZXJuYWxfbG9jYXRpb25zL3YxL3N2Yy5wcm90bxIidW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MSK5AQocTGlzdEV4dGVybmFsTG9jYXRpb25zUmVxdWVzdBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBEiAKDmluY2x1ZGVfYnJvd3NlGAQgASgIQgPgQQFIAogBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW5CEQoPX2luY2x1ZGVfYnJvd3NlIqcBCh1MaXN0RXh0ZXJuYWxMb2NhdGlvbnNSZXNwb25zZRJUChJleHRlcm5hbF9sb2NhdGlvbnMYASADKAsyOC51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkV4dGVybmFsTG9jYXRpb25JbmZvEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4itwIKHUNyZWF0ZUV4dGVybmFsTG9jYXRpb25SZXF1ZXN0EjMKBG5hbWUYASABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSGAoDdXJsGAIgASgJQgvgQQK6SAVyA4gBARI+Cg9jcmVkZW50aWFsX25hbWUYAyABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSGwoJcmVhZF9vbmx5GAQgASgIQgPgQQJIAIgBARIZCgdjb21tZW50GAUgASgJQgPgQQFIAYgBARIhCg9za2lwX3ZhbGlkYXRpb24YBiABKAhCA+BBAUgCiAEBQgwKCl9yZWFkX29ubHlCCgoIX2NvbW1lbnRCEgoQX3NraXBfdmFsaWRhdGlvbiJRChpHZXRFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kItYDCh1VcGRhdGVFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEh0KA3VybBgCIAEoCUIL4EEBukgFcgOIAQFIAIgBARIhCg9jcmVkZW50aWFsX25hbWUYAyABKAlCA+BBAUgBiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAKIAQESIQoFb3duZXIYBSABKAlCDeBBAbpIB8gBAHICYAFIA4gBARIZCgdjb21tZW50GAYgASgJQgPgQQFIBIgBARI8CghuZXdfbmFtZRgHIAEoCUIl4EEBukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJEgFiAEBEhcKBWZvcmNlGAggASgIQgPgQQFIBogBARIhCg9za2lwX3ZhbGlkYXRpb24YCSABKAhCA+BBAUgHiAEBQgYKBF91cmxCEgoQX2NyZWRlbnRpYWxfbmFtZUIMCgpfcmVhZF9vbmx5QggKBl9vd25lckIKCghfY29tbWVudEILCglfbmV3X25hbWVCCAoGX2ZvcmNlQhIKEF9za2lwX3ZhbGlkYXRpb24idwodRGVsZXRlRXh0ZXJuYWxMb2NhdGlvblJlcXVlc3QSMwoEbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIXCgVmb3JjZRgCIAEoCEID4EEBSACIAQFCCAoGX2ZvcmNlMqAIChhFeHRlcm5hbExvY2F0aW9uc1NlcnZpY2US0wEKFUxpc3RFeHRlcm5hbExvY2F0aW9ucxJALnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuTGlzdEV4dGVybmFsTG9jYXRpb25zUmVxdWVzdBpBLnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuTGlzdEV4dGVybmFsTG9jYXRpb25zUmVzcG9uc2UiNbpHFyoVTGlzdEV4dGVybmFsTG9jYXRpb25zgtPkkwIVEhMvZXh0ZXJuYWwtbG9jYXRpb25zEtABChZDcmVhdGVFeHRlcm5hbExvY2F0aW9uEkEudW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MS5DcmVhdGVFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBo4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm8iObpHGCoWQ3JlYXRlRXh0ZXJuYWxMb2NhdGlvboLT5JMCGDoBKiITL2V4dGVybmFsLWxvY2F0aW9ucxLLAQoTR2V0RXh0ZXJuYWxMb2NhdGlvbhI+LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuR2V0RXh0ZXJuYWxMb2NhdGlvblJlcXVlc3QaOC51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkV4dGVybmFsTG9jYXRpb25JbmZvIjq6RxUqE0dldEV4dGVybmFsTG9jYXRpb26C0+STAhwSGi9leHRlcm5hbC1sb2NhdGlvbnMve25hbWV9EtcBChZVcGRhdGVFeHRlcm5hbExvY2F0aW9uEkEudW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MS5VcGRhdGVFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBo4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm8iQLpHGCoWVXBkYXRlRXh0ZXJuYWxMb2NhdGlvboLT5JMCHzoBKjIaL2V4dGVybmFsLWxvY2F0aW9ucy97bmFtZX0SsgEKFkRlbGV0ZUV4dGVybmFsTG9jYXRpb24SQS51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkRlbGV0ZUV4dGVybmFsTG9jYXRpb25SZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Ij26RxgqFkRlbGV0ZUV4dGVybmFsTG9jYXRpb26C0+STAhwqGi9leHRlcm5hbC1sb2NhdGlvbnMve25hbWV9QsACCiZjb20udW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MUIIU3ZjUHJvdG9QAVpmZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvZXh0ZXJuYWxfbG9jYXRpb25zL3YxO2V4dGVybmFsX2xvY2F0aW9uc3YxogIDVUVYqgIhVW5pdHljYXRhbG9nLkV4dGVybmFsTG9jYXRpb25zLlYxygIhVW5pdHljYXRhbG9nXEV4dGVybmFsTG9jYXRpb25zXFYx4gItVW5pdHljYXRhbG9nXEV4dGVybmFsTG9jYXRpb25zXFYxXEdQQk1ldGFkYXRh6gIjVW5pdHljYXRhbG9nOjpFeHRlcm5hbExvY2F0aW9uczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_external_locations_v1_models]);
+export const file_unitycatalog_external_locations_v1_svc: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Cix1bml0eWNhdGFsb2cvZXh0ZXJuYWxfbG9jYXRpb25zL3YxL3N2Yy5wcm90bxIidW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MSK5AQocTGlzdEV4dGVybmFsTG9jYXRpb25zUmVxdWVzdBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBEiAKDmluY2x1ZGVfYnJvd3NlGAQgASgIQgPgQQFIAogBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW5CEQoPX2luY2x1ZGVfYnJvd3NlIqcBCh1MaXN0RXh0ZXJuYWxMb2NhdGlvbnNSZXNwb25zZRJUChJleHRlcm5hbF9sb2NhdGlvbnMYASADKAsyOC51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkV4dGVybmFsTG9jYXRpb25JbmZvEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4itwIKHUNyZWF0ZUV4dGVybmFsTG9jYXRpb25SZXF1ZXN0EjMKBG5hbWUYASABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSGAoDdXJsGAIgASgJQgvgQQK6SAVyA4gBARI+Cg9jcmVkZW50aWFsX25hbWUYAyABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSGwoJcmVhZF9vbmx5GAQgASgIQgPgQQJIAIgBARIZCgdjb21tZW50GAUgASgJQgPgQQFIAYgBARIhCg9za2lwX3ZhbGlkYXRpb24YBiABKAhCA+BBAUgCiAEBQgwKCl9yZWFkX29ubHlCCgoIX2NvbW1lbnRCEgoQX3NraXBfdmFsaWRhdGlvbiJRChpHZXRFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kItYDCh1VcGRhdGVFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEh0KA3VybBgCIAEoCUIL4EEBukgFcgOIAQFIAIgBARIhCg9jcmVkZW50aWFsX25hbWUYAyABKAlCA+BBAUgBiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAKIAQESIQoFb3duZXIYBSABKAlCDeBBAbpIB8gBAHICYAFIA4gBARIZCgdjb21tZW50GAYgASgJQgPgQQFIBIgBARI8CghuZXdfbmFtZRgHIAEoCUIl4EEBukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJEgFiAEBEhcKBWZvcmNlGAggASgIQgPgQQFIBogBARIhCg9za2lwX3ZhbGlkYXRpb24YCSABKAhCA+BBAUgHiAEBQgYKBF91cmxCEgoQX2NyZWRlbnRpYWxfbmFtZUIMCgpfcmVhZF9vbmx5QggKBl9vd25lckIKCghfY29tbWVudEILCglfbmV3X25hbWVCCAoGX2ZvcmNlQhIKEF9za2lwX3ZhbGlkYXRpb24idwodRGVsZXRlRXh0ZXJuYWxMb2NhdGlvblJlcXVlc3QSMwoEbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIXCgVmb3JjZRgCIAEoCEID4EEBSACIAQFCCAoGX2ZvcmNlMqAIChhFeHRlcm5hbExvY2F0aW9uc1NlcnZpY2US0wEKFUxpc3RFeHRlcm5hbExvY2F0aW9ucxJALnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuTGlzdEV4dGVybmFsTG9jYXRpb25zUmVxdWVzdBpBLnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuTGlzdEV4dGVybmFsTG9jYXRpb25zUmVzcG9uc2UiNbpHFyoVTGlzdEV4dGVybmFsTG9jYXRpb25zgtPkkwIVEhMvZXh0ZXJuYWwtbG9jYXRpb25zEtABChZDcmVhdGVFeHRlcm5hbExvY2F0aW9uEkEudW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MS5DcmVhdGVFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBo4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm8iObpHGCoWQ3JlYXRlRXh0ZXJuYWxMb2NhdGlvboLT5JMCGDoBKiITL2V4dGVybmFsLWxvY2F0aW9ucxLLAQoTR2V0RXh0ZXJuYWxMb2NhdGlvbhI+LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuR2V0RXh0ZXJuYWxMb2NhdGlvblJlcXVlc3QaOC51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkV4dGVybmFsTG9jYXRpb25JbmZvIjq6RxUqE0dldEV4dGVybmFsTG9jYXRpb26C0+STAhwSGi9leHRlcm5hbC1sb2NhdGlvbnMve25hbWV9EtcBChZVcGRhdGVFeHRlcm5hbExvY2F0aW9uEkEudW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MS5VcGRhdGVFeHRlcm5hbExvY2F0aW9uUmVxdWVzdBo4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm8iQLpHGCoWVXBkYXRlRXh0ZXJuYWxMb2NhdGlvboLT5JMCHzoBKjIaL2V4dGVybmFsLWxvY2F0aW9ucy97bmFtZX0SsgEKFkRlbGV0ZUV4dGVybmFsTG9jYXRpb24SQS51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkRlbGV0ZUV4dGVybmFsTG9jYXRpb25SZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Ij26RxgqFkRlbGV0ZUV4dGVybmFsTG9jYXRpb26C0+STAhwqGi9leHRlcm5hbC1sb2NhdGlvbnMve25hbWV9QsACCiZjb20udW5pdHljYXRhbG9nLmV4dGVybmFsX2xvY2F0aW9ucy52MUIIU3ZjUHJvdG9QAVpmZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvZXh0ZXJuYWxfbG9jYXRpb25zL3YxO2V4dGVybmFsX2xvY2F0aW9uc3YxogIDVUVYqgIhVW5pdHljYXRhbG9nLkV4dGVybmFsTG9jYXRpb25zLlYxygIhVW5pdHljYXRhbG9nXEV4dGVybmFsTG9jYXRpb25zXFYx4gItVW5pdHljYXRhbG9nXEV4dGVybmFsTG9jYXRpb25zXFYxXEdQQk1ldGFkYXRh6gIjVW5pdHljYXRhbG9nOjpFeHRlcm5hbExvY2F0aW9uczo6VjFiBnByb3RvMw",
+    [
+      file_buf_validate_validate,
+      file_gnostic_openapi_v3_annotations,
+      file_google_api_annotations,
+      file_google_api_client,
+      file_google_api_field_behavior,
+      file_google_api_resource,
+      file_google_protobuf_empty,
+      file_google_protobuf_struct,
+      file_unitycatalog_external_locations_v1_models,
+    ],
+  );
 
 /**
  * List external locations
  *
  * @generated from message unitycatalog.external_locations.v1.ListExternalLocationsRequest
  */
-export type ListExternalLocationsRequest = Message<"unitycatalog.external_locations.v1.ListExternalLocationsRequest"> & {
-  /**
-   * The maximum number of results per page that should be returned.
-   *
-   * @generated from field: optional int32 max_results = 2;
-   */
-  maxResults?: number;
+export type ListExternalLocationsRequest =
+  Message<"unitycatalog.external_locations.v1.ListExternalLocationsRequest"> & {
+    /**
+     * The maximum number of results per page that should be returned.
+     *
+     * @generated from field: optional int32 max_results = 2;
+     */
+    maxResults?: number;
 
-  /**
-   * Opaque pagination token to go to next page based on previous query.
-   *
-   * @generated from field: optional string page_token = 3;
-   */
-  pageToken?: string;
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string page_token = 3;
+     */
+    pageToken?: string;
 
-  /**
-   * Whether to include schemas in the response for which the principal can only access selective metadata for
-   *
-   * @generated from field: optional bool include_browse = 4;
-   */
-  includeBrowse?: boolean;
-};
+    /**
+     * Whether to include schemas in the response for which the principal can only access selective metadata for
+     *
+     * @generated from field: optional bool include_browse = 4;
+     */
+    includeBrowse?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.external_locations.v1.ListExternalLocationsRequest.
  * Use `create(ListExternalLocationsRequestSchema)` to create a new message.
  */
-export const ListExternalLocationsRequestSchema: GenMessage<ListExternalLocationsRequest> = /*@__PURE__*/
+export const ListExternalLocationsRequestSchema: GenMessage<ListExternalLocationsRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_external_locations_v1_svc, 0);
 
 /**
@@ -62,27 +92,29 @@ export const ListExternalLocationsRequestSchema: GenMessage<ListExternalLocation
  *
  * @generated from message unitycatalog.external_locations.v1.ListExternalLocationsResponse
  */
-export type ListExternalLocationsResponse = Message<"unitycatalog.external_locations.v1.ListExternalLocationsResponse"> & {
-  /**
-   * The external locations returned.
-   *
-   * @generated from field: repeated unitycatalog.external_locations.v1.ExternalLocationInfo external_locations = 1;
-   */
-  externalLocations: ExternalLocationInfo[];
+export type ListExternalLocationsResponse =
+  Message<"unitycatalog.external_locations.v1.ListExternalLocationsResponse"> & {
+    /**
+     * The external locations returned.
+     *
+     * @generated from field: repeated unitycatalog.external_locations.v1.ExternalLocationInfo external_locations = 1;
+     */
+    externalLocations: ExternalLocationInfo[];
 
-  /**
-   * The next_page_token value to include in the next List request.
-   *
-   * @generated from field: optional string next_page_token = 2;
-   */
-  nextPageToken?: string;
-};
+    /**
+     * The next_page_token value to include in the next List request.
+     *
+     * @generated from field: optional string next_page_token = 2;
+     */
+    nextPageToken?: string;
+  };
 
 /**
  * Describes the message unitycatalog.external_locations.v1.ListExternalLocationsResponse.
  * Use `create(ListExternalLocationsResponseSchema)` to create a new message.
  */
-export const ListExternalLocationsResponseSchema: GenMessage<ListExternalLocationsResponse> = /*@__PURE__*/
+export const ListExternalLocationsResponseSchema: GenMessage<ListExternalLocationsResponse> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_external_locations_v1_svc, 1);
 
 /**
@@ -90,55 +122,57 @@ export const ListExternalLocationsResponseSchema: GenMessage<ListExternalLocatio
  *
  * @generated from message unitycatalog.external_locations.v1.CreateExternalLocationRequest
  */
-export type CreateExternalLocationRequest = Message<"unitycatalog.external_locations.v1.CreateExternalLocationRequest"> & {
-  /**
-   * Name of external location.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type CreateExternalLocationRequest =
+  Message<"unitycatalog.external_locations.v1.CreateExternalLocationRequest"> & {
+    /**
+     * Name of external location.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * Path URL of the external location.
-   *
-   * @generated from field: string url = 2;
-   */
-  url: string;
+    /**
+     * Path URL of the external location.
+     *
+     * @generated from field: string url = 2;
+     */
+    url: string;
 
-  /**
-   * Name of the storage credential used with this location.
-   *
-   * @generated from field: string credential_name = 3;
-   */
-  credentialName: string;
+    /**
+     * Name of the storage credential used with this location.
+     *
+     * @generated from field: string credential_name = 3;
+     */
+    credentialName: string;
 
-  /**
-   * Indicates whether the external location is read-only.
-   *
-   * @generated from field: optional bool read_only = 4;
-   */
-  readOnly?: boolean;
+    /**
+     * Indicates whether the external location is read-only.
+     *
+     * @generated from field: optional bool read_only = 4;
+     */
+    readOnly?: boolean;
 
-  /**
-   * User-provided free-form text description.
-   *
-   * @generated from field: optional string comment = 5;
-   */
-  comment?: string;
+    /**
+     * User-provided free-form text description.
+     *
+     * @generated from field: optional string comment = 5;
+     */
+    comment?: string;
 
-  /**
-   * Skips validation of the storage credential associated with the external location.
-   *
-   * @generated from field: optional bool skip_validation = 6;
-   */
-  skipValidation?: boolean;
-};
+    /**
+     * Skips validation of the storage credential associated with the external location.
+     *
+     * @generated from field: optional bool skip_validation = 6;
+     */
+    skipValidation?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.external_locations.v1.CreateExternalLocationRequest.
  * Use `create(CreateExternalLocationRequestSchema)` to create a new message.
  */
-export const CreateExternalLocationRequestSchema: GenMessage<CreateExternalLocationRequest> = /*@__PURE__*/
+export const CreateExternalLocationRequestSchema: GenMessage<CreateExternalLocationRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_external_locations_v1_svc, 2);
 
 /**
@@ -146,20 +180,22 @@ export const CreateExternalLocationRequestSchema: GenMessage<CreateExternalLocat
  *
  * @generated from message unitycatalog.external_locations.v1.GetExternalLocationRequest
  */
-export type GetExternalLocationRequest = Message<"unitycatalog.external_locations.v1.GetExternalLocationRequest"> & {
-  /**
-   * Name of external location.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type GetExternalLocationRequest =
+  Message<"unitycatalog.external_locations.v1.GetExternalLocationRequest"> & {
+    /**
+     * Name of external location.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message unitycatalog.external_locations.v1.GetExternalLocationRequest.
  * Use `create(GetExternalLocationRequestSchema)` to create a new message.
  */
-export const GetExternalLocationRequestSchema: GenMessage<GetExternalLocationRequest> = /*@__PURE__*/
+export const GetExternalLocationRequestSchema: GenMessage<GetExternalLocationRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_external_locations_v1_svc, 3);
 
 /**
@@ -167,76 +203,78 @@ export const GetExternalLocationRequestSchema: GenMessage<GetExternalLocationReq
  *
  * @generated from message unitycatalog.external_locations.v1.UpdateExternalLocationRequest
  */
-export type UpdateExternalLocationRequest = Message<"unitycatalog.external_locations.v1.UpdateExternalLocationRequest"> & {
-  /**
-   * Name of external location.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type UpdateExternalLocationRequest =
+  Message<"unitycatalog.external_locations.v1.UpdateExternalLocationRequest"> & {
+    /**
+     * Name of external location.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * Path URL of the external location.
-   *
-   * @generated from field: optional string url = 2;
-   */
-  url?: string;
+    /**
+     * Path URL of the external location.
+     *
+     * @generated from field: optional string url = 2;
+     */
+    url?: string;
 
-  /**
-   * Name of the storage credential used with this location.
-   *
-   * @generated from field: optional string credential_name = 3;
-   */
-  credentialName?: string;
+    /**
+     * Name of the storage credential used with this location.
+     *
+     * @generated from field: optional string credential_name = 3;
+     */
+    credentialName?: string;
 
-  /**
-   * Indicates whether the external location is read-only.
-   *
-   * @generated from field: optional bool read_only = 4;
-   */
-  readOnly?: boolean;
+    /**
+     * Indicates whether the external location is read-only.
+     *
+     * @generated from field: optional bool read_only = 4;
+     */
+    readOnly?: boolean;
 
-  /**
-   * owner of the external location.
-   *
-   * @generated from field: optional string owner = 5;
-   */
-  owner?: string;
+    /**
+     * owner of the external location.
+     *
+     * @generated from field: optional string owner = 5;
+     */
+    owner?: string;
 
-  /**
-   * User-provided free-form text description.
-   *
-   * @generated from field: optional string comment = 6;
-   */
-  comment?: string;
+    /**
+     * User-provided free-form text description.
+     *
+     * @generated from field: optional string comment = 6;
+     */
+    comment?: string;
 
-  /**
-   * new name of the external location.
-   *
-   * @generated from field: optional string new_name = 7;
-   */
-  newName?: string;
+    /**
+     * new name of the external location.
+     *
+     * @generated from field: optional string new_name = 7;
+     */
+    newName?: string;
 
-  /**
-   * force update of the external location.
-   *
-   * @generated from field: optional bool force = 8;
-   */
-  force?: boolean;
+    /**
+     * force update of the external location.
+     *
+     * @generated from field: optional bool force = 8;
+     */
+    force?: boolean;
 
-  /**
-   * Skips validation of the storage credential associated with the external location.
-   *
-   * @generated from field: optional bool skip_validation = 9;
-   */
-  skipValidation?: boolean;
-};
+    /**
+     * Skips validation of the storage credential associated with the external location.
+     *
+     * @generated from field: optional bool skip_validation = 9;
+     */
+    skipValidation?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.external_locations.v1.UpdateExternalLocationRequest.
  * Use `create(UpdateExternalLocationRequestSchema)` to create a new message.
  */
-export const UpdateExternalLocationRequestSchema: GenMessage<UpdateExternalLocationRequest> = /*@__PURE__*/
+export const UpdateExternalLocationRequestSchema: GenMessage<UpdateExternalLocationRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_external_locations_v1_svc, 4);
 
 /**
@@ -244,27 +282,29 @@ export const UpdateExternalLocationRequestSchema: GenMessage<UpdateExternalLocat
  *
  * @generated from message unitycatalog.external_locations.v1.DeleteExternalLocationRequest
  */
-export type DeleteExternalLocationRequest = Message<"unitycatalog.external_locations.v1.DeleteExternalLocationRequest"> & {
-  /**
-   * Name of external location.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type DeleteExternalLocationRequest =
+  Message<"unitycatalog.external_locations.v1.DeleteExternalLocationRequest"> & {
+    /**
+     * Name of external location.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * Force deletion even if the external location is not empty.
-   *
-   * @generated from field: optional bool force = 2;
-   */
-  force?: boolean;
-};
+    /**
+     * Force deletion even if the external location is not empty.
+     *
+     * @generated from field: optional bool force = 2;
+     */
+    force?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.external_locations.v1.DeleteExternalLocationRequest.
  * Use `create(DeleteExternalLocationRequestSchema)` to create a new message.
  */
-export const DeleteExternalLocationRequestSchema: GenMessage<DeleteExternalLocationRequest> = /*@__PURE__*/
+export const DeleteExternalLocationRequestSchema: GenMessage<DeleteExternalLocationRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_external_locations_v1_svc, 5);
 
 /**
@@ -280,7 +320,7 @@ export const ExternalLocationsService: GenService<{
     methodKind: "unary";
     input: typeof ListExternalLocationsRequestSchema;
     output: typeof ListExternalLocationsResponseSchema;
-  },
+  };
   /**
    * Create a new external location
    *
@@ -290,7 +330,7 @@ export const ExternalLocationsService: GenService<{
     methodKind: "unary";
     input: typeof CreateExternalLocationRequestSchema;
     output: typeof ExternalLocationInfoSchema;
-  },
+  };
   /**
    * Get an external location
    *
@@ -300,7 +340,7 @@ export const ExternalLocationsService: GenService<{
     methodKind: "unary";
     input: typeof GetExternalLocationRequestSchema;
     output: typeof ExternalLocationInfoSchema;
-  },
+  };
   /**
    * Update an external location
    *
@@ -310,7 +350,7 @@ export const ExternalLocationsService: GenService<{
     methodKind: "unary";
     input: typeof UpdateExternalLocationRequestSchema;
     output: typeof ExternalLocationInfoSchema;
-  },
+  };
   /**
    * Delete an external location
    *
@@ -320,7 +360,5 @@ export const ExternalLocationsService: GenService<{
     methodKind: "unary";
     input: typeof DeleteExternalLocationRequestSchema;
     output: typeof EmptySchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_unitycatalog_external_locations_v1_svc, 0);
-
+  };
+}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_external_locations_v1_svc, 0);

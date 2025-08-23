@@ -16,16 +16,20 @@
 // @generated from file google/type/color.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_wrappers } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/color.proto.
  */
-export const file_google_type_color: GenFile = /*@__PURE__*/
-  fileDesc("Chdnb29nbGUvdHlwZS9jb2xvci5wcm90bxILZ29vZ2xlLnR5cGUiXQoFQ29sb3ISCwoDcmVkGAEgASgCEg0KBWdyZWVuGAIgASgCEgwKBGJsdWUYAyABKAISKgoFYWxwaGEYBCABKAsyGy5nb29nbGUucHJvdG9idWYuRmxvYXRWYWx1ZUKlAQoPY29tLmdvb2dsZS50eXBlQgpDb2xvclByb3RvUAFaNmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9jb2xvcjtjb2xvcvgBAaICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z", [file_google_protobuf_wrappers]);
+export const file_google_type_color: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chdnb29nbGUvdHlwZS9jb2xvci5wcm90bxILZ29vZ2xlLnR5cGUiXQoFQ29sb3ISCwoDcmVkGAEgASgCEg0KBWdyZWVuGAIgASgCEgwKBGJsdWUYAyABKAISKgoFYWxwaGEYBCABKAsyGy5nb29nbGUucHJvdG9idWYuRmxvYXRWYWx1ZUKlAQoPY29tLmdvb2dsZS50eXBlQgpDb2xvclByb3RvUAFaNmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9jb2xvcjtjb2xvcvgBAaICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z",
+    [file_google_protobuf_wrappers],
+  );
 
 /**
  * Represents a color in the RGBA color space. This representation is designed
@@ -199,6 +203,6 @@ export type Color = Message<"google.type.Color"> & {
  * Describes the message google.type.Color.
  * Use `create(ColorSchema)` to create a new message.
  */
-export const ColorSchema: GenMessage<Color> = /*@__PURE__*/
+export const ColorSchema: GenMessage<Color> =
+  /*@__PURE__*/
   messageDesc(file_google_type_color, 0);
-

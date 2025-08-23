@@ -4,13 +4,11 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
 use unitycatalog_common::models::sharing::v1::*;
-use unitycatalog_common::models::sharing_ext::{
-    MetadataResponse, MetadataResponseData, ProtocolResponseData,
-};
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;
 use crate::codegen::sharing::builders::QueryTableBuilder;
+use crate::models::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::{Error, Result};
 
 #[derive(Clone)]

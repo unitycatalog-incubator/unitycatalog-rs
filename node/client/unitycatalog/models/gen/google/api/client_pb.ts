@@ -16,55 +16,82 @@
 // @generated from file google/api/client.proto (package google.api, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenExtension, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { enumDesc, extDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenEnum,
+  GenExtension,
+  GenFile,
+  GenMessage,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  enumDesc,
+  extDesc,
+  fileDesc,
+  messageDesc,
+} from "@bufbuild/protobuf/codegenv2";
+import type {
+  Duration,
+  MethodOptions,
+  ServiceOptions,
+} from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_descriptor,
+  file_google_protobuf_duration,
+} from "@bufbuild/protobuf/wkt";
 import type { LaunchStage } from "./launch_stage_pb";
 import { file_google_api_launch_stage } from "./launch_stage_pb";
-import type { Duration, MethodOptions, ServiceOptions } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_descriptor, file_google_protobuf_duration } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/client.proto.
  */
-export const file_google_api_client: GenFile = /*@__PURE__*/
-  fileDesc("Chdnb29nbGUvYXBpL2NsaWVudC5wcm90bxIKZ29vZ2xlLmFwaSK+AQoWQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncxIeChJyZWZlcmVuY2VfZG9jc191cmkYASABKAlCAhgBEjoKDGRlc3RpbmF0aW9ucxgCIAMoDjIkLmdvb2dsZS5hcGkuQ2xpZW50TGlicmFyeURlc3RpbmF0aW9uEkgKGnNlbGVjdGl2ZV9nYXBpY19nZW5lcmF0aW9uGAMgASgLMiQuZ29vZ2xlLmFwaS5TZWxlY3RpdmVHYXBpY0dlbmVyYXRpb24i+wMKFUNsaWVudExpYnJhcnlTZXR0aW5ncxIPCgd2ZXJzaW9uGAEgASgJEi0KDGxhdW5jaF9zdGFnZRgCIAEoDjIXLmdvb2dsZS5hcGkuTGF1bmNoU3RhZ2USGgoScmVzdF9udW1lcmljX2VudW1zGAMgASgIEi8KDWphdmFfc2V0dGluZ3MYFSABKAsyGC5nb29nbGUuYXBpLkphdmFTZXR0aW5ncxItCgxjcHBfc2V0dGluZ3MYFiABKAsyFy5nb29nbGUuYXBpLkNwcFNldHRpbmdzEi0KDHBocF9zZXR0aW5ncxgXIAEoCzIXLmdvb2dsZS5hcGkuUGhwU2V0dGluZ3MSMwoPcHl0aG9uX3NldHRpbmdzGBggASgLMhouZ29vZ2xlLmFwaS5QeXRob25TZXR0aW5ncxIvCg1ub2RlX3NldHRpbmdzGBkgASgLMhguZ29vZ2xlLmFwaS5Ob2RlU2V0dGluZ3MSMwoPZG90bmV0X3NldHRpbmdzGBogASgLMhouZ29vZ2xlLmFwaS5Eb3RuZXRTZXR0aW5ncxIvCg1ydWJ5X3NldHRpbmdzGBsgASgLMhguZ29vZ2xlLmFwaS5SdWJ5U2V0dGluZ3MSKwoLZ29fc2V0dGluZ3MYHCABKAsyFi5nb29nbGUuYXBpLkdvU2V0dGluZ3MiqAMKClB1Ymxpc2hpbmcSMwoPbWV0aG9kX3NldHRpbmdzGAIgAygLMhouZ29vZ2xlLmFwaS5NZXRob2RTZXR0aW5ncxIVCg1uZXdfaXNzdWVfdXJpGGUgASgJEhkKEWRvY3VtZW50YXRpb25fdXJpGGYgASgJEhYKDmFwaV9zaG9ydF9uYW1lGGcgASgJEhQKDGdpdGh1Yl9sYWJlbBhoIAEoCRIeChZjb2Rlb3duZXJfZ2l0aHViX3RlYW1zGGkgAygJEhYKDmRvY190YWdfcHJlZml4GGogASgJEjsKDG9yZ2FuaXphdGlvbhhrIAEoDjIlLmdvb2dsZS5hcGkuQ2xpZW50TGlicmFyeU9yZ2FuaXphdGlvbhI7ChBsaWJyYXJ5X3NldHRpbmdzGG0gAygLMiEuZ29vZ2xlLmFwaS5DbGllbnRMaWJyYXJ5U2V0dGluZ3MSKQohcHJvdG9fcmVmZXJlbmNlX2RvY3VtZW50YXRpb25fdXJpGG4gASgJEigKIHJlc3RfcmVmZXJlbmNlX2RvY3VtZW50YXRpb25fdXJpGG8gASgJIuMBCgxKYXZhU2V0dGluZ3MSFwoPbGlicmFyeV9wYWNrYWdlGAEgASgJEkwKE3NlcnZpY2VfY2xhc3NfbmFtZXMYAiADKAsyLy5nb29nbGUuYXBpLkphdmFTZXR0aW5ncy5TZXJ2aWNlQ2xhc3NOYW1lc0VudHJ5EjIKBmNvbW1vbhgDIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncxo4ChZTZXJ2aWNlQ2xhc3NOYW1lc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiQQoLQ3BwU2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzIkEKC1BocFNldHRpbmdzEjIKBmNvbW1vbhgBIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncyKbAgoOUHl0aG9uU2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzEk4KFWV4cGVyaW1lbnRhbF9mZWF0dXJlcxgCIAEoCzIvLmdvb2dsZS5hcGkuUHl0aG9uU2V0dGluZ3MuRXhwZXJpbWVudGFsRmVhdHVyZXMahAEKFEV4cGVyaW1lbnRhbEZlYXR1cmVzEh0KFXJlc3RfYXN5bmNfaW9fZW5hYmxlZBgBIAEoCBInCh9wcm90b2J1Zl9weXRob25pY190eXBlc19lbmFibGVkGAIgASgIEiQKHHVudmVyc2lvbmVkX3BhY2thZ2VfZGlzYWJsZWQYAyABKAgiQgoMTm9kZVNldHRpbmdzEjIKBmNvbW1vbhgBIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncyKqAwoORG90bmV0U2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzEkkKEHJlbmFtZWRfc2VydmljZXMYAiADKAsyLy5nb29nbGUuYXBpLkRvdG5ldFNldHRpbmdzLlJlbmFtZWRTZXJ2aWNlc0VudHJ5EksKEXJlbmFtZWRfcmVzb3VyY2VzGAMgAygLMjAuZ29vZ2xlLmFwaS5Eb3RuZXRTZXR0aW5ncy5SZW5hbWVkUmVzb3VyY2VzRW50cnkSGQoRaWdub3JlZF9yZXNvdXJjZXMYBCADKAkSIAoYZm9yY2VkX25hbWVzcGFjZV9hbGlhc2VzGAUgAygJEh4KFmhhbmR3cml0dGVuX3NpZ25hdHVyZXMYBiADKAkaNgoUUmVuYW1lZFNlcnZpY2VzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARo3ChVSZW5hbWVkUmVzb3VyY2VzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJCCgxSdWJ5U2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzIr8BCgpHb1NldHRpbmdzEjIKBmNvbW1vbhgBIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncxJFChByZW5hbWVkX3NlcnZpY2VzGAIgAygLMisuZ29vZ2xlLmFwaS5Hb1NldHRpbmdzLlJlbmFtZWRTZXJ2aWNlc0VudHJ5GjYKFFJlbmFtZWRTZXJ2aWNlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEizwIKDk1ldGhvZFNldHRpbmdzEhAKCHNlbGVjdG9yGAEgASgJEjwKDGxvbmdfcnVubmluZxgCIAEoCzImLmdvb2dsZS5hcGkuTWV0aG9kU2V0dGluZ3MuTG9uZ1J1bm5pbmcSHQoVYXV0b19wb3B1bGF0ZWRfZmllbGRzGAMgAygJGs0BCgtMb25nUnVubmluZxI1ChJpbml0aWFsX3BvbGxfZGVsYXkYASABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24SHQoVcG9sbF9kZWxheV9tdWx0aXBsaWVyGAIgASgCEjEKDm1heF9wb2xsX2RlbGF5GAMgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEjUKEnRvdGFsX3BvbGxfdGltZW91dBgEIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbiJRChhTZWxlY3RpdmVHYXBpY0dlbmVyYXRpb24SDwoHbWV0aG9kcxgBIAMoCRIkChxnZW5lcmF0ZV9vbWl0dGVkX2FzX2ludGVybmFsGAIgASgIKqMBChlDbGllbnRMaWJyYXJ5T3JnYW5pemF0aW9uEisKJ0NMSUVOVF9MSUJSQVJZX09SR0FOSVpBVElPTl9VTlNQRUNJRklFRBAAEgkKBUNMT1VEEAESBwoDQURTEAISCgoGUEhPVE9TEAMSDwoLU1RSRUVUX1ZJRVcQBBIMCghTSE9QUElORxAFEgcKA0dFTxAGEhEKDUdFTkVSQVRJVkVfQUkQBypnChhDbGllbnRMaWJyYXJ5RGVzdGluYXRpb24SKgomQ0xJRU5UX0xJQlJBUllfREVTVElOQVRJT05fVU5TUEVDSUZJRUQQABIKCgZHSVRIVUIQChITCg9QQUNLQUdFX01BTkFHRVIQFDpKChBtZXRob2Rfc2lnbmF0dXJlEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYmwggAygJUg9tZXRob2RTaWduYXR1cmU6QwoMZGVmYXVsdF9ob3N0Eh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGJkIIAEoCVILZGVmYXVsdEhvc3Q6QwoMb2F1dGhfc2NvcGVzEh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGJoIIAEoCVILb2F1dGhTY29wZXM6RAoLYXBpX3ZlcnNpb24SHy5nb29nbGUucHJvdG9idWYuU2VydmljZU9wdGlvbnMYwbqr+gEgASgJUgphcGlWZXJzaW9uQqkBCg5jb20uZ29vZ2xlLmFwaUILQ2xpZW50UHJvdG9QAVpBZ29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9hcGkvYW5ub3RhdGlvbnM7YW5ub3RhdGlvbnOiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z", [file_google_api_launch_stage, file_google_protobuf_descriptor, file_google_protobuf_duration]);
+export const file_google_api_client: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chdnb29nbGUvYXBpL2NsaWVudC5wcm90bxIKZ29vZ2xlLmFwaSK+AQoWQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncxIeChJyZWZlcmVuY2VfZG9jc191cmkYASABKAlCAhgBEjoKDGRlc3RpbmF0aW9ucxgCIAMoDjIkLmdvb2dsZS5hcGkuQ2xpZW50TGlicmFyeURlc3RpbmF0aW9uEkgKGnNlbGVjdGl2ZV9nYXBpY19nZW5lcmF0aW9uGAMgASgLMiQuZ29vZ2xlLmFwaS5TZWxlY3RpdmVHYXBpY0dlbmVyYXRpb24i+wMKFUNsaWVudExpYnJhcnlTZXR0aW5ncxIPCgd2ZXJzaW9uGAEgASgJEi0KDGxhdW5jaF9zdGFnZRgCIAEoDjIXLmdvb2dsZS5hcGkuTGF1bmNoU3RhZ2USGgoScmVzdF9udW1lcmljX2VudW1zGAMgASgIEi8KDWphdmFfc2V0dGluZ3MYFSABKAsyGC5nb29nbGUuYXBpLkphdmFTZXR0aW5ncxItCgxjcHBfc2V0dGluZ3MYFiABKAsyFy5nb29nbGUuYXBpLkNwcFNldHRpbmdzEi0KDHBocF9zZXR0aW5ncxgXIAEoCzIXLmdvb2dsZS5hcGkuUGhwU2V0dGluZ3MSMwoPcHl0aG9uX3NldHRpbmdzGBggASgLMhouZ29vZ2xlLmFwaS5QeXRob25TZXR0aW5ncxIvCg1ub2RlX3NldHRpbmdzGBkgASgLMhguZ29vZ2xlLmFwaS5Ob2RlU2V0dGluZ3MSMwoPZG90bmV0X3NldHRpbmdzGBogASgLMhouZ29vZ2xlLmFwaS5Eb3RuZXRTZXR0aW5ncxIvCg1ydWJ5X3NldHRpbmdzGBsgASgLMhguZ29vZ2xlLmFwaS5SdWJ5U2V0dGluZ3MSKwoLZ29fc2V0dGluZ3MYHCABKAsyFi5nb29nbGUuYXBpLkdvU2V0dGluZ3MiqAMKClB1Ymxpc2hpbmcSMwoPbWV0aG9kX3NldHRpbmdzGAIgAygLMhouZ29vZ2xlLmFwaS5NZXRob2RTZXR0aW5ncxIVCg1uZXdfaXNzdWVfdXJpGGUgASgJEhkKEWRvY3VtZW50YXRpb25fdXJpGGYgASgJEhYKDmFwaV9zaG9ydF9uYW1lGGcgASgJEhQKDGdpdGh1Yl9sYWJlbBhoIAEoCRIeChZjb2Rlb3duZXJfZ2l0aHViX3RlYW1zGGkgAygJEhYKDmRvY190YWdfcHJlZml4GGogASgJEjsKDG9yZ2FuaXphdGlvbhhrIAEoDjIlLmdvb2dsZS5hcGkuQ2xpZW50TGlicmFyeU9yZ2FuaXphdGlvbhI7ChBsaWJyYXJ5X3NldHRpbmdzGG0gAygLMiEuZ29vZ2xlLmFwaS5DbGllbnRMaWJyYXJ5U2V0dGluZ3MSKQohcHJvdG9fcmVmZXJlbmNlX2RvY3VtZW50YXRpb25fdXJpGG4gASgJEigKIHJlc3RfcmVmZXJlbmNlX2RvY3VtZW50YXRpb25fdXJpGG8gASgJIuMBCgxKYXZhU2V0dGluZ3MSFwoPbGlicmFyeV9wYWNrYWdlGAEgASgJEkwKE3NlcnZpY2VfY2xhc3NfbmFtZXMYAiADKAsyLy5nb29nbGUuYXBpLkphdmFTZXR0aW5ncy5TZXJ2aWNlQ2xhc3NOYW1lc0VudHJ5EjIKBmNvbW1vbhgDIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncxo4ChZTZXJ2aWNlQ2xhc3NOYW1lc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiQQoLQ3BwU2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzIkEKC1BocFNldHRpbmdzEjIKBmNvbW1vbhgBIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncyKbAgoOUHl0aG9uU2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzEk4KFWV4cGVyaW1lbnRhbF9mZWF0dXJlcxgCIAEoCzIvLmdvb2dsZS5hcGkuUHl0aG9uU2V0dGluZ3MuRXhwZXJpbWVudGFsRmVhdHVyZXMahAEKFEV4cGVyaW1lbnRhbEZlYXR1cmVzEh0KFXJlc3RfYXN5bmNfaW9fZW5hYmxlZBgBIAEoCBInCh9wcm90b2J1Zl9weXRob25pY190eXBlc19lbmFibGVkGAIgASgIEiQKHHVudmVyc2lvbmVkX3BhY2thZ2VfZGlzYWJsZWQYAyABKAgiQgoMTm9kZVNldHRpbmdzEjIKBmNvbW1vbhgBIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncyKqAwoORG90bmV0U2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzEkkKEHJlbmFtZWRfc2VydmljZXMYAiADKAsyLy5nb29nbGUuYXBpLkRvdG5ldFNldHRpbmdzLlJlbmFtZWRTZXJ2aWNlc0VudHJ5EksKEXJlbmFtZWRfcmVzb3VyY2VzGAMgAygLMjAuZ29vZ2xlLmFwaS5Eb3RuZXRTZXR0aW5ncy5SZW5hbWVkUmVzb3VyY2VzRW50cnkSGQoRaWdub3JlZF9yZXNvdXJjZXMYBCADKAkSIAoYZm9yY2VkX25hbWVzcGFjZV9hbGlhc2VzGAUgAygJEh4KFmhhbmR3cml0dGVuX3NpZ25hdHVyZXMYBiADKAkaNgoUUmVuYW1lZFNlcnZpY2VzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARo3ChVSZW5hbWVkUmVzb3VyY2VzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJCCgxSdWJ5U2V0dGluZ3MSMgoGY29tbW9uGAEgASgLMiIuZ29vZ2xlLmFwaS5Db21tb25MYW5ndWFnZVNldHRpbmdzIr8BCgpHb1NldHRpbmdzEjIKBmNvbW1vbhgBIAEoCzIiLmdvb2dsZS5hcGkuQ29tbW9uTGFuZ3VhZ2VTZXR0aW5ncxJFChByZW5hbWVkX3NlcnZpY2VzGAIgAygLMisuZ29vZ2xlLmFwaS5Hb1NldHRpbmdzLlJlbmFtZWRTZXJ2aWNlc0VudHJ5GjYKFFJlbmFtZWRTZXJ2aWNlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEizwIKDk1ldGhvZFNldHRpbmdzEhAKCHNlbGVjdG9yGAEgASgJEjwKDGxvbmdfcnVubmluZxgCIAEoCzImLmdvb2dsZS5hcGkuTWV0aG9kU2V0dGluZ3MuTG9uZ1J1bm5pbmcSHQoVYXV0b19wb3B1bGF0ZWRfZmllbGRzGAMgAygJGs0BCgtMb25nUnVubmluZxI1ChJpbml0aWFsX3BvbGxfZGVsYXkYASABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb24SHQoVcG9sbF9kZWxheV9tdWx0aXBsaWVyGAIgASgCEjEKDm1heF9wb2xsX2RlbGF5GAMgASgLMhkuZ29vZ2xlLnByb3RvYnVmLkR1cmF0aW9uEjUKEnRvdGFsX3BvbGxfdGltZW91dBgEIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbiJRChhTZWxlY3RpdmVHYXBpY0dlbmVyYXRpb24SDwoHbWV0aG9kcxgBIAMoCRIkChxnZW5lcmF0ZV9vbWl0dGVkX2FzX2ludGVybmFsGAIgASgIKqMBChlDbGllbnRMaWJyYXJ5T3JnYW5pemF0aW9uEisKJ0NMSUVOVF9MSUJSQVJZX09SR0FOSVpBVElPTl9VTlNQRUNJRklFRBAAEgkKBUNMT1VEEAESBwoDQURTEAISCgoGUEhPVE9TEAMSDwoLU1RSRUVUX1ZJRVcQBBIMCghTSE9QUElORxAFEgcKA0dFTxAGEhEKDUdFTkVSQVRJVkVfQUkQBypnChhDbGllbnRMaWJyYXJ5RGVzdGluYXRpb24SKgomQ0xJRU5UX0xJQlJBUllfREVTVElOQVRJT05fVU5TUEVDSUZJRUQQABIKCgZHSVRIVUIQChITCg9QQUNLQUdFX01BTkFHRVIQFDpKChBtZXRob2Rfc2lnbmF0dXJlEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYmwggAygJUg9tZXRob2RTaWduYXR1cmU6QwoMZGVmYXVsdF9ob3N0Eh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGJkIIAEoCVILZGVmYXVsdEhvc3Q6QwoMb2F1dGhfc2NvcGVzEh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGJoIIAEoCVILb2F1dGhTY29wZXM6RAoLYXBpX3ZlcnNpb24SHy5nb29nbGUucHJvdG9idWYuU2VydmljZU9wdGlvbnMYwbqr+gEgASgJUgphcGlWZXJzaW9uQqkBCg5jb20uZ29vZ2xlLmFwaUILQ2xpZW50UHJvdG9QAVpBZ29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9hcGkvYW5ub3RhdGlvbnM7YW5ub3RhdGlvbnOiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z",
+    [
+      file_google_api_launch_stage,
+      file_google_protobuf_descriptor,
+      file_google_protobuf_duration,
+    ],
+  );
 
 /**
  * Required information for every language.
  *
  * @generated from message google.api.CommonLanguageSettings
  */
-export type CommonLanguageSettings = Message<"google.api.CommonLanguageSettings"> & {
-  /**
-   * Link to automatically generated reference documentation.  Example:
-   * https://cloud.google.com/nodejs/docs/reference/asset/latest
-   *
-   * @generated from field: string reference_docs_uri = 1 [deprecated = true];
-   * @deprecated
-   */
-  referenceDocsUri: string;
+export type CommonLanguageSettings =
+  Message<"google.api.CommonLanguageSettings"> & {
+    /**
+     * Link to automatically generated reference documentation.  Example:
+     * https://cloud.google.com/nodejs/docs/reference/asset/latest
+     *
+     * @generated from field: string reference_docs_uri = 1 [deprecated = true];
+     * @deprecated
+     */
+    referenceDocsUri: string;
 
-  /**
-   * The destination where API teams want this client library to be published.
-   *
-   * @generated from field: repeated google.api.ClientLibraryDestination destinations = 2;
-   */
-  destinations: ClientLibraryDestination[];
+    /**
+     * The destination where API teams want this client library to be published.
+     *
+     * @generated from field: repeated google.api.ClientLibraryDestination destinations = 2;
+     */
+    destinations: ClientLibraryDestination[];
 
-  /**
-   * Configuration for which RPCs should be generated in the GAPIC client.
-   *
-   * @generated from field: google.api.SelectiveGapicGeneration selective_gapic_generation = 3;
-   */
-  selectiveGapicGeneration?: SelectiveGapicGeneration;
-};
+    /**
+     * Configuration for which RPCs should be generated in the GAPIC client.
+     *
+     * @generated from field: google.api.SelectiveGapicGeneration selective_gapic_generation = 3;
+     */
+    selectiveGapicGeneration?: SelectiveGapicGeneration;
+  };
 
 /**
  * Describes the message google.api.CommonLanguageSettings.
  * Use `create(CommonLanguageSettingsSchema)` to create a new message.
  */
-export const CommonLanguageSettingsSchema: GenMessage<CommonLanguageSettings> = /*@__PURE__*/
+export const CommonLanguageSettingsSchema: GenMessage<CommonLanguageSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 0);
 
 /**
@@ -72,93 +99,95 @@ export const CommonLanguageSettingsSchema: GenMessage<CommonLanguageSettings> = 
  *
  * @generated from message google.api.ClientLibrarySettings
  */
-export type ClientLibrarySettings = Message<"google.api.ClientLibrarySettings"> & {
-  /**
-   * Version of the API to apply these settings to. This is the full protobuf
-   * package for the API, ending in the version element.
-   * Examples: "google.cloud.speech.v1" and "google.spanner.admin.database.v1".
-   *
-   * @generated from field: string version = 1;
-   */
-  version: string;
+export type ClientLibrarySettings =
+  Message<"google.api.ClientLibrarySettings"> & {
+    /**
+     * Version of the API to apply these settings to. This is the full protobuf
+     * package for the API, ending in the version element.
+     * Examples: "google.cloud.speech.v1" and "google.spanner.admin.database.v1".
+     *
+     * @generated from field: string version = 1;
+     */
+    version: string;
 
-  /**
-   * Launch stage of this version of the API.
-   *
-   * @generated from field: google.api.LaunchStage launch_stage = 2;
-   */
-  launchStage: LaunchStage;
+    /**
+     * Launch stage of this version of the API.
+     *
+     * @generated from field: google.api.LaunchStage launch_stage = 2;
+     */
+    launchStage: LaunchStage;
 
-  /**
-   * When using transport=rest, the client request will encode enums as
-   * numbers rather than strings.
-   *
-   * @generated from field: bool rest_numeric_enums = 3;
-   */
-  restNumericEnums: boolean;
+    /**
+     * When using transport=rest, the client request will encode enums as
+     * numbers rather than strings.
+     *
+     * @generated from field: bool rest_numeric_enums = 3;
+     */
+    restNumericEnums: boolean;
 
-  /**
-   * Settings for legacy Java features, supported in the Service YAML.
-   *
-   * @generated from field: google.api.JavaSettings java_settings = 21;
-   */
-  javaSettings?: JavaSettings;
+    /**
+     * Settings for legacy Java features, supported in the Service YAML.
+     *
+     * @generated from field: google.api.JavaSettings java_settings = 21;
+     */
+    javaSettings?: JavaSettings;
 
-  /**
-   * Settings for C++ client libraries.
-   *
-   * @generated from field: google.api.CppSettings cpp_settings = 22;
-   */
-  cppSettings?: CppSettings;
+    /**
+     * Settings for C++ client libraries.
+     *
+     * @generated from field: google.api.CppSettings cpp_settings = 22;
+     */
+    cppSettings?: CppSettings;
 
-  /**
-   * Settings for PHP client libraries.
-   *
-   * @generated from field: google.api.PhpSettings php_settings = 23;
-   */
-  phpSettings?: PhpSettings;
+    /**
+     * Settings for PHP client libraries.
+     *
+     * @generated from field: google.api.PhpSettings php_settings = 23;
+     */
+    phpSettings?: PhpSettings;
 
-  /**
-   * Settings for Python client libraries.
-   *
-   * @generated from field: google.api.PythonSettings python_settings = 24;
-   */
-  pythonSettings?: PythonSettings;
+    /**
+     * Settings for Python client libraries.
+     *
+     * @generated from field: google.api.PythonSettings python_settings = 24;
+     */
+    pythonSettings?: PythonSettings;
 
-  /**
-   * Settings for Node client libraries.
-   *
-   * @generated from field: google.api.NodeSettings node_settings = 25;
-   */
-  nodeSettings?: NodeSettings;
+    /**
+     * Settings for Node client libraries.
+     *
+     * @generated from field: google.api.NodeSettings node_settings = 25;
+     */
+    nodeSettings?: NodeSettings;
 
-  /**
-   * Settings for .NET client libraries.
-   *
-   * @generated from field: google.api.DotnetSettings dotnet_settings = 26;
-   */
-  dotnetSettings?: DotnetSettings;
+    /**
+     * Settings for .NET client libraries.
+     *
+     * @generated from field: google.api.DotnetSettings dotnet_settings = 26;
+     */
+    dotnetSettings?: DotnetSettings;
 
-  /**
-   * Settings for Ruby client libraries.
-   *
-   * @generated from field: google.api.RubySettings ruby_settings = 27;
-   */
-  rubySettings?: RubySettings;
+    /**
+     * Settings for Ruby client libraries.
+     *
+     * @generated from field: google.api.RubySettings ruby_settings = 27;
+     */
+    rubySettings?: RubySettings;
 
-  /**
-   * Settings for Go client libraries.
-   *
-   * @generated from field: google.api.GoSettings go_settings = 28;
-   */
-  goSettings?: GoSettings;
-};
+    /**
+     * Settings for Go client libraries.
+     *
+     * @generated from field: google.api.GoSettings go_settings = 28;
+     */
+    goSettings?: GoSettings;
+  };
 
 /**
  * Describes the message google.api.ClientLibrarySettings.
  * Use `create(ClientLibrarySettingsSchema)` to create a new message.
  */
-export const ClientLibrarySettingsSchema: GenMessage<ClientLibrarySettings> = /*@__PURE__*/
+export const ClientLibrarySettingsSchema: GenMessage<ClientLibrarySettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 1);
 
 /**
@@ -262,7 +291,8 @@ export type Publishing = Message<"google.api.Publishing"> & {
  * Describes the message google.api.Publishing.
  * Use `create(PublishingSchema)` to create a new message.
  */
-export const PublishingSchema: GenMessage<Publishing> = /*@__PURE__*/
+export const PublishingSchema: GenMessage<Publishing> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 2);
 
 /**
@@ -320,7 +350,8 @@ export type JavaSettings = Message<"google.api.JavaSettings"> & {
  * Describes the message google.api.JavaSettings.
  * Use `create(JavaSettingsSchema)` to create a new message.
  */
-export const JavaSettingsSchema: GenMessage<JavaSettings> = /*@__PURE__*/
+export const JavaSettingsSchema: GenMessage<JavaSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 3);
 
 /**
@@ -341,7 +372,8 @@ export type CppSettings = Message<"google.api.CppSettings"> & {
  * Describes the message google.api.CppSettings.
  * Use `create(CppSettingsSchema)` to create a new message.
  */
-export const CppSettingsSchema: GenMessage<CppSettings> = /*@__PURE__*/
+export const CppSettingsSchema: GenMessage<CppSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 4);
 
 /**
@@ -362,7 +394,8 @@ export type PhpSettings = Message<"google.api.PhpSettings"> & {
  * Describes the message google.api.PhpSettings.
  * Use `create(PhpSettingsSchema)` to create a new message.
  */
-export const PhpSettingsSchema: GenMessage<PhpSettings> = /*@__PURE__*/
+export const PhpSettingsSchema: GenMessage<PhpSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 5);
 
 /**
@@ -390,7 +423,8 @@ export type PythonSettings = Message<"google.api.PythonSettings"> & {
  * Describes the message google.api.PythonSettings.
  * Use `create(PythonSettingsSchema)` to create a new message.
  */
-export const PythonSettingsSchema: GenMessage<PythonSettings> = /*@__PURE__*/
+export const PythonSettingsSchema: GenMessage<PythonSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 6);
 
 /**
@@ -400,43 +434,45 @@ export const PythonSettingsSchema: GenMessage<PythonSettings> = /*@__PURE__*/
  *
  * @generated from message google.api.PythonSettings.ExperimentalFeatures
  */
-export type PythonSettings_ExperimentalFeatures = Message<"google.api.PythonSettings.ExperimentalFeatures"> & {
-  /**
-   * Enables generation of asynchronous REST clients if `rest` transport is
-   * enabled. By default, asynchronous REST clients will not be generated.
-   * This feature will be enabled by default 1 month after launching the
-   * feature in preview packages.
-   *
-   * @generated from field: bool rest_async_io_enabled = 1;
-   */
-  restAsyncIoEnabled: boolean;
+export type PythonSettings_ExperimentalFeatures =
+  Message<"google.api.PythonSettings.ExperimentalFeatures"> & {
+    /**
+     * Enables generation of asynchronous REST clients if `rest` transport is
+     * enabled. By default, asynchronous REST clients will not be generated.
+     * This feature will be enabled by default 1 month after launching the
+     * feature in preview packages.
+     *
+     * @generated from field: bool rest_async_io_enabled = 1;
+     */
+    restAsyncIoEnabled: boolean;
 
-  /**
-   * Enables generation of protobuf code using new types that are more
-   * Pythonic which are included in `protobuf>=5.29.x`. This feature will be
-   * enabled by default 1 month after launching the feature in preview
-   * packages.
-   *
-   * @generated from field: bool protobuf_pythonic_types_enabled = 2;
-   */
-  protobufPythonicTypesEnabled: boolean;
+    /**
+     * Enables generation of protobuf code using new types that are more
+     * Pythonic which are included in `protobuf>=5.29.x`. This feature will be
+     * enabled by default 1 month after launching the feature in preview
+     * packages.
+     *
+     * @generated from field: bool protobuf_pythonic_types_enabled = 2;
+     */
+    protobufPythonicTypesEnabled: boolean;
 
-  /**
-   * Disables generation of an unversioned Python package for this client
-   * library. This means that the module names will need to be versioned in
-   * import statements. For example `import google.cloud.library_v2` instead
-   * of `import google.cloud.library`.
-   *
-   * @generated from field: bool unversioned_package_disabled = 3;
-   */
-  unversionedPackageDisabled: boolean;
-};
+    /**
+     * Disables generation of an unversioned Python package for this client
+     * library. This means that the module names will need to be versioned in
+     * import statements. For example `import google.cloud.library_v2` instead
+     * of `import google.cloud.library`.
+     *
+     * @generated from field: bool unversioned_package_disabled = 3;
+     */
+    unversionedPackageDisabled: boolean;
+  };
 
 /**
  * Describes the message google.api.PythonSettings.ExperimentalFeatures.
  * Use `create(PythonSettings_ExperimentalFeaturesSchema)` to create a new message.
  */
-export const PythonSettings_ExperimentalFeaturesSchema: GenMessage<PythonSettings_ExperimentalFeatures> = /*@__PURE__*/
+export const PythonSettings_ExperimentalFeaturesSchema: GenMessage<PythonSettings_ExperimentalFeatures> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 6, 0);
 
 /**
@@ -457,7 +493,8 @@ export type NodeSettings = Message<"google.api.NodeSettings"> & {
  * Describes the message google.api.NodeSettings.
  * Use `create(NodeSettingsSchema)` to create a new message.
  */
-export const NodeSettingsSchema: GenMessage<NodeSettings> = /*@__PURE__*/
+export const NodeSettingsSchema: GenMessage<NodeSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 7);
 
 /**
@@ -528,7 +565,8 @@ export type DotnetSettings = Message<"google.api.DotnetSettings"> & {
  * Describes the message google.api.DotnetSettings.
  * Use `create(DotnetSettingsSchema)` to create a new message.
  */
-export const DotnetSettingsSchema: GenMessage<DotnetSettings> = /*@__PURE__*/
+export const DotnetSettingsSchema: GenMessage<DotnetSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 8);
 
 /**
@@ -549,7 +587,8 @@ export type RubySettings = Message<"google.api.RubySettings"> & {
  * Describes the message google.api.RubySettings.
  * Use `create(RubySettingsSchema)` to create a new message.
  */
-export const RubySettingsSchema: GenMessage<RubySettings> = /*@__PURE__*/
+export const RubySettingsSchema: GenMessage<RubySettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 9);
 
 /**
@@ -584,7 +623,8 @@ export type GoSettings = Message<"google.api.GoSettings"> & {
  * Describes the message google.api.GoSettings.
  * Use `create(GoSettingsSchema)` to create a new message.
  */
-export const GoSettingsSchema: GenMessage<GoSettings> = /*@__PURE__*/
+export const GoSettingsSchema: GenMessage<GoSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 10);
 
 /**
@@ -650,7 +690,8 @@ export type MethodSettings = Message<"google.api.MethodSettings"> & {
  * Describes the message google.api.MethodSettings.
  * Use `create(MethodSettingsSchema)` to create a new message.
  */
-export const MethodSettingsSchema: GenMessage<MethodSettings> = /*@__PURE__*/
+export const MethodSettingsSchema: GenMessage<MethodSettings> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 11);
 
 /**
@@ -662,46 +703,48 @@ export const MethodSettingsSchema: GenMessage<MethodSettings> = /*@__PURE__*/
  *
  * @generated from message google.api.MethodSettings.LongRunning
  */
-export type MethodSettings_LongRunning = Message<"google.api.MethodSettings.LongRunning"> & {
-  /**
-   * Initial delay after which the first poll request will be made.
-   * Default value: 5 seconds.
-   *
-   * @generated from field: google.protobuf.Duration initial_poll_delay = 1;
-   */
-  initialPollDelay?: Duration;
+export type MethodSettings_LongRunning =
+  Message<"google.api.MethodSettings.LongRunning"> & {
+    /**
+     * Initial delay after which the first poll request will be made.
+     * Default value: 5 seconds.
+     *
+     * @generated from field: google.protobuf.Duration initial_poll_delay = 1;
+     */
+    initialPollDelay?: Duration;
 
-  /**
-   * Multiplier to gradually increase delay between subsequent polls until it
-   * reaches max_poll_delay.
-   * Default value: 1.5.
-   *
-   * @generated from field: float poll_delay_multiplier = 2;
-   */
-  pollDelayMultiplier: number;
+    /**
+     * Multiplier to gradually increase delay between subsequent polls until it
+     * reaches max_poll_delay.
+     * Default value: 1.5.
+     *
+     * @generated from field: float poll_delay_multiplier = 2;
+     */
+    pollDelayMultiplier: number;
 
-  /**
-   * Maximum time between two subsequent poll requests.
-   * Default value: 45 seconds.
-   *
-   * @generated from field: google.protobuf.Duration max_poll_delay = 3;
-   */
-  maxPollDelay?: Duration;
+    /**
+     * Maximum time between two subsequent poll requests.
+     * Default value: 45 seconds.
+     *
+     * @generated from field: google.protobuf.Duration max_poll_delay = 3;
+     */
+    maxPollDelay?: Duration;
 
-  /**
-   * Total polling timeout.
-   * Default value: 5 minutes.
-   *
-   * @generated from field: google.protobuf.Duration total_poll_timeout = 4;
-   */
-  totalPollTimeout?: Duration;
-};
+    /**
+     * Total polling timeout.
+     * Default value: 5 minutes.
+     *
+     * @generated from field: google.protobuf.Duration total_poll_timeout = 4;
+     */
+    totalPollTimeout?: Duration;
+  };
 
 /**
  * Describes the message google.api.MethodSettings.LongRunning.
  * Use `create(MethodSettings_LongRunningSchema)` to create a new message.
  */
-export const MethodSettings_LongRunningSchema: GenMessage<MethodSettings_LongRunning> = /*@__PURE__*/
+export const MethodSettings_LongRunningSchema: GenMessage<MethodSettings_LongRunning> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 11, 0);
 
 /**
@@ -710,33 +753,35 @@ export const MethodSettings_LongRunningSchema: GenMessage<MethodSettings_LongRun
  *
  * @generated from message google.api.SelectiveGapicGeneration
  */
-export type SelectiveGapicGeneration = Message<"google.api.SelectiveGapicGeneration"> & {
-  /**
-   * An allowlist of the fully qualified names of RPCs that should be included
-   * on public client surfaces.
-   *
-   * @generated from field: repeated string methods = 1;
-   */
-  methods: string[];
+export type SelectiveGapicGeneration =
+  Message<"google.api.SelectiveGapicGeneration"> & {
+    /**
+     * An allowlist of the fully qualified names of RPCs that should be included
+     * on public client surfaces.
+     *
+     * @generated from field: repeated string methods = 1;
+     */
+    methods: string[];
 
-  /**
-   * Setting this to true indicates to the client generators that methods
-   * that would be excluded from the generation should instead be generated
-   * in a way that indicates these methods should not be consumed by
-   * end users. How this is expressed is up to individual language
-   * implementations to decide. Some examples may be: added annotations,
-   * obfuscated identifiers, or other language idiomatic patterns.
-   *
-   * @generated from field: bool generate_omitted_as_internal = 2;
-   */
-  generateOmittedAsInternal: boolean;
-};
+    /**
+     * Setting this to true indicates to the client generators that methods
+     * that would be excluded from the generation should instead be generated
+     * in a way that indicates these methods should not be consumed by
+     * end users. How this is expressed is up to individual language
+     * implementations to decide. Some examples may be: added annotations,
+     * obfuscated identifiers, or other language idiomatic patterns.
+     *
+     * @generated from field: bool generate_omitted_as_internal = 2;
+     */
+    generateOmittedAsInternal: boolean;
+  };
 
 /**
  * Describes the message google.api.SelectiveGapicGeneration.
  * Use `create(SelectiveGapicGenerationSchema)` to create a new message.
  */
-export const SelectiveGapicGenerationSchema: GenMessage<SelectiveGapicGeneration> = /*@__PURE__*/
+export const SelectiveGapicGenerationSchema: GenMessage<SelectiveGapicGeneration> =
+  /*@__PURE__*/
   messageDesc(file_google_api_client, 12);
 
 /**
@@ -806,7 +851,8 @@ export enum ClientLibraryOrganization {
 /**
  * Describes the enum google.api.ClientLibraryOrganization.
  */
-export const ClientLibraryOrganizationSchema: GenEnum<ClientLibraryOrganization> = /*@__PURE__*/
+export const ClientLibraryOrganizationSchema: GenEnum<ClientLibraryOrganization> =
+  /*@__PURE__*/
   enumDesc(file_google_api_client, 0);
 
 /**
@@ -842,7 +888,8 @@ export enum ClientLibraryDestination {
 /**
  * Describes the enum google.api.ClientLibraryDestination.
  */
-export const ClientLibraryDestinationSchema: GenEnum<ClientLibraryDestination> = /*@__PURE__*/
+export const ClientLibraryDestinationSchema: GenEnum<ClientLibraryDestination> =
+  /*@__PURE__*/
   enumDesc(file_google_api_client, 1);
 
 /**
@@ -884,7 +931,8 @@ export const ClientLibraryDestinationSchema: GenEnum<ClientLibraryDestination> =
  *
  * @generated from extension: repeated string method_signature = 1051;
  */
-export const method_signature: GenExtension<MethodOptions, string[]> = /*@__PURE__*/
+export const method_signature: GenExtension<MethodOptions, string[]> =
+  /*@__PURE__*/
   extDesc(file_google_api_client, 0);
 
 /**
@@ -900,7 +948,8 @@ export const method_signature: GenExtension<MethodOptions, string[]> = /*@__PURE
  *
  * @generated from extension: string default_host = 1049;
  */
-export const default_host: GenExtension<ServiceOptions, string> = /*@__PURE__*/
+export const default_host: GenExtension<ServiceOptions, string> =
+  /*@__PURE__*/
   extDesc(file_google_api_client, 1);
 
 /**
@@ -927,7 +976,8 @@ export const default_host: GenExtension<ServiceOptions, string> = /*@__PURE__*/
  *
  * @generated from extension: string oauth_scopes = 1050;
  */
-export const oauth_scopes: GenExtension<ServiceOptions, string> = /*@__PURE__*/
+export const oauth_scopes: GenExtension<ServiceOptions, string> =
+  /*@__PURE__*/
   extDesc(file_google_api_client, 2);
 
 /**
@@ -948,6 +998,6 @@ export const oauth_scopes: GenExtension<ServiceOptions, string> = /*@__PURE__*/
  *
  * @generated from extension: string api_version = 525000001;
  */
-export const api_version: GenExtension<ServiceOptions, string> = /*@__PURE__*/
+export const api_version: GenExtension<ServiceOptions, string> =
+  /*@__PURE__*/
   extDesc(file_google_api_client, 3);
-

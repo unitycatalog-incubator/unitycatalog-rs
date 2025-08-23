@@ -16,15 +16,18 @@
 // @generated from file google/type/money.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/money.proto.
  */
-export const file_google_type_money: GenFile = /*@__PURE__*/
-  fileDesc("Chdnb29nbGUvdHlwZS9tb25leS5wcm90bxILZ29vZ2xlLnR5cGUiPAoFTW9uZXkSFQoNY3VycmVuY3lfY29kZRgBIAEoCRINCgV1bml0cxgCIAEoAxINCgVuYW5vcxgDIAEoBUKlAQoPY29tLmdvb2dsZS50eXBlQgpNb25leVByb3RvUAFaNmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9tb25leTttb25lefgBAaICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z");
+export const file_google_type_money: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chdnb29nbGUvdHlwZS9tb25leS5wcm90bxILZ29vZ2xlLnR5cGUiPAoFTW9uZXkSFQoNY3VycmVuY3lfY29kZRgBIAEoCRINCgV1bml0cxgCIAEoAxINCgVuYW5vcxgDIAEoBUKlAQoPY29tLmdvb2dsZS50eXBlQgpNb25leVByb3RvUAFaNmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9tb25leTttb25lefgBAaICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z",
+  );
 
 /**
  * Represents an amount of money with its currency type.
@@ -64,6 +67,6 @@ export type Money = Message<"google.type.Money"> & {
  * Describes the message google.type.Money.
  * Use `create(MoneySchema)` to create a new message.
  */
-export const MoneySchema: GenMessage<Money> = /*@__PURE__*/
+export const MoneySchema: GenMessage<Money> =
+  /*@__PURE__*/
   messageDesc(file_google_type_money, 0);
-

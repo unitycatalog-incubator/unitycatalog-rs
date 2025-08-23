@@ -14,7 +14,6 @@ use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::{DataObjectUpdate, ShareInfo};
-use unitycatalog_common::models::sharing_ext::{MetadataResponseData, ProtocolResponseData};
 use unitycatalog_common::models::tables::v1::{ColumnInfo, DataSourceFormat, TableInfo, TableType};
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
@@ -537,7 +536,15 @@ impl PySchemaClient {
         }
     }
 
-    #[pyo3(signature = (name, table_type, data_source_format, columns, storage_location = None, comment = None, properties = None))]
+    #[pyo3(signature = (
+        name,
+        table_type,
+        data_source_format,
+        columns,
+        storage_location = None,
+        comment = None,
+        properties = None)
+    )]
     pub fn create_table(
         &self,
         py: Python,
@@ -861,54 +868,6 @@ impl PyExternalLocationClient {
             runtime.block_on(self.client.delete(force))?;
             Ok::<_, PyUnityCatalogError>(())
         })
-    }
-}
-
-#[pyclass(name = "Protocol")]
-pub struct PyProtocol {
-    protocol: ProtocolResponseData,
-}
-
-#[pymethods]
-impl PyProtocol {
-    pub fn min_reader_version(&self) -> i32 {
-        self.protocol.min_reader_version()
-    }
-
-    pub fn min_writer_version(&self) -> Option<i32> {
-        self.protocol.min_writer_version()
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!(
-            "PyProtocol(min_reader_version={}, min_writer_version={:?})",
-            self.min_reader_version(),
-            self.min_writer_version()
-        )
-    }
-}
-
-#[pyclass(name = "Metadata")]
-pub struct PyMetadata {
-    metadata: MetadataResponseData,
-}
-
-#[pymethods]
-impl PyMetadata {
-    pub fn partition_columns(&self) -> Vec<String> {
-        self.metadata.partition_columns().to_vec()
-    }
-
-    pub fn configuration(&self) -> HashMap<String, String> {
-        self.metadata.configuration().clone()
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!(
-            "PyMetadata(partition_columns={:?}, configuration={:?})",
-            self.partition_columns(),
-            self.configuration()
-        )
     }
 }
 

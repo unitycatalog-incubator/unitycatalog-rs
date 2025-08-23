@@ -22,8 +22,11 @@ import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
 /**
  * Describes the file google/api/launch_stage.proto.
  */
-export const file_google_api_launch_stage: GenFile = /*@__PURE__*/
-  fileDesc("Ch1nb29nbGUvYXBpL2xhdW5jaF9zdGFnZS5wcm90bxIKZ29vZ2xlLmFwaSqMAQoLTGF1bmNoU3RhZ2USHAoYTEFVTkNIX1NUQUdFX1VOU1BFQ0lGSUVEEAASEQoNVU5JTVBMRU1FTlRFRBAGEg0KCVBSRUxBVU5DSBAHEhAKDEVBUkxZX0FDQ0VTUxABEgkKBUFMUEhBEAISCAoEQkVUQRADEgYKAkdBEAQSDgoKREVQUkVDQVRFRBAFQpoBCg5jb20uZ29vZ2xlLmFwaUIQTGF1bmNoU3RhZ2VQcm90b1ABWi1nb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaTthcGmiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z");
+export const file_google_api_launch_stage: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Ch1nb29nbGUvYXBpL2xhdW5jaF9zdGFnZS5wcm90bxIKZ29vZ2xlLmFwaSqMAQoLTGF1bmNoU3RhZ2USHAoYTEFVTkNIX1NUQUdFX1VOU1BFQ0lGSUVEEAASEQoNVU5JTVBMRU1FTlRFRBAGEg0KCVBSRUxBVU5DSBAHEhAKDEVBUkxZX0FDQ0VTUxABEgkKBUFMUEhBEAISCAoEQkVUQRADEgYKAkdBEAQSDgoKREVQUkVDQVRFRBAFQpoBCg5jb20uZ29vZ2xlLmFwaUIQTGF1bmNoU3RhZ2VQcm90b1ABWi1nb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaTthcGmiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z",
+  );
 
 /**
  * The launch stage as defined by [Google Cloud Platform
@@ -113,6 +116,6 @@ export enum LaunchStage {
 /**
  * Describes the enum google.api.LaunchStage.
  */
-export const LaunchStageSchema: GenEnum<LaunchStage> = /*@__PURE__*/
+export const LaunchStageSchema: GenEnum<LaunchStage> =
+  /*@__PURE__*/
   enumDesc(file_google_api_launch_stage, 0);
-

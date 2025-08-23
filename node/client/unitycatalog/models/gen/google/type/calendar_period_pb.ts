@@ -22,8 +22,11 @@ import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
 /**
  * Describes the file google/type/calendar_period.proto.
  */
-export const file_google_type_calendar_period: GenFile = /*@__PURE__*/
-  fileDesc("CiFnb29nbGUvdHlwZS9jYWxlbmRhcl9wZXJpb2QucHJvdG8SC2dvb2dsZS50eXBlKn8KDkNhbGVuZGFyUGVyaW9kEh8KG0NBTEVOREFSX1BFUklPRF9VTlNQRUNJRklFRBAAEgcKA0RBWRABEggKBFdFRUsQAhINCglGT1JUTklHSFQQAxIJCgVNT05USBAEEgsKB1FVQVJURVIQBRIICgRIQUxGEAYSCAoEWUVBUhAHQr0BCg9jb20uZ29vZ2xlLnR5cGVCE0NhbGVuZGFyUGVyaW9kUHJvdG9QAVpIZ29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2NhbGVuZGFycGVyaW9kO2NhbGVuZGFycGVyaW9kogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM");
+export const file_google_type_calendar_period: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiFnb29nbGUvdHlwZS9jYWxlbmRhcl9wZXJpb2QucHJvdG8SC2dvb2dsZS50eXBlKn8KDkNhbGVuZGFyUGVyaW9kEh8KG0NBTEVOREFSX1BFUklPRF9VTlNQRUNJRklFRBAAEgcKA0RBWRABEggKBFdFRUsQAhINCglGT1JUTklHSFQQAxIJCgVNT05USBAEEgsKB1FVQVJURVIQBRIICgRIQUxGEAYSCAoEWUVBUhAHQr0BCg9jb20uZ29vZ2xlLnR5cGVCE0NhbGVuZGFyUGVyaW9kUHJvdG9QAVpIZ29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2NhbGVuZGFycGVyaW9kO2NhbGVuZGFycGVyaW9kogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+  );
 
 /**
  * A `CalendarPeriod` represents the abstract concept of a time period that has
@@ -97,6 +100,6 @@ export enum CalendarPeriod {
 /**
  * Describes the enum google.type.CalendarPeriod.
  */
-export const CalendarPeriodSchema: GenEnum<CalendarPeriod> = /*@__PURE__*/
+export const CalendarPeriodSchema: GenEnum<CalendarPeriod> =
+  /*@__PURE__*/
   enumDesc(file_google_type_calendar_period, 0);
-

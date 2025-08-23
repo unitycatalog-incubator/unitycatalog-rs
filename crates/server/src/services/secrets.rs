@@ -3,7 +3,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 use uuid::Uuid;
 
-use unitycatalog_common::Result;
+use crate::Result;
 
 /// A trait for managing secrets.
 ///

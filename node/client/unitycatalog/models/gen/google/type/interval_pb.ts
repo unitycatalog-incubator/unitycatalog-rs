@@ -16,17 +16,21 @@
 // @generated from file google/type/interval.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/interval.proto.
  */
-export const file_google_type_interval: GenFile = /*@__PURE__*/
-  fileDesc("Chpnb29nbGUvdHlwZS9pbnRlcnZhbC5wcm90bxILZ29vZ2xlLnR5cGUiaAoISW50ZXJ2YWwSLgoKc3RhcnRfdGltZRgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQq4BCg9jb20uZ29vZ2xlLnR5cGVCDUludGVydmFsUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2ludGVydmFsO2ludGVydmFs+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM", [file_google_protobuf_timestamp]);
+export const file_google_type_interval: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chpnb29nbGUvdHlwZS9pbnRlcnZhbC5wcm90bxILZ29vZ2xlLnR5cGUiaAoISW50ZXJ2YWwSLgoKc3RhcnRfdGltZRgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZW5kX3RpbWUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQq4BCg9jb20uZ29vZ2xlLnR5cGVCDUludGVydmFsUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2ludGVydmFsO2ludGVydmFs+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+    [file_google_protobuf_timestamp],
+  );
 
 /**
  * Represents a time interval, encoded as a Timestamp start (inclusive) and a
@@ -64,6 +68,6 @@ export type Interval = Message<"google.type.Interval"> & {
  * Describes the message google.type.Interval.
  * Use `create(IntervalSchema)` to create a new message.
  */
-export const IntervalSchema: GenMessage<Interval> = /*@__PURE__*/
+export const IntervalSchema: GenMessage<Interval> =
+  /*@__PURE__*/
   messageDesc(file_google_type_interval, 0);
-

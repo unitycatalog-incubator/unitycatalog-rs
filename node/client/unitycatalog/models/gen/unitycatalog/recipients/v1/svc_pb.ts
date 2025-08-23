@@ -2,50 +2,79 @@
 // @generated from file unitycatalog/recipients/v1/svc.proto (package unitycatalog.recipients.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenFile,
+  GenMessage,
+  GenService,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  fileDesc,
+  messageDesc,
+  serviceDesc,
+} from "@bufbuild/protobuf/codegenv2";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_empty,
+  file_google_protobuf_struct,
+} from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { AuthenticationType, RecipientInfo, RecipientInfoSchema } from "./models_pb";
+import type {
+  AuthenticationType,
+  RecipientInfo,
+  RecipientInfoSchema,
+} from "./models_pb";
 import { file_unitycatalog_recipients_v1_models } from "./models_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/recipients/v1/svc.proto.
  */
-export const file_unitycatalog_recipients_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("CiR1bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MS9zdmMucHJvdG8SGnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxIn0KFUxpc3RSZWNpcGllbnRzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKJAQoWTGlzdFJlY2lwaWVudHNSZXNwb25zZRI9CgpyZWNpcGllbnRzGAEgAygLMikudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuUmVjaXBpZW50SW5mbxIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIqoDChZDcmVhdGVSZWNpcGllbnRSZXF1ZXN0EjIKBG5hbWUYASABKAlCJOBBArpIHnIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBJQChNhdXRoZW50aWNhdGlvbl90eXBlGAIgASgOMi4udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQXV0aGVudGljYXRpb25UeXBlQgPgQQISHAoFb3duZXIYAyABKAlCDeBBAbpIB8gBAHICYAESGQoHY29tbWVudBgEIAEoCUID4EEBSACIAQESWwoKcHJvcGVydGllcxgFIAMoCzJCLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLkNyZWF0ZVJlY2lwaWVudFJlcXVlc3QuUHJvcGVydGllc0VudHJ5QgPgQQESIQoPZXhwaXJhdGlvbl90aW1lGAYgASgDQgPgQQFIAYgBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIKCghfY29tbWVudEISChBfZXhwaXJhdGlvbl90aW1lIkkKE0dldFJlY2lwaWVudFJlcXVlc3QSMgoEbmFtZRgBIAEoCUIk4EECukgechwyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIqcDChZVcGRhdGVSZWNpcGllbnRSZXF1ZXN0EjIKBG5hbWUYASABKAlCJOBBArpIHnIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI7CghuZXdfbmFtZRgCIAEoCUIk4EEBukgechwyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kSACIAQESFwoFb3duZXIYAyABKAlCA+BBAUgBiAEBEhkKB2NvbW1lbnQYBCABKAlCA+BBAUgCiAEBElsKCnByb3BlcnRpZXMYBSADKAsyQi51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5VcGRhdGVSZWNpcGllbnRSZXF1ZXN0LlByb3BlcnRpZXNFbnRyeUID4EEBEiEKD2V4cGlyYXRpb25fdGltZRgGIAEoA0ID4EEBSAOIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCCwoJX25ld19uYW1lQggKBl9vd25lckIKCghfY29tbWVudEISChBfZXhwaXJhdGlvbl90aW1lIkwKFkRlbGV0ZVJlY2lwaWVudFJlcXVlc3QSMgoEbmFtZRgBIAEoCUIk4EECukgechwyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kMqQGChFSZWNpcGllbnRzU2VydmljZRKfAQoOTGlzdFJlY2lwaWVudHMSMS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5MaXN0UmVjaXBpZW50c1JlcXVlc3QaMi51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5MaXN0UmVjaXBpZW50c1Jlc3BvbnNlIia6RxAqDkxpc3RSZWNpcGllbnRzgtPkkwINEgsvcmVjaXBpZW50cxKcAQoPQ3JlYXRlUmVjaXBpZW50EjIudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQ3JlYXRlUmVjaXBpZW50UmVxdWVzdBopLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm8iKrpHESoPQ3JlYXRlUmVjaXBpZW50gtPkkwIQOgEqIgsvcmVjaXBpZW50cxKXAQoMR2V0UmVjaXBpZW50Ei8udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuR2V0UmVjaXBpZW50UmVxdWVzdBopLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm8iK7pHDioMR2V0UmVjaXBpZW50gtPkkwIUEhIvcmVjaXBpZW50cy97bmFtZX0SowEKD1VwZGF0ZVJlY2lwaWVudBIyLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlVwZGF0ZVJlY2lwaWVudFJlcXVlc3QaKS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5SZWNpcGllbnRJbmZvIjG6RxEqD1VwZGF0ZVJlY2lwaWVudILT5JMCFzoBKjISL3JlY2lwaWVudHMve25hbWV9Eo0BCg9EZWxldGVSZWNpcGllbnQSMi51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5EZWxldGVSZWNpcGllbnRSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Ii66RxEqD0RlbGV0ZVJlY2lwaWVudILT5JMCFCoSL3JlY2lwaWVudHMve25hbWV9QowCCh5jb20udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjFCCFN2Y1Byb3RvUAFaVmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3JlY2lwaWVudHMvdjE7cmVjaXBpZW50c3YxogIDVVJYqgIaVW5pdHljYXRhbG9nLlJlY2lwaWVudHMuVjHKAhpVbml0eWNhdGFsb2dcUmVjaXBpZW50c1xWMeICJlVuaXR5Y2F0YWxvZ1xSZWNpcGllbnRzXFYxXEdQQk1ldGFkYXRh6gIcVW5pdHljYXRhbG9nOjpSZWNpcGllbnRzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_recipients_v1_models]);
+export const file_unitycatalog_recipients_v1_svc: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiR1bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MS9zdmMucHJvdG8SGnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxIn0KFUxpc3RSZWNpcGllbnRzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKJAQoWTGlzdFJlY2lwaWVudHNSZXNwb25zZRI9CgpyZWNpcGllbnRzGAEgAygLMikudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuUmVjaXBpZW50SW5mbxIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIqoDChZDcmVhdGVSZWNpcGllbnRSZXF1ZXN0EjIKBG5hbWUYASABKAlCJOBBArpIHnIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBJQChNhdXRoZW50aWNhdGlvbl90eXBlGAIgASgOMi4udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQXV0aGVudGljYXRpb25UeXBlQgPgQQISHAoFb3duZXIYAyABKAlCDeBBAbpIB8gBAHICYAESGQoHY29tbWVudBgEIAEoCUID4EEBSACIAQESWwoKcHJvcGVydGllcxgFIAMoCzJCLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLkNyZWF0ZVJlY2lwaWVudFJlcXVlc3QuUHJvcGVydGllc0VudHJ5QgPgQQESIQoPZXhwaXJhdGlvbl90aW1lGAYgASgDQgPgQQFIAYgBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIKCghfY29tbWVudEISChBfZXhwaXJhdGlvbl90aW1lIkkKE0dldFJlY2lwaWVudFJlcXVlc3QSMgoEbmFtZRgBIAEoCUIk4EECukgechwyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIqcDChZVcGRhdGVSZWNpcGllbnRSZXF1ZXN0EjIKBG5hbWUYASABKAlCJOBBArpIHnIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI7CghuZXdfbmFtZRgCIAEoCUIk4EEBukgechwyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kSACIAQESFwoFb3duZXIYAyABKAlCA+BBAUgBiAEBEhkKB2NvbW1lbnQYBCABKAlCA+BBAUgCiAEBElsKCnByb3BlcnRpZXMYBSADKAsyQi51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5VcGRhdGVSZWNpcGllbnRSZXF1ZXN0LlByb3BlcnRpZXNFbnRyeUID4EEBEiEKD2V4cGlyYXRpb25fdGltZRgGIAEoA0ID4EEBSAOIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCCwoJX25ld19uYW1lQggKBl9vd25lckIKCghfY29tbWVudEISChBfZXhwaXJhdGlvbl90aW1lIkwKFkRlbGV0ZVJlY2lwaWVudFJlcXVlc3QSMgoEbmFtZRgBIAEoCUIk4EECukgechwyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kMqQGChFSZWNpcGllbnRzU2VydmljZRKfAQoOTGlzdFJlY2lwaWVudHMSMS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5MaXN0UmVjaXBpZW50c1JlcXVlc3QaMi51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5MaXN0UmVjaXBpZW50c1Jlc3BvbnNlIia6RxAqDkxpc3RSZWNpcGllbnRzgtPkkwINEgsvcmVjaXBpZW50cxKcAQoPQ3JlYXRlUmVjaXBpZW50EjIudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQ3JlYXRlUmVjaXBpZW50UmVxdWVzdBopLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm8iKrpHESoPQ3JlYXRlUmVjaXBpZW50gtPkkwIQOgEqIgsvcmVjaXBpZW50cxKXAQoMR2V0UmVjaXBpZW50Ei8udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuR2V0UmVjaXBpZW50UmVxdWVzdBopLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm8iK7pHDioMR2V0UmVjaXBpZW50gtPkkwIUEhIvcmVjaXBpZW50cy97bmFtZX0SowEKD1VwZGF0ZVJlY2lwaWVudBIyLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlVwZGF0ZVJlY2lwaWVudFJlcXVlc3QaKS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5SZWNpcGllbnRJbmZvIjG6RxEqD1VwZGF0ZVJlY2lwaWVudILT5JMCFzoBKjISL3JlY2lwaWVudHMve25hbWV9Eo0BCg9EZWxldGVSZWNpcGllbnQSMi51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5EZWxldGVSZWNpcGllbnRSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Ii66RxEqD0RlbGV0ZVJlY2lwaWVudILT5JMCFCoSL3JlY2lwaWVudHMve25hbWV9QowCCh5jb20udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjFCCFN2Y1Byb3RvUAFaVmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3JlY2lwaWVudHMvdjE7cmVjaXBpZW50c3YxogIDVVJYqgIaVW5pdHljYXRhbG9nLlJlY2lwaWVudHMuVjHKAhpVbml0eWNhdGFsb2dcUmVjaXBpZW50c1xWMeICJlVuaXR5Y2F0YWxvZ1xSZWNpcGllbnRzXFYxXEdQQk1ldGFkYXRh6gIcVW5pdHljYXRhbG9nOjpSZWNpcGllbnRzOjpWMWIGcHJvdG8z",
+    [
+      file_buf_validate_validate,
+      file_gnostic_openapi_v3_annotations,
+      file_google_api_annotations,
+      file_google_api_field_behavior,
+      file_google_protobuf_empty,
+      file_google_protobuf_struct,
+      file_unitycatalog_recipients_v1_models,
+    ],
+  );
 
 /**
  * Request to list recipients.
  *
  * @generated from message unitycatalog.recipients.v1.ListRecipientsRequest
  */
-export type ListRecipientsRequest = Message<"unitycatalog.recipients.v1.ListRecipientsRequest"> & {
-  /**
-   * The maximum number of results per page that should be returned.
-   *
-   * @generated from field: optional int32 max_results = 1;
-   */
-  maxResults?: number;
+export type ListRecipientsRequest =
+  Message<"unitycatalog.recipients.v1.ListRecipientsRequest"> & {
+    /**
+     * The maximum number of results per page that should be returned.
+     *
+     * @generated from field: optional int32 max_results = 1;
+     */
+    maxResults?: number;
 
-  /**
-   * Opaque pagination token to go to next page based on previous query.
-   *
-   * @generated from field: optional string page_token = 2;
-   */
-  pageToken?: string;
-};
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string page_token = 2;
+     */
+    pageToken?: string;
+  };
 
 /**
  * Describes the message unitycatalog.recipients.v1.ListRecipientsRequest.
  * Use `create(ListRecipientsRequestSchema)` to create a new message.
  */
-export const ListRecipientsRequestSchema: GenMessage<ListRecipientsRequest> = /*@__PURE__*/
+export const ListRecipientsRequestSchema: GenMessage<ListRecipientsRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_svc, 0);
 
 /**
@@ -53,27 +82,29 @@ export const ListRecipientsRequestSchema: GenMessage<ListRecipientsRequest> = /*
  *
  * @generated from message unitycatalog.recipients.v1.ListRecipientsResponse
  */
-export type ListRecipientsResponse = Message<"unitycatalog.recipients.v1.ListRecipientsResponse"> & {
-  /**
-   * List of recipients.
-   *
-   * @generated from field: repeated unitycatalog.recipients.v1.RecipientInfo recipients = 1;
-   */
-  recipients: RecipientInfo[];
+export type ListRecipientsResponse =
+  Message<"unitycatalog.recipients.v1.ListRecipientsResponse"> & {
+    /**
+     * List of recipients.
+     *
+     * @generated from field: repeated unitycatalog.recipients.v1.RecipientInfo recipients = 1;
+     */
+    recipients: RecipientInfo[];
 
-  /**
-   * Opaque pagination token to go to next page based on previous query.
-   *
-   * @generated from field: optional string next_page_token = 2;
-   */
-  nextPageToken?: string;
-};
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string next_page_token = 2;
+     */
+    nextPageToken?: string;
+  };
 
 /**
  * Describes the message unitycatalog.recipients.v1.ListRecipientsResponse.
  * Use `create(ListRecipientsResponseSchema)` to create a new message.
  */
-export const ListRecipientsResponseSchema: GenMessage<ListRecipientsResponse> = /*@__PURE__*/
+export const ListRecipientsResponseSchema: GenMessage<ListRecipientsResponse> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_svc, 1);
 
 /**
@@ -81,58 +112,60 @@ export const ListRecipientsResponseSchema: GenMessage<ListRecipientsResponse> = 
  *
  * @generated from message unitycatalog.recipients.v1.CreateRecipientRequest
  */
-export type CreateRecipientRequest = Message<"unitycatalog.recipients.v1.CreateRecipientRequest"> & {
-  /**
-   * Name of the recipient.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type CreateRecipientRequest =
+  Message<"unitycatalog.recipients.v1.CreateRecipientRequest"> & {
+    /**
+     * Name of the recipient.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * The delta sharing authentication type.
-   *
-   * @generated from field: unitycatalog.recipients.v1.AuthenticationType authentication_type = 2;
-   */
-  authenticationType: AuthenticationType;
+    /**
+     * The delta sharing authentication type.
+     *
+     * @generated from field: unitycatalog.recipients.v1.AuthenticationType authentication_type = 2;
+     */
+    authenticationType: AuthenticationType;
 
-  /**
-   * Username of the recipient owner.
-   *
-   * @generated from field: string owner = 3;
-   */
-  owner: string;
+    /**
+     * Username of the recipient owner.
+     *
+     * @generated from field: string owner = 3;
+     */
+    owner: string;
 
-  /**
-   * Description about the recipient.
-   *
-   * @generated from field: optional string comment = 4;
-   */
-  comment?: string;
+    /**
+     * Description about the recipient.
+     *
+     * @generated from field: optional string comment = 4;
+     */
+    comment?: string;
 
-  /**
-   * Recipient properties as map of string key-value pairs.
-   *
-   * When provided in update request, the specified properties will override the existing properties.
-   * To add and remove properties, one would need to perform a read-modify-write.
-   *
-   * @generated from field: map<string, string> properties = 5;
-   */
-  properties: { [key: string]: string };
+    /**
+     * Recipient properties as map of string key-value pairs.
+     *
+     * When provided in update request, the specified properties will override the existing properties.
+     * To add and remove properties, one would need to perform a read-modify-write.
+     *
+     * @generated from field: map<string, string> properties = 5;
+     */
+    properties: { [key: string]: string };
 
-  /**
-   * Expiration timestamp of the token, in epoch milliseconds.
-   *
-   * @generated from field: optional int64 expiration_time = 6;
-   */
-  expirationTime?: bigint;
-};
+    /**
+     * Expiration timestamp of the token, in epoch milliseconds.
+     *
+     * @generated from field: optional int64 expiration_time = 6;
+     */
+    expirationTime?: bigint;
+  };
 
 /**
  * Describes the message unitycatalog.recipients.v1.CreateRecipientRequest.
  * Use `create(CreateRecipientRequestSchema)` to create a new message.
  */
-export const CreateRecipientRequestSchema: GenMessage<CreateRecipientRequest> = /*@__PURE__*/
+export const CreateRecipientRequestSchema: GenMessage<CreateRecipientRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_svc, 2);
 
 /**
@@ -140,20 +173,22 @@ export const CreateRecipientRequestSchema: GenMessage<CreateRecipientRequest> = 
  *
  * @generated from message unitycatalog.recipients.v1.GetRecipientRequest
  */
-export type GetRecipientRequest = Message<"unitycatalog.recipients.v1.GetRecipientRequest"> & {
-  /**
-   * Name of the recipient.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type GetRecipientRequest =
+  Message<"unitycatalog.recipients.v1.GetRecipientRequest"> & {
+    /**
+     * Name of the recipient.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message unitycatalog.recipients.v1.GetRecipientRequest.
  * Use `create(GetRecipientRequestSchema)` to create a new message.
  */
-export const GetRecipientRequestSchema: GenMessage<GetRecipientRequest> = /*@__PURE__*/
+export const GetRecipientRequestSchema: GenMessage<GetRecipientRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_svc, 3);
 
 /**
@@ -161,58 +196,60 @@ export const GetRecipientRequestSchema: GenMessage<GetRecipientRequest> = /*@__P
  *
  * @generated from message unitycatalog.recipients.v1.UpdateRecipientRequest
  */
-export type UpdateRecipientRequest = Message<"unitycatalog.recipients.v1.UpdateRecipientRequest"> & {
-  /**
-   * Name of the recipient.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type UpdateRecipientRequest =
+  Message<"unitycatalog.recipients.v1.UpdateRecipientRequest"> & {
+    /**
+     * Name of the recipient.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * New name for the recipient
-   *
-   * @generated from field: optional string new_name = 2;
-   */
-  newName?: string;
+    /**
+     * New name for the recipient
+     *
+     * @generated from field: optional string new_name = 2;
+     */
+    newName?: string;
 
-  /**
-   * Username of the recipient owner.
-   *
-   * @generated from field: optional string owner = 3;
-   */
-  owner?: string;
+    /**
+     * Username of the recipient owner.
+     *
+     * @generated from field: optional string owner = 3;
+     */
+    owner?: string;
 
-  /**
-   * Description about the recipient.
-   *
-   * @generated from field: optional string comment = 4;
-   */
-  comment?: string;
+    /**
+     * Description about the recipient.
+     *
+     * @generated from field: optional string comment = 4;
+     */
+    comment?: string;
 
-  /**
-   * Recipient properties as map of string key-value pairs.
-   *
-   * When provided in update request, the specified properties will override the existing properties.
-   * To add and remove properties, one would need to perform a read-modify-write.
-   *
-   * @generated from field: map<string, string> properties = 5;
-   */
-  properties: { [key: string]: string };
+    /**
+     * Recipient properties as map of string key-value pairs.
+     *
+     * When provided in update request, the specified properties will override the existing properties.
+     * To add and remove properties, one would need to perform a read-modify-write.
+     *
+     * @generated from field: map<string, string> properties = 5;
+     */
+    properties: { [key: string]: string };
 
-  /**
-   * Expiration timestamp of the token, in epoch milliseconds.
-   *
-   * @generated from field: optional int64 expiration_time = 6;
-   */
-  expirationTime?: bigint;
-};
+    /**
+     * Expiration timestamp of the token, in epoch milliseconds.
+     *
+     * @generated from field: optional int64 expiration_time = 6;
+     */
+    expirationTime?: bigint;
+  };
 
 /**
  * Describes the message unitycatalog.recipients.v1.UpdateRecipientRequest.
  * Use `create(UpdateRecipientRequestSchema)` to create a new message.
  */
-export const UpdateRecipientRequestSchema: GenMessage<UpdateRecipientRequest> = /*@__PURE__*/
+export const UpdateRecipientRequestSchema: GenMessage<UpdateRecipientRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_svc, 4);
 
 /**
@@ -220,20 +257,22 @@ export const UpdateRecipientRequestSchema: GenMessage<UpdateRecipientRequest> = 
  *
  * @generated from message unitycatalog.recipients.v1.DeleteRecipientRequest
  */
-export type DeleteRecipientRequest = Message<"unitycatalog.recipients.v1.DeleteRecipientRequest"> & {
-  /**
-   * Name of the recipient.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
+export type DeleteRecipientRequest =
+  Message<"unitycatalog.recipients.v1.DeleteRecipientRequest"> & {
+    /**
+     * Name of the recipient.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+  };
 
 /**
  * Describes the message unitycatalog.recipients.v1.DeleteRecipientRequest.
  * Use `create(DeleteRecipientRequestSchema)` to create a new message.
  */
-export const DeleteRecipientRequestSchema: GenMessage<DeleteRecipientRequest> = /*@__PURE__*/
+export const DeleteRecipientRequestSchema: GenMessage<DeleteRecipientRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_svc, 5);
 
 /**
@@ -257,7 +296,7 @@ export const RecipientsService: GenService<{
     methodKind: "unary";
     input: typeof ListRecipientsRequestSchema;
     output: typeof ListRecipientsResponseSchema;
-  },
+  };
   /**
    * Create a new recipient.
    *
@@ -267,7 +306,7 @@ export const RecipientsService: GenService<{
     methodKind: "unary";
     input: typeof CreateRecipientRequestSchema;
     output: typeof RecipientInfoSchema;
-  },
+  };
   /**
    * Get a recipient by name.
    *
@@ -277,7 +316,7 @@ export const RecipientsService: GenService<{
     methodKind: "unary";
     input: typeof GetRecipientRequestSchema;
     output: typeof RecipientInfoSchema;
-  },
+  };
   /**
    * Update a recipient.
    *
@@ -287,7 +326,7 @@ export const RecipientsService: GenService<{
     methodKind: "unary";
     input: typeof UpdateRecipientRequestSchema;
     output: typeof RecipientInfoSchema;
-  },
+  };
   /**
    * Delete a recipient.
    *
@@ -297,7 +336,5 @@ export const RecipientsService: GenService<{
     methodKind: "unary";
     input: typeof DeleteRecipientRequestSchema;
     output: typeof EmptySchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_unitycatalog_recipients_v1_svc, 0);
-
+  };
+}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_recipients_v1_svc, 0);

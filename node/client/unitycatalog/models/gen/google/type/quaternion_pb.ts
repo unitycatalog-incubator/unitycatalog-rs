@@ -16,15 +16,18 @@
 // @generated from file google/type/quaternion.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/quaternion.proto.
  */
-export const file_google_type_quaternion: GenFile = /*@__PURE__*/
-  fileDesc("Chxnb29nbGUvdHlwZS9xdWF0ZXJuaW9uLnByb3RvEgtnb29nbGUudHlwZSI4CgpRdWF0ZXJuaW9uEgkKAXgYASABKAESCQoBeRgCIAEoARIJCgF6GAMgASgBEgkKAXcYBCABKAFCtAEKD2NvbS5nb29nbGUudHlwZUIPUXVhdGVybmlvblByb3RvUAFaQGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9xdWF0ZXJuaW9uO3F1YXRlcm5pb274AQGiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw");
+export const file_google_type_quaternion: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chxnb29nbGUvdHlwZS9xdWF0ZXJuaW9uLnByb3RvEgtnb29nbGUudHlwZSI4CgpRdWF0ZXJuaW9uEgkKAXgYASABKAESCQoBeRgCIAEoARIJCgF6GAMgASgBEgkKAXcYBCABKAFCtAEKD2NvbS5nb29nbGUudHlwZUIPUXVhdGVybmlvblByb3RvUAFaQGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9xdWF0ZXJuaW9uO3F1YXRlcm5pb274AQGiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw",
+  );
 
 /**
  * A quaternion is defined as the quotient of two directed lines in a
@@ -120,6 +123,6 @@ export type Quaternion = Message<"google.type.Quaternion"> & {
  * Describes the message google.type.Quaternion.
  * Use `create(QuaternionSchema)` to create a new message.
  */
-export const QuaternionSchema: GenMessage<Quaternion> = /*@__PURE__*/
+export const QuaternionSchema: GenMessage<Quaternion> =
+  /*@__PURE__*/
   messageDesc(file_google_type_quaternion, 0);
-

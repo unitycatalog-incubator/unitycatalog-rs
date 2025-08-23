@@ -2,13 +2,14 @@ use bytes::Bytes;
 
 use unitycatalog_common::models::sharing::v1::*;
 use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableInfo};
-use unitycatalog_common::{Error, ResourceIdent, ResourceName, Result, ShareInfo};
+use unitycatalog_common::{ResourceIdent, ResourceName, ShareInfo};
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
 use crate::api::RequestContext;
 use crate::api::sharing::{
     MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
 };
+use crate::error::{Error, Result};
 use crate::store::ResourceStore;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,7 +49,7 @@ impl<T: ResourceStore> SharingExt for T {
         let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
         let table_info: TableInfo = self.get(&table_ident).await?.0.try_into()?;
         let location = table_info.storage_location.ok_or(Error::NotFound)?;
-        StorageLocationUrl::parse(&location)
+        Ok(StorageLocationUrl::parse(&location)?)
     }
 }
 

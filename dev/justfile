@@ -1,0 +1,46 @@
+_default:
+    @just --list
+
+# basic setup
+setup:
+  uvx pre-commit install
+
+# Update pre-commit hooks
+update-hooks:
+  uvx pre-commit autoupdate
+
+# Run local development environment
+start profile='':
+    #!/bin/bash
+    if [ '{{profile}}' == '' ]
+    then
+        just _start
+    else
+        just _start_profile {{profile}}
+    fi
+
+# Stop local development environment
+stop profile='':
+    #!/bin/bash
+    if [ '{{profile}}' == '' ]
+    then
+        just _stop
+    else
+        just _stop_profile {{profile}}
+    fi
+
+# run interactive notebook server (marimo)
+scratch:
+    uv run --directory {{ source_directory() }}/notebooks marimo edit client.py
+
+_start:
+    docker compose -p unitycatalog-rs -f {{ source_directory() }}/compose.yaml up -d
+
+_stop:
+    docker compose -p unitycatalog-rs -f {{ source_directory() }}/compose.yaml stop
+
+_start_profile profile:
+    docker compose --profile {{profile}} -p unitycatalog-rs -f {{ source_directory() }}/compose.yaml up -d
+
+_stop_profile profile:
+    docker compose --profile {{profile}} -p unitycatalog-rs -f {{ source_directory() }}/compose.yaml stop

@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
 use super::handler::TableHandler;
+use crate::Result;
 use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
-use unitycatalog_common::Result;
 use unitycatalog_common::models::tables::v1::*;
 pub async fn list_table_summaries_handler<T: TableHandler>(
     State(handler): State<T>,

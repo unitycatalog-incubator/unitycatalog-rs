@@ -3,11 +3,11 @@ use std::sync::Arc;
 use delta_kernel::{Snapshot, Version};
 
 use session::*;
-use unitycatalog_common::Result;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
 
 use self::location::StorageLocationUrl;
 use self::secrets::{ProvidesSecretManager, SecretManager};
+use crate::Result;
 use crate::api::tables::TableManager;
 use crate::policy::{Policy, ProvidesPolicy};
 use crate::store::{ProvidesResourceStore, ResourceStore};

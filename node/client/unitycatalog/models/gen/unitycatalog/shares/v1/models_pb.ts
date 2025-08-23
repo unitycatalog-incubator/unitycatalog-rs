@@ -2,16 +2,24 @@
 // @generated from file unitycatalog/shares/v1/models.proto (package unitycatalog.shares.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenEnum,
+  GenFile,
+  GenMessage,
+} from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/shares/v1/models.proto.
  */
-export const file_unitycatalog_shares_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("CiN1bml0eWNhdGFsb2cvc2hhcmVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSLHAwoKRGF0YU9iamVjdBIMCgRuYW1lGAEgASgJEkAKEGRhdGFfb2JqZWN0X3R5cGUYAiABKA4yJi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RUeXBlEhUKCGFkZGVkX2F0GAMgASgDSACIAQESFQoIYWRkZWRfYnkYBCABKAlIAYgBARIUCgdjb21tZW50GAUgASgJSAKIAQESFgoJc2hhcmVkX2FzGAYgASgJSAOIAQESEgoKcGFydGl0aW9ucxgHIAMoCRIXCgplbmFibGVfY2RmGAggASgISASIAQESTwobaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzGAkgASgOMiUudW5pdHljYXRhbG9nLnNoYXJlcy52MS5IaXN0b3J5U3RhdHVzSAWIAQESGgoNc3RhcnRfdmVyc2lvbhgKIAEoA0gGiAEBQgsKCV9hZGRlZF9hdEILCglfYWRkZWRfYnlCCgoIX2NvbW1lbnRCDAoKX3NoYXJlZF9hc0INCgtfZW5hYmxlX2NkZkIeChxfaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzQhAKDl9zdGFydF92ZXJzaW9uIssCCglTaGFyZUluZm8SDwoCaWQYZCABKAlIAIgBARIMCgRuYW1lGAEgASgJEhIKBW93bmVyGAIgASgJSAGIAQESFAoHY29tbWVudBgDIAEoCUgCiAEBEjgKDGRhdGFfb2JqZWN0cxgFIAMoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdBIXCgpjcmVhdGVkX2F0GAYgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgHIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCCABKANIBYgBARIXCgp1cGRhdGVkX2J5GAkgASgJSAaIAQFCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudEINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieSpJCg5EYXRhT2JqZWN0VHlwZRIgChxEQVRBX09CSkVDVF9UWVBFX1VOU1BFQ0lGSUVEEAASCQoFVEFCTEUQARIKCgZTQ0hFTUEQAioqCg1IaXN0b3J5U3RhdHVzEgwKCERJU0FCTEVEEAASCwoHRU5BQkxFRBABQvMBChpjb20udW5pdHljYXRhbG9nLnNoYXJlcy52MUILTW9kZWxzUHJvdG9QAVpOZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2hhcmVzL3YxO3NoYXJlc3YxogIDVVNYqgIWVW5pdHljYXRhbG9nLlNoYXJlcy5WMcoCFlVuaXR5Y2F0YWxvZ1xTaGFyZXNcVjHiAiJVbml0eWNhdGFsb2dcU2hhcmVzXFYxXEdQQk1ldGFkYXRh6gIYVW5pdHljYXRhbG9nOjpTaGFyZXM6OlYxYgZwcm90bzM", [file_google_api_field_behavior]);
+export const file_unitycatalog_shares_v1_models: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiN1bml0eWNhdGFsb2cvc2hhcmVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSLHAwoKRGF0YU9iamVjdBIMCgRuYW1lGAEgASgJEkAKEGRhdGFfb2JqZWN0X3R5cGUYAiABKA4yJi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RUeXBlEhUKCGFkZGVkX2F0GAMgASgDSACIAQESFQoIYWRkZWRfYnkYBCABKAlIAYgBARIUCgdjb21tZW50GAUgASgJSAKIAQESFgoJc2hhcmVkX2FzGAYgASgJSAOIAQESEgoKcGFydGl0aW9ucxgHIAMoCRIXCgplbmFibGVfY2RmGAggASgISASIAQESTwobaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzGAkgASgOMiUudW5pdHljYXRhbG9nLnNoYXJlcy52MS5IaXN0b3J5U3RhdHVzSAWIAQESGgoNc3RhcnRfdmVyc2lvbhgKIAEoA0gGiAEBQgsKCV9hZGRlZF9hdEILCglfYWRkZWRfYnlCCgoIX2NvbW1lbnRCDAoKX3NoYXJlZF9hc0INCgtfZW5hYmxlX2NkZkIeChxfaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzQhAKDl9zdGFydF92ZXJzaW9uIssCCglTaGFyZUluZm8SDwoCaWQYZCABKAlIAIgBARIMCgRuYW1lGAEgASgJEhIKBW93bmVyGAIgASgJSAGIAQESFAoHY29tbWVudBgDIAEoCUgCiAEBEjgKDGRhdGFfb2JqZWN0cxgFIAMoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdBIXCgpjcmVhdGVkX2F0GAYgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgHIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCCABKANIBYgBARIXCgp1cGRhdGVkX2J5GAkgASgJSAaIAQFCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudINCgtfY3JlYXRlZF9hdINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdINCgtfdXBkYXRlZF9ieSpJCg5EYXRhT2JqZWN0VHlwZRIgChxEQVRBX09CSkVDVF9UWVBFX1VOU1BFQ0lGSUVEEAASCQoFVEFCTEUQARIKCgZTQ0hFTUEQAioqCg1IaXN0b3J5U3RhdHVzEgwKCERJU0FCTEVEEAASCwoHRU5BQkxFRBABQvMBChpjb20udW5pdHljYXRhbG9nLnNoYXJlcy52MUILTW9kZWxzUHJvdG9QAVpOZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2hhcmVzL3YxO3NoYXJlc3YxogIDVVNYqgIWVW5pdHljYXRhbG9nLlNoYXJlcy5WMcoCFlVuaXR5Y2F0YWxvZ1xTaGFyZXNcVjHiAiJVbml0eWNhdGFsb2dcU2hhcmVzXFYxXEdQQk1ldGFkYXRh6gIYVW5pdHljYXRhbG9nOjpTaGFyZXM6OlYxYgZwcm90bzM",
+    [file_google_api_field_behavior],
+  );
 
 /**
  * @generated from message unitycatalog.shares.v1.DataObject
@@ -104,7 +112,8 @@ export type DataObject = Message<"unitycatalog.shares.v1.DataObject"> & {
  * Describes the message unitycatalog.shares.v1.DataObject.
  * Use `create(DataObjectSchema)` to create a new message.
  */
-export const DataObjectSchema: GenMessage<DataObject> = /*@__PURE__*/
+export const DataObjectSchema: GenMessage<DataObject> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 0);
 
 /**
@@ -179,7 +188,8 @@ export type ShareInfo = Message<"unitycatalog.shares.v1.ShareInfo"> & {
  * Describes the message unitycatalog.shares.v1.ShareInfo.
  * Use `create(ShareInfoSchema)` to create a new message.
  */
-export const ShareInfoSchema: GenMessage<ShareInfo> = /*@__PURE__*/
+export const ShareInfoSchema: GenMessage<ShareInfo> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 1);
 
 /**
@@ -207,7 +217,8 @@ export enum DataObjectType {
 /**
  * Describes the enum unitycatalog.shares.v1.DataObjectType.
  */
-export const DataObjectTypeSchema: GenEnum<DataObjectType> = /*@__PURE__*/
+export const DataObjectTypeSchema: GenEnum<DataObjectType> =
+  /*@__PURE__*/
   enumDesc(file_unitycatalog_shares_v1_models, 0);
 
 /**
@@ -232,6 +243,6 @@ export enum HistoryStatus {
 /**
  * Describes the enum unitycatalog.shares.v1.HistoryStatus.
  */
-export const HistoryStatusSchema: GenEnum<HistoryStatus> = /*@__PURE__*/
+export const HistoryStatusSchema: GenEnum<HistoryStatus> =
+  /*@__PURE__*/
   enumDesc(file_unitycatalog_shares_v1_models, 1);
-

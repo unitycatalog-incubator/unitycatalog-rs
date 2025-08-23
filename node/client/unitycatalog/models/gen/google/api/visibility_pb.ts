@@ -16,17 +16,32 @@
 // @generated from file google/api/visibility.proto (package google.api, syntax proto3)
 /* eslint-disable */
 
-import type { GenExtension, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { extDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { EnumOptions, EnumValueOptions, FieldOptions, MessageOptions, MethodOptions, ServiceOptions } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenExtension,
+  GenFile,
+  GenMessage,
+} from "@bufbuild/protobuf/codegenv2";
+import { extDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type {
+  EnumOptions,
+  EnumValueOptions,
+  FieldOptions,
+  MessageOptions,
+  MethodOptions,
+  ServiceOptions,
+} from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
 
 /**
  * Describes the file google/api/visibility.proto.
  */
-export const file_google_api_visibility: GenFile = /*@__PURE__*/
-  fileDesc("Chtnb29nbGUvYXBpL3Zpc2liaWxpdHkucHJvdG8SCmdvb2dsZS5hcGkiNwoKVmlzaWJpbGl0eRIpCgVydWxlcxgBIAMoCzIaLmdvb2dsZS5hcGkuVmlzaWJpbGl0eVJ1bGUiNwoOVmlzaWJpbGl0eVJ1bGUSEAoIc2VsZWN0b3IYASABKAkSEwoLcmVzdHJpY3Rpb24YAiABKAk6ZAoPZW51bV92aXNpYmlsaXR5EhwuZ29vZ2xlLnByb3RvYnVmLkVudW1PcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVIOZW51bVZpc2liaWxpdHk6awoQdmFsdWVfdmlzaWJpbGl0eRIhLmdvb2dsZS5wcm90b2J1Zi5FbnVtVmFsdWVPcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVIPdmFsdWVWaXNpYmlsaXR5OmcKEGZpZWxkX3Zpc2liaWxpdHkSHS5nb29nbGUucHJvdG9idWYuRmllbGRPcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVIPZmllbGRWaXNpYmlsaXR5Om0KEm1lc3NhZ2VfdmlzaWJpbGl0eRIfLmdvb2dsZS5wcm90b2J1Zi5NZXNzYWdlT3B0aW9ucxivyrwiIAEoCzIaLmdvb2dsZS5hcGkuVmlzaWJpbGl0eVJ1bGVSEW1lc3NhZ2VWaXNpYmlsaXR5OmoKEW1ldGhvZF92aXNpYmlsaXR5Eh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYr8q8IiABKAsyGi5nb29nbGUuYXBpLlZpc2liaWxpdHlSdWxlUhBtZXRob2RWaXNpYmlsaXR5OmUKDmFwaV92aXNpYmlsaXR5Eh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVINYXBpVmlzaWJpbGl0eUKrAQoOY29tLmdvb2dsZS5hcGlCD1Zpc2liaWxpdHlQcm90b1ABWj9nb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS92aXNpYmlsaXR5O3Zpc2liaWxpdHmiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z", [file_google_protobuf_descriptor]);
+export const file_google_api_visibility: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chtnb29nbGUvYXBpL3Zpc2liaWxpdHkucHJvdG8SCmdvb2dsZS5hcGkiNwoKVmlzaWJpbGl0eRIpCgVydWxlcxgBIAMoCzIaLmdvb2dsZS5hcGkuVmlzaWJpbGl0eVJ1bGUiNwoOVmlzaWJpbGl0eVJ1bGUSEAoIc2VsZWN0b3IYASABKAkSEwoLcmVzdHJpY3Rpb24YAiABKAk6ZAoPZW51bV92aXNpYmlsaXR5EhwuZ29vZ2xlLnByb3RvYnVmLkVudW1PcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVIOZW51bVZpc2liaWxpdHk6awoQdmFsdWVfdmlzaWJpbGl0eRIhLmdvb2dsZS5wcm90b2J1Zi5FbnVtVmFsdWVPcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVIPdmFsdWVWaXNpYmlsaXR5OmcKEGZpZWxkX3Zpc2liaWxpdHkSHS5nb29nbGUucHJvdG9idWYuRmllbGRPcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVIPZmllbGRWaXNpYmlsaXR5Om0KEm1lc3NhZ2VfdmlzaWJpbGl0eRIfLmdvb2dsZS5wcm90b2J1Zi5NZXNzYWdlT3B0aW9ucxivyrwiIAEoCzIaLmdvb2dsZS5hcGkuVmlzaWJpbGl0eVJ1bGVSEW1lc3NhZ2VWaXNpYmlsaXR5OmoKEW1ldGhvZF92aXNpYmlsaXR5Eh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYr8q8IiABKAsyGi5nb29nbGUuYXBpLlZpc2liaWxpdHlSdWxlUhBtZXRob2RWaXNpYmlsaXR5OmUKDmFwaV92aXNpYmlsaXR5Eh8uZ29vZ2xlLnByb3RvYnVmLlNlcnZpY2VPcHRpb25zGK/KvCIgASgLMhouZ29vZ2xlLmFwaS5WaXNpYmlsaXR5UnVsZVINYXBpVmlzaWJpbGl0eUKrAQoOY29tLmdvb2dsZS5hcGlCD1Zpc2liaWxpdHlQcm90b1ABWj9nb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS92aXNpYmlsaXR5O3Zpc2liaWxpdHmiAgNHQViqAgpHb29nbGUuQXBpygIKR29vZ2xlXEFwaeICFkdvb2dsZVxBcGlcR1BCTWV0YWRhdGHqAgtHb29nbGU6OkFwaWIGcHJvdG8z",
+    [file_google_protobuf_descriptor],
+  );
 
 /**
  * `Visibility` restricts service consumer's access to service elements,
@@ -70,7 +85,8 @@ export type Visibility = Message<"google.api.Visibility"> & {
  * Describes the message google.api.Visibility.
  * Use `create(VisibilitySchema)` to create a new message.
  */
-export const VisibilitySchema: GenMessage<Visibility> = /*@__PURE__*/
+export const VisibilitySchema: GenMessage<Visibility> =
+  /*@__PURE__*/
   messageDesc(file_google_api_visibility, 0);
 
 /**
@@ -116,7 +132,8 @@ export type VisibilityRule = Message<"google.api.VisibilityRule"> & {
  * Describes the message google.api.VisibilityRule.
  * Use `create(VisibilityRuleSchema)` to create a new message.
  */
-export const VisibilityRuleSchema: GenMessage<VisibilityRule> = /*@__PURE__*/
+export const VisibilityRuleSchema: GenMessage<VisibilityRule> =
+  /*@__PURE__*/
   messageDesc(file_google_api_visibility, 1);
 
 /**
@@ -124,7 +141,8 @@ export const VisibilityRuleSchema: GenMessage<VisibilityRule> = /*@__PURE__*/
  *
  * @generated from extension: google.api.VisibilityRule enum_visibility = 72295727;
  */
-export const enum_visibility: GenExtension<EnumOptions, VisibilityRule> = /*@__PURE__*/
+export const enum_visibility: GenExtension<EnumOptions, VisibilityRule> =
+  /*@__PURE__*/
   extDesc(file_google_api_visibility, 0);
 
 /**
@@ -132,7 +150,8 @@ export const enum_visibility: GenExtension<EnumOptions, VisibilityRule> = /*@__P
  *
  * @generated from extension: google.api.VisibilityRule value_visibility = 72295727;
  */
-export const value_visibility: GenExtension<EnumValueOptions, VisibilityRule> = /*@__PURE__*/
+export const value_visibility: GenExtension<EnumValueOptions, VisibilityRule> =
+  /*@__PURE__*/
   extDesc(file_google_api_visibility, 1);
 
 /**
@@ -140,7 +159,8 @@ export const value_visibility: GenExtension<EnumValueOptions, VisibilityRule> = 
  *
  * @generated from extension: google.api.VisibilityRule field_visibility = 72295727;
  */
-export const field_visibility: GenExtension<FieldOptions, VisibilityRule> = /*@__PURE__*/
+export const field_visibility: GenExtension<FieldOptions, VisibilityRule> =
+  /*@__PURE__*/
   extDesc(file_google_api_visibility, 2);
 
 /**
@@ -148,7 +168,8 @@ export const field_visibility: GenExtension<FieldOptions, VisibilityRule> = /*@_
  *
  * @generated from extension: google.api.VisibilityRule message_visibility = 72295727;
  */
-export const message_visibility: GenExtension<MessageOptions, VisibilityRule> = /*@__PURE__*/
+export const message_visibility: GenExtension<MessageOptions, VisibilityRule> =
+  /*@__PURE__*/
   extDesc(file_google_api_visibility, 3);
 
 /**
@@ -156,7 +177,8 @@ export const message_visibility: GenExtension<MessageOptions, VisibilityRule> = 
  *
  * @generated from extension: google.api.VisibilityRule method_visibility = 72295727;
  */
-export const method_visibility: GenExtension<MethodOptions, VisibilityRule> = /*@__PURE__*/
+export const method_visibility: GenExtension<MethodOptions, VisibilityRule> =
+  /*@__PURE__*/
   extDesc(file_google_api_visibility, 4);
 
 /**
@@ -164,6 +186,6 @@ export const method_visibility: GenExtension<MethodOptions, VisibilityRule> = /*
  *
  * @generated from extension: google.api.VisibilityRule api_visibility = 72295727;
  */
-export const api_visibility: GenExtension<ServiceOptions, VisibilityRule> = /*@__PURE__*/
+export const api_visibility: GenExtension<ServiceOptions, VisibilityRule> =
+  /*@__PURE__*/
   extDesc(file_google_api_visibility, 5);
-

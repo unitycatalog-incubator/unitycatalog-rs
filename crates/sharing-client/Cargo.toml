@@ -11,13 +11,14 @@ keywords.workspace = true
 
 [dependencies]
 cloud-client = { path = "../cloud-client" }
-unitycatalog-common = { path = "../common", features = ["sharing"] }
+unitycatalog-common = { path = "../common" }
 
 chrono = { workspace = true }
 delta_kernel = { workspace = true }
 futures = { workspace = true }
 itertools = { workspace = true }
 reqwest = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }

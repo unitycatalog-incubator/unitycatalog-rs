@@ -1,0 +1,14 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "extends": "//",
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist/**/*",
+      "!**/native.js",
+      "!**/native.d.ts",
+      "!**/npm/**/*",
+      "!./examples/*"
+    ]
+  }
+}

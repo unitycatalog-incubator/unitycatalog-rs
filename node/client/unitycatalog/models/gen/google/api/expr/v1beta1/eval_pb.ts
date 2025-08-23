@@ -17,19 +17,23 @@
 // @generated from file google/api/expr/v1beta1/eval.proto (package google.api.expr.v1beta1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Value } from "./value_pb";
-import { file_google_api_expr_v1beta1_value } from "./value_pb";
 import type { Status } from "../../../rpc/status_pb";
 import { file_google_rpc_status } from "../../../rpc/status_pb";
-import type { Message } from "@bufbuild/protobuf";
+import type { Value } from "./value_pb";
+import { file_google_api_expr_v1beta1_value } from "./value_pb";
 
 /**
  * Describes the file google/api/expr/v1beta1/eval.proto.
  */
-export const file_google_api_expr_v1beta1_eval: GenFile = /*@__PURE__*/
-  fileDesc("CiJnb29nbGUvYXBpL2V4cHIvdjFiZXRhMS9ldmFsLnByb3RvEhdnb29nbGUuYXBpLmV4cHIudjFiZXRhMSLCAQoJRXZhbFN0YXRlEjIKBnZhbHVlcxgBIAMoCzIiLmdvb2dsZS5hcGkuZXhwci52MWJldGExLkV4cHJWYWx1ZRI6CgdyZXN1bHRzGAMgAygLMikuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRXZhbFN0YXRlLlJlc3VsdBpFCgZSZXN1bHQSLAoEZXhwchgBIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWJldGExLklkUmVmEg0KBXZhbHVlGAIgASgFIrABCglFeHByVmFsdWUSLwoFdmFsdWUYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFiZXRhMS5WYWx1ZUgAEjIKBWVycm9yGAIgASgLMiEuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRXJyb3JTZXRIABI2Cgd1bmtub3duGAMgASgLMiMuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuVW5rbm93blNldEgAQgYKBGtpbmQiLgoIRXJyb3JTZXQSIgoGZXJyb3JzGAEgAygLMhIuZ29vZ2xlLnJwYy5TdGF0dXMiOwoKVW5rbm93blNldBItCgVleHBycxgBIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWJldGExLklkUmVmIhMKBUlkUmVmEgoKAmlkGAEgASgFQucBChtjb20uZ29vZ2xlLmFwaS5leHByLnYxYmV0YTFCCUV2YWxQcm90b1ABWjtnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9leHByL3YxYmV0YTE7ZXhwcvgBAaICA0dBRaoCF0dvb2dsZS5BcGkuRXhwci5WMWJldGExygIXR29vZ2xlXEFwaVxFeHByXFYxYmV0YTHiAiNHb29nbGVcQXBpXEV4cHJcVjFiZXRhMVxHUEJNZXRhZGF0YeoCGkdvb2dsZTo6QXBpOjpFeHByOjpWMWJldGExYgZwcm90bzM", [file_google_api_expr_v1beta1_value, file_google_rpc_status]);
+export const file_google_api_expr_v1beta1_eval: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiJnb29nbGUvYXBpL2V4cHIvdjFiZXRhMS9ldmFsLnByb3RvEhdnb29nbGUuYXBpLmV4cHIudjFiZXRhMSLCAQoJRXZhbFN0YXRlEjIKBnZhbHVlcxgBIAMoCzIiLmdvb2dsZS5hcGkuZXhwci52MWJldGExLkV4cHJWYWx1ZRI6CgdyZXN1bHRzGAMgAygLMikuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRXZhbFN0YXRlLlJlc3VsdBpFCgZSZXN1bHQSLAoEZXhwchgBIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWJldGExLklkUmVmEg0KBXZhbHVlGAIgASgFIrABCglFeHByVmFsdWUSLwoFdmFsdWUYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFiZXRhMS5WYWx1ZUgAEjIKBWVycm9yGAIgASgLMiEuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuRXJyb3JTZXRIABI2Cgd1bmtub3duGAMgASgLMiMuZ29vZ2xlLmFwaS5leHByLnYxYmV0YTEuVW5rbm93blNldEgAQgYKBGtpbmQiLgoIRXJyb3JTZXQSIgoGZXJyb3JzGAEgAygLMhIuZ29vZ2xlLnJwYy5TdGF0dXMiOwoKVW5rbm93blNldBItCgVleHBycxgBIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWJldGExLklkUmVmIhMKBUlkUmVmEgoKAmlkGAEgASgFQucBChtjb20uZ29vZ2xlLmFwaS5leHByLnYxYmV0YTFCCUV2YWxQcm90b1ABWjtnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2FwaS9leHByL3YxYmV0YTE7ZXhwcvgBAaICA0dBRaoCF0dvb2dsZS5BcGkuRXhwci5WMWJldGExygIXR29vZ2xlXEFwaVxFeHByXFYxYmV0YTHiAiNHb29nbGVcQXBpXEV4cHJcVjFiZXRhMVxHUEJNZXRhZGF0YeoCGkdvb2dsZTo6QXBpOjpFeHByOjpWMWJldGExYgZwcm90bzM",
+    [file_google_api_expr_v1beta1_value, file_google_rpc_status],
+  );
 
 /**
  * The state of an evaluation.
@@ -61,7 +65,8 @@ export type EvalState = Message<"google.api.expr.v1beta1.EvalState"> & {
  * Describes the message google.api.expr.v1beta1.EvalState.
  * Use `create(EvalStateSchema)` to create a new message.
  */
-export const EvalStateSchema: GenMessage<EvalState> = /*@__PURE__*/
+export const EvalStateSchema: GenMessage<EvalState> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_eval, 0);
 
 /**
@@ -69,27 +74,29 @@ export const EvalStateSchema: GenMessage<EvalState> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1beta1.EvalState.Result
  */
-export type EvalState_Result = Message<"google.api.expr.v1beta1.EvalState.Result"> & {
-  /**
-   * The expression this result is for.
-   *
-   * @generated from field: google.api.expr.v1beta1.IdRef expr = 1;
-   */
-  expr?: IdRef;
+export type EvalState_Result =
+  Message<"google.api.expr.v1beta1.EvalState.Result"> & {
+    /**
+     * The expression this result is for.
+     *
+     * @generated from field: google.api.expr.v1beta1.IdRef expr = 1;
+     */
+    expr?: IdRef;
 
-  /**
-   * The index in `values` of the resulting value.
-   *
-   * @generated from field: int32 value = 2;
-   */
-  value: number;
-};
+    /**
+     * The index in `values` of the resulting value.
+     *
+     * @generated from field: int32 value = 2;
+     */
+    value: number;
+  };
 
 /**
  * Describes the message google.api.expr.v1beta1.EvalState.Result.
  * Use `create(EvalState_ResultSchema)` to create a new message.
  */
-export const EvalState_ResultSchema: GenMessage<EvalState_Result> = /*@__PURE__*/
+export const EvalState_ResultSchema: GenMessage<EvalState_Result> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_eval, 0, 0);
 
 /**
@@ -103,76 +110,81 @@ export type ExprValue = Message<"google.api.expr.v1beta1.ExprValue"> & {
    *
    * @generated from oneof google.api.expr.v1beta1.ExprValue.kind
    */
-  kind: {
-    /**
-     * A concrete value.
-     *
-     * @generated from field: google.api.expr.v1beta1.Value value = 1;
-     */
-    value: Value;
-    case: "value";
-  } | {
-    /**
-     * The set of errors in the critical path of evalution.
-     *
-     * Only errors in the critical path are included. For example,
-     * `(<error1> || true) && <error2>` will only result in `<error2>`,
-     * while `<error1> || <error2>` will result in both `<error1>` and
-     * `<error2>`.
-     *
-     * Errors cause by the presence of other errors are not included in the
-     * set. For example `<error1>.foo`, `foo(<error1>)`, and `<error1> + 1` will
-     * only result in `<error1>`.
-     *
-     * Multiple errors *might* be included when evaluation could result
-     * in different errors. For example `<error1> + <error2>` and
-     * `foo(<error1>, <error2>)` may result in `<error1>`, `<error2>` or both.
-     * The exact subset of errors included for this case is unspecified and
-     * depends on the implementation details of the evaluator.
-     *
-     * @generated from field: google.api.expr.v1beta1.ErrorSet error = 2;
-     */
-    value: ErrorSet;
-    case: "error";
-  } | {
-    /**
-     * The set of unknowns in the critical path of evaluation.
-     *
-     * Unknown behaves identically to Error with regards to propagation.
-     * Specifically, only unknowns in the critical path are included, unknowns
-     * caused by the presence of other unknowns are not included, and multiple
-     * unknowns *might* be included included when evaluation could result in
-     * different unknowns. For example:
-     *
-     *     (<unknown[1]> || true) && <unknown[2]> -> <unknown[2]>
-     *     <unknown[1]> || <unknown[2]> -> <unknown[1,2]>
-     *     <unknown[1]>.foo -> <unknown[1]>
-     *     foo(<unknown[1]>) -> <unknown[1]>
-     *     <unknown[1]> + <unknown[2]> -> <unknown[1]> or <unknown[2[>
-     *
-     * Unknown takes precidence over Error in cases where a `Value` can short
-     * circuit the result:
-     *
-     *     <error> || <unknown> -> <unknown>
-     *     <error> && <unknown> -> <unknown>
-     *
-     * Errors take precidence in all other cases:
-     *
-     *     <unknown> + <error> -> <error>
-     *     foo(<unknown>, <error>) -> <error>
-     *
-     * @generated from field: google.api.expr.v1beta1.UnknownSet unknown = 3;
-     */
-    value: UnknownSet;
-    case: "unknown";
-  } | { case: undefined; value?: undefined };
+  kind:
+    | {
+        /**
+         * A concrete value.
+         *
+         * @generated from field: google.api.expr.v1beta1.Value value = 1;
+         */
+        value: Value;
+        case: "value";
+      }
+    | {
+        /**
+         * The set of errors in the critical path of evalution.
+         *
+         * Only errors in the critical path are included. For example,
+         * `(<error1> || true) && <error2>` will only result in `<error2>`,
+         * while `<error1> || <error2>` will result in both `<error1>` and
+         * `<error2>`.
+         *
+         * Errors cause by the presence of other errors are not included in the
+         * set. For example `<error1>.foo`, `foo(<error1>)`, and `<error1> + 1` will
+         * only result in `<error1>`.
+         *
+         * Multiple errors *might* be included when evaluation could result
+         * in different errors. For example `<error1> + <error2>` and
+         * `foo(<error1>, <error2>)` may result in `<error1>`, `<error2>` or both.
+         * The exact subset of errors included for this case is unspecified and
+         * depends on the implementation details of the evaluator.
+         *
+         * @generated from field: google.api.expr.v1beta1.ErrorSet error = 2;
+         */
+        value: ErrorSet;
+        case: "error";
+      }
+    | {
+        /**
+         * The set of unknowns in the critical path of evaluation.
+         *
+         * Unknown behaves identically to Error with regards to propagation.
+         * Specifically, only unknowns in the critical path are included, unknowns
+         * caused by the presence of other unknowns are not included, and multiple
+         * unknowns *might* be included included when evaluation could result in
+         * different unknowns. For example:
+         *
+         *     (<unknown[1]> || true) && <unknown[2]> -> <unknown[2]>
+         *     <unknown[1]> || <unknown[2]> -> <unknown[1,2]>
+         *     <unknown[1]>.foo -> <unknown[1]>
+         *     foo(<unknown[1]>) -> <unknown[1]>
+         *     <unknown[1]> + <unknown[2]> -> <unknown[1]> or <unknown[2[>
+         *
+         * Unknown takes precedence over Error in cases where a `Value` can short
+         * circuit the result:
+         *
+         *     <error> || <unknown> -> <unknown>
+         *     <error> && <unknown> -> <unknown>
+         *
+         * Errors take precedence in all other cases:
+         *
+         *     <unknown> + <error> -> <error>
+         *     foo(<unknown>, <error>) -> <error>
+         *
+         * @generated from field: google.api.expr.v1beta1.UnknownSet unknown = 3;
+         */
+        value: UnknownSet;
+        case: "unknown";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.api.expr.v1beta1.ExprValue.
  * Use `create(ExprValueSchema)` to create a new message.
  */
-export const ExprValueSchema: GenMessage<ExprValue> = /*@__PURE__*/
+export const ExprValueSchema: GenMessage<ExprValue> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_eval, 1);
 
 /**
@@ -195,7 +207,8 @@ export type ErrorSet = Message<"google.api.expr.v1beta1.ErrorSet"> & {
  * Describes the message google.api.expr.v1beta1.ErrorSet.
  * Use `create(ErrorSetSchema)` to create a new message.
  */
-export const ErrorSetSchema: GenMessage<ErrorSet> = /*@__PURE__*/
+export const ErrorSetSchema: GenMessage<ErrorSet> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_eval, 2);
 
 /**
@@ -218,7 +231,8 @@ export type UnknownSet = Message<"google.api.expr.v1beta1.UnknownSet"> & {
  * Describes the message google.api.expr.v1beta1.UnknownSet.
  * Use `create(UnknownSetSchema)` to create a new message.
  */
-export const UnknownSetSchema: GenMessage<UnknownSet> = /*@__PURE__*/
+export const UnknownSetSchema: GenMessage<UnknownSet> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_eval, 3);
 
 /**
@@ -239,6 +253,6 @@ export type IdRef = Message<"google.api.expr.v1beta1.IdRef"> & {
  * Describes the message google.api.expr.v1beta1.IdRef.
  * Use `create(IdRefSchema)` to create a new message.
  */
-export const IdRefSchema: GenMessage<IdRef> = /*@__PURE__*/
+export const IdRefSchema: GenMessage<IdRef> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1beta1_eval, 4);
-

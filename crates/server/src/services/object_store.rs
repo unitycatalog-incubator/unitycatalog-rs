@@ -13,13 +13,13 @@ use unitycatalog_common::models::credentials::v1::{
     azure_service_principal::Credential as AzureSpCredential,
 };
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
-use unitycatalog_common::{Error, Result};
 
 use super::ServerHandlerInner;
 use super::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::api::CredentialHandler;
 use crate::api::credentials::CredentialHandlerExt;
 use crate::store::ResourceStore;
+use crate::{Error, Result};
 
 pub(crate) trait RegistryHandler:
     ResourceStore + CredentialHandler + CredentialHandlerExt

@@ -1,12 +1,12 @@
 use itertools::Itertools;
 
-use unitycatalog_common::Result;
 use unitycatalog_common::models::external_locations::v1::*;
 use unitycatalog_common::models::{
     ObjectLabel, ResourceExt, ResourceIdent, ResourceName, ResourceRef,
 };
 
 use super::{RequestContext, SecuredAction};
+use crate::Result;
 pub use crate::codegen::external_locations::ExternalLocationHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
@@ -48,7 +48,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
     ) -> Result<()> {
         self.check_required(&request, context.as_ref()).await?;
         // TODO: check if the location is used by any resources
-        self.delete(&request.resource()).await
+        Ok(self.delete(&request.resource()).await?)
     }
 
     async fn get_external_location(
@@ -60,7 +60,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
 
         // TODO: populate relation fields (updated_* etc.)
 
-        self.get(&request.resource()).await?.0.try_into()
+        Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
     async fn list_external_locations(
@@ -115,7 +115,11 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         // - add update_* relations
         // - update owner if necessary
 
-        self.update(&curr_ident, current.into()).await?.0.try_into()
+        Ok(self
+            .update(&curr_ident, current.into())
+            .await?
+            .0
+            .try_into()?)
     }
 }
 

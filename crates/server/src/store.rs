@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
-
 use unitycatalog_common::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
-use unitycatalog_common::{ResourceIdent, ResourceName, ResourceRef, Result};
+use unitycatalog_common::{ResourceIdent, ResourceName, ResourceRef};
+
+use crate::Result;
 
 #[async_trait::async_trait]
 pub trait ResourceStoreReader: Send + Sync + 'static {

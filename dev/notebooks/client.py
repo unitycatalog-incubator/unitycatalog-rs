@@ -9,7 +9,7 @@ def _():
     from unitycatalog_client import UnityCatalogClient
     import os
     from pprint import pprint
-    return UnityCatalogClient, pprint
+    return UnityCatalogClient, os, pprint
 
 
 @app.cell
@@ -38,18 +38,18 @@ def _(mo):
 
 
 @app.cell
-def _(UnityCatalogClient):
+def _(UnityCatalogClient, os):
     # connect to databricks hosted service using a PAT
-    # host = os.environ["DATABRICKS_HOST"]
-    # client = UnityCatalogClient(
-    #     base_url=f"{host}/api/2.1/unity-catalog/",
-    #     token=os.environ["DATABRICKS_TOKEN"],
-    # )
+    host = os.environ["DATABRICKS_HOST"]
+    client = UnityCatalogClient(
+        base_url=f"{host}/api/2.1/unity-catalog/",
+        token=os.environ["DATABRICKS_TOKEN"],
+    )
 
     # connect to locally running service
-    client = UnityCatalogClient(
-        base_url="http://localhost:8080/api/2.1/unity-catalog/"
-    )
+    # client = UnityCatalogClient(
+    #     base_url="http://localhost:8080/api/2.1/unity-catalog/"
+    # )
     return (client,)
 
 
@@ -63,6 +63,42 @@ def _(mo):
     a table with the catalog.
     """
     )
+    return
+
+
+@app.cell
+def _(client):
+    client.list_catalogs()
+    return
+
+
+@app.cell
+def _(client):
+    client.catalog(name="ext_client").schema(name="simple").table(
+        name="super_simple"
+    ).get(False, False, False)
+    return
+
+
+@app.cell
+def _(client):
+    client.temporary_credentials().temporary_table_credential(
+        "ext_client.simple.super_simple", "READ"
+    )
+    return
+
+
+@app.cell
+def _(client, pprint):
+    new_catalog = client.create_catalog(name="new_catalog")
+    print("Created new catalog:")
+    pprint(new_catalog)
+    return
+
+
+@app.cell
+def _(client):
+    client.catalog(name="test_catalog").create_schema(name="test_schema")
     return
 
 

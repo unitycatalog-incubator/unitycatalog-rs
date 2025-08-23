@@ -16,15 +16,18 @@
 // @generated from file google/type/localized_text.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/localized_text.proto.
  */
-export const file_google_type_localized_text: GenFile = /*@__PURE__*/
-  fileDesc("CiBnb29nbGUvdHlwZS9sb2NhbGl6ZWRfdGV4dC5wcm90bxILZ29vZ2xlLnR5cGUiNAoNTG9jYWxpemVkVGV4dBIMCgR0ZXh0GAEgASgJEhUKDWxhbmd1YWdlX2NvZGUYAiABKAlCvwEKD2NvbS5nb29nbGUudHlwZUISTG9jYWxpemVkVGV4dFByb3RvUAFaSGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9sb2NhbGl6ZWRfdGV4dDtsb2NhbGl6ZWRfdGV4dPgBAaICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z");
+export const file_google_type_localized_text: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiBnb29nbGUvdHlwZS9sb2NhbGl6ZWRfdGV4dC5wcm90bxILZ29vZ2xlLnR5cGUiNAoNTG9jYWxpemVkVGV4dBIMCgR0ZXh0GAEgASgJEhUKDWxhbmd1YWdlX2NvZGUYAiABKAlCvwEKD2NvbS5nb29nbGUudHlwZUISTG9jYWxpemVkVGV4dFByb3RvUAFaSGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9sb2NhbGl6ZWRfdGV4dDtsb2NhbGl6ZWRfdGV4dPgBAaICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z",
+  );
 
 /**
  * Localized variant of a text in a particular language.
@@ -54,6 +57,6 @@ export type LocalizedText = Message<"google.type.LocalizedText"> & {
  * Describes the message google.type.LocalizedText.
  * Use `create(LocalizedTextSchema)` to create a new message.
  */
-export const LocalizedTextSchema: GenMessage<LocalizedText> = /*@__PURE__*/
+export const LocalizedTextSchema: GenMessage<LocalizedText> =
+  /*@__PURE__*/
   messageDesc(file_google_type_localized_text, 0);
-

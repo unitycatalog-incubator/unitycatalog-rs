@@ -16,15 +16,18 @@
 // @generated from file google/type/timeofday.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/timeofday.proto.
  */
-export const file_google_type_timeofday: GenFile = /*@__PURE__*/
-  fileDesc("Chtnb29nbGUvdHlwZS90aW1lb2ZkYXkucHJvdG8SC2dvb2dsZS50eXBlIksKCVRpbWVPZkRheRINCgVob3VycxgBIAEoBRIPCgdtaW51dGVzGAIgASgFEg8KB3NlY29uZHMYAyABKAUSDQoFbmFub3MYBCABKAVCsQEKD2NvbS5nb29nbGUudHlwZUIOVGltZW9mZGF5UHJvdG9QAVo+Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL3RpbWVvZmRheTt0aW1lb2ZkYXn4AQGiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw");
+export const file_google_type_timeofday: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chtnb29nbGUvdHlwZS90aW1lb2ZkYXkucHJvdG8SC2dvb2dsZS50eXBlIksKCVRpbWVPZkTheRINCgVob3VycxgBIAEoBRIPCgdtaW51dGVzGAIgASgFEg8KB3NlY29uZHMYAyABKAUSDQoFbmFub3MYBCABKAVCsQEKD2NvbS5nb29nbGUudHlwZUIOVGltZW9mZGF5UHJvdG9QAVo+Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL3RpbWVvZmTheTt0aW1lb2ZkYXn4AQGiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw",
+  );
 
 /**
  * Represents a time of day. The date and time zone are either not significant
@@ -70,6 +73,6 @@ export type TimeOfDay = Message<"google.type.TimeOfDay"> & {
  * Describes the message google.type.TimeOfDay.
  * Use `create(TimeOfDaySchema)` to create a new message.
  */
-export const TimeOfDaySchema: GenMessage<TimeOfDay> = /*@__PURE__*/
+export const TimeOfDaySchema: GenMessage<TimeOfDay> =
+  /*@__PURE__*/
   messageDesc(file_google_type_timeofday, 0);
-

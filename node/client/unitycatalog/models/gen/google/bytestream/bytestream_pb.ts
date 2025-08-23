@@ -16,15 +16,26 @@
 // @generated from file google/bytestream/bytestream.proto (package google.bytestream, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenFile,
+  GenMessage,
+  GenService,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  fileDesc,
+  messageDesc,
+  serviceDesc,
+} from "@bufbuild/protobuf/codegenv2";
 
 /**
  * Describes the file google/bytestream/bytestream.proto.
  */
-export const file_google_bytestream_bytestream: GenFile = /*@__PURE__*/
-  fileDesc("CiJnb29nbGUvYnl0ZXN0cmVhbS9ieXRlc3RyZWFtLnByb3RvEhFnb29nbGUuYnl0ZXN0cmVhbSJNCgtSZWFkUmVxdWVzdBIVCg1yZXNvdXJjZV9uYW1lGAEgASgJEhMKC3JlYWRfb2Zmc2V0GAIgASgDEhIKCnJlYWRfbGltaXQYAyABKAMiHAoMUmVhZFJlc3BvbnNlEgwKBGRhdGEYCiABKAwiXwoMV3JpdGVSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkSFAoMd3JpdGVfb2Zmc2V0GAIgASgDEhQKDGZpbmlzaF93cml0ZRgDIAEoCBIMCgRkYXRhGAogASgMIicKDVdyaXRlUmVzcG9uc2USFgoOY29tbWl0dGVkX3NpemUYASABKAMiMAoXUXVlcnlXcml0ZVN0YXR1c1JlcXVlc3QSFQoNcmVzb3VyY2VfbmFtZRgBIAEoCSJEChhRdWVyeVdyaXRlU3RhdHVzUmVzcG9uc2USFgoOY29tbWl0dGVkX3NpemUYASABKAMSEAoIY29tcGxldGUYAiABKAgykgIKCkJ5dGVTdHJlYW0SSQoEUmVhZBIeLmdvb2dsZS5ieXRlc3RyZWFtLlJlYWRSZXF1ZXN0Gh8uZ29vZ2xlLmJ5dGVzdHJlYW0uUmVhZFJlc3BvbnNlMAESTAoFV3JpdGUSHy5nb29nbGUuYnl0ZXN0cmVhbS5Xcml0ZVJlcXVlc3QaIC5nb29nbGUuYnl0ZXN0cmVhbS5Xcml0ZVJlc3BvbnNlKAESawoQUXVlcnlXcml0ZVN0YXR1cxIqLmdvb2dsZS5ieXRlc3RyZWFtLlF1ZXJ5V3JpdGVTdGF0dXNSZXF1ZXN0GisuZ29vZ2xlLmJ5dGVzdHJlYW0uUXVlcnlXcml0ZVN0YXR1c1Jlc3BvbnNlQsoBChVjb20uZ29vZ2xlLmJ5dGVzdHJlYW1CD0J5dGVzdHJlYW1Qcm90b1ABWjtnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2J5dGVzdHJlYW07Ynl0ZXN0cmVhbaICA0dCWKoCEUdvb2dsZS5CeXRlc3RyZWFtygIRR29vZ2xlXEJ5dGVzdHJlYW3iAh1Hb29nbGVcQnl0ZXN0cmVhbVxHUEJNZXRhZGF0YeoCEkdvb2dsZTo6Qnl0ZXN0cmVhbWIGcHJvdG8z");
+export const file_google_bytestream_bytestream: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiJnb29nbGUvYnl0ZXN0cmVhbS9ieXRlc3RyZWFtLnByb3RvEhFnb29nbGUuYnl0ZXN0cmVhbSJNCgtSZWFkUmVxdWVzdBIVCg1yZXNvdXJjZV9uYW1lGAEgASgJEhMKC3JlYWRfb2Zmc2V0GAIgASgDEhIKCnJlYWRfbGltaXQYAyABKAMiHAoMUmVhZFJlc3BvbnNlEgwKBGRhdGEYCiABKAwiXwoMV3JpdGVSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkSFAoMd3JpdGVfb2Zmc2V0GAIgASgDEhQKDGZpbmlzaF93cml0ZRgDIAEoCBIMCgRkYXRhGAogASgMIicKDVdyaXRlUmVzcG9uc2USFgoOY29tbWl0dGVkX3NpemUYASABKAMiMAoXUXVlcnlXcml0ZVN0YXR1c1JlcXVlc3QSFQoNcmVzb3VyY2VfbmFtZRgBIAEoCSJEChhRdWVyeVdyaXRlU3RhdHVzUmVzcG9uc2USFgoOY29tbWl0dGVkX3NpemUYASABKAMSEAoIY29tcGxldGUYAiABKAgykgIKCkJ5dGVTdHJlYW0SSQoEUmVhZBIeLmdvb2dsZS5ieXRlc3RyZWFtLlJlYWRSZXF1ZXN0Gh8uZ29vZ2xlLmJ5dGVzdHJlYW0uUmVhZFJlc3BvbnNlMAESTAoFV3JpdGUSHy5nb29nbGUuYnl0ZXN0cmVhbS5Xcml0ZVJlcXVlc3QaIC5nb29nbGUuYnl0ZXN0cmVhbS5Xcml0ZVJlc3BvbnNlKAESawoQUXVlcnlXcml0ZVN0YXR1cxIqLmdvb2dsZS5ieXRlc3RyZWFtLlF1ZXJ5V3JpdGVTdGF0dXNSZXF1ZXN0GisuZ29vZ2xlLmJ5dGVzdHJlYW0uUXVlcnlXcml0ZVN0YXR1c1Jlc3BvbnNlQsoBChVjb20uZ29vZ2xlLmJ5dGVzdHJlYW1CD0J5dGVzdHJlYW1Qcm90b1ABWjtnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL2J5dGVzdHJlYW07Ynl0ZXN0cmVhbaICA0dCWKoCEUdvb2dsZS5CeXRlc3RyZWFtygIRR29vZ2xlXEJ5dGVzdHJlYW3iAh1Hb29nbGVcQnl0ZXN0cmVhbVxHUEJNZXRhZGF0YeoCEkdvb2dsZTo6Qnl0ZXN0cmVhbWIGcHJvdG8z",
+  );
 
 /**
  * Request object for ByteStream.Read.
@@ -68,7 +79,8 @@ export type ReadRequest = Message<"google.bytestream.ReadRequest"> & {
  * Describes the message google.bytestream.ReadRequest.
  * Use `create(ReadRequestSchema)` to create a new message.
  */
-export const ReadRequestSchema: GenMessage<ReadRequest> = /*@__PURE__*/
+export const ReadRequestSchema: GenMessage<ReadRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_bytestream_bytestream, 0);
 
 /**
@@ -92,7 +104,8 @@ export type ReadResponse = Message<"google.bytestream.ReadResponse"> & {
  * Describes the message google.bytestream.ReadResponse.
  * Use `create(ReadResponseSchema)` to create a new message.
  */
-export const ReadResponseSchema: GenMessage<ReadResponse> = /*@__PURE__*/
+export const ReadResponseSchema: GenMessage<ReadResponse> =
+  /*@__PURE__*/
   messageDesc(file_google_bytestream_bytestream, 1);
 
 /**
@@ -152,7 +165,8 @@ export type WriteRequest = Message<"google.bytestream.WriteRequest"> & {
  * Describes the message google.bytestream.WriteRequest.
  * Use `create(WriteRequestSchema)` to create a new message.
  */
-export const WriteRequestSchema: GenMessage<WriteRequest> = /*@__PURE__*/
+export const WriteRequestSchema: GenMessage<WriteRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_bytestream_bytestream, 2);
 
 /**
@@ -173,7 +187,8 @@ export type WriteResponse = Message<"google.bytestream.WriteResponse"> & {
  * Describes the message google.bytestream.WriteResponse.
  * Use `create(WriteResponseSchema)` to create a new message.
  */
-export const WriteResponseSchema: GenMessage<WriteResponse> = /*@__PURE__*/
+export const WriteResponseSchema: GenMessage<WriteResponse> =
+  /*@__PURE__*/
   messageDesc(file_google_bytestream_bytestream, 3);
 
 /**
@@ -181,20 +196,22 @@ export const WriteResponseSchema: GenMessage<WriteResponse> = /*@__PURE__*/
  *
  * @generated from message google.bytestream.QueryWriteStatusRequest
  */
-export type QueryWriteStatusRequest = Message<"google.bytestream.QueryWriteStatusRequest"> & {
-  /**
-   * The name of the resource whose write status is being requested.
-   *
-   * @generated from field: string resource_name = 1;
-   */
-  resourceName: string;
-};
+export type QueryWriteStatusRequest =
+  Message<"google.bytestream.QueryWriteStatusRequest"> & {
+    /**
+     * The name of the resource whose write status is being requested.
+     *
+     * @generated from field: string resource_name = 1;
+     */
+    resourceName: string;
+  };
 
 /**
  * Describes the message google.bytestream.QueryWriteStatusRequest.
  * Use `create(QueryWriteStatusRequestSchema)` to create a new message.
  */
-export const QueryWriteStatusRequestSchema: GenMessage<QueryWriteStatusRequest> = /*@__PURE__*/
+export const QueryWriteStatusRequestSchema: GenMessage<QueryWriteStatusRequest> =
+  /*@__PURE__*/
   messageDesc(file_google_bytestream_bytestream, 4);
 
 /**
@@ -202,28 +219,30 @@ export const QueryWriteStatusRequestSchema: GenMessage<QueryWriteStatusRequest> 
  *
  * @generated from message google.bytestream.QueryWriteStatusResponse
  */
-export type QueryWriteStatusResponse = Message<"google.bytestream.QueryWriteStatusResponse"> & {
-  /**
-   * The number of bytes that have been processed for the given resource.
-   *
-   * @generated from field: int64 committed_size = 1;
-   */
-  committedSize: bigint;
+export type QueryWriteStatusResponse =
+  Message<"google.bytestream.QueryWriteStatusResponse"> & {
+    /**
+     * The number of bytes that have been processed for the given resource.
+     *
+     * @generated from field: int64 committed_size = 1;
+     */
+    committedSize: bigint;
 
-  /**
-   * `complete` is `true` only if the client has sent a `WriteRequest` with
-   * `finish_write` set to true, and the server has processed that request.
-   *
-   * @generated from field: bool complete = 2;
-   */
-  complete: boolean;
-};
+    /**
+     * `complete` is `true` only if the client has sent a `WriteRequest` with
+     * `finish_write` set to true, and the server has processed that request.
+     *
+     * @generated from field: bool complete = 2;
+     */
+    complete: boolean;
+  };
 
 /**
  * Describes the message google.bytestream.QueryWriteStatusResponse.
  * Use `create(QueryWriteStatusResponseSchema)` to create a new message.
  */
-export const QueryWriteStatusResponseSchema: GenMessage<QueryWriteStatusResponse> = /*@__PURE__*/
+export const QueryWriteStatusResponseSchema: GenMessage<QueryWriteStatusResponse> =
+  /*@__PURE__*/
   messageDesc(file_google_bytestream_bytestream, 5);
 
 /**
@@ -265,7 +284,7 @@ export const ByteStream: GenService<{
     methodKind: "server_streaming";
     input: typeof ReadRequestSchema;
     output: typeof ReadResponseSchema;
-  },
+  };
   /**
    * `Write()` is used to send the contents of a resource as a sequence of
    * bytes. The bytes are sent in a sequence of request protos of a client-side
@@ -296,7 +315,7 @@ export const ByteStream: GenService<{
     methodKind: "client_streaming";
     input: typeof WriteRequestSchema;
     output: typeof WriteResponseSchema;
-  },
+  };
   /**
    * `QueryWriteStatus()` is used to find the `committed_size` for a resource
    * that is being written, which can then be used as the `write_offset` for
@@ -319,7 +338,5 @@ export const ByteStream: GenService<{
     methodKind: "unary";
     input: typeof QueryWriteStatusRequestSchema;
     output: typeof QueryWriteStatusResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_google_bytestream_bytestream, 0);
-
+  };
+}> = /*@__PURE__*/ serviceDesc(file_google_bytestream_bytestream, 0);

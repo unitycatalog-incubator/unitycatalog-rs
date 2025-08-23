@@ -16,15 +16,18 @@
 // @generated from file google/type/expr.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/expr.proto.
  */
-export const file_google_type_expr: GenFile = /*@__PURE__*/
-  fileDesc("ChZnb29nbGUvdHlwZS9leHByLnByb3RvEgtnb29nbGUudHlwZSJQCgRFeHByEhIKCmV4cHJlc3Npb24YASABKAkSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEAoIbG9jYXRpb24YBCABKAlCnwEKD2NvbS5nb29nbGUudHlwZUIJRXhwclByb3RvUAFaNGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9leHByO2V4cHKiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw");
+export const file_google_type_expr: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "ChZnb29nbGUvdHlwZS9leHByLnByb3RvEgtnb29nbGUudHlwZSJQCgRFeHByEhIKCmV4cHJlc3Npb24YASABKAkSDQoFdGl0bGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSEAoIbG9jYXRpb24YBCABKAlCnwEKD2NvbS5nb29nbGUudHlwZUIJRXhwclByb3RvUAFaNGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9leHByO2V4cHKiAgNHVFiqAgtHb29nbGUuVHlwZcoCC0dvb2dsZVxUeXBl4gIXR29vZ2xlXFR5cGVcR1BCTWV0YWRhdGHqAgxHb29nbGU6OlR5cGViBnByb3RvMw",
+  );
 
 /**
  * Represents a textual expression in the Common Expression Language (CEL)
@@ -100,6 +103,6 @@ export type Expr = Message<"google.type.Expr"> & {
  * Describes the message google.type.Expr.
  * Use `create(ExprSchema)` to create a new message.
  */
-export const ExprSchema: GenMessage<Expr> = /*@__PURE__*/
+export const ExprSchema: GenMessage<Expr> =
+  /*@__PURE__*/
   messageDesc(file_google_type_expr, 0);
-

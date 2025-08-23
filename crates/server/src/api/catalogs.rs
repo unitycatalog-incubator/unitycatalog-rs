@@ -1,10 +1,10 @@
 use itertools::Itertools;
 
-use unitycatalog_common::Result;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::{ObjectLabel, ResourceIdent, ResourceName, ResourceRef};
 
 use super::{RequestContext, SecuredAction};
+use crate::Result;
 pub use crate::codegen::catalogs::CatalogHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
@@ -47,7 +47,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         self.check_required(&request, context.as_ref()).await?;
-        self.delete(&request.resource()).await
+        Ok(self.delete(&request.resource()).await?)
     }
 
     async fn get_catalog(
@@ -56,7 +56,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         context: RequestContext,
     ) -> Result<CatalogInfo> {
         self.check_required(&request, context.recipient()).await?;
-        self.get(&request.resource()).await?.0.try_into()
+        Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
     async fn list_catalogs(
@@ -96,7 +96,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         // TODO:
         // - add update_* relations
         // - update owner if necessary
-        self.update(&ident, resource.into()).await?.0.try_into()
+        Ok(self.update(&ident, resource.into()).await?.0.try_into()?)
     }
 }
 

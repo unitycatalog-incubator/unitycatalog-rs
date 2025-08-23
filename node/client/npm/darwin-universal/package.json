@@ -1,15 +1,15 @@
 {
-  "name": "@unitycatalog/client-darwin-universal",
-  "version": "0.0.0",
-  "os": [
-    "darwin"
-  ],
-  "main": "client.darwin-universal.node",
-  "files": [
-    "client.darwin-universal.node"
-  ],
-  "license": "MIT",
-  "engines": {
-    "node": ">= 10"
-  }
+	"name": "@unitycatalog/client-darwin-universal",
+	"version": "0.0.0",
+	"os": [
+		"darwin"
+	],
+	"main": "client.darwin-universal.node",
+	"files": [
+		"client.darwin-universal.node"
+	],
+	"license": "MIT",
+	"engines": {
+		"node": ">= 10"
+	}
 }

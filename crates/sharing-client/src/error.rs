@@ -35,6 +35,9 @@ pub enum Error {
     #[error("Reqwuest error: {0}")]
     RequestError(#[from] reqwest::Error),
 
+    #[error("Invalid Argument: {0}")]
+    InvalidArgument(String),
+
     #[error("Generic error: {0}")]
     Generic(String),
 }

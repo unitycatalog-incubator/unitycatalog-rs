@@ -22,8 +22,11 @@ import { enumDesc, fileDesc } from "@bufbuild/protobuf/codegenv2";
 /**
  * Describes the file google/type/month.proto.
  */
-export const file_google_type_month: GenFile = /*@__PURE__*/
-  fileDesc("Chdnb29nbGUvdHlwZS9tb250aC5wcm90bxILZ29vZ2xlLnR5cGUqsAEKBU1vbnRoEhUKEU1PTlRIX1VOU1BFQ0lGSUVEEAASCwoHSkFOVUFSWRABEgwKCEZFQlJVQVJZEAISCQoFTUFSQ0gQAxIJCgVBUFJJTBAEEgcKA01BWRAFEggKBEpVTkUQBhIICgRKVUxZEAcSCgoGQVVHVVNUEAgSDQoJU0VQVEVNQkVSEAkSCwoHT0NUT0JFUhAKEgwKCE5PVkVNQkVSEAsSDAoIREVDRU1CRVIQDEKiAQoPY29tLmdvb2dsZS50eXBlQgpNb250aFByb3RvUAFaNmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9tb250aDttb250aKICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z");
+export const file_google_type_month: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chdnb29nbGUvdHlwZS9tb250aC5wcm90bxILZ29vZ2xlLnR5cGUqsAEKBU1vbnRoEhUKEU1PTlRIX1VOU1BFQ0lGSUVEEAASCwoHSkFOVUFSWRABEgwKCEZFQlJVQVJZEAISCQoFTUFSQ0gQAxIJCgVBUFJJTBAEEgcKA01BWRAFEggKBEpVTkUQBhIICgRKVUxZEAcSCgoGQVVHVVNUEAgSDQoJU0VQVEVNQkVSEAkSCwoHT0NUT0JFUhAKEgwKCE5PVkVNQkVSEAsSDAoIREVDRU1CRVIQDEKiAQoPY29tLmdvb2dsZS50eXBlQgpNb250aFByb3RvUAFaNmdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvdHlwZS9tb250aDttb250aKICA0dUWKoCC0dvb2dsZS5UeXBlygILR29vZ2xlXFR5cGXiAhdHb29nbGVcVHlwZVxHUEJNZXRhZGF0YeoCDEdvb2dsZTo6VHlwZWIGcHJvdG8z",
+  );
 
 /**
  * Represents a month in the Gregorian calendar.
@@ -126,6 +129,6 @@ export enum Month {
 /**
  * Describes the enum google.type.Month.
  */
-export const MonthSchema: GenEnum<Month> = /*@__PURE__*/
+export const MonthSchema: GenEnum<Month> =
+  /*@__PURE__*/
   enumDesc(file_google_type_month, 0);
-

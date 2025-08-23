@@ -16,15 +16,18 @@
 // @generated from file google/type/date.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/date.proto.
  */
-export const file_google_type_date: GenFile = /*@__PURE__*/
-  fileDesc("ChZnb29nbGUvdHlwZS9kYXRlLnByb3RvEgtnb29nbGUudHlwZSIwCgREYXRlEgwKBHllYXIYASABKAUSDQoFbW9udGgYAiABKAUSCwoDZGF5GAMgASgFQqIBCg9jb20uZ29vZ2xlLnR5cGVCCURhdGVQcm90b1ABWjRnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL3R5cGUvZGF0ZTtkYXRl+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM");
+export const file_google_type_date: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "ChZnb29nbGUvdHlwZS9kYXRlLnByb3RvEgtnb29nbGUudHlwZSIwCgREYXRlEgwKBHllYXIYASABKAUSDQoFbW9udGgYAiABKAUSCwoDZGF5GAMgASgFQqIBCg9jb20uZ29vZ2xlLnR5cGVCCURhdGVQcm90b1ABWjRnb29nbGUuZ29sYW5nLm9yZy9nZW5wcm90by9nb29nbGVhcGlzL3R5cGUvZGF0ZTtkYXRl+AEBogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+  );
 
 /**
  * Represents a whole or partial calendar date, such as a birthday. The time of
@@ -74,6 +77,6 @@ export type Date = Message<"google.type.Date"> & {
  * Describes the message google.type.Date.
  * Use `create(DateSchema)` to create a new message.
  */
-export const DateSchema: GenMessage<Date> = /*@__PURE__*/
+export const DateSchema: GenMessage<Date> =
+  /*@__PURE__*/
   messageDesc(file_google_type_date, 0);
-

@@ -45,9 +45,6 @@ enum Commands {
     )]
     Client(ClientCommand),
 
-    #[clap(about = "run tests against a uc server")]
-    Test,
-
     #[clap(about = "run database migrations")]
     Migrate,
 
@@ -70,7 +67,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             handle_client(client_args, args.global_opts).await?;
         }
         Commands::Migrate => todo!(),
-        Commands::Test => todo!(),
         Commands::Demo => demo::run_demo().await?,
     };
     Ok(())

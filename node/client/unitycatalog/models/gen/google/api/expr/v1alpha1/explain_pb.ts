@@ -16,17 +16,21 @@
 // @generated from file google/api/expr/v1alpha1/explain.proto (package google.api.expr.v1alpha1, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Value } from "./value_pb";
 import { file_google_api_expr_v1alpha1_value } from "./value_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/expr/v1alpha1/explain.proto.
  */
-export const file_google_api_expr_v1alpha1_explain: GenFile = /*@__PURE__*/
-  fileDesc("CiZnb29nbGUvYXBpL2V4cHIvdjFhbHBoYTEvZXhwbGFpbi5wcm90bxIYZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExIqsBCgdFeHBsYWluEi8KBnZhbHVlcxgBIAMoCzIfLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5WYWx1ZRI+CgpleHByX3N0ZXBzGAIgAygLMiouZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cGxhaW4uRXhwclN0ZXAaKwoIRXhwclN0ZXASCgoCaWQYASABKAMSEwoLdmFsdWVfaW5kZXgYAiABKAU6AhgBQvABChxjb20uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExQgxFeHBsYWluUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9hcGkvZXhwci92MWFscGhhMTtleHBy+AEBogIDR0FFqgIYR29vZ2xlLkFwaS5FeHByLlYxYWxwaGExygIYR29vZ2xlXEFwaVxFeHByXFYxYWxwaGEx4gIkR29vZ2xlXEFwaVxFeHByXFYxYWxwaGExXEdQQk1ldGFkYXRh6gIbR29vZ2xlOjpBcGk6OkV4cHI6OlYxYWxwaGExYgZwcm90bzM", [file_google_api_expr_v1alpha1_value]);
+export const file_google_api_expr_v1alpha1_explain: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiZnb29nbGUvYXBpL2V4cHIvdjFhbHBoYTEvZXhwbGFpbi5wcm90bxIYZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExIqsBCgdFeHBsYWluEi8KBnZhbHVlcxgBIAMoCzIfLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5WYWx1ZRI+CgpleHByX3N0ZXBzGAIgAygLMiouZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cGxhaW4uRXhwclN0ZXAaKwoIRXhwclN0ZXASCgoCaWQYASABKAMSEwoLdmFsdWVfaW5kZXgYAiABKAU6AhgBQvABChxjb20uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExQgxFeHBsYWluUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy9hcGkvZXhwci92MWFscGhhMTtleHBy+AEBogIDR0FFqgIYR29vZ2xlLkFwaS5FeHByLlYxYWxwaGExygIYR29vZ2xlXEFwaVxFeHByXFYxYWxwaGEx4gIkR29vZ2xlXEFwaVxFeHByXFYxYWxwaGExXEdQQk1ldGFkYXRh6gIbR29vZ2xlOjpBcGk6OkV4cHI6OlYxYWxwaGExYgZwcm90bzM",
+    [file_google_api_expr_v1alpha1_value],
+  );
 
 /**
  * Values of intermediate expressions produced when evaluating expression.
@@ -63,7 +67,8 @@ export type Explain = Message<"google.api.expr.v1alpha1.Explain"> & {
  * Use `create(ExplainSchema)` to create a new message.
  * @deprecated
  */
-export const ExplainSchema: GenMessage<Explain> = /*@__PURE__*/
+export const ExplainSchema: GenMessage<Explain> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_explain, 0);
 
 /**
@@ -72,27 +77,28 @@ export const ExplainSchema: GenMessage<Explain> = /*@__PURE__*/
  * @generated from message google.api.expr.v1alpha1.Explain.ExprStep
  * @deprecated
  */
-export type Explain_ExprStep = Message<"google.api.expr.v1alpha1.Explain.ExprStep"> & {
-  /**
-   * ID of corresponding Expr node.
-   *
-   * @generated from field: int64 id = 1;
-   */
-  id: bigint;
+export type Explain_ExprStep =
+  Message<"google.api.expr.v1alpha1.Explain.ExprStep"> & {
+    /**
+     * ID of corresponding Expr node.
+     *
+     * @generated from field: int64 id = 1;
+     */
+    id: bigint;
 
-  /**
-   * Index of the value in the values list.
-   *
-   * @generated from field: int32 value_index = 2;
-   */
-  valueIndex: number;
-};
+    /**
+     * Index of the value in the values list.
+     *
+     * @generated from field: int32 value_index = 2;
+     */
+    valueIndex: number;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Explain.ExprStep.
  * Use `create(Explain_ExprStepSchema)` to create a new message.
  * @deprecated
  */
-export const Explain_ExprStepSchema: GenMessage<Explain_ExprStep> = /*@__PURE__*/
+export const Explain_ExprStepSchema: GenMessage<Explain_ExprStep> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_explain, 0, 0);
-

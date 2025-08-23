@@ -16,19 +16,34 @@
 // @generated from file google/api/expr/v1alpha1/checked.proto (package google.api.expr.v1alpha1, syntax proto3)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenEnum,
+  GenFile,
+  GenMessage,
+} from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Empty, NullValue } from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_empty,
+  file_google_protobuf_struct,
+} from "@bufbuild/protobuf/wkt";
 import type { Constant, Expr, SourceInfo } from "./syntax_pb";
 import { file_google_api_expr_v1alpha1_syntax } from "./syntax_pb";
-import type { Empty, NullValue } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/expr/v1alpha1/checked.proto.
  */
-export const file_google_api_expr_v1alpha1_checked: GenFile = /*@__PURE__*/
-  fileDesc("CiZnb29nbGUvYXBpL2V4cHIvdjFhbHBoYTEvY2hlY2tlZC5wcm90bxIYZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExIswDCgtDaGVja2VkRXhwchJOCg1yZWZlcmVuY2VfbWFwGAIgAygLMjcuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkNoZWNrZWRFeHByLlJlZmVyZW5jZU1hcEVudHJ5EkQKCHR5cGVfbWFwGAMgAygLMjIuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkNoZWNrZWRFeHByLlR5cGVNYXBFbnRyeRI5Cgtzb3VyY2VfaW5mbxgFIAEoCzIkLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvEhQKDGV4cHJfdmVyc2lvbhgGIAEoCRIsCgRleHByGAQgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIaWAoRUmVmZXJlbmNlTWFwRW50cnkSCwoDa2V5GAEgASgDEjIKBXZhbHVlGAIgASgLMiMuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlJlZmVyZW5jZToCOAEaTgoMVHlwZU1hcEVudHJ5EgsKA2tleRgBIAEoAxItCgV2YWx1ZRgCIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlOgI4ASKCCgoEVHlwZRIlCgNkeW4YASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABIqCgRudWxsGAIgASgOMhouZ29vZ2xlLnByb3RvYnVmLk51bGxWYWx1ZUgAEkEKCXByaW1pdGl2ZRgDIAEoDjIsLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlLlByaW1pdGl2ZVR5cGVIABI/Cgd3cmFwcGVyGAQgASgOMiwuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUuUHJpbWl0aXZlVHlwZUgAEkIKCndlbGxfa25vd24YBSABKA4yLC5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZS5XZWxsS25vd25UeXBlSAASPAoJbGlzdF90eXBlGAYgASgLMicuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUuTGlzdFR5cGVIABI6CghtYXBfdHlwZRgHIAEoCzImLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlLk1hcFR5cGVIABI/CghmdW5jdGlvbhgIIAEoCzIrLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlLkZ1bmN0aW9uVHlwZUgAEhYKDG1lc3NhZ2VfdHlwZRgJIAEoCUgAEhQKCnR5cGVfcGFyYW0YCiABKAlIABIuCgR0eXBlGAsgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGVIABInCgVlcnJvchgMIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEkQKDWFic3RyYWN0X3R5cGUYDiABKAsyKy5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZS5BYnN0cmFjdFR5cGVIABo9CghMaXN0VHlwZRIxCgllbGVtX3R5cGUYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZRpvCgdNYXBUeXBlEjAKCGtleV90eXBlGAEgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUSMgoKdmFsdWVfdHlwZRgCIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlGnYKDEZ1bmN0aW9uVHlwZRIzCgtyZXN1bHRfdHlwZRgBIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlEjEKCWFyZ190eXBlcxgCIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlGlUKDEFic3RyYWN0VHlwZRIMCgRuYW1lGAEgASgJEjcKD3BhcmFtZXRlcl90eXBlcxgCIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlInMKDVByaW1pdGl2ZVR5cGUSHgoaUFJJTUlUSVZFX1RZUEVfVU5TUEVDSUZJRUQQABIICgRCT09MEAESCQoFSU5UNjQQAhIKCgZVSU5UNjQQAxIKCgZET1VCTEUQBBIKCgZTVFJJTkcQBRIJCgVCWVRFUxAGIlYKDVdlbGxLbm93blR5cGUSHwobV0VMTF9LTk9XTl9UWVBFX1VOU1BFQ0lGSUVEEAASBwoDQU5ZEAESDQoJVElNRVNUQU1QEAISDAoIRFVSQVRJT04QA0ILCgl0eXBlX2tpbmQiuQQKBERlY2wSDAoEbmFtZRgBIAEoCRI5CgVpZGVudBgCIAEoCzIoLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5EZWNsLklkZW50RGVjbEgAEj8KCGZ1bmN0aW9uGAMgASgLMisuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkRlY2wuRnVuY3Rpb25EZWNsSAAaeQoJSWRlbnREZWNsEiwKBHR5cGUYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZRIxCgV2YWx1ZRgCIAEoCzIiLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Db25zdGFudBILCgNkb2MYAyABKAkangIKDEZ1bmN0aW9uRGVjbBJHCglvdmVybG9hZHMYASADKAsyNC5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRGVjbC5GdW5jdGlvbkRlY2wuT3ZlcmxvYWQaxAEKCE92ZXJsb2FkEhMKC292ZXJsb2FkX2lkGAEgASgJEi4KBnBhcmFtcxgCIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlEhMKC3R5cGVfcGFyYW1zGAMgAygJEjMKC3Jlc3VsdF90eXBlGAQgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUSHAoUaXNfaW5zdGFuY2VfZnVuY3Rpb24YBSABKAgSCwoDZG9jGAYgASgJQgsKCWRlY2xfa2luZCJhCglSZWZlcmVuY2USDAoEbmFtZRgBIAEoCRITCgtvdmVybG9hZF9pZBgDIAMoCRIxCgV2YWx1ZRgEIAEoCzIiLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Db25zdGFudELwAQocY29tLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMUIMQ2hlY2tlZFByb3RvUAFaPGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2V4cHIvdjFhbHBoYTE7ZXhwcvgBAaICA0dBRaoCGEdvb2dsZS5BcGkuRXhwci5WMWFscGhhMcoCGEdvb2dsZVxBcGlcRXhwclxWMWFscGhhMeICJEdvb2dsZVxBcGlcRXhwclxWMWFscGhhMVxHUEJNZXRhZGF0YeoCG0dvb2dsZTo6QXBpOjpFeHByOjpWMWFscGhhMWIGcHJvdG8z", [file_google_api_expr_v1alpha1_syntax, file_google_protobuf_empty, file_google_protobuf_struct]);
+export const file_google_api_expr_v1alpha1_checked: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiZnb29nbGUvYXBpL2V4cHIvdjFhbHBoYTEvY2hlY2tlZC5wcm90bxIYZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExIswDCgtDaGVja2VkRXhwchJOCg1yZWZlcmVuY2VfbWFwGAIgAygLMjcuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkNoZWNrZWRFeHByLlJlZmVyZW5jZU1hcEVudHJ5EkQKCHR5cGVfbWFwGAMgAygLMjIuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkNoZWNrZWRFeHByLlR5cGVNYXBFbnRyeRI5Cgtzb3VyY2VfaW5mbxgFIAEoCzIkLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Tb3VyY2VJbmZvEhQKDGV4cHJfdmVyc2lvbhgGIAEoCRIsCgRleHByGAQgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkV4cHIaWAoRUmVmZXJlbmNlTWFwRW50cnkSCwoDa2V5GAEgASgDEjIKBXZhbHVlGAIgASgLMiMuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlJlZmVyZW5jZToCOAEaTgoMVHlwZU1hcEVudHJ5EgsKA2tleRgBIAEoAxItCgV2YWx1ZRgCIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlOgI4ASKCCgoEVHlwZRIlCgNkeW4YASABKAsyFi5nb29nbGUucHJvdG9idWYuRW1wdHlIABIqCgRudWxsGAIgASgOMhouZ29vZ2xlLnByb3RvYnVmLk51bGxWYWx1ZUgAEkEKCXByaW1pdGl2ZRgDIAEoDjIsLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlLlByaW1pdGl2ZVR5cGVIABI/Cgd3cmFwcGVyGAQgASgOMiwuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUuUHJpbWl0aXZlVHlwZUgAEkIKCndlbGxfa25vd24YBSABKA4yLC5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZS5XZWxsS25vd25UeXBlSAASPAoJbGlzdF90eXBlGAYgASgLMicuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUuTGlzdFR5cGVIABI6CghtYXBfdHlwZRgHIAEoCzImLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlLk1hcFR5cGVIABI/CghmdW5jdGlvbhgIIAEoCzIrLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlLkZ1bmN0aW9uVHlwZUgAEhYKDG1lc3NhZ2VfdHlwZRgJIAEoCUgAEhQKCnR5cGVfcGFyYW0YCiABKAlIABIuCgR0eXBlGAsgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGVIABInCgVlcnJvchgMIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEkQKDWFic3RyYWN0X3R5cGUYDiABKAsyKy5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZS5BYnN0cmFjdFR5cGVIABo9CghMaXN0VHlwZRIxCgllbGVtX3R5cGUYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZRpvCgdNYXBUeXBlEjAKCGtleV90eXBlGAEgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUSMgoKdmFsdWVfdHlwZRgCIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlGnYKDEZ1bmN0aW9uVHlwZRIzCgtyZXN1bHRfdHlwZRgBIAEoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlEjEKCWFyZ190eXBlcxgCIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlGlUKDEFic3RyYWN0VHlwZRIMCgRuYW1lGAEgASgJEjcKD3BhcmFtZXRlcl90eXBlcxgCIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlInMKDVByaW1pdGl2ZVR5cGUSHgoaUFJJTUlUSVZFX1RZUEVfVU5TUEVDSUZJRUQQABIICgRCT09MEAESCQoFSU5UNjQQAhIKCgZVSU5UNjQQAxIKCgZET1VCTEUQBBIKCgZTVFJJTkcQBRIJCgVCWVRFUxAGIlYKDVdlbGxLbm93blR5cGUSHwobV0VMTF9LTk9XTl9UWVBFX1VOU1BFQ0lGSUVEEAASBwoDQU5ZEAESDQoJVElNRVNUQU1QEAISDAoIRFVSQVRJT04QA0ILCgl0eXBlX2tpbmQiuQQKBERlY2wSDAoEbmFtZRgBIAEoCRI5CgVpZGVudBgCIAEoCzIoLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5EZWNsLklkZW50RGVjbEgAEj8KCGZ1bmN0aW9uGAMgASgLMisuZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLkRlY2wuRnVuY3Rpb25EZWNsSAAaeQoJSWRlbnREZWNsEiwKBHR5cGUYASABKAsyHi5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuVHlwZRIxCgV2YWx1ZRgCIAEoCzIiLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Db25zdGFudBILCgNkb2MYAyABKAkangIKDEZ1bmN0aW9uRGVjbBJHCglvdmVybG9hZHMYASADKAsyNC5nb29nbGUuYXBpLmV4cHIudjFhbHBoYTEuRGVjbC5GdW5jdGlvbkRlY2wuT3ZlcmxvYWQaxAEKCE92ZXJsb2FkEhMKC292ZXJsb2FkX2lkGAEgASgJEi4KBnBhcmFtcxgCIAMoCzIeLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5UeXBlEhMKC3R5cGVfcGFyYW1zGAMgAygJEjMKC3Jlc3VsdF90eXBlGAQgASgLMh4uZ29vZ2xlLmFwaS5leHByLnYxYWxwaGExLlR5cGUSHAoUaXNfaW5zdGFuY2VfZnVuY3Rpb24YBSABKAgSCwoDZG9jGAYgASgJQgsKCWRlY2xfa2luZCJhCglSZWZlcmVuY2USDAoEbmFtZRgBIAEoCRITCgtvdmVybG9hZF9pZBgDIAMoCRIxCgV2YWx1ZRgEIAEoCzIiLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMS5Db25zdGFudELwAQocY29tLmdvb2dsZS5hcGkuZXhwci52MWFscGhhMUIMQ2hlY2tlZFByb3RvUAFaPGdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2V4cHIvdjFhbHBoYTE7ZXhwcvgBAaICA0dBRaoCGEdvb2dsZS5BcGkuRXhwci5WMWFscGhhMcoCGEdvb2dsZVxBcGlcRXhwclxWMWFscGhhMeICJEdvb2dsZVxBcGlcRXhwclxWMWFscGhhMVxHUEJNZXRhZGF0YeoCG0dvb2dsZTo6QXBpOjpFeHByOjpWMWFscGhhMWIGcHJvdG8z",
+    [
+      file_google_api_expr_v1alpha1_syntax,
+      file_google_protobuf_empty,
+      file_google_protobuf_struct,
+    ],
+  );
 
 /**
  * A CEL expression which has been successfully type checked.
@@ -102,7 +117,8 @@ export type CheckedExpr = Message<"google.api.expr.v1alpha1.CheckedExpr"> & {
  * Describes the message google.api.expr.v1alpha1.CheckedExpr.
  * Use `create(CheckedExprSchema)` to create a new message.
  */
-export const CheckedExprSchema: GenMessage<CheckedExpr> = /*@__PURE__*/
+export const CheckedExprSchema: GenMessage<CheckedExpr> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 0);
 
 /**
@@ -116,132 +132,147 @@ export type Type = Message<"google.api.expr.v1alpha1.Type"> & {
    *
    * @generated from oneof google.api.expr.v1alpha1.Type.type_kind
    */
-  typeKind: {
-    /**
-     * Dynamic type.
-     *
-     * @generated from field: google.protobuf.Empty dyn = 1;
-     */
-    value: Empty;
-    case: "dyn";
-  } | {
-    /**
-     * Null value.
-     *
-     * @generated from field: google.protobuf.NullValue null = 2;
-     */
-    value: NullValue;
-    case: "null";
-  } | {
-    /**
-     * Primitive types: `true`, `1u`, `-2.0`, `'string'`, `b'bytes'`.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.PrimitiveType primitive = 3;
-     */
-    value: Type_PrimitiveType;
-    case: "primitive";
-  } | {
-    /**
-     * Wrapper of a primitive type, e.g. `google.protobuf.Int64Value`.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.PrimitiveType wrapper = 4;
-     */
-    value: Type_PrimitiveType;
-    case: "wrapper";
-  } | {
-    /**
-     * Well-known protobuf type such as `google.protobuf.Timestamp`.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.WellKnownType well_known = 5;
-     */
-    value: Type_WellKnownType;
-    case: "wellKnown";
-  } | {
-    /**
-     * Parameterized list with elements of `list_type`, e.g. `list<timestamp>`.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.ListType list_type = 6;
-     */
-    value: Type_ListType;
-    case: "listType";
-  } | {
-    /**
-     * Parameterized map with typed keys and values.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.MapType map_type = 7;
-     */
-    value: Type_MapType;
-    case: "mapType";
-  } | {
-    /**
-     * Function type.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.FunctionType function = 8;
-     */
-    value: Type_FunctionType;
-    case: "function";
-  } | {
-    /**
-     * Protocol buffer message type.
-     *
-     * The `message_type` string specifies the qualified message type name. For
-     * example, `google.plus.Profile`.
-     *
-     * @generated from field: string message_type = 9;
-     */
-    value: string;
-    case: "messageType";
-  } | {
-    /**
-     * Type param type.
-     *
-     * The `type_param` string specifies the type parameter name, e.g. `list<E>`
-     * would be a `list_type` whose element type was a `type_param` type
-     * named `E`.
-     *
-     * @generated from field: string type_param = 10;
-     */
-    value: string;
-    case: "typeParam";
-  } | {
-    /**
-     * Type type.
-     *
-     * The `type` value specifies the target type. e.g. int is type with a
-     * target type of `Primitive.INT`.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type type = 11;
-     */
-    value: Type;
-    case: "type";
-  } | {
-    /**
-     * Error type.
-     *
-     * During type-checking if an expression is an error, its type is propagated
-     * as the `ERROR` type. This permits the type-checker to discover other
-     * errors present in the expression.
-     *
-     * @generated from field: google.protobuf.Empty error = 12;
-     */
-    value: Empty;
-    case: "error";
-  } | {
-    /**
-     * Abstract, application defined type.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Type.AbstractType abstract_type = 14;
-     */
-    value: Type_AbstractType;
-    case: "abstractType";
-  } | { case: undefined; value?: undefined };
+  typeKind:
+    | {
+        /**
+         * Dynamic type.
+         *
+         * @generated from field: google.protobuf.Empty dyn = 1;
+         */
+        value: Empty;
+        case: "dyn";
+      }
+    | {
+        /**
+         * Null value.
+         *
+         * @generated from field: google.protobuf.NullValue null = 2;
+         */
+        value: NullValue;
+        case: "null";
+      }
+    | {
+        /**
+         * Primitive types: `true`, `1u`, `-2.0`, `'string'`, `b'bytes'`.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.PrimitiveType primitive = 3;
+         */
+        value: Type_PrimitiveType;
+        case: "primitive";
+      }
+    | {
+        /**
+         * Wrapper of a primitive type, e.g. `google.protobuf.Int64Value`.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.PrimitiveType wrapper = 4;
+         */
+        value: Type_PrimitiveType;
+        case: "wrapper";
+      }
+    | {
+        /**
+         * Well-known protobuf type such as `google.protobuf.Timestamp`.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.WellKnownType well_known = 5;
+         */
+        value: Type_WellKnownType;
+        case: "wellKnown";
+      }
+    | {
+        /**
+         * Parameterized list with elements of `list_type`, e.g. `list<timestamp>`.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.ListType list_type = 6;
+         */
+        value: Type_ListType;
+        case: "listType";
+      }
+    | {
+        /**
+         * Parameterized map with typed keys and values.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.MapType map_type = 7;
+         */
+        value: Type_MapType;
+        case: "mapType";
+      }
+    | {
+        /**
+         * Function type.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.FunctionType function = 8;
+         */
+        value: Type_FunctionType;
+        case: "function";
+      }
+    | {
+        /**
+         * Protocol buffer message type.
+         *
+         * The `message_type` string specifies the qualified message type name. For
+         * example, `google.plus.Profile`.
+         *
+         * @generated from field: string message_type = 9;
+         */
+        value: string;
+        case: "messageType";
+      }
+    | {
+        /**
+         * Type param type.
+         *
+         * The `type_param` string specifies the type parameter name, e.g. `list<E>`
+         * would be a `list_type` whose element type was a `type_param` type
+         * named `E`.
+         *
+         * @generated from field: string type_param = 10;
+         */
+        value: string;
+        case: "typeParam";
+      }
+    | {
+        /**
+         * Type type.
+         *
+         * The `type` value specifies the target type. e.g. int is type with a
+         * target type of `Primitive.INT`.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type type = 11;
+         */
+        value: Type;
+        case: "type";
+      }
+    | {
+        /**
+         * Error type.
+         *
+         * During type-checking if an expression is an error, its type is propagated
+         * as the `ERROR` type. This permits the type-checker to discover other
+         * errors present in the expression.
+         *
+         * @generated from field: google.protobuf.Empty error = 12;
+         */
+        value: Empty;
+        case: "error";
+      }
+    | {
+        /**
+         * Abstract, application defined type.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Type.AbstractType abstract_type = 14;
+         */
+        value: Type_AbstractType;
+        case: "abstractType";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Type.
  * Use `create(TypeSchema)` to create a new message.
  */
-export const TypeSchema: GenMessage<Type> = /*@__PURE__*/
+export const TypeSchema: GenMessage<Type> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 1);
 
 /**
@@ -249,20 +280,22 @@ export const TypeSchema: GenMessage<Type> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.Type.ListType
  */
-export type Type_ListType = Message<"google.api.expr.v1alpha1.Type.ListType"> & {
-  /**
-   * The element type.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Type elem_type = 1;
-   */
-  elemType?: Type;
-};
+export type Type_ListType =
+  Message<"google.api.expr.v1alpha1.Type.ListType"> & {
+    /**
+     * The element type.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Type elem_type = 1;
+     */
+    elemType?: Type;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Type.ListType.
  * Use `create(Type_ListTypeSchema)` to create a new message.
  */
-export const Type_ListTypeSchema: GenMessage<Type_ListType> = /*@__PURE__*/
+export const Type_ListTypeSchema: GenMessage<Type_ListType> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 1, 0);
 
 /**
@@ -290,7 +323,8 @@ export type Type_MapType = Message<"google.api.expr.v1alpha1.Type.MapType"> & {
  * Describes the message google.api.expr.v1alpha1.Type.MapType.
  * Use `create(Type_MapTypeSchema)` to create a new message.
  */
-export const Type_MapTypeSchema: GenMessage<Type_MapType> = /*@__PURE__*/
+export const Type_MapTypeSchema: GenMessage<Type_MapType> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 1, 1);
 
 /**
@@ -298,27 +332,29 @@ export const Type_MapTypeSchema: GenMessage<Type_MapType> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.Type.FunctionType
  */
-export type Type_FunctionType = Message<"google.api.expr.v1alpha1.Type.FunctionType"> & {
-  /**
-   * Result type of the function.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Type result_type = 1;
-   */
-  resultType?: Type;
+export type Type_FunctionType =
+  Message<"google.api.expr.v1alpha1.Type.FunctionType"> & {
+    /**
+     * Result type of the function.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Type result_type = 1;
+     */
+    resultType?: Type;
 
-  /**
-   * Argument types of the function.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.Type arg_types = 2;
-   */
-  argTypes: Type[];
-};
+    /**
+     * Argument types of the function.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.Type arg_types = 2;
+     */
+    argTypes: Type[];
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Type.FunctionType.
  * Use `create(Type_FunctionTypeSchema)` to create a new message.
  */
-export const Type_FunctionTypeSchema: GenMessage<Type_FunctionType> = /*@__PURE__*/
+export const Type_FunctionTypeSchema: GenMessage<Type_FunctionType> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 1, 2);
 
 /**
@@ -326,27 +362,29 @@ export const Type_FunctionTypeSchema: GenMessage<Type_FunctionType> = /*@__PURE_
  *
  * @generated from message google.api.expr.v1alpha1.Type.AbstractType
  */
-export type Type_AbstractType = Message<"google.api.expr.v1alpha1.Type.AbstractType"> & {
-  /**
-   * The fully qualified name of this abstract type.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type Type_AbstractType =
+  Message<"google.api.expr.v1alpha1.Type.AbstractType"> & {
+    /**
+     * The fully qualified name of this abstract type.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * Parameter types for this abstract type.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.Type parameter_types = 2;
-   */
-  parameterTypes: Type[];
-};
+    /**
+     * Parameter types for this abstract type.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.Type parameter_types = 2;
+     */
+    parameterTypes: Type[];
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Type.AbstractType.
  * Use `create(Type_AbstractTypeSchema)` to create a new message.
  */
-export const Type_AbstractTypeSchema: GenMessage<Type_AbstractType> = /*@__PURE__*/
+export const Type_AbstractTypeSchema: GenMessage<Type_AbstractType> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 1, 3);
 
 /**
@@ -414,7 +452,8 @@ export enum Type_PrimitiveType {
 /**
  * Describes the enum google.api.expr.v1alpha1.Type.PrimitiveType.
  */
-export const Type_PrimitiveTypeSchema: GenEnum<Type_PrimitiveType> = /*@__PURE__*/
+export const Type_PrimitiveTypeSchema: GenEnum<Type_PrimitiveType> =
+  /*@__PURE__*/
   enumDesc(file_google_api_expr_v1alpha1_checked, 1, 0);
 
 /**
@@ -459,7 +498,8 @@ export enum Type_WellKnownType {
 /**
  * Describes the enum google.api.expr.v1alpha1.Type.WellKnownType.
  */
-export const Type_WellKnownTypeSchema: GenEnum<Type_WellKnownType> = /*@__PURE__*/
+export const Type_WellKnownTypeSchema: GenEnum<Type_WellKnownType> =
+  /*@__PURE__*/
   enumDesc(file_google_api_expr_v1alpha1_checked, 1, 1);
 
 /**
@@ -492,30 +532,34 @@ export type Decl = Message<"google.api.expr.v1alpha1.Decl"> & {
    *
    * @generated from oneof google.api.expr.v1alpha1.Decl.decl_kind
    */
-  declKind: {
-    /**
-     * Identifier declaration.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Decl.IdentDecl ident = 2;
-     */
-    value: Decl_IdentDecl;
-    case: "ident";
-  } | {
-    /**
-     * Function declaration.
-     *
-     * @generated from field: google.api.expr.v1alpha1.Decl.FunctionDecl function = 3;
-     */
-    value: Decl_FunctionDecl;
-    case: "function";
-  } | { case: undefined; value?: undefined };
+  declKind:
+    | {
+        /**
+         * Identifier declaration.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Decl.IdentDecl ident = 2;
+         */
+        value: Decl_IdentDecl;
+        case: "ident";
+      }
+    | {
+        /**
+         * Function declaration.
+         *
+         * @generated from field: google.api.expr.v1alpha1.Decl.FunctionDecl function = 3;
+         */
+        value: Decl_FunctionDecl;
+        case: "function";
+      }
+    | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Decl.
  * Use `create(DeclSchema)` to create a new message.
  */
-export const DeclSchema: GenMessage<Decl> = /*@__PURE__*/
+export const DeclSchema: GenMessage<Decl> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 2);
 
 /**
@@ -528,35 +572,37 @@ export const DeclSchema: GenMessage<Decl> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.Decl.IdentDecl
  */
-export type Decl_IdentDecl = Message<"google.api.expr.v1alpha1.Decl.IdentDecl"> & {
-  /**
-   * Required. The type of the identifier.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Type type = 1;
-   */
-  type?: Type;
+export type Decl_IdentDecl =
+  Message<"google.api.expr.v1alpha1.Decl.IdentDecl"> & {
+    /**
+     * Required. The type of the identifier.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Type type = 1;
+     */
+    type?: Type;
 
-  /**
-   * The constant value of the identifier. If not specified, the identifier
-   * must be supplied at evaluation time.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Constant value = 2;
-   */
-  value?: Constant;
+    /**
+     * The constant value of the identifier. If not specified, the identifier
+     * must be supplied at evaluation time.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Constant value = 2;
+     */
+    value?: Constant;
 
-  /**
-   * Documentation string for the identifier.
-   *
-   * @generated from field: string doc = 3;
-   */
-  doc: string;
-};
+    /**
+     * Documentation string for the identifier.
+     *
+     * @generated from field: string doc = 3;
+     */
+    doc: string;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Decl.IdentDecl.
  * Use `create(Decl_IdentDeclSchema)` to create a new message.
  */
-export const Decl_IdentDeclSchema: GenMessage<Decl_IdentDecl> = /*@__PURE__*/
+export const Decl_IdentDeclSchema: GenMessage<Decl_IdentDecl> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 2, 0);
 
 /**
@@ -568,20 +614,22 @@ export const Decl_IdentDeclSchema: GenMessage<Decl_IdentDecl> = /*@__PURE__*/
  *
  * @generated from message google.api.expr.v1alpha1.Decl.FunctionDecl
  */
-export type Decl_FunctionDecl = Message<"google.api.expr.v1alpha1.Decl.FunctionDecl"> & {
-  /**
-   * Required. List of function overloads, must contain at least one overload.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.Decl.FunctionDecl.Overload overloads = 1;
-   */
-  overloads: Decl_FunctionDecl_Overload[];
-};
+export type Decl_FunctionDecl =
+  Message<"google.api.expr.v1alpha1.Decl.FunctionDecl"> & {
+    /**
+     * Required. List of function overloads, must contain at least one overload.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.Decl.FunctionDecl.Overload overloads = 1;
+     */
+    overloads: Decl_FunctionDecl_Overload[];
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Decl.FunctionDecl.
  * Use `create(Decl_FunctionDeclSchema)` to create a new message.
  */
-export const Decl_FunctionDeclSchema: GenMessage<Decl_FunctionDecl> = /*@__PURE__*/
+export const Decl_FunctionDeclSchema: GenMessage<Decl_FunctionDecl> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 2, 1);
 
 /**
@@ -598,78 +646,80 @@ export const Decl_FunctionDeclSchema: GenMessage<Decl_FunctionDecl> = /*@__PURE_
  *
  * @generated from message google.api.expr.v1alpha1.Decl.FunctionDecl.Overload
  */
-export type Decl_FunctionDecl_Overload = Message<"google.api.expr.v1alpha1.Decl.FunctionDecl.Overload"> & {
-  /**
-   * Required. Globally unique overload name of the function which reflects
-   * the function name and argument types.
-   *
-   * This will be used by a [Reference][google.api.expr.v1alpha1.Reference]
-   * to indicate the `overload_id` that was resolved for the function
-   * `name`.
-   *
-   * @generated from field: string overload_id = 1;
-   */
-  overloadId: string;
+export type Decl_FunctionDecl_Overload =
+  Message<"google.api.expr.v1alpha1.Decl.FunctionDecl.Overload"> & {
+    /**
+     * Required. Globally unique overload name of the function which reflects
+     * the function name and argument types.
+     *
+     * This will be used by a [Reference][google.api.expr.v1alpha1.Reference]
+     * to indicate the `overload_id` that was resolved for the function
+     * `name`.
+     *
+     * @generated from field: string overload_id = 1;
+     */
+    overloadId: string;
 
-  /**
-   * List of function parameter [Type][google.api.expr.v1alpha1.Type]
-   * values.
-   *
-   * Param types are disjoint after generic type parameters have been
-   * replaced with the type `DYN`. Since the `DYN` type is compatible with
-   * any other type, this means that if `A` is a type parameter, the
-   * function types `int<A>` and `int<int>` are not disjoint. Likewise,
-   * `map<string, string>` is not disjoint from `map<K, V>`.
-   *
-   * When the `result_type` of a function is a generic type param, the
-   * type param name also appears as the `type` of on at least one params.
-   *
-   * @generated from field: repeated google.api.expr.v1alpha1.Type params = 2;
-   */
-  params: Type[];
+    /**
+     * List of function parameter [Type][google.api.expr.v1alpha1.Type]
+     * values.
+     *
+     * Param types are disjoint after generic type parameters have been
+     * replaced with the type `DYN`. Since the `DYN` type is compatible with
+     * any other type, this means that if `A` is a type parameter, the
+     * function types `int<A>` and `int<int>` are not disjoint. Likewise,
+     * `map<string, string>` is not disjoint from `map<K, V>`.
+     *
+     * When the `result_type` of a function is a generic type param, the
+     * type param name also appears as the `type` of on at least one params.
+     *
+     * @generated from field: repeated google.api.expr.v1alpha1.Type params = 2;
+     */
+    params: Type[];
 
-  /**
-   * The type param names associated with the function declaration.
-   *
-   * For example, `function ex<K,V>(K key, map<K, V> map) : V` would yield
-   * the type params of `K, V`.
-   *
-   * @generated from field: repeated string type_params = 3;
-   */
-  typeParams: string[];
+    /**
+     * The type param names associated with the function declaration.
+     *
+     * For example, `function ex<K,V>(K key, map<K, V> map) : V` would yield
+     * the type params of `K, V`.
+     *
+     * @generated from field: repeated string type_params = 3;
+     */
+    typeParams: string[];
 
-  /**
-   * Required. The result type of the function. For example, the operator
-   * `string.isEmpty()` would have `result_type` of `kind: BOOL`.
-   *
-   * @generated from field: google.api.expr.v1alpha1.Type result_type = 4;
-   */
-  resultType?: Type;
+    /**
+     * Required. The result type of the function. For example, the operator
+     * `string.isEmpty()` would have `result_type` of `kind: BOOL`.
+     *
+     * @generated from field: google.api.expr.v1alpha1.Type result_type = 4;
+     */
+    resultType?: Type;
 
-  /**
-   * Whether the function is to be used in a method call-style `x.f(...)`
-   * or a function call-style `f(x, ...)`.
-   *
-   * For methods, the first parameter declaration, `params[0]` is the
-   * expected type of the target receiver.
-   *
-   * @generated from field: bool is_instance_function = 5;
-   */
-  isInstanceFunction: boolean;
+    /**
+     * Whether the function is to be used in a method call-style `x.f(...)`
+     * or a function call-style `f(x, ...)`.
+     *
+     * For methods, the first parameter declaration, `params[0]` is the
+     * expected type of the target receiver.
+     *
+     * @generated from field: bool is_instance_function = 5;
+     */
+    isInstanceFunction: boolean;
 
-  /**
-   * Documentation string for the overload.
-   *
-   * @generated from field: string doc = 6;
-   */
-  doc: string;
-};
+    /**
+     * Documentation string for the overload.
+     *
+     * @generated from field: string doc = 6;
+     */
+    doc: string;
+  };
 
 /**
  * Describes the message google.api.expr.v1alpha1.Decl.FunctionDecl.Overload.
  * Use `create(Decl_FunctionDecl_OverloadSchema)` to create a new message.
  */
-export const Decl_FunctionDecl_OverloadSchema: GenMessage<Decl_FunctionDecl_Overload> = /*@__PURE__*/
+export const Decl_FunctionDecl_OverloadSchema: GenMessage<Decl_FunctionDecl_Overload> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 2, 1, 0);
 
 /**
@@ -713,6 +763,6 @@ export type Reference = Message<"google.api.expr.v1alpha1.Reference"> & {
  * Describes the message google.api.expr.v1alpha1.Reference.
  * Use `create(ReferenceSchema)` to create a new message.
  */
-export const ReferenceSchema: GenMessage<Reference> = /*@__PURE__*/
+export const ReferenceSchema: GenMessage<Reference> =
+  /*@__PURE__*/
   messageDesc(file_google_api_expr_v1alpha1_checked, 3);
-

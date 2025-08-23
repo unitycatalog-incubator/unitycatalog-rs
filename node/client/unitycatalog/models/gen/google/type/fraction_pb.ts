@@ -16,15 +16,18 @@
 // @generated from file google/type/fraction.proto (package google.type, syntax proto3)
 /* eslint-disable */
 
+import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/type/fraction.proto.
  */
-export const file_google_type_fraction: GenFile = /*@__PURE__*/
-  fileDesc("Chpnb29nbGUvdHlwZS9mcmFjdGlvbi5wcm90bxILZ29vZ2xlLnR5cGUiMgoIRnJhY3Rpb24SEQoJbnVtZXJhdG9yGAEgASgDEhMKC2Rlbm9taW5hdG9yGAIgASgDQqsBCg9jb20uZ29vZ2xlLnR5cGVCDUZyYWN0aW9uUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2ZyYWN0aW9uO2ZyYWN0aW9uogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM");
+export const file_google_type_fraction: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "Chpnb29nbGUvdHlwZS9mcmFjdGlvbi5wcm90bxILZ29vZ2xlLnR5cGUiMgoIRnJhY3Rpb24SEQoJbnVtZXJhdG9yGAEgASgDEhMKC2Rlbm9taW5hdG9yGAIgASgDQqsBCg9jb20uZ29vZ2xlLnR5cGVCDUZyYWN0aW9uUHJvdG9QAVo8Z29vZ2xlLmdvbGFuZy5vcmcvZ2VucHJvdG8vZ29vZ2xlYXBpcy90eXBlL2ZyYWN0aW9uO2ZyYWN0aW9uogIDR1RYqgILR29vZ2xlLlR5cGXKAgtHb29nbGVcVHlwZeICF0dvb2dsZVxUeXBlXEdQQk1ldGFkYXRh6gIMR29vZ2xlOjpUeXBlYgZwcm90bzM",
+  );
 
 /**
  * Represents a fraction in terms of a numerator divided by a denominator.
@@ -52,6 +55,6 @@ export type Fraction = Message<"google.type.Fraction"> & {
  * Describes the message google.type.Fraction.
  * Use `create(FractionSchema)` to create a new message.
  */
-export const FractionSchema: GenMessage<Fraction> = /*@__PURE__*/
+export const FractionSchema: GenMessage<Fraction> =
+  /*@__PURE__*/
   messageDesc(file_google_type_fraction, 0);
-

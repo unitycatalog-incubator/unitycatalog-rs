@@ -2,66 +2,93 @@
 // @generated from file unitycatalog/schemas/v1/svc.proto (package unitycatalog.schemas.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
+import type {
+  GenFile,
+  GenMessage,
+  GenService,
+} from "@bufbuild/protobuf/codegenv2";
+import {
+  fileDesc,
+  messageDesc,
+  serviceDesc,
+} from "@bufbuild/protobuf/codegenv2";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import {
+  file_google_protobuf_empty,
+  file_google_protobuf_struct,
+} from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_client } from "../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import type { SchemaInfo, SchemaInfoSchema } from "./models_pb";
 import { file_unitycatalog_schemas_v1_models } from "./models_pb";
-import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/schemas/v1/svc.proto.
  */
-export const file_unitycatalog_schemas_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("CiF1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9zdmMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIuwBChJMaXN0U2NoZW1hc1JlcXVlc3QSOwoMY2F0YWxvZ19uYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQESIAoOaW5jbHVkZV9icm93c2UYBCABKAhCA+BBAUgCiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIRCg9faW5jbHVkZV9icm93c2UifQoTTGlzdFNjaGVtYXNSZXNwb25zZRI0CgdzY2hlbWFzGAEgAygLMiMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mbxIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrgCChNDcmVhdGVTY2hlbWFSZXF1ZXN0EjMKBG5hbWUYASABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSOwoMY2F0YWxvZ19uYW1lGAIgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgAiAEBElUKCnByb3BlcnRpZXMYBCADKAsyPC51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5DcmVhdGVTY2hlbWFSZXF1ZXN0LlByb3BlcnRpZXNFbnRyeUID4EEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgoKCF9jb21tZW50IksKEEdldFNjaGVtYVJlcXVlc3QSNwoJZnVsbF9uYW1lGAEgASgJQiTgQQK6SB5yHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQiygIKE1VwZGF0ZVNjaGVtYVJlcXVlc3QSNwoJZnVsbF9uYW1lGAEgASgJQiTgQQK6SB5yHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSGQoHY29tbWVudBgCIAEoCUID4EEBSACIAQESVQoKcHJvcGVydGllcxgDIAMoCzI8LnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlVwZGF0ZVNjaGVtYVJlcXVlc3QuUHJvcGVydGllc0VudHJ5QgPgQQESPAoIbmV3X25hbWUYBCABKAlCJeBBAbpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSRIAYgBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIKCghfY29tbWVudEILCglfbmV3X25hbWUicQoTRGVsZXRlU2NoZW1hUmVxdWVzdBI3CglmdWxsX25hbWUYASABKAlCJOBBArpIHnIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIXCgVmb3JjZRgCIAEoCEID4EEBSACIAQFCCAoGX2ZvcmNlMsIFCg5TY2hlbWFzU2VydmljZRKKAQoLTGlzdFNjaGVtYXMSKy51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5MaXN0U2NoZW1hc1JlcXVlc3QaLC51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5MaXN0U2NoZW1hc1Jlc3BvbnNlIiC6Rw0qC0xpc3RTY2hlbWFzgtPkkwIKEggvc2NoZW1hcxKHAQoMQ3JlYXRlU2NoZW1hEiwudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuQ3JlYXRlU2NoZW1hUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm8iJLpHDioMQ3JlYXRlU2NoZW1hgtPkkwINOgEqIggvc2NoZW1hcxKCAQoJR2V0U2NoZW1hEikudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuR2V0U2NoZW1hUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm8iJbpHCyoJR2V0U2NoZW1hgtPkkwIREg8vc2NoZW1hcy97bmFtZX0SkwEKDFVwZGF0ZVNjaGVtYRIsLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlVwZGF0ZVNjaGVtYVJlcXVlc3QaIy51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5TY2hlbWFJbmZvIjC6Rw4qDFVwZGF0ZVNjaGVtYYLT5JMCGToBKjIUL3NjaGVtYXMve2Z1bGxfbmFtZX0SfgoMRGVsZXRlU2NoZW1hEiwudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuRGVsZXRlU2NoZW1hUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIoukcOKgxEZWxldGVTY2hlbWGC0+STAhEqDy9zY2hlbWFzL3tuYW1lfUL3AQobY29tLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxQghTdmNQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zY2hlbWFzL3YxO3NjaGVtYXN2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TY2hlbWFzLlYxygIXVW5pdHljYXRhbG9nXFNjaGVtYXNcVjHiAiNVbml0eWNhdGFsb2dcU2NoZW1hc1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2NoZW1hczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_schemas_v1_models]);
+export const file_unitycatalog_schemas_v1_svc: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    "CiF1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9zdmMuchHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIuwBChJMaXN0U2NoZW1hc1JlcXVlc3QSOwoMY2F0YWxvZ19uYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQESIAoOaW5jbHVkZV9icm93c2UYBCABKAhCA+BBAUgCiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIRCg9faW5jbHVkZV9icm93c2UifQoTTGlzdFNjaGVtYXNSZXNwb25zZRI0CgdzY2hlbWFzGAEgAygLMiMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mbxIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrgCChNDcmVhdGVTY2hlbWFSZXF1ZXN0EjMKBG5hbWUYASABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSOwoMY2F0YWxvZ19uYW1lGAIgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgAiAEBElUKCnByb3BlcnRpZXMYBCADKAsyPC51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5DcmVhdGVTY2hlbWFSZXF1ZXN0LlByb3BlcnRpZXNFbnRyeUID4EEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgoKCF9jb21tZW50IksKEEdldFNjaGVtYVJlcXVlc3QSNwoJZnVsbF9uYW1lGAEgASgJQiTgQQK6SB5yHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQiygIKE1VwZGF0ZVNjaGVtYVJlcXVlc3QSNwoJZnVsbF9uYW1lGAEgASgJQiTgQQK6SB5yHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSGQoHY29tbWVudBgCIAEoCUID4EEBSACIAQESVQoKcHJvcGVydGllcxgDIAMoCzI8LnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlVwZGF0ZVNjaGVtYVJlcXVlc3QuUHJvcGVydGllc0VudHJ5QgPgQQESPAoIbmV3X25hbWUYBCABKAlCJeBBAbpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSRIAYgBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIKCghfY29tbWVudEILCglfbmV3X25hbWUicQoTRGVsZXRlU2NoZW1hUmVxdWVzdBI3CglmdWxsX25hbWUYASABKAlCJOBBArpIHnIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIXCgVmb3JjZRgCIAEoCEID4EEBSACIAQFCCAoGX2ZvcmNlMsIFCg5TY2hlbWFzU2VydmljZRKKAQoLTGlzdFNjaGVtYXMSKy51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5MaXN0U2NoZW1hc1JlcXVlc3QaLC51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5MaXN0U2NoZW1hc1Jlc3BvbnNlIiC6Rw0qC0xpc3RTY2hlbWFzgtPkkwIKEggvc2NoZW1hcxKHAQoMQ3JlYXRlU2NoZW1hEiwudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuQ3JlYXRlU2NoZW1hUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm8iJLpHDioMQ3JlYXRlU2NoZW1hgtPkkwINOgEqIggvc2NoZW1hcxKCAQoJR2V0U2NoZW1hEikudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuR2V0U2NoZW1hUmVxdWVzdBojLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm8iJbpHCyoJR2V0U2NoZW1hgtPkkwIREg8vc2NoZW1hcy97bmFtZX0SkwEKDFVwZGF0ZVNjaGVtYRIsLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlVwZGF0ZVNjaGVtYVJlcXVlc3QaIy51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5TY2hlbWFJbmZvIjC6Rw4qDFVwZGF0ZVNjaGVtYYLT5JMCGToBKjIUL3NjaGVtYXMve2Z1bGxfbmFtZX0SfgoMRGVsZXRlU2NoZW1hEiwudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuRGVsZXRlU2NoZW1hUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIoukcOKgxEZWxldGVTY2hlbWGC0+STAhEqDy9zY2hlbWFzL3tuYW1lfUL3AQobY29tLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxQghTdmNQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zY2hlbWFzL3YxO3NjaGVtYXN2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TY2hlbWFzLlYxygIXVW5pdHljYXRhbG9nXFNjaGVtYXNcVjHiAiNVbml0eWNhdGFsb2dcU2NoZW1hc1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2NoZW1hczo6VjFiBnByb3RvMw",
+    [
+      file_buf_validate_validate,
+      file_gnostic_openapi_v3_annotations,
+      file_google_api_annotations,
+      file_google_api_client,
+      file_google_api_field_behavior,
+      file_google_api_resource,
+      file_google_protobuf_empty,
+      file_google_protobuf_struct,
+      file_unitycatalog_schemas_v1_models,
+    ],
+  );
 
 /**
  * List Schemas in a catalog
  *
  * @generated from message unitycatalog.schemas.v1.ListSchemasRequest
  */
-export type ListSchemasRequest = Message<"unitycatalog.schemas.v1.ListSchemasRequest"> & {
-  /**
-   * Name of parent catalog.
-   *
-   * @generated from field: string catalog_name = 1;
-   */
-  catalogName: string;
+export type ListSchemasRequest =
+  Message<"unitycatalog.schemas.v1.ListSchemasRequest"> & {
+    /**
+     * Name of parent catalog.
+     *
+     * @generated from field: string catalog_name = 1;
+     */
+    catalogName: string;
 
-  /**
-   * The maximum number of results per page that should be returned.
-   *
-   * @generated from field: optional int32 max_results = 2;
-   */
-  maxResults?: number;
+    /**
+     * The maximum number of results per page that should be returned.
+     *
+     * @generated from field: optional int32 max_results = 2;
+     */
+    maxResults?: number;
 
-  /**
-   * Opaque pagination token to go to next page based on previous query.
-   *
-   * @generated from field: optional string page_token = 3;
-   */
-  pageToken?: string;
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string page_token = 3;
+     */
+    pageToken?: string;
 
-  /**
-   * Whether to include schemas in the response for which the principal can only access selective metadata for
-   *
-   * @generated from field: optional bool include_browse = 4;
-   */
-  includeBrowse?: boolean;
-};
+    /**
+     * Whether to include schemas in the response for which the principal can only access selective metadata for
+     *
+     * @generated from field: optional bool include_browse = 4;
+     */
+    includeBrowse?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.schemas.v1.ListSchemasRequest.
  * Use `create(ListSchemasRequestSchema)` to create a new message.
  */
-export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> = /*@__PURE__*/
+export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_svc, 0);
 
 /**
@@ -69,27 +96,29 @@ export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> = /*@__PUR
  *
  * @generated from message unitycatalog.schemas.v1.ListSchemasResponse
  */
-export type ListSchemasResponse = Message<"unitycatalog.schemas.v1.ListSchemasResponse"> & {
-  /**
-   * The schemas returned.
-   *
-   * @generated from field: repeated unitycatalog.schemas.v1.SchemaInfo schemas = 1;
-   */
-  schemas: SchemaInfo[];
+export type ListSchemasResponse =
+  Message<"unitycatalog.schemas.v1.ListSchemasResponse"> & {
+    /**
+     * The schemas returned.
+     *
+     * @generated from field: repeated unitycatalog.schemas.v1.SchemaInfo schemas = 1;
+     */
+    schemas: SchemaInfo[];
 
-  /**
-   * The next_page_token value to include in the next List request.
-   *
-   * @generated from field: optional string next_page_token = 2;
-   */
-  nextPageToken?: string;
-};
+    /**
+     * The next_page_token value to include in the next List request.
+     *
+     * @generated from field: optional string next_page_token = 2;
+     */
+    nextPageToken?: string;
+  };
 
 /**
  * Describes the message unitycatalog.schemas.v1.ListSchemasResponse.
  * Use `create(ListSchemasResponseSchema)` to create a new message.
  */
-export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> = /*@__PURE__*/
+export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_svc, 1);
 
 /**
@@ -97,41 +126,43 @@ export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> = /*@__P
  *
  * @generated from message unitycatalog.schemas.v1.CreateSchemaRequest
  */
-export type CreateSchemaRequest = Message<"unitycatalog.schemas.v1.CreateSchemaRequest"> & {
-  /**
-   * Name of schema, relative to parent catalog.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
+export type CreateSchemaRequest =
+  Message<"unitycatalog.schemas.v1.CreateSchemaRequest"> & {
+    /**
+     * Name of schema, relative to parent catalog.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
 
-  /**
-   * Name of parent catalog.
-   *
-   * @generated from field: string catalog_name = 2;
-   */
-  catalogName: string;
+    /**
+     * Name of parent catalog.
+     *
+     * @generated from field: string catalog_name = 2;
+     */
+    catalogName: string;
 
-  /**
-   * User-provided free-form text description.
-   *
-   * @generated from field: optional string comment = 3;
-   */
-  comment?: string;
+    /**
+     * User-provided free-form text description.
+     *
+     * @generated from field: optional string comment = 3;
+     */
+    comment?: string;
 
-  /**
-   * A map of key-value properties attached to the securable.
-   *
-   * @generated from field: map<string, string> properties = 4;
-   */
-  properties: { [key: string]: string };
-};
+    /**
+     * A map of key-value properties attached to the securable.
+     *
+     * @generated from field: map<string, string> properties = 4;
+     */
+    properties: { [key: string]: string };
+  };
 
 /**
  * Describes the message unitycatalog.schemas.v1.CreateSchemaRequest.
  * Use `create(CreateSchemaRequestSchema)` to create a new message.
  */
-export const CreateSchemaRequestSchema: GenMessage<CreateSchemaRequest> = /*@__PURE__*/
+export const CreateSchemaRequestSchema: GenMessage<CreateSchemaRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_svc, 2);
 
 /**
@@ -139,22 +170,24 @@ export const CreateSchemaRequestSchema: GenMessage<CreateSchemaRequest> = /*@__P
  *
  * @generated from message unitycatalog.schemas.v1.GetSchemaRequest
  */
-export type GetSchemaRequest = Message<"unitycatalog.schemas.v1.GetSchemaRequest"> & {
-  /**
-   * Full name of schema.
-   *
-   * Format: catalog_name.schema_name
-   *
-   * @generated from field: string full_name = 1;
-   */
-  fullName: string;
-};
+export type GetSchemaRequest =
+  Message<"unitycatalog.schemas.v1.GetSchemaRequest"> & {
+    /**
+     * Full name of schema.
+     *
+     * Format: catalog_name.schema_name
+     *
+     * @generated from field: string full_name = 1;
+     */
+    fullName: string;
+  };
 
 /**
  * Describes the message unitycatalog.schemas.v1.GetSchemaRequest.
  * Use `create(GetSchemaRequestSchema)` to create a new message.
  */
-export const GetSchemaRequestSchema: GenMessage<GetSchemaRequest> = /*@__PURE__*/
+export const GetSchemaRequestSchema: GenMessage<GetSchemaRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_svc, 3);
 
 /**
@@ -162,44 +195,46 @@ export const GetSchemaRequestSchema: GenMessage<GetSchemaRequest> = /*@__PURE__*
  *
  * @generated from message unitycatalog.schemas.v1.UpdateSchemaRequest
  */
-export type UpdateSchemaRequest = Message<"unitycatalog.schemas.v1.UpdateSchemaRequest"> & {
-  /**
-   * Full name of schema, in form of catalog_name.schema_name.
-   *
-   * @generated from field: string full_name = 1;
-   */
-  fullName: string;
+export type UpdateSchemaRequest =
+  Message<"unitycatalog.schemas.v1.UpdateSchemaRequest"> & {
+    /**
+     * Full name of schema, in form of catalog_name.schema_name.
+     *
+     * @generated from field: string full_name = 1;
+     */
+    fullName: string;
 
-  /**
-   * User-provided free-form text description.
-   *
-   * @generated from field: optional string comment = 2;
-   */
-  comment?: string;
+    /**
+     * User-provided free-form text description.
+     *
+     * @generated from field: optional string comment = 2;
+     */
+    comment?: string;
 
-  /**
-   * A map of key-value properties attached to the securable.
-   *
-   * When provided in update request, the specified properties will override the existing properties.
-   * To add and remove properties, one would need to perform a read-modify-write.
-   *
-   * @generated from field: map<string, string> properties = 3;
-   */
-  properties: { [key: string]: string };
+    /**
+     * A map of key-value properties attached to the securable.
+     *
+     * When provided in update request, the specified properties will override the existing properties.
+     * To add and remove properties, one would need to perform a read-modify-write.
+     *
+     * @generated from field: map<string, string> properties = 3;
+     */
+    properties: { [key: string]: string };
 
-  /**
-   * Name of schema.
-   *
-   * @generated from field: optional string new_name = 4;
-   */
-  newName?: string;
-};
+    /**
+     * Name of schema.
+     *
+     * @generated from field: optional string new_name = 4;
+     */
+    newName?: string;
+  };
 
 /**
  * Describes the message unitycatalog.schemas.v1.UpdateSchemaRequest.
  * Use `create(UpdateSchemaRequestSchema)` to create a new message.
  */
-export const UpdateSchemaRequestSchema: GenMessage<UpdateSchemaRequest> = /*@__PURE__*/
+export const UpdateSchemaRequestSchema: GenMessage<UpdateSchemaRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_svc, 4);
 
 /**
@@ -207,29 +242,31 @@ export const UpdateSchemaRequestSchema: GenMessage<UpdateSchemaRequest> = /*@__P
  *
  * @generated from message unitycatalog.schemas.v1.DeleteSchemaRequest
  */
-export type DeleteSchemaRequest = Message<"unitycatalog.schemas.v1.DeleteSchemaRequest"> & {
-  /**
-   * Full name of schema to delete.
-   *
-   * Format: catalog_name.schema_name
-   *
-   * @generated from field: string full_name = 1;
-   */
-  fullName: string;
+export type DeleteSchemaRequest =
+  Message<"unitycatalog.schemas.v1.DeleteSchemaRequest"> & {
+    /**
+     * Full name of schema to delete.
+     *
+     * Format: catalog_name.schema_name
+     *
+     * @generated from field: string full_name = 1;
+     */
+    fullName: string;
 
-  /**
-   * Force deletion even if the schema is not empty.
-   *
-   * @generated from field: optional bool force = 2;
-   */
-  force?: boolean;
-};
+    /**
+     * Force deletion even if the schema is not empty.
+     *
+     * @generated from field: optional bool force = 2;
+     */
+    force?: boolean;
+  };
 
 /**
  * Describes the message unitycatalog.schemas.v1.DeleteSchemaRequest.
  * Use `create(DeleteSchemaRequestSchema)` to create a new message.
  */
-export const DeleteSchemaRequestSchema: GenMessage<DeleteSchemaRequest> = /*@__PURE__*/
+export const DeleteSchemaRequestSchema: GenMessage<DeleteSchemaRequest> =
+  /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_svc, 5);
 
 /**
@@ -253,7 +290,7 @@ export const SchemasService: GenService<{
     methodKind: "unary";
     input: typeof ListSchemasRequestSchema;
     output: typeof ListSchemasResponseSchema;
-  },
+  };
   /**
    * Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
    * or have the CREATE_SCHEMA privilege in the parent catalog.
@@ -264,7 +301,7 @@ export const SchemasService: GenService<{
     methodKind: "unary";
     input: typeof CreateSchemaRequestSchema;
     output: typeof SchemaInfoSchema;
-  },
+  };
   /**
    * Gets the specified schema within the metastore.
    * The caller must be a metastore admin, the owner of the schema,
@@ -276,7 +313,7 @@ export const SchemasService: GenService<{
     methodKind: "unary";
     input: typeof GetSchemaRequestSchema;
     output: typeof SchemaInfoSchema;
-  },
+  };
   /**
    * Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
    * If the caller is a metastore admin, only the owner field can be changed in the update.
@@ -289,7 +326,7 @@ export const SchemasService: GenService<{
     methodKind: "unary";
     input: typeof UpdateSchemaRequestSchema;
     output: typeof SchemaInfoSchema;
-  },
+  };
   /**
    * Deletes the specified schema from the parent catalog. The caller must be the owner
    * of the schema or an owner of the parent catalog.
@@ -300,7 +337,5 @@ export const SchemasService: GenService<{
     methodKind: "unary";
     input: typeof DeleteSchemaRequestSchema;
     output: typeof EmptySchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_unitycatalog_schemas_v1_svc, 0);
-
+  };
+}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_schemas_v1_svc, 0);
