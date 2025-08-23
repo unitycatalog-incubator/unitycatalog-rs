@@ -1929,7 +1929,7 @@ impl serde::Serialize for TableInfo {
         if self.storage_credential_name.is_some() {
             len += 1;
         }
-        if self.full_name.is_some() {
+        if !self.full_name.is_empty() {
             len += 1;
         }
         if self.created_at.is_some() {
@@ -1988,8 +1988,8 @@ impl serde::Serialize for TableInfo {
         if let Some(v) = self.storage_credential_name.as_ref() {
             struct_ser.serialize_field("storage_credential_name", v)?;
         }
-        if let Some(v) = self.full_name.as_ref() {
-            struct_ser.serialize_field("full_name", v)?;
+        if !self.full_name.is_empty() {
+            struct_ser.serialize_field("full_name", &self.full_name)?;
         }
         if let Some(v) = self.created_at.as_ref() {
             #[allow(clippy::needless_borrow)]
@@ -2229,7 +2229,7 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                             if full_name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("fullName"));
                             }
-                            full_name__ = map_.next_value()?;
+                            full_name__ = Some(map_.next_value()?);
                         }
                         GeneratedField::CreatedAt => {
                             if created_at__.is_some() {
@@ -2290,7 +2290,7 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),
                     storage_credential_name: storage_credential_name__,
-                    full_name: full_name__,
+                    full_name: full_name__.unwrap_or_default(),
                     created_at: created_at__,
                     created_by: created_by__,
                     updated_at: updated_at__,

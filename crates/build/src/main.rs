@@ -21,6 +21,9 @@ struct Cli {
     #[clap(long, env = "UC_BUILD_OUTPUT_CLIENT")]
     output_client: String,
 
+    #[clap(long, env = "UC_BUILD_OUTPUT_PYTHON")]
+    output_python: String,
+
     #[clap(long, short, env = "UC_BUILD_DESCRIPTORS")]
     descriptors: String,
 }
@@ -45,17 +48,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("server -> {}", args.output_server);
     println!("client -> {}", args.output_client);
+    println!("python -> {}", args.output_python);
 
     // Generate code from collected metadata
     let output_dir_common = fs::canonicalize(PathBuf::from(&args.output_common))?;
     let output_dir_server = fs::canonicalize(PathBuf::from(&args.output_server))?;
     let output_dir_client = fs::canonicalize(PathBuf::from(&args.output_client))?;
+    let output_dir_python = fs::canonicalize(PathBuf::from(&args.output_python))?;
 
     generate_rest_handlers(
         &codegen_metadata,
         &output_dir_common,
         &output_dir_server,
         &output_dir_client,
+        &output_dir_python,
     )?;
 
     Ok(())

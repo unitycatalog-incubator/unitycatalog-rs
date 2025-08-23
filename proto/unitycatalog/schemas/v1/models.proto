@@ -3,40 +3,49 @@ syntax = "proto3";
 package unitycatalog.schemas.v1;
 
 import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
 // A schema is a namespace within a catalog that contains tables.
 message SchemaInfo {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Schema"
+    pattern: "schemas/{schema}"
+    plural: "schemas"
+    singular: "schema"
+    name_field: "full_name"
+  };
+
   // Name of schema, relative to parent catalog.
-  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string name = 1;
 
   // Name of parent catalog.
-  string catalog_name = 2 [(google.api.field_behavior) = REQUIRED];
-
-  // User-provided free-form text description.
-  optional string comment = 3 [(google.api.field_behavior) = OPTIONAL];
-
-  // A map of key-value properties attached to the securable.
-  map<string, string> properties = 4 [(google.api.field_behavior) = OPTIONAL];
+  string catalog_name = 2;
 
   // Full name of schema, in form of catalog_name.schema_name.
-  optional string full_name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string full_name = 3;
+
+  // User-provided free-form text description.
+  optional string comment = 4;
+
+  // A map of key-value properties attached to the securable.
+  map<string, string> properties = 5;
 
   // Username of current owner of schema.
-  optional string owner = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string owner = 6;
 
   // Time at which this schema was created, in epoch milliseconds.
-  optional int64 created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional int64 created_at = 7;
 
   // Username of schema creator.
-  optional string created_by = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string created_by = 8;
 
   // Time at which this schema was last updated, in epoch milliseconds.
-  optional int64 updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional int64 updated_at = 9;
 
   // Username of user who last modified schema.
-  optional string updated_by = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string updated_by = 10;
 
   // Unique identifier for the schema.
-  optional string schema_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string schema_id = 11;
 }

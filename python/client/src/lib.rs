@@ -19,6 +19,7 @@ use unitycatalog_common::models::tables::v1::{
 use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
 
 mod client;
+// mod codegen;
 mod error;
 mod runtime;
 

@@ -842,10 +842,10 @@ impl serde::Serialize for CredentialInfo {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if !self.id.is_empty() {
+        if !self.name.is_empty() {
             len += 1;
         }
-        if !self.name.is_empty() {
+        if self.id.is_some() {
             len += 1;
         }
         if self.purpose != 0 {
@@ -882,11 +882,11 @@ impl serde::Serialize for CredentialInfo {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.CredentialInfo", len)?;
-        if !self.id.is_empty() {
-            struct_ser.serialize_field("id", &self.id)?;
-        }
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
+        }
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
         }
         if self.purpose != 0 {
             let v = Purpose::try_from(self.purpose)
@@ -947,8 +947,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "id",
             "name",
+            "id",
             "purpose",
             "read_only",
             "readOnly",
@@ -976,8 +976,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Id,
             Name,
+            Id,
             Purpose,
             ReadOnly,
             Comment,
@@ -1013,8 +1013,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                         E: serde::de::Error,
                     {
                         match value {
-                            "id" => Ok(GeneratedField::Id),
                             "name" => Ok(GeneratedField::Name),
+                            "id" => Ok(GeneratedField::Id),
                             "purpose" => Ok(GeneratedField::Purpose),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
                             "comment" => Ok(GeneratedField::Comment),
@@ -1047,8 +1047,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut id__ = None;
                 let mut name__ = None;
+                let mut id__ = None;
                 let mut purpose__ = None;
                 let mut read_only__ = None;
                 let mut comment__ = None;
@@ -1062,17 +1062,17 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                 let mut credential__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Id => {
-                            if id__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("id"));
-                            }
-                            id__ = Some(map_.next_value()?);
-                        }
                         GeneratedField::Name => {
                             if name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("name"));
                             }
                             name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
                         }
                         GeneratedField::Purpose => {
                             if purpose__.is_some() {
@@ -1165,8 +1165,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                     }
                 }
                 Ok(CredentialInfo {
-                    id: id__.unwrap_or_default(),
                     name: name__.unwrap_or_default(),
+                    id: id__,
                     purpose: purpose__.unwrap_or_default(),
                     read_only: read_only__.unwrap_or_default(),
                     comment: comment__,

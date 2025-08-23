@@ -263,7 +263,7 @@ impl SchemaInfo {
             self.name,
             self.catalog_name,
             self.comment.as_ref().unwrap_or(&"None".to_owned()),
-            self.full_name.as_ref().unwrap_or(&"None".to_owned()),
+            self.full_name,
             self.owner.as_ref().unwrap_or(&"None".to_owned()),
             self.created_at
                 .as_ref()
@@ -417,7 +417,7 @@ impl CredentialInfo {
 
         format!(
             "CredentialInfo(id={}, name={}, purpose={}, credential={}, read_only={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
-            self.id,
+            self.id.as_ref().unwrap_or(&"None".to_owned()),
             self.name,
             self.purpose,
             credential_str,

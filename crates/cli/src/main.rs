@@ -6,7 +6,6 @@ use crate::server::{ServerArgs, handle_server};
 
 mod client;
 mod config;
-mod demo;
 mod error;
 mod output;
 mod server;
@@ -47,9 +46,6 @@ enum Commands {
 
     #[clap(about = "run database migrations")]
     Migrate,
-
-    #[clap(about = "demo professional CLI output formatting")]
-    Demo,
 }
 
 #[derive(Parser)]
@@ -67,7 +63,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             handle_client(client_args, args.global_opts).await?;
         }
         Commands::Migrate => todo!(),
-        Commands::Demo => demo::run_demo().await?,
     };
     Ok(())
 }

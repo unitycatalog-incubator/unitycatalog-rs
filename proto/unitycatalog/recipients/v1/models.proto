@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package unitycatalog.recipients.v1;
 
+import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
 enum AuthenticationType {
@@ -39,6 +40,13 @@ message RecipientToken {
 }
 
 message RecipientInfo {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Recipient"
+    pattern: "recipients/{recipient}"
+    plural: "recipients"
+    singular: "recipient"
+  };
+
   // Unique ID of the recipient.
   optional string id = 100;
 

@@ -93,14 +93,14 @@ pub struct AwsIamRole {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CredentialInfo {
-    /// The unique identifier of the credential.
-    #[prost(string, tag="1")]
-    pub id: ::prost::alloc::string::String,
     /// The credential name.
     ///
     /// The name must be unique among storage and service credentials within the metastore.
-    #[prost(string, tag="2")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
+    /// The unique identifier of the credential.
+    #[prost(string, optional, tag="2")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
     /// Indicates the purpose of the credential.
     #[prost(enumeration="Purpose", tag="3")]
     pub purpose: i32,

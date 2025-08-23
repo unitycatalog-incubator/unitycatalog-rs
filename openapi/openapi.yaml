@@ -3165,6 +3165,7 @@ components:
       required:
         - name
         - catalog_name
+        - full_name
       title: Schema Info
       type: object
     Share:

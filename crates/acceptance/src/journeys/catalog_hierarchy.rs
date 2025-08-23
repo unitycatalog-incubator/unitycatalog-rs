@@ -203,13 +203,7 @@ impl UserJourney for CatalogHierarchyJourney {
                 })
                 .await?;
 
-            logger.info(&format!(
-                "✅ Created schema: {}",
-                created_schema
-                    .full_name
-                    .as_deref()
-                    .unwrap_or(&schema_full_name)
-            ))?;
+            logger.info(&format!("✅ Created schema: {}", created_schema.full_name))?;
             created_schemas.push(created_schema);
         }
 
@@ -282,20 +276,16 @@ impl UserJourney for CatalogHierarchyJourney {
 
                     // Verify full name format
                     let expected_full_name = format!("{}.{}", self.catalog_name, schema_name);
-                    if let Some(full_name) = &schema_info.full_name {
-                        if *full_name != expected_full_name {
-                            return Err(AcceptanceError::JourneyValidation(format!(
-                                "Schema full name mismatch: expected '{}', got '{}'",
-                                expected_full_name, full_name
-                            )));
-                        }
+                    if schema_info.full_name != expected_full_name {
+                        return Err(AcceptanceError::JourneyValidation(format!(
+                            "Schema full name mismatch: expected '{}', got '{}'",
+                            expected_full_name, schema_info.full_name
+                        )));
                     }
 
                     logger.info(&format!(
                         "  ✓ Schema '{}' verified - Catalog: {}, Full name: {}",
-                        schema_name,
-                        schema_info.catalog_name,
-                        schema_info.full_name.as_deref().unwrap_or("N/A")
+                        schema_name, schema_info.catalog_name, schema_info.full_name
                     ))?;
 
                     Ok(())

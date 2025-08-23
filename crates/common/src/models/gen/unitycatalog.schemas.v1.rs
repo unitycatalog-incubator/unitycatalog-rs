@@ -11,15 +11,15 @@ pub struct SchemaInfo {
     /// Name of parent catalog.
     #[prost(string, tag="2")]
     pub catalog_name: ::prost::alloc::string::String,
+    /// Full name of schema, in form of catalog_name.schema_name.
+    #[prost(string, tag="3")]
+    pub full_name: ::prost::alloc::string::String,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag="4")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(map="string, string", tag="4")]
+    #[prost(map="string, string", tag="5")]
     pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
-    /// Full name of schema, in form of catalog_name.schema_name.
-    #[prost(string, optional, tag="5")]
-    pub full_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Username of current owner of schema.
     #[prost(string, optional, tag="6")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,

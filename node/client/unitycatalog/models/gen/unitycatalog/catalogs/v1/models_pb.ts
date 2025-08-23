@@ -12,6 +12,7 @@ import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
+import { file_google_api_resource } from "../../../google/api/resource_pb";
 
 /**
  * Describes the file unitycatalog/catalogs/v1/models.proto.
@@ -19,10 +20,11 @@ import { file_google_api_field_behavior } from "../../../google/api/field_behavi
 export const file_unitycatalog_catalogs_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiV1bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjEvbW9kZWxzLnByb3RvEhh1bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEingUKC0NhdGFsb2dJbmZvEg8KAmlkGAEgASgJSACIAQESDAoEbmFtZRgCIAEoCRISCgVvd25lchgDIAEoCUgBiAEBEhQKB2NvbW1lbnQYBCABKAlIAogBARJJCgpwcm9wZXJ0aWVzGAUgAygLMjUudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNhdGFsb2dJbmZvLlByb3BlcnRpZXNFbnRyeRIZCgxzdG9yYWdlX3Jvb3QYBiABKAlIA4gBARIaCg1wcm92aWRlcl9uYW1lGAcgASgJSASIAQESFwoKc2hhcmVfbmFtZRgIIAEoCUgFiAEBEkAKDGNhdGFsb2dfdHlwZRgJIAEoDjIlLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nVHlwZUgGiAEBEiEKCmNyZWF0ZWRfYXQY6AcgASgDQge6SAQiAiAASAeIAQESGAoKY3JlYXRlZF9ieRjpByABKAlICIgBARIYCgp1cGRhdGVkX2F0GOoHIAEoA0gJiAEBEhgKCnVwZGF0ZWRfYnkY6wcgASgJSAqIAQESGQoLYnJvd3NlX29ubHkY7AcgASgISAuIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudEIPCg1fc3RvcmFnZV9yb290QhAKDl9wcm92aWRlcl9uYW1lQg0KC19zaGFyZV9uYW1lQg8KDV9jYXRhbG9nX3R5cGVCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDgoMX2Jyb3dzZV9vbmx5Km4KC0NhdGFsb2dUeXBlEhwKGENBVEFMT0dfVFlQRV9VTlNQRUNJRklFRBAAEhMKD01BTkFHRURfQ0FUQUxPRxABEhgKFERFTFRBU0hBUklOR19DQVRBTE9HEAISEgoOU1lTVEVNX0NBVEFMT0cQA0KBAgocY29tLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MUILTW9kZWxzUHJvdG9QAVpSZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjE7Y2F0YWxvZ3N2MaICA1VDWKoCGFVuaXR5Y2F0YWxvZy5DYXRhbG9ncy5WMcoCGFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMeICJFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMVxHUEJNZXRhZGF0YeoCGlVuaXR5Y2F0YWxvZzo6Q2F0YWxvZ3M6OlYxYgZwcm90bzM",
+    "CiV1bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjEvbW9kZWxzLnByb3RvEhh1bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEi4wUKC0NhdGFsb2dJbmZvEgwKBG5hbWUYASABKAkSDwoCaWQYAiABKAlIAIgBARISCgVvd25lchgDIAEoCUgBiAEBEhQKB2NvbW1lbnQYBCABKAlIAogBARJJCgpwcm9wZXJ0aWVzGAUgAygLMjUudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNhdGFsb2dJbmZvLlByb3BlcnRpZXNFbnRyeRIZCgxzdG9yYWdlX3Jvb3QYBiABKAlIA4gBARIaCg1wcm92aWRlcl9uYW1lGAcgASgJSASIAQESFwoKc2hhcmVfbmFtZRgIIAEoCUgFiAEBEkAKDGNhdGFsb2dfdHlwZRgJIAEoDjIlLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nVHlwZUgGiAEBEiEKCmNyZWF0ZWRfYXQY6AcgASgDQge6SAQiAiAASAeIAQESGAoKY3JlYXRlZF9ieRjpByABKAlICIgBARIYCgp1cGRhdGVkX2F0GOoHIAEoA0gJiAEBEhgKCnVwZGF0ZWRfYnkY6wcgASgJSAqIAQESGQoLYnJvd3NlX29ubHkY7AcgASgISAuIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6Q+pBQAoXdW5pdHljYXRhbG9nLmlvL0NhdGFsb2cSEmNhdGFsb2dzL3tjYXRhbG9nfSoIY2F0YWxvZ3MyB2NhdGFsb2dCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudEIPCg1fc3RvcmFnZV9yb290QhAKDl9wcm92aWRlcl9uYW1lQg0KC19zaGFyZV9uYW1lQg8KDV9jYXRhbG9nX3R5cGVCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDgoMX2Jyb3dzZV9vbmx5Km4KC0NhdGFsb2dUeXBlEhwKGENBVEFMT0dfVFlQRV9VTlNQRUNJRklFRBAAEhMKD01BTkFHRURfQ0FUQUxPRxABEhgKFERFTFRBU0hBUklOR19DQVRBTE9HEAISEgoOU1lTVEVNX0NBVEFMT0cQA0KBAgocY29tLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MUILTW9kZWxzUHJvdG9QAVpSZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjE7Y2F0YWxvZ3N2MaICA1VDWKoCGFVuaXR5Y2F0YWxvZy5DYXRhbG9ncy5WMcoCGFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMeICJFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMVxHUEJNZXRhZGF0YeoCGlVuaXR5Y2F0YWxvZzo6Q2F0YWxvZ3M6OlYxYgZwcm90bzM",
     [
       file_buf_validate_validate,
       file_google_api_field_behavior,
+      file_google_api_resource,
       file_google_protobuf_struct,
     ],
   );
@@ -34,18 +36,18 @@ export const file_unitycatalog_catalogs_v1_models: GenFile =
  */
 export type CatalogInfo = Message<"unitycatalog.catalogs.v1.CatalogInfo"> & {
   /**
-   * Unique identifier for the catalog.
-   *
-   * @generated from field: optional string id = 1;
-   */
-  id?: string;
-
-  /**
    * Name of catalog.
    *
-   * @generated from field: string name = 2;
+   * @generated from field: string name = 1;
    */
   name: string;
+
+  /**
+   * Unique identifier for the catalog.
+   *
+   * @generated from field: optional string id = 2;
+   */
+  id?: string;
 
   /**
    * Username of current owner of catalog.

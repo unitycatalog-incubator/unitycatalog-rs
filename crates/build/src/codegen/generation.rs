@@ -20,6 +20,7 @@ use super::{GeneratedCode, GenerationPlan, ServicePlan};
 mod builder;
 mod client;
 mod handler;
+mod python;
 mod server;
 
 pub fn generate_common_code(
@@ -60,6 +61,24 @@ pub fn generate_server_code(
         // Generate client code
         let module_code = generate_server_module(service);
         files.insert(format!("{}/mod.rs", service.base_path), module_code);
+    }
+
+    // Generate the main module file that ties everything together
+    generate_main_module(&plan.services, &mut files)?;
+
+    Ok(GeneratedCode { files })
+}
+
+pub fn generate_python_code(
+    plan: &GenerationPlan,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    // Generate code for each service
+    for service in &plan.services {
+        // Generate Python client code
+        let python_code = python::generate(service)?;
+        files.insert(format!("{}.rs", service.base_path), python_code);
     }
 
     // Generate the main module file that ties everything together

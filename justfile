@@ -155,4 +155,7 @@ fix-node:
 fix-rust:
     # fix nodejs bindings
     cargo clippy --fix --workspace --allow-dirty --all-features
+
+fmt:
     cargo fmt
+    buf format proto/ --write

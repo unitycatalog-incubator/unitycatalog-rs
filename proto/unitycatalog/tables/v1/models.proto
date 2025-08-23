@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package unitycatalog.tables.v1;
 
+import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
 // The type of the table.
@@ -112,6 +113,13 @@ message ColumnInfo {
 }
 
 message TableInfo {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Table"
+    pattern: "tables/{table}"
+    plural: "tables"
+    singular: "table"
+  };
+
   // Name of table, relative to parent schema.
   string name = 1;
 
@@ -157,7 +165,7 @@ message TableInfo {
   // optional string row_filter = 16;
 
   // Full name of table, in form of catalog_name.schema_name.table_name.
-  optional string full_name = 17;
+  string full_name = 17;
 
   // Time at which this table was created, in epoch milliseconds.
   optional int64 created_at = 18;

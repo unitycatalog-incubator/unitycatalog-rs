@@ -3,6 +3,7 @@ syntax = "proto3";
 package unitycatalog.volumes.v1;
 
 import "buf/validate/validate.proto";
+import "google/api/resource.proto";
 
 enum VolumeType {
   VOLUME_TYPE_UNSPECIFIED = 0;
@@ -11,6 +12,13 @@ enum VolumeType {
 }
 
 message VolumeInfo {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Volume"
+    pattern: "volume/{volume}"
+    plural: "volumes"
+    singular: "volume"
+  };
+
   // Name of volume, relative to parent schema.
   string name = 1;
 

@@ -37,6 +37,7 @@ pub fn generate_rest_handlers(
     output_dir_common: &Path,
     output_dir_server: &Path,
     output_dir_client: &Path,
+    output_dir_python: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Analyze metadata and plan generation
     let plan = analysis::analyze_metadata(metadata)?;
@@ -52,6 +53,10 @@ pub fn generate_rest_handlers(
     // Generate client
     let client_code = generation::generate_client_code(&plan)?;
     output::write_generated_code(&client_code, output_dir_client)?;
+
+    // Generate Python bindings if output directory is provided
+    let python_code = generation::generate_python_code(&plan)?;
+    output::write_generated_code(&python_code, output_dir_python)?;
 
     Ok(())
 }
@@ -140,5 +145,3 @@ pub struct GeneratedCode {
 
 // Utils module moved to crate::utils - use that instead
 pub use crate::utils::strings as utils;
-
-// Tests moved to crate::utils module
