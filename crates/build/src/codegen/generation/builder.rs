@@ -862,6 +862,7 @@ mod tests {
                     field_behavior: vec![],
                 },
             ],
+            documentation: None,
         };
 
         MethodPlan {
@@ -1015,6 +1016,7 @@ mod tests {
                     field_behavior: vec![],
                 },
             ],
+            documentation: None,
         };
 
         MethodPlan {

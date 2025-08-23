@@ -27,6 +27,7 @@ pub struct MethodMetadata {
     pub operation: Option<gnostic::openapi::v3::Operation>,
     pub http_rule: Option<google::api::HttpRule>,
     pub input_fields: Vec<MessageField>,
+    pub documentation: Option<String>,
 }
 
 /// Information about a field in a protobuf message
@@ -114,6 +115,7 @@ pub enum RequestType {
 pub struct CodeGenMetadata {
     pub methods: Vec<MethodMetadata>,
     pub messages: std::collections::HashMap<String, MessageInfo>,
+    pub services: std::collections::HashMap<String, ServiceInfo>,
 }
 
 /// Information about a protobuf message
@@ -122,19 +124,29 @@ pub struct MessageInfo {
     pub name: String,
     pub fields: Vec<MessageField>,
     pub resource_descriptor: Option<google::api::ResourceDescriptor>,
+    pub documentation: Option<String>,
+}
+
+/// Information about a protobuf service
+#[derive(Debug, Clone)]
+pub struct ServiceInfo {
+    pub name: String,
+    pub documentation: Option<String>,
 }
 
 impl CodeGenMetadata {
     /// Group methods by service name
-    pub fn services(&self) -> std::collections::HashMap<String, Vec<&MethodMetadata>> {
-        let mut services = std::collections::HashMap::new();
+    pub fn grouped_methods_by_service(
+        &self,
+    ) -> std::collections::HashMap<String, Vec<&MethodMetadata>> {
+        let mut grouped_services = std::collections::HashMap::new();
         for method in &self.methods {
-            services
+            grouped_services
                 .entry(method.service_name.clone())
                 .or_insert_with(Vec::new)
                 .push(method);
         }
-        services
+        grouped_services
     }
 
     /// Get message fields for a given type name
@@ -248,6 +260,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             methods: Vec::new(),
             messages: std::collections::HashMap::new(),
+            services: std::collections::HashMap::new(),
         };
 
         // Add a message without resource descriptor
@@ -255,6 +268,7 @@ mod tests {
             name: ".test.MessageWithoutResource".to_string(),
             fields: vec![],
             resource_descriptor: None,
+            documentation: None,
         };
         codegen_metadata.messages.insert(
             ".test.MessageWithoutResource".to_string(),
@@ -272,6 +286,7 @@ mod tests {
             name: ".test.MessageWithResource".to_string(),
             fields: vec![],
             resource_descriptor: Some(resource_descriptor),
+            documentation: None,
         };
         codegen_metadata.messages.insert(
             ".test.MessageWithResource".to_string(),
@@ -289,6 +304,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             methods: Vec::new(),
             messages: std::collections::HashMap::new(),
+            services: std::collections::HashMap::new(),
         };
 
         let resource_descriptor = google::api::ResourceDescriptor {
@@ -301,6 +317,7 @@ mod tests {
             name: ".test.TestMessage".to_string(),
             fields: vec![],
             resource_descriptor: Some(resource_descriptor.clone()),
+            documentation: None,
         };
         codegen_metadata
             .messages
@@ -323,6 +340,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             methods: Vec::new(),
             messages: std::collections::HashMap::new(),
+            services: std::collections::HashMap::new(),
         };
 
         // Add multiple messages with different resource types
@@ -335,6 +353,7 @@ mod tests {
             name: ".test.MessageA".to_string(),
             fields: vec![],
             resource_descriptor: Some(resource1),
+            documentation: None,
         };
 
         let resource2 = google::api::ResourceDescriptor {
@@ -346,6 +365,7 @@ mod tests {
             name: ".test.MessageB".to_string(),
             fields: vec![],
             resource_descriptor: Some(resource2),
+            documentation: None,
         };
 
         // Add a message without resource descriptor
@@ -353,6 +373,7 @@ mod tests {
             name: ".test.MessageC".to_string(),
             fields: vec![],
             resource_descriptor: None,
+            documentation: None,
         };
 
         codegen_metadata
@@ -376,6 +397,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             methods: Vec::new(),
             messages: std::collections::HashMap::new(),
+            services: std::collections::HashMap::new(),
         };
 
         // Add a message with required fields
@@ -404,6 +426,7 @@ mod tests {
                 },
             ],
             resource_descriptor: None,
+            documentation: None,
         };
         codegen_metadata.messages.insert(
             ".test.MessageWithRequired".to_string(),
@@ -424,6 +447,7 @@ mod tests {
                 field_behavior: vec![google::api::FieldBehavior::OutputOnly],
             }],
             resource_descriptor: None,
+            documentation: None,
         };
         codegen_metadata.messages.insert(
             ".test.MessageWithoutRequired".to_string(),
@@ -446,6 +470,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             methods: Vec::new(),
             messages: std::collections::HashMap::new(),
+            services: std::collections::HashMap::new(),
         };
 
         let message_info = MessageInfo {
@@ -476,6 +501,7 @@ mod tests {
                 },
             ],
             resource_descriptor: None,
+            documentation: None,
         };
         codegen_metadata
             .messages
@@ -502,6 +528,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             methods: Vec::new(),
             messages: std::collections::HashMap::new(),
+            services: std::collections::HashMap::new(),
         };
 
         let message_info = MessageInfo {
@@ -539,6 +566,7 @@ mod tests {
                 },
             ],
             resource_descriptor: None,
+            documentation: None,
         };
         codegen_metadata
             .messages

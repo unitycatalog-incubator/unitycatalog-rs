@@ -211,6 +211,7 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "max_results".to_string(),
@@ -289,6 +290,7 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(get_operation),
             http_rule: Some(get_http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "name".to_string(),
@@ -343,6 +345,7 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(post_operation),
             http_rule: Some(post_http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "name".to_string(),
@@ -408,6 +411,7 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(update_operation),
             http_rule: Some(update_http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "name".to_string(),

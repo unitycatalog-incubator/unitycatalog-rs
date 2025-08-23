@@ -506,6 +506,7 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "name".to_string(),
@@ -587,6 +588,7 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "max_results".to_string(),
@@ -708,6 +710,7 @@ mod tests {
             output_type: ".unitycatalog.schemas.v1.ListSchemasResponse".to_string(),
             operation: Some(operation.clone()),
             http_rule: Some(http_rule.clone()),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "catalog_name".to_string(),
@@ -739,6 +742,7 @@ mod tests {
             output_type: ".test.EdgeCaseResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "catalog_name".to_string(),
@@ -842,6 +846,7 @@ mod tests {
             output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
+            documentation: None,
             input_fields: vec![
                 MessageField {
                     name: "catalog_name".to_string(),
@@ -961,6 +966,7 @@ mod tests {
             output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
             operation: Some(operation.clone()),
             http_rule: Some(http_rule.clone()),
+            documentation: None,
             input_fields: vec![
                 // These should be required in Proto3 (no proto3_optional flag)
                 MessageField {
@@ -1023,6 +1029,7 @@ mod tests {
             output_type: ".test.ListTablesResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
+            documentation: None,
             input_fields: vec![
                 // These should be required in Proto3 (no proto3_optional flag)
                 MessageField {

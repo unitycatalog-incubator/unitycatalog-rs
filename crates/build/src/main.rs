@@ -39,6 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut codegen_metadata = CodeGenMetadata {
         methods: Vec::new(),
         messages: std::collections::HashMap::new(),
+        services: std::collections::HashMap::new(),
     };
 
     // Process each file descriptor

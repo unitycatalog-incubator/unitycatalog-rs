@@ -51,8 +51,14 @@ pub fn process_file_descriptor(
     }
 
     // Process services in the file
-    for service in &file_desc.service {
-        process_service(service, file_name, codegen_metadata)?;
+    for (service_index, service) in file_desc.service.iter().enumerate() {
+        process_service(
+            service,
+            file_name,
+            codegen_metadata,
+            source_code_info,
+            service_index,
+        )?;
     }
 
     Ok(())
@@ -73,6 +79,9 @@ fn process_message(
     } else {
         format!("{}.{}", type_prefix, message_name)
     };
+
+    // Extract message-level documentation
+    let message_documentation = extract_message_documentation(source_code_info, path_prefix);
 
     // Collect field information, handling oneof fields specially
     let mut fields = Vec::new();
@@ -229,6 +238,7 @@ fn process_message(
         name: full_type_name.clone(),
         fields,
         resource_descriptor,
+        documentation: message_documentation,
     };
     codegen_metadata
         .messages
@@ -250,17 +260,39 @@ fn process_message(
     Ok(())
 }
 
-/// Process a gRPC service definition
+/// Process a protobuf service definition
 fn process_service(
     service: &ServiceDescriptorProto,
-    _file_name: &str,
+    file_name: &str,
     codegen_metadata: &mut CodeGenMetadata,
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    service_index: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let service_name = service.name();
 
+    // Extract service-level documentation
+    let service_path = vec![6, service_index as i32]; // Services are at path [6, service_index]
+    let service_documentation = extract_service_documentation(source_code_info, &service_path);
+
+    // Store service information
+    let service_info = crate::ServiceInfo {
+        name: service_name.to_string(),
+        documentation: service_documentation,
+    };
+    codegen_metadata
+        .services
+        .insert(service_name.to_string(), service_info);
+
     // Process methods in the service
-    for method in &service.method {
-        process_method(method, service_name, codegen_metadata)?;
+    for (method_index, method) in service.method.iter().enumerate() {
+        process_method(
+            method,
+            service_name,
+            codegen_metadata,
+            source_code_info,
+            service_index,
+            method_index,
+        )?;
     }
 
     Ok(())
@@ -271,10 +303,17 @@ fn process_method(
     method: &MethodDescriptorProto,
     service_name: &str,
     codegen_metadata: &mut CodeGenMetadata,
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    service_index: usize,
+    method_index: usize,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let method_name = method.name();
     let input_type = method.input_type();
     let output_type = method.output_type();
+
+    // Extract method-level documentation
+    let method_path = vec![6, service_index as i32, 2, method_index as i32]; // Methods are at path [6, service_index, 2, method_index]
+    let method_documentation = extract_method_documentation(source_code_info, &method_path);
 
     // Get input message fields
     let input_fields = codegen_metadata.get_message_fields(input_type);
@@ -288,6 +327,7 @@ fn process_method(
         operation: None,
         http_rule: None,
         input_fields,
+        documentation: method_documentation,
     };
 
     // Extract gnostic method-level annotations
@@ -615,6 +655,84 @@ fn extract_field_documentation(
     field_docs
 }
 
+/// Extract documentation for a message at the given path
+fn extract_message_documentation(
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    message_path: &[i32],
+) -> Option<String> {
+    if let Some(sci) = source_code_info {
+        for location in &sci.location {
+            if location.path == message_path {
+                let mut documentation = String::new();
+
+                // Prefer leading comments, fall back to trailing comments
+                if location.has_leading_comments() {
+                    documentation = location.leading_comments().trim().to_string();
+                } else if location.has_trailing_comments() {
+                    documentation = location.trailing_comments().trim().to_string();
+                }
+
+                if !documentation.is_empty() {
+                    return Some(documentation);
+                }
+            }
+        }
+    }
+    None
+}
+
+/// Extract documentation for a service at the given path
+fn extract_service_documentation(
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    service_path: &[i32],
+) -> Option<String> {
+    if let Some(sci) = source_code_info {
+        for location in &sci.location {
+            if location.path == service_path {
+                let mut documentation = String::new();
+
+                // Prefer leading comments, fall back to trailing comments
+                if location.has_leading_comments() {
+                    documentation = location.leading_comments().trim().to_string();
+                } else if location.has_trailing_comments() {
+                    documentation = location.trailing_comments().trim().to_string();
+                }
+
+                if !documentation.is_empty() {
+                    return Some(documentation);
+                }
+            }
+        }
+    }
+    None
+}
+
+/// Extract documentation for a method at the given path
+fn extract_method_documentation(
+    source_code_info: Option<&protobuf::descriptor::SourceCodeInfo>,
+    method_path: &[i32],
+) -> Option<String> {
+    if let Some(sci) = source_code_info {
+        for location in &sci.location {
+            if location.path == method_path {
+                let mut documentation = String::new();
+
+                // Prefer leading comments, fall back to trailing comments
+                if location.has_leading_comments() {
+                    documentation = location.leading_comments().trim().to_string();
+                } else if location.has_trailing_comments() {
+                    documentation = location.trailing_comments().trim().to_string();
+                }
+
+                if !documentation.is_empty() {
+                    return Some(documentation);
+                }
+            }
+        }
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -644,6 +762,7 @@ mod tests {
             name: ".unitycatalog.schemas.v1.SchemaInfo".to_string(),
             fields: vec![],
             resource_descriptor: Some(resource_descriptor.clone()),
+            documentation: None,
         };
 
         assert!(message_info.resource_descriptor.is_some());
@@ -678,6 +797,60 @@ mod tests {
         let result = extract_field_behavior_option(&field);
         assert!(result.is_ok());
         assert!(result.unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_extract_message_documentation() {
+        use protobuf::descriptor::SourceCodeInfo;
+
+        // Create mock source code info with message documentation
+        let mut sci = SourceCodeInfo::new();
+        let mut location = protobuf::descriptor::source_code_info::Location::new();
+        location.path = vec![4, 0]; // Message at index 0
+        location.set_leading_comments("This is a test message for documentation.".to_string());
+        sci.location.push(location);
+
+        let message_path = vec![4, 0];
+        let result = extract_message_documentation(Some(&sci), &message_path);
+
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), "This is a test message for documentation.");
+    }
+
+    #[test]
+    fn test_extract_service_documentation() {
+        use protobuf::descriptor::SourceCodeInfo;
+
+        // Create mock source code info with service documentation
+        let mut sci = SourceCodeInfo::new();
+        let mut location = protobuf::descriptor::source_code_info::Location::new();
+        location.path = vec![6, 0]; // Service at index 0
+        location.set_leading_comments("This is a test service for documentation.".to_string());
+        sci.location.push(location);
+
+        let service_path = vec![6, 0];
+        let result = extract_service_documentation(Some(&sci), &service_path);
+
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), "This is a test service for documentation.");
+    }
+
+    #[test]
+    fn test_extract_method_documentation() {
+        use protobuf::descriptor::SourceCodeInfo;
+
+        // Create mock source code info with method documentation
+        let mut sci = SourceCodeInfo::new();
+        let mut location = protobuf::descriptor::source_code_info::Location::new();
+        location.path = vec![6, 0, 2, 0]; // Method 0 in service 0
+        location.set_leading_comments("This method does something useful.".to_string());
+        sci.location.push(location);
+
+        let method_path = vec![6, 0, 2, 0];
+        let result = extract_method_documentation(Some(&sci), &method_path);
+
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), "This method does something useful.");
     }
 
     #[test]

@@ -19,7 +19,7 @@ pub fn analyze_metadata(
 ) -> Result<GenerationPlan, Box<dyn std::error::Error>> {
     let mut services = Vec::new();
 
-    for (service_name, methods) in metadata.services() {
+    for (service_name, methods) in metadata.grouped_methods_by_service() {
         let service_plan = analyze_service(&service_name, methods)?;
         services.push(service_plan);
     }
@@ -244,7 +244,8 @@ mod tests {
             output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
             operation: Some(operation),
             http_rule: Some(http_rule),
-            input_fields: Vec::new(),
+            input_fields: vec![],
+            documentation: None,
         }
     }
 
@@ -294,6 +295,7 @@ mod tests {
             operation: Some(operation),
             http_rule: Some(http_rule),
             input_fields,
+            documentation: None,
         };
 
         let (path_params, query_params, body_fields) =
@@ -375,6 +377,7 @@ mod tests {
             operation: Some(operation),
             http_rule: Some(http_rule),
             input_fields,
+            documentation: None,
         };
 
         let (path_params, query_params, body_fields) = extract_request_fields(
@@ -450,6 +453,7 @@ mod tests {
             operation: Some(list_operation),
             http_rule: Some(list_http_rule),
             input_fields: list_fields,
+            documentation: None,
         };
 
         let (path_params, query_params, body_fields) =
@@ -545,6 +549,7 @@ mod tests {
             operation: Some(create_operation),
             http_rule: Some(create_http_rule),
             input_fields: create_fields,
+            documentation: None,
         };
 
         let (path_params, query_params, body_fields) =
