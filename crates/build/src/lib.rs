@@ -1,3 +1,13 @@
+use std::collections::{HashMap, HashSet};
+
+use crate::gnostic::openapi::v3::Operation;
+use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
+
+pub mod codegen;
+pub mod error;
+pub mod parsing;
+pub mod utils;
+
 pub mod google {
     pub mod api {
         include!("./gen/google.api.rs");
@@ -12,24 +22,6 @@ pub mod gnostic {
     }
 }
 
-pub mod codegen;
-pub mod error;
-pub mod parsing;
-pub mod utils;
-
-/// Metadata extracted from a service method
-#[derive(Debug, Clone)]
-pub struct MethodMetadata {
-    pub service_name: String,
-    pub method_name: String,
-    pub input_type: String,
-    pub output_type: String,
-    pub operation: Option<gnostic::openapi::v3::Operation>,
-    pub http_rule: Option<google::api::HttpRule>,
-    pub input_fields: Vec<MessageField>,
-    pub documentation: Option<String>,
-}
-
 /// Information about a field in a protobuf message
 #[derive(Debug, Clone)]
 pub struct MessageField {
@@ -42,7 +34,7 @@ pub struct MessageField {
     /// For oneof fields, contains the variants with their field names and types
     pub oneof_variants: Option<Vec<OneofVariant>>,
     /// Field behavior annotations from google.api.field_behavior
-    pub field_behavior: Vec<google::api::FieldBehavior>,
+    pub field_behavior: Vec<FieldBehavior>,
 }
 
 /// Information about a variant in a oneof field
@@ -51,6 +43,19 @@ pub struct OneofVariant {
     pub field_name: String,   // e.g., "azure_service_principal"
     pub variant_name: String, // e.g., "AzureServicePrincipal"
     pub rust_type: String,    // e.g., "AzureServicePrincipal"
+    pub documentation: Option<String>,
+}
+
+/// Metadata extracted from a service method
+#[derive(Debug, Clone)]
+pub struct MethodMetadata {
+    pub service_name: String,
+    pub method_name: String,
+    pub input_type: String,
+    pub output_type: String,
+    pub operation: Option<Operation>,
+    pub http_rule: Option<HttpRule>,
+    pub input_fields: Vec<MessageField>,
     pub documentation: Option<String>,
 }
 
@@ -98,6 +103,10 @@ impl MethodMetadata {
     pub fn request_type(&self) -> RequestType {
         utils::requests::classify_request_type(self.operation_id(), &self.method_name)
     }
+
+    pub fn is_root_method(&self) -> bool {
+        matches!(self.request_type(), RequestType::Get)
+    }
 }
 
 /// Type of REST request operation
@@ -113,9 +122,8 @@ pub enum RequestType {
 /// Collected metadata for code generation
 #[derive(Debug)]
 pub struct CodeGenMetadata {
-    pub methods: Vec<MethodMetadata>,
-    pub messages: std::collections::HashMap<String, MessageInfo>,
-    pub services: std::collections::HashMap<String, ServiceInfo>,
+    pub messages: HashMap<String, MessageInfo>,
+    pub services: HashMap<String, ServiceInfo>,
 }
 
 /// Information about a protobuf message
@@ -123,7 +131,7 @@ pub struct CodeGenMetadata {
 pub struct MessageInfo {
     pub name: String,
     pub fields: Vec<MessageField>,
-    pub resource_descriptor: Option<google::api::ResourceDescriptor>,
+    pub resource_descriptor: Option<ResourceDescriptor>,
     pub documentation: Option<String>,
 }
 
@@ -132,21 +140,13 @@ pub struct MessageInfo {
 pub struct ServiceInfo {
     pub name: String,
     pub documentation: Option<String>,
+    pub methods: Vec<MethodMetadata>,
 }
 
 impl CodeGenMetadata {
-    /// Group methods by service name
-    pub fn grouped_methods_by_service(
-        &self,
-    ) -> std::collections::HashMap<String, Vec<&MethodMetadata>> {
-        let mut grouped_services = std::collections::HashMap::new();
-        for method in &self.methods {
-            grouped_services
-                .entry(method.service_name.clone())
-                .or_insert_with(Vec::new)
-                .push(method);
-        }
-        grouped_services
+    /// Get all methods across all services
+    pub fn all_methods(&self) -> impl Iterator<Item = &MethodMetadata> {
+        self.services.values().flat_map(|service| &service.methods)
     }
 
     /// Get message fields for a given type name
@@ -159,14 +159,13 @@ impl CodeGenMetadata {
 
     /// Get all methods that have complete REST metadata (operation_id + http_rule)
     pub fn complete_methods(&self) -> Vec<&MethodMetadata> {
-        self.methods
-            .iter()
+        self.all_methods()
             .filter(|m| m.operation_id().is_some() && m.http_info().is_some())
             .collect()
     }
 
     /// Get all messages that have google.api.resource descriptors
-    pub fn messages_with_resources(&self) -> std::collections::HashMap<String, &MessageInfo> {
+    pub fn messages_with_resources(&self) -> HashMap<String, &MessageInfo> {
         self.messages
             .iter()
             .filter(|(_, msg)| msg.resource_descriptor.is_some())
@@ -175,10 +174,7 @@ impl CodeGenMetadata {
     }
 
     /// Get resource descriptor for a specific message type
-    pub fn get_resource_descriptor(
-        &self,
-        type_name: &str,
-    ) -> Option<&google::api::ResourceDescriptor> {
+    pub fn get_resource_descriptor(&self, type_name: &str) -> Option<&ResourceDescriptor> {
         self.messages
             .get(type_name)
             .and_then(|msg| msg.resource_descriptor.as_ref())
@@ -196,8 +192,8 @@ impl CodeGenMetadata {
     /// Get all messages that have fields with specific field behaviors
     pub fn messages_with_field_behavior(
         &self,
-        behavior: google::api::FieldBehavior,
-    ) -> std::collections::HashMap<String, &MessageInfo> {
+        behavior: FieldBehavior,
+    ) -> HashMap<String, &MessageInfo> {
         self.messages
             .iter()
             .filter(|(_, msg)| {
@@ -210,10 +206,7 @@ impl CodeGenMetadata {
     }
 
     /// Get all fields with a specific field behavior across all messages
-    pub fn fields_with_behavior(
-        &self,
-        behavior: google::api::FieldBehavior,
-    ) -> Vec<(&str, &MessageField)> {
+    pub fn fields_with_behavior(&self, behavior: FieldBehavior) -> Vec<(&str, &MessageField)> {
         self.messages
             .values()
             .flat_map(|msg| {
@@ -226,7 +219,7 @@ impl CodeGenMetadata {
     }
 
     /// Get all unique field behaviors used across all messages
-    pub fn all_field_behaviors(&self) -> std::collections::HashSet<google::api::FieldBehavior> {
+    pub fn all_field_behaviors(&self) -> HashSet<FieldBehavior> {
         self.messages
             .values()
             .flat_map(|msg| &msg.fields)
@@ -236,10 +229,8 @@ impl CodeGenMetadata {
     }
 
     /// Get field behavior statistics
-    pub fn field_behavior_stats(
-        &self,
-    ) -> std::collections::HashMap<google::api::FieldBehavior, usize> {
-        let mut stats = std::collections::HashMap::new();
+    pub fn field_behavior_stats(&self) -> HashMap<FieldBehavior, usize> {
+        let mut stats = HashMap::new();
         for msg in self.messages.values() {
             for field in &msg.fields {
                 for behavior in &field.field_behavior {
@@ -258,9 +249,8 @@ mod tests {
     #[test]
     fn test_messages_with_resources() {
         let mut codegen_metadata = CodeGenMetadata {
-            methods: Vec::new(),
-            messages: std::collections::HashMap::new(),
-            services: std::collections::HashMap::new(),
+            messages: HashMap::new(),
+            services: HashMap::new(),
         };
 
         // Add a message without resource descriptor
@@ -276,7 +266,7 @@ mod tests {
         );
 
         // Add a message with resource descriptor
-        let resource_descriptor = google::api::ResourceDescriptor {
+        let resource_descriptor = ResourceDescriptor {
             r#type: "test.io/TestResource".to_string(),
             pattern: vec!["test/{test}".to_string()],
             name_field: "name".to_string(),
@@ -302,12 +292,11 @@ mod tests {
     #[test]
     fn test_get_resource_descriptor() {
         let mut codegen_metadata = CodeGenMetadata {
-            methods: Vec::new(),
-            messages: std::collections::HashMap::new(),
-            services: std::collections::HashMap::new(),
+            messages: HashMap::new(),
+            services: HashMap::new(),
         };
 
-        let resource_descriptor = google::api::ResourceDescriptor {
+        let resource_descriptor = ResourceDescriptor {
             r#type: "test.io/TestResource".to_string(),
             pattern: vec!["test/{test}".to_string()],
             name_field: "name".to_string(),
@@ -338,13 +327,12 @@ mod tests {
     #[test]
     fn test_resource_types() {
         let mut codegen_metadata = CodeGenMetadata {
-            methods: Vec::new(),
-            messages: std::collections::HashMap::new(),
-            services: std::collections::HashMap::new(),
+            messages: HashMap::new(),
+            services: HashMap::new(),
         };
 
         // Add multiple messages with different resource types
-        let resource1 = google::api::ResourceDescriptor {
+        let resource1 = ResourceDescriptor {
             r#type: "test.io/TypeA".to_string(),
             pattern: vec!["typea/{id}".to_string()],
             ..Default::default()
@@ -356,7 +344,7 @@ mod tests {
             documentation: None,
         };
 
-        let resource2 = google::api::ResourceDescriptor {
+        let resource2 = ResourceDescriptor {
             r#type: "test.io/TypeB".to_string(),
             pattern: vec!["typeb/{id}".to_string()],
             ..Default::default()
@@ -395,9 +383,8 @@ mod tests {
     #[test]
     fn test_messages_with_field_behavior() {
         let mut codegen_metadata = CodeGenMetadata {
-            methods: Vec::new(),
-            messages: std::collections::HashMap::new(),
-            services: std::collections::HashMap::new(),
+            messages: HashMap::new(),
+            services: HashMap::new(),
         };
 
         // Add a message with required fields
@@ -412,7 +399,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![google::api::FieldBehavior::Required],
+                    field_behavior: vec![FieldBehavior::Required],
                 },
                 MessageField {
                     name: "optional_field".to_string(),
@@ -422,7 +409,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![google::api::FieldBehavior::Optional],
+                    field_behavior: vec![FieldBehavior::Optional],
                 },
             ],
             resource_descriptor: None,
@@ -444,7 +431,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
-                field_behavior: vec![google::api::FieldBehavior::OutputOnly],
+                field_behavior: vec![FieldBehavior::OutputOnly],
             }],
             resource_descriptor: None,
             documentation: None,
@@ -455,12 +442,12 @@ mod tests {
         );
 
         let required_messages =
-            codegen_metadata.messages_with_field_behavior(google::api::FieldBehavior::Required);
+            codegen_metadata.messages_with_field_behavior(FieldBehavior::Required);
         assert_eq!(required_messages.len(), 1);
         assert!(required_messages.contains_key(".test.MessageWithRequired"));
 
         let output_only_messages =
-            codegen_metadata.messages_with_field_behavior(google::api::FieldBehavior::OutputOnly);
+            codegen_metadata.messages_with_field_behavior(FieldBehavior::OutputOnly);
         assert_eq!(output_only_messages.len(), 1);
         assert!(output_only_messages.contains_key(".test.MessageWithoutRequired"));
     }
@@ -468,9 +455,8 @@ mod tests {
     #[test]
     fn test_fields_with_behavior() {
         let mut codegen_metadata = CodeGenMetadata {
-            methods: Vec::new(),
-            messages: std::collections::HashMap::new(),
-            services: std::collections::HashMap::new(),
+            messages: HashMap::new(),
+            services: HashMap::new(),
         };
 
         let message_info = MessageInfo {
@@ -484,10 +470,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![
-                        google::api::FieldBehavior::Required,
-                        google::api::FieldBehavior::Identifier,
-                    ],
+                    field_behavior: vec![FieldBehavior::Required, FieldBehavior::Identifier],
                 },
                 MessageField {
                     name: "readonly_field".to_string(),
@@ -497,7 +480,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![google::api::FieldBehavior::OutputOnly],
+                    field_behavior: vec![FieldBehavior::OutputOnly],
                 },
             ],
             resource_descriptor: None,
@@ -507,18 +490,15 @@ mod tests {
             .messages
             .insert(".test.TestMessage".to_string(), message_info);
 
-        let required_fields =
-            codegen_metadata.fields_with_behavior(google::api::FieldBehavior::Required);
+        let required_fields = codegen_metadata.fields_with_behavior(FieldBehavior::Required);
         assert_eq!(required_fields.len(), 1);
         assert_eq!(required_fields[0].1.name, "id_field");
 
-        let identifier_fields =
-            codegen_metadata.fields_with_behavior(google::api::FieldBehavior::Identifier);
+        let identifier_fields = codegen_metadata.fields_with_behavior(FieldBehavior::Identifier);
         assert_eq!(identifier_fields.len(), 1);
         assert_eq!(identifier_fields[0].1.name, "id_field");
 
-        let output_only_fields =
-            codegen_metadata.fields_with_behavior(google::api::FieldBehavior::OutputOnly);
+        let output_only_fields = codegen_metadata.fields_with_behavior(FieldBehavior::OutputOnly);
         assert_eq!(output_only_fields.len(), 1);
         assert_eq!(output_only_fields[0].1.name, "readonly_field");
     }
@@ -526,9 +506,8 @@ mod tests {
     #[test]
     fn test_field_behavior_stats() {
         let mut codegen_metadata = CodeGenMetadata {
-            methods: Vec::new(),
-            messages: std::collections::HashMap::new(),
-            services: std::collections::HashMap::new(),
+            messages: HashMap::new(),
+            services: HashMap::new(),
         };
 
         let message_info = MessageInfo {
@@ -542,7 +521,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![google::api::FieldBehavior::Required],
+                    field_behavior: vec![FieldBehavior::Required],
                 },
                 MessageField {
                     name: "field2".to_string(),
@@ -552,7 +531,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![google::api::FieldBehavior::Required],
+                    field_behavior: vec![FieldBehavior::Required],
                 },
                 MessageField {
                     name: "field3".to_string(),
@@ -562,7 +541,7 @@ mod tests {
                     oneof_name: None,
                     documentation: None,
                     oneof_variants: None,
-                    field_behavior: vec![google::api::FieldBehavior::Optional],
+                    field_behavior: vec![FieldBehavior::Optional],
                 },
             ],
             resource_descriptor: None,
@@ -573,8 +552,52 @@ mod tests {
             .insert(".test.TestMessage".to_string(), message_info);
 
         let stats = codegen_metadata.field_behavior_stats();
-        assert_eq!(stats.get(&google::api::FieldBehavior::Required), Some(&2));
-        assert_eq!(stats.get(&google::api::FieldBehavior::Optional), Some(&1));
-        assert_eq!(stats.get(&google::api::FieldBehavior::OutputOnly), None);
+        assert_eq!(stats.get(&FieldBehavior::Required), Some(&2));
+        assert_eq!(stats.get(&FieldBehavior::Optional), Some(&1));
+        assert_eq!(stats.get(&FieldBehavior::OutputOnly), None);
+    }
+
+    #[test]
+    fn test_service_based_method_structure() {
+        let mut codegen_metadata = CodeGenMetadata {
+            messages: HashMap::new(),
+            services: HashMap::new(),
+        };
+
+        // Create a test service with methods
+        let mut service_info = ServiceInfo {
+            name: "TestService".to_string(),
+            documentation: Some("Test service documentation".to_string()),
+            methods: Vec::new(),
+        };
+
+        // Add a method to the service
+        let method = MethodMetadata {
+            service_name: "TestService".to_string(),
+            method_name: "TestMethod".to_string(),
+            input_type: ".test.TestRequest".to_string(),
+            output_type: ".test.TestResponse".to_string(),
+            operation: None,
+            http_rule: None,
+            input_fields: Vec::new(),
+            documentation: Some("Test method documentation".to_string()),
+        };
+        service_info.methods.push(method);
+
+        codegen_metadata
+            .services
+            .insert("TestService".to_string(), service_info);
+
+        // Test that all_methods returns the method from the service
+        let all_methods: Vec<&MethodMetadata> = codegen_metadata.all_methods().collect();
+        assert_eq!(all_methods.len(), 1);
+        assert_eq!(all_methods[0].method_name, "TestMethod");
+        assert_eq!(all_methods[0].service_name, "TestService");
+
+        // Test that we can access the service and its methods directly
+        let service = codegen_metadata.services.get("TestService").unwrap();
+        assert_eq!(service.name, "TestService");
+        assert_eq!(service.methods.len(), 1);
+        assert_eq!(service.methods[0].method_name, "TestMethod");
     }
 }

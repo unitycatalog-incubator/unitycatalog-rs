@@ -37,7 +37,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file_descriptor_set = FileDescriptorSet::parse_from_bytes(&descriptor_bytes)?;
 
     let mut codegen_metadata = CodeGenMetadata {
-        methods: Vec::new(),
         messages: std::collections::HashMap::new(),
         services: std::collections::HashMap::new(),
     };

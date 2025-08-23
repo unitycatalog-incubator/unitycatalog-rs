@@ -19,8 +19,8 @@ pub fn analyze_metadata(
 ) -> Result<GenerationPlan, Box<dyn std::error::Error>> {
     let mut services = Vec::new();
 
-    for (service_name, methods) in metadata.grouped_methods_by_service() {
-        let service_plan = analyze_service(&service_name, methods)?;
+    for (service_name, service_info) in &metadata.services {
+        let service_plan = analyze_service(service_name, &service_info.methods)?;
         services.push(service_plan);
     }
 
@@ -30,7 +30,7 @@ pub fn analyze_metadata(
 /// Analyze a single service and create a service plan
 fn analyze_service(
     service_name: &str,
-    methods: Vec<&MethodMetadata>,
+    methods: &[MethodMetadata],
 ) -> Result<ServicePlan, Box<dyn std::error::Error>> {
     let handler_name = strings::service_to_handler_name(service_name);
     let base_path = strings::service_to_base_path(service_name);

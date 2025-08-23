@@ -278,6 +278,7 @@ fn process_service(
     let service_info = crate::ServiceInfo {
         name: service_name.to_string(),
         documentation: service_documentation,
+        methods: Vec::new(),
     };
     codegen_metadata
         .services
@@ -333,8 +334,10 @@ fn process_method(
     // Extract gnostic method-level annotations
     extract_method_annotations(method, service_name, method_name, &mut method_metadata)?;
 
-    // Add to collected metadata
-    codegen_metadata.methods.push(method_metadata);
+    // Add to the service's methods
+    if let Some(service_info) = codegen_metadata.services.get_mut(service_name) {
+        service_info.methods.push(method_metadata);
+    }
 
     Ok(())
 }
