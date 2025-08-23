@@ -53,7 +53,7 @@
     "build:debug": "napi build --platform --dts ../unitycatalog/native.d.ts --js ../unitycatalog/native.js unitycatalog",
     "tsc": "tsc -b",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "ava",
+    "test": "jest",
     "universal": "napi universal",
     "version": "napi version"
   },

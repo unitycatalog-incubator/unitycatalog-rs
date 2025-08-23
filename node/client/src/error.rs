@@ -8,7 +8,7 @@ pub trait NapiErrorExt<T> {
     fn default_error(self) -> Result<T>;
 }
 
-impl<T> NapiErrorExt<T> for std::result::Result<T, unitycatalog_common::Error> {
+impl<T> NapiErrorExt<T> for std::result::Result<T, unitycatalog_client::Error> {
     fn default_error(self) -> Result<T> {
         self.map_err(|err| convert_error(&err))
     }

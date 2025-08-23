@@ -134,8 +134,9 @@ build-docker:
 notebook:
     uv run --directory notebooks marimo edit client.py
 
-test-api:
-    UC_SERVER_URL="http://localhost:8080/api/2.1/unity-catalog/" cargo run -p unitycatalog-cli -- test
+[group('test')]
+test-node:
+    npm run test -w @unitycatalog/client
 
 [group('test')]
 integration:

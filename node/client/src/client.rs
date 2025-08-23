@@ -4,10 +4,7 @@ use futures::TryStreamExt;
 use napi::bindgen_prelude::Buffer;
 use napi_derive::napi;
 use prost::Message;
-use unitycatalog_common::catalogs::v1::{CreateCatalogRequest, UpdateCatalogRequest};
-use unitycatalog_common::client::UnityCatalogClient as UCClient;
-use unitycatalog_common::google::protobuf::{Struct, Value, value::Kind as ValueKind};
-use unitycatalog_common::schemas::v1::{CreateSchemaRequest, UpdateSchemaRequest};
+use unitycatalog_client::{CatalogClient as UCCatalogClient, UnityCatalogClient as UCClient};
 
 use crate::error::NapiErrorExt;
 
@@ -38,77 +35,80 @@ impl UnityCatalogClient {
     #[napi(catch_unwind)]
     pub async fn list_catalogs(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
         self.inner
-            .catalogs()
-            .list(max_results)
+            .list_catalogs(max_results)
             .map_ok(|catalog| Buffer::from(catalog.encode_to_vec()))
             .try_collect::<Vec<_>>()
             .await
             .default_error()
     }
 
-    #[napi]
-    pub fn catalog(&self, name: String) -> CatalogClient {
-        CatalogClient::new(name, self.inner.clone())
-    }
-}
-
-#[napi]
-pub struct CatalogClient {
-    name: String,
-    inner: UCClient,
-}
-
-#[napi]
-impl CatalogClient {
-    pub fn new(name: String, inner: UCClient) -> Self {
-        Self { name, inner }
-    }
-
-    #[napi(getter)]
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    #[napi(setter)]
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
-    }
-
-    #[napi]
-    pub fn schema(&self, name: String) -> SchemaClient {
-        SchemaClient::new(name, self.name.clone(), self.inner.clone())
-    }
-
     #[napi(catch_unwind)]
-    pub async fn get(&self) -> napi::Result<Buffer> {
-        self.inner
-            .catalogs()
-            .get(&self.name)
+    pub async fn create_catalog(
+        &self,
+        name: String,
+        storage_root: Option<String>,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self
+            .inner
+            .create_catalog(name)
+            .with_storage_root(storage_root)
+            .with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request
             .await
             .map(|catalog| Buffer::from(catalog.encode_to_vec()))
             .default_error()
     }
 
     #[napi(catch_unwind)]
-    pub async fn create(
+    pub async fn create_sharing_catalog(
         &self,
+        name: String,
+        provider_name: String,
+        share_name: String,
         comment: Option<String>,
-        storage_root: Option<String>,
-        provider_name: Option<String>,
-        share_name: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> napi::Result<Buffer> {
-        let request = CreateCatalogRequest {
-            name: self.name.clone(),
-            comment,
-            properties: properties.map(hash_map_to_struct),
-            storage_root,
-            provider_name,
-            share_name,
-        };
+        let mut request = self
+            .inner
+            .create_catalog(name)
+            .with_provider_name(provider_name)
+            .with_share_name(share_name)
+            .with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request
+            .await
+            .map(|catalog| Buffer::from(catalog.encode_to_vec()))
+            .default_error()
+    }
+
+    #[napi]
+    pub fn catalog(&self, name: String) -> CatalogClient {
+        CatalogClient::new(self.inner.catalog(name))
+    }
+}
+
+#[napi]
+pub struct CatalogClient {
+    inner: UCCatalogClient,
+}
+
+#[napi]
+impl CatalogClient {
+    pub fn new(inner: UCCatalogClient) -> Self {
+        Self { inner }
+    }
+
+    #[napi(catch_unwind)]
+    pub async fn get(&self) -> napi::Result<Buffer> {
         self.inner
-            .catalogs()
-            .create_catalog(&request)
+            .get()
             .await
             .map(|catalog| Buffer::from(catalog.encode_to_vec()))
             .default_error()
@@ -122,16 +122,16 @@ impl CatalogClient {
         owner: Option<String>,
         properties: Option<HashMap<String, String>>,
     ) -> napi::Result<Buffer> {
-        let request = UpdateCatalogRequest {
-            name: self.name.clone(),
-            comment,
-            new_name: new_name.unwrap_or_else(|| self.name.clone()),
-            owner,
-            properties: properties.map(hash_map_to_struct),
-        };
-        self.inner
-            .catalogs()
-            .update_catalog(&request)
+        let mut request = self
+            .inner
+            .update()
+            .with_new_name(new_name)
+            .with_comment(comment)
+            .with_owner(owner);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request
             .await
             .map(|catalog| Buffer::from(catalog.encode_to_vec()))
             .default_error()
@@ -140,161 +140,6 @@ impl CatalogClient {
     /// Deletes the catalog.
     #[napi(catch_unwind)]
     pub async fn delete(&self, force: Option<bool>) -> napi::Result<()> {
-        self.inner
-            .catalogs()
-            .delete(&self.name, force)
-            .await
-            .default_error()
-    }
-
-    #[napi(catch_unwind)]
-    pub async fn list_schemas(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
-        self.inner
-            .schemas()
-            .list(&self.name, max_results)
-            .map_ok(|schema| Buffer::from(schema.encode_to_vec()))
-            .try_collect::<Vec<_>>()
-            .await
-            .default_error()
-    }
-}
-
-#[napi]
-pub struct SchemaClient {
-    name: String,
-    catalog_name: String,
-    inner: UCClient,
-}
-
-#[napi]
-impl SchemaClient {
-    pub fn new(name: String, catalog_name: String, inner: UCClient) -> Self {
-        Self {
-            name,
-            catalog_name,
-            inner,
-        }
-    }
-
-    #[napi(getter)]
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    #[napi(setter)]
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
-    }
-
-    #[napi(getter)]
-    pub fn catalog_name(&self) -> &str {
-        &self.catalog_name
-    }
-
-    #[napi(setter)]
-    pub fn set_catalog_name(&mut self, catalog_name: String) {
-        self.catalog_name = catalog_name;
-    }
-
-    #[napi(catch_unwind)]
-    pub async fn get(&self) -> napi::Result<Buffer> {
-        self.inner
-            .schemas()
-            .get(&self.catalog_name, &self.name)
-            .await
-            .map(|schema| Buffer::from(schema.encode_to_vec()))
-            .default_error()
-    }
-
-    #[napi(catch_unwind)]
-    pub async fn create(
-        &self,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> napi::Result<Buffer> {
-        let request = CreateSchemaRequest {
-            name: self.name.clone(),
-            catalog_name: self.catalog_name.clone(),
-            comment,
-            properties: properties.map(hash_map_to_struct),
-        };
-        self.inner
-            .schemas()
-            .create_schema(&request)
-            .await
-            .map(|schema| Buffer::from(schema.encode_to_vec()))
-            .default_error()
-    }
-
-    #[napi(catch_unwind)]
-    pub async fn update(
-        &self,
-        new_name: Option<String>,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> napi::Result<Buffer> {
-        let request = UpdateSchemaRequest {
-            full_name: format!("{}.{}", self.catalog_name, self.name),
-            comment,
-            properties: properties.map(hash_map_to_struct),
-            new_name: new_name.unwrap_or_else(|| self.name.clone()),
-        };
-        self.inner
-            .schemas()
-            .update_schema(&request)
-            .await
-            .map(|schema| Buffer::from(schema.encode_to_vec()))
-            .default_error()
-    }
-
-    #[napi(catch_unwind)]
-    pub async fn delete(&self, force: Option<bool>) -> napi::Result<()> {
-        self.inner
-            .schemas()
-            .delete(&self.catalog_name, &self.name, force)
-            .await
-            .default_error()
-    }
-
-    #[napi(catch_unwind)]
-    pub async fn list_tables(
-        &self,
-        max_results: Option<i32>,
-        include_delta_metadata: Option<bool>,
-        omit_columns: Option<bool>,
-        omit_properties: Option<bool>,
-        omit_username: Option<bool>,
-    ) -> napi::Result<Vec<Buffer>> {
-        self.inner
-            .tables()
-            .list(
-                &self.catalog_name,
-                &self.name,
-                max_results,
-                include_delta_metadata,
-                omit_columns,
-                omit_properties,
-                omit_username,
-            )
-            .map_ok(|table| Buffer::from(table.encode_to_vec()))
-            .try_collect::<Vec<_>>()
-            .await
-            .default_error()
-    }
-}
-
-fn hash_map_to_struct(map: HashMap<String, String>) -> Struct {
-    Struct {
-        fields: map
-            .iter()
-            .map(|(k, v)| {
-                (
-                    k.clone(),
-                    Value {
-                        kind: Some(ValueKind::StringValue(v.clone())),
-                    },
-                )
-            })
-            .collect(),
+        self.inner.delete(force).await.default_error()
     }
 }

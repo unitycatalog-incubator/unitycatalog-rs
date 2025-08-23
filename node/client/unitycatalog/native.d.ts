@@ -82,27 +82,13 @@ export interface ClientConfig {
 export declare class UnityCatalogClient {
   static fromUrl(baseUrl: string, token?: string | undefined | null): UnityCatalogClient
   listCatalogs(maxResults?: number | undefined | null): Promise<Array<Buffer>>
+  createCatalog(name: string, storageRoot?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
+  createSharingCatalog(name: string, providerName: string, shareName: string, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   catalog(name: string): CatalogClient
 }
 export declare class CatalogClient {
-  get name(): string
-  set name(name: string)
-  schema(name: string): SchemaClient
   get(): Promise<Buffer>
-  create(comment?: string | undefined | null, storageRoot?: string | undefined | null, providerName?: string | undefined | null, shareName?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   update(newName?: string | undefined | null, comment?: string | undefined | null, owner?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   /** Deletes the catalog. */
   delete(force?: boolean | undefined | null): Promise<void>
-  listSchemas(maxResults?: number | undefined | null): Promise<Array<Buffer>>
-}
-export declare class SchemaClient {
-  get name(): string
-  set name(name: string)
-  get catalogName(): string
-  set catalogName(catalogName: string)
-  get(): Promise<Buffer>
-  create(comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
-  update(newName?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
-  delete(force?: boolean | undefined | null): Promise<void>
-  listTables(maxResults?: number | undefined | null, includeDeltaMetadata?: boolean | undefined | null, omitColumns?: boolean | undefined | null, omitProperties?: boolean | undefined | null, omitUsername?: boolean | undefined | null): Promise<Array<Buffer>>
 }

@@ -11,7 +11,9 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "Node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    // Skip typechecking libraries and .d.ts files
+    "skipLibCheck": true
   },
   "exclude": ["./dist/*", "./examples/*"],
   "typedocOptions": {
