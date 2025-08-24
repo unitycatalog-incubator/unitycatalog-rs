@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::external_locations::v1::*;
-pub async fn list_external_locations_handler<T: ExternalLocationHandler>(
+pub async fn list_external_locations<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListExternalLocationsRequest,
@@ -14,7 +14,7 @@ pub async fn list_external_locations_handler<T: ExternalLocationHandler>(
     let result = handler.list_external_locations(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_external_location_handler<T: ExternalLocationHandler>(
+pub async fn create_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: CreateExternalLocationRequest,
@@ -23,7 +23,7 @@ pub async fn create_external_location_handler<T: ExternalLocationHandler>(
     let result = handler.create_external_location(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_external_location_handler<T: ExternalLocationHandler>(
+pub async fn get_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetExternalLocationRequest,
@@ -32,7 +32,7 @@ pub async fn get_external_location_handler<T: ExternalLocationHandler>(
     let result = handler.get_external_location(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_external_location_handler<T: ExternalLocationHandler>(
+pub async fn update_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: UpdateExternalLocationRequest,
@@ -41,7 +41,7 @@ pub async fn update_external_location_handler<T: ExternalLocationHandler>(
     let result = handler.update_external_location(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_external_location_handler<T: ExternalLocationHandler>(
+pub async fn delete_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: DeleteExternalLocationRequest,

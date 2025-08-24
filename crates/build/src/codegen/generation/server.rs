@@ -2,8 +2,9 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 use syn::{Path, Type};
 
-use super::super::{BodyField, MethodPlan, PathParam, QueryParam, ServicePlan, templates};
-use crate::RequestType;
+use super::{format_tokens, templates};
+use crate::analysis::{BodyField, MethodPlan, PathParam, QueryParam, ServicePlan};
+use crate::parsing::RequestType;
 
 /// Generate server side code for axum servers
 ///
@@ -63,7 +64,7 @@ pub fn server_common(extractors: &[String], service_namespace: &str) -> String {
         #(#extractor_tokens)*
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &str) -> String {
@@ -91,7 +92,7 @@ pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &
 
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate extractor implementation for a specific method
@@ -144,7 +145,7 @@ fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate FromRequestParts implementation for path/query parameters
@@ -176,7 +177,7 @@ pub fn from_request_parts_impl(method: &MethodPlan) -> Result<String, Box<dyn st
         }
     };
 
-    Ok(templates::format_tokens(tokens))
+    Ok(format_tokens(tokens))
 }
 
 /// Generate FromRequest implementation for JSON body
@@ -206,7 +207,7 @@ pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::err
             }
         };
 
-        Ok(templates::format_tokens(tokens))
+        Ok(format_tokens(tokens))
     }
 }
 
@@ -256,7 +257,7 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
             }
         };
 
-        Ok(templates::format_tokens(tokens))
+        Ok(format_tokens(tokens))
     } else {
         // Use traditional destructuring for regular fields
         let body_extractions = generate_body_extractions_tokens(&method.body_fields, &input_type);
@@ -290,7 +291,7 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
             }
         };
 
-        Ok(templates::format_tokens(tokens))
+        Ok(format_tokens(tokens))
     }
 }
 
@@ -479,9 +480,9 @@ fn generate_mixed_field_assignments_tokens(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
-    };
+    use crate::analysis::analyze_method;
+    use crate::parsing::{MessageField, MethodMetadata};
+    use crate::{gnostic::openapi::v3::Operation, google::api::HttpRule};
 
     #[test]
     fn test_generated_extractor_field_mapping() {
@@ -541,9 +542,7 @@ mod tests {
             ],
         };
 
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
+        let method_plan = analyze_method(&metadata).unwrap().unwrap();
 
         // Test hybrid extractor generation (has path, query, and body fields)
         let extractor_code = from_request_impl(&method_plan).unwrap();
@@ -633,9 +632,7 @@ mod tests {
             ],
         };
 
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
+        let method_plan = analyze_method(&metadata).unwrap().unwrap();
 
         // Verify no duplicate fields
         let query_field_names: std::collections::HashSet<_> =
@@ -735,41 +732,7 @@ mod tests {
             ],
         };
 
-        let method = MethodMetadata {
-            service_name: "TablesService".to_string(),
-            method_name: "EdgeCaseMethod".to_string(),
-            input_type: ".test.EdgeCaseRequest".to_string(),
-            output_type: ".test.EdgeCaseResponse".to_string(),
-            operation: Some(operation),
-            http_rule: http_rule,
-            documentation: None,
-            input_fields: vec![
-                MessageField {
-                    name: "catalog_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-                MessageField {
-                    name: "name_pattern".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
+        let method_plan = analyze_method(&metadata).unwrap().unwrap();
 
         // Should have 1 path param, 3 query params (name_pattern + auto-added pagination)
         assert_eq!(method_plan.path_params.len(), 1);
@@ -891,9 +854,7 @@ mod tests {
             ],
         };
 
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
+        let method_plan = analyze_method(&metadata).unwrap().unwrap();
 
         println!("Query params for ListTables:");
         for param in &method_plan.query_params {
@@ -1022,72 +983,7 @@ mod tests {
             ],
         };
 
-        let method = MethodMetadata {
-            service_name: "TablesService".to_string(),
-            method_name: "ListTables".to_string(),
-            input_type: ".test.ListTablesRequest".to_string(),
-            output_type: ".test.ListTablesResponse".to_string(),
-            operation: Some(operation),
-            http_rule: http_rule,
-            documentation: None,
-            input_fields: vec![
-                // These should be required in Proto3 (no proto3_optional flag)
-                MessageField {
-                    name: "catalog_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-                MessageField {
-                    name: "schema_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-                MessageField {
-                    name: "max_results".to_string(),
-                    field_type: "TYPE_INT32".to_string(),
-                    optional: true, // This has proto3_optional flag
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-                MessageField {
-                    name: "page_token".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-                MessageField {
-                    name: "include_history".to_string(),
-                    field_type: "TYPE_BOOL".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                    field_behavior: vec![],
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
+        let method_plan = analyze_method(&metadata).unwrap().unwrap();
 
         // Test the generated extractor
         let extractor_code = from_request_parts_impl(&method_plan).unwrap();

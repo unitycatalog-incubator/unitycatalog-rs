@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::credentials::v1::*;
-pub async fn list_credentials_handler<T: CredentialHandler>(
+pub async fn list_credentials<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListCredentialsRequest,
@@ -14,7 +14,7 @@ pub async fn list_credentials_handler<T: CredentialHandler>(
     let result = handler.list_credentials(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_credential_handler<T: CredentialHandler>(
+pub async fn create_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: CreateCredentialRequest,
@@ -23,7 +23,7 @@ pub async fn create_credential_handler<T: CredentialHandler>(
     let result = handler.create_credential(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_credential_handler<T: CredentialHandler>(
+pub async fn get_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetCredentialRequest,
@@ -32,7 +32,7 @@ pub async fn get_credential_handler<T: CredentialHandler>(
     let result = handler.get_credential(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_credential_handler<T: CredentialHandler>(
+pub async fn update_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: UpdateCredentialRequest,
@@ -41,7 +41,7 @@ pub async fn update_credential_handler<T: CredentialHandler>(
     let result = handler.update_credential(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_credential_handler<T: CredentialHandler>(
+pub async fn delete_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: DeleteCredentialRequest,

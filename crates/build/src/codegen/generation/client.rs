@@ -2,8 +2,9 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use super::super::{MethodPlan, PathParam, QueryParam, ServicePlan, templates};
-use crate::RequestType;
+use super::format_tokens;
+use crate::analysis::{MethodPlan, PathParam, QueryParam, ServicePlan};
+use crate::parsing::{RequestType, format_url_template};
 use crate::utils::strings;
 
 /// Generate client code for a service
@@ -67,7 +68,7 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate client method implementation
@@ -113,7 +114,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate URL formatting code that properly substitutes path parameters
@@ -128,8 +129,7 @@ fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::Tok
 
     let template_param_names: Vec<String> =
         params.iter().map(|p| p.template_param.clone()).collect();
-    let (format_string, format_args) =
-        crate::utils::paths::format_url_template(path, &template_param_names);
+    let (format_string, format_args) = format_url_template(path, &template_param_names);
 
     if format_args.is_empty() {
         quote! {
@@ -215,8 +215,6 @@ mod tests {
 
     #[test]
     fn test_generate_query_parameters() {
-        use crate::codegen::QueryParam;
-
         // Test with no query parameters
         let empty_params = vec![];
         let result = generate_query_parameters(&empty_params);

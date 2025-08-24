@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::volumes::v1::*;
-pub async fn list_volumes_handler<T: VolumeHandler>(
+pub async fn list_volumes<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListVolumesRequest,
@@ -14,7 +14,7 @@ pub async fn list_volumes_handler<T: VolumeHandler>(
     let result = handler.list_volumes(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_volume_handler<T: VolumeHandler>(
+pub async fn create_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: CreateVolumeRequest,
@@ -23,7 +23,7 @@ pub async fn create_volume_handler<T: VolumeHandler>(
     let result = handler.create_volume(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_volume_handler<T: VolumeHandler>(
+pub async fn get_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetVolumeRequest,
@@ -32,7 +32,7 @@ pub async fn get_volume_handler<T: VolumeHandler>(
     let result = handler.get_volume(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_volume_handler<T: VolumeHandler>(
+pub async fn update_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: UpdateVolumeRequest,
@@ -41,7 +41,7 @@ pub async fn update_volume_handler<T: VolumeHandler>(
     let result = handler.update_volume(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_volume_handler<T: VolumeHandler>(
+pub async fn delete_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: DeleteVolumeRequest,

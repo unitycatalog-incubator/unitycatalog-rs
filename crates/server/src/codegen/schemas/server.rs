@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::schemas::v1::*;
-pub async fn list_schemas_handler<T: SchemaHandler>(
+pub async fn list_schemas<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListSchemasRequest,
@@ -14,7 +14,7 @@ pub async fn list_schemas_handler<T: SchemaHandler>(
     let result = handler.list_schemas(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_schema_handler<T: SchemaHandler>(
+pub async fn create_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: CreateSchemaRequest,
@@ -23,7 +23,7 @@ pub async fn create_schema_handler<T: SchemaHandler>(
     let result = handler.create_schema(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_schema_handler<T: SchemaHandler>(
+pub async fn get_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetSchemaRequest,
@@ -32,7 +32,7 @@ pub async fn get_schema_handler<T: SchemaHandler>(
     let result = handler.get_schema(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_schema_handler<T: SchemaHandler>(
+pub async fn update_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: UpdateSchemaRequest,
@@ -41,7 +41,7 @@ pub async fn update_schema_handler<T: SchemaHandler>(
     let result = handler.update_schema(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_schema_handler<T: SchemaHandler>(
+pub async fn delete_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: DeleteSchemaRequest,

@@ -5,10 +5,9 @@ use clap::Parser;
 use protobuf::Message;
 use protobuf::descriptor::FileDescriptorSet;
 
-use unitycatalog_build::CodeGenMetadata;
-use unitycatalog_build::codegen::generate_rest_handlers;
-use unitycatalog_build::error::Result;
-use unitycatalog_build::parsing::process_file_descriptor;
+use unitycatalog_build::Result;
+use unitycatalog_build::codegen::generate_code;
+use unitycatalog_build::parsing::parse_file_descriptor_set;
 
 #[derive(Parser)]
 struct Cli {
@@ -36,19 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let descriptor_bytes = fs::read(&descriptor_path)?;
     let file_descriptor_set = FileDescriptorSet::parse_from_bytes(&descriptor_bytes)?;
 
-    let mut codegen_metadata = CodeGenMetadata {
-        messages: std::collections::HashMap::new(),
-        services: std::collections::HashMap::new(),
-    };
-
-    // Process each file descriptor
-    for file_descriptor in &file_descriptor_set.file {
-        process_file_descriptor(file_descriptor, &mut codegen_metadata)?;
-    }
-
-    println!("server -> {}", args.output_server);
-    println!("client -> {}", args.output_client);
-    println!("python -> {}", args.output_python);
+    let codegen_metadata = parse_file_descriptor_set(&file_descriptor_set)?;
 
     // Generate code from collected metadata
     let output_dir_common = fs::canonicalize(PathBuf::from(&args.output_common))?;
@@ -56,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output_dir_client = fs::canonicalize(PathBuf::from(&args.output_client))?;
     let output_dir_python = fs::canonicalize(PathBuf::from(&args.output_python))?;
 
-    generate_rest_handlers(
+    generate_code(
         &codegen_metadata,
         &output_dir_common,
         &output_dir_server,

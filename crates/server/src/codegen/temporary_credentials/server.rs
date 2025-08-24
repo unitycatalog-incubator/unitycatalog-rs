@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::temporary_credentials::v1::*;
-pub async fn generate_temporary_table_credentials_handler<T: TemporaryCredentialHandler>(
+pub async fn generate_temporary_table_credentials<T: TemporaryCredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GenerateTemporaryTableCredentialsRequest,
@@ -16,7 +16,7 @@ pub async fn generate_temporary_table_credentials_handler<T: TemporaryCredential
         .await?;
     Ok(axum::Json(result))
 }
-pub async fn generate_temporary_path_credentials_handler<T: TemporaryCredentialHandler>(
+pub async fn generate_temporary_path_credentials<T: TemporaryCredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GenerateTemporaryPathCredentialsRequest,

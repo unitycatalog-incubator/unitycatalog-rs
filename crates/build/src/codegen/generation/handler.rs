@@ -2,9 +2,8 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use crate::codegen::MethodPlan;
-
-use super::{ServicePlan, templates};
+use super::{format_tokens, templates};
+use crate::analysis::{MethodPlan, ServicePlan};
 
 /// Generate handler trait for a service
 pub(super) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
@@ -46,7 +45,7 @@ pub fn handler_trait(trait_name: &str, methods: &[TokenStream], service_base: St
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate a single handler trait method

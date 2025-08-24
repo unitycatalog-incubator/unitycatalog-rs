@@ -13,9 +13,11 @@ use std::collections::HashMap;
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use syn::File;
 
+use super::GeneratedCode;
 use super::templates;
-use super::{GeneratedCode, GenerationPlan, ServicePlan};
+use crate::analysis::{GenerationPlan, ServicePlan};
 
 mod builder;
 mod client;
@@ -54,7 +56,7 @@ fn generate_common_module() -> String {
         pub mod server;
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 pub fn generate_server_code(
@@ -136,7 +138,7 @@ fn generate_server_module(service: &ServicePlan) -> String {
         pub mod server;
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 fn generate_client_module() -> String {
@@ -149,7 +151,7 @@ fn generate_client_module() -> String {
         pub mod builders;
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate main module file that ties all services together
@@ -179,17 +181,32 @@ pub fn main_module(services: &[ServicePlan]) -> String {
 
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
+}
+
+/// Helper function to format TokenStream as properly formatted Rust code
+fn format_tokens(tokens: TokenStream) -> String {
+    let tokens_string = tokens.to_string();
+
+    let syntax_tree = syn::parse2::<File>(tokens).unwrap_or_else(|_| {
+        // Fallback to basic token string if parsing fails
+        syn::parse_str::<File>(&tokens_string).unwrap_or_else(|_| {
+            syn::parse_quote! {
+                // Failed to parse generated code
+            }
+        })
+    });
+
+    prettyplease::unparse(&syntax_tree)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::super::MethodPlan;
     use super::*;
-    use crate::{
-        MessageField, MethodMetadata, codegen::QueryParam, gnostic::openapi::v3::Operation,
-        google::api::HttpRule,
-    };
+    use crate::analysis::{MethodPlan, QueryParam, analyze_method};
+    use crate::google::api::http_rule::Pattern;
+    use crate::parsing::{MessageField, MethodMetadata};
+    use crate::{gnostic::openapi::v3::Operation, google::api::HttpRule};
 
     pub(crate) fn create_test_service_plan() -> ServicePlan {
         let operation = Operation {
@@ -198,9 +215,7 @@ mod tests {
         };
 
         let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Get(
-                "/catalogs".to_string(),
-            )),
+            pattern: Some(Pattern::Get("/catalogs".to_string())),
             ..Default::default()
         };
 
@@ -276,9 +291,7 @@ mod tests {
         };
 
         let get_http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Get(
-                "/catalogs/{name}".to_string(),
-            )),
+            pattern: Some(Pattern::Get("/catalogs/{name}".to_string())),
             body: "".to_string(),
             ..Default::default()
         };
@@ -315,9 +328,7 @@ mod tests {
             ],
         };
 
-        let get_plan = crate::codegen::analysis::analyze_method(&get_metadata)
-            .unwrap()
-            .unwrap();
+        let get_plan = analyze_method(&get_metadata).unwrap().unwrap();
         assert_eq!(get_plan.path_params.len(), 1);
         assert_eq!(get_plan.path_params[0].field_name, "name");
         assert_eq!(get_plan.query_params.len(), 1);
@@ -331,9 +342,7 @@ mod tests {
         };
 
         let post_http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Post(
-                "/catalogs".to_string(),
-            )),
+            pattern: Some(Pattern::Post("/catalogs".to_string())),
             body: "*".to_string(),
             ..Default::default()
         };
@@ -380,9 +389,7 @@ mod tests {
             ],
         };
 
-        let post_plan = crate::codegen::analysis::analyze_method(&post_metadata)
-            .unwrap()
-            .unwrap();
+        let post_plan = analyze_method(&post_metadata).unwrap().unwrap();
         assert_eq!(post_plan.path_params.len(), 0);
         assert_eq!(post_plan.query_params.len(), 0);
         assert_eq!(post_plan.body_fields.len(), 3);
@@ -397,9 +404,7 @@ mod tests {
         };
 
         let update_http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Patch(
-                "/catalogs/{name}".to_string(),
-            )),
+            pattern: Some(Pattern::Patch("/catalogs/{name}".to_string())),
             body: "catalog".to_string(),
             ..Default::default()
         };
@@ -446,9 +451,7 @@ mod tests {
             ],
         };
 
-        let update_plan = crate::codegen::analysis::analyze_method(&update_metadata)
-            .unwrap()
-            .unwrap();
+        let update_plan = analyze_method(&update_metadata).unwrap().unwrap();
         assert_eq!(update_plan.path_params.len(), 1);
         assert_eq!(update_plan.path_params[0].field_name, "name");
         assert_eq!(update_plan.query_params.len(), 1);

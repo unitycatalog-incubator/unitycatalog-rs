@@ -3,9 +3,10 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use super::super::{MethodPlan, ServicePlan, templates};
+use super::format_tokens;
+use crate::analysis::{MethodPlan, ServicePlan};
+use crate::parsing::{MessageField, RequestType};
 use crate::utils::strings;
-use crate::{MessageField, RequestType};
 
 /// Generate builder code for all request types in a service
 pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
@@ -68,7 +69,7 @@ fn generate_builders_module(
         #(#builder_tokens)*
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate a builder for a specific request type
@@ -135,7 +136,7 @@ fn generate_request_builder(
         #into_future_impl
     };
 
-    Ok(templates::format_tokens(tokens))
+    Ok(format_tokens(tokens))
 }
 
 /// Analyze request fields to separate required from optional
@@ -738,6 +739,8 @@ fn convert_protobuf_enum_to_rust_type(field_type: &str) -> String {
 mod tests {
     use super::super::tests::create_test_service_plan;
     use super::*;
+    use crate::parsing::{MessageField, MethodMetadata};
+    use crate::{gnostic::openapi::v3::Operation, google::api::HttpRule};
 
     #[test]
     fn test_convert_protobuf_enum_to_rust_type() {
@@ -795,9 +798,6 @@ mod tests {
         assert_eq!(convert_protobuf_enum_to_rust_type("TYPE_STRING"), "i32");
         assert_eq!(convert_protobuf_enum_to_rust_type("not_enum_type"), "i32");
     }
-    use crate::{
-        MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
-    };
 
     fn create_test_create_method() -> MethodPlan {
         let operation = Operation {

@@ -8,10 +8,18 @@
 //! - Determining parameter types and sources
 //! - Planning the structure of generated code
 
-use super::{BodyField, GenerationPlan, MethodPlan, PathParam, QueryParam, ServicePlan};
-use crate::utils::paths::extract_http_rule_pattern;
-use crate::utils::{paths, requests, strings, types};
-use crate::{CodeGenMetadata, MessageField, MethodMetadata};
+use convert_case::{Case, Casing};
+
+use crate::parsing::{
+    CodeGenMetadata, MessageField, MethodMetadata, extract_http_rule_pattern,
+    extract_path_parameters, find_matching_field_for_path_param, needs_pagination,
+    should_be_body_field,
+};
+use crate::utils::{strings, types};
+
+pub(crate) use models::*;
+
+mod models;
 
 /// Analyze collected metadata and create a generation plan
 pub fn analyze_metadata(
@@ -73,7 +81,6 @@ pub fn analyze_method(
 
     // Generate function names
     let handler_function_name = strings::operation_to_method_name(&method.method_name);
-    let route_function_name = strings::operation_to_route_name(&method.method_name);
 
     // Get input message fields from metadata
     let input_fields = method.input_fields.clone();
@@ -88,7 +95,7 @@ pub fn analyze_method(
     Ok(Some(MethodPlan {
         metadata: method.clone(),
         handler_function_name,
-        route_function_name,
+        route_function_name: method.method_name.to_case(Case::Snake),
         http_method,
         http_path,
         path_params,
@@ -119,7 +126,7 @@ fn extract_request_fields(
 
     // First, add path parameters in URL order
     for path_param_name in &path_param_names_ordered {
-        let field = paths::find_matching_field_for_path_param(path_param_name, input_fields);
+        let field = find_matching_field_for_path_param(path_param_name, input_fields);
         if let Some(field) = field {
             path_params.push(PathParam {
                 template_param: path_param_name.clone(),
@@ -153,7 +160,7 @@ fn extract_request_fields(
 
         processed_fields.insert(field_name.clone());
 
-        if requests::should_be_body_field(field_name, body_spec) {
+        if should_be_body_field(field_name, body_spec) {
             // Field should be extracted from request body
             body_fields.push(BodyField {
                 name: field_name.clone(),
@@ -176,7 +183,7 @@ fn extract_request_fields(
     }
 
     // Add standard pagination parameters for list operations ONLY if not already present
-    if requests::needs_pagination(&method.request_type()) {
+    if needs_pagination(&method.request_type()) {
         if !processed_fields.contains("max_results") {
             query_params.push(QueryParam {
                 name: "max_results".to_string(),
@@ -196,15 +203,68 @@ fn extract_request_fields(
     Ok((path_params, query_params, body_fields))
 }
 
-/// Validate that a generation plan is complete and consistent
+/// Validate that a generation plan is complete and correct
 pub fn validate_plan(plan: &GenerationPlan) -> Result<(), Box<dyn std::error::Error>> {
-    crate::utils::validation::validate_plan(plan)
+    let mut errors = Vec::new();
+
+    // Check that all services have at least one method
+    for service in &plan.services {
+        if service.methods.is_empty() {
+            errors.push(format!("Service {} has no methods", service.service_name));
+        }
+
+        // Check that all methods have required information
+        for method in &service.methods {
+            validate_method_plan(method, &mut errors);
+        }
+    }
+
+    if !errors.is_empty() {
+        return Err(format!("Validation errors: {}", errors.join(", ")).into());
+    }
+
+    Ok(())
+}
+
+fn validate_method_plan(method: &MethodPlan, errors: &mut Vec<String>) {
+    if method.handler_function_name.is_empty() {
+        errors.push(format!(
+            "Method {} has empty handler function name",
+            method.metadata.method_name
+        ));
+    }
+
+    if method.http_method.is_empty() {
+        errors.push(format!(
+            "Method {} has empty HTTP method",
+            method.metadata.method_name
+        ));
+    }
+
+    if method.http_path.is_empty() {
+        errors.push(format!(
+            "Method {} has empty HTTP path",
+            method.metadata.method_name
+        ));
+    }
+
+    // Validate that path parameters in URL match extracted parameters
+    let url_params = extract_path_parameters(&method.http_path);
+    if url_params.len() != method.path_params.len() {
+        errors.push(format!(
+            "Method {} has mismatched path parameters: URL has {}, extracted {}",
+            method.metadata.method_name,
+            url_params.len(),
+            method.path_params.len()
+        ));
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule};
+    use crate::parsing::MethodMetadata;
+    use crate::{gnostic::openapi::v3::Operation, google::api::HttpRule};
 
     fn create_test_metadata() -> MethodMetadata {
         let operation = Operation {

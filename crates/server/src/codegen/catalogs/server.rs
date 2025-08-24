@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::catalogs::v1::*;
-pub async fn list_catalogs_handler<T: CatalogHandler>(
+pub async fn list_catalogs<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListCatalogsRequest,
@@ -14,7 +14,7 @@ pub async fn list_catalogs_handler<T: CatalogHandler>(
     let result = handler.list_catalogs(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_catalog_handler<T: CatalogHandler>(
+pub async fn create_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: CreateCatalogRequest,
@@ -23,7 +23,7 @@ pub async fn create_catalog_handler<T: CatalogHandler>(
     let result = handler.create_catalog(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_catalog_handler<T: CatalogHandler>(
+pub async fn get_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetCatalogRequest,
@@ -32,7 +32,7 @@ pub async fn get_catalog_handler<T: CatalogHandler>(
     let result = handler.get_catalog(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_catalog_handler<T: CatalogHandler>(
+pub async fn update_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: UpdateCatalogRequest,
@@ -41,7 +41,7 @@ pub async fn update_catalog_handler<T: CatalogHandler>(
     let result = handler.update_catalog(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_catalog_handler<T: CatalogHandler>(
+pub async fn delete_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: DeleteCatalogRequest,
