@@ -136,12 +136,7 @@ impl From<TableInfo> for TableSummary {
     fn from(table: TableInfo) -> Self {
         TableSummary {
             table_type: table.table_type,
-            full_name: table.full_name.unwrap_or_else(|| {
-                format!(
-                    "{}.{}.{}",
-                    table.catalog_name, table.schema_name, table.name
-                )
-            }),
+            full_name: table.full_name,
         }
     }
 }
@@ -155,6 +150,6 @@ object_conversions!(
     SchemaInfo, ObjectLabel::SchemaInfo, schema_id, [catalog_name, name], true;
     TableInfo, ObjectLabel::TableInfo, table_id, [catalog_name, schema_name, name], true;
     ColumnInfo, ObjectLabel::ColumnInfo, column_id, [name], true;
-    CredentialInfo, ObjectLabel::CredentialInfo, id, [name];
+    CredentialInfo, ObjectLabel::CredentialInfo, id, [name], true;
     RecipientInfo, ObjectLabel::RecipientInfo, id, [name], true;
 );

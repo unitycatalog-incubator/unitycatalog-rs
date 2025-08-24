@@ -12,6 +12,7 @@ pub use tables::*;
 pub use temporary_credentials::*;
 use unitycatalog_common::CatalogInfo;
 use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
+use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
 use unitycatalog_common::{
     CredentialInfo, ExternalLocationInfo, RecipientInfo, SchemaInfo, ShareInfo, TableInfo,
     credentials::v1::Purpose, recipients::v1::AuthenticationType, tables::v1::TableSummary,
@@ -192,6 +193,24 @@ impl UnityCatalogClient {
             omit_columns,
             omit_properties,
             omit_username,
+        )
+    }
+
+    pub fn create_table(
+        &self,
+        name: impl ToString,
+        schema_name: impl ToString,
+        catalog_name: impl ToString,
+        table_type: TableType,
+        data_source_format: DataSourceFormat,
+    ) -> CreateTableBuilder {
+        CreateTableBuilder::new(
+            self.tables.clone(),
+            name.to_string(),
+            schema_name.to_string(),
+            catalog_name.to_string(),
+            table_type,
+            data_source_format,
         )
     }
 

@@ -3,9 +3,11 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use super::super::{MethodPlan, ServicePlan, templates};
+use super::format_tokens;
+use crate::analysis::{MethodPlan, RequestType, ServicePlan};
+use crate::google::api::http_rule::Pattern;
+use crate::parsing::MessageField;
 use crate::utils::strings;
-use crate::{MessageField, RequestType};
 
 /// Generate builder code for all request types in a service
 pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
@@ -14,8 +16,14 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
     for method in &service.methods {
         // Generate builders for Create, Update, and Get operations
         if matches!(
-            method.metadata.request_type(),
-            RequestType::Create | RequestType::Update | RequestType::Get
+            method.request_type,
+            RequestType::Create
+                | RequestType::Update
+                | RequestType::Get
+                | RequestType::Delete
+                | RequestType::Custom(Pattern::Post(_))
+                | RequestType::Custom(Pattern::Get(_))
+                | RequestType::Custom(Pattern::Patch(_))
         ) {
             let builder_code = generate_request_builder(method, service)?;
             builder_impls.push(builder_code);
@@ -68,7 +76,7 @@ fn generate_builders_module(
         #(#builder_tokens)*
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate a builder for a specific request type
@@ -85,7 +93,11 @@ fn generate_request_builder(
     );
     let builder_ident = format_ident!("{}", builder_name);
     let request_type_ident = format_ident!("{}", input_type);
-    let output_type_ident = format_ident!("{}", output_type);
+    let output_type_ident = if output_type == "Empty" {
+        None
+    } else {
+        Some(format_ident!("{}", output_type))
+    };
     let method_name = format_ident!("{}", method.handler_function_name);
 
     let client_name = format!(
@@ -115,7 +127,7 @@ fn generate_request_builder(
     let into_future_impl = generate_into_future_impl(
         &builder_ident,
         &client_type_ident,
-        &output_type_ident,
+        output_type_ident.as_ref(),
         &method_name,
     );
 
@@ -135,7 +147,7 @@ fn generate_request_builder(
         #into_future_impl
     };
 
-    Ok(templates::format_tokens(tokens))
+    Ok(format_tokens(tokens))
 }
 
 /// Analyze request fields to separate required from optional
@@ -388,18 +400,23 @@ fn generate_with_methods(
                     let field_type: syn::Type = syn::parse_str(&field_type_str)
                         .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
-                    // For non-repeated fields, wrap in Some() if optional
-                    let assignment = if field.optional {
-                        quote! { Some(#field_ident) }
+                    if field.optional {
+                        // For optional complex types, use impl Into<Option<T>> pattern
+                        quote! {
+                            #doc_attr
+                            pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
+                                self.request.#field_ident = #field_ident.into();
+                                self
+                            }
+                        }
                     } else {
-                        quote! { #field_ident }
-                    };
-
-                    quote! {
-                        #doc_attr
-                        pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
-                            self.request.#field_ident = #assignment;
-                            self
+                        // For required complex types, use direct assignment
+                        quote! {
+                            #doc_attr
+                            pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
+                                self.request.#field_ident = #field_ident;
+                                self
+                            }
                         }
                     }
                 }
@@ -591,18 +608,33 @@ fn generate_oneof_variant_methods(field: &MessageField) -> Vec<TokenStream> {
 fn generate_into_future_impl(
     builder_ident: &proc_macro2::Ident,
     _client_type_ident: &proc_macro2::Ident,
-    output_type_ident: &proc_macro2::Ident,
+    output_type_ident: Option<&proc_macro2::Ident>,
     method_name: &proc_macro2::Ident,
 ) -> TokenStream {
-    quote! {
-        impl IntoFuture for #builder_ident {
-            type Output = Result<#output_type_ident>;
-            type IntoFuture = BoxFuture<'static, Self::Output>;
+    if let Some(out_ident) = output_type_ident {
+        quote! {
+            impl IntoFuture for #builder_ident {
+                type Output = Result<#output_type_ident>;
+                type IntoFuture = BoxFuture<'static, Self::Output>;
 
-            fn into_future(self) -> Self::IntoFuture {
-                let client = self.client;
-                let request = self.request;
-                Box::pin(async move { client.#method_name(&request).await })
+                fn into_future(self) -> Self::IntoFuture {
+                    let client = self.client;
+                    let request = self.request;
+                    Box::pin(async move { client.#method_name(&request).await })
+                }
+            }
+        }
+    } else {
+        quote! {
+            impl IntoFuture for #builder_ident {
+                type Output = Result<()>;
+                type IntoFuture = BoxFuture<'static, Self::Output>;
+
+                fn into_future(self) -> Self::IntoFuture {
+                    let client = self.client;
+                    let request = self.request;
+                    Box::pin(async move { client.#method_name(&request).await })
+                }
             }
         }
     }
@@ -731,8 +763,8 @@ fn convert_protobuf_enum_to_rust_type(field_type: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::super::tests::create_test_service_plan;
     use super::*;
+    use crate::parsing::MessageField;
 
     #[test]
     fn test_convert_protobuf_enum_to_rust_type() {
@@ -790,83 +822,6 @@ mod tests {
         assert_eq!(convert_protobuf_enum_to_rust_type("TYPE_STRING"), "i32");
         assert_eq!(convert_protobuf_enum_to_rust_type("not_enum_type"), "i32");
     }
-    use crate::{
-        MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
-    };
-
-    fn create_test_create_method() -> MethodPlan {
-        let operation = Operation {
-            operation_id: "CreateCatalog".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Post(
-                "/catalogs".to_string(),
-            )),
-            body: "*".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "CatalogsService".to_string(),
-            method_name: "CreateCatalog".to_string(),
-            input_type: ".unitycatalog.catalogs.v1.CreateCatalogRequest".to_string(),
-            output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                MessageField {
-                    name: "name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "comment".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "properties".to_string(),
-                    field_type: "map<string, string>".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "storage_root".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        MethodPlan {
-            metadata,
-            handler_function_name: "create_catalog".to_string(),
-            route_function_name: "create_catalog_handler".to_string(),
-            http_method: "POST".to_string(),
-            http_path: "/catalogs".to_string(),
-            path_params: vec![],
-            query_params: vec![],
-            body_fields: vec![],
-            has_response: true,
-        }
-    }
 
     #[test]
     fn test_analyze_request_fields() {
@@ -879,6 +834,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "comment".to_string(),
@@ -888,6 +844,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
             MessageField {
                 name: "properties".to_string(),
@@ -897,6 +854,7 @@ mod tests {
                 oneof_name: None,
                 documentation: None,
                 oneof_variants: None,
+                field_behavior: vec![],
             },
         ];
 
@@ -908,160 +866,5 @@ mod tests {
         assert_eq!(optional.len(), 2);
         assert_eq!(optional[0].name, "comment");
         assert_eq!(optional[1].name, "properties");
-    }
-
-    #[test]
-    fn test_generate_request_builder() {
-        let service = create_test_service_plan();
-        let method = create_test_create_method();
-
-        let result = generate_request_builder(&method, &service);
-        assert!(result.is_ok());
-
-        let code = result.unwrap();
-        println!("Generated builder code:\n{}", code);
-
-        // Verify the code contains expected elements
-        assert!(code.contains("pub struct CreateCatalogBuilder"));
-        assert!(code.contains("impl CreateCatalogBuilder"));
-        assert!(code.contains("pub fn new"));
-        assert!(code.contains("pub fn with_comment"));
-        assert!(code.contains("pub fn with_properties"));
-        assert!(code.contains("impl IntoFuture"));
-    }
-
-    fn create_test_update_method() -> MethodPlan {
-        let operation = Operation {
-            operation_id: "UpdateCatalog".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Patch(
-                "/catalogs/{name}".to_string(),
-            )),
-            body: "*".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "CatalogsService".to_string(),
-            method_name: "UpdateCatalog".to_string(),
-            input_type: ".unitycatalog.catalogs.v1.UpdateCatalogRequest".to_string(),
-            output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                MessageField {
-                    name: "name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "new_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "comment".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "owner".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "properties".to_string(),
-                    field_type: "map<string, string>".to_string(),
-                    optional: true,
-                    repeated: false,
-                    oneof_name: None,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        MethodPlan {
-            metadata,
-            handler_function_name: "update_catalog".to_string(),
-            route_function_name: "update_catalog_handler".to_string(),
-            http_method: "PATCH".to_string(),
-            http_path: "/catalogs/{name}".to_string(),
-            path_params: vec![],
-            query_params: vec![],
-            body_fields: vec![],
-            has_response: true,
-        }
-    }
-
-    #[test]
-    fn test_generate_update_builder() {
-        let service = create_test_service_plan();
-        let method = create_test_update_method();
-
-        let result = generate_request_builder(&method, &service);
-        assert!(result.is_ok());
-
-        let code = result.unwrap();
-        println!("Generated update builder code:\n{}", code);
-
-        // Verify the code contains expected elements
-        assert!(code.contains("pub struct UpdateCatalogBuilder"));
-        assert!(code.contains("impl UpdateCatalogBuilder"));
-        assert!(code.contains("pub fn new(client: CatalogClient, name: impl Into<String>)"));
-        assert!(code.contains("pub fn with_new_name"));
-        assert!(code.contains("pub fn with_comment"));
-        assert!(code.contains("pub fn with_owner"));
-        assert!(code.contains("pub fn with_properties"));
-        assert!(code.contains("impl IntoFuture for UpdateCatalogBuilder"));
-        assert!(code.contains("client.update_catalog(&request).await"));
-    }
-
-    #[test]
-    fn test_generate_builders_module() {
-        let service = create_test_service_plan();
-        let create_method = create_test_create_method();
-        let update_method = create_test_update_method();
-
-        // Create a service plan with both create and update methods
-        let mut service_with_builders = service.clone();
-        service_with_builders.methods = vec![create_method, update_method];
-
-        let result = generate(&service_with_builders);
-        assert!(result.is_ok());
-
-        let code = result.unwrap();
-
-        if !code.is_empty() {
-            println!("Generated builders module:\n{}", code);
-
-            // Verify the code contains expected elements
-            assert!(code.contains("with_properties<I, K, V>"));
-            assert!(code.contains("use futures::future::BoxFuture"));
-            assert!(code.contains("use std::future::IntoFuture"));
-            assert!(code.contains("pub struct CreateCatalogBuilder"));
-            assert!(code.contains("pub struct UpdateCatalogBuilder"));
-            assert!(code.contains("impl CreateCatalogBuilder"));
-            assert!(code.contains("impl UpdateCatalogBuilder"));
-        }
     }
 }

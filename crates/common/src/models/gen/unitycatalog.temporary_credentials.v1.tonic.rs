@@ -15,9 +15,9 @@ pub mod temporary_credentials_service_server {
             tonic::Response<super::TemporaryCredential>,
             tonic::Status,
         >;
-        /** Generate a new set of credentials for a volume.
+        /** Generate a new set of credentials for a path.
 */
-        async fn generate_temporary_volume_credentials(
+        async fn generate_temporary_path_credentials(
             &self,
             request: tonic::Request<super::GenerateTemporaryPathCredentialsRequest>,
         ) -> std::result::Result<
@@ -159,9 +159,9 @@ pub mod temporary_credentials_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryVolumeCredentials" => {
+                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryPathCredentials" => {
                     #[allow(non_camel_case_types)]
-                    struct GenerateTemporaryVolumeCredentialsSvc<
+                    struct GenerateTemporaryPathCredentialsSvc<
                         T: TemporaryCredentialsService,
                     >(
                         pub Arc<T>,
@@ -170,7 +170,7 @@ pub mod temporary_credentials_service_server {
                         T: TemporaryCredentialsService,
                     > tonic::server::UnaryService<
                         super::GenerateTemporaryPathCredentialsRequest,
-                    > for GenerateTemporaryVolumeCredentialsSvc<T> {
+                    > for GenerateTemporaryPathCredentialsSvc<T> {
                         type Response = super::TemporaryCredential;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -184,7 +184,7 @@ pub mod temporary_credentials_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as TemporaryCredentialsService>::generate_temporary_volume_credentials(
+                                <T as TemporaryCredentialsService>::generate_temporary_path_credentials(
                                         &inner,
                                         request,
                                     )
@@ -199,7 +199,7 @@ pub mod temporary_credentials_service_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = GenerateTemporaryVolumeCredentialsSvc(inner);
+                        let method = GenerateTemporaryPathCredentialsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

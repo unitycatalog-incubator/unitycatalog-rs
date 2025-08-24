@@ -8,11 +8,11 @@ _default:
 
 # main code generation command. This will run all generation for unity types.
 [group('codegen')]
-generate: generate-proto generate-code
+generate: generate-proto generate-code fix
 
 # run all code generation for unitycatalog and external types.
 [group('codegen')]
-generate-full: generate-common-ext generate-build-ext generate-proto generate-code
+generate-full: generate-common-ext generate-build-ext generate-proto generate-code fix
 
 # run code generation for proto files.
 [group('codegen')]
@@ -38,10 +38,10 @@ generate-code:
       --output-common crates/common/src/codegen \
       --output-server crates/server/src/codegen \
       --output-client crates/client/src/codegen \
+      --output-python python/client/src/codegen \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
-    cargo clippy --fix --allow-dirty --allow-staged --all-features
-    cargo fmt
+    just fmt
 
 # generate auxiliary types in common crate. (custom google.protobuf build)
 [group('codegen')]
@@ -147,6 +147,7 @@ lint-node:
     npm run lint -w @unitycatalog/client
 
 fix: fix-rust fix-node
+  just fmt
 
 fix-node:
     # fix nodejs bindings
@@ -155,4 +156,7 @@ fix-node:
 fix-rust:
     # fix nodejs bindings
     cargo clippy --fix --workspace --allow-dirty --all-features
+
+fmt:
     cargo fmt
+    buf format proto/ --write

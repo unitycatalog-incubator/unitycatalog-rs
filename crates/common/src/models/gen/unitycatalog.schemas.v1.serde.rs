@@ -636,13 +636,13 @@ impl serde::Serialize for SchemaInfo {
         if !self.catalog_name.is_empty() {
             len += 1;
         }
+        if !self.full_name.is_empty() {
+            len += 1;
+        }
         if self.comment.is_some() {
             len += 1;
         }
         if !self.properties.is_empty() {
-            len += 1;
-        }
-        if self.full_name.is_some() {
             len += 1;
         }
         if self.owner.is_some() {
@@ -670,14 +670,14 @@ impl serde::Serialize for SchemaInfo {
         if !self.catalog_name.is_empty() {
             struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
+        if !self.full_name.is_empty() {
+            struct_ser.serialize_field("full_name", &self.full_name)?;
+        }
         if let Some(v) = self.comment.as_ref() {
             struct_ser.serialize_field("comment", v)?;
         }
         if !self.properties.is_empty() {
             struct_ser.serialize_field("properties", &self.properties)?;
-        }
-        if let Some(v) = self.full_name.as_ref() {
-            struct_ser.serialize_field("full_name", v)?;
         }
         if let Some(v) = self.owner.as_ref() {
             struct_ser.serialize_field("owner", v)?;
@@ -714,10 +714,10 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
             "name",
             "catalog_name",
             "catalogName",
-            "comment",
-            "properties",
             "full_name",
             "fullName",
+            "comment",
+            "properties",
             "owner",
             "created_at",
             "createdAt",
@@ -735,9 +735,9 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
         enum GeneratedField {
             Name,
             CatalogName,
+            FullName,
             Comment,
             Properties,
-            FullName,
             Owner,
             CreatedAt,
             CreatedBy,
@@ -768,9 +768,9 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                         match value {
                             "name" => Ok(GeneratedField::Name),
                             "catalogName" | "catalog_name" => Ok(GeneratedField::CatalogName),
+                            "fullName" | "full_name" => Ok(GeneratedField::FullName),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
-                            "fullName" | "full_name" => Ok(GeneratedField::FullName),
                             "owner" => Ok(GeneratedField::Owner),
                             "createdAt" | "created_at" => Ok(GeneratedField::CreatedAt),
                             "createdBy" | "created_by" => Ok(GeneratedField::CreatedBy),
@@ -798,9 +798,9 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
             {
                 let mut name__ = None;
                 let mut catalog_name__ = None;
+                let mut full_name__ = None;
                 let mut comment__ = None;
                 let mut properties__ = None;
-                let mut full_name__ = None;
                 let mut owner__ = None;
                 let mut created_at__ = None;
                 let mut created_by__ = None;
@@ -821,6 +821,12 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                             }
                             catalog_name__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::FullName => {
+                            if full_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("fullName"));
+                            }
+                            full_name__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::Comment => {
                             if comment__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("comment"));
@@ -834,12 +840,6 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                             properties__ = Some(
                                 map_.next_value::<std::collections::HashMap<_, _>>()?
                             );
-                        }
-                        GeneratedField::FullName => {
-                            if full_name__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("fullName"));
-                            }
-                            full_name__ = map_.next_value()?;
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -889,9 +889,9 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                 Ok(SchemaInfo {
                     name: name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
+                    full_name: full_name__.unwrap_or_default(),
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),
-                    full_name: full_name__,
                     owner: owner__,
                     created_at: created_at__,
                     created_by: created_by__,

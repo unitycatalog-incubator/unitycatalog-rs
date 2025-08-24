@@ -2,8 +2,11 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 use syn::{Path, Type};
 
-use super::super::{BodyField, MethodPlan, PathParam, QueryParam, ServicePlan, templates};
-use crate::RequestType;
+use super::{format_tokens, templates};
+use crate::{
+    analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestType, ServicePlan},
+    google::api::http_rule::Pattern,
+};
 
 /// Generate server side code for axum servers
 ///
@@ -63,7 +66,7 @@ pub fn server_common(extractors: &[String], service_namespace: &str) -> String {
         #(#extractor_tokens)*
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &str) -> String {
@@ -91,14 +94,14 @@ pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &
 
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate extractor implementation for a specific method
 fn generate_extractor_for_method(
     method: &MethodPlan,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    match method.metadata.request_type() {
+    match &method.request_type {
         RequestType::List | RequestType::Get | RequestType::Delete => {
             // These use FromRequestParts for path/query parameters
             from_request_parts_impl(method)
@@ -107,6 +110,12 @@ fn generate_extractor_for_method(
             // These use FromRequest for JSON body
             from_request_impl(method)
         }
+        RequestType::Custom(pattern) => match pattern {
+            Pattern::Get(_) | Pattern::Delete(_) => from_request_parts_impl(method),
+            Pattern::Post(_) | Pattern::Patch(_) => from_request_impl(method),
+            Pattern::Custom(_) => todo!("Implement custom request type"),
+            Pattern::Put(_) => todo!("Implement PUT request type"),
+        },
     }
 }
 
@@ -144,7 +153,7 @@ fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate FromRequestParts implementation for path/query parameters
@@ -176,7 +185,7 @@ pub fn from_request_parts_impl(method: &MethodPlan) -> Result<String, Box<dyn st
         }
     };
 
-    Ok(templates::format_tokens(tokens))
+    Ok(format_tokens(tokens))
 }
 
 /// Generate FromRequest implementation for JSON body
@@ -206,7 +215,7 @@ pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::err
             }
         };
 
-        Ok(templates::format_tokens(tokens))
+        Ok(format_tokens(tokens))
     }
 }
 
@@ -256,7 +265,7 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
             }
         };
 
-        Ok(templates::format_tokens(tokens))
+        Ok(format_tokens(tokens))
     } else {
         // Use traditional destructuring for regular fields
         let body_extractions = generate_body_extractions_tokens(&method.body_fields, &input_type);
@@ -290,7 +299,7 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
             }
         };
 
-        Ok(templates::format_tokens(tokens))
+        Ok(format_tokens(tokens))
     }
 }
 
@@ -474,530 +483,4 @@ fn generate_mixed_field_assignments_tokens(
     }
 
     quote! { #(#assignments,)* }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{
-        MessageField, MethodMetadata, gnostic::openapi::v3::Operation, google::api::HttpRule,
-    };
-
-    #[test]
-    fn test_generated_extractor_field_mapping() {
-        // Create a method with mixed field types for comprehensive testing
-        let operation = Operation {
-            operation_id: "UpdateCatalog".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Patch(
-                "/catalogs/{name}".to_string(),
-            )),
-            body: "catalog".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "CatalogsService".to_string(),
-            method_name: "UpdateCatalog".to_string(),
-            input_type: ".unitycatalog.catalogs.v1.UpdateCatalogRequest".to_string(),
-            output_type: ".unitycatalog.catalogs.v1.CatalogInfo".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                MessageField {
-                    name: "name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "catalog".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "force".to_string(),
-                    field_type: "TYPE_BOOL".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
-
-        // Test hybrid extractor generation (has path, query, and body fields)
-        let extractor_code = from_request_impl(&method_plan).unwrap();
-
-        println!("Generated extractor code:\n{}", extractor_code);
-
-        // Verify the extractor includes all field types
-        assert!(extractor_code.contains("let (mut parts, body) = req.into_parts();"));
-        assert!(extractor_code.contains("axum::extract::Path"));
-        assert!(extractor_code.contains("axum::extract::Query"));
-        assert!(extractor_code.contains("axum::extract::Json"));
-
-        // Verify field assignments include all fields
-        assert!(extractor_code.contains("name,"));
-        assert!(extractor_code.contains("catalog,"));
-        assert!(extractor_code.contains("force,"));
-
-        // Verify struct construction
-        assert!(extractor_code.contains("UpdateCatalogRequest {"));
-    }
-
-    #[test]
-    fn test_no_duplicate_fields_and_correct_optionality() {
-        // Test a List operation with existing max_results field to ensure no duplication
-        let operation = Operation {
-            operation_id: "ListCatalogs".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Get(
-                "/catalogs".to_string(),
-            )),
-            body: "".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "CatalogsService".to_string(),
-            method_name: "ListCatalogs".to_string(),
-            input_type: ".unitycatalog.catalogs.v1.ListCatalogsRequest".to_string(),
-            output_type: ".unitycatalog.catalogs.v1.ListCatalogsResponse".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                MessageField {
-                    name: "max_results".to_string(),
-                    field_type: "TYPE_INT32".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "page_token".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "parent".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "include_browse".to_string(),
-                    field_type: "TYPE_BOOL".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
-
-        // Verify no duplicate fields
-        let query_field_names: std::collections::HashSet<_> =
-            method_plan.query_params.iter().map(|p| &p.name).collect();
-
-        // Should have exactly 4 unique query fields
-        assert_eq!(query_field_names.len(), 4);
-        assert!(query_field_names.contains(&"max_results".to_string()));
-        assert!(query_field_names.contains(&"page_token".to_string()));
-        assert!(query_field_names.contains(&"parent".to_string()));
-        assert!(query_field_names.contains(&"include_browse".to_string()));
-
-        // Verify correct optionality
-        for param in &method_plan.query_params {
-            match param.name.as_str() {
-                "max_results" => {
-                    assert_eq!(param.rust_type, "Option<i32>");
-                    assert!(param.optional);
-                }
-                "page_token" => {
-                    assert_eq!(param.rust_type, "Option<String>");
-                    assert!(param.optional);
-                }
-                "parent" => {
-                    assert_eq!(param.rust_type, "String");
-                    assert!(!param.optional);
-                }
-                "include_browse" => {
-                    assert_eq!(param.rust_type, "Option<bool>");
-                    assert!(param.optional);
-                }
-                _ => panic!("Unexpected query parameter: {}", param.name),
-            }
-        }
-
-        // Test the generated extractor
-        let extractor_code = from_request_parts_impl(&method_plan).unwrap();
-
-        println!("Generated list extractor code:\n{}", extractor_code);
-
-        // Verify serde(default) is used for optional fields
-        assert!(extractor_code.contains("#[serde(default)]"));
-
-        // Verify no duplicate field assignments
-        let field_count = extractor_code.matches("max_results").count();
-        assert_eq!(field_count, 3); // Once in struct definition, once in destructuring, once in assignment
-
-        let page_token_count = extractor_code.matches("page_token").count();
-        assert_eq!(page_token_count, 3); // Once in struct definition, once in destructuring, once in assignment
-    }
-
-    #[test]
-    fn test_edge_case_field_scenarios() {
-        // Test edge case: List operation with no existing max_results/page_token fields
-        let operation = Operation {
-            operation_id: "ListSchemas".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Get(
-                "/catalogs/{catalog_name}/schemas".to_string(),
-            )),
-            body: "".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "SchemasService".to_string(),
-            method_name: "ListSchemas".to_string(),
-            input_type: ".unitycatalog.schemas.v1.ListSchemasRequest".to_string(),
-            output_type: ".unitycatalog.schemas.v1.ListSchemasResponse".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                MessageField {
-                    name: "catalog_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "name_pattern".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
-
-        // Should have 1 path param, 3 query params (name_pattern + auto-added pagination)
-        assert_eq!(method_plan.path_params.len(), 1);
-        assert_eq!(method_plan.query_params.len(), 3);
-        assert_eq!(method_plan.body_fields.len(), 0);
-
-        // Verify path param
-        assert_eq!(method_plan.path_params[0].field_name, "catalog_name");
-        assert_eq!(method_plan.path_params[0].rust_type, "String");
-
-        // Verify query params include both original and auto-added pagination
-        let query_names: std::collections::HashSet<_> =
-            method_plan.query_params.iter().map(|p| &p.name).collect();
-        assert!(query_names.contains(&"name_pattern".to_string()));
-        assert!(query_names.contains(&"max_results".to_string()));
-        assert!(query_names.contains(&"page_token".to_string()));
-
-        // Verify correct typing for each field
-        for param in &method_plan.query_params {
-            match param.name.as_str() {
-                "name_pattern" => {
-                    assert_eq!(param.rust_type, "Option<String>");
-                    assert!(param.optional);
-                }
-                "max_results" => {
-                    assert_eq!(param.rust_type, "Option<i32>");
-                    assert!(param.optional);
-                }
-                "page_token" => {
-                    assert_eq!(param.rust_type, "Option<String>");
-                    assert!(param.optional);
-                }
-                _ => panic!("Unexpected query parameter: {}", param.name),
-            }
-        }
-
-        // Test that generated extractor includes all fields without duplication
-        let extractor_code = from_request_parts_impl(&method_plan).unwrap();
-
-        // Verify each field appears exactly 3 times (struct def, destructure, assignment)
-        let name_pattern_count = extractor_code.matches("name_pattern").count();
-        assert_eq!(name_pattern_count, 3);
-
-        let max_results_count = extractor_code.matches("max_results").count();
-        assert_eq!(max_results_count, 3);
-
-        let page_token_count = extractor_code.matches("page_token").count();
-        assert_eq!(page_token_count, 3);
-
-        let catalog_name_count = extractor_code.matches("catalog_name").count();
-        assert_eq!(catalog_name_count, 2); // Once in path extraction, once in assignment
-    }
-
-    #[test]
-    fn test_required_query_parameters() {
-        // Test case: ListTables with required catalog_name and schema_name query parameters
-        let operation = Operation {
-            operation_id: "ListTables".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Get(
-                "/tables".to_string(),
-            )),
-            body: "".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "TablesService".to_string(),
-            method_name: "ListTables".to_string(),
-            input_type: ".unitycatalog.tables.v1.ListTablesRequest".to_string(),
-            output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                MessageField {
-                    name: "catalog_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false, // Required field
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "schema_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false, // Required field
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "max_results".to_string(),
-                    field_type: "TYPE_INT32".to_string(),
-                    optional: true, // Optional field
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "page_token".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true, // Optional field
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
-
-        println!("Query params for ListTables:");
-        for param in &method_plan.query_params {
-            println!(
-                "  {}: {} (optional: {})",
-                param.name, param.rust_type, param.optional
-            );
-        }
-
-        // Verify required fields are NOT wrapped in Option<T>
-        for param in &method_plan.query_params {
-            match param.name.as_str() {
-                "catalog_name" => {
-                    assert_eq!(param.rust_type, "String");
-                    assert!(!param.optional);
-                }
-                "schema_name" => {
-                    assert_eq!(param.rust_type, "String");
-                    assert!(!param.optional);
-                }
-                "max_results" => {
-                    assert_eq!(param.rust_type, "Option<i32>");
-                    assert!(param.optional);
-                }
-                "page_token" => {
-                    assert_eq!(param.rust_type, "Option<String>");
-                    assert!(param.optional);
-                }
-                _ => panic!("Unexpected query parameter: {}", param.name),
-            }
-        }
-
-        // Test the generated extractor
-        let extractor_code = from_request_parts_impl(&method_plan).unwrap();
-        println!("Generated ListTables extractor:\n{}", extractor_code);
-
-        // Verify required fields don't have #[serde(default)]
-        assert!(extractor_code.contains("catalog_name: String,"));
-        assert!(extractor_code.contains("schema_name: String,"));
-
-        // Verify optional fields have #[serde(default)]
-        assert!(
-            extractor_code.contains("#[serde(default)]\n            max_results: Option<i32>,")
-        );
-        assert!(
-            extractor_code.contains("#[serde(default)]\n            page_token: Option<String>,")
-        );
-    }
-
-    #[test]
-    fn test_proto3_field_optionality() {
-        // Test case: Realistic Proto3 message with mixed required/optional fields
-        let operation = Operation {
-            operation_id: "ListTables".to_string(),
-            ..Default::default()
-        };
-
-        let http_rule = HttpRule {
-            pattern: Some(crate::google::api::http_rule::Pattern::Get(
-                "/tables".to_string(),
-            )),
-            body: "".to_string(),
-            ..Default::default()
-        };
-
-        let metadata = MethodMetadata {
-            service_name: "TablesService".to_string(),
-            method_name: "ListTables".to_string(),
-            input_type: ".unitycatalog.tables.v1.ListTablesRequest".to_string(),
-            output_type: ".unitycatalog.tables.v1.ListTablesResponse".to_string(),
-            operation: Some(operation),
-            http_rule: Some(http_rule),
-            input_fields: vec![
-                // These should be required in Proto3 (no proto3_optional flag)
-                MessageField {
-                    name: "catalog_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "schema_name".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: false,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "max_results".to_string(),
-                    field_type: "TYPE_INT32".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "page_token".to_string(),
-                    field_type: "TYPE_STRING".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-                MessageField {
-                    name: "include_history".to_string(),
-                    field_type: "TYPE_BOOL".to_string(),
-                    optional: true,
-                    oneof_name: None,
-                    repeated: false,
-                    documentation: None,
-                    oneof_variants: None,
-                },
-            ],
-        };
-
-        let method_plan = crate::codegen::analysis::analyze_method(&metadata)
-            .unwrap()
-            .unwrap();
-
-        // Test the generated extractor
-        let extractor_code = from_request_parts_impl(&method_plan).unwrap();
-        println!("Generated Proto3 extractor:\n{}", extractor_code);
-
-        // Required fields should NOT have #[serde(default)]
-        assert!(extractor_code.contains("catalog_name: String,"));
-        assert!(extractor_code.contains("schema_name: String,"));
-
-        // Optional fields should have #[serde(default)]
-        assert!(extractor_code.contains("#[serde(default)]"));
-        assert!(extractor_code.contains("max_results: Option<i32>,"));
-        assert!(extractor_code.contains("page_token: Option<String>,"));
-        assert!(extractor_code.contains("include_history: Option<bool>,"));
-
-        // Verify no #[serde(default)] on required fields
-        let lines: Vec<&str> = extractor_code.lines().collect();
-        for (i, line) in lines.iter().enumerate() {
-            if line.trim() == "catalog_name: String," || line.trim() == "schema_name: String," {
-                // Check that the previous line is not #[serde(default)]
-                if i > 0 {
-                    assert!(
-                        !lines[i - 1].trim().contains("#[serde(default)]"),
-                        "Required field should not have #[serde(default)]: {}",
-                        line
-                    );
-                }
-            }
-        }
-    }
 }

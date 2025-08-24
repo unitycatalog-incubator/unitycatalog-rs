@@ -100,8 +100,8 @@ pub struct TableInfo {
     // optional string row_filter = 16;
 
     /// Full name of table, in form of catalog_name.schema_name.table_name.
-    #[prost(string, optional, tag="17")]
-    pub full_name: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="17")]
+    pub full_name: ::prost::alloc::string::String,
     /// Time at which this table was created, in epoch milliseconds.
     #[prost(int64, optional, tag="18")]
     pub created_at: ::core::option::Option<i64>,

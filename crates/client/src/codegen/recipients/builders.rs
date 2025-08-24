@@ -145,3 +145,27 @@ impl IntoFuture for UpdateRecipientBuilder {
         Box::pin(async move { client.update_recipient(&request).await })
     }
 }
+/// Builder for creating requests
+pub struct DeleteRecipientBuilder {
+    client: RecipientClient,
+    request: DeleteRecipientRequest,
+}
+impl DeleteRecipientBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+        let request = DeleteRecipientRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for DeleteRecipientBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_recipient(&request).await })
+    }
+}

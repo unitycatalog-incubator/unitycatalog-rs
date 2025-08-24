@@ -6,9 +6,11 @@ app = marimo.App()
 
 @app.cell
 def _():
-    from unitycatalog_client import UnityCatalogClient
     import os
     from pprint import pprint
+
+    from unitycatalog_client import UnityCatalogClient
+
     return UnityCatalogClient, os, pprint
 
 
@@ -152,7 +154,7 @@ def _(mo):
 def _(client):
     shared_catalog = client.create_catalog(name="shared_catalog")
     shared_catalog_client = client.catalog(name=shared_catalog.name)
-    shared_schema = shared_catalog_client.create_schema(schema_name="shared_schema")
+    _shared_schema = shared_catalog_client.create_schema(schema_name="shared_schema")
 
     # TODO: add tables
     return
@@ -168,11 +170,11 @@ def _(client):
 @app.cell
 def _(share_client):
     from unitycatalog_client import (
-        DataObjectUpdate,
+        Action,
         DataObject,
         DataObjectType,
+        DataObjectUpdate,
         HistoryStatus,
-        Action,
     )
 
     share = {
@@ -217,22 +219,28 @@ def _(share_client):
 @app.cell
 def _():
     from unitycatalog_client import SharingClient
-    client_1 = SharingClient('http://localhost:8080')
+
+    client_1 = SharingClient("http://localhost:8080")
     shares = client_1.list_shares()
     tables = client_1.list_share_tables(share=shares[0].name)
-    client_1.get_table_metadata(share=tables[0].share, schema=tables[0].schema, name=tables[0].name)
+    client_1.get_table_metadata(
+        share=tables[0].share, schema=tables[0].schema, name=tables[0].name
+    )
     return client_1, tables
 
 
 @app.cell
 def _(client_1, tables):
-    client_1.get_table_version(share=tables[0].share, schema=tables[0].schema, name=tables[0].name)
+    client_1.get_table_version(
+        share=tables[0].share, schema=tables[0].schema, name=tables[0].name
+    )
     return
 
 
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 

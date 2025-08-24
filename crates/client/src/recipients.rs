@@ -4,6 +4,7 @@ use unitycatalog_common::models::recipients::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
+use crate::codegen::recipients::DeleteRecipientBuilder;
 pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
 use crate::codegen::recipients::builders::{
     CreateRecipientBuilder, GetRecipientBuilder, UpdateRecipientBuilder,
@@ -76,10 +77,7 @@ impl RecipientClient {
         UpdateRecipientBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn delete(&self) -> Result<()> {
-        let request = DeleteRecipientRequest {
-            name: self.name.clone(),
-        };
-        self.client.delete_recipient(&request).await
+    pub fn delete(&self) -> DeleteRecipientBuilder {
+        DeleteRecipientBuilder::new(self.client.clone(), &self.name)
     }
 }

@@ -112,3 +112,27 @@ impl IntoFuture for UpdateShareBuilder {
         Box::pin(async move { client.update_share(&request).await })
     }
 }
+/// Builder for creating requests
+pub struct DeleteShareBuilder {
+    client: ShareClient,
+    request: DeleteShareRequest,
+}
+impl DeleteShareBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+        let request = DeleteShareRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for DeleteShareBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_share(&request).await })
+    }
+}

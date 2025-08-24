@@ -105,11 +105,6 @@ impl UpdateVolumeBuilder {
         self.request.owner = owner.into();
         self
     }
-    ///Whether to include schemas in the response for which the principal can only access selective metadata for
-    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
-        self.request.include_browse = include_browse.into();
-        self
-    }
 }
 impl IntoFuture for UpdateVolumeBuilder {
     type Output = Result<VolumeInfo>;
@@ -118,5 +113,29 @@ impl IntoFuture for UpdateVolumeBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.update_volume(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct DeleteVolumeBuilder {
+    client: VolumeClient,
+    request: DeleteVolumeRequest,
+}
+impl DeleteVolumeBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+        let request = DeleteVolumeRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for DeleteVolumeBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_volume(&request).await })
     }
 }

@@ -639,7 +639,13 @@ impl serde::Serialize for CreateCredentialRequest {
         if self.skip_validation.is_some() {
             len += 1;
         }
-        if self.credential.is_some() {
+        if self.azure_service_principal.is_some() {
+            len += 1;
+        }
+        if self.azure_managed_identity.is_some() {
+            len += 1;
+        }
+        if self.azure_storage_key.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.CreateCredentialRequest", len)?;
@@ -660,18 +666,14 @@ impl serde::Serialize for CreateCredentialRequest {
         if let Some(v) = self.skip_validation.as_ref() {
             struct_ser.serialize_field("skip_validation", v)?;
         }
-        if let Some(v) = self.credential.as_ref() {
-            match v {
-                create_credential_request::Credential::AzureServicePrincipal(v) => {
-                    struct_ser.serialize_field("azure_service_principal", v)?;
-                }
-                create_credential_request::Credential::AzureManagedIdentity(v) => {
-                    struct_ser.serialize_field("azure_managed_identity", v)?;
-                }
-                create_credential_request::Credential::AzureStorageKey(v) => {
-                    struct_ser.serialize_field("azure_storage_key", v)?;
-                }
-            }
+        if let Some(v) = self.azure_service_principal.as_ref() {
+            struct_ser.serialize_field("azure_service_principal", v)?;
+        }
+        if let Some(v) = self.azure_managed_identity.as_ref() {
+            struct_ser.serialize_field("azure_managed_identity", v)?;
+        }
+        if let Some(v) = self.azure_storage_key.as_ref() {
+            struct_ser.serialize_field("azure_storage_key", v)?;
         }
         struct_ser.end()
     }
@@ -762,7 +764,9 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                 let mut comment__ = None;
                 let mut read_only__ = None;
                 let mut skip_validation__ = None;
-                let mut credential__ = None;
+                let mut azure_service_principal__ = None;
+                let mut azure_managed_identity__ = None;
+                let mut azure_storage_key__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -796,25 +800,22 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             skip_validation__ = map_.next_value()?;
                         }
                         GeneratedField::AzureServicePrincipal => {
-                            if credential__.is_some() {
+                            if azure_service_principal__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureServicePrincipal"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(create_credential_request::Credential::AzureServicePrincipal)
-;
+                            azure_service_principal__ = map_.next_value()?;
                         }
                         GeneratedField::AzureManagedIdentity => {
-                            if credential__.is_some() {
+                            if azure_managed_identity__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureManagedIdentity"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(create_credential_request::Credential::AzureManagedIdentity)
-;
+                            azure_managed_identity__ = map_.next_value()?;
                         }
                         GeneratedField::AzureStorageKey => {
-                            if credential__.is_some() {
+                            if azure_storage_key__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureStorageKey"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(create_credential_request::Credential::AzureStorageKey)
-;
+                            azure_storage_key__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -827,7 +828,9 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                     comment: comment__,
                     read_only: read_only__,
                     skip_validation: skip_validation__,
-                    credential: credential__,
+                    azure_service_principal: azure_service_principal__,
+                    azure_managed_identity: azure_managed_identity__,
+                    azure_storage_key: azure_storage_key__,
                 })
             }
         }
@@ -842,10 +845,10 @@ impl serde::Serialize for CredentialInfo {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if !self.id.is_empty() {
+        if !self.name.is_empty() {
             len += 1;
         }
-        if !self.name.is_empty() {
+        if self.id.is_some() {
             len += 1;
         }
         if self.purpose != 0 {
@@ -878,15 +881,21 @@ impl serde::Serialize for CredentialInfo {
         if self.full_name.is_some() {
             len += 1;
         }
-        if self.credential.is_some() {
+        if self.azure_service_principal.is_some() {
+            len += 1;
+        }
+        if self.azure_managed_identity.is_some() {
+            len += 1;
+        }
+        if self.azure_storage_key.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.CredentialInfo", len)?;
-        if !self.id.is_empty() {
-            struct_ser.serialize_field("id", &self.id)?;
-        }
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
+        }
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
         }
         if self.purpose != 0 {
             let v = Purpose::try_from(self.purpose)
@@ -924,18 +933,14 @@ impl serde::Serialize for CredentialInfo {
         if let Some(v) = self.full_name.as_ref() {
             struct_ser.serialize_field("full_name", v)?;
         }
-        if let Some(v) = self.credential.as_ref() {
-            match v {
-                credential_info::Credential::AzureServicePrincipal(v) => {
-                    struct_ser.serialize_field("azure_service_principal", v)?;
-                }
-                credential_info::Credential::AzureManagedIdentity(v) => {
-                    struct_ser.serialize_field("azure_managed_identity", v)?;
-                }
-                credential_info::Credential::AzureStorageKey(v) => {
-                    struct_ser.serialize_field("azure_storage_key", v)?;
-                }
-            }
+        if let Some(v) = self.azure_service_principal.as_ref() {
+            struct_ser.serialize_field("azure_service_principal", v)?;
+        }
+        if let Some(v) = self.azure_managed_identity.as_ref() {
+            struct_ser.serialize_field("azure_managed_identity", v)?;
+        }
+        if let Some(v) = self.azure_storage_key.as_ref() {
+            struct_ser.serialize_field("azure_storage_key", v)?;
         }
         struct_ser.end()
     }
@@ -947,8 +952,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "id",
             "name",
+            "id",
             "purpose",
             "read_only",
             "readOnly",
@@ -976,8 +981,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Id,
             Name,
+            Id,
             Purpose,
             ReadOnly,
             Comment,
@@ -1013,8 +1018,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                         E: serde::de::Error,
                     {
                         match value {
-                            "id" => Ok(GeneratedField::Id),
                             "name" => Ok(GeneratedField::Name),
+                            "id" => Ok(GeneratedField::Id),
                             "purpose" => Ok(GeneratedField::Purpose),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
                             "comment" => Ok(GeneratedField::Comment),
@@ -1047,8 +1052,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut id__ = None;
                 let mut name__ = None;
+                let mut id__ = None;
                 let mut purpose__ = None;
                 let mut read_only__ = None;
                 let mut comment__ = None;
@@ -1059,20 +1064,22 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                 let mut updated_by__ = None;
                 let mut used_for_managed_storage__ = None;
                 let mut full_name__ = None;
-                let mut credential__ = None;
+                let mut azure_service_principal__ = None;
+                let mut azure_managed_identity__ = None;
+                let mut azure_storage_key__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Id => {
-                            if id__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("id"));
-                            }
-                            id__ = Some(map_.next_value()?);
-                        }
                         GeneratedField::Name => {
                             if name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("name"));
                             }
                             name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
                         }
                         GeneratedField::Purpose => {
                             if purpose__.is_some() {
@@ -1139,25 +1146,22 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                             full_name__ = map_.next_value()?;
                         }
                         GeneratedField::AzureServicePrincipal => {
-                            if credential__.is_some() {
+                            if azure_service_principal__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureServicePrincipal"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(credential_info::Credential::AzureServicePrincipal)
-;
+                            azure_service_principal__ = map_.next_value()?;
                         }
                         GeneratedField::AzureManagedIdentity => {
-                            if credential__.is_some() {
+                            if azure_managed_identity__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureManagedIdentity"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(credential_info::Credential::AzureManagedIdentity)
-;
+                            azure_managed_identity__ = map_.next_value()?;
                         }
                         GeneratedField::AzureStorageKey => {
-                            if credential__.is_some() {
+                            if azure_storage_key__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureStorageKey"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(credential_info::Credential::AzureStorageKey)
-;
+                            azure_storage_key__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1165,8 +1169,8 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                     }
                 }
                 Ok(CredentialInfo {
-                    id: id__.unwrap_or_default(),
                     name: name__.unwrap_or_default(),
+                    id: id__,
                     purpose: purpose__.unwrap_or_default(),
                     read_only: read_only__.unwrap_or_default(),
                     comment: comment__,
@@ -1177,7 +1181,9 @@ impl<'de> serde::Deserialize<'de> for CredentialInfo {
                     updated_by: updated_by__,
                     used_for_managed_storage: used_for_managed_storage__.unwrap_or_default(),
                     full_name: full_name__,
-                    credential: credential__,
+                    azure_service_principal: azure_service_principal__,
+                    azure_managed_identity: azure_managed_identity__,
+                    azure_storage_key: azure_storage_key__,
                 })
             }
         }
@@ -1725,7 +1731,13 @@ impl serde::Serialize for UpdateCredentialRequest {
         if self.force.is_some() {
             len += 1;
         }
-        if self.credential.is_some() {
+        if self.azure_service_principal.is_some() {
+            len += 1;
+        }
+        if self.azure_managed_identity.is_some() {
+            len += 1;
+        }
+        if self.azure_storage_key.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.UpdateCredentialRequest", len)?;
@@ -1750,18 +1762,14 @@ impl serde::Serialize for UpdateCredentialRequest {
         if let Some(v) = self.force.as_ref() {
             struct_ser.serialize_field("force", v)?;
         }
-        if let Some(v) = self.credential.as_ref() {
-            match v {
-                update_credential_request::Credential::AzureServicePrincipal(v) => {
-                    struct_ser.serialize_field("azure_service_principal", v)?;
-                }
-                update_credential_request::Credential::AzureManagedIdentity(v) => {
-                    struct_ser.serialize_field("azure_managed_identity", v)?;
-                }
-                update_credential_request::Credential::AzureStorageKey(v) => {
-                    struct_ser.serialize_field("azure_storage_key", v)?;
-                }
-            }
+        if let Some(v) = self.azure_service_principal.as_ref() {
+            struct_ser.serialize_field("azure_service_principal", v)?;
+        }
+        if let Some(v) = self.azure_managed_identity.as_ref() {
+            struct_ser.serialize_field("azure_managed_identity", v)?;
+        }
+        if let Some(v) = self.azure_storage_key.as_ref() {
+            struct_ser.serialize_field("azure_storage_key", v)?;
         }
         struct_ser.end()
     }
@@ -1861,7 +1869,9 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                 let mut owner__ = None;
                 let mut skip_validation__ = None;
                 let mut force__ = None;
-                let mut credential__ = None;
+                let mut azure_service_principal__ = None;
+                let mut azure_managed_identity__ = None;
+                let mut azure_storage_key__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -1907,25 +1917,22 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                             force__ = map_.next_value()?;
                         }
                         GeneratedField::AzureServicePrincipal => {
-                            if credential__.is_some() {
+                            if azure_service_principal__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureServicePrincipal"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(update_credential_request::Credential::AzureServicePrincipal)
-;
+                            azure_service_principal__ = map_.next_value()?;
                         }
                         GeneratedField::AzureManagedIdentity => {
-                            if credential__.is_some() {
+                            if azure_managed_identity__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureManagedIdentity"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(update_credential_request::Credential::AzureManagedIdentity)
-;
+                            azure_managed_identity__ = map_.next_value()?;
                         }
                         GeneratedField::AzureStorageKey => {
-                            if credential__.is_some() {
+                            if azure_storage_key__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureStorageKey"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(update_credential_request::Credential::AzureStorageKey)
-;
+                            azure_storage_key__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1940,7 +1947,9 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                     owner: owner__,
                     skip_validation: skip_validation__,
                     force: force__,
-                    credential: credential__,
+                    azure_service_principal: azure_service_principal__,
+                    azure_managed_identity: azure_managed_identity__,
+                    azure_storage_key: azure_storage_key__,
                 })
             }
         }

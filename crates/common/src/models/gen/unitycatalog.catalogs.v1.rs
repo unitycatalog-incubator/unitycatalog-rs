@@ -5,12 +5,12 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CatalogInfo {
-    /// Unique identifier for the catalog.
-    #[prost(string, optional, tag="1")]
-    pub id: ::core::option::Option<::prost::alloc::string::String>,
     /// Name of catalog.
-    #[prost(string, tag="2")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
+    /// Unique identifier for the catalog.
+    #[prost(string, optional, tag="2")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
     /// Username of current owner of catalog.
     #[prost(string, optional, tag="3")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,

@@ -140,6 +140,6 @@ impl CatalogClient {
     /// Deletes the catalog.
     #[napi(catch_unwind)]
     pub async fn delete(&self, force: Option<bool>) -> napi::Result<()> {
-        self.inner.delete(force).await.default_error()
+        self.inner.delete().with_force(force).await.default_error()
     }
 }

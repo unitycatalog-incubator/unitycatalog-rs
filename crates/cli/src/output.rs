@@ -207,7 +207,7 @@ impl OutputFormatter {
         for schema in schemas {
             table.add_row(vec![
                 Cell::new(&schema.name).fg(Color::Cyan),
-                Cell::new(schema.full_name.as_deref().unwrap_or("N/A")).fg(Color::Yellow),
+                Cell::new(&schema.full_name).fg(Color::Yellow),
                 Cell::new(&schema.catalog_name).fg(Color::Blue),
                 Cell::new(schema.comment.as_deref().unwrap_or("No comment")).fg(Color::Green),
             ]);

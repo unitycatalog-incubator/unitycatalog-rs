@@ -19,33 +19,6 @@ impl CreateCredentialBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "azure_service_principal")]
-    pub fn with_azure_service_principal(
-        mut self,
-        azureserviceprincipal: AzureServicePrincipal,
-    ) -> Self {
-        self.request.credential = Some(
-            create_credential_request::Credential::AzureServicePrincipal(azureserviceprincipal),
-        );
-        self
-    }
-    #[doc = concat!("Set ", "azure_managed_identity")]
-    pub fn with_azure_managed_identity(
-        mut self,
-        azuremanagedidentity: AzureManagedIdentity,
-    ) -> Self {
-        self.request.credential = Some(
-            create_credential_request::Credential::AzureManagedIdentity(azuremanagedidentity),
-        );
-        self
-    }
-    #[doc = concat!("Set ", "azure_storage_key")]
-    pub fn with_azure_storage_key(mut self, azurestoragekey: AzureStorageKey) -> Self {
-        self.request.credential = Some(create_credential_request::Credential::AzureStorageKey(
-            azurestoragekey,
-        ));
-        self
-    }
     ///Comment associated with the credential.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
@@ -59,6 +32,30 @@ impl CreateCredentialBuilder {
     ///Supplying true to this argument skips validation of the created set of credentials.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
+        self
+    }
+    #[doc = concat!("Set ", "azure_service_principal")]
+    pub fn with_azure_service_principal(
+        mut self,
+        azure_service_principal: impl Into<Option<AzureServicePrincipal>>,
+    ) -> Self {
+        self.request.azure_service_principal = azure_service_principal.into();
+        self
+    }
+    #[doc = concat!("Set ", "azure_managed_identity")]
+    pub fn with_azure_managed_identity(
+        mut self,
+        azure_managed_identity: impl Into<Option<AzureManagedIdentity>>,
+    ) -> Self {
+        self.request.azure_managed_identity = azure_managed_identity.into();
+        self
+    }
+    #[doc = concat!("Set ", "azure_storage_key")]
+    pub fn with_azure_storage_key(
+        mut self,
+        azure_storage_key: impl Into<Option<AzureStorageKey>>,
+    ) -> Self {
+        self.request.azure_storage_key = azure_storage_key.into();
         self
     }
 }
@@ -109,33 +106,6 @@ impl UpdateCredentialBuilder {
         };
         Self { client, request }
     }
-    #[doc = concat!("Set ", "azure_service_principal")]
-    pub fn with_azure_service_principal(
-        mut self,
-        azureserviceprincipal: AzureServicePrincipal,
-    ) -> Self {
-        self.request.credential = Some(
-            update_credential_request::Credential::AzureServicePrincipal(azureserviceprincipal),
-        );
-        self
-    }
-    #[doc = concat!("Set ", "azure_managed_identity")]
-    pub fn with_azure_managed_identity(
-        mut self,
-        azuremanagedidentity: AzureManagedIdentity,
-    ) -> Self {
-        self.request.credential = Some(
-            update_credential_request::Credential::AzureManagedIdentity(azuremanagedidentity),
-        );
-        self
-    }
-    #[doc = concat!("Set ", "azure_storage_key")]
-    pub fn with_azure_storage_key(mut self, azurestoragekey: AzureStorageKey) -> Self {
-        self.request.credential = Some(update_credential_request::Credential::AzureStorageKey(
-            azurestoragekey,
-        ));
-        self
-    }
     ///Name of credential.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
@@ -167,6 +137,30 @@ impl UpdateCredentialBuilder {
         self.request.force = force.into();
         self
     }
+    #[doc = concat!("Set ", "azure_service_principal")]
+    pub fn with_azure_service_principal(
+        mut self,
+        azure_service_principal: impl Into<Option<AzureServicePrincipal>>,
+    ) -> Self {
+        self.request.azure_service_principal = azure_service_principal.into();
+        self
+    }
+    #[doc = concat!("Set ", "azure_managed_identity")]
+    pub fn with_azure_managed_identity(
+        mut self,
+        azure_managed_identity: impl Into<Option<AzureManagedIdentity>>,
+    ) -> Self {
+        self.request.azure_managed_identity = azure_managed_identity.into();
+        self
+    }
+    #[doc = concat!("Set ", "azure_storage_key")]
+    pub fn with_azure_storage_key(
+        mut self,
+        azure_storage_key: impl Into<Option<AzureStorageKey>>,
+    ) -> Self {
+        self.request.azure_storage_key = azure_storage_key.into();
+        self
+    }
 }
 impl IntoFuture for UpdateCredentialBuilder {
     type Output = Result<CredentialInfo>;
@@ -175,5 +169,29 @@ impl IntoFuture for UpdateCredentialBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.update_credential(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct DeleteCredentialBuilder {
+    client: CredentialClient,
+    request: DeleteCredentialRequest,
+}
+impl DeleteCredentialBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+        let request = DeleteCredentialRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for DeleteCredentialBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_credential(&request).await })
     }
 }

@@ -4,6 +4,7 @@ package unitycatalog.catalogs.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
 // The type of the catalog.
@@ -20,11 +21,18 @@ enum CatalogType {
 
 // A catalog is a root-level namespace that contains schemas.
 message CatalogInfo {
-  // Unique identifier for the catalog.
-  optional string id = 1;
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Catalog"
+    pattern: "catalogs/{catalog}"
+    plural: "catalogs"
+    singular: "catalog"
+  };
 
   // Name of catalog.
-  string name = 2;
+  string name = 1;
+
+  // Unique identifier for the catalog.
+  optional string id = 2;
 
   // Username of current owner of catalog.
   optional string owner = 3;

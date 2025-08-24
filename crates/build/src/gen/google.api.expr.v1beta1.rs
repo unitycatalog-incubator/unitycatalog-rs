@@ -27,7 +27,7 @@ pub struct SourceInfo {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SourcePosition {
-    /// The source location name (e.g. file name).
+    /// The soucre location name (e.g. file name).
     #[prost(string, tag="1")]
     pub location: ::prost::alloc::string::String,
     /// The character offset.
@@ -487,7 +487,7 @@ pub struct ListValue {
 pub struct MapValue {
     /// The set of map entries.
     ///
-    /// CEL has fewer restrictions on keys, so a protobuf map representation
+    /// CEL has fewer restrictions on keys, so a protobuf map represenation
     /// cannot be used.
     #[prost(message, repeated, tag="1")]
     pub entries: ::prost::alloc::vec::Vec<map_value::Entry>,
@@ -588,13 +588,13 @@ pub mod expr_value {
         ///      foo(<unknown\[1\]>) -> <unknown\[1\]>
         ///      <unknown\[1\]> + <unknown\[2\]> -> <unknown\[1\]> or <unknown[2[>
         ///
-        /// Unknown takes precedence over Error in cases where a `Value` can short
+        /// Unknown takes precidence over Error in cases where a `Value` can short
         /// circuit the result:
         ///
         ///      <error> || <unknown> -> <unknown>
         ///      <error> && <unknown> -> <unknown>
         ///
-        /// Errors take precedence in all other cases:
+        /// Errors take precidence in all other cases:
         ///
         ///      <unknown> + <error> -> <error>
         ///      foo(<unknown>, <error>) -> <error>

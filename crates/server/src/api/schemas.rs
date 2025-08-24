@@ -19,7 +19,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
     ) -> Result<SchemaInfo> {
         self.check_required(&request, context.as_ref()).await?;
         let resource = SchemaInfo {
-            full_name: Some(format!("{}.{}", request.catalog_name, request.name)),
+            full_name: format!("{}.{}", request.catalog_name, request.name),
             name: request.name,
             catalog_name: request.catalog_name,
             comment: request.comment,
@@ -90,7 +90,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
             comment: request.comment,
             properties: request.properties,
             catalog_name: catalog_name.to_owned(),
-            full_name: Some(format!("{}.{}", catalog_name, new_name)),
+            full_name: format!("{}.{}", catalog_name, new_name),
             ..Default::default()
         };
         // TODO:

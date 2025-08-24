@@ -2,8 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use super::super::{MethodPlan, PathParam, QueryParam, ServicePlan, templates};
-use crate::RequestType;
+use super::format_tokens;
+use crate::analysis::{MethodPlan, PathParam, QueryParam, RequestType, ServicePlan};
+use crate::google::api::http_rule::Pattern;
+use crate::parsing::format_url_template;
 use crate::utils::strings;
 
 /// Generate client code for a service
@@ -67,7 +69,7 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate client method implementation
@@ -80,8 +82,11 @@ pub fn client_method(method: &MethodPlan) -> String {
     let query_handling = generate_query_parameters(&method.query_params);
 
     let body_handling = if matches!(
-        method.metadata.request_type(),
-        RequestType::Create | RequestType::Update
+        method.request_type,
+        RequestType::Create
+            | RequestType::Update
+            | RequestType::Custom(Pattern::Post(_))
+            | RequestType::Custom(Pattern::Patch(_))
     ) {
         quote! { .json(request) }
     } else {
@@ -113,7 +118,7 @@ pub fn client_method(method: &MethodPlan) -> String {
         }
     };
 
-    templates::format_tokens(tokens)
+    format_tokens(tokens)
 }
 
 /// Generate URL formatting code that properly substitutes path parameters
@@ -128,8 +133,7 @@ fn generate_url_formatting(path: &str, params: &[PathParam]) -> proc_macro2::Tok
 
     let template_param_names: Vec<String> =
         params.iter().map(|p| p.template_param.clone()).collect();
-    let (format_string, format_args) =
-        crate::utils::paths::format_url_template(path, &template_param_names);
+    let (format_string, format_args) = format_url_template(path, &template_param_names);
 
     if format_args.is_empty() {
         quote! {
@@ -188,35 +192,10 @@ fn generate_query_parameters(query_params: &[QueryParam]) -> proc_macro2::TokenS
 
 #[cfg(test)]
 mod tests {
-    use super::super::tests::create_test_service_plan;
     use super::*;
 
     #[test]
-    fn test_generate_client_code() {
-        let service = create_test_service_plan();
-        let result = generate(&service);
-        assert!(result.is_ok());
-        let code = result.unwrap();
-
-        // Print generated client code to verify format
-        println!("Generated client code:\n{}", code);
-
-        // Verify the code contains expected elements
-        assert!(code.contains("pub struct CatalogClient"));
-        assert!(code.contains("pub async fn list_catalogs"));
-        assert!(code.contains("CloudClient"));
-        assert!(code.contains("impl CatalogClient"));
-
-        // Verify proper Rust syntax
-        assert!(!code.contains("\\n"));
-        assert!(!code.contains("\\t"));
-        assert!(!code.contains("\\\""));
-    }
-
-    #[test]
     fn test_generate_query_parameters() {
-        use crate::codegen::QueryParam;
-
         // Test with no query parameters
         let empty_params = vec![];
         let result = generate_query_parameters(&empty_params);

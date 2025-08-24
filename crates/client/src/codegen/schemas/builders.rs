@@ -125,3 +125,32 @@ impl IntoFuture for UpdateSchemaBuilder {
         Box::pin(async move { client.update_schema(&request).await })
     }
 }
+/// Builder for creating requests
+pub struct DeleteSchemaBuilder {
+    client: SchemaClient,
+    request: DeleteSchemaRequest,
+}
+impl DeleteSchemaBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+        let request = DeleteSchemaRequest {
+            full_name: full_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///Force deletion even if the schema is not empty.
+    pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
+        self.request.force = force.into();
+        self
+    }
+}
+impl IntoFuture for DeleteSchemaBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_schema(&request).await })
+    }
+}

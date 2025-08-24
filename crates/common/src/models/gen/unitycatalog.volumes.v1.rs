@@ -177,9 +177,6 @@ pub struct UpdateVolumeRequest {
     /// The identifier of the user who owns the volume
     #[prost(string, optional, tag="4")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
-    /// Whether to include schemas in the response for which the principal can only access selective metadata for
-    #[prost(bool, optional, tag="5")]
-    pub include_browse: ::core::option::Option<bool>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]

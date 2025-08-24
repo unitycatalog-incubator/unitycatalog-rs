@@ -3,9 +3,17 @@ syntax = "proto3";
 package unitycatalog.external_locations.v1;
 
 import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
 message ExternalLocationInfo {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/ExternalLocation"
+    pattern: "external-locations/{ecternal_location}"
+    plural: "ecternal_locations"
+    singular: "ecternal_location"
+  };
+
   // Name of the external location.
   string name = 1;
 

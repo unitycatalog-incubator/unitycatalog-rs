@@ -7,10 +7,10 @@ impl serde::Serialize for CatalogInfo {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.id.is_some() {
+        if !self.name.is_empty() {
             len += 1;
         }
-        if !self.name.is_empty() {
+        if self.id.is_some() {
             len += 1;
         }
         if self.owner.is_some() {
@@ -50,11 +50,11 @@ impl serde::Serialize for CatalogInfo {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.CatalogInfo", len)?;
-        if let Some(v) = self.id.as_ref() {
-            struct_ser.serialize_field("id", v)?;
-        }
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
+        }
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
         }
         if let Some(v) = self.owner.as_ref() {
             struct_ser.serialize_field("owner", v)?;
@@ -108,8 +108,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "id",
             "name",
+            "id",
             "owner",
             "comment",
             "properties",
@@ -135,8 +135,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            Id,
             Name,
+            Id,
             Owner,
             Comment,
             Properties,
@@ -171,8 +171,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                         E: serde::de::Error,
                     {
                         match value {
-                            "id" => Ok(GeneratedField::Id),
                             "name" => Ok(GeneratedField::Name),
+                            "id" => Ok(GeneratedField::Id),
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
@@ -204,8 +204,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut id__ = None;
                 let mut name__ = None;
+                let mut id__ = None;
                 let mut owner__ = None;
                 let mut comment__ = None;
                 let mut properties__ = None;
@@ -220,17 +220,17 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                 let mut browse_only__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::Id => {
-                            if id__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("id"));
-                            }
-                            id__ = map_.next_value()?;
-                        }
                         GeneratedField::Name => {
                             if name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("name"));
                             }
                             name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -316,8 +316,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                     }
                 }
                 Ok(CatalogInfo {
-                    id: id__,
                     name: name__.unwrap_or_default(),
+                    id: id__,
                     owner: owner__,
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),

@@ -8,26 +8,22 @@ use unitycatalog_common::models::sharing::v1::*;
 
 use crate::api::RequestContext;
 use crate::api::sharing::{SharingHandler, SharingQueryHandler};
-use crate::codegen::sharing::server::*;
+use crate::codegen::sharing::server::{
+    get_share, list_schema_tables, list_share_tables, list_shares, list_sharing_schemas,
+};
 use crate::policy::Recipient;
 use crate::{Error, Result};
 
 /// Create a new [Router] for the Delta Sharing REST API.
 pub fn get_router<T: SharingHandler + SharingQueryHandler + Clone>(state: T) -> Router {
     Router::new()
-        .route("/shares", get(list_shares_handler::<T>))
-        .route("/shares/{share}", get(get_share_handler::<T>))
-        .route(
-            "/shares/{share}/schemas",
-            get(list_sharing_schemas_handler::<T>),
-        )
-        .route(
-            "/shares/{share}/all-tables",
-            get(list_share_tables_handler::<T>),
-        )
+        .route("/shares", get(list_shares::<T>))
+        .route("/shares/{share}", get(get_share::<T>))
+        .route("/shares/{share}/schemas", get(list_sharing_schemas::<T>))
+        .route("/shares/{share}/all-tables", get(list_share_tables::<T>))
         .route(
             "/shares/{share}/schemas/{name}/tables",
-            get(list_schema_tables_handler::<T>),
+            get(list_schema_tables::<T>),
         )
         .route(
             "/shares/{share}/schemas/{schema}/tables/{name}/version",

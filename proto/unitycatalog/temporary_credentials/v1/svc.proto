@@ -62,8 +62,8 @@ service TemporaryCredentialsService {
     option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryTableCredentials"};
   }
 
-  // Generate a new set of credentials for a volume.
-  rpc GenerateTemporaryVolumeCredentials(GenerateTemporaryPathCredentialsRequest) returns (TemporaryCredential) {
+  // Generate a new set of credentials for a path.
+  rpc GenerateTemporaryPathCredentials(GenerateTemporaryPathCredentialsRequest) returns (TemporaryCredential) {
     option (google.api.http) = {
       post: "/temporary-path-credentials"
       body: "*"

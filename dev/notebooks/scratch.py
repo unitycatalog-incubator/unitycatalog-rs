@@ -12,7 +12,9 @@ def _():
 
     shares = client.list_shares()
     tables = client.list_share_tables(share=shares[0].name)
-    client.get_table_metadata(share=tables[0].share, schema=tables[0].schema, name=tables[0].name)
+    client.get_table_metadata(
+        share=tables[0].share, schema=tables[0].schema, name=tables[0].name
+    )
     return
 
 

@@ -5,7 +5,7 @@ use crate::api::RequestContext;
 use crate::policy::Recipient;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::tables::v1::*;
-pub async fn list_table_summaries_handler<T: TableHandler>(
+pub async fn list_table_summaries<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListTableSummariesRequest,
@@ -14,7 +14,7 @@ pub async fn list_table_summaries_handler<T: TableHandler>(
     let result = handler.list_table_summaries(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn list_tables_handler<T: TableHandler>(
+pub async fn list_tables<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: ListTablesRequest,
@@ -23,7 +23,7 @@ pub async fn list_tables_handler<T: TableHandler>(
     let result = handler.list_tables(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_table_handler<T: TableHandler>(
+pub async fn create_table<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: CreateTableRequest,
@@ -32,7 +32,7 @@ pub async fn create_table_handler<T: TableHandler>(
     let result = handler.create_table(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_table_handler<T: TableHandler>(
+pub async fn get_table<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetTableRequest,
@@ -41,7 +41,7 @@ pub async fn get_table_handler<T: TableHandler>(
     let result = handler.get_table(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_table_exists_handler<T: TableHandler>(
+pub async fn get_table_exists<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: GetTableExistsRequest,
@@ -50,7 +50,7 @@ pub async fn get_table_exists_handler<T: TableHandler>(
     let result = handler.get_table_exists(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_table_handler<T: TableHandler>(
+pub async fn delete_table<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
     request: DeleteTableRequest,

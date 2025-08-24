@@ -5,10 +5,9 @@ use clap::Parser;
 use protobuf::Message;
 use protobuf::descriptor::FileDescriptorSet;
 
-use unitycatalog_build::CodeGenMetadata;
-use unitycatalog_build::codegen::generate_rest_handlers;
-use unitycatalog_build::error::Result;
-use unitycatalog_build::parsing::process_file_descriptor;
+use unitycatalog_build::Result;
+use unitycatalog_build::codegen::generate_code;
+use unitycatalog_build::parsing::parse_file_descriptor_set;
 
 #[derive(Parser)]
 struct Cli {
@@ -20,6 +19,9 @@ struct Cli {
 
     #[clap(long, env = "UC_BUILD_OUTPUT_CLIENT")]
     output_client: String,
+
+    #[clap(long, env = "UC_BUILD_OUTPUT_PYTHON")]
+    output_python: String,
 
     #[clap(long, short, env = "UC_BUILD_DESCRIPTORS")]
     descriptors: String,
@@ -33,29 +35,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let descriptor_bytes = fs::read(&descriptor_path)?;
     let file_descriptor_set = FileDescriptorSet::parse_from_bytes(&descriptor_bytes)?;
 
-    let mut codegen_metadata = CodeGenMetadata {
-        methods: Vec::new(),
-        messages: std::collections::HashMap::new(),
-    };
-
-    // Process each file descriptor
-    for file_descriptor in &file_descriptor_set.file {
-        process_file_descriptor(file_descriptor, &mut codegen_metadata)?;
-    }
-
-    println!("server -> {}", args.output_server);
-    println!("client -> {}", args.output_client);
+    let codegen_metadata = parse_file_descriptor_set(&file_descriptor_set)?;
 
     // Generate code from collected metadata
     let output_dir_common = fs::canonicalize(PathBuf::from(&args.output_common))?;
     let output_dir_server = fs::canonicalize(PathBuf::from(&args.output_server))?;
     let output_dir_client = fs::canonicalize(PathBuf::from(&args.output_client))?;
+    let output_dir_python = fs::canonicalize(PathBuf::from(&args.output_python))?;
 
-    generate_rest_handlers(
+    generate_code(
         &codegen_metadata,
         &output_dir_common,
         &output_dir_server,
         &output_dir_client,
+        &output_dir_python,
     )?;
 
     Ok(())

@@ -3,6 +3,7 @@ syntax = "proto3";
 package unitycatalog.shares.v1;
 
 import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 
 enum DataObjectType {
   // Unknown data object type.
@@ -80,6 +81,13 @@ message DataObject {
 }
 
 message ShareInfo {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Share"
+    pattern: "shares/{share}"
+    plural: "shares"
+    singular: "share"
+  };
+
   // Unique ID of the recipient.
   optional string id = 100;
 

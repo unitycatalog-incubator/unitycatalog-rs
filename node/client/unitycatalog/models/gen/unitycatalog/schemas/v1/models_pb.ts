@@ -7,6 +7,7 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
+import { file_google_api_resource } from "../../../google/api/resource_pb";
 
 /**
  * Describes the file unitycatalog/schemas/v1/models.proto.
@@ -14,8 +15,12 @@ import { file_google_api_field_behavior } from "../../../google/api/field_behavi
 export const file_unitycatalog_schemas_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMuchHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIo8ECgpTY2hlbWFJbmZvEhEKBG5hbWUYASABKAlCA+BBAhIZCgxjYXRhbG9nX25hbWUYAiABKAlCA+BBAhIZCgdjb21tZW50GAMgASgJQgPgQQFIAIgBARJMCgpwcm9wZXJ0aWVzGAQgAygLMjMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mby5Qcm9wZXJ0aWVzRW50cnlCA+BBARIbCglmdWxsX25hbWUYBSABKAlCA+BBA0gBiAEBEhcKBW93bmVyGAYgASgJQgPgQQNIAogBARIcCgpjcmVhdGVkX2F0GAcgASgDQgPgQQNIA4gBARIcCgpjcmVhdGVkX2J5GAggASgJQgPgQQNIBIgBARIcCgp1cGRhdGVkX2F0GAkgASgDQgPgQQNIBYgBARIcCgp1cGRhdGVkX2J5GAogASgJQgPgQQNIBogBARIbCglzY2hlbWFfaWQYCyABKAlCA+BBA0gHiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQgoKCF9jb21tZW50QgwKCl9mdWxsX25hbWVCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9zY2hlbWFfaWRC+gEKG2NvbS51bml0eWNhdGFsb2cuc2NoZW1hcy52MUILTW9kZWxzUHJvdG9QAVpQZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2NoZW1hcy92MTtzY2hlbWFzdjGiAgNVU1iqHadVbml0eWNhdGFsb2cuU2NoZW1hcy5WMcoCF1VuaXR5Y2F0YWxvZ1xTY2hlbWFzXFYx4gIjVW5pdHljYXRhbG9nXFNjaGVtYXNcVjFcR1BCTWV0YWRhdGHqAhlVbml0eWNhdGFsb2c6OlNjaGVtYXM6OlYxYgZwcm90bzM",
-    [file_google_api_field_behavior, file_google_protobuf_struct],
+    "CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIpAECgpTY2hlbWFJbmZvEgwKBG5hbWUYASABKAkSFAoMY2F0YWxvZ19uYW1lGAIgASgJEhEKCWZ1bGxfbmFtZRgDIAEoCRIUCgdjb21tZW50GAQgASgJSACIAQESRwoKcHJvcGVydGllcxgFIAMoCzIzLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm8uUHJvcGVydGllc0VudHJ5EhIKBW93bmVyGAYgASgJSAGIAQESFwoKY3JlYXRlZF9hdBgHIAEoA0gCiAEBEhcKCmNyZWF0ZWRfYnkYCCABKAlIA4gBARIXCgp1cGRhdGVkX2F0GAkgASgDSASIAQESFwoKdXBkYXRlZF9ieRgKIAEoCUgFiAEBEhYKCXNjaGVtYV9pZBgLIAEoCUgGiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOknqQUYKFnVuaXR5Y2F0YWxvZy5pby9TY2hlbWESEHNjaGVtYXMve3NjaGVtYX0aCWZ1bGxfbmFtZSoHc2NoZW1hczIGc2NoZW1hQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfc2NoZW1hX2lkQvoBChtjb20udW5pdHljYXRhbG9nLnNjaGVtYXMudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NjaGVtYXMvdjE7c2NoZW1hc3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNjaGVtYXMuVjHKAhdVbml0eWNhdGFsb2dcU2NoZW1hc1xWMeICI1VuaXR5Y2F0YWxvZ1xTY2hlbWFzXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTY2hlbWFzOjpWMWIGcHJvdG8z",
+    [
+      file_google_api_field_behavior,
+      file_google_api_resource,
+      file_google_protobuf_struct,
+    ],
   );
 
 /**
@@ -39,25 +44,25 @@ export type SchemaInfo = Message<"unitycatalog.schemas.v1.SchemaInfo"> & {
   catalogName: string;
 
   /**
+   * Full name of schema, in form of catalog_name.schema_name.
+   *
+   * @generated from field: string full_name = 3;
+   */
+  fullName: string;
+
+  /**
    * User-provided free-form text description.
    *
-   * @generated from field: optional string comment = 3;
+   * @generated from field: optional string comment = 4;
    */
   comment?: string;
 
   /**
    * A map of key-value properties attached to the securable.
    *
-   * @generated from field: map<string, string> properties = 4;
+   * @generated from field: map<string, string> properties = 5;
    */
   properties: { [key: string]: string };
-
-  /**
-   * Full name of schema, in form of catalog_name.schema_name.
-   *
-   * @generated from field: optional string full_name = 5;
-   */
-  fullName?: string;
 
   /**
    * Username of current owner of schema.
