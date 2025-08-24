@@ -129,9 +129,6 @@ message UpdateVolumeRequest {
 
   // The identifier of the user who owns the volume
   optional string owner = 4 [(google.api.field_behavior) = OPTIONAL];
-
-  // Whether to include schemas in the response for which the principal can only access selective metadata for
-  optional bool include_browse = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message DeleteVolumeRequest {

@@ -29,6 +29,116 @@ impl IntoFuture for GetShareBuilder {
     }
 }
 /// Builder for creating requests
+pub struct ListSharingSchemasBuilder {
+    client: SharingClient,
+    request: ListSharingSchemasRequest,
+}
+impl ListSharingSchemasBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: SharingClient, share: impl Into<String>) -> Self {
+        let request = ListSharingSchemasRequest {
+            share: share.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    /**Specifies a page token to use. Set pageToken to the nextPageToken returned
+    by a previous list request to get the next page of results.*/
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+}
+impl IntoFuture for ListSharingSchemasBuilder {
+    type Output = Result<ListSharingSchemasResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_sharing_schemas(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct ListSchemaTablesBuilder {
+    client: SharingClient,
+    request: ListSchemaTablesRequest,
+}
+impl ListSchemaTablesBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(
+        client: SharingClient,
+        name: impl Into<String>,
+        share: impl Into<String>,
+    ) -> Self {
+        let request = ListSchemaTablesRequest {
+            name: name.into(),
+            share: share.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    /**Specifies a page token to use. Set pageToken to the nextPageToken returned
+    by a previous list request to get the next page of results.*/
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+}
+impl IntoFuture for ListSchemaTablesBuilder {
+    type Output = Result<ListSchemaTablesResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_schema_tables(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct ListShareTablesBuilder {
+    client: SharingClient,
+    request: ListShareTablesRequest,
+}
+impl ListShareTablesBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: SharingClient, name: impl Into<String>) -> Self {
+        let request = ListShareTablesRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    /**Specifies a page token to use. Set pageToken to the nextPageToken returned
+    by a previous list request to get the next page of results.*/
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+}
+impl IntoFuture for ListShareTablesBuilder {
+    type Output = Result<ListShareTablesResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_share_tables(&request).await })
+    }
+}
+/// Builder for creating requests
 pub struct GetTableVersionBuilder {
     client: SharingClient,
     request: GetTableVersionRequest,

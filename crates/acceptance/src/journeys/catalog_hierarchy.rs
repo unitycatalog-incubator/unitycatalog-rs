@@ -335,7 +335,7 @@ impl UserJourney for CatalogHierarchyJourney {
                     client
                         .catalog(&self.catalog_name)
                         .schema(schema_name)
-                        .delete(Some(false))
+                        .delete()
                         .await
                         .map_err(|e| {
                             AcceptanceError::UnityCatalog(format!(
@@ -354,7 +354,8 @@ impl UserJourney for CatalogHierarchyJourney {
             .step("cleanup_catalog", async {
                 client
                     .catalog(&self.catalog_name)
-                    .delete(Some(true))
+                    .delete()
+                    .with_force(true)
                     .await
                     .map_err(|e| {
                         AcceptanceError::UnityCatalog(format!("Failed to delete catalog: {}", e))
@@ -382,7 +383,8 @@ impl UserJourney for CatalogHierarchyJourney {
                     client
                         .catalog(&self.catalog_name)
                         .schema(schema_name)
-                        .delete(Some(false)),
+                        .delete()
+                        .into_future(),
                 )
                 .await?;
             }
@@ -391,7 +393,11 @@ impl UserJourney for CatalogHierarchyJourney {
             cleanup_step(
                 logger,
                 "emergency_cleanup_catalog",
-                client.catalog(&self.catalog_name).delete(Some(true)),
+                client
+                    .catalog(&self.catalog_name)
+                    .delete()
+                    .with_force(true)
+                    .into_future(),
             )
             .await?;
 

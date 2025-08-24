@@ -6,6 +6,7 @@ use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableType};
 use super::tables::{TableClient, TableClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
+use crate::codegen::schemas::DeleteSchemaBuilder;
 pub(super) use crate::codegen::schemas::SchemaClient as SchemaClientBase;
 use crate::codegen::schemas::builders::{
     CreateSchemaBuilder, GetSchemaBuilder, UpdateSchemaBuilder,
@@ -121,12 +122,10 @@ impl SchemaClient {
         )
     }
 
-    pub async fn delete(&self, force: impl Into<Option<bool>>) -> Result<()> {
-        let request = DeleteSchemaRequest {
-            full_name: format!("{}.{}", self.catalog_name, self.schema_name),
-            force: force.into(),
-        };
-        tracing::debug!("Deleting schema {}", request.full_name);
-        self.client.delete_schema(&request).await
+    pub fn delete(&self) -> DeleteSchemaBuilder {
+        DeleteSchemaBuilder::new(
+            self.client.clone(),
+            format!("{}.{}", self.catalog_name, self.schema_name),
+        )
     }
 }

@@ -4,6 +4,7 @@ use unitycatalog_common::models::tables::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
+use crate::codegen::tables::DeleteTableBuilder;
 pub(super) use crate::codegen::tables::TableClient as TableClientBase;
 use crate::codegen::tables::builders::GetTableBuilder;
 
@@ -137,10 +138,7 @@ impl TableClient {
         GetTableBuilder::new(self.client.clone(), &self.full_name)
     }
 
-    pub async fn delete(&self) -> Result<()> {
-        let request = DeleteTableRequest {
-            full_name: self.full_name.clone(),
-        };
-        self.client.delete_table(&request).await
+    pub fn delete(&self) -> DeleteTableBuilder {
+        DeleteTableBuilder::new(self.client.clone(), self.full_name.clone())
     }
 }

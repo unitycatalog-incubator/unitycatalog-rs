@@ -147,3 +147,32 @@ impl IntoFuture for UpdateCatalogBuilder {
         Box::pin(async move { client.update_catalog(&request).await })
     }
 }
+/// Builder for creating requests
+pub struct DeleteCatalogBuilder {
+    client: CatalogClient,
+    request: DeleteCatalogRequest,
+}
+impl DeleteCatalogBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+        let request = DeleteCatalogRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///Force deletion even if the catalog is not empty.
+    pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
+        self.request.force = force.into();
+        self
+    }
+}
+impl IntoFuture for DeleteCatalogBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_catalog(&request).await })
+    }
+}

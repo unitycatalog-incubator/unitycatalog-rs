@@ -4,6 +4,7 @@ use unitycatalog_common::models::shares::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
+use crate::codegen::shares::DeleteShareBuilder;
 pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
 use crate::codegen::shares::builders::{CreateShareBuilder, GetShareBuilder, UpdateShareBuilder};
 
@@ -57,15 +58,12 @@ impl ShareClient {
         GetShareBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn delete(&self) -> Result<()> {
-        let request = DeleteShareRequest {
-            name: self.name.clone(),
-        };
-        self.client.delete_share(&request).await
-    }
-
     /// Update this share using the builder pattern.
     pub fn update(&self) -> UpdateShareBuilder {
         UpdateShareBuilder::new(self.client.clone(), &self.name)
+    }
+
+    pub fn delete(&self) -> DeleteShareBuilder {
+        DeleteShareBuilder::new(self.client.clone(), &self.name)
     }
 }

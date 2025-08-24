@@ -200,7 +200,13 @@ impl UserJourney for CatalogSimpleJourney {
 
         // Step 6: Clean up by deleting the catalog
         logger.info("🗑️ Deleting catalog")?;
-        let exec = async { client.catalog(&self.catalog_name).delete(Some(true)).await };
+        let exec = async {
+            client
+                .catalog(&self.catalog_name)
+                .delete()
+                .with_force(true)
+                .await
+        };
         logger.step("cleanup_catalog", exec).await?;
 
         // Note: Performance summary removed due to immutability constraints
@@ -220,7 +226,11 @@ impl UserJourney for CatalogSimpleJourney {
             cleanup_step(
                 logger,
                 "cleanup_delete_catalog",
-                client.catalog(&self.catalog_name).delete(Some(true)),
+                client
+                    .catalog(&self.catalog_name)
+                    .delete()
+                    .with_force(true)
+                    .into_future(),
             )
             .await?;
 

@@ -5,8 +5,8 @@ use unitycatalog_common::models::credentials::v1::*;
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
-use crate::codegen::credentials::builders::{
-    CreateCredentialBuilder, GetCredentialBuilder, UpdateCredentialBuilder,
+use crate::codegen::credentials::{
+    CreateCredentialBuilder, DeleteCredentialBuilder, GetCredentialBuilder, UpdateCredentialBuilder,
 };
 
 impl CredentialClientBase {
@@ -70,10 +70,8 @@ impl CredentialClient {
         UpdateCredentialBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn delete(&self) -> Result<()> {
-        let request = DeleteCredentialRequest {
-            name: self.name.clone(),
-        };
-        self.client.delete_credential(&request).await
+    /// Delete this credential using the builder pattern.
+    pub fn delete(&self) -> DeleteCredentialBuilder {
+        DeleteCredentialBuilder::new(self.client.clone(), &self.name)
     }
 }

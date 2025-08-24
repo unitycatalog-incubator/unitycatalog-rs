@@ -4,4 +4,7 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub enum Error {
     #[error("Build error: {0}")]
     Build(String),
+
+    #[error("Missing annotation for {object}: {message}")]
+    MissingAnnotation { object: String, message: String },
 }

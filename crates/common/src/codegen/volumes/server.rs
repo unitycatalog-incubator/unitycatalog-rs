@@ -84,14 +84,12 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateVolumeRequest {
             .extract()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
-        let (new_name, comment, owner, include_browse) =
-            (body.new_name, body.comment, body.owner, body.include_browse);
+        let (new_name, comment, owner) = (body.new_name, body.comment, body.owner);
         Ok(UpdateVolumeRequest {
             name,
             new_name,
             comment,
             owner,
-            include_browse,
         })
     }
 }

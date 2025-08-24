@@ -1,5 +1,4 @@
-use super::{MessageField, RequestType};
-use crate::google::api::HttpRule;
+use super::MessageField;
 
 /// Represents a segment in a URL template
 #[derive(Debug, Clone, PartialEq)]
@@ -44,7 +43,7 @@ pub enum UrlSegment {
 /// assert_eq!(method, "GET");
 /// ```
 #[derive(Debug, Clone)]
-pub struct HttpPattern {
+pub(crate) struct HttpPattern {
     /// The original template string
     pub template: String,
     /// Parsed segments in order
@@ -79,6 +78,18 @@ impl HttpPattern {
             static_prefix,
             static_suffix,
         }
+    }
+
+    pub fn ends_with_static(&self) -> bool {
+        self.segments
+            .last()
+            .is_some_and(|seg| matches!(seg, UrlSegment::Static(_)))
+    }
+
+    pub fn ends_with_parameter(&self) -> bool {
+        self.segments
+            .last()
+            .is_some_and(|seg| matches!(seg, UrlSegment::Parameter(_)))
     }
 
     /// Get the base path (static prefix without leading slash)
@@ -265,12 +276,14 @@ fn extract_static_suffix(segments: &[UrlSegment]) -> Option<String> {
 
 /// Extract path parameter names from URL template like "/catalogs/{name}"
 /// (Kept for backward compatibility)
-pub fn extract_path_parameters(path_template: &str) -> Vec<String> {
+pub(crate) fn extract_path_parameters(path_template: &str) -> Vec<String> {
     HttpPattern::parse(path_template).parameters
 }
 
 /// Extract pattern information from an HttpRule
-pub fn extract_http_rule_pattern(http_rule: &crate::google::api::HttpRule) -> Option<HttpPattern> {
+pub(crate) fn extract_http_rule_pattern(
+    http_rule: &crate::google::api::HttpRule,
+) -> Option<HttpPattern> {
     use crate::google::api::http_rule::Pattern;
 
     let template = match &http_rule.pattern {
@@ -287,7 +300,7 @@ pub fn extract_http_rule_pattern(http_rule: &crate::google::api::HttpRule) -> Op
 }
 
 /// Find matching field for a path parameter with fallback logic
-pub fn find_matching_field_for_path_param<'a>(
+pub(crate) fn find_matching_field_for_path_param<'a>(
     path_param_name: &str,
     input_fields: &'a [MessageField],
 ) -> Option<&'a MessageField> {
@@ -311,7 +324,7 @@ pub fn find_matching_field_for_path_param<'a>(
 }
 
 /// Generate URL formatting code for templates with path parameters
-pub fn format_url_template(path: &str, param_names: &[String]) -> (String, Vec<String>) {
+pub(crate) fn format_url_template(path: &str, param_names: &[String]) -> (String, Vec<String>) {
     if param_names.is_empty() {
         return (path.to_string(), Vec::new());
     }
@@ -330,51 +343,8 @@ pub fn format_url_template(path: &str, param_names: &[String]) -> (String, Vec<S
     (format_string, format_args)
 }
 
-/// Determine request type from HTTP rule and method name
-pub fn classify_request_type_from_http(http_rule: &HttpRule, method_name: &str) -> RequestType {
-    // If method name doesn't have a clear prefix, use HTTP rule as fallback
-    if let Some(pattern) = &http_rule.pattern {
-        use crate::google::api::http_rule::Pattern;
-        return match pattern {
-            Pattern::Get(_) => {
-                // GET requests default to Get, but could be List based on path structure
-                if method_name.starts_with("List") {
-                    RequestType::List
-                } else {
-                    RequestType::Get
-                }
-            }
-            Pattern::Post(_)
-                if method_name.starts_with("Update") || method_name.starts_with("Query") =>
-            {
-                RequestType::Update
-            }
-            Pattern::Post(_) => RequestType::Create,
-            Pattern::Put(_) | Pattern::Patch(_) => RequestType::Update,
-            Pattern::Delete(_) => RequestType::Delete,
-            Pattern::Custom(_) => RequestType::Get, // Default fallback
-        };
-    }
-
-    // First, check method name for explicit patterns as they are more reliable
-    if method_name.starts_with("List") {
-        RequestType::List
-    } else if method_name.starts_with("Create") || method_name.starts_with("Generate") {
-        RequestType::Create
-    } else if method_name.starts_with("Get") {
-        RequestType::Get
-    } else if method_name.starts_with("Update") || method_name.starts_with("Query") {
-        RequestType::Update
-    } else if method_name.starts_with("Delete") {
-        RequestType::Delete
-    } else {
-        // Fallback to method name if no pattern (shouldn't happen with required http_rule)
-        RequestType::Get
-    }
-}
-
 /// Determine if a field should be extracted from request body
-pub fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
+pub(crate) fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
     match body_spec {
         "*" => true, // All fields not in path go to body
         "" => false, // No body fields
@@ -382,15 +352,8 @@ pub fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
     }
 }
 
-/// Check if a method requires pagination parameters
-pub fn needs_pagination(request_type: &RequestType) -> bool {
-    matches!(request_type, RequestType::List)
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::google::api::http_rule::Pattern;
-
     use super::*;
 
     #[test]
@@ -532,87 +495,6 @@ mod tests {
         };
 
         assert!(extract_http_rule_pattern(&http_rule).is_none());
-    }
-
-    #[test]
-    fn test_classify_request_type_from_http() {
-        // Test method name takes priority over HTTP pattern
-        let get_rule = HttpRule {
-            selector: String::new(),
-            pattern: Some(Pattern::Get("/catalogs/{name}".to_string())),
-            body: String::new(),
-            response_body: String::new(),
-            additional_bindings: Vec::new(),
-        };
-        assert_eq!(
-            classify_request_type_from_http(&get_rule, "GetCatalog"),
-            RequestType::Get
-        );
-
-        // Test List method name overrides GET pattern even with parameters
-        let list_rule_with_params = HttpRule {
-            selector: String::new(),
-            pattern: Some(Pattern::Get("/catalogs/{parent}/schemas".to_string())),
-            body: String::new(),
-            response_body: String::new(),
-            additional_bindings: Vec::new(),
-        };
-        assert_eq!(
-            classify_request_type_from_http(&list_rule_with_params, "ListSchemas"),
-            RequestType::List
-        );
-
-        // Test POST (create)
-        let post_rule = HttpRule {
-            selector: String::new(),
-            pattern: Some(Pattern::Post("/catalogs".to_string())),
-            body: String::new(),
-            response_body: String::new(),
-            additional_bindings: Vec::new(),
-        };
-        assert_eq!(
-            classify_request_type_from_http(&post_rule, "CreateCatalog"),
-            RequestType::Create
-        );
-
-        // Test PUT (update)
-        let put_rule = HttpRule {
-            selector: String::new(),
-            pattern: Some(Pattern::Put("/catalogs/{name}".to_string())),
-            body: String::new(),
-            response_body: String::new(),
-            additional_bindings: Vec::new(),
-        };
-        assert_eq!(
-            classify_request_type_from_http(&put_rule, "UpdateCatalog"),
-            RequestType::Update
-        );
-
-        // Test DELETE
-        let delete_rule = HttpRule {
-            selector: String::new(),
-            pattern: Some(Pattern::Delete("/catalogs/{name}".to_string())),
-            body: String::new(),
-            response_body: String::new(),
-            additional_bindings: Vec::new(),
-        };
-        assert_eq!(
-            classify_request_type_from_http(&delete_rule, "DeleteCatalog"),
-            RequestType::Delete
-        );
-
-        // Test POST with Query method name (method name takes priority)
-        let query_rule = HttpRule {
-            selector: String::new(),
-            pattern: Some(Pattern::Post("/catalogs:query".to_string())),
-            body: String::new(),
-            response_body: String::new(),
-            additional_bindings: Vec::new(),
-        };
-        assert_eq!(
-            classify_request_type_from_http(&query_rule, "QueryCatalogs"),
-            RequestType::Update
-        );
     }
 
     #[test]

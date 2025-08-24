@@ -3,23 +3,26 @@ use std::collections::HashMap;
 use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
 use unitycatalog_client::{
-    CatalogClient, CredentialClient, ExternalLocationClient, PathOperation, RecipientClient,
-    SchemaClient, ShareClient, TableClient, TableOperation, TableReference,
-    TemporaryCredentialClient, UnityCatalogClient, VolumeClient,
-};
-use unitycatalog_common::credentials::v1::{
-    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey,
+    PathOperation, TableOperation, TableReference, TemporaryCredentialClient, UnityCatalogClient,
 };
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
-use unitycatalog_common::models::shares::v1::{DataObjectUpdate, ShareInfo};
-use unitycatalog_common::models::tables::v1::{ColumnInfo, DataSourceFormat, TableInfo, TableType};
+use unitycatalog_common::models::shares::v1::ShareInfo;
+use unitycatalog_common::models::tables::v1::TableInfo;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
 
+pub use crate::codegen::catalogs::PyCatalogClient;
+pub use crate::codegen::credentials::PyCredentialClient;
+pub use crate::codegen::external_locations::PyExternalLocationClient;
+pub use crate::codegen::recipients::PyRecipientClient;
+pub use crate::codegen::schemas::PySchemaClient;
+pub use crate::codegen::shares::PyShareClient;
+pub use crate::codegen::tables::PyTableClient;
+pub use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 
@@ -409,12 +412,6 @@ impl PyUnityCatalogClient {
         }
     }
 
-    pub fn volume_from_full_name(&self, full_name: String) -> PyVolumeClient {
-        PyVolumeClient {
-            client: self.0.volume_from_full_name(full_name),
-        }
-    }
-
     pub fn create_volume(
         &self,
         py: Python,
@@ -442,496 +439,79 @@ impl PyUnityCatalogClient {
     }
 }
 
-#[pyclass(name = "CatalogClient")]
-pub struct PyCatalogClient {
-    client: CatalogClient,
-}
+// #[pymethods]
+// impl PyCatalogClient {
+//     #[pyo3(signature = (name, comment = None))]
+//     pub fn create_schema(
+//         &self,
+//         py: Python,
+//         name: String,
+//         comment: Option<String>,
+//     ) -> PyUnityCatalogResult<SchemaInfo> {
+//         let runtime = get_runtime(py)?;
+//         let mut request = self.client.create_schema(name);
+//         if let Some(comment) = comment {
+//             request = request.with_comment(comment);
+//         }
+//         py.allow_threads(|| {
+//             let info = runtime.block_on(request.into_future())?;
+//             Ok::<_, PyUnityCatalogError>(info)
+//         })
+//     }
+//
+//     #[pyo3(signature = (name))]
+//     pub fn schema(&self, name: String) -> PySchemaClient {
+//         PySchemaClient {
+//             client: self.client.schema(name),
+//         }
+//     }
+// }
 
-#[pymethods]
-impl PyCatalogClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<CatalogInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get().into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (name, comment = None))]
-    pub fn create_schema(
-        &self,
-        py: Python,
-        name: String,
-        comment: Option<String>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
-        let runtime = get_runtime(py)?;
-        let mut request = self.client.create_schema(name);
-        if let Some(comment) = comment {
-            request = request.with_comment(comment);
-        }
-        py.allow_threads(|| {
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (new_name = None, comment = None, owner = None, properties = None))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        comment: Option<String>,
-        owner: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
-        let mut request = self
-            .client
-            .update()
-            .with_new_name(new_name)
-            .with_comment(comment)
-            .with_owner(owner);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (force = None))]
-    pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete(force))?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-
-    pub fn schema(&self, name: String) -> PySchemaClient {
-        PySchemaClient {
-            client: self.client.schema(name),
-        }
-    }
-}
-
-#[pyclass(name = "SchemaClient")]
-pub struct PySchemaClient {
-    client: SchemaClient,
-}
-
-#[pymethods]
-impl PySchemaClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<SchemaInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get().into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (name))]
-    pub fn table(&self, name: String) -> PyTableClient {
-        PyTableClient {
-            client: self.client.table(name),
-        }
-    }
-
-    #[pyo3(signature = (
-        name,
-        table_type,
-        data_source_format,
-        columns,
-        storage_location = None,
-        comment = None,
-        properties = None)
-    )]
-    pub fn create_table(
-        &self,
-        py: Python,
-        name: String,
-        table_type: TableType,
-        data_source_format: DataSourceFormat,
-        columns: Vec<ColumnInfo>,
-        storage_location: Option<String>,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<TableInfo> {
-        let mut request = self
-            .client
-            .create_table(name, table_type, data_source_format)
-            .with_storage_location(storage_location)
-            .with_comment(comment)
-            .with_columns(columns);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (new_name = None, comment = None, properties = None))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let mut request = self
-                .client
-                .update()
-                .with_new_name(new_name)
-                .with_comment(comment);
-            if let Some(properties) = properties {
-                request = request.with_properties(properties);
-            }
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (force = None))]
-    pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete(force))?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
-
-#[pyclass(name = "TableClient")]
-pub struct PyTableClient {
-    client: TableClient,
-}
-
-#[pymethods]
-impl PyTableClient {
-    #[pyo3(signature = (include_delta_metadata = None, include_browse = None, include_manifest_capabilities = None))]
-    pub fn get(
-        &self,
-        py: Python,
-        include_delta_metadata: Option<bool>,
-        include_browse: Option<bool>,
-        include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<TableInfo> {
-        let request = self
-            .client
-            .get()
-            .with_include_delta_metadata(include_delta_metadata)
-            .with_include_browse(include_browse)
-            .with_include_manifest_capabilities(include_manifest_capabilities);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
-
-#[pyclass(name = "ShareClient")]
-pub struct PyShareClient {
-    client: ShareClient,
-}
-
-#[pymethods]
-impl PyShareClient {
-    #[pyo3(signature = (include_shared_data = None))]
-    pub fn get(
-        &self,
-        py: Python,
-        include_shared_data: Option<bool>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
-        let request = self
-            .client
-            .get()
-            .with_include_shared_data(include_shared_data);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (new_name = None, updates = None, comment = None, owner = None))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        updates: Option<Vec<DataObjectUpdate>>,
-        comment: Option<String>,
-        owner: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let mut request = self
-                .client
-                .update()
-                .with_new_name(new_name)
-                .with_comment(comment)
-                .with_owner(owner);
-            if let Some(updates) = updates {
-                request = request.with_updates(updates);
-            }
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
-
-#[pyclass(name = "RecipientClient")]
-pub struct PyRecipientClient {
-    client: RecipientClient,
-}
-
-#[pymethods]
-impl PyRecipientClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<RecipientInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get().into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (new_name = None, comment = None, owner = None, properties = None, expiration_time = None))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        comment: Option<String>,
-        owner: Option<String>,
-        properties: Option<HashMap<String, String>>,
-        expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let mut request = self
-                .client
-                .update()
-                .with_new_name(new_name)
-                .with_comment(comment)
-                .with_owner(owner)
-                .with_expiration_time(expiration_time);
-            if let Some(properties) = properties {
-                request = request.with_properties(properties);
-            }
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
-
-#[pyclass(name = "CredentialClient")]
-pub struct PyCredentialClient {
-    client: CredentialClient,
-}
-
-#[pymethods]
-impl PyCredentialClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<CredentialInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get().into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (
-        new_name = None,
-        comment = None,
-        owner = None,
-        read_only = None,
-        skip_validation = None,
-        force = None,
-        azure_managed_identity = None,
-        azure_service_principal = None,
-        azure_storage_key = None
-    ))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        comment: Option<String>,
-        owner: Option<String>,
-        read_only: Option<bool>,
-        skip_validation: Option<bool>,
-        force: Option<bool>,
-        azure_managed_identity: Option<AzureManagedIdentity>,
-        azure_service_principal: Option<AzureServicePrincipal>,
-        azure_storage_key: Option<AzureStorageKey>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let request = self
-                .client
-                .update()
-                .with_new_name(new_name)
-                .with_comment(comment)
-                .with_owner(owner)
-                .with_read_only(read_only)
-                .with_skip_validation(skip_validation)
-                .with_force(force)
-                .with_azure_managed_identity(azure_managed_identity)
-                .with_azure_service_principal(azure_service_principal)
-                .with_azure_storage_key(azure_storage_key);
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
-
-#[pyclass(name = "ExternalLocationClient")]
-pub struct PyExternalLocationClient {
-    client: ExternalLocationClient,
-}
-
-#[pymethods]
-impl PyExternalLocationClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocationInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let info = runtime.block_on(self.client.get().into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (new_name = None, url = None, credential_name = None, comment = None, owner = None, read_only = None, skip_validation = None, force = None))]
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        url: Option<String>,
-        credential_name: Option<String>,
-        comment: Option<String>,
-        owner: Option<String>,
-        read_only: Option<bool>,
-        skip_validation: Option<bool>,
-        force: Option<bool>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let request = self
-                .client
-                .update()
-                .with_new_name(new_name)
-                .with_url(url)
-                .with_credential_name(credential_name)
-                .with_comment(comment)
-                .with_owner(owner)
-                .with_read_only(read_only)
-                .with_skip_validation(skip_validation)
-                .with_force(force);
-            let info = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(info)
-        })
-    }
-
-    #[pyo3(signature = (force = None))]
-    pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete(force))?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
-
-#[pyclass(name = "VolumeClient")]
-pub struct PyVolumeClient {
-    client: VolumeClient,
-}
-
-#[pymethods]
-impl PyVolumeClient {
-    pub fn get(
-        &self,
-        py: Python,
-        include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
-        let request = self.client.get().with_include_browse(include_browse);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let volume = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(volume)
-        })
-    }
-
-    pub fn update(
-        &self,
-        py: Python,
-        new_name: Option<String>,
-        comment: Option<String>,
-        owner: Option<String>,
-        include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let mut request = self.client.update();
-            if let Some(new_name) = new_name {
-                request = request.with_new_name(new_name);
-            }
-            if let Some(comment) = comment {
-                request = request.with_comment(comment);
-            }
-            if let Some(owner) = owner {
-                request = request.with_owner(owner);
-            }
-            if let Some(include_browse) = include_browse {
-                request = request.with_include_browse(include_browse);
-            }
-            let volume = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(volume)
-        })
-    }
-
-    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(self.client.delete())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
-    }
-}
+// #[pymethods]
+// impl PySchemaClient {
+//     #[pyo3(signature = (name))]
+//     pub fn table(&self, name: String) -> PyTableClient {
+//         PyTableClient {
+//             client: self.client.table(name),
+//         }
+//     }
+//
+//     #[pyo3(signature = (
+//         name,
+//         table_type,
+//         data_source_format,
+//         columns,
+//         storage_location = None,
+//         comment = None,
+//         properties = None)
+//     )]
+//     pub fn create_table(
+//         &self,
+//         py: Python,
+//         name: String,
+//         table_type: TableType,
+//         data_source_format: DataSourceFormat,
+//         columns: Vec<ColumnInfo>,
+//         storage_location: Option<String>,
+//         comment: Option<String>,
+//         properties: Option<HashMap<String, String>>,
+//     ) -> PyUnityCatalogResult<TableInfo> {
+//         let mut request = self
+//             .client
+//             .create_table(name, table_type, data_source_format)
+//             .with_storage_location(storage_location)
+//             .with_comment(comment)
+//             .with_columns(columns);
+//         if let Some(properties) = properties {
+//             request = request.with_properties(properties);
+//         }
+//         let runtime = get_runtime(py)?;
+//         py.allow_threads(|| {
+//             let info = runtime.block_on(request.into_future())?;
+//             Ok::<_, PyUnityCatalogError>(info)
+//         })
+//     }
+// }
 
 #[pyclass(name = "TemporaryCredentialClient")]
 pub struct PyTemporaryCredentialClient {

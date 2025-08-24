@@ -5,6 +5,64 @@ use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::tables::v1::*;
 /// Builder for creating requests
+pub struct ListTableSummariesBuilder {
+    client: TableClient,
+    request: ListTableSummariesRequest,
+}
+impl ListTableSummariesBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: TableClient, catalog_name: impl Into<String>) -> Self {
+        let request = ListTableSummariesRequest {
+            catalog_name: catalog_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty.
+    pub fn with_schema_name_pattern(
+        mut self,
+        schema_name_pattern: impl Into<Option<String>>,
+    ) -> Self {
+        self.request.schema_name_pattern = schema_name_pattern.into();
+        self
+    }
+    ///A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty.
+    pub fn with_table_name_pattern(
+        mut self,
+        table_name_pattern: impl Into<Option<String>>,
+    ) -> Self {
+        self.request.table_name_pattern = table_name_pattern.into();
+        self
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    ///Opaque pagination token to go to next page based on previous query.
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+    ///Whether to include a manifest containing capabilities the table has.
+    pub fn with_include_manifest_capabilities(
+        mut self,
+        include_manifest_capabilities: impl Into<Option<bool>>,
+    ) -> Self {
+        self.request.include_manifest_capabilities = include_manifest_capabilities.into();
+        self
+    }
+}
+impl IntoFuture for ListTableSummariesBuilder {
+    type Output = Result<ListTableSummariesResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_table_summaries(&request).await })
+    }
+}
+/// Builder for creating requests
 pub struct CreateTableBuilder {
     client: TableClient,
     request: CreateTableRequest,
@@ -137,5 +195,29 @@ impl IntoFuture for GetTableExistsBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.get_table_exists(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct DeleteTableBuilder {
+    client: TableClient,
+    request: DeleteTableRequest,
+}
+impl DeleteTableBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+        let request = DeleteTableRequest {
+            full_name: full_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for DeleteTableBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_table(&request).await })
     }
 }

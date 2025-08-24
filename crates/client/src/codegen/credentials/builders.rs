@@ -171,3 +171,27 @@ impl IntoFuture for UpdateCredentialBuilder {
         Box::pin(async move { client.update_credential(&request).await })
     }
 }
+/// Builder for creating requests
+pub struct DeleteCredentialBuilder {
+    client: CredentialClient,
+    request: DeleteCredentialRequest,
+}
+impl DeleteCredentialBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+        let request = DeleteCredentialRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for DeleteCredentialBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_credential(&request).await })
+    }
+}

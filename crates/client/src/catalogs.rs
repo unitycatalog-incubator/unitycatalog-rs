@@ -6,7 +6,7 @@ use super::schemas::{SchemaClient, SchemaClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
 pub(super) use crate::codegen::catalogs::CatalogClient as CatalogClientBase;
-use crate::codegen::catalogs::builders::{GetCatalogBuilder, UpdateCatalogBuilder};
+use crate::codegen::catalogs::{DeleteCatalogBuilder, GetCatalogBuilder, UpdateCatalogBuilder};
 use crate::codegen::schemas::CreateSchemaBuilder;
 
 impl CatalogClientBase {
@@ -76,11 +76,7 @@ impl CatalogClient {
         UpdateCatalogBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn delete(&self, force: impl Into<Option<bool>>) -> Result<()> {
-        let request = DeleteCatalogRequest {
-            name: self.name.clone(),
-            force: force.into(),
-        };
-        self.client.delete_catalog(&request).await
+    pub fn delete(&self) -> DeleteCatalogBuilder {
+        DeleteCatalogBuilder::new(self.client.clone(), &self.name)
     }
 }

@@ -47,10 +47,10 @@ pub mod strings {
 
 /// Type mapping utilities
 pub mod types {
-    use crate::parsing::RequestType;
 
     /// Convert protobuf field type to Rust type
     pub fn field_type_to_rust_type(field_type: &str) -> String {
+        println!("field_type: {}", field_type);
         match field_type {
             "TYPE_STRING" => "String".to_string(),
             "TYPE_INT32" => "i32".to_string(),
@@ -61,7 +61,9 @@ pub mod types {
             "TYPE_BYTES" => "Vec<u8>".to_string(),
             _ => {
                 // For message types, extract the simple name
-                if field_type.starts_with("TYPE_MESSAGE:") {
+                if field_type.ends_with("PropertiesEntry") {
+                    "HashMap<String, String>".to_string()
+                } else if field_type.starts_with("TYPE_MESSAGE:") {
                     super::strings::extract_simple_type_name(&field_type[13..])
                 } else if field_type.starts_with("TYPE_ENUM:") {
                     // Enum fields are represented as i32 in the generated structs
@@ -75,11 +77,6 @@ pub mod types {
                 }
             }
         }
-    }
-
-    /// Determine if a request type should have a response body
-    pub fn has_response_body(request_type: &RequestType) -> bool {
-        !matches!(request_type, RequestType::Delete)
     }
 
     /// Make a type optional by wrapping in Option<T>
@@ -151,7 +148,6 @@ mod tests {
 
     mod type_tests {
         use super::*;
-        use crate::parsing::RequestType;
 
         #[test]
         fn test_field_type_to_rust_type() {
@@ -164,15 +160,6 @@ mod tests {
                 ),
                 "CatalogInfo"
             );
-        }
-
-        #[test]
-        fn test_has_response_body() {
-            assert!(types::has_response_body(&RequestType::Get));
-            assert!(types::has_response_body(&RequestType::Create));
-            assert!(types::has_response_body(&RequestType::Update));
-            assert!(types::has_response_body(&RequestType::List));
-            assert!(!types::has_response_body(&RequestType::Delete));
         }
     }
 }

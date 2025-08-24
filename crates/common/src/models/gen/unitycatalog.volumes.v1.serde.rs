@@ -696,9 +696,6 @@ impl serde::Serialize for UpdateVolumeRequest {
         if self.owner.is_some() {
             len += 1;
         }
-        if self.include_browse.is_some() {
-            len += 1;
-        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.volumes.v1.UpdateVolumeRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -711,9 +708,6 @@ impl serde::Serialize for UpdateVolumeRequest {
         }
         if let Some(v) = self.owner.as_ref() {
             struct_ser.serialize_field("owner", v)?;
-        }
-        if let Some(v) = self.include_browse.as_ref() {
-            struct_ser.serialize_field("include_browse", v)?;
         }
         struct_ser.end()
     }
@@ -730,8 +724,6 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
             "newName",
             "comment",
             "owner",
-            "include_browse",
-            "includeBrowse",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -740,7 +732,6 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
             NewName,
             Comment,
             Owner,
-            IncludeBrowse,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -767,7 +758,6 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
                             "newName" | "new_name" => Ok(GeneratedField::NewName),
                             "comment" => Ok(GeneratedField::Comment),
                             "owner" => Ok(GeneratedField::Owner),
-                            "includeBrowse" | "include_browse" => Ok(GeneratedField::IncludeBrowse),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -791,7 +781,6 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
                 let mut new_name__ = None;
                 let mut comment__ = None;
                 let mut owner__ = None;
-                let mut include_browse__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -818,12 +807,6 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
                             }
                             owner__ = map_.next_value()?;
                         }
-                        GeneratedField::IncludeBrowse => {
-                            if include_browse__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("includeBrowse"));
-                            }
-                            include_browse__ = map_.next_value()?;
-                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -834,7 +817,6 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
                     new_name: new_name__,
                     comment: comment__,
                     owner: owner__,
-                    include_browse: include_browse__,
                 })
             }
         }

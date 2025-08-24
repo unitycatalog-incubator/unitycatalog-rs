@@ -4,6 +4,7 @@ use unitycatalog_common::models::volumes::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
+use crate::codegen::volumes::DeleteVolumeBuilder;
 use crate::codegen::volumes::builders::{
     CreateVolumeBuilder, GetVolumeBuilder, UpdateVolumeBuilder,
 };
@@ -107,11 +108,8 @@ impl VolumeClient {
         UpdateVolumeBuilder::new(self.client.clone(), self.full_name())
     }
 
-    pub async fn delete(&self) -> Result<()> {
-        let request = DeleteVolumeRequest {
-            name: self.full_name(),
-        };
-        self.client.delete_volume(&request).await
+    pub fn delete(&self) -> DeleteVolumeBuilder {
+        DeleteVolumeBuilder::new(self.client.clone(), self.full_name())
     }
 }
 

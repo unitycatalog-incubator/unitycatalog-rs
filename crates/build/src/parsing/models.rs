@@ -1,10 +1,8 @@
 use std::collections::HashMap;
 
-use super::http::{classify_request_type_from_http, extract_path_parameters};
-use crate::{
-    gnostic::openapi::v3::Operation,
-    google::api::{FieldBehavior, HttpRule, ResourceDescriptor},
-};
+use super::http::extract_path_parameters;
+use crate::gnostic::openapi::v3::Operation;
+use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
 
 /// Collected metadata for code generation
 #[derive(Debug)]
@@ -80,7 +78,7 @@ pub struct MethodMetadata {
 impl MethodMetadata {
     /// Extract HTTP method and path from google.api.http annotations
     /// Get HTTP method and path from the rule if available
-    pub fn http_info(&self) -> Option<(String, String)> {
+    pub(crate) fn http_info(&self) -> Option<(String, String)> {
         // Extract HTTP method and path from the rule
         if let Some(pattern) = &self.http_rule.pattern {
             use crate::google::api::http_rule::Pattern;
@@ -105,25 +103,6 @@ impl MethodMetadata {
             Vec::new()
         }
     }
-
-    /// Determine the request type category (List, Create, Get, Update, Delete)
-    pub fn request_type(&self) -> RequestType {
-        classify_request_type_from_http(&self.http_rule, &self.method_name)
-    }
-
-    pub fn is_root_method(&self) -> bool {
-        matches!(self.request_type(), RequestType::Get)
-    }
-}
-
-/// Type of REST request operation
-#[derive(Debug, Clone, PartialEq)]
-pub enum RequestType {
-    List,
-    Create,
-    Get,
-    Update,
-    Delete,
 }
 
 #[cfg(test)]

@@ -82,11 +82,7 @@ impl ExternalLocationClient {
         UpdateExternalLocationBuilder::new(self.client.clone(), &self.name)
     }
 
-    pub async fn delete(&self, force: impl Into<Option<bool>>) -> Result<()> {
-        let request = DeleteExternalLocationRequest {
-            name: self.name.clone(),
-            force: force.into(),
-        };
-        self.client.delete_external_location(&request).await
-    }
+    // pub fn delete(&self) -> DeleteExternalLocationBuilder {
+    //     DeleteExternalLocationBuilder::new(self.client.clone(), &self.name)
+    // }
 }
