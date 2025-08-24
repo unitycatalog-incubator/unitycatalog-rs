@@ -60,55 +60,6 @@ impl PyUnityCatalogClientABC {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn create_credential(
-        &self,
-        py: Python,
-        name: String,
-        purpose: Purpose,
-        comment: Option<String>,
-        read_only: Option<bool>,
-        skip_validation: Option<bool>,
-        azure_service_principal: Option<AzureServicePrincipal>,
-        azure_managed_identity: Option<AzureManagedIdentity>,
-        azure_storage_key: Option<AzureStorageKey>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
-        let mut request = self.client.create_credential(name, purpose);
-        request = request.with_comment(comment);
-        request = request.with_read_only(read_only);
-        request = request.with_skip_validation(skip_validation);
-        request = request.with_azure_service_principal(azure_service_principal);
-        request = request.with_azure_managed_identity(azure_managed_identity);
-        request = request.with_azure_storage_key(azure_storage_key);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    pub fn create_recipient(
-        &self,
-        py: Python,
-        name: String,
-        authentication_type: AuthenticationType,
-        owner: String,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-        expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
-        let mut request = self
-            .client
-            .create_recipient(name, authentication_type, owner);
-        request = request.with_comment(comment);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        request = request.with_expiration_time(expiration_time);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
     pub fn create_table(
         &self,
         py: Python,
@@ -141,25 +92,6 @@ impl PyUnityCatalogClientABC {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn create_schema(
-        &self,
-        py: Python,
-        name: String,
-        catalog_name: String,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
-        let mut request = self.client.create_schema(name, catalog_name);
-        request = request.with_comment(comment);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
     pub fn create_share(
         &self,
         py: Python,
@@ -168,6 +100,31 @@ impl PyUnityCatalogClientABC {
     ) -> PyUnityCatalogResult<ShareInfo> {
         let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    pub fn create_credential(
+        &self,
+        py: Python,
+        name: String,
+        purpose: Purpose,
+        comment: Option<String>,
+        read_only: Option<bool>,
+        skip_validation: Option<bool>,
+        azure_service_principal: Option<AzureServicePrincipal>,
+        azure_managed_identity: Option<AzureManagedIdentity>,
+        azure_storage_key: Option<AzureStorageKey>,
+    ) -> PyUnityCatalogResult<CredentialInfo> {
+        let mut request = self.client.create_credential(name, purpose);
+        request = request.with_comment(comment);
+        request = request.with_read_only(read_only);
+        request = request.with_skip_validation(skip_validation);
+        request = request.with_azure_service_principal(azure_service_principal);
+        request = request.with_azure_managed_identity(azure_managed_identity);
+        request = request.with_azure_storage_key(azure_storage_key);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -192,6 +149,49 @@ impl PyUnityCatalogClientABC {
         request = request.with_storage_root(storage_root);
         request = request.with_provider_name(provider_name);
         request = request.with_share_name(share_name);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    pub fn create_recipient(
+        &self,
+        py: Python,
+        name: String,
+        authentication_type: AuthenticationType,
+        owner: String,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+        expiration_time: Option<i64>,
+    ) -> PyUnityCatalogResult<RecipientInfo> {
+        let mut request = self
+            .client
+            .create_recipient(name, authentication_type, owner);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request = request.with_expiration_time(expiration_time);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    pub fn create_schema(
+        &self,
+        py: Python,
+        name: String,
+        catalog_name: String,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> PyUnityCatalogResult<SchemaInfo> {
+        let mut request = self.client.create_schema(name, catalog_name);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

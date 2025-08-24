@@ -44,7 +44,7 @@ impl PyCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn delete_catalog(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
+    pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
         let mut request = self.client.delete();
         request = request.with_force(force);
         let runtime = get_runtime(py)?;

@@ -146,7 +146,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
 
 /// Generate Python method wrapper
 fn resource_client_method(method: &MethodPlan, _service: &ServicePlan) -> Option<TokenStream> {
-    let method_name = format_ident!("{}", method.handler_function_name);
+    let method_name = method.resource_client_method();
     let response_type = extract_response_type(&method.metadata.output_type);
     let response_type_ident = format_ident!("{}", response_type);
 

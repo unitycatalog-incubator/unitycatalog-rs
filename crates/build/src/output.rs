@@ -11,7 +11,7 @@
 use std::fs;
 use std::path::Path;
 
-use super::GeneratedCode;
+use crate::codegen::GeneratedCode;
 
 /// Write generated code to the output directory
 pub fn write_generated_code(

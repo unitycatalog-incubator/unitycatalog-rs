@@ -23,10 +23,10 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::analysis::analyze_metadata;
+use crate::output;
 use crate::parsing::CodeGenMetadata;
 
 pub mod generation;
-pub mod output;
 pub mod templates;
 
 /// Main entry point for code generation

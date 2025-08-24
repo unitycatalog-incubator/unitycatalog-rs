@@ -3,6 +3,7 @@ pub use error::*;
 mod analysis;
 pub mod codegen;
 pub mod error;
+pub mod output;
 pub mod parsing;
 mod utils;
 
