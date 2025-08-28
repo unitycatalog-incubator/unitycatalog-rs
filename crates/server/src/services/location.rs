@@ -1,6 +1,6 @@
 use datafusion::datasource::object_store::ObjectStoreUrl;
-use delta_kernel::object_store::ObjectStoreScheme;
 use itertools::Itertools;
+use object_store::ObjectStoreScheme;
 use unitycatalog_common::{Error, Result};
 use url::Url;
 

@@ -18,6 +18,7 @@ bytes = { workspace = true }
 delta_kernel = { workspace = true }
 deltalake-datafusion = { workspace = true }
 itertools = { workspace = true }
+object_store = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 strum = { workspace = true }

@@ -211,7 +211,7 @@ impl UserJourney for CatalogHierarchyJourney {
         logger.info("📋 Listing schemas in catalog")?;
         logger
             .step("list_schemas", async {
-                let mut schemas_stream = client.list_schemas(&self.catalog_name, Some(50));
+                let mut schemas_stream = client.list_schemas(&self.catalog_name, Some(50), false);
                 let mut found_schemas = Vec::new();
 
                 while let Some(schema_result) = schemas_stream.next().await {

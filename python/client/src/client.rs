@@ -67,18 +67,19 @@ impl PyUnityCatalogClient {
         }
     }
 
-    #[pyo3(signature = (catalog_name, max_results = None))]
+    #[pyo3(signature = (catalog_name, max_results = None, include_browse = None))]
     pub fn list_schemas(
         &self,
         py: Python,
         catalog_name: String,
         max_results: Option<i32>,
+        include_browse: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let schemas = runtime.block_on(async move {
                 self.0
-                    .list_schemas(catalog_name, max_results)
+                    .list_schemas(catalog_name, max_results, include_browse)
                     .try_collect::<Vec<_>>()
                     .await
             })?;
@@ -92,7 +93,17 @@ impl PyUnityCatalogClient {
         }
     }
 
-    #[pyo3(signature = (catalog_name, schema_name, max_results = None, include_delta_metadata = None, omit_columns = None, omit_properties = None, omit_username = None))]
+    #[pyo3(signature = (
+        catalog_name,
+        schema_name,
+        max_results = None,
+        include_delta_metadata = None,
+        omit_columns = None,
+        omit_properties = None,
+        omit_username = None,
+        include_browse = None,
+        include_manifest_capabilities = None)
+    )]
     pub fn list_tables(
         &self,
         py: Python,
@@ -103,6 +114,8 @@ impl PyUnityCatalogClient {
         omit_columns: Option<bool>,
         omit_properties: Option<bool>,
         omit_username: Option<bool>,
+        include_browse: Option<bool>,
+        include_manifest_capabilities: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<TableInfo>> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -116,6 +129,8 @@ impl PyUnityCatalogClient {
                         omit_columns,
                         omit_properties,
                         omit_username,
+                        include_browse,
+                        include_manifest_capabilities,
                     )
                     .try_collect::<Vec<_>>()
                     .await
@@ -438,80 +453,6 @@ impl PyUnityCatalogClient {
         })
     }
 }
-
-// #[pymethods]
-// impl PyCatalogClient {
-//     #[pyo3(signature = (name, comment = None))]
-//     pub fn create_schema(
-//         &self,
-//         py: Python,
-//         name: String,
-//         comment: Option<String>,
-//     ) -> PyUnityCatalogResult<SchemaInfo> {
-//         let runtime = get_runtime(py)?;
-//         let mut request = self.client.create_schema(name);
-//         if let Some(comment) = comment {
-//             request = request.with_comment(comment);
-//         }
-//         py.allow_threads(|| {
-//             let info = runtime.block_on(request.into_future())?;
-//             Ok::<_, PyUnityCatalogError>(info)
-//         })
-//     }
-//
-//     #[pyo3(signature = (name))]
-//     pub fn schema(&self, name: String) -> PySchemaClient {
-//         PySchemaClient {
-//             client: self.client.schema(name),
-//         }
-//     }
-// }
-
-// #[pymethods]
-// impl PySchemaClient {
-//     #[pyo3(signature = (name))]
-//     pub fn table(&self, name: String) -> PyTableClient {
-//         PyTableClient {
-//             client: self.client.table(name),
-//         }
-//     }
-//
-//     #[pyo3(signature = (
-//         name,
-//         table_type,
-//         data_source_format,
-//         columns,
-//         storage_location = None,
-//         comment = None,
-//         properties = None)
-//     )]
-//     pub fn create_table(
-//         &self,
-//         py: Python,
-//         name: String,
-//         table_type: TableType,
-//         data_source_format: DataSourceFormat,
-//         columns: Vec<ColumnInfo>,
-//         storage_location: Option<String>,
-//         comment: Option<String>,
-//         properties: Option<HashMap<String, String>>,
-//     ) -> PyUnityCatalogResult<TableInfo> {
-//         let mut request = self
-//             .client
-//             .create_table(name, table_type, data_source_format)
-//             .with_storage_location(storage_location)
-//             .with_comment(comment)
-//             .with_columns(columns);
-//         if let Some(properties) = properties {
-//             request = request.with_properties(properties);
-//         }
-//         let runtime = get_runtime(py)?;
-//         py.allow_threads(|| {
-//             let info = runtime.block_on(request.into_future())?;
-//             Ok::<_, PyUnityCatalogError>(info)
-//         })
-//     }
-// }
 
 #[pyclass(name = "TemporaryCredentialClient")]
 pub struct PyTemporaryCredentialClient {
