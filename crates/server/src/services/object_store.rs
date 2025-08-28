@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use datafusion::common::{DataFusionError, Result as DFResult};
-use delta_kernel::object_store::DynObjectStore;
-use delta_kernel::object_store::azure::MicrosoftAzureBuilder;
 use deltalake_datafusion::ObjectStoreFactory;
 use itertools::Itertools;
+use object_store::DynObjectStore;
+use object_store::azure::MicrosoftAzureBuilder;
 use unitycatalog_common::credentials::v1::AzureManagedIdentity;
 use unitycatalog_common::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,

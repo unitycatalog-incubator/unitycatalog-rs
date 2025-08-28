@@ -146,7 +146,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
 
 /// Generate Python method wrapper
 fn resource_client_method(method: &MethodPlan, _service: &ServicePlan) -> Option<TokenStream> {
-    let method_name = format_ident!("{}", method.handler_function_name);
+    let method_name = method.resource_client_method();
     let response_type = extract_response_type(&method.metadata.output_type);
     let response_type_ident = format_ident!("{}", response_type);
 
@@ -182,7 +182,7 @@ fn collection_client_method(method: &MethodPlan, _service: &ServicePlan) -> Opti
 fn generate_list_method(response_type: syn::Ident, method: &MethodPlan) -> TokenStream {
     let method_name = method.collection_client_method();
 
-    let param_defs = generate_param_definitions(method);
+    let param_defs = generate_param_definitions(method, true);
     let pyo3_signature = generate_pyo3_signature(method);
     let client_call = generate_client_call(method, true); // true for list methods
 
@@ -239,7 +239,7 @@ fn generate_resource_method(response_type: syn::Ident, method: &MethodPlan) -> T
 fn generate_create_method(response_type: syn::Ident, method: &MethodPlan) -> TokenStream {
     let method_name = method.collection_client_method();
 
-    let param_defs = generate_param_definitions(method);
+    let param_defs = generate_param_definitions(method, false);
     let pyo3_signature = generate_pyo3_signature(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
@@ -331,7 +331,7 @@ fn generate_resource_param_definitions(method: &MethodPlan) -> Vec<TokenStream> 
 }
 
 /// Generate parameter definitions for method signature
-fn generate_param_definitions(method: &MethodPlan) -> Vec<TokenStream> {
+fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenStream> {
     let mut params = Vec::new();
 
     // Add required path parameters first (these don't have Option wrapper)
@@ -354,9 +354,11 @@ fn generate_param_definitions(method: &MethodPlan) -> Vec<TokenStream> {
 
     // Add optional query parameters
     for query_param in &method.query_params {
-        let param_name = format_ident!("{}", query_param.name);
-        let rust_type = convert_to_python_type(&query_param.rust_type, true);
-        params.push(quote! { #param_name: #rust_type });
+        if !(is_list && query_param.name.as_str() == "page_token") {
+            let param_name = format_ident!("{}", query_param.name);
+            let rust_type = convert_to_python_type(&query_param.rust_type, true);
+            params.push(quote! { #param_name: #rust_type });
+        }
     }
 
     // Add optional body fields
@@ -444,7 +446,7 @@ fn generate_resource_client_call(method: &MethodPlan, _is_list: bool) -> TokenSt
 }
 
 /// Generate client method call
-fn generate_client_call(method: &MethodPlan, _is_list: bool) -> TokenStream {
+fn generate_client_call(method: &MethodPlan, is_list: bool) -> TokenStream {
     let method_name = format_ident!("{}", method.handler_function_name);
     let mut args = Vec::new();
 
@@ -468,8 +470,11 @@ fn generate_client_call(method: &MethodPlan, _is_list: bool) -> TokenStream {
 
     // Add optional query parameters
     for query_param in &method.query_params {
-        let param_name = format_ident!("{}", strings::operation_to_method_name(&query_param.name));
-        args.push(quote! { #param_name });
+        if !(is_list && query_param.name == "page_token") {
+            let param_name =
+                format_ident!("{}", strings::operation_to_method_name(&query_param.name));
+            args.push(quote! { #param_name });
+        }
     }
 
     quote! {

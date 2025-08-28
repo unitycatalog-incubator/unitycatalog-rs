@@ -26,7 +26,7 @@ impl PyTableClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn delete_table(&self, py: Python) -> PyUnityCatalogResult<()> {
+    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {

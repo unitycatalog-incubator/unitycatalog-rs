@@ -142,8 +142,9 @@ impl UnityCatalogClient {
         &self,
         catalog_name: impl Into<String>,
         max_results: impl Into<Option<i32>>,
+        include_browse: impl Into<Option<bool>>,
     ) -> BoxStream<'_, Result<SchemaInfo>> {
-        self.schemas.list(catalog_name, max_results)
+        self.schemas.list(catalog_name, max_results, include_browse)
     }
 
     pub fn create_schema(
@@ -184,6 +185,8 @@ impl UnityCatalogClient {
         omit_columns: impl Into<Option<bool>>,
         omit_properties: impl Into<Option<bool>>,
         omit_username: impl Into<Option<bool>>,
+        include_browse: impl Into<Option<bool>>,
+        include_manifest_capabilities: impl Into<Option<bool>>,
     ) -> BoxStream<'_, Result<TableInfo>> {
         self.tables.list(
             catalog_name,
@@ -193,6 +196,8 @@ impl UnityCatalogClient {
             omit_columns,
             omit_properties,
             omit_username,
+            include_browse,
+            include_manifest_capabilities,
         )
     }
 

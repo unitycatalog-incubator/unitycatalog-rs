@@ -73,6 +73,8 @@ impl TableClientBase {
         omit_columns: impl Into<Option<bool>>,
         omit_properties: impl Into<Option<bool>>,
         omit_username: impl Into<Option<bool>>,
+        include_browse: impl Into<Option<bool>>,
+        include_manifest_capabilities: impl Into<Option<bool>>,
     ) -> BoxStream<'_, Result<TableInfo>> {
         let max_results = max_results.into();
         let catalog_name = catalog_name.into();
@@ -81,6 +83,8 @@ impl TableClientBase {
         let omit_columns = omit_columns.into();
         let omit_properties = omit_properties.into();
         let omit_username = omit_username.into();
+        let include_browse = include_browse.into();
+        let include_manifest_capabilities = include_manifest_capabilities.into();
         stream_paginated(
             (catalog_name, schema_name, max_results),
             move |(catalog_name, schema_name, mut max_results), page_token| async move {
@@ -93,8 +97,8 @@ impl TableClientBase {
                     omit_username,
                     max_results,
                     page_token,
-                    include_browse: None,
-                    include_manifest_capabilities: None,
+                    include_browse,
+                    include_manifest_capabilities,
                 };
                 let res = self.list_tables(&request).await?;
 

@@ -39,6 +39,54 @@ impl PyUnityCatalogClientABC {
             client: UnityCatalogClient::new(client, base_url),
         })
     }
+    pub fn create_recipient(
+        &self,
+        py: Python,
+        name: String,
+        authentication_type: AuthenticationType,
+        owner: String,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+        expiration_time: Option<i64>,
+    ) -> PyUnityCatalogResult<RecipientInfo> {
+        let mut request = self
+            .client
+            .create_recipient(name, authentication_type, owner);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request = request.with_expiration_time(expiration_time);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    pub fn create_catalog(
+        &self,
+        py: Python,
+        name: String,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+        storage_root: Option<String>,
+        provider_name: Option<String>,
+        share_name: Option<String>,
+    ) -> PyUnityCatalogResult<CatalogInfo> {
+        let mut request = self.client.create_catalog(name);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request = request.with_storage_root(storage_root);
+        request = request.with_provider_name(provider_name);
+        request = request.with_share_name(share_name);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
     pub fn create_volume(
         &self,
         py: Python,
@@ -53,6 +101,20 @@ impl PyUnityCatalogClientABC {
             .client
             .create_volume(catalog_name, schema_name, name, volume_type);
         request = request.with_storage_location(storage_location);
+        request = request.with_comment(comment);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    pub fn create_share(
+        &self,
+        py: Python,
+        name: String,
+        comment: Option<String>,
+    ) -> PyUnityCatalogResult<ShareInfo> {
+        let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -79,30 +141,6 @@ impl PyUnityCatalogClientABC {
         request = request.with_azure_service_principal(azure_service_principal);
         request = request.with_azure_managed_identity(azure_managed_identity);
         request = request.with_azure_storage_key(azure_storage_key);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    pub fn create_recipient(
-        &self,
-        py: Python,
-        name: String,
-        authentication_type: AuthenticationType,
-        owner: String,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-        expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
-        let mut request = self
-            .client
-            .create_recipient(name, authentication_type, owner);
-        request = request.with_comment(comment);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        request = request.with_expiration_time(expiration_time);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -154,44 +192,6 @@ impl PyUnityCatalogClientABC {
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    pub fn create_share(
-        &self,
-        py: Python,
-        name: String,
-        comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
-        let mut request = self.client.create_share(name);
-        request = request.with_comment(comment);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    pub fn create_catalog(
-        &self,
-        py: Python,
-        name: String,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-        storage_root: Option<String>,
-        provider_name: Option<String>,
-        share_name: Option<String>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
-        let mut request = self.client.create_catalog(name);
-        request = request.with_comment(comment);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        request = request.with_storage_root(storage_root);
-        request = request.with_provider_name(provider_name);
-        request = request.with_share_name(share_name);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

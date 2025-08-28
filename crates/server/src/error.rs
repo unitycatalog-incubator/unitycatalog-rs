@@ -31,7 +31,7 @@ pub enum Error {
     #[error("Object Store Error: {source}")]
     ObjectStore {
         #[from]
-        source: delta_kernel::object_store::Error,
+        source: object_store::Error,
     },
 
     #[error("Serialization Error: {source}")]

@@ -18,12 +18,14 @@ impl SchemaClientBase {
         &self,
         catalog_name: impl Into<String>,
         max_results: impl Into<Option<i32>>,
+        include_browse: impl Into<Option<bool>>,
     ) -> BoxStream<'_, Result<SchemaInfo>> {
         let max_results = max_results.into();
         let catalog_name = catalog_name.into();
+        let include_browse = include_browse.into();
         stream_paginated(
-            (catalog_name, max_results),
-            move |(catalog_name, mut max_results), page_token| async move {
+            (catalog_name, max_results, include_browse),
+            move |(catalog_name, mut max_results, include_browse), page_token| async move {
                 let request = ListSchemasRequest {
                     catalog_name: catalog_name.clone(),
                     max_results,
@@ -42,7 +44,7 @@ impl SchemaClientBase {
 
                 Ok((
                     res.schemas,
-                    (catalog_name, max_results),
+                    (catalog_name, max_results, include_browse),
                     res.next_page_token,
                 ))
             },

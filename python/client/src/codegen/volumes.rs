@@ -39,7 +39,7 @@ impl PyVolumeClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn delete_volume(&self, py: Python) -> PyUnityCatalogResult<()> {
+    pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
