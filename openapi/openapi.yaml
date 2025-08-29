@@ -200,6 +200,12 @@ paths:
         - CredentialsService
       operationId: ListCredentials
       parameters:
+        - name: purpose
+          in: query
+          description: Return only credentials for the specified purpose.
+          schema:
+            type: integer
+            format: enum
         - name: maxResults
           in: query
           description: The maximum number of results per page that should be returned.
@@ -211,12 +217,6 @@ paths:
           description: Opaque pagination token to go to next page based on previous query.
           schema:
             type: string
-        - name: purpose
-          in: query
-          description: Return only credentials for the specified purpose.
-          schema:
-            type: integer
-            format: enum
       responses:
         "200":
           description: OK

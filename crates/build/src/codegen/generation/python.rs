@@ -168,11 +168,8 @@ fn collection_client_method(method: &MethodPlan, _service: &ServicePlan) -> Opti
     let response_type_ident = format_ident!("{}", response_type);
 
     let code = match &method.request_type {
-        // RequestType::List => generate_list_method(response_type_ident, method),
-        // RequestType::Get => generate_resource_method(response_type_ident, method),
+        RequestType::List => generate_list_method(response_type_ident, method),
         RequestType::Create => generate_create_method(response_type_ident, method),
-        // RequestType::Update => generate_resource_method(response_type_ident, method),
-        // RequestType::Delete => generate_delete_method(method_name, method),
         _ => return None,
     };
     Some(code)
@@ -352,11 +349,24 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
         }
     }
 
+    // Add required query parameters (non-optional)
+    for query_param in &method.query_params {
+        if !query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
+            let param_name = format_ident!("{}", query_param.name);
+            // Use the original field type to get proper enum handling
+            let python_type = get_python_type_from_method_field(method, &query_param.name, false);
+            let rust_type = convert_to_python_type(&python_type, false);
+            params.push(quote! { #param_name: #rust_type });
+        }
+    }
+
     // Add optional query parameters
     for query_param in &method.query_params {
-        if !(is_list && query_param.name.as_str() == "page_token") {
+        if query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
             let param_name = format_ident!("{}", query_param.name);
-            let rust_type = convert_to_python_type(&query_param.rust_type, true);
+            // Use the original field type to get proper enum handling
+            let python_type = get_python_type_from_method_field(method, &query_param.name, true);
+            let rust_type = convert_to_python_type(&python_type, true);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -379,26 +389,28 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
 fn generate_pyo3_signature(method: &MethodPlan) -> TokenStream {
     let mut signature_parts = Vec::new();
 
+    // Required body fields (no default values)
     for body_field in &method.body_fields {
         if !body_field.optional {
             signature_parts.push(body_field.name.clone());
         }
     }
 
-    // Optional parameters with defaults
+    // Required query parameters (no default values)
     for query_param in &method.query_params {
         if !query_param.optional {
-            signature_parts.push(format!("{} = None", query_param.name));
+            signature_parts.push(query_param.name.clone());
         }
     }
 
+    // Optional body fields with defaults
     for body_field in &method.body_fields {
         if body_field.optional {
             signature_parts.push(format!("{} = None", body_field.name));
         }
     }
 
-    // Optional parameters with defaults
+    // Optional query parameters with defaults
     for query_param in &method.query_params {
         if query_param.optional {
             signature_parts.push(format!("{} = None", query_param.name));
@@ -468,7 +480,7 @@ fn generate_client_call(method: &MethodPlan, is_list: bool) -> TokenStream {
         }
     }
 
-    // Add optional query parameters
+    // Add optional query parameters in protobuf order for other methods
     for query_param in &method.query_params {
         if !(is_list && query_param.name == "page_token") {
             let param_name =

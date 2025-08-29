@@ -1388,26 +1388,26 @@ impl serde::Serialize for ListCredentialsRequest {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
+        if self.purpose.is_some() {
+            len += 1;
+        }
         if self.max_results.is_some() {
             len += 1;
         }
         if self.page_token.is_some() {
             len += 1;
         }
-        if self.purpose.is_some() {
-            len += 1;
-        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.ListCredentialsRequest", len)?;
+        if let Some(v) = self.purpose.as_ref() {
+            let v = Purpose::try_from(*v)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", *v)))?;
+            struct_ser.serialize_field("purpose", &v)?;
+        }
         if let Some(v) = self.max_results.as_ref() {
             struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
             struct_ser.serialize_field("page_token", v)?;
-        }
-        if let Some(v) = self.purpose.as_ref() {
-            let v = Purpose::try_from(*v)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", *v)))?;
-            struct_ser.serialize_field("purpose", &v)?;
         }
         struct_ser.end()
     }
@@ -1419,18 +1419,18 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
+            "purpose",
             "max_results",
             "maxResults",
             "page_token",
             "pageToken",
-            "purpose",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
+            Purpose,
             MaxResults,
             PageToken,
-            Purpose,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1453,9 +1453,9 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                         E: serde::de::Error,
                     {
                         match value {
+                            "purpose" => Ok(GeneratedField::Purpose),
                             "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
                             "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
-                            "purpose" => Ok(GeneratedField::Purpose),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1475,11 +1475,17 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                 where
                     V: serde::de::MapAccess<'de>,
             {
+                let mut purpose__ = None;
                 let mut max_results__ = None;
                 let mut page_token__ = None;
-                let mut purpose__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
+                        GeneratedField::Purpose => {
+                            if purpose__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("purpose"));
+                            }
+                            purpose__ = map_.next_value::<::std::option::Option<Purpose>>()?.map(|x| x as i32);
+                        }
                         GeneratedField::MaxResults => {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
@@ -1494,21 +1500,15 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                             }
                             page_token__ = map_.next_value()?;
                         }
-                        GeneratedField::Purpose => {
-                            if purpose__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("purpose"));
-                            }
-                            purpose__ = map_.next_value::<::std::option::Option<Purpose>>()?.map(|x| x as i32);
-                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
                     }
                 }
                 Ok(ListCredentialsRequest {
+                    purpose: purpose__,
                     max_results: max_results__,
                     page_token: page_token__,
-                    purpose: purpose__,
                 })
             }
         }

@@ -22,6 +22,10 @@ impl CredentialClient {
         request: &ListCredentialsRequest,
     ) -> Result<ListCredentialsResponse> {
         let mut url = self.base_url.join("credentials")?;
+        if let Some(ref value) = request.purpose {
+            url.query_pairs_mut()
+                .append_pair("purpose", &value.to_string());
+        }
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());
@@ -29,10 +33,6 @@ impl CredentialClient {
         if let Some(ref value) = request.page_token {
             url.query_pairs_mut()
                 .append_pair("page_token", &value.to_string());
-        }
-        if let Some(ref value) = request.purpose {
-            url.query_pairs_mut()
-                .append_pair("purpose", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
         response.error_for_status_ref()?;

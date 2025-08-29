@@ -176,15 +176,15 @@ impl Purpose {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListCredentialsRequest {
+    /// Return only credentials for the specified purpose.
+    #[prost(enumeration="Purpose", optional, tag="1")]
+    pub purpose: ::core::option::Option<i32>,
     /// The maximum number of results per page that should be returned.
     #[prost(int32, optional, tag="2")]
     pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
     #[prost(string, optional, tag="3")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
-    /// Return only credentials for the specified purpose.
-    #[prost(enumeration="Purpose", optional, tag="4")]
-    pub purpose: ::core::option::Option<i32>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
