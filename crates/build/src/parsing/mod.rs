@@ -5,6 +5,7 @@ use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet};
 pub(crate) use self::http::*;
 pub(crate) use self::models::*;
 
+mod enum_parser;
 mod http;
 mod message;
 mod models;
@@ -21,6 +22,7 @@ pub fn parse_file_descriptor_set(
 ) -> Result<CodeGenMetadata, Box<dyn std::error::Error>> {
     let mut codegen_metadata = CodeGenMetadata {
         messages: HashMap::new(),
+        enums: HashMap::new(),
         services: HashMap::new(),
     };
 
@@ -44,6 +46,23 @@ pub fn process_file_descriptor(
 
     // Extract source code info for documentation
     let source_code_info = file_desc.source_code_info.as_ref();
+
+    // Process enums in the file
+    for (enum_index, enum_desc) in file_desc.enum_type.iter().enumerate() {
+        let package_name = file_desc.package();
+        let type_prefix = if package_name.is_empty() {
+            String::new()
+        } else {
+            format!(".{}", package_name)
+        };
+        enum_parser::process_enum(
+            enum_desc,
+            codegen_metadata,
+            &type_prefix,
+            source_code_info,
+            &[5, enum_index as i32], // enum_type is field 5 in FileDescriptorProto
+        )?;
+    }
 
     // Process messages in the file
     for (message_index, message) in file_desc.message_type.iter().enumerate() {

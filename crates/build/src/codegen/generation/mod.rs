@@ -15,8 +15,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::File;
 
-use super::GeneratedCode;
-use super::templates;
+use super::{GeneratedCode, extract_type_ident};
 use crate::analysis::MethodPlan;
 use crate::analysis::{GenerationPlan, RequestType, ServicePlan};
 
@@ -24,6 +23,7 @@ mod builder;
 mod client;
 mod handler;
 mod python;
+mod python_typing;
 mod server;
 
 impl MethodPlan {
@@ -130,6 +130,14 @@ pub fn generate_python_code(
     files.insert("mod.rs".to_string(), module_code);
 
     Ok(GeneratedCode { files })
+}
+
+/// Generate Python typing (.pyi) files
+pub fn generate_python_typing(
+    plan: &GenerationPlan,
+    metadata: &crate::parsing::CodeGenMetadata,
+) -> Result<String, Box<dyn std::error::Error>> {
+    python_typing::generate_typing_file(plan, metadata)
 }
 
 pub fn generate_client_code(

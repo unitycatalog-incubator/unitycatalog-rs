@@ -1,8 +1,10 @@
+use std::collections::HashSet;
+
 use convert_case::{Case, Casing};
 
 use crate::analysis::messages::MessageRegistry;
 use crate::error::{Error, Result};
-use crate::google::api::http_rule::Pattern;
+use crate::google::api::{ResourceDescriptor, http_rule::Pattern};
 use crate::parsing::{HttpPattern, MethodMetadata};
 
 /// The Operation a method is performing
@@ -48,6 +50,8 @@ pub struct ServicePlan {
     pub base_path: String,
     /// Methods to generate for this service
     pub methods: Vec<MethodPlan>,
+    /// Resources managed by this service (extracted from method return types)
+    pub managed_resources: Vec<ManagedResource>,
 }
 
 /// Plan for generating code for a single method
@@ -74,6 +78,10 @@ pub struct MethodPlan {
     pub request_type: RequestType,
     /// Denotes if this is a collection client method
     pub is_collection_client_method: bool,
+    /// Whether this method returns a resource (for get/update/create operations)
+    pub returns_resource: bool,
+    /// The resource type name returned by this method (if any)
+    pub output_resource_type: Option<String>,
 }
 
 /// A path parameter in a URL template
@@ -107,6 +115,15 @@ pub struct BodyField {
     pub rust_type: String,
     /// Whether this field is optional
     pub optional: bool,
+}
+
+/// Information about a resource managed by a service
+#[derive(Debug, Clone)]
+pub struct ManagedResource {
+    /// Resource type name (e.g., "CatalogInfo")
+    pub type_name: String,
+    /// Resource descriptor information
+    pub descriptor: ResourceDescriptor,
 }
 
 pub(super) struct MethodPlanner<'a> {
@@ -260,4 +277,58 @@ impl<'a> MethodPlanner<'a> {
             _ => false,
         }
     }
+
+    /// Extract the resource type name from the method's output type
+    pub fn output_resource_type(&self) -> Option<String> {
+        if self.has_response() {
+            // Remove leading dot and package prefix to get just the type name
+            let output_type = &self.method.output_type;
+            if let Some(last_dot) = output_type.rfind('.') {
+                Some(output_type[last_dot + 1..].to_string())
+            } else {
+                Some(output_type.clone())
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Check if this method returns a resource (for get/update operations)
+    pub fn returns_resource(&self) -> bool {
+        match self.request_type() {
+            RequestType::Get | RequestType::Update | RequestType::Create => self.has_response(),
+            _ => false,
+        }
+    }
+}
+
+/// Extract managed resources from service methods
+pub fn extract_managed_resources(
+    registry: &MessageRegistry<'_>,
+    methods: &[MethodPlan],
+) -> Vec<ManagedResource> {
+    let mut resources = Vec::new();
+    let mut seen_types = HashSet::<String>::new();
+
+    for method in methods {
+        if method.returns_resource {
+            if let Some(ref resource_type) = method.output_resource_type {
+                // Skip if we've already processed this resource type
+                if seen_types.contains(resource_type) {
+                    continue;
+                }
+
+                // Look up the resource descriptor for this type
+                if let Some(descriptor) = registry.get_resource_descriptor(resource_type) {
+                    resources.push(ManagedResource {
+                        type_name: resource_type.clone(),
+                        descriptor: descriptor.clone(),
+                    });
+                    seen_types.insert(resource_type.clone());
+                }
+            }
+        }
+    }
+
+    resources
 }

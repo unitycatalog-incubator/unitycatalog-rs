@@ -102,6 +102,11 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
         })
         .collect();
 
+    let resource_accessor_methods: Vec<TokenStream> = services
+        .iter()
+        .filter_map(generate_resource_accessor_method)
+        .collect();
+
     let mod_paths: Vec<TokenStream> = services
         .iter()
         .map(|s| {
@@ -109,6 +114,15 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
                 syn::parse_str(&format!("unitycatalog_common::models::{}::v1", s.base_path))
                     .unwrap();
             quote! { use #mod_path::*; }
+        })
+        .collect();
+
+    let codegen_imports: Vec<TokenStream> = services
+        .iter()
+        .map(|s| {
+            let mod_name = format_ident!("{}", s.base_path);
+            let client_name = format_ident!("Py{}Client", s.handler_name.replace("Handler", ""));
+            quote! { use crate::codegen::#mod_name::#client_name; }
         })
         .collect();
 
@@ -120,6 +134,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
         use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
         use crate::runtime::get_runtime;
         #(#mod_paths)*
+        #(#codegen_imports)*
 
         #[pyclass(name = "UnityCatalogClient")]
         pub struct PyUnityCatalogClientABC {
@@ -140,6 +155,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
                 Ok(Self { client: UnityCatalogClient::new(client, base_url) })
             }
             #(#methods)*
+            #(#resource_accessor_methods)*
         }
     }
 }
@@ -168,11 +184,8 @@ fn collection_client_method(method: &MethodPlan, _service: &ServicePlan) -> Opti
     let response_type_ident = format_ident!("{}", response_type);
 
     let code = match &method.request_type {
-        // RequestType::List => generate_list_method(response_type_ident, method),
-        // RequestType::Get => generate_resource_method(response_type_ident, method),
+        RequestType::List => generate_list_method(response_type_ident, method),
         RequestType::Create => generate_create_method(response_type_ident, method),
-        // RequestType::Update => generate_resource_method(response_type_ident, method),
-        // RequestType::Delete => generate_delete_method(method_name, method),
         _ => return None,
     };
     Some(code)
@@ -183,7 +196,7 @@ fn generate_list_method(response_type: syn::Ident, method: &MethodPlan) -> Token
     let method_name = method.collection_client_method();
 
     let param_defs = generate_param_definitions(method, true);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature(method, true);
     let client_call = generate_client_call(method, true); // true for list methods
 
     // Extract inner type from response (e.g., ListCatalogsResponse -> CatalogInfo)
@@ -213,7 +226,7 @@ fn generate_resource_method(response_type: syn::Ident, method: &MethodPlan) -> T
     let method_name = method.resource_client_method();
 
     let param_defs = generate_resource_param_definitions(method);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature_for_resource(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
 
@@ -240,7 +253,7 @@ fn generate_create_method(response_type: syn::Ident, method: &MethodPlan) -> Tok
     let method_name = method.collection_client_method();
 
     let param_defs = generate_param_definitions(method, false);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature_for_resource(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
 
@@ -265,7 +278,7 @@ fn generate_create_method(response_type: syn::Ident, method: &MethodPlan) -> Tok
 /// Generate Delete method (returns unit type)
 fn generate_delete_method(method_name: syn::Ident, method: &MethodPlan) -> TokenStream {
     let param_defs = generate_resource_param_definitions(method);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature_for_resource(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
 
@@ -352,11 +365,24 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
         }
     }
 
+    // Add required query parameters (non-optional)
+    for query_param in &method.query_params {
+        if !query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
+            let param_name = format_ident!("{}", query_param.name);
+            // Use the original field type to get proper enum handling
+            let python_type = get_python_type_from_method_field(method, &query_param.name, false);
+            let rust_type = convert_to_python_type(&python_type, false);
+            params.push(quote! { #param_name: #rust_type });
+        }
+    }
+
     // Add optional query parameters
     for query_param in &method.query_params {
-        if !(is_list && query_param.name.as_str() == "page_token") {
+        if query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
             let param_name = format_ident!("{}", query_param.name);
-            let rust_type = convert_to_python_type(&query_param.rust_type, true);
+            // Use the original field type to get proper enum handling
+            let python_type = get_python_type_from_method_field(method, &query_param.name, true);
+            let rust_type = convert_to_python_type(&python_type, true);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -375,30 +401,84 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
     params
 }
 
-/// Generate PyO3 signature annotation
-fn generate_pyo3_signature(method: &MethodPlan) -> TokenStream {
+/// Generate PyO3 signature annotation for collection methods (includes path parameters)
+fn generate_pyo3_signature(method: &MethodPlan, is_list: bool) -> TokenStream {
     let mut signature_parts = Vec::new();
 
+    // Add path parameters first
+    for path_param in &method.path_params {
+        signature_parts.push(path_param.field_name.clone());
+    }
+
+    // Required body fields (no default values)
     for body_field in &method.body_fields {
         if !body_field.optional {
             signature_parts.push(body_field.name.clone());
         }
     }
 
-    // Optional parameters with defaults
+    // Required query parameters (no default values)
     for query_param in &method.query_params {
-        if !query_param.optional {
-            signature_parts.push(format!("{} = None", query_param.name));
+        if !query_param.optional && !(is_list && query_param.name == "page_token") {
+            signature_parts.push(query_param.name.clone());
         }
     }
 
+    // Optional body fields with defaults
     for body_field in &method.body_fields {
         if body_field.optional {
             signature_parts.push(format!("{} = None", body_field.name));
         }
     }
 
-    // Optional parameters with defaults
+    // Optional query parameters with defaults - exclude page_token for list methods
+    for query_param in &method.query_params {
+        if query_param.optional && !(is_list && query_param.name == "page_token") {
+            signature_parts.push(format!("{} = None", query_param.name));
+        }
+    }
+
+    if signature_parts.is_empty() {
+        quote! {}
+    } else {
+        let signature_string = signature_parts.join(", ");
+        let signature_tokens = signature_string
+            .parse::<proc_macro2::TokenStream>()
+            .unwrap();
+        quote! {
+            #[pyo3(signature = (#signature_tokens))]
+        }
+    }
+}
+
+/// Generate PyO3 signature annotation for resource methods (excludes path parameters)
+fn generate_pyo3_signature_for_resource(method: &MethodPlan) -> TokenStream {
+    let mut signature_parts = Vec::new();
+
+    // Don't add path parameters for resource methods - they're part of the client instance
+
+    // Required body fields (no default values)
+    for body_field in &method.body_fields {
+        if !body_field.optional {
+            signature_parts.push(body_field.name.clone());
+        }
+    }
+
+    // Required query parameters (no default values)
+    for query_param in &method.query_params {
+        if !query_param.optional {
+            signature_parts.push(query_param.name.clone());
+        }
+    }
+
+    // Optional body fields with defaults
+    for body_field in &method.body_fields {
+        if body_field.optional {
+            signature_parts.push(format!("{} = None", body_field.name));
+        }
+    }
+
+    // Optional query parameters with defaults
     for query_param in &method.query_params {
         if query_param.optional {
             signature_parts.push(format!("{} = None", query_param.name));
@@ -408,9 +488,13 @@ fn generate_pyo3_signature(method: &MethodPlan) -> TokenStream {
     if signature_parts.is_empty() {
         quote! {}
     } else {
-        // Simplified approach - just generate the signature string as a comment for now
-        // The actual PyO3 signature generation can be added later
-        quote! {}
+        let signature_string = signature_parts.join(", ");
+        let signature_tokens = signature_string
+            .parse::<proc_macro2::TokenStream>()
+            .unwrap();
+        quote! {
+            #[pyo3(signature = (#signature_tokens))]
+        }
     }
 }
 
@@ -468,7 +552,7 @@ fn generate_client_call(method: &MethodPlan, is_list: bool) -> TokenStream {
         }
     }
 
-    // Add optional query parameters
+    // Add optional query parameters in protobuf order for other methods
     for query_param in &method.query_params {
         if !(is_list && query_param.name == "page_token") {
             let param_name =
@@ -653,4 +737,61 @@ fn python_field_type_to_rust_type(field_type: &str, is_optional: bool) -> String
     } else {
         base_type
     }
+}
+
+/// Generate resource accessor method for the main client
+fn generate_resource_accessor_method(service: &ServicePlan) -> Option<TokenStream> {
+    // Only generate methods for services that manage resources
+    if service.managed_resources.is_empty() {
+        return None;
+    }
+
+    // For now, assume each service manages exactly one resource type
+    let resource = &service.managed_resources[0];
+    let method_name = format_ident!("{}", resource.descriptor.singular);
+    let client_name = format_ident!("Py{}Client", service.handler_name.replace("Handler", ""));
+
+    // Generate method based on the specific resource patterns
+    // Use the singular name from the resource descriptor instead of hardcoded match
+    let method_call = match resource.descriptor.singular.as_str() {
+        "schema" => {
+            quote! {
+                pub fn #method_name(&self, catalog_name: String, schema_name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.schema(&catalog_name, &schema_name),
+                    }
+                }
+            }
+        }
+        "table" => {
+            quote! {
+                pub fn #method_name(&self, full_name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.table(&full_name),
+                    }
+                }
+            }
+        }
+        "volume" => {
+            quote! {
+                pub fn #method_name(&self, catalog_name: String, schema_name: String, volume_name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.volume(catalog_name, schema_name, volume_name),
+                    }
+                }
+            }
+        }
+        _ => {
+            // Default case for simple resources - use single name parameter
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.#method_name(&name),
+                    }
+                }
+            }
+        }
+    };
+
+    Some(method_call)
 }

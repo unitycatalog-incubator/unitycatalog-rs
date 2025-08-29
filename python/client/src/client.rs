@@ -218,17 +218,18 @@ impl PyUnityCatalogClient {
         }
     }
 
-    #[pyo3(signature = (max_results = None))]
+    #[pyo3(signature = (max_results = None, include_browse = None))]
     pub fn list_external_locations(
         &self,
         py: Python,
         max_results: Option<i32>,
+        include_browse: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let locations = runtime.block_on(async move {
                 self.0
-                    .list_external_locations(max_results)
+                    .list_external_locations(max_results, include_browse)
                     .try_collect::<Vec<_>>()
                     .await
             })?;
@@ -379,9 +380,7 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<ExternalLocationInfo> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let mut request = self
-                .0
-                .create_external_location(name, url, credential_name)?;
+            let mut request = self.0.create_external_location(name, url, credential_name);
             if let Some(comment) = comment {
                 request = request.with_comment(comment);
             }

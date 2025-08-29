@@ -7,6 +7,34 @@
 //! - Extracting HTTP routing information
 //! - Determining parameter types and sources
 //! - Planning the structure of generated code
+//! - Extracting managed resources from method return types
+//!
+//! ## Managed Resources
+//!
+//! Services often manage one or more resource types. These resources are automatically
+//! extracted from the return types of get, create, and update methods. For example:
+//!
+//! ```proto
+//! message CatalogInfo {
+//!   option (google.api.resource) = {
+//!     type: "unitycatalog.io/Catalog"
+//!     pattern: "catalogs/{catalog}"
+//!     plural: "catalogs"
+//!     singular: "catalog"
+//!   };
+//!   string name = 1;
+//!   // ... other fields
+//! }
+//!
+//! service CatalogsService {
+//!   rpc GetCatalog(GetCatalogRequest) returns (CatalogInfo);
+//!   rpc CreateCatalog(CreateCatalogRequest) returns (CatalogInfo);
+//!   rpc UpdateCatalog(UpdateCatalogRequest) returns (CatalogInfo);
+//! }
+//! ```
+//!
+//! The analysis will extract that `CatalogsService` manages the `Catalog` resource,
+//! making this information available for subsequent code generation phases.
 
 use std::collections::HashSet;
 
@@ -19,6 +47,7 @@ use crate::parsing::{
 };
 use crate::utils::{strings, types};
 
+use services::extract_managed_resources;
 pub(crate) use services::*;
 
 mod messages;
@@ -61,11 +90,15 @@ fn analyze_service(
         }
     }
 
+    // Extract managed resources from method return types
+    let managed_resources = extract_managed_resources(registry, &method_plans);
+
     Ok(ServicePlan {
         service_name: info.name.clone(),
         handler_name,
         base_path,
         methods: method_plans,
+        managed_resources,
     })
 }
 
@@ -99,7 +132,7 @@ pub fn analyze_method(
     // Extract parameters based on HTTP rule
     let (path_params, query_params, body_fields) = extract_request_fields(method, &input_fields)?;
 
-    Ok(Some(MethodPlan {
+    let method_plan = MethodPlan {
         metadata: method.clone(),
         handler_function_name,
         route_function_name: method.method_name.to_case(Case::Snake),
@@ -111,7 +144,11 @@ pub fn analyze_method(
         has_response: planner.has_response(),
         request_type,
         is_collection_client_method: planner.is_collection_client_method(),
-    }))
+        returns_resource: planner.returns_resource(),
+        output_resource_type: planner.output_resource_type(),
+    };
+
+    Ok(Some(method_plan))
 }
 
 /// Extract request fields based on HTTP rule analysis
@@ -196,6 +233,11 @@ fn extract_request_fields(
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::google::api::{HttpRule, ResourceDescriptor, http_rule::Pattern};
+    use crate::parsing::{MessageInfo, MethodMetadata, ServiceInfo};
+    use std::collections::HashMap;
+
     #[test]
     fn test_field_type_conversion() {
         use crate::utils::types::field_type_to_rust_type;
@@ -206,5 +248,146 @@ mod tests {
             field_type_to_rust_type("TYPE_MESSAGE:.unitycatalog.CatalogInfo"),
             "CatalogInfo"
         );
+    }
+
+    #[test]
+    fn test_managed_resources_extraction() {
+        // Create a mock message with resource descriptor
+        let mut messages = HashMap::new();
+        let catalog_resource = ResourceDescriptor {
+            r#type: "unitycatalog.io/Catalog".to_string(),
+            pattern: vec!["catalogs/{catalog}".to_string()],
+            name_field: "name".to_string(),
+            history: 0,
+            plural: "catalogs".to_string(),
+            singular: "catalog".to_string(),
+            style: vec![],
+        };
+
+        let catalog_info = MessageInfo {
+            name: "CatalogInfo".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(catalog_resource.clone()),
+            documentation: None,
+        };
+        messages.insert("CatalogInfo".to_string(), catalog_info);
+
+        let registry = MessageRegistry::new(&messages);
+
+        // Create a mock service with methods that return resources
+        let get_method = MethodMetadata {
+            service_name: "CatalogsService".to_string(),
+            method_name: "GetCatalog".to_string(),
+            input_type: "GetCatalogRequest".to_string(),
+            output_type: "CatalogInfo".to_string(),
+            operation: None,
+            http_rule: HttpRule {
+                selector: "".to_string(),
+                pattern: Some(Pattern::Get("/catalogs/{name}".to_string())),
+                body: "".to_string(),
+                response_body: "".to_string(),
+                additional_bindings: vec![],
+            },
+            input_fields: vec![],
+            documentation: None,
+        };
+
+        let service_info = ServiceInfo {
+            name: "CatalogsService".to_string(),
+            documentation: None,
+            methods: vec![get_method],
+        };
+
+        // Analyze the service
+        let service_plan = analyze_service(&registry, &service_info).unwrap();
+
+        // Verify that managed resources were extracted
+        assert_eq!(service_plan.managed_resources.len(), 1);
+        assert_eq!(service_plan.managed_resources[0].type_name, "CatalogInfo");
+        assert_eq!(
+            service_plan.managed_resources[0].descriptor.r#type,
+            "unitycatalog.io/Catalog"
+        );
+        assert_eq!(
+            service_plan.managed_resources[0].descriptor.singular,
+            "catalog"
+        );
+        assert_eq!(
+            service_plan.managed_resources[0].descriptor.plural,
+            "catalogs"
+        );
+    }
+
+    #[test]
+    fn test_no_duplicate_managed_resources() {
+        // Create a mock message with resource descriptor
+        let mut messages = HashMap::new();
+        let catalog_resource = ResourceDescriptor {
+            r#type: "unitycatalog.io/Catalog".to_string(),
+            pattern: vec!["catalogs/{catalog}".to_string()],
+            name_field: "name".to_string(),
+            history: 0,
+            plural: "catalogs".to_string(),
+            singular: "catalog".to_string(),
+            style: vec![],
+        };
+
+        let catalog_info = MessageInfo {
+            name: "CatalogInfo".to_string(),
+            fields: vec![],
+            resource_descriptor: Some(catalog_resource.clone()),
+            documentation: None,
+        };
+        messages.insert("CatalogInfo".to_string(), catalog_info);
+
+        let registry = MessageRegistry::new(&messages);
+
+        // Create multiple methods that return the same resource type
+        let get_method = MethodMetadata {
+            service_name: "CatalogsService".to_string(),
+            method_name: "GetCatalog".to_string(),
+            input_type: "GetCatalogRequest".to_string(),
+            output_type: "CatalogInfo".to_string(),
+            operation: None,
+            http_rule: HttpRule {
+                selector: "".to_string(),
+                pattern: Some(Pattern::Get("/catalogs/{name}".to_string())),
+                body: "".to_string(),
+                response_body: "".to_string(),
+                additional_bindings: vec![],
+            },
+            input_fields: vec![],
+            documentation: None,
+        };
+
+        let update_method = MethodMetadata {
+            service_name: "CatalogsService".to_string(),
+            method_name: "UpdateCatalog".to_string(),
+            input_type: "UpdateCatalogRequest".to_string(),
+            output_type: "CatalogInfo".to_string(),
+            operation: None,
+            http_rule: HttpRule {
+                selector: "".to_string(),
+                pattern: Some(Pattern::Patch("/catalogs/{name}".to_string())),
+                body: "*".to_string(),
+                response_body: "".to_string(),
+                additional_bindings: vec![],
+            },
+            input_fields: vec![],
+            documentation: None,
+        };
+
+        let service_info = ServiceInfo {
+            name: "CatalogsService".to_string(),
+            documentation: None,
+            methods: vec![get_method, update_method],
+        };
+
+        // Analyze the service
+        let service_plan = analyze_service(&registry, &service_info).unwrap();
+
+        // Verify that we only have one managed resource despite multiple methods returning it
+        assert_eq!(service_plan.managed_resources.len(), 1);
+        assert_eq!(service_plan.managed_resources[0].type_name, "CatalogInfo");
     }
 }

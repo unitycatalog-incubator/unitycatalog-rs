@@ -10,6 +10,7 @@ pub struct PyCatalogClient {
 }
 #[pymethods]
 impl PyCatalogClient {
+    #[pyo3(signature = (include_browse = None))]
     pub fn get(
         &self,
         py: Python,
@@ -23,6 +24,9 @@ impl PyCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(
+        signature = (owner = None, comment = None, properties = None, new_name = None)
+    )]
     pub fn update(
         &self,
         py: Python,
@@ -44,6 +48,7 @@ impl PyCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (force = None))]
     pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
         let mut request = self.client.delete();
         request = request.with_force(force);

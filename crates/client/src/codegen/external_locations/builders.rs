@@ -5,44 +5,6 @@ use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::external_locations::v1::*;
 /// Builder for creating requests
-pub struct ListExternalLocationsBuilder {
-    client: ExternalLocationClient,
-    request: ListExternalLocationsRequest,
-}
-impl ListExternalLocationsBuilder {
-    /// Create a new builder instance
-    pub(crate) fn new(client: ExternalLocationClient) -> Self {
-        let request = ListExternalLocationsRequest {
-            ..Default::default()
-        };
-        Self { client, request }
-    }
-    ///The maximum number of results per page that should be returned.
-    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
-        self.request.max_results = max_results.into();
-        self
-    }
-    ///Opaque pagination token to go to next page based on previous query.
-    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
-        self.request.page_token = page_token.into();
-        self
-    }
-    ///Whether to include schemas in the response for which the principal can only access selective metadata for
-    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
-        self.request.include_browse = include_browse.into();
-        self
-    }
-}
-impl IntoFuture for ListExternalLocationsBuilder {
-    type Output = Result<ListExternalLocationsResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
-    fn into_future(self) -> Self::IntoFuture {
-        let client = self.client;
-        let request = self.request;
-        Box::pin(async move { client.list_external_locations(&request).await })
-    }
-}
-/// Builder for creating requests
 pub struct CreateExternalLocationBuilder {
     client: ExternalLocationClient,
     request: CreateExternalLocationRequest,
@@ -174,5 +136,34 @@ impl IntoFuture for UpdateExternalLocationBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.update_external_location(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct DeleteExternalLocationBuilder {
+    client: ExternalLocationClient,
+    request: DeleteExternalLocationRequest,
+}
+impl DeleteExternalLocationBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+        let request = DeleteExternalLocationRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///Force deletion even if the external location is not empty.
+    pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
+        self.request.force = force.into();
+        self
+    }
+}
+impl IntoFuture for DeleteExternalLocationBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_external_location(&request).await })
     }
 }

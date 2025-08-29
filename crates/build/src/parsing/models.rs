@@ -8,6 +8,7 @@ use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
 #[derive(Debug)]
 pub struct CodeGenMetadata {
     pub messages: HashMap<String, MessageInfo>,
+    pub enums: HashMap<String, EnumInfo>,
     pub services: HashMap<String, ServiceInfo>,
 }
 
@@ -17,6 +18,14 @@ impl CodeGenMetadata {
         self.messages
             .get(type_name)
             .map(|msg| msg.fields.clone())
+            .unwrap_or_default()
+    }
+
+    /// Get enum values for a given enum type name
+    pub(crate) fn get_enum_values(&self, type_name: &str) -> Vec<EnumValue> {
+        self.enums
+            .get(type_name)
+            .map(|enum_info| enum_info.values.clone())
             .unwrap_or_default()
     }
 }
@@ -51,6 +60,22 @@ pub struct OneofVariant {
     pub field_name: String,   // e.g., "azure_service_principal"
     pub variant_name: String, // e.g., "AzureServicePrincipal"
     pub rust_type: String,    // e.g., "AzureServicePrincipal"
+    pub documentation: Option<String>,
+}
+
+/// Information about a protobuf enum
+#[derive(Debug, Clone)]
+pub struct EnumInfo {
+    pub name: String,
+    pub values: Vec<EnumValue>,
+    pub documentation: Option<String>,
+}
+
+/// Information about an enum value
+#[derive(Debug, Clone)]
+pub struct EnumValue {
+    pub name: String,
+    pub number: i32,
     pub documentation: Option<String>,
 }
 
@@ -114,6 +139,7 @@ mod tests {
         let mut codegen_metadata = CodeGenMetadata {
             messages: HashMap::new(),
             services: HashMap::new(),
+            enums: HashMap::new(),
         };
 
         // Create a test service with methods
