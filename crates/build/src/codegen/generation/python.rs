@@ -180,7 +180,7 @@ fn generate_list_method(response_type: syn::Ident, method: &MethodPlan) -> Token
     let method_name = method.collection_client_method();
 
     let param_defs = generate_param_definitions(method, true);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature(method, true);
     let client_call = generate_client_call(method, true); // true for list methods
 
     // Extract inner type from response (e.g., ListCatalogsResponse -> CatalogInfo)
@@ -210,7 +210,7 @@ fn generate_resource_method(response_type: syn::Ident, method: &MethodPlan) -> T
     let method_name = method.resource_client_method();
 
     let param_defs = generate_resource_param_definitions(method);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature_for_resource(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
 
@@ -237,7 +237,7 @@ fn generate_create_method(response_type: syn::Ident, method: &MethodPlan) -> Tok
     let method_name = method.collection_client_method();
 
     let param_defs = generate_param_definitions(method, false);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature_for_resource(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
 
@@ -262,7 +262,7 @@ fn generate_create_method(response_type: syn::Ident, method: &MethodPlan) -> Tok
 /// Generate Delete method (returns unit type)
 fn generate_delete_method(method_name: syn::Ident, method: &MethodPlan) -> TokenStream {
     let param_defs = generate_resource_param_definitions(method);
-    let pyo3_signature = generate_pyo3_signature(method);
+    let pyo3_signature = generate_pyo3_signature_for_resource(method);
     let client_call = generate_resource_client_call(method, false);
     let (_required_params, builder_calls) = generate_builder_pattern(method);
 
@@ -385,9 +385,61 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
     params
 }
 
-/// Generate PyO3 signature annotation
-fn generate_pyo3_signature(method: &MethodPlan) -> TokenStream {
+/// Generate PyO3 signature annotation for collection methods (includes path parameters)
+fn generate_pyo3_signature(method: &MethodPlan, is_list: bool) -> TokenStream {
     let mut signature_parts = Vec::new();
+
+    // Add path parameters first
+    for path_param in &method.path_params {
+        signature_parts.push(path_param.field_name.clone());
+    }
+
+    // Required body fields (no default values)
+    for body_field in &method.body_fields {
+        if !body_field.optional {
+            signature_parts.push(body_field.name.clone());
+        }
+    }
+
+    // Required query parameters (no default values)
+    for query_param in &method.query_params {
+        if !query_param.optional && !(is_list && query_param.name == "page_token") {
+            signature_parts.push(query_param.name.clone());
+        }
+    }
+
+    // Optional body fields with defaults
+    for body_field in &method.body_fields {
+        if body_field.optional {
+            signature_parts.push(format!("{} = None", body_field.name));
+        }
+    }
+
+    // Optional query parameters with defaults - exclude page_token for list methods
+    for query_param in &method.query_params {
+        if query_param.optional && !(is_list && query_param.name == "page_token") {
+            signature_parts.push(format!("{} = None", query_param.name));
+        }
+    }
+
+    if signature_parts.is_empty() {
+        quote! {}
+    } else {
+        let signature_string = signature_parts.join(", ");
+        let signature_tokens = signature_string
+            .parse::<proc_macro2::TokenStream>()
+            .unwrap();
+        quote! {
+            #[pyo3(signature = (#signature_tokens))]
+        }
+    }
+}
+
+/// Generate PyO3 signature annotation for resource methods (excludes path parameters)
+fn generate_pyo3_signature_for_resource(method: &MethodPlan) -> TokenStream {
+    let mut signature_parts = Vec::new();
+
+    // Don't add path parameters for resource methods - they're part of the client instance
 
     // Required body fields (no default values)
     for body_field in &method.body_fields {
@@ -420,9 +472,13 @@ fn generate_pyo3_signature(method: &MethodPlan) -> TokenStream {
     if signature_parts.is_empty() {
         quote! {}
     } else {
-        // Simplified approach - just generate the signature string as a comment for now
-        // The actual PyO3 signature generation can be added later
-        quote! {}
+        let signature_string = signature_parts.join(", ");
+        let signature_tokens = signature_string
+            .parse::<proc_macro2::TokenStream>()
+            .unwrap();
+        quote! {
+            #[pyo3(signature = (#signature_tokens))]
+        }
     }
 }
 

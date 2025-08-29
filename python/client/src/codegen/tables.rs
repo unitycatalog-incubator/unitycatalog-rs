@@ -9,6 +9,13 @@ pub struct PyTableClient {
 }
 #[pymethods]
 impl PyTableClient {
+    #[pyo3(
+        signature = (
+            include_delta_metadata = None,
+            include_browse = None,
+            include_manifest_capabilities = None
+        )
+    )]
     pub fn get(
         &self,
         py: Python,

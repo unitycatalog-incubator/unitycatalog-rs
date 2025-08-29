@@ -9,6 +9,7 @@ pub struct PyShareClient {
 }
 #[pymethods]
 impl PyShareClient {
+    #[pyo3(signature = (include_shared_data = None))]
     pub fn get(
         &self,
         py: Python,
@@ -22,6 +23,7 @@ impl PyShareClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (updates = None, new_name = None, owner = None, comment = None))]
     pub fn update(
         &self,
         py: Python,

@@ -18,6 +18,15 @@ impl PyRecipientClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(
+        signature = (
+            new_name = None,
+            owner = None,
+            comment = None,
+            properties = None,
+            expiration_time = None
+        )
+    )]
     pub fn update(
         &self,
         py: Python,

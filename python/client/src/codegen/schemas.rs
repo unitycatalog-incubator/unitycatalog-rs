@@ -18,6 +18,7 @@ impl PySchemaClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (comment = None, properties = None, new_name = None))]
     pub fn update(
         &self,
         py: Python,
@@ -37,6 +38,7 @@ impl PySchemaClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (force = None))]
     pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {
         let mut request = self.client.delete();
         request = request.with_force(force);

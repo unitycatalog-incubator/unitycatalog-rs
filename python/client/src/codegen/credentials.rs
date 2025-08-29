@@ -17,6 +17,19 @@ impl PyCredentialClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(
+        signature = (
+            new_name = None,
+            comment = None,
+            read_only = None,
+            owner = None,
+            skip_validation = None,
+            force = None,
+            azure_service_principal = None,
+            azure_managed_identity = None,
+            azure_storage_key = None
+        )
+    )]
     pub fn update(
         &self,
         py: Python,

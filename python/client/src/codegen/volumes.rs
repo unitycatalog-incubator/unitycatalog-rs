@@ -9,6 +9,7 @@ pub struct PyVolumeClient {
 }
 #[pymethods]
 impl PyVolumeClient {
+    #[pyo3(signature = (include_browse = None))]
     pub fn get(
         &self,
         py: Python,
@@ -22,6 +23,7 @@ impl PyVolumeClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (new_name = None, comment = None, owner = None))]
     pub fn update(
         &self,
         py: Python,
