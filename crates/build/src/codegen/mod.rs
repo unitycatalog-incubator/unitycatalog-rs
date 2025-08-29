@@ -60,6 +60,15 @@ pub fn generate_code(
     let python_code = generation::generate_python_code(&plan)?;
     output::write_generated_code(&python_code, output_dir_python)?;
 
+    // Generate Python typing file
+    let python_typing = generation::generate_python_typing(&plan, metadata)?;
+    let python_client_dir = output_dir_python
+        .parent()
+        .and_then(|p| p.parent())
+        .ok_or("Could not find Python client directory")?;
+    // let typing_file_path = python_client_dir.join("unitycatalog_client_generated.pyi");
+    // std::fs::write(&typing_file_path, python_typing)?;
+
     Ok(())
 }
 
