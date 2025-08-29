@@ -102,6 +102,11 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
         })
         .collect();
 
+    let resource_accessor_methods: Vec<TokenStream> = services
+        .iter()
+        .map(generate_resource_accessor_method)
+        .collect();
+
     let mod_paths: Vec<TokenStream> = services
         .iter()
         .map(|s| {
@@ -109,6 +114,15 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
                 syn::parse_str(&format!("unitycatalog_common::models::{}::v1", s.base_path))
                     .unwrap();
             quote! { use #mod_path::*; }
+        })
+        .collect();
+
+    let codegen_imports: Vec<TokenStream> = services
+        .iter()
+        .map(|s| {
+            let mod_name = format_ident!("{}", s.base_path);
+            let client_name = format_ident!("Py{}Client", s.handler_name.replace("Handler", ""));
+            quote! { use crate::codegen::#mod_name::#client_name; }
         })
         .collect();
 
@@ -120,6 +134,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
         use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
         use crate::runtime::get_runtime;
         #(#mod_paths)*
+        #(#codegen_imports)*
 
         #[pyclass(name = "UnityCatalogClient")]
         pub struct PyUnityCatalogClientABC {
@@ -140,6 +155,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
                 Ok(Self { client: UnityCatalogClient::new(client, base_url) })
             }
             #(#methods)*
+            #(#resource_accessor_methods)*
         }
     }
 }
@@ -720,5 +736,116 @@ fn python_field_type_to_rust_type(field_type: &str, is_optional: bool) -> String
         format!("Option<{}>", base_type)
     } else {
         base_type
+    }
+}
+
+/// Generate resource accessor method for the main client
+fn generate_resource_accessor_method(service: &ServicePlan) -> TokenStream {
+    let service_name = &service.base_path;
+    let client_name = format_ident!("Py{}Client", service.handler_name.replace("Handler", ""));
+
+    // Generate method based on service type
+    match service_name.as_str() {
+        "catalogs" => {
+            let method_name = format_ident!("catalog");
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.catalog(&name),
+                    }
+                }
+            }
+        }
+        "schemas" => {
+            let method_name = format_ident!("schema");
+            quote! {
+                pub fn #method_name(&self, catalog_name: String, schema_name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.schema(&catalog_name, &schema_name),
+                    }
+                }
+            }
+        }
+        "tables" => {
+            let method_name = format_ident!("table");
+            quote! {
+                pub fn #method_name(&self, full_name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.table(&full_name),
+                    }
+                }
+            }
+        }
+        "shares" => {
+            let method_name = format_ident!("share");
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.share(&name),
+                    }
+                }
+            }
+        }
+        "recipients" => {
+            let method_name = format_ident!("recipient");
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.recipient(&name),
+                    }
+                }
+            }
+        }
+        "credentials" => {
+            let method_name = format_ident!("credential");
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.credential(&name),
+                    }
+                }
+            }
+        }
+        "external_locations" => {
+            let method_name = format_ident!("external_location");
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.external_location(&name),
+                    }
+                }
+            }
+        }
+        "volumes" => {
+            let method_name = format_ident!("volume");
+            quote! {
+                pub fn #method_name(&self, catalog_name: String, schema_name: String, volume_name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.volume(catalog_name, schema_name, volume_name),
+                    }
+                }
+            }
+        }
+        "temporary_credentials" => {
+            let method_name = format_ident!("temporary_credentials");
+            quote! {
+                pub fn #method_name(&self) -> #client_name {
+                    #client_name {
+                        client: self.client.temporary_credentials(),
+                    }
+                }
+            }
+        }
+        _ => {
+            // Default case for other services - use single name parameter
+            let method_name = format_ident!("{}", service_name.trim_end_matches('s'));
+            quote! {
+                pub fn #method_name(&self, name: String) -> #client_name {
+                    #client_name {
+                        client: self.client.#method_name(&name),
+                    }
+                }
+            }
+        }
     }
 }
