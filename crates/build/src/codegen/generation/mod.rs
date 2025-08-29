@@ -15,8 +15,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::File;
 
-use super::GeneratedCode;
-use super::templates;
+use super::{GeneratedCode, extract_type_ident};
 use crate::analysis::MethodPlan;
 use crate::analysis::{GenerationPlan, RequestType, ServicePlan};
 

@@ -2,7 +2,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 use syn::{Path, Type};
 
-use super::{format_tokens, templates};
+use super::{extract_type_ident, format_tokens};
 use crate::{
     analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestType, ServicePlan},
     google::api::http_rule::Pattern,
@@ -123,11 +123,11 @@ fn generate_extractor_for_method(
 fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
     let function_name = format_ident!("{}", method.route_function_name);
     let handler_method = format_ident!("{}", method.handler_function_name);
-    let input_type = templates::extract_type_ident(&method.metadata.input_type);
+    let input_type = extract_type_ident(&method.metadata.input_type);
     let handler_trait_ident = format_ident!("{}", handler_trait);
 
     let tokens = if method.has_response {
-        let output_type = templates::extract_type_ident(&method.metadata.output_type);
+        let output_type = extract_type_ident(&method.metadata.output_type);
         quote! {
             pub async fn #function_name<T: #handler_trait_ident>(
                 State(handler): State<T>,
@@ -158,7 +158,7 @@ fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
 
 /// Generate FromRequestParts implementation for path/query parameters
 pub fn from_request_parts_impl(method: &MethodPlan) -> Result<String, Box<dyn std::error::Error>> {
-    let input_type = templates::extract_type_ident(&method.metadata.input_type);
+    let input_type = extract_type_ident(&method.metadata.input_type);
     let path_extractions = generate_path_extractions_tokens(&method.path_params, false);
     let query_extractions = generate_query_extractions_tokens(&method.query_params);
     let field_assignments = generate_field_assignments_tokens(
@@ -190,7 +190,7 @@ pub fn from_request_parts_impl(method: &MethodPlan) -> Result<String, Box<dyn st
 
 /// Generate FromRequest implementation for JSON body
 pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::error::Error>> {
-    let input_type = templates::extract_type_ident(&method.metadata.input_type);
+    let input_type = extract_type_ident(&method.metadata.input_type);
 
     // Check if we need a hybrid extractor (path/query + body)
     if !method.path_params.is_empty() || !method.query_params.is_empty() {
@@ -221,7 +221,7 @@ pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::err
 
 /// Generate hybrid FromRequest implementation for methods with path/query + body
 fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::error::Error>> {
-    let input_type = templates::extract_type_ident(&method.metadata.input_type);
+    let input_type = extract_type_ident(&method.metadata.input_type);
     let path_extractions = generate_path_extractions_tokens(&method.path_params, true);
     let query_extractions = generate_query_extractions_tokens(&method.query_params);
 

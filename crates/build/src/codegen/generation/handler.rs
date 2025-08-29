@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
-use super::{format_tokens, templates};
+use super::{extract_type_ident, format_tokens};
 use crate::analysis::{MethodPlan, ServicePlan};
 
 /// Generate handler trait for a service
@@ -50,11 +50,11 @@ pub fn handler_trait(trait_name: &str, methods: &[TokenStream], service_base: St
 
 /// Generate a single handler trait method
 pub fn handler_trait_method(method: &MethodPlan) -> TokenStream {
-    let input_type = templates::extract_type_ident(&method.metadata.input_type);
+    let input_type = extract_type_ident(&method.metadata.input_type);
     let method_name = format_ident!("{}", method.handler_function_name);
 
     if method.has_response {
-        let output_type = templates::extract_type_ident(&method.metadata.output_type);
+        let output_type = extract_type_ident(&method.metadata.output_type);
         quote! {
             async fn #method_name(
                 &self,

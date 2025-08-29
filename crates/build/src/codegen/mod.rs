@@ -22,12 +22,14 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+use quote::format_ident;
+use syn::Ident;
+
 use crate::analysis::analyze_metadata;
 use crate::output;
 use crate::parsing::CodeGenMetadata;
 
 pub mod generation;
-pub mod templates;
 
 /// Main entry point for code generation
 ///
@@ -66,4 +68,10 @@ pub fn generate_code(
 pub struct GeneratedCode {
     /// Generated files mapped by relative path
     pub files: HashMap<String, String>,
+}
+
+/// Extract the final type name from a fully qualified protobuf type and convert to Ident
+pub(crate) fn extract_type_ident(full_type: &str) -> Ident {
+    let type_name = full_type.split('.').next_back().unwrap_or(full_type);
+    format_ident!("{}", type_name)
 }
