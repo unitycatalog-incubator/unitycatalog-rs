@@ -50,7 +50,6 @@ pub mod types {
 
     /// Convert protobuf field type to Rust type
     pub fn field_type_to_rust_type(field_type: &str) -> String {
-        println!("field_type: {}", field_type);
         match field_type {
             "TYPE_STRING" => "String".to_string(),
             "TYPE_INT32" => "i32".to_string(),
