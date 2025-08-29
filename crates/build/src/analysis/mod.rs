@@ -93,20 +93,6 @@ fn analyze_service(
     // Extract managed resources from method return types
     let managed_resources = extract_managed_resources(registry, &method_plans);
 
-    // Log managed resources for debugging
-    if !managed_resources.is_empty() {
-        println!(
-            "cargo:warning=Service {} manages {} resource(s): {}",
-            info.name,
-            managed_resources.len(),
-            managed_resources
-                .iter()
-                .map(|r| format!("{}({})", r.type_name, r.descriptor.singular))
-                .collect::<Vec<_>>()
-                .join(", ")
-        );
-    }
-
     Ok(ServicePlan {
         service_name: info.name.clone(),
         handler_name,

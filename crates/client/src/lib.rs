@@ -266,16 +266,17 @@ impl UnityCatalogClient {
     pub fn list_external_locations(
         &self,
         max_results: impl Into<Option<i32>>,
+        include_browse: impl Into<Option<bool>>,
     ) -> BoxStream<'_, Result<ExternalLocationInfo>> {
-        self.external_locations.list(max_results)
+        self.external_locations.list(max_results, include_browse)
     }
 
     pub fn create_external_location(
         &self,
         name: impl ToString,
-        url: impl reqwest::IntoUrl,
-        credential_name: impl Into<String>,
-    ) -> Result<CreateExternalLocationBuilder> {
+        url: impl ToString,
+        credential_name: impl ToString,
+    ) -> CreateExternalLocationBuilder {
         let external_location = ExternalLocationClient::new(name, self.external_locations.clone());
         external_location.create(url, credential_name)
     }

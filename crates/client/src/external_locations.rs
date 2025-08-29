@@ -1,26 +1,28 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
-use reqwest::IntoUrl;
 use unitycatalog_common::models::external_locations::v1::*;
 
 use super::utils::stream_paginated;
+use crate::Result;
+use crate::codegen::external_locations::DeleteExternalLocationBuilder;
 pub(super) use crate::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
 use crate::codegen::external_locations::builders::{
     CreateExternalLocationBuilder, GetExternalLocationBuilder, UpdateExternalLocationBuilder,
 };
-use crate::{Error, Result};
 
 impl ExternalLocationClientBase {
     pub fn list(
         &self,
         max_results: impl Into<Option<i32>>,
+        include_browse: impl Into<Option<bool>>,
     ) -> BoxStream<'_, Result<ExternalLocationInfo>> {
         let max_results = max_results.into();
+        let include_browse = include_browse.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListExternalLocationsRequest {
                 max_results,
                 page_token,
-                include_browse: None,
+                include_browse,
             };
             let res = self.list_external_locations(&request).await?;
 
@@ -57,19 +59,15 @@ impl ExternalLocationClient {
     /// Create a new external location using the builder pattern.
     pub fn create(
         &self,
-        url: impl IntoUrl,
-        credential_name: impl Into<String>,
-    ) -> Result<CreateExternalLocationBuilder> {
-        let url = url
-            .into_url()
-            .map(|u| u.to_string())
-            .map_err(|e| Error::generic(e.to_string()))?;
-        Ok(CreateExternalLocationBuilder::new(
+        url: impl ToString,
+        credential_name: impl ToString,
+    ) -> CreateExternalLocationBuilder {
+        CreateExternalLocationBuilder::new(
             self.client.clone(),
             &self.name,
-            url,
-            credential_name.into(),
-        ))
+            url.to_string(),
+            credential_name.to_string(),
+        )
     }
 
     /// Get an external location using the builder pattern.
@@ -82,7 +80,7 @@ impl ExternalLocationClient {
         UpdateExternalLocationBuilder::new(self.client.clone(), &self.name)
     }
 
-    // pub fn delete(&self) -> DeleteExternalLocationBuilder {
-    //     DeleteExternalLocationBuilder::new(self.client.clone(), &self.name)
-    // }
+    pub fn delete(&self) -> DeleteExternalLocationBuilder {
+        DeleteExternalLocationBuilder::new(self.client.clone(), &self.name)
+    }
 }

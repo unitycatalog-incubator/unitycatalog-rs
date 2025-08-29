@@ -104,7 +104,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
 
     let resource_accessor_methods: Vec<TokenStream> = services
         .iter()
-        .map(generate_resource_accessor_method)
+        .filter_map(generate_resource_accessor_method)
         .collect();
 
     let mod_paths: Vec<TokenStream> = services
@@ -740,24 +740,21 @@ fn python_field_type_to_rust_type(field_type: &str, is_optional: bool) -> String
 }
 
 /// Generate resource accessor method for the main client
-fn generate_resource_accessor_method(service: &ServicePlan) -> TokenStream {
-    let service_name = &service.base_path;
+fn generate_resource_accessor_method(service: &ServicePlan) -> Option<TokenStream> {
+    // Only generate methods for services that manage resources
+    if service.managed_resources.is_empty() {
+        return None;
+    }
+
+    // For now, assume each service manages exactly one resource type
+    let resource = &service.managed_resources[0];
+    let method_name = format_ident!("{}", resource.descriptor.singular);
     let client_name = format_ident!("Py{}Client", service.handler_name.replace("Handler", ""));
 
-    // Generate method based on service type
-    match service_name.as_str() {
-        "catalogs" => {
-            let method_name = format_ident!("catalog");
-            quote! {
-                pub fn #method_name(&self, name: String) -> #client_name {
-                    #client_name {
-                        client: self.client.catalog(&name),
-                    }
-                }
-            }
-        }
-        "schemas" => {
-            let method_name = format_ident!("schema");
+    // Generate method based on the specific resource patterns
+    // Use the singular name from the resource descriptor instead of hardcoded match
+    let method_call = match resource.descriptor.singular.as_str() {
+        "schema" => {
             quote! {
                 pub fn #method_name(&self, catalog_name: String, schema_name: String) -> #client_name {
                     #client_name {
@@ -766,8 +763,7 @@ fn generate_resource_accessor_method(service: &ServicePlan) -> TokenStream {
                 }
             }
         }
-        "tables" => {
-            let method_name = format_ident!("table");
+        "table" => {
             quote! {
                 pub fn #method_name(&self, full_name: String) -> #client_name {
                     #client_name {
@@ -776,48 +772,7 @@ fn generate_resource_accessor_method(service: &ServicePlan) -> TokenStream {
                 }
             }
         }
-        "shares" => {
-            let method_name = format_ident!("share");
-            quote! {
-                pub fn #method_name(&self, name: String) -> #client_name {
-                    #client_name {
-                        client: self.client.share(&name),
-                    }
-                }
-            }
-        }
-        "recipients" => {
-            let method_name = format_ident!("recipient");
-            quote! {
-                pub fn #method_name(&self, name: String) -> #client_name {
-                    #client_name {
-                        client: self.client.recipient(&name),
-                    }
-                }
-            }
-        }
-        "credentials" => {
-            let method_name = format_ident!("credential");
-            quote! {
-                pub fn #method_name(&self, name: String) -> #client_name {
-                    #client_name {
-                        client: self.client.credential(&name),
-                    }
-                }
-            }
-        }
-        "external_locations" => {
-            let method_name = format_ident!("external_location");
-            quote! {
-                pub fn #method_name(&self, name: String) -> #client_name {
-                    #client_name {
-                        client: self.client.external_location(&name),
-                    }
-                }
-            }
-        }
-        "volumes" => {
-            let method_name = format_ident!("volume");
+        "volume" => {
             quote! {
                 pub fn #method_name(&self, catalog_name: String, schema_name: String, volume_name: String) -> #client_name {
                     #client_name {
@@ -826,19 +781,8 @@ fn generate_resource_accessor_method(service: &ServicePlan) -> TokenStream {
                 }
             }
         }
-        "temporary_credentials" => {
-            let method_name = format_ident!("temporary_credentials");
-            quote! {
-                pub fn #method_name(&self) -> #client_name {
-                    #client_name {
-                        client: self.client.temporary_credentials(),
-                    }
-                }
-            }
-        }
         _ => {
-            // Default case for other services - use single name parameter
-            let method_name = format_ident!("{}", service_name.trim_end_matches('s'));
+            // Default case for simple resources - use single name parameter
             quote! {
                 pub fn #method_name(&self, name: String) -> #client_name {
                     #client_name {
@@ -847,5 +791,7 @@ fn generate_resource_accessor_method(service: &ServicePlan) -> TokenStream {
                 }
             }
         }
-    }
+    };
+
+    Some(method_call)
 }

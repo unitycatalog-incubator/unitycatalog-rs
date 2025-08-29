@@ -9,9 +9,9 @@ import "google/protobuf/struct.proto";
 message ExternalLocationInfo {
   option (google.api.resource) = {
     type: "unitycatalog.io/ExternalLocation"
-    pattern: "external-locations/{ecternal_location}"
-    plural: "ecternal_locations"
-    singular: "ecternal_location"
+    pattern: "external-locations/{external_location}"
+    plural: "external_locations"
+    singular: "external_location"
   };
 
   // Name of the external location.
