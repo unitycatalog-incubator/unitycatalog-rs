@@ -12,7 +12,7 @@ generate: generate-proto generate-code fix
 
 # run all code generation for unitycatalog and external types.
 [group('codegen')]
-generate-full: generate-common-ext generate-build-ext generate-proto generate-code fix
+generate-full: generate-build-ext generate-proto generate-code fix
 
 # run code generation for proto files.
 [group('codegen')]
@@ -44,6 +44,7 @@ generate-code:
     just fmt
 
 # generate auxiliary types in common crate. (custom google.protobuf build)
+# CURRENTLY not used, but we may need it again come validation ...
 [group('codegen')]
 generate-common-ext:
     just crates/common/generate
