@@ -1,16 +1,16 @@
 syntax = "proto3";
 
-package unitycatalog.sharing.v1;
+package delta_sharing.v1;
 
 import "buf/validate/validate.proto";
+import "delta_sharing/v1/models.proto";
+import "delta_sharing/v1/query.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
-import "unitycatalog/sharing/v1/models.proto";
-import "unitycatalog/sharing/v1/query.proto";
 
 option (gnostic.openapi.v3.document) = {
   info: {

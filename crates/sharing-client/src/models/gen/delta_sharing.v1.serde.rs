@@ -10,7 +10,8 @@ impl serde::Serialize for DeltaLogMessage {
         if self.entry.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.DeltaLogMessage", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.DeltaLogMessage", len)?;
         if let Some(v) = self.entry.as_ref() {
             match v {
                 delta_log_message::Entry::Protocol(v) => {
@@ -30,10 +31,7 @@ impl<'de> serde::Deserialize<'de> for DeltaLogMessage {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "protocol",
-            "metadata",
-        ];
+        const FIELDS: &[&str] = &["protocol", "metadata"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -51,7 +49,10 @@ impl<'de> serde::Deserialize<'de> for DeltaLogMessage {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -75,12 +76,12 @@ impl<'de> serde::Deserialize<'de> for DeltaLogMessage {
             type Value = DeltaLogMessage;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.DeltaLogMessage")
+                formatter.write_str("struct delta_sharing.v1.DeltaLogMessage")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeltaLogMessage, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut entry__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -89,27 +90,31 @@ impl<'de> serde::Deserialize<'de> for DeltaLogMessage {
                             if entry__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("protocol"));
                             }
-                            entry__ = map_.next_value::<::std::option::Option<_>>()?.map(delta_log_message::Entry::Protocol)
-;
+                            entry__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(delta_log_message::Entry::Protocol);
                         }
                         GeneratedField::Metadata => {
                             if entry__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadata"));
                             }
-                            entry__ = map_.next_value::<::std::option::Option<_>>()?.map(delta_log_message::Entry::Metadata)
-;
+                            entry__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(delta_log_message::Entry::Metadata);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
                     }
                 }
-                Ok(DeltaLogMessage {
-                    entry: entry__,
-                })
+                Ok(DeltaLogMessage { entry: entry__ })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.DeltaLogMessage", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.DeltaLogMessage",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for DeltaResponse {
@@ -123,7 +128,7 @@ impl serde::Serialize for DeltaResponse {
         if !self.entries.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.DeltaResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.DeltaResponse", len)?;
         if !self.entries.is_empty() {
             struct_ser.serialize_field("entries", &self.entries)?;
         }
@@ -136,9 +141,7 @@ impl<'de> serde::Deserialize<'de> for DeltaResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "entries",
-        ];
+        const FIELDS: &[&str] = &["entries"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -155,7 +158,10 @@ impl<'de> serde::Deserialize<'de> for DeltaResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -178,12 +184,12 @@ impl<'de> serde::Deserialize<'de> for DeltaResponse {
             type Value = DeltaResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.DeltaResponse")
+                formatter.write_str("struct delta_sharing.v1.DeltaResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeltaResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut entries__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -204,7 +210,7 @@ impl<'de> serde::Deserialize<'de> for DeltaResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.DeltaResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.DeltaResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Format {
@@ -221,7 +227,7 @@ impl serde::Serialize for Format {
         if !self.options.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.Format", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Format", len)?;
         if !self.provider.is_empty() {
             struct_ser.serialize_field("provider", &self.provider)?;
         }
@@ -237,10 +243,7 @@ impl<'de> serde::Deserialize<'de> for Format {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "provider",
-            "options",
-        ];
+        const FIELDS: &[&str] = &["provider", "options"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -258,7 +261,10 @@ impl<'de> serde::Deserialize<'de> for Format {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -282,12 +288,12 @@ impl<'de> serde::Deserialize<'de> for Format {
             type Value = Format;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.Format")
+                formatter.write_str("struct delta_sharing.v1.Format")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Format, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut provider__ = None;
                 let mut options__ = None;
@@ -303,9 +309,7 @@ impl<'de> serde::Deserialize<'de> for Format {
                             if options__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("options"));
                             }
-                            options__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            options__ = Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -318,7 +322,7 @@ impl<'de> serde::Deserialize<'de> for Format {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.Format", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.Format", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetShareRequest {
@@ -332,7 +336,8 @@ impl serde::Serialize for GetShareRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.GetShareRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.GetShareRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -345,9 +350,7 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-        ];
+        const FIELDS: &[&str] = &["name"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -364,7 +367,10 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -387,12 +393,12 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
             type Value = GetShareRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.GetShareRequest")
+                formatter.write_str("struct delta_sharing.v1.GetShareRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetShareRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -413,7 +419,11 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.GetShareRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.GetShareRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GetTableMetadataRequest {
@@ -433,7 +443,8 @@ impl serde::Serialize for GetTableMetadataRequest {
         if !self.schema.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.GetTableMetadataRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.GetTableMetadataRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -452,11 +463,7 @@ impl<'de> serde::Deserialize<'de> for GetTableMetadataRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "share",
-            "schema",
-        ];
+        const FIELDS: &[&str] = &["name", "share", "schema"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -475,7 +482,10 @@ impl<'de> serde::Deserialize<'de> for GetTableMetadataRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -500,12 +510,15 @@ impl<'de> serde::Deserialize<'de> for GetTableMetadataRequest {
             type Value = GetTableMetadataRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.GetTableMetadataRequest")
+                formatter.write_str("struct delta_sharing.v1.GetTableMetadataRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableMetadataRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<GetTableMetadataRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut share__ = None;
@@ -542,7 +555,11 @@ impl<'de> serde::Deserialize<'de> for GetTableMetadataRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.GetTableMetadataRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.GetTableMetadataRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GetTableVersionRequest {
@@ -565,7 +582,8 @@ impl serde::Serialize for GetTableVersionRequest {
         if self.starting_timestamp.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.GetTableVersionRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.GetTableVersionRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -613,7 +631,10 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -626,7 +647,9 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionRequest {
                             "name" => Ok(GeneratedField::Name),
                             "schema" => Ok(GeneratedField::Schema),
                             "share" => Ok(GeneratedField::Share),
-                            "startingTimestamp" | "starting_timestamp" => Ok(GeneratedField::StartingTimestamp),
+                            "startingTimestamp" | "starting_timestamp" => {
+                                Ok(GeneratedField::StartingTimestamp)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -639,12 +662,15 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionRequest {
             type Value = GetTableVersionRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.GetTableVersionRequest")
+                formatter.write_str("struct delta_sharing.v1.GetTableVersionRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableVersionRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<GetTableVersionRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut schema__ = None;
@@ -689,7 +715,11 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.GetTableVersionRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.GetTableVersionRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GetTableVersionResponse {
@@ -703,7 +733,8 @@ impl serde::Serialize for GetTableVersionResponse {
         if self.version != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.GetTableVersionResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.GetTableVersionResponse", len)?;
         if self.version != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
@@ -718,9 +749,7 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "version",
-        ];
+        const FIELDS: &[&str] = &["version"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -737,7 +766,10 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -760,12 +792,15 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
             type Value = GetTableVersionResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.GetTableVersionResponse")
+                formatter.write_str("struct delta_sharing.v1.GetTableVersionResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableVersionResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<GetTableVersionResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut version__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -774,9 +809,10 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
                             if version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("version"));
                             }
-                            version__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            version__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -788,7 +824,11 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.GetTableVersionResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.GetTableVersionResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for InternalGetTableVersionParams {
@@ -802,7 +842,8 @@ impl serde::Serialize for InternalGetTableVersionParams {
         if self.starting_timestamp.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.InternalGetTableVersionParams", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.InternalGetTableVersionParams", len)?;
         if let Some(v) = self.starting_timestamp.as_ref() {
             struct_ser.serialize_field("starting_timestamp", v)?;
         }
@@ -815,10 +856,7 @@ impl<'de> serde::Deserialize<'de> for InternalGetTableVersionParams {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "starting_timestamp",
-            "startingTimestamp",
-        ];
+        const FIELDS: &[&str] = &["starting_timestamp", "startingTimestamp"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -835,7 +873,10 @@ impl<'de> serde::Deserialize<'de> for InternalGetTableVersionParams {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -845,7 +886,9 @@ impl<'de> serde::Deserialize<'de> for InternalGetTableVersionParams {
                         E: serde::de::Error,
                     {
                         match value {
-                            "startingTimestamp" | "starting_timestamp" => Ok(GeneratedField::StartingTimestamp),
+                            "startingTimestamp" | "starting_timestamp" => {
+                                Ok(GeneratedField::StartingTimestamp)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -858,12 +901,15 @@ impl<'de> serde::Deserialize<'de> for InternalGetTableVersionParams {
             type Value = InternalGetTableVersionParams;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.InternalGetTableVersionParams")
+                formatter.write_str("struct delta_sharing.v1.InternalGetTableVersionParams")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<InternalGetTableVersionParams, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<InternalGetTableVersionParams, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut starting_timestamp__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -884,7 +930,11 @@ impl<'de> serde::Deserialize<'de> for InternalGetTableVersionParams {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.InternalGetTableVersionParams", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.InternalGetTableVersionParams",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for JsonPredicate {
@@ -910,7 +960,7 @@ impl serde::Serialize for JsonPredicate {
         if self.value_type.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.JsonPredicate", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.JsonPredicate", len)?;
         if !self.op.is_empty() {
             struct_ser.serialize_field("op", &self.op)?;
         }
@@ -935,14 +985,7 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "op",
-            "children",
-            "name",
-            "value",
-            "value_type",
-            "valueType",
-        ];
+        const FIELDS: &[&str] = &["op", "children", "name", "value", "value_type", "valueType"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -963,7 +1006,10 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -990,12 +1036,12 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
             type Value = JsonPredicate;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.JsonPredicate")
+                formatter.write_str("struct delta_sharing.v1.JsonPredicate")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<JsonPredicate, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut op__ = None;
                 let mut children__ = None;
@@ -1048,7 +1094,7 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.JsonPredicate", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.JsonPredicate", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListSchemaTablesRequest {
@@ -1071,7 +1117,8 @@ impl serde::Serialize for ListSchemaTablesRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSchemaTablesRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListSchemaTablesRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1120,7 +1167,10 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1146,12 +1196,15 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesRequest {
             type Value = ListSchemaTablesRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListSchemaTablesRequest")
+                formatter.write_str("struct delta_sharing.v1.ListSchemaTablesRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSchemaTablesRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListSchemaTablesRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut share__ = None;
@@ -1175,7 +1228,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesRequest {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            max_results__ = 
+                            max_results__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -1198,7 +1251,11 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListSchemaTablesRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListSchemaTablesRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListSchemaTablesResponse {
@@ -1215,7 +1272,8 @@ impl serde::Serialize for ListSchemaTablesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSchemaTablesResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListSchemaTablesResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1231,11 +1289,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "items",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["items", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1253,7 +1307,10 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1264,7 +1321,9 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesResponse {
                     {
                         match value {
                             "items" => Ok(GeneratedField::Items),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1277,12 +1336,15 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesResponse {
             type Value = ListSchemaTablesResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListSchemaTablesResponse")
+                formatter.write_str("struct delta_sharing.v1.ListSchemaTablesResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSchemaTablesResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListSchemaTablesResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut items__ = None;
                 let mut next_page_token__ = None;
@@ -1311,7 +1373,11 @@ impl<'de> serde::Deserialize<'de> for ListSchemaTablesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListSchemaTablesResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListSchemaTablesResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListShareTablesRequest {
@@ -1331,7 +1397,8 @@ impl serde::Serialize for ListShareTablesRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListShareTablesRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListShareTablesRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1375,7 +1442,10 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1400,12 +1470,15 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesRequest {
             type Value = ListShareTablesRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListShareTablesRequest")
+                formatter.write_str("struct delta_sharing.v1.ListShareTablesRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListShareTablesRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListShareTablesRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut max_results__ = None;
@@ -1422,7 +1495,7 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesRequest {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            max_results__ = 
+                            max_results__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -1444,7 +1517,11 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListShareTablesRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListShareTablesRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListShareTablesResponse {
@@ -1461,7 +1538,8 @@ impl serde::Serialize for ListShareTablesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListShareTablesResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListShareTablesResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1477,11 +1555,7 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "items",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["items", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1499,7 +1573,10 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1510,7 +1587,9 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesResponse {
                     {
                         match value {
                             "items" => Ok(GeneratedField::Items),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1523,12 +1602,15 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesResponse {
             type Value = ListShareTablesResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListShareTablesResponse")
+                formatter.write_str("struct delta_sharing.v1.ListShareTablesResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListShareTablesResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListShareTablesResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut items__ = None;
                 let mut next_page_token__ = None;
@@ -1557,7 +1639,11 @@ impl<'de> serde::Deserialize<'de> for ListShareTablesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListShareTablesResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListShareTablesResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListSharesRequest {
@@ -1574,7 +1660,8 @@ impl serde::Serialize for ListSharesRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSharesRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListSharesRequest", len)?;
         if let Some(v) = self.max_results.as_ref() {
             struct_ser.serialize_field("max_results", v)?;
         }
@@ -1590,12 +1677,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "max_results",
-            "maxResults",
-            "page_token",
-            "pageToken",
-        ];
+        const FIELDS: &[&str] = &["max_results", "maxResults", "page_token", "pageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1613,7 +1695,10 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1637,12 +1722,12 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
             type Value = ListSharesRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListSharesRequest")
+                formatter.write_str("struct delta_sharing.v1.ListSharesRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSharesRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut max_results__ = None;
                 let mut page_token__ = None;
@@ -1652,7 +1737,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            max_results__ = 
+                            max_results__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -1673,7 +1758,11 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListSharesRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListSharesRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListSharesResponse {
@@ -1690,7 +1779,8 @@ impl serde::Serialize for ListSharesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSharesResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListSharesResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1706,11 +1796,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "items",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["items", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1728,7 +1814,10 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1739,7 +1828,9 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
                     {
                         match value {
                             "items" => Ok(GeneratedField::Items),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1752,12 +1843,12 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
             type Value = ListSharesResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListSharesResponse")
+                formatter.write_str("struct delta_sharing.v1.ListSharesResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSharesResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut items__ = None;
                 let mut next_page_token__ = None;
@@ -1786,7 +1877,11 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListSharesResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListSharesResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListSharingSchemasRequest {
@@ -1806,7 +1901,8 @@ impl serde::Serialize for ListSharingSchemasRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSharingSchemasRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListSharingSchemasRequest", len)?;
         if !self.share.is_empty() {
             struct_ser.serialize_field("share", &self.share)?;
         }
@@ -1850,7 +1946,10 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1875,12 +1974,15 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasRequest {
             type Value = ListSharingSchemasRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListSharingSchemasRequest")
+                formatter.write_str("struct delta_sharing.v1.ListSharingSchemasRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSharingSchemasRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListSharingSchemasRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut share__ = None;
                 let mut max_results__ = None;
@@ -1897,7 +1999,7 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasRequest {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            max_results__ = 
+                            max_results__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -1919,7 +2021,11 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListSharingSchemasRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListSharingSchemasRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListSharingSchemasResponse {
@@ -1936,7 +2042,8 @@ impl serde::Serialize for ListSharingSchemasResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ListSharingSchemasResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ListSharingSchemasResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1952,11 +2059,7 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "items",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["items", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1974,7 +2077,10 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1985,7 +2091,9 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasResponse {
                     {
                         match value {
                             "items" => Ok(GeneratedField::Items),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1998,12 +2106,15 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasResponse {
             type Value = ListSharingSchemasResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ListSharingSchemasResponse")
+                formatter.write_str("struct delta_sharing.v1.ListSharingSchemasResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSharingSchemasResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListSharingSchemasResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut items__ = None;
                 let mut next_page_token__ = None;
@@ -2032,7 +2143,11 @@ impl<'de> serde::Deserialize<'de> for ListSharingSchemasResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ListSharingSchemasResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ListSharingSchemasResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for MetadatDelta {
@@ -2055,7 +2170,7 @@ impl serde::Serialize for MetadatDelta {
         if self.num_files.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.MetadatDelta", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.MetadatDelta", len)?;
         if let Some(v) = self.delta_metadata.as_ref() {
             struct_ser.serialize_field("delta_metadata", v)?;
         }
@@ -2110,7 +2225,10 @@ impl<'de> serde::Deserialize<'de> for MetadatDelta {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2136,12 +2254,12 @@ impl<'de> serde::Deserialize<'de> for MetadatDelta {
             type Value = MetadatDelta;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.MetadatDelta")
+                formatter.write_str("struct delta_sharing.v1.MetadatDelta")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<MetadatDelta, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut delta_metadata__ = None;
                 let mut version__ = None;
@@ -2159,7 +2277,7 @@ impl<'de> serde::Deserialize<'de> for MetadatDelta {
                             if version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("version"));
                             }
-                            version__ = 
+                            version__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -2167,7 +2285,7 @@ impl<'de> serde::Deserialize<'de> for MetadatDelta {
                             if size__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("size"));
                             }
-                            size__ = 
+                            size__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -2175,7 +2293,7 @@ impl<'de> serde::Deserialize<'de> for MetadatDelta {
                             if num_files__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("numFiles"));
                             }
-                            num_files__ = 
+                            num_files__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -2192,7 +2310,7 @@ impl<'de> serde::Deserialize<'de> for MetadatDelta {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.MetadatDelta", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.MetadatDelta", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Metadata {
@@ -2227,7 +2345,7 @@ impl serde::Serialize for Metadata {
         if !self.options.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.Metadata", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Metadata", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
         }
@@ -2299,7 +2417,10 @@ impl<'de> serde::Deserialize<'de> for Metadata {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2314,7 +2435,9 @@ impl<'de> serde::Deserialize<'de> for Metadata {
                             "description" => Ok(GeneratedField::Description),
                             "format" => Ok(GeneratedField::Format),
                             "schemaString" | "schema_string" => Ok(GeneratedField::SchemaString),
-                            "partitionColumns" | "partition_columns" => Ok(GeneratedField::PartitionColumns),
+                            "partitionColumns" | "partition_columns" => {
+                                Ok(GeneratedField::PartitionColumns)
+                            }
                             "createdTime" | "created_time" => Ok(GeneratedField::CreatedTime),
                             "options" => Ok(GeneratedField::Options),
                             _ => Ok(GeneratedField::__SkipField__),
@@ -2329,12 +2452,12 @@ impl<'de> serde::Deserialize<'de> for Metadata {
             type Value = Metadata;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.Metadata")
+                formatter.write_str("struct delta_sharing.v1.Metadata")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Metadata, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut id__ = None;
                 let mut name__ = None;
@@ -2386,7 +2509,7 @@ impl<'de> serde::Deserialize<'de> for Metadata {
                             if created_time__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("createdTime"));
                             }
-                            created_time__ = 
+                            created_time__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -2394,9 +2517,7 @@ impl<'de> serde::Deserialize<'de> for Metadata {
                             if options__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("options"));
                             }
-                            options__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            options__ = Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -2415,7 +2536,7 @@ impl<'de> serde::Deserialize<'de> for Metadata {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.Metadata", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.Metadata", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for MetadataParquet {
@@ -2444,7 +2565,8 @@ impl serde::Serialize for MetadataParquet {
         if !self.partition_columns.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.MetadataParquet", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.MetadataParquet", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
         }
@@ -2503,7 +2625,10 @@ impl<'de> serde::Deserialize<'de> for MetadataParquet {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2518,7 +2643,9 @@ impl<'de> serde::Deserialize<'de> for MetadataParquet {
                             "description" => Ok(GeneratedField::Description),
                             "format" => Ok(GeneratedField::Format),
                             "schemaString" | "schema_string" => Ok(GeneratedField::SchemaString),
-                            "partitionColumns" | "partition_columns" => Ok(GeneratedField::PartitionColumns),
+                            "partitionColumns" | "partition_columns" => {
+                                Ok(GeneratedField::PartitionColumns)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -2531,12 +2658,12 @@ impl<'de> serde::Deserialize<'de> for MetadataParquet {
             type Value = MetadataParquet;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.MetadataParquet")
+                formatter.write_str("struct delta_sharing.v1.MetadataParquet")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<MetadataParquet, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut id__ = None;
                 let mut name__ = None;
@@ -2597,7 +2724,11 @@ impl<'de> serde::Deserialize<'de> for MetadataParquet {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.MetadataParquet", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.MetadataParquet",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ParquetLogMessage {
@@ -2611,7 +2742,8 @@ impl serde::Serialize for ParquetLogMessage {
         if self.entry.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ParquetLogMessage", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ParquetLogMessage", len)?;
         if let Some(v) = self.entry.as_ref() {
             match v {
                 parquet_log_message::Entry::Protocol(v) => {
@@ -2631,10 +2763,7 @@ impl<'de> serde::Deserialize<'de> for ParquetLogMessage {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "protocol",
-            "metadata",
-        ];
+        const FIELDS: &[&str] = &["protocol", "metadata"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -2652,7 +2781,10 @@ impl<'de> serde::Deserialize<'de> for ParquetLogMessage {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2676,12 +2808,12 @@ impl<'de> serde::Deserialize<'de> for ParquetLogMessage {
             type Value = ParquetLogMessage;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ParquetLogMessage")
+                formatter.write_str("struct delta_sharing.v1.ParquetLogMessage")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ParquetLogMessage, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut entry__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -2690,27 +2822,31 @@ impl<'de> serde::Deserialize<'de> for ParquetLogMessage {
                             if entry__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("protocol"));
                             }
-                            entry__ = map_.next_value::<::std::option::Option<_>>()?.map(parquet_log_message::Entry::Protocol)
-;
+                            entry__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(parquet_log_message::Entry::Protocol);
                         }
                         GeneratedField::Metadata => {
                             if entry__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("metadata"));
                             }
-                            entry__ = map_.next_value::<::std::option::Option<_>>()?.map(parquet_log_message::Entry::Metadata)
-;
+                            entry__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(parquet_log_message::Entry::Metadata);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
                     }
                 }
-                Ok(ParquetLogMessage {
-                    entry: entry__,
-                })
+                Ok(ParquetLogMessage { entry: entry__ })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ParquetLogMessage", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ParquetLogMessage",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ParquetResponse {
@@ -2724,7 +2860,8 @@ impl serde::Serialize for ParquetResponse {
         if !self.entries.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ParquetResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ParquetResponse", len)?;
         if !self.entries.is_empty() {
             struct_ser.serialize_field("entries", &self.entries)?;
         }
@@ -2737,9 +2874,7 @@ impl<'de> serde::Deserialize<'de> for ParquetResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "entries",
-        ];
+        const FIELDS: &[&str] = &["entries"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -2756,7 +2891,10 @@ impl<'de> serde::Deserialize<'de> for ParquetResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2779,12 +2917,12 @@ impl<'de> serde::Deserialize<'de> for ParquetResponse {
             type Value = ParquetResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ParquetResponse")
+                formatter.write_str("struct delta_sharing.v1.ParquetResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ParquetResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut entries__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -2805,7 +2943,11 @@ impl<'de> serde::Deserialize<'de> for ParquetResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ParquetResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ParquetResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ProtocolDelta {
@@ -2822,7 +2964,7 @@ impl serde::Serialize for ProtocolDelta {
         if self.min_writer_version != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ProtocolDelta", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ProtocolDelta", len)?;
         if self.min_reader_version != 0 {
             struct_ser.serialize_field("min_reader_version", &self.min_reader_version)?;
         }
@@ -2861,7 +3003,10 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2871,8 +3016,12 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
                         E: serde::de::Error,
                     {
                         match value {
-                            "minReaderVersion" | "min_reader_version" => Ok(GeneratedField::MinReaderVersion),
-                            "minWriterVersion" | "min_writer_version" => Ok(GeneratedField::MinWriterVersion),
+                            "minReaderVersion" | "min_reader_version" => {
+                                Ok(GeneratedField::MinReaderVersion)
+                            }
+                            "minWriterVersion" | "min_writer_version" => {
+                                Ok(GeneratedField::MinWriterVersion)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -2885,12 +3034,12 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
             type Value = ProtocolDelta;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ProtocolDelta")
+                formatter.write_str("struct delta_sharing.v1.ProtocolDelta")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProtocolDelta, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut min_reader_version__ = None;
                 let mut min_writer_version__ = None;
@@ -2900,17 +3049,19 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
                             if min_reader_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minReaderVersion"));
                             }
-                            min_reader_version__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            min_reader_version__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::MinWriterVersion => {
                             if min_writer_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minWriterVersion"));
                             }
-                            min_writer_version__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            min_writer_version__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -2923,7 +3074,7 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ProtocolDelta", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.ProtocolDelta", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ProtocolParquet {
@@ -2937,7 +3088,8 @@ impl serde::Serialize for ProtocolParquet {
         if self.min_reader_version != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.ProtocolParquet", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.ProtocolParquet", len)?;
         if self.min_reader_version != 0 {
             struct_ser.serialize_field("min_reader_version", &self.min_reader_version)?;
         }
@@ -2950,10 +3102,7 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "min_reader_version",
-            "minReaderVersion",
-        ];
+        const FIELDS: &[&str] = &["min_reader_version", "minReaderVersion"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -2970,7 +3119,10 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2980,7 +3132,9 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
                         E: serde::de::Error,
                     {
                         match value {
-                            "minReaderVersion" | "min_reader_version" => Ok(GeneratedField::MinReaderVersion),
+                            "minReaderVersion" | "min_reader_version" => {
+                                Ok(GeneratedField::MinReaderVersion)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -2993,12 +3147,12 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
             type Value = ProtocolParquet;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.ProtocolParquet")
+                formatter.write_str("struct delta_sharing.v1.ProtocolParquet")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProtocolParquet, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut min_reader_version__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -3007,9 +3161,10 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
                             if min_reader_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("minReaderVersion"));
                             }
-                            min_reader_version__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            min_reader_version__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -3021,7 +3176,11 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.ProtocolParquet", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.ProtocolParquet",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for QueryResponse {
@@ -3035,7 +3194,7 @@ impl serde::Serialize for QueryResponse {
         if self.response.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.QueryResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.QueryResponse", len)?;
         if let Some(v) = self.response.as_ref() {
             match v {
                 query_response::Response::Parquet(v) => {
@@ -3055,10 +3214,7 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "parquet",
-            "delta",
-        ];
+        const FIELDS: &[&str] = &["parquet", "delta"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -3076,7 +3232,10 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -3100,12 +3259,12 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
             type Value = QueryResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.QueryResponse")
+                formatter.write_str("struct delta_sharing.v1.QueryResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut response__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -3114,15 +3273,17 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
                             if response__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("parquet"));
                             }
-                            response__ = map_.next_value::<::std::option::Option<_>>()?.map(query_response::Response::Parquet)
-;
+                            response__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(query_response::Response::Parquet);
                         }
                         GeneratedField::Delta => {
                             if response__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("delta"));
                             }
-                            response__ = map_.next_value::<::std::option::Option<_>>()?.map(query_response::Response::Delta)
-;
+                            response__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(query_response::Response::Delta);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -3134,7 +3295,7 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.QueryResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.QueryResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for QueryTableRequest {
@@ -3178,7 +3339,8 @@ impl serde::Serialize for QueryTableRequest {
         if self.ending_version.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.QueryTableRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.QueryTableRequest", len)?;
         if !self.share.is_empty() {
             struct_ser.serialize_field("share", &self.share)?;
         }
@@ -3272,7 +3434,10 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -3285,13 +3450,21 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                             "share" => Ok(GeneratedField::Share),
                             "schema" => Ok(GeneratedField::Schema),
                             "name" => Ok(GeneratedField::Name),
-                            "startingTimestamp" | "starting_timestamp" => Ok(GeneratedField::StartingTimestamp),
-                            "predicateHints" | "predicate_hints" => Ok(GeneratedField::PredicateHints),
-                            "jsonPredicateHints" | "json_predicate_hints" => Ok(GeneratedField::JsonPredicateHints),
+                            "startingTimestamp" | "starting_timestamp" => {
+                                Ok(GeneratedField::StartingTimestamp)
+                            }
+                            "predicateHints" | "predicate_hints" => {
+                                Ok(GeneratedField::PredicateHints)
+                            }
+                            "jsonPredicateHints" | "json_predicate_hints" => {
+                                Ok(GeneratedField::JsonPredicateHints)
+                            }
                             "limitHint" | "limit_hint" => Ok(GeneratedField::LimitHint),
                             "version" => Ok(GeneratedField::Version),
                             "timestamp" => Ok(GeneratedField::Timestamp),
-                            "startingVersion" | "starting_version" => Ok(GeneratedField::StartingVersion),
+                            "startingVersion" | "starting_version" => {
+                                Ok(GeneratedField::StartingVersion)
+                            }
                             "endingVersion" | "ending_version" => Ok(GeneratedField::EndingVersion),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -3305,12 +3478,12 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
             type Value = QueryTableRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.QueryTableRequest")
+                formatter.write_str("struct delta_sharing.v1.QueryTableRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryTableRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut share__ = None;
                 let mut schema__ = None;
@@ -3357,7 +3530,9 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                         }
                         GeneratedField::JsonPredicateHints => {
                             if json_predicate_hints__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("jsonPredicateHints"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "jsonPredicateHints",
+                                ));
                             }
                             json_predicate_hints__ = map_.next_value()?;
                         }
@@ -3365,7 +3540,7 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                             if limit_hint__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("limitHint"));
                             }
-                            limit_hint__ = 
+                            limit_hint__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -3373,7 +3548,7 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                             if version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("version"));
                             }
-                            version__ = 
+                            version__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -3387,7 +3562,7 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                             if starting_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("startingVersion"));
                             }
-                            starting_version__ = 
+                            starting_version__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -3395,7 +3570,7 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                             if ending_version__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("endingVersion"));
                             }
-                            ending_version__ = 
+                            ending_version__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -3419,7 +3594,11 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.QueryTableRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.QueryTableRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for Share {
@@ -3436,7 +3615,7 @@ impl serde::Serialize for Share {
         if self.id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.Share", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Share", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -3452,10 +3631,7 @@ impl<'de> serde::Deserialize<'de> for Share {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "id",
-        ];
+        const FIELDS: &[&str] = &["name", "id"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -3473,7 +3649,10 @@ impl<'de> serde::Deserialize<'de> for Share {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -3497,12 +3676,12 @@ impl<'de> serde::Deserialize<'de> for Share {
             type Value = Share;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.Share")
+                formatter.write_str("struct delta_sharing.v1.Share")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Share, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut id__ = None;
@@ -3531,7 +3710,7 @@ impl<'de> serde::Deserialize<'de> for Share {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.Share", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.Share", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for SharingSchema {
@@ -3551,7 +3730,7 @@ impl serde::Serialize for SharingSchema {
         if self.id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.SharingSchema", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.SharingSchema", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -3570,11 +3749,7 @@ impl<'de> serde::Deserialize<'de> for SharingSchema {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "share",
-            "id",
-        ];
+        const FIELDS: &[&str] = &["name", "share", "id"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -3593,7 +3768,10 @@ impl<'de> serde::Deserialize<'de> for SharingSchema {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -3618,12 +3796,12 @@ impl<'de> serde::Deserialize<'de> for SharingSchema {
             type Value = SharingSchema;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.SharingSchema")
+                formatter.write_str("struct delta_sharing.v1.SharingSchema")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingSchema, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut share__ = None;
@@ -3660,7 +3838,7 @@ impl<'de> serde::Deserialize<'de> for SharingSchema {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.SharingSchema", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.SharingSchema", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for SharingSchemaInfo {
@@ -3689,7 +3867,8 @@ impl serde::Serialize for SharingSchemaInfo {
         if !self.properties.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.SharingSchemaInfo", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("delta_sharing.v1.SharingSchemaInfo", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
         }
@@ -3747,7 +3926,10 @@ impl<'de> serde::Deserialize<'de> for SharingSchemaInfo {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -3775,12 +3957,12 @@ impl<'de> serde::Deserialize<'de> for SharingSchemaInfo {
             type Value = SharingSchemaInfo;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.SharingSchemaInfo")
+                formatter.write_str("struct delta_sharing.v1.SharingSchemaInfo")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingSchemaInfo, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut id__ = None;
                 let mut name__ = None;
@@ -3824,9 +4006,8 @@ impl<'de> serde::Deserialize<'de> for SharingSchemaInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -3843,7 +4024,11 @@ impl<'de> serde::Deserialize<'de> for SharingSchemaInfo {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.SharingSchemaInfo", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "delta_sharing.v1.SharingSchemaInfo",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for SharingTable {
@@ -3869,7 +4054,7 @@ impl serde::Serialize for SharingTable {
         if self.share_id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.sharing.v1.SharingTable", len)?;
+        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.SharingTable", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -3894,14 +4079,7 @@ impl<'de> serde::Deserialize<'de> for SharingTable {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "schema",
-            "share",
-            "id",
-            "share_id",
-            "shareId",
-        ];
+        const FIELDS: &[&str] = &["name", "schema", "share", "id", "share_id", "shareId"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -3922,7 +4100,10 @@ impl<'de> serde::Deserialize<'de> for SharingTable {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -3949,12 +4130,12 @@ impl<'de> serde::Deserialize<'de> for SharingTable {
             type Value = SharingTable;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.sharing.v1.SharingTable")
+                formatter.write_str("struct delta_sharing.v1.SharingTable")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingTable, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut schema__ = None;
@@ -4007,6 +4188,6 @@ impl<'de> serde::Deserialize<'de> for SharingTable {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.sharing.v1.SharingTable", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("delta_sharing.v1.SharingTable", FIELDS, GeneratedVisitor)
     }
 }

@@ -1,7 +1,8 @@
 #![allow(unused_mut)]
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
-use unitycatalog_common::models::sharing::v1::*;
+
+use crate::models::sharing::v1::*;
 
 use super::client::*;
 use crate::error::Result;

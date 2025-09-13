@@ -1,13 +1,7 @@
 openapi: 3.0.3
 info:
-  title: Delta Sharing API
-  description: An Open Protocol for Secure Data Sharing
-  license:
-    name: Apache 2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
-servers:
-  - url: "{scheme}://{host}/"
+  title: ""
+  version: 0.0.1
 tags:
   - name: CatalogsService
     description: Manage catalogs and schemas in the service.
@@ -30,8 +24,6 @@ tags:
       \ data permission on the schema and its parent catalog, and they must\n have the SELECT permission on the table or view."
   - name: SharesService
     description: Service for managing shares
-  - name: SharingService
-    description: Service exposing the official APIs for Delta Sharing.
   - name: TablesService
   - name: TemporaryCredentialsService
   - name: VolumesService
@@ -785,8 +777,8 @@ paths:
   /shares:
     get:
       tags:
-        - SharingService
-      description: List shares accessible to a recipient.
+        - SharesService
+      description: List shares.
       operationId: ListShares
       parameters:
         - name: maxResults
@@ -797,9 +789,7 @@ paths:
             format: int32
         - name: pageToken
           in: query
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
+          description: Opaque pagination token to go to next page based on previous query.
           schema:
             type: string
       responses:
@@ -842,23 +832,28 @@ paths:
   /shares/{name}:
     get:
       tags:
-        - SharingService
-      description: Get the metadata for a specific share.
+        - SharesService
+      description: Get a share by name.
       operationId: GetShare
       parameters:
         - name: name
           in: path
-          description: The share name to query. It's case-insensitive.
+          description: Name of the share.
           required: true
           schema:
             type: string
+        - name: includeSharedData
+          in: query
+          description: Query for data to include in the share.
+          schema:
+            type: boolean
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Share"
+                $ref: "#/components/schemas/ShareInfo"
         default:
           description: Default error response
           content:
@@ -912,252 +907,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ShareInfo"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /shares/{name}/all-tables:
-    get:
-      tags:
-        - SharingService
-      description: List all the tables under all schemas in a share.
-      operationId: ListShareTables
-      parameters:
-        - name: name
-          in: path
-          description: The share name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: maxResults
-          in: query
-          description: The maximum number of results per page that should be returned.
-          schema:
-            type: integer
-            format: int32
-        - name: pageToken
-          in: query
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ListShareTablesResponse"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /shares/{share}/schemas:
-    get:
-      tags:
-        - SharingService
-      description: List the schemas in a share.
-      operationId: ListSharingSchemas
-      parameters:
-        - name: share
-          in: path
-          description: The share name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: maxResults
-          in: query
-          description: The maximum number of results per page that should be returned.
-          schema:
-            type: integer
-            format: int32
-        - name: pageToken
-          in: query
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ListSharingSchemasResponse"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /shares/{share}/schemas/{name}/tables:
-    get:
-      tags:
-        - SharingService
-      description: List the tables in a given share's schema.
-      operationId: ListSchemaTables
-      parameters:
-        - name: share
-          in: path
-          description: The share name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: name
-          in: path
-          description: The schema name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: maxResults
-          in: query
-          description: The maximum number of results per page that should be returned.
-          schema:
-            type: integer
-            format: int32
-        - name: pageToken
-          in: query
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ListSchemaTablesResponse"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /shares/{share}/schemas/{schema}/tables/{name}/metadata:
-    get:
-      tags:
-        - SharingService
-      operationId: GetTableMetadata
-      parameters:
-        - name: share
-          in: path
-          description: The share name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: schema
-          in: path
-          description: The schema name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: name
-          in: path
-          description: The table name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/QueryResponse"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /shares/{share}/schemas/{schema}/tables/{name}/query:
-    post:
-      tags:
-        - SharingService
-      operationId: QueryTable
-      parameters:
-        - name: share
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: schema
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/QueryTableRequest"
-        required: true
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/QueryResponse"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /shares/{share}/schemas/{schema}/tables/{name}/version:
-    get:
-      tags:
-        - SharingService
-      description: Get the current version for a table within a schema.
-      operationId: GetTableVersion
-      parameters:
-        - name: share
-          in: path
-          description: The share name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: schema
-          in: path
-          description: The schema name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: name
-          in: path
-          description: The table name to query. It's case-insensitive.
-          required: true
-          schema:
-            type: string
-        - name: startingTimestamp
-          in: query
-          description:
-            "The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,\n such as\
-            \ 2022-01-01T00:00:00Z. the server needs to return the earliest table version at\n or after the provided timestamp,\
-            \ can be earlier than the timestamp of table version 0."
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetTableVersionResponse"
         default:
           description: Default error response
           content:
@@ -2283,26 +2032,6 @@ components:
         - data_object_type
       title: Data Object
       type: object
-    DeltaLogMessage:
-      additionalProperties: false
-      description: Log message for Delta response.
-      properties:
-        metadata:
-          $ref: "#/$defs/unitycatalog.sharing.v1.MetadatDelta.schema.strict.json"
-        protocol:
-          $ref: "#/$defs/unitycatalog.sharing.v1.ProtocolDelta.schema.strict.json"
-      title: Delta Log Message
-      type: object
-    DeltaResponse:
-      additionalProperties: false
-      description: Log message for Delta response.
-      properties:
-        metadata:
-          $ref: "#/$defs/unitycatalog.sharing.v1.MetadatDelta.schema.strict.json"
-        protocol:
-          $ref: "#/$defs/unitycatalog.sharing.v1.ProtocolDelta.schema.strict.json"
-      title: Delta Log Message
-      type: object
     ExternalLocationInfo:
       additionalProperties: false
       properties:
@@ -2353,24 +2082,6 @@ components:
         - read_only
         - credential_id
       title: External Location Info
-      type: object
-    Format:
-      additionalProperties: false
-      description: File format for data files in a table
-      properties:
-        options:
-          additionalProperties:
-            type: string
-          description: A map containing configuration options for the format
-          propertyNames:
-            type: string
-          type: object
-        provider:
-          description: Name of the encoding for files in this table
-          type: string
-      required:
-        - provider
-      title: Format
       type: object
     GcpOauthToken:
       additionalProperties: false
@@ -2435,17 +2146,6 @@ components:
         - table_exists
       title: Get Table Exists Response
       type: object
-    GetTableVersionResponse:
-      additionalProperties: false
-      description: Response for GetTableVersionRequest.
-      properties:
-        version:
-          description: The table version that was requested.
-          type: integer
-      required:
-        - version
-      title: Get Table Version Response
-      type: object
     GoogleProtobufAny:
       type: object
       properties:
@@ -2454,33 +2154,6 @@ components:
           description: The type of the serialized message.
       additionalProperties: true
       description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-    JsonPredicate:
-      additionalProperties: false
-      properties:
-        children:
-          description: The inputs to the operation - if any.
-          items:
-            $ref: "#/$defs/unitycatalog.sharing.v1.JsonPredicate.schema.strict.json"
-          type: array
-        name:
-          description: This is only applicable to column ops.
-          title: Specifies the name of a column.
-          type: string
-        op:
-          description: The operation to perform.
-          type: string
-        value:
-          description: This is only applicable to literal ops.
-          title: Specifies the value of a literal.
-          type: string
-        value_type:
-          description: This is only applicate to column and literal ops.
-          title: Specifies the value type of a column or a literal op.
-          type: string
-      required:
-        - op
-      title: Json Predicate
-      type: object
     ListCatalogsResponse:
       additionalProperties: false
       description: A catalog is a root-level namespace that contains schemas.
@@ -2625,22 +2298,6 @@ components:
           type: array
       title: List Recipients Response
       type: object
-    ListSchemaTablesResponse:
-      additionalProperties: false
-      description: Response for ListSchemaTablesRequest.
-      properties:
-        items:
-          description: The tables that were requested.
-          items:
-            $ref: "#/$defs/unitycatalog.sharing.v1.SharingTable.schema.strict.json"
-          type: array
-        next_page_token:
-          description:
-            "Token that can be used to retrieve the next page of tables.\n An empty or missing token means that\
-            \ no more tables are available for retrieval."
-          type: string
-      title: List Schema Tables Response
-      type: object
     ListSchemasResponse:
       additionalProperties: false
       description: List Schemas response.
@@ -2654,22 +2311,6 @@ components:
             $ref: "#/$defs/unitycatalog.schemas.v1.SchemaInfo.schema.strict.json"
           type: array
       title: List Schemas Response
-      type: object
-    ListShareTablesResponse:
-      additionalProperties: false
-      description: Response for ListShareTablesRequest.
-      properties:
-        items:
-          description: The tables that were requested.
-          items:
-            $ref: "#/$defs/unitycatalog.sharing.v1.SharingTable.schema.strict.json"
-          type: array
-        next_page_token:
-          description:
-            "Token that can be used to retrieve the next page of tables.\n An empty or missing token means that\
-            \ no more tables are available for retrieval."
-          type: string
-      title: List Share Tables Response
       type: object
     ListSharesResponse:
       additionalProperties: false
@@ -2728,22 +2369,6 @@ components:
         - name
         - data_object_type
       title: Data Object
-      type: object
-    ListSharingSchemasResponse:
-      additionalProperties: false
-      description: Response for ListSharingSchemasRequest.
-      properties:
-        items:
-          description: The schemas that were requested.
-          items:
-            $ref: "#/$defs/unitycatalog.sharing.v1.SharingSchema.schema.strict.json"
-          type: array
-        next_page_token:
-          description:
-            "Token that can be used to retrieve the next page of schemas.\n An empty or missing token means that\
-            \ no more schemas are available for retrieval."
-          type: string
-      title: List Sharing Schemas Response
       type: object
     ListTableSummariesResponse:
       additionalProperties: false
@@ -2853,168 +2478,6 @@ components:
             $ref: "#/$defs/unitycatalog.volumes.v1.VolumeInfo.schema.strict.json"
           type: array
       title: List Volumes Response
-      type: object
-    MetadatDelta:
-      additionalProperties: false
-      description: File format for data files in a table
-      properties:
-        options:
-          additionalProperties:
-            type: string
-          description: A map containing configuration options for the format
-          propertyNames:
-            type: string
-          type: object
-        provider:
-          description: Name of the encoding for files in this table
-          type: string
-      required:
-        - provider
-      title: Format
-      type: object
-    Metadata:
-      additionalProperties: false
-      description: File format for data files in a table
-      properties:
-        options:
-          additionalProperties:
-            type: string
-          description: A map containing configuration options for the format
-          propertyNames:
-            type: string
-          type: object
-        provider:
-          description: Name of the encoding for files in this table
-          type: string
-      required:
-        - provider
-      title: Format
-      type: object
-    MetadataParquet:
-      additionalProperties: false
-      description: File format for data files in a table
-      properties:
-        options:
-          additionalProperties:
-            type: string
-          description: A map containing configuration options for the format
-          propertyNames:
-            type: string
-          type: object
-        provider:
-          description: Name of the encoding for files in this table
-          type: string
-      required:
-        - provider
-      title: Format
-      type: object
-    ParquetLogMessage:
-      additionalProperties: false
-      description: File format for data files in a table
-      properties:
-        options:
-          additionalProperties:
-            type: string
-          description: A map containing configuration options for the format
-          propertyNames:
-            type: string
-          type: object
-        provider:
-          description: Name of the encoding for files in this table
-          type: string
-      required:
-        - provider
-      title: Format
-      type: object
-    ParquetResponse:
-      additionalProperties: false
-      description: File format for data files in a table
-      properties:
-        options:
-          additionalProperties:
-            type: string
-          description: A map containing configuration options for the format
-          propertyNames:
-            type: string
-          type: object
-        provider:
-          description: Name of the encoding for files in this table
-          type: string
-      required:
-        - provider
-      title: Format
-      type: object
-    ProtocolDelta:
-      additionalProperties: false
-      description: Protocol for Delta response.
-      properties:
-        min_reader_version:
-          description:
-            "The minimum version of the protocol that a client must implement\n in order to correctly read a Delta\
-            \ Lake table."
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        min_writer_version:
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-      required:
-        - min_reader_version
-        - min_writer_version
-      title: Protocol Delta
-      type: object
-    ProtocolParquet:
-      additionalProperties: false
-      description: Protocol for Parquet response.
-      properties:
-        min_reader_version:
-          description:
-            "The minimum version of the protocol that a client must implement\n in order to correctly read a Delta\
-            \ Lake table."
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-      required:
-        - min_reader_version
-      title: Protocol Parquet
-      type: object
-    QueryResponse:
-      additionalProperties: false
-      description: Log message for Delta response.
-      properties:
-        metadata:
-          $ref: "#/$defs/unitycatalog.sharing.v1.MetadatDelta.schema.strict.json"
-        protocol:
-          $ref: "#/$defs/unitycatalog.sharing.v1.ProtocolDelta.schema.strict.json"
-      title: Delta Log Message
-      type: object
-    QueryTableRequest:
-      additionalProperties: false
-      properties:
-        children:
-          description: The inputs to the operation - if any.
-          items:
-            $ref: "#/$defs/unitycatalog.sharing.v1.JsonPredicate.schema.strict.json"
-          type: array
-        name:
-          description: This is only applicable to column ops.
-          title: Specifies the name of a column.
-          type: string
-        op:
-          description: The operation to perform.
-          type: string
-        value:
-          description: This is only applicable to literal ops.
-          title: Specifies the value of a literal.
-          type: string
-        value_type:
-          description: This is only applicate to column and literal ops.
-          title: Specifies the value type of a column or a literal op.
-          type: string
-      required:
-        - op
-      title: Json Predicate
       type: object
     R2TemporaryCredentials:
       additionalProperties: false
@@ -3168,23 +2631,6 @@ components:
         - full_name
       title: Schema Info
       type: object
-    Share:
-      additionalProperties: false
-      description:
-        "A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.\n\
-        \ A recipient can access all resources in a share. A share may contain multiple schemas."
-      properties:
-        id:
-          description: Unique identifier for the share.
-          type: string
-        name:
-          description: Name of the share.
-          minLength: 1
-          type: string
-      required:
-        - name
-      title: Share
-      type: object
     ShareInfo:
       additionalProperties: false
       properties:
@@ -3242,58 +2688,6 @@ components:
         - name
         - data_object_type
       title: Data Object
-      type: object
-    SharingSchema:
-      additionalProperties: false
-      description: A schema is a logical grouping of tables. A schema may contain multiple tables.
-      properties:
-        id:
-          description: Unique identifier for the schema.
-          type: string
-        name:
-          description: The name of the schema
-          type: string
-        share:
-          description: The share name that the schema belongs to.
-          type: string
-      required:
-        - name
-        - share
-      title: Sharing Schema
-      type: object
-    SharingTable:
-      additionalProperties: false
-      description: A table is a Delta Lake table or a view on top of a Delta Lake table.
-      properties:
-        id:
-          description: Unique identifier for the table.
-          type: string
-        name:
-          description: The name of the table.
-          maxLength: 255
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-        schema:
-          description: The schema name that the table belongs to.
-          maxLength: 255
-          minLength: 1
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        share:
-          description: The share name that the table belongs to.
-          maxLength: 255
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-        share_id:
-          description: A unique identifier for the share this table belongs to.
-          type: string
-      required:
-        - name
-        - schema
-        - share
-      title: Sharing Table
       type: object
     Status:
       type: object
@@ -3874,39 +3268,6 @@ components:
         - name
       title: Delete Volume Request
       type: object
-    SharingSchemaInfo:
-      additionalProperties: false
-      description: "A schema is a logical grouping of tables.\n It may contain multiple tables."
-      properties:
-        description:
-          description: User-provided free-form text description.
-          type: string
-        id:
-          description: Unique identifier for the schema.
-          type: string
-        name:
-          description: The name of the schema.
-          minLength: 1
-          type: string
-        properties:
-          additionalProperties:
-            type: string
-          description: A map of key-value properties attached to the securable.
-          propertyNames:
-            type: string
-          type: object
-        share:
-          description: The share name that the schema belongs to.
-          type: string
-        share_id:
-          description: The unique identifier for the share this schema belongs to.
-          type: string
-      required:
-        - id
-        - name
-        - share
-      title: A schema in a delta sharing service.
-      type: object
     DeleteShareRequest:
       additionalProperties: false
       description: The caller must be a metastore admin or have the DELETE_SHARE privilege on the metastore.
@@ -3919,31 +3280,6 @@ components:
       required:
         - name
       title: Delete a share.
-      type: object
-    ListShareTablesRequest:
-      additionalProperties: false
-      description: List tables in a share.
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        name:
-          description: The share name to query. It's case-insensitive.
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-        page_token:
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
-          type: string
-      required:
-        - name
-      title: List Share Tables Request
       type: object
     ListCredentialsRequest:
       additionalProperties: false
@@ -3996,46 +3332,6 @@ components:
           type: string
       title: List Catalogs Request
       type: object
-    InternalGetTableVersionParams:
-      additionalProperties: false
-      description:
-        "helper message internally used to parse the rest request.\n we do this over a manual implementation since\
-        \ the generated code\n will allow for snake_case as well as camelCase query parameters"
-      properties:
-        starting_timestamp:
-          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
-          type: string
-      title: Internal Get Table Version Params
-      type: object
-    GetTableVersionRequest:
-      additionalProperties: false
-      description: Get the version of a table.
-      properties:
-        name:
-          description: The table name to query. It's case-insensitive.
-          minLength: 1
-          type: string
-        schema:
-          description: The schema name to query. It's case-insensitive.
-          minLength: 1
-          type: string
-        share:
-          description: The share name to query. It's case-insensitive.
-          minLength: 1
-          type: string
-        starting_timestamp:
-          description:
-            "The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,\n such as\
-            \ 2022-01-01T00:00:00Z. the server needs to return the earliest table version at\n or after the provided timestamp,\
-            \ can be earlier than the timestamp of table version 0."
-          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
-          type: string
-      required:
-        - name
-        - schema
-        - share
-      title: Get Table Version Request
-      type: object
     GetRecipientRequest:
       additionalProperties: false
       description: Get a recipient by name.
@@ -4068,62 +3364,6 @@ components:
           description: Opaque pagination token to go to next page based on previous query.
           type: string
       title: List External Locations Request
-      type: object
-    ListSharingSchemasRequest:
-      additionalProperties: false
-      description: List schemas in a share.
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
-          type: string
-        share:
-          description: The share name to query. It's case-insensitive.
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-      required:
-        - share
-      title: List Sharing Schemas Request
-      type: object
-    ListSchemaTablesRequest:
-      additionalProperties: false
-      description: List tables in a schema.
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 2147483648
-          exclusiveMaximum: true
-        name:
-          description: The schema name to query. It's case-insensitive.
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-        page_token:
-          description:
-            "Specifies a page token to use. Set pageToken to the nextPageToken returned\n by a previous list request\
-            \ to get the next page of results."
-          type: string
-        share:
-          description: The share name to query. It's case-insensitive.
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-      required:
-        - name
-        - share
-      title: List Schema Tables Request
       type: object
     ListRecipientsRequest:
       additionalProperties: false
@@ -4221,28 +3461,6 @@ components:
       required:
         - name
       title: Get Catalog Request
-      type: object
-    GetTableMetadataRequest:
-      additionalProperties: false
-      description: Get metadata of a table.
-      properties:
-        name:
-          description: The table name to query. It's case-insensitive.
-          minLength: 1
-          type: string
-        schema:
-          description: The schema name to query. It's case-insensitive.
-          minLength: 1
-          type: string
-        share:
-          description: The share name to query. It's case-insensitive.
-          minLength: 1
-          type: string
-      required:
-        - name
-        - share
-        - schema
-      title: Get Table Metadata Request
       type: object
     ListTablesRequest:
       additionalProperties: false

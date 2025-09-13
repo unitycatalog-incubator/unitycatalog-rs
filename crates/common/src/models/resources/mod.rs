@@ -63,8 +63,6 @@ impl From<ResourceName> for ResourceRef {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ResourceIdent {
     Share(ResourceRef),
-    SharingSchema(ResourceRef),
-    SharingTable(ResourceRef),
     Credential(ResourceRef),
     ExternalLocation(ResourceRef),
     Catalog(ResourceRef),
@@ -85,14 +83,6 @@ impl ResourceIdent {
 
     pub fn share(name: impl Into<ResourceRef>) -> Self {
         Self::Share(name.into())
-    }
-
-    pub fn sharing_schema(name: impl Into<ResourceRef>) -> Self {
-        Self::SharingSchema(name.into())
-    }
-
-    pub fn sharing_table(name: impl Into<ResourceRef>) -> Self {
-        Self::SharingTable(name.into())
     }
 
     pub fn credential(name: impl Into<ResourceRef>) -> Self {
@@ -128,8 +118,6 @@ impl std::fmt::Display for ResourceIdent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ResourceIdent::Share(r) => write!(f, "share:{}", r),
-            ResourceIdent::SharingSchema(r) => write!(f, "schema:{}", r),
-            ResourceIdent::SharingTable(r) => write!(f, "table:{}", r),
             ResourceIdent::Credential(r) => write!(f, "credential:{}", r),
             ResourceIdent::ExternalLocation(r) => write!(f, "external_location:{}", r),
             ResourceIdent::Catalog(r) => write!(f, "catalog:{}", r),
@@ -145,8 +133,6 @@ impl AsRef<ResourceRef> for ResourceIdent {
     fn as_ref(&self) -> &ResourceRef {
         match self {
             ResourceIdent::Share(r) => r,
-            ResourceIdent::SharingSchema(r) => r,
-            ResourceIdent::SharingTable(r) => r,
             ResourceIdent::Credential(r) => r,
             ResourceIdent::ExternalLocation(r) => r,
             ResourceIdent::Catalog(r) => r,
@@ -162,8 +148,6 @@ impl AsRef<ObjectLabel> for ResourceIdent {
     fn as_ref(&self) -> &ObjectLabel {
         match self {
             ResourceIdent::Share(_) => &ObjectLabel::ShareInfo,
-            ResourceIdent::SharingSchema(_) => &ObjectLabel::SharingSchemaInfo,
-            ResourceIdent::SharingTable(_) => &ObjectLabel::SharingTable,
             ResourceIdent::Credential(_) => &ObjectLabel::CredentialInfo,
             ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocationInfo,
             ResourceIdent::Catalog(_) => &ObjectLabel::CatalogInfo,
@@ -179,8 +163,6 @@ impl From<ResourceIdent> for ResourceRef {
     fn from(ident: ResourceIdent) -> Self {
         match ident {
             ResourceIdent::Share(r) => r,
-            ResourceIdent::SharingSchema(r) => r,
-            ResourceIdent::SharingTable(r) => r,
             ResourceIdent::Credential(r) => r,
             ResourceIdent::ExternalLocation(r) => r,
             ResourceIdent::Catalog(r) => r,

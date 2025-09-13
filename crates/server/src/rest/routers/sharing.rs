@@ -4,13 +4,10 @@ use axum::response::Response;
 use axum::routing::{Router, get, post};
 use http::header::CONTENT_TYPE;
 
-use unitycatalog_common::models::sharing::v1::*;
+use unitycatalog_sharing_client::models::sharing::v1::*;
 
 use crate::api::RequestContext;
 use crate::api::sharing::{SharingHandler, SharingQueryHandler};
-use crate::codegen::sharing::server::{
-    get_share, list_schema_tables, list_share_tables, list_shares, list_sharing_schemas,
-};
 use crate::policy::Recipient;
 use crate::{Error, Result};
 
@@ -38,6 +35,56 @@ pub fn get_router<T: SharingHandler + SharingQueryHandler + Clone>(state: T) -> 
             post(get_table_query::<T>),
         )
         .with_state(state)
+}
+
+pub async fn list_shares<T: SharingHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: ListSharesRequest,
+) -> Result<::axum::Json<ListSharesResponse>> {
+    let context = RequestContext { recipient };
+    let result = handler.list_shares(request, context).await?;
+    Ok(axum::Json(result))
+}
+
+pub async fn get_share<T: SharingHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: GetShareRequest,
+) -> Result<::axum::Json<Share>> {
+    let context = RequestContext { recipient };
+    let result = handler.get_share(request, context).await?;
+    Ok(axum::Json(result))
+}
+
+pub async fn list_sharing_schemas<T: SharingHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: ListSharingSchemasRequest,
+) -> Result<::axum::Json<ListSharingSchemasResponse>> {
+    let context = RequestContext { recipient };
+    let result = handler.list_sharing_schemas(request, context).await?;
+    Ok(axum::Json(result))
+}
+
+pub async fn list_schema_tables<T: SharingHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: ListSchemaTablesRequest,
+) -> Result<::axum::Json<ListSchemaTablesResponse>> {
+    let context = RequestContext { recipient };
+    let result = handler.list_schema_tables(request, context).await?;
+    Ok(axum::Json(result))
+}
+
+pub async fn list_share_tables<T: SharingHandler>(
+    State(handler): State<T>,
+    Extension(recipient): Extension<Recipient>,
+    request: ListShareTablesRequest,
+) -> Result<::axum::Json<ListShareTablesResponse>> {
+    let context = RequestContext { recipient };
+    let result = handler.list_share_tables(request, context).await?;
+    Ok(axum::Json(result))
 }
 
 async fn get_table_version<T: SharingQueryHandler>(

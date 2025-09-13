@@ -2,6 +2,7 @@
 use crate::Result;
 use crate::models::sharing::v1::*;
 use axum::{RequestExt, RequestPartsExt};
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -25,6 +26,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
         })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -35,6 +37,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
         Ok(GetShareRequest { name })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -60,6 +63,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRe
         })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemaTablesRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -88,6 +92,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemaTablesRequ
         })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -113,6 +118,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesReque
         })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableVersionRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -137,6 +143,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableVersionReque
         })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableMetadataRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
@@ -153,6 +160,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableMetadataRequ
         })
     }
 }
+
 impl<S: Send + Sync> axum::extract::FromRequest<S> for QueryTableRequest {
     type Rejection = axum::response::Response;
     async fn from_request(

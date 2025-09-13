@@ -12,74 +12,7 @@ use crate::models::shares::v1::{
     Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus,
     ShareInfo,
 };
-use crate::models::sharing::v1::{Share, SharingSchema, SharingTable};
 use crate::models::tables::v1::{ColumnInfo, TableInfo};
-
-#[pymethods]
-impl Share {
-    #[new]
-    #[pyo3(signature = (name, id = None))]
-    pub fn new(name: String, id: Option<String>) -> Self {
-        Self { id, name }
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!(
-            "Share(name={}, id={})",
-            self.name,
-            self.id.as_ref().unwrap_or(&"None".to_owned())
-        )
-    }
-}
-
-#[pymethods]
-impl SharingSchema {
-    #[new]
-    #[pyo3(signature = (*, name, share, id = None))]
-    pub fn new(name: String, share: String, id: Option<String>) -> Self {
-        Self { id, name, share }
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!(
-            "SharingSchema(name={}, share={}, id={})",
-            self.name,
-            self.share,
-            self.id.as_ref().unwrap_or(&"None".to_owned())
-        )
-    }
-}
-
-#[pymethods]
-impl SharingTable {
-    #[new]
-    pub fn new(
-        name: String,
-        schema: String,
-        share: String,
-        share_id: Option<String>,
-        id: Option<String>,
-    ) -> Self {
-        Self {
-            id,
-            name,
-            schema,
-            share,
-            share_id,
-        }
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!(
-            "SharingTable(name={}, schema={}, share={}, share_id={}, id={})",
-            self.name,
-            self.schema,
-            self.share,
-            self.share_id.as_ref().unwrap_or(&"None".to_owned()),
-            self.id.as_ref().unwrap_or(&"None".to_owned())
-        )
-    }
-}
 
 #[pymethods]
 impl AzureStorageKey {

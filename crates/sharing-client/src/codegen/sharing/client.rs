@@ -1,9 +1,9 @@
 #![allow(unused_mut)]
 use cloud_client::CloudClient;
-use unitycatalog_common::models::sharing::v1::*;
 use url::Url;
 
 use crate::error::Result;
+use crate::models::sharing::v1::*;
 
 /// HTTP client for service operations
 #[derive(Clone)]

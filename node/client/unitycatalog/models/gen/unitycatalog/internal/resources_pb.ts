@@ -22,8 +22,6 @@ import type { SchemaInfo } from "../schemas/v1/models_pb";
 import { file_unitycatalog_schemas_v1_models } from "../schemas/v1/models_pb";
 import type { ShareInfo } from "../shares/v1/models_pb";
 import { file_unitycatalog_shares_v1_models } from "../shares/v1/models_pb";
-import type { SharingSchemaInfo, SharingTable } from "../sharing/v1/models_pb";
-import { file_unitycatalog_sharing_v1_models } from "../sharing/v1/models_pb";
 import type { ColumnInfo, TableInfo } from "../tables/v1/models_pb";
 import { file_unitycatalog_tables_v1_models } from "../tables/v1/models_pb";
 
@@ -33,7 +31,7 @@ import { file_unitycatalog_tables_v1_models } from "../tables/v1/models_pb";
 export const file_unitycatalog_internal_resources: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiV1bml0eWNhdGFsb2cvaW50ZXJuYWwvcmVzb3VyY2VzLnByb3RvEhV1bml0eWNhdGFsb2cuaW50ZXJuYWwisgUKCFJlc291cmNlEjcKCnNoYXJlX2luZm8YASABKAsyIS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlNoYXJlSW5mb0gAEkkKE3NoYXJpbmdfc2NoZW1hX2luZm8YAiABKAsyKi51bml0eWNhdGFsb2cuc2hhcmluZy52MS5TaGFyaW5nU2NoZW1hSW5mb0gAEj4KDXNoYXJpbmdfdGFibGUYAyABKAsyJS51bml0eWNhdGFsb2cuc2hhcmluZy52MS5TaGFyaW5nVGFibGVIABJGCg9jcmVkZW50aWFsX2luZm8YBCABKAsyKy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEluZm9IABI9CgxjYXRhbG9nX2luZm8YBiABKAsyJS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuQ2F0YWxvZ0luZm9IABI6CgtzY2hlbWFfaW5mbxgHIAEoCzIjLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm9IABI3Cgp0YWJsZV9pbmZvGAggASgLMiEudW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZUluZm9IABI5Cgtjb2x1bW5faW5mbxgJIAEoCzIiLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuQ29sdW1uSW5mb0gAEloKFmV4dGVybmFsX2xvY2F0aW9uX2luZm8YCiABKAsyOC51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkV4dGVybmFsTG9jYXRpb25JbmZvSAASQwoOcmVjaXBpZW50X2luZm8YCyABKAsyKS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5SZWNpcGllbnRJbmZvSABCCgoIcmVzb3VyY2UifwoPT2JqZWN0UmVsYXRpb25zEhIKBW93bmVyGAEgASgJSACIAQESFwoKY3JlYXRlZF9ieRgCIAEoCUgBiAEBEhcKCnVwZGF0ZWRfYnkYAyABKAlIAogBAUIICgZfb3duZXJCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYnlC5gEKGWNvbS51bml0eWNhdGFsb2cuaW50ZXJuYWxCDlJlc291cmNlc1Byb3RvUAFaRGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2ludGVybmFsogIDVUlYqgIVVW5pdHljYXRhbG9nLkludGVybmFsygIVVW5pdHljYXRhbG9nXEludGVybmFs4gIhVW5pdHljYXRhbG9nXEludGVybmFsXEdQQk1ldGFkYXRh6gIWVW5pdHljYXRhbG9nOjpJbnRlcm5hbGIGcHJvdG8z",
+    "CiV1bml0eWNhdGFsb2cvaW50ZXJuYWwvcmVzb3VyY2VzLnByb3RvEhV1bml0eWNhdGFsb2cuaW50ZXJuYWwipwQKCFJlc291cmNlEjcKCnNoYXJlX2luZm8YASABKAsyIS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlNoYXJlSW5mb0gAEkYKD2NyZWRlbnRpYWxfaW5mbxgEIAEoCzIrLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsSW5mb0gAEj0KDGNhdGFsb2dfaW5mbxgGIAEoCzIlLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nSW5mb0gAEjoKC3NjaGVtYV9pbmZvGAcgASgLMiMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mb0gAEjcKCnRhYmxlX2luZm8YCCABKAsyIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlSW5mb0gAEjkKC2NvbHVtbl9pbmZvGAkgASgLMiIudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5JbmZvSAASWgoWZXh0ZXJuYWxfbG9jYXRpb25faW5mbxgKIAEoCzI4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm9IABJDCg5yZWNpcGllbnRfaW5mbxgLIAEoCzIpLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm9IAEIKCghyZXNvdXJjZSJ/Cg9PYmplY3RSZWxhdGlvbnMSEgoFb3duZXIYASABKAlIAIgBARIXCgpjcmVhdGVkX2J5GAIgASgJSAGIAQESFwoKdXBkYXRlZF9ieRgDIAEoCUgCiAEBQggKBl9vd25lckINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9ieULmAQoZY29tLnVuaXR5Y2F0YWxvZy5pbnRlcm5hbEIOUmVzb3VyY2VzUHJvdG9QAVpEZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvaW50ZXJuYWyiAgNVSViqAhVVbml0eWNhdGFsb2cuSW50ZXJuYWzKAhVVbml0eWNhdGFsb2dcSW50ZXJuYWziAiFVbml0eWNhdGFsb2dcSW50ZXJuYWxcR1BCTWV0YWRhdGHqAhZVbml0eWNhdGFsb2c6OkludGVybmFsYgZwcm90bzM",
     [
       file_unitycatalog_catalogs_v1_models,
       file_unitycatalog_credentials_v1_models,
@@ -41,7 +39,6 @@ export const file_unitycatalog_internal_resources: GenFile =
       file_unitycatalog_recipients_v1_models,
       file_unitycatalog_schemas_v1_models,
       file_unitycatalog_shares_v1_models,
-      file_unitycatalog_sharing_v1_models,
       file_unitycatalog_tables_v1_models,
     ],
   );
@@ -62,20 +59,6 @@ export type Resource = Message<"unitycatalog.internal.Resource"> & {
          */
         value: ShareInfo;
         case: "shareInfo";
-      }
-    | {
-        /**
-         * @generated from field: unitycatalog.sharing.v1.SharingSchemaInfo sharing_schema_info = 2;
-         */
-        value: SharingSchemaInfo;
-        case: "sharingSchemaInfo";
-      }
-    | {
-        /**
-         * @generated from field: unitycatalog.sharing.v1.SharingTable sharing_table = 3;
-         */
-        value: SharingTable;
-        case: "sharingTable";
       }
     | {
         /**

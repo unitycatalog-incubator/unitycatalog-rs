@@ -5,42 +5,49 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Resource {
-    #[prost(oneof="resource::Resource", tags="1, 2, 3, 4, 6, 7, 8, 9, 10, 11")]
+    #[prost(oneof = "resource::Resource", tags = "1, 4, 6, 7, 8, 9, 10, 11")]
     pub resource: ::core::option::Option<resource::Resource>,
 }
 /// Nested message and enum types in `Resource`.
 pub mod resource {
     #[derive(::strum::EnumDiscriminants)]
     #[strum_discriminants(name(ObjectLabel))]
-    #[strum_discriminants(derive(::strum::AsRefStr, ::strum::Display, ::strum::EnumIter, ::strum::EnumString), strum(serialize_all = "snake_case"))]
+    #[strum_discriminants(
+        derive(
+            ::strum::AsRefStr,
+            ::strum::Display,
+            ::strum::EnumIter,
+            ::strum::EnumString
+        ),
+        strum(serialize_all = "snake_case")
+    )]
     #[strum_discriminants(derive(::serde::Serialize, ::serde::Deserialize, Hash))]
     #[strum_discriminants(serde(rename_all = "snake_case"))]
     #[strum_discriminants(strum(ascii_case_insensitive))]
     #[strum_discriminants(cfg_attr(feature = "sqlx", derive(::sqlx::Type)))]
-    #[strum_discriminants(cfg_attr(feature = "sqlx", sqlx(type_name = "object_label", rename_all = "snake_case")))]
+    #[strum_discriminants(cfg_attr(
+        feature = "sqlx",
+        sqlx(type_name = "object_label", rename_all = "snake_case")
+    ))]
     #[cfg_attr(feature = "python", ::pyo3::pyclass)]
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Resource {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         ShareInfo(super::super::shares::v1::ShareInfo),
-        #[prost(message, tag="2")]
-        SharingSchemaInfo(super::super::sharing::v1::SharingSchemaInfo),
-        #[prost(message, tag="3")]
-        SharingTable(super::super::sharing::v1::SharingTable),
-        #[prost(message, tag="4")]
+        #[prost(message, tag = "4")]
         CredentialInfo(super::super::credentials::v1::CredentialInfo),
-        #[prost(message, tag="6")]
+        #[prost(message, tag = "6")]
         CatalogInfo(super::super::catalogs::v1::CatalogInfo),
-        #[prost(message, tag="7")]
+        #[prost(message, tag = "7")]
         SchemaInfo(super::super::schemas::v1::SchemaInfo),
-        #[prost(message, tag="8")]
+        #[prost(message, tag = "8")]
         TableInfo(super::super::tables::v1::TableInfo),
-        #[prost(message, tag="9")]
+        #[prost(message, tag = "9")]
         ColumnInfo(super::super::tables::v1::ColumnInfo),
-        #[prost(message, tag="10")]
+        #[prost(message, tag = "10")]
         ExternalLocationInfo(super::super::external_locations::v1::ExternalLocationInfo),
-        #[prost(message, tag="11")]
+        #[prost(message, tag = "11")]
         RecipientInfo(super::super::recipients::v1::RecipientInfo),
     }
 }
@@ -49,13 +56,13 @@ pub mod resource {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ObjectRelations {
     /// Username of current owner of table.
-    #[prost(string, optional, tag="1")]
+    #[prost(string, optional, tag = "1")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
     /// Username of table creator.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub created_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Username of user who last modified table.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
 }
 include!("unitycatalog.internal.serde.rs");

@@ -17,8 +17,9 @@ generate-full: generate-build-ext generate-proto generate-code fix
 # run code generation for proto files.
 [group('codegen')]
 generate-proto:
-    buf generate proto
+    buf generate proto/unitycatalog
     just generate-openapi
+    buf generate proto/sharing --template {{ justfile_directory() }}/buf.gen.sharing.yaml
 
 # Update the generated openapi spec with validation extracted from generated jsonschema.
 [group('codegen')]
@@ -33,7 +34,7 @@ generate-openapi:
 # generate rest server and client code with build crate.
 [group('codegen')]
 generate-code:
-    buf build --output {{ justfile_directory() }}/descriptors.bin proto
+    buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
     cargo run --bin unitycatalog-build -- \
       --output-common crates/common/src/codegen \
       --output-server crates/server/src/codegen \
