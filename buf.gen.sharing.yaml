@@ -11,10 +11,7 @@ plugins:
     opt:
       # - bytes=.
       - compile_well_known_types=true
-      # - extern_path=.google.protobuf=::pbjson_types
       - file_descriptor_set=false
-      - message_attribute=.delta_sharing=#[cfg_attr(feature = "python"\, ::pyo3::pyclass(get_all\, set_all))]
-      - enum_attribute=.delta_sharing=#[cfg_attr(feature = "python"\, ::pyo3::pyclass)]
   - remote: buf.build/community/neoeinstein-prost-serde:v0.3.1
     out: crates/sharing-client/src/models/gen
     opt:
