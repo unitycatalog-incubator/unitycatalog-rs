@@ -166,6 +166,9 @@ impl IntoResponse for Error {
 impl From<Error> for Status {
     fn from(e: Error) -> Self {
         match e {
+            // TODO more fine granular resolution of common errors
+            Error::Common { source } => Status::internal(format!("Common Error: {}", source)),
+            Error::Sharing { source } => Status::internal(format!("Sharing Error: {}", source)),
             Error::NotFound => Status::not_found("The requested resource does not exist."),
             Error::NotAllowed => {
                 Status::permission_denied("The request is forbidden from being fulfilled.")
@@ -173,29 +176,34 @@ impl From<Error> for Status {
             Error::Unauthenticated => Status::unauthenticated(
                 "The request is unauthenticated. The bearer token is missing or incorrect.",
             ),
-            Error::Kernel(error) => Status::internal(error.to_string()),
-            Error::SerDe(_) => Status::internal("Encountered invalid table log."),
-            Error::InvalidTableLocation(location) => {
-                Status::internal(format!("Invalid table location: {}", location))
+            Error::DeltaKernel { source } => {
+                Status::internal(format!("Delta Kernel Error: {}", source))
             }
+            Error::SerDe { source } => {
+                Status::internal(format!("Serialization/Deserialization Error: {}", source))
+            }
+            // Error::InvalidTableLocation(location) => {
+            //     Status::internal(format!("Invalid table location: {}", location))
+            // }
             Error::MissingRecipient => {
                 Status::invalid_argument("Failed to extract recipient from request")
             }
             // Error::DataFusion(error) => Status::internal(error.to_string()),
             // Error::Arrow(error) => Status::internal(error.to_string()),
-            Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
+            // Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
             Error::AlreadyExists => Status::already_exists("The resource already exists."),
             Error::InvalidIdentifier(_) => Status::internal("Invalid uuid identifier"),
             Error::InvalidArgument(message) => Status::invalid_argument(message),
             Error::Generic(message) => Status::internal(message),
             // Error::Client(error) => Status::internal(error.to_string()),
-            Error::InvalidUrl(_) => Status::internal("Invalid url"),
-            Error::ObjectStore(_) => Status::internal("ObjectStore error"),
-            Error::RequestError(error) => Status::internal(error.to_string()),
-            #[cfg(feature = "axum")]
-            Error::AxumPath(rejection) => Status::internal(format!("Axum path: {}", rejection)),
-            #[cfg(feature = "axum")]
-            Error::AxumQuery(rejection) => Status::internal(format!("Axum query: {}", rejection)),
+            // Error::InvalidUrl(_) => Status::internal("Invalid url"),
+            Error::ObjectStore { source } => {
+                Status::internal(format!("ObjectStore error: {}", source))
+            } // Error::RequestError(error) => Status::internal(error.to_string()),
+              // #[cfg(feature = "axum")]
+              // Error::AxumPath(rejection) => Status::internal(format!("Axum path: {}", rejection)),
+              // #[cfg(feature = "axum")]
+              // Error::AxumQuery(rejection) => Status::internal(format!("Axum query: {}", rejection)),
         }
     }
 }

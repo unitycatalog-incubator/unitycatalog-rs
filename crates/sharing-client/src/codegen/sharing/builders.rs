@@ -56,6 +56,7 @@ impl GetTableVersionBuilder {
         };
         Self { client, request }
     }
+
     /**The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,
     such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
     or after the provided timestamp, can be earlier than the timestamp of table version 0.*/

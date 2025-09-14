@@ -11,7 +11,7 @@ use crate::error::Error;
 #[allow(clippy::empty_docs, clippy::large_enum_variant)]
 pub mod sharing {
     pub mod v1 {
-        include!("./models/gen/delta_sharing.v1.rs");
+        include!("./gen/delta_sharing.v1.rs");
         // #[cfg(feature = "grpc")]
         // include!("./gen/delta_sharing.v1.tonic.rs");
     }

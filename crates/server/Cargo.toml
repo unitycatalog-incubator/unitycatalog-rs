@@ -27,6 +27,7 @@ tracing = { workspace = true }
 url = { workspace = true }
 
 axum = { workspace = true, optional = true }
+tonic = { workspace = true, optional = true }
 datafusion = { version = "49" }
 futures-util = { version = "0.3.28" }
 http = { version = "1.2", optional = true }
@@ -41,9 +42,11 @@ uuid = { workspace = true, optional = true, features = ["v7"] }
 tokio = { version = "1", features = ["full"] }
 
 [features]
-default = ["axum", "memory"]
+default = ["axum", "memory", "grpc"]
 
 axum = ["dep:axum", "http", "tower"]
 
 # in-memory handler features
 memory = ["dashmap", "uuid"]
+
+grpc = ["tonic"]
