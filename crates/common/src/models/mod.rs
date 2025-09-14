@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::{Error, Result};
-
 pub use catalogs::v1::CatalogInfo;
 pub use credentials::v1::CredentialInfo;
 pub use external_locations::v1::ExternalLocationInfo;
@@ -12,7 +10,6 @@ pub use recipients::v1::RecipientInfo;
 pub use resources::*;
 pub use schemas::v1::SchemaInfo;
 pub use shares::v1::ShareInfo;
-pub use sharing::v1::{Share, SharingSchema, SharingSchemaInfo, SharingTable};
 pub use tables::v1::{ColumnInfo, TableInfo};
 pub use volumes::v1::{VolumeInfo, VolumeType};
 
@@ -20,15 +17,6 @@ mod object;
 mod resources;
 
 pub type PropertyMap = HashMap<String, serde_json::Value>;
-
-#[allow(clippy::empty_docs, clippy::large_enum_variant)]
-pub mod sharing {
-    pub mod v1 {
-        include!("./gen/unitycatalog.sharing.v1.rs");
-        #[cfg(feature = "grpc")]
-        include!("./gen/unitycatalog.sharing.v1.tonic.rs");
-    }
-}
 
 pub mod catalogs {
     pub mod v1 {
@@ -110,8 +98,6 @@ impl ObjectLabel {
     pub fn to_ident(&self, id: impl Into<ResourceRef>) -> ResourceIdent {
         match self {
             ObjectLabel::ShareInfo => ResourceIdent::share(id),
-            ObjectLabel::SharingSchemaInfo => ResourceIdent::schema(id),
-            ObjectLabel::SharingTable => ResourceIdent::sharing_table(id),
             ObjectLabel::CredentialInfo => ResourceIdent::credential(id),
             ObjectLabel::CatalogInfo => ResourceIdent::catalog(id),
             ObjectLabel::SchemaInfo => ResourceIdent::schema(id),
@@ -169,30 +155,4 @@ impl AssociationLabel {
 pub struct ErrorResponse {
     pub error_code: String,
     pub message: String,
-}
-
-/// Conversions from more specific types to reduced info sharing API types
-impl TryFrom<Resource> for Share {
-    type Error = Error;
-
-    fn try_from(resource: Resource) -> Result<Self, Self::Error> {
-        let info = ShareInfo::try_from(resource)?;
-        Ok(Share {
-            id: info.id,
-            name: info.name,
-        })
-    }
-}
-
-impl TryFrom<Resource> for SharingSchema {
-    type Error = Error;
-
-    fn try_from(resource: Resource) -> Result<Self, Self::Error> {
-        let info = SharingSchemaInfo::try_from(resource)?;
-        Ok(SharingSchema {
-            share: info.share,
-            name: info.name,
-            id: Some(info.id),
-        })
-    }
 }

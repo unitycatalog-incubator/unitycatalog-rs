@@ -3,11 +3,11 @@ use cloud_client::CloudClient;
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
-use unitycatalog_common::models::sharing::v1::*;
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;
 use crate::codegen::sharing::builders::QueryTableBuilder;
+use crate::models::sharing::v1::*;
 use crate::models::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::{Error, Result};
 

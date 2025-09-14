@@ -26,7 +26,7 @@ delta_kernel = { version = "0.15.1", features = [
   "default-engine-rustls",
   "arrow-55",
 ] }
-deltalake-datafusion = { git = "https://github.com/delta-incubator/deltalake-datafusion", rev = "8757b39a3de232a79507eaba54bf8943b3ba6a9d" }
+deltalake-datafusion = { git = "https://github.com/delta-incubator/deltalake-datafusion", rev = "645f0156f3a7792a1b2d350020eab68d58e49726" }
 # deltalake-datafusion = { path = "../deltalake-datafusion/crates/datafusion" }
 
 async-trait = "0.1.83"

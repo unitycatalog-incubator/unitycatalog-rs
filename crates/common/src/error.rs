@@ -15,9 +15,6 @@ pub enum Error {
     #[error("Invalid identifier: {0}")]
     InvalidIdentifier(#[from] uuid::Error),
 
-    #[error("Invalid predicate: {0}")]
-    InvalidPredicate(String),
-
     #[error("Generic error: {0}")]
     Generic(String),
 
@@ -46,10 +43,6 @@ impl Error {
 
     pub fn invalid_argument(msg: impl Into<String>) -> Self {
         Self::InvalidArgument(msg.into())
-    }
-
-    pub fn invalid_predicate(msg: impl Into<String>) -> Self {
-        Self::InvalidPredicate(msg.into())
     }
 }
 
@@ -97,13 +90,6 @@ mod server {
                     let message = format!("Request error: {}", error);
                     error!("{}", message);
                     INTERNAL_ERROR
-                }
-                Error::InvalidPredicate(msg) => {
-                    error!("Invalid predicate: {}", msg);
-                    (
-                        StatusCode::BAD_REQUEST,
-                        "Invalid predicate provided in the request.",
-                    )
                 }
                 Error::InvalidIdentifier(_) => {
                     error!("Invalid uuid identifier");

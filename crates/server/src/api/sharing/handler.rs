@@ -3,15 +3,14 @@ use itertools::Itertools;
 
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::{
-    GetShareRequest as SharesGetShareRequest, ShareInfo,
+    DataObjectType, GetShareRequest as SharesGetShareRequest, ShareInfo,
 };
-use unitycatalog_common::models::sharing::v1::*;
-use unitycatalog_common::shares::v1::DataObjectType;
+use unitycatalog_sharing_client::models::sharing::v1::{Share as SharingShare, *};
 
 use crate::Result;
 use crate::api::{RequestContext, SecuredAction, ShareHandler};
-pub use crate::codegen::sharing::SharingHandler;
 use crate::policy::{Permission, Policy, process_resources};
+pub use crate::sharing::SharingHandler;
 use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
@@ -58,8 +57,16 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
             return SharingHandler::list_shares(self, request, context).await;
         }
 
+        let shares: Vec<ShareInfo> = resources.into_iter().map(|r| r.try_into()).try_collect()?;
+
         Ok(ListSharesResponse {
-            items: resources.into_iter().map(|r| r.try_into()).try_collect()?,
+            items: shares
+                .into_iter()
+                .map(|r| SharingShare {
+                    name: r.name,
+                    id: r.id,
+                })
+                .collect(),
             next_page_token,
         })
     }

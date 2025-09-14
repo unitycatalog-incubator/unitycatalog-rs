@@ -1,8 +1,8 @@
 use bytes::Bytes;
 
-use unitycatalog_common::models::sharing::v1::*;
 use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableInfo};
 use unitycatalog_common::{ResourceIdent, ResourceName, ShareInfo};
+use unitycatalog_sharing_client::models::sharing::v1::*;
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
 use crate::api::RequestContext;

@@ -1,7 +1,9 @@
+use async_trait::async_trait;
+use unitycatalog_sharing_client::models::sharing::v1::*;
+
 use crate::Result;
 use crate::api::RequestContext;
-use async_trait::async_trait;
-use unitycatalog_common::models::sharing::v1::*;
+
 #[async_trait]
 pub trait SharingHandler: Send + Sync + 'static {
     async fn list_shares(

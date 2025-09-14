@@ -11,7 +11,7 @@ keywords.workspace = true
 
 [dependencies]
 unitycatalog-common = { path = "../common", features = ["axum"] }
-unitycatalog-sharing-client = { path = "../sharing-client" }
+unitycatalog-sharing-client = { path = "../sharing-client", features = ["server"] }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }

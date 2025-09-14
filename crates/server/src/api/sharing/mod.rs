@@ -1,5 +1,5 @@
-use unitycatalog_common::models::sharing::v1::*;
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
+use unitycatalog_sharing_client::models::sharing::v1::*;
 pub use unitycatalog_sharing_client::models::*;
 
 pub use self::handler::*;
