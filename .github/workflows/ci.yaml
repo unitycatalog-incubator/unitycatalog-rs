@@ -11,7 +11,7 @@ env:
 
 jobs:
   unit_test:
-    name: Unit Tests
+    name: unit-tests
     strategy:
       fail-fast: true
       matrix:
