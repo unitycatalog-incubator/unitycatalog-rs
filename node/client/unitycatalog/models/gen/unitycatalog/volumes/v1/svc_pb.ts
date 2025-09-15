@@ -14,10 +14,7 @@ import {
   serviceDesc,
 } from "@bufbuild/protobuf/codegenv2";
 import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import {
-  file_google_protobuf_empty,
-  file_google_protobuf_struct,
-} from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_gnostic_openapi_v3_openapiv3 } from "../../../gnostic/openapi/v3/openapiv3_pb";
@@ -44,7 +41,6 @@ export const file_unitycatalog_volumes_v1_svc: GenFile =
       file_google_api_field_behavior,
       file_google_api_resource,
       file_google_protobuf_empty,
-      file_google_protobuf_struct,
       file_unitycatalog_volumes_v1_models,
     ],
   );

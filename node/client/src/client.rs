@@ -35,7 +35,9 @@ impl UnityCatalogClient {
     #[napi(catch_unwind)]
     pub async fn list_catalogs(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
         self.inner
-            .list_catalogs(max_results)
+            .list_catalogs()
+            .with_max_results(max_results)
+            .into_stream()
             .map_ok(|catalog| Buffer::from(catalog.encode_to_vec()))
             .try_collect::<Vec<_>>()
             .await

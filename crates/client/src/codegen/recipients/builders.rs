@@ -1,7 +1,7 @@
 #![allow(unused_mut)]
 use super::client::*;
 use crate::{error::Result, utils::stream_paginated};
-use futures::{Stream, future::BoxFuture};
+use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::recipients::v1::*;
 /// Builder for creating requests
@@ -28,20 +28,22 @@ impl ListRecipientsBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub(crate) fn into_stream(&self) -> impl Stream<Item = Result<ListRecipientsResponse>> {
-        let request = self.request.clone();
-        stream_paginated(request, move |mut request, page_token| async move {
-            request.page_token = page_token;
-            let res = self.client.list_recipients(&request).await?;
-            if let Some(ref mut remaining) = request.max_results {
+    pub fn into_stream(self) -> BoxStream<'static, Result<RecipientInfo>> {
+        stream_paginated(self, move |mut builder, page_token| async move {
+            builder.request.page_token = page_token;
+            let res = builder.client.list_recipients(&builder.request).await?;
+            if let Some(ref mut remaining) = builder.request.max_results {
                 *remaining -= res.recipients.len() as i32;
                 if *remaining <= 0 {
-                    request.max_results = Some(0);
+                    builder.request.max_results = Some(0);
                 }
             }
             let next_page_token = res.next_page_token.clone();
-            Ok((res, request, next_page_token))
+            Ok((res, builder, next_page_token))
         })
+        .map_ok(|resp| futures::stream::iter(resp.recipients.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
     }
 }
 impl IntoFuture for ListRecipientsBuilder {

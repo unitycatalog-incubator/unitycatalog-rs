@@ -26,7 +26,8 @@ use convert_case::{Case, Casing};
 use quote::format_ident;
 use syn::Ident;
 
-use crate::analysis::{ManagedResource, MethodPlan, ServicePlan, analyze_metadata};
+use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, analyze_metadata};
+use crate::google::api::http_rule::Pattern;
 use crate::output;
 use crate::parsing::{CodeGenMetadata, MessageInfo};
 
@@ -143,6 +144,14 @@ pub(crate) struct MethodHandler<'a> {
 }
 
 impl MethodHandler<'_> {
+    pub(crate) fn is_collection_method(&self) -> bool {
+        matches!(
+            self.plan.request_type,
+            RequestType::List | RequestType::Create
+        ) || (matches!(self.plan.request_type, RequestType::Custom(Pattern::Get(_)))
+            && self.plan.metadata.method_name.starts_with("List"))
+    }
+
     pub(crate) fn output_message(&self) -> Option<MessageMeta<'_>> {
         if self.plan.metadata.output_type.ends_with("Empty") {
             None

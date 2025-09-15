@@ -6,7 +6,7 @@ use syn::Path;
 
 use super::format_tokens;
 use crate::analysis::RequestType;
-use crate::codegen::{MethodHandler, ServiceHandler};
+use crate::codegen::{MethodHandler, ServiceHandler, extract_type_ident};
 use crate::parsing::MessageField;
 
 /// Generate builder code for all request types in a service
@@ -35,7 +35,7 @@ fn generate_builders_module(service: &ServiceHandler<'_>, builders: &[String]) -
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use futures::{future::BoxFuture, Stream};
+        use futures::{future::BoxFuture, stream::BoxStream, TryStreamExt, StreamExt};
         use std::future::IntoFuture;
         use crate::{error::Result, utils::stream_paginated};
         use #mod_path::*;
@@ -611,24 +611,26 @@ fn generate_into_stream_impl(
         .find(|f| !f.name.contains("page_token"))
         .unwrap();
     let item_field_ident = format_ident!("{}", items_field.name);
-    let output_type_ident = method.output_type();
+    let output_type_ident = extract_type_ident(&items_field.field_type);
 
     quote! {
         /// Convert paginated request into stream of results
-        pub(crate) fn into_stream(&self) -> impl Stream<Item = Result<#output_type_ident>> {
-            let request = self.request.clone();
-            stream_paginated(request, move |mut request, page_token| async move {
-                request.page_token = page_token;
-                let res = self.client.#client_method_name(&request).await?;
-                if let Some(ref mut remaining) = request.max_results {
+        pub fn into_stream(self) -> BoxStream<'static, Result<#output_type_ident>> {
+            stream_paginated(self, move |mut builder, page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.#client_method_name(&builder.request).await?;
+                if let Some(ref mut remaining) = builder.request.max_results {
                     *remaining -= res.#item_field_ident.len() as i32;
                     if *remaining <= 0 {
-                        request.max_results = Some(0);
+                        builder.request.max_results = Some(0);
                     }
                 }
                 let next_page_token = res.next_page_token.clone();
-                Ok((res, request, next_page_token))
+                Ok((res, builder, next_page_token))
             })
+            .map_ok(|resp| futures::stream::iter(resp.#item_field_ident.into_iter().map(Ok)))
+            .try_flatten()
+            .boxed()
         }
     }
 }
@@ -734,6 +736,8 @@ fn convert_protobuf_enum_to_rust_type(field_type: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use protobuf::descriptor::field_descriptor_proto::Type;
+
     use super::*;
     use crate::parsing::MessageField;
 
@@ -799,6 +803,7 @@ mod tests {
         let fields = vec![
             MessageField {
                 name: "name".to_string(),
+                type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 repeated: false,
@@ -809,6 +814,7 @@ mod tests {
             },
             MessageField {
                 name: "comment".to_string(),
+                type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
                 optional: true,
                 repeated: false,
@@ -819,6 +825,7 @@ mod tests {
             },
             MessageField {
                 name: "properties".to_string(),
+                type_label: Type::TYPE_GROUP,
                 field_type: "map<string, string>".to_string(),
                 optional: true,
                 repeated: false,

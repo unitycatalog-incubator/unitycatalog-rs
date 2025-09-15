@@ -625,7 +625,7 @@ mod tests {
         // Verify that the client can make requests to the mock server
         // We'll test this by trying to list catalogs - if the mock server is working,
         // it should return our mocked empty catalogs response
-        let mut catalogs_stream = client.list_catalogs(None);
+        let mut catalogs_stream = client.list_catalogs().into_stream();
         use futures::StreamExt;
 
         // Since we mocked an empty catalogs response, the stream should be empty

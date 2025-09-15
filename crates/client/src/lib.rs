@@ -10,28 +10,34 @@ pub use schemas::*;
 pub use shares::*;
 pub use tables::*;
 pub use temporary_credentials::*;
-use unitycatalog_common::CatalogInfo;
-use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
+use unitycatalog_common::models::volumes::v1::VolumeType;
 use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
 use unitycatalog_common::{
-    CredentialInfo, ExternalLocationInfo, RecipientInfo, SchemaInfo, ShareInfo, TableInfo,
     credentials::v1::Purpose, recipients::v1::AuthenticationType, tables::v1::TableSummary,
 };
 pub use volumes::*;
 
 // Re-export all builders for public API
+use crate::codegen::catalogs::ListCatalogsBuilder;
 pub use crate::codegen::catalogs::builders::{CreateCatalogBuilder, UpdateCatalogBuilder};
+use crate::codegen::credentials::ListCredentialsBuilder;
 pub use crate::codegen::credentials::builders::{CreateCredentialBuilder, UpdateCredentialBuilder};
+use crate::codegen::external_locations::ListExternalLocationsBuilder;
 pub use crate::codegen::external_locations::builders::{
     CreateExternalLocationBuilder, UpdateExternalLocationBuilder,
 };
+use crate::codegen::recipients::ListRecipientsBuilder;
 pub use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
+use crate::codegen::schemas::ListSchemasBuilder;
 pub use crate::codegen::schemas::builders::{CreateSchemaBuilder, UpdateSchemaBuilder};
+use crate::codegen::shares::ListSharesBuilder;
 pub use crate::codegen::shares::builders::{CreateShareBuilder, UpdateShareBuilder};
+use crate::codegen::tables::ListTablesBuilder;
 pub use crate::codegen::tables::builders::CreateTableBuilder;
 pub use crate::codegen::temporary_credentials::builders::{
     GenerateTemporaryPathCredentialsBuilder, GenerateTemporaryTableCredentialsBuilder,
 };
+use crate::codegen::volumes::ListVolumesBuilder;
 pub use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
 
 mod catalogs;
@@ -100,11 +106,8 @@ impl UnityCatalogClient {
     }
 
     // Catalog methods
-    pub fn list_catalogs(
-        &self,
-        max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<CatalogInfo>> {
-        self.catalogs.list(max_results)
+    pub fn list_catalogs(&self) -> ListCatalogsBuilder {
+        ListCatalogsBuilder::new(self.catalogs.clone())
     }
 
     pub fn create_catalog(&self, name: impl ToString) -> CreateCatalogBuilder {
@@ -116,12 +119,8 @@ impl UnityCatalogClient {
     }
 
     // Credential methods
-    pub fn list_credentials(
-        &self,
-        purpose: Option<Purpose>,
-        max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<CredentialInfo>> {
-        self.credentials.list(purpose, max_results)
+    pub fn list_credentials(&self) -> ListCredentialsBuilder {
+        ListCredentialsBuilder::new(self.credentials.clone())
     }
 
     pub fn create_credential(
@@ -138,13 +137,8 @@ impl UnityCatalogClient {
     }
 
     // Schema methods
-    pub fn list_schemas(
-        &self,
-        catalog_name: impl Into<String>,
-        max_results: impl Into<Option<i32>>,
-        include_browse: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<SchemaInfo>> {
-        self.schemas.list(catalog_name, max_results, include_browse)
+    pub fn list_schemas(&self, catalog_name: impl Into<String>) -> ListSchemasBuilder {
+        ListSchemasBuilder::new(self.schemas.clone(), catalog_name)
     }
 
     pub fn create_schema(
@@ -180,25 +174,8 @@ impl UnityCatalogClient {
         &self,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
-        max_results: impl Into<Option<i32>>,
-        include_delta_metadata: impl Into<Option<bool>>,
-        omit_columns: impl Into<Option<bool>>,
-        omit_properties: impl Into<Option<bool>>,
-        omit_username: impl Into<Option<bool>>,
-        include_browse: impl Into<Option<bool>>,
-        include_manifest_capabilities: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<TableInfo>> {
-        self.tables.list(
-            catalog_name,
-            schema_name,
-            max_results,
-            include_delta_metadata,
-            omit_columns,
-            omit_properties,
-            omit_username,
-            include_browse,
-            include_manifest_capabilities,
-        )
+    ) -> ListTablesBuilder {
+        ListTablesBuilder::new(self.tables.clone(), catalog_name, schema_name)
     }
 
     pub fn create_table(
@@ -229,11 +206,8 @@ impl UnityCatalogClient {
     }
 
     // Share methods
-    pub fn list_shares(
-        &self,
-        max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<ShareInfo>> {
-        self.shares.list(max_results)
+    pub fn list_shares(&self) -> ListSharesBuilder {
+        ListSharesBuilder::new(self.shares.clone())
     }
 
     pub fn share(&self, name: impl ToString) -> ShareClient {
@@ -251,11 +225,8 @@ impl UnityCatalogClient {
     }
 
     // Recipient methods
-    pub fn list_recipients(
-        &self,
-        max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<RecipientInfo>> {
-        self.recipients.list(max_results)
+    pub fn list_recipients(&self) -> ListRecipientsBuilder {
+        ListRecipientsBuilder::new(self.recipients.clone())
     }
 
     pub fn recipient(&self, name: impl ToString) -> RecipientClient {
@@ -263,12 +234,8 @@ impl UnityCatalogClient {
     }
 
     // External location methods
-    pub fn list_external_locations(
-        &self,
-        max_results: impl Into<Option<i32>>,
-        include_browse: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<ExternalLocationInfo>> {
-        self.external_locations.list(max_results, include_browse)
+    pub fn list_external_locations(&self) -> ListExternalLocationsBuilder {
+        ListExternalLocationsBuilder::new(self.external_locations.clone())
     }
 
     pub fn create_external_location(
@@ -294,11 +261,8 @@ impl UnityCatalogClient {
         &self,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
-        max_results: impl Into<Option<i32>>,
-        include_browse: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<VolumeInfo>> {
-        self.volumes
-            .list(catalog_name, schema_name, max_results, include_browse)
+    ) -> ListVolumesBuilder {
+        ListVolumesBuilder::new(self.volumes.clone(), catalog_name, schema_name)
     }
 
     pub fn create_volume(

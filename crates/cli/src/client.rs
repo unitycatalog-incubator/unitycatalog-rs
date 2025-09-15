@@ -93,7 +93,11 @@ pub async fn handle_client(
     match &cmd.command {
         Some(ClientCommands::Catalogs(args)) => match &args.command {
             Some(CatalogCommands::List) => {
-                let catalogs = client.list_catalogs(None).try_collect::<Vec<_>>().await?;
+                let catalogs = client
+                    .list_catalogs()
+                    .into_stream()
+                    .try_collect::<Vec<_>>()
+                    .await?;
                 println!("List catalogs: {catalogs:?}");
             }
             Some(CatalogCommands::Create { name }) => {
