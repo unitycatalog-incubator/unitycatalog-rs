@@ -79,13 +79,13 @@ impl DeltaSharingClient {
         &self,
         share: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<SharingSchema>> {
+    ) -> BoxStream<'_, Result<Schema>> {
         let share = share.into();
         let max_results = max_results.into();
         stream_paginated(
             (share, max_results),
             move |(share, mut max_results), page_token| async move {
-                let request = ListSharingSchemasRequest {
+                let request = ListSchemasRequest {
                     share: share.clone(),
                     max_results,
                     page_token,
@@ -112,17 +112,17 @@ impl DeltaSharingClient {
         .boxed()
     }
 
-    pub fn list_share_tables(
+    pub fn list_all_tables(
         &self,
         share: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<SharingTable>> {
+    ) -> BoxStream<'_, Result<Table>> {
         let share = share.into();
         let max_results = max_results.into();
         stream_paginated(
             (share, max_results),
             move |(share, mut max_results), page_token| async move {
-                let request = ListShareTablesRequest {
+                let request = ListAllTablesRequest {
                     name: share.clone(),
                     max_results,
                     page_token,
@@ -154,14 +154,14 @@ impl DeltaSharingClient {
         share: impl Into<String>,
         schema: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<SharingTable>> {
+    ) -> BoxStream<'_, Result<Table>> {
         let share = share.into();
         let schema = schema.into();
         let max_results = max_results.into();
         stream_paginated(
             (share, schema, max_results),
             move |(share, schema, mut max_results), page_token| async move {
-                let request = ListSchemaTablesRequest {
+                let request = ListTablesRequest {
                     share: share.clone(),
                     name: schema.clone(),
                     max_results,

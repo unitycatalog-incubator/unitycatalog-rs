@@ -38,7 +38,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
     }
 }
 
-impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRequest {
+impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
@@ -56,7 +56,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRe
             max_results,
             page_token,
         }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
-        Ok(ListSharingSchemasRequest {
+        Ok(ListSchemasRequest {
             share,
             max_results,
             page_token,
@@ -64,7 +64,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharingSchemasRe
     }
 }
 
-impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemaTablesRequest {
+impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
@@ -84,7 +84,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemaTablesRequ
             max_results,
             page_token,
         }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
-        Ok(ListSchemaTablesRequest {
+        Ok(ListTablesRequest {
             share,
             name,
             max_results,
@@ -93,7 +93,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemaTablesRequ
     }
 }
 
-impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesRequest {
+impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListAllTablesRequest {
     type Rejection = crate::Error;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
@@ -111,7 +111,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListShareTablesReque
             max_results,
             page_token,
         }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
-        Ok(ListShareTablesRequest {
+        Ok(ListAllTablesRequest {
             name,
             max_results,
             page_token,

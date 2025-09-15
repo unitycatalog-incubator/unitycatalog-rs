@@ -12,10 +12,13 @@ pub struct Share {
     #[prost(string, optional, tag = "2")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
 }
-/// A schema is a logical grouping of tables. A schema may contain multiple tables.
+/// A schema in a delta sharing service.
+///
+/// A schema is a logical grouping of tables.
+/// A schema may contain multiple tables.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SharingSchema {
+pub struct Schema {
     /// The name of the schema
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -29,7 +32,7 @@ pub struct SharingSchema {
 /// A table is a Delta Lake table or a view on top of a Delta Lake table.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SharingTable {
+pub struct Table {
     /// The name of the table.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -45,33 +48,6 @@ pub struct SharingTable {
     /// A unique identifier for the share this table belongs to.
     #[prost(string, optional, tag = "5")]
     pub share_id: ::core::option::Option<::prost::alloc::string::String>,
-}
-/// A schema in a delta sharing service.
-///
-/// A schema is a logical grouping of tables.
-/// It may contain multiple tables.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SharingSchemaInfo {
-    /// Unique identifier for the schema.
-    #[prost(string, tag = "1")]
-    pub id: ::prost::alloc::string::String,
-    /// The name of the schema.
-    #[prost(string, tag = "2")]
-    pub name: ::prost::alloc::string::String,
-    /// The share name that the schema belongs to.
-    #[prost(string, tag = "3")]
-    pub share: ::prost::alloc::string::String,
-    /// The unique identifier for the share this schema belongs to.
-    #[prost(string, optional, tag = "4")]
-    pub share_id: ::core::option::Option<::prost::alloc::string::String>,
-    /// User-provided free-form text description.
-    #[prost(string, optional, tag = "5")]
-    pub description: ::core::option::Option<::prost::alloc::string::String>,
-    /// A map of key-value properties attached to the securable.
-    #[prost(map = "string, string", tag = "6")]
-    pub properties:
-        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// File format for data files in a table
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -133,15 +109,6 @@ pub struct GetTableVersionRequest {
     /// such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
     /// or after the provided timestamp, can be earlier than the timestamp of table version 0.
     #[prost(string, optional, tag = "4")]
-    pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
-}
-/// helper message internally used to parse the rest request.
-/// we do this over a manual implementation since the generated code
-/// will allow for snake_case as well as camelCase query parameters
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct InternalGetTableVersionParams {
-    #[prost(string, optional, tag = "1")]
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for GetTableVersionRequest.
@@ -358,7 +325,7 @@ pub struct GetShareRequest {
 /// List schemas in a share.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ListSharingSchemasRequest {
+pub struct ListSchemasRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag = "1")]
     pub share: ::prost::alloc::string::String,
@@ -370,13 +337,13 @@ pub struct ListSharingSchemasRequest {
     #[prost(string, optional, tag = "3")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
-/// Response for ListSharingSchemasRequest.
+/// Response for ListSchemasRequest.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ListSharingSchemasResponse {
+pub struct ListSchemasResponse {
     /// The schemas that were requested.
     #[prost(message, repeated, tag = "1")]
-    pub items: ::prost::alloc::vec::Vec<SharingSchema>,
+    pub items: ::prost::alloc::vec::Vec<Schema>,
     /// Token that can be used to retrieve the next page of schemas.
     /// An empty or missing token means that no more schemas are available for retrieval.
     #[prost(string, optional, tag = "2")]
@@ -385,7 +352,7 @@ pub struct ListSharingSchemasResponse {
 /// List tables in a schema.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ListSchemaTablesRequest {
+pub struct ListTablesRequest {
     /// The schema name to query. It's case-insensitive.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -400,13 +367,13 @@ pub struct ListSchemaTablesRequest {
     #[prost(string, optional, tag = "4")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
-/// Response for ListSchemaTablesRequest.
+/// Response for ListTablesRequest.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ListSchemaTablesResponse {
+pub struct ListTablesResponse {
     /// The tables that were requested.
     #[prost(message, repeated, tag = "1")]
-    pub items: ::prost::alloc::vec::Vec<SharingTable>,
+    pub items: ::prost::alloc::vec::Vec<Table>,
     /// Token that can be used to retrieve the next page of tables.
     /// An empty or missing token means that no more tables are available for retrieval.
     #[prost(string, optional, tag = "2")]
@@ -415,7 +382,7 @@ pub struct ListSchemaTablesResponse {
 /// List tables in a share.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ListShareTablesRequest {
+pub struct ListAllTablesRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -456,13 +423,13 @@ pub struct QueryTableRequest {
     #[prost(int64, optional, tag = "11")]
     pub ending_version: ::core::option::Option<i64>,
 }
-/// Response for ListShareTablesRequest.
+/// Response for ListAllTablesRequest.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ListShareTablesResponse {
+pub struct ListAllTablesResponse {
     /// The tables that were requested.
     #[prost(message, repeated, tag = "1")]
-    pub items: ::prost::alloc::vec::Vec<SharingTable>,
+    pub items: ::prost::alloc::vec::Vec<Table>,
     /// Token that can be used to retrieve the next page of tables.
     /// An empty or missing token means that no more tables are available for retrieval.
     #[prost(string, optional, tag = "2")]

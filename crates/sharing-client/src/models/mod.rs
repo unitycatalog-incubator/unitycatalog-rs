@@ -86,7 +86,7 @@ impl DeltaSharingCapabilities {
                     reader_features = Some(
                         value
                             .split(',')
-                            .map(|s| parse_reader_feature(s))
+                            .map(parse_reader_feature)
                             .collect::<Result<Vec<_>, _>>()
                             .unwrap(),
                     );

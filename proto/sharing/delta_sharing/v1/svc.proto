@@ -74,7 +74,7 @@ message GetShareRequest {
 }
 
 // List schemas in a share.
-message ListSharingSchemasRequest {
+message ListSchemasRequest {
   // The share name to query. It's case-insensitive.
   string share = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -94,10 +94,10 @@ message ListSharingSchemasRequest {
   optional string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// Response for ListSharingSchemasRequest.
-message ListSharingSchemasResponse {
+// Response for ListSchemasRequest.
+message ListSchemasResponse {
   // The schemas that were requested.
-  repeated SharingSchema items = 1;
+  repeated Schema items = 1;
 
   // Token that can be used to retrieve the next page of schemas.
   // An empty or missing token means that no more schemas are available for retrieval.
@@ -105,7 +105,7 @@ message ListSharingSchemasResponse {
 }
 
 // List tables in a schema.
-message ListSchemaTablesRequest {
+message ListTablesRequest {
   // The schema name to query. It's case-insensitive.
   string name = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -131,17 +131,17 @@ message ListSchemaTablesRequest {
   optional string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// Response for ListSchemaTablesRequest.
-message ListSchemaTablesResponse {
+// Response for ListTablesRequest.
+message ListTablesResponse {
   // The tables that were requested.
-  repeated SharingTable items = 1;
+  repeated Table items = 1;
   // Token that can be used to retrieve the next page of tables.
   // An empty or missing token means that no more tables are available for retrieval.
   optional string next_page_token = 2;
 }
 
 // List tables in a share.
-message ListShareTablesRequest {
+message ListAllTablesRequest {
   // The share name to query. It's case-insensitive.
   string name = 1 [
     (buf.validate.field).string.min_len = 1,
@@ -200,10 +200,10 @@ message QueryTableRequest {
   optional int64 ending_version = 11;
 }
 
-// Response for ListShareTablesRequest.
-message ListShareTablesResponse {
+// Response for ListAllTablesRequest.
+message ListAllTablesResponse {
   // The tables that were requested.
-  repeated SharingTable items = 1;
+  repeated Table items = 1;
 
   // Token that can be used to retrieve the next page of tables.
   // An empty or missing token means that no more tables are available for retrieval.
@@ -225,21 +225,21 @@ service SharingService {
   }
 
   // List the schemas in a share.
-  rpc ListSharingSchemas(ListSharingSchemasRequest) returns (ListSharingSchemasResponse) {
+  rpc ListSchemas(ListSchemasRequest) returns (ListSchemasResponse) {
     option (google.api.http) = {get: "/shares/{share}/schemas"};
-    option (gnostic.openapi.v3.operation) = {operation_id: "ListSharingSchemas"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListSchemas"};
   }
 
   // List the tables in a given share's schema.
-  rpc ListSchemaTables(ListSchemaTablesRequest) returns (ListSchemaTablesResponse) {
+  rpc ListTables(ListTablesRequest) returns (ListTablesResponse) {
     option (google.api.http) = {get: "/shares/{share}/schemas/{name}/tables"};
-    option (gnostic.openapi.v3.operation) = {operation_id: "ListSchemaTables"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListTables"};
   }
 
-  // List all the tables under all schemas in a share.
-  rpc ListShareTables(ListShareTablesRequest) returns (ListShareTablesResponse) {
+  // List all the tables under a share.
+  rpc ListAllTables(ListAllTablesRequest) returns (ListAllTablesResponse) {
     option (google.api.http) = {get: "/shares/{name}/all-tables"};
-    option (gnostic.openapi.v3.operation) = {operation_id: "ListShareTables"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListAllTables"};
   }
 
   // Get the current version for a table within a schema.

@@ -16,11 +16,11 @@ pub fn get_router<T: SharingHandler + SharingQueryHandler + Clone>(state: T) -> 
     Router::new()
         .route("/shares", get(list_shares::<T>))
         .route("/shares/{share}", get(get_share::<T>))
-        .route("/shares/{share}/schemas", get(list_sharing_schemas::<T>))
-        .route("/shares/{share}/all-tables", get(list_share_tables::<T>))
+        .route("/shares/{share}/schemas", get(list_schemas::<T>))
+        .route("/shares/{share}/all-tables", get(list_all_tables::<T>))
         .route(
             "/shares/{share}/schemas/{name}/tables",
-            get(list_schema_tables::<T>),
+            get(list_tables::<T>),
         )
         .route(
             "/shares/{share}/schemas/{schema}/tables/{name}/version",
@@ -57,33 +57,33 @@ pub async fn get_share<T: SharingHandler>(
     Ok(axum::Json(result))
 }
 
-pub async fn list_sharing_schemas<T: SharingHandler>(
+pub async fn list_schemas<T: SharingHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
-    request: ListSharingSchemasRequest,
-) -> Result<::axum::Json<ListSharingSchemasResponse>> {
+    request: ListSchemasRequest,
+) -> Result<::axum::Json<ListSchemasResponse>> {
     let context = RequestContext { recipient };
     let result = handler.list_sharing_schemas(request, context).await?;
     Ok(axum::Json(result))
 }
 
-pub async fn list_schema_tables<T: SharingHandler>(
+pub async fn list_tables<T: SharingHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
-    request: ListSchemaTablesRequest,
-) -> Result<::axum::Json<ListSchemaTablesResponse>> {
+    request: ListTablesRequest,
+) -> Result<::axum::Json<ListTablesResponse>> {
     let context = RequestContext { recipient };
-    let result = handler.list_schema_tables(request, context).await?;
+    let result = handler.list_tables(request, context).await?;
     Ok(axum::Json(result))
 }
 
-pub async fn list_share_tables<T: SharingHandler>(
+pub async fn list_all_tables<T: SharingHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Recipient>,
-    request: ListShareTablesRequest,
-) -> Result<::axum::Json<ListShareTablesResponse>> {
+    request: ListAllTablesRequest,
+) -> Result<::axum::Json<ListAllTablesResponse>> {
     let context = RequestContext { recipient };
-    let result = handler.list_share_tables(request, context).await?;
+    let result = handler.list_all_tables(request, context).await?;
     Ok(axum::Json(result))
 }
 

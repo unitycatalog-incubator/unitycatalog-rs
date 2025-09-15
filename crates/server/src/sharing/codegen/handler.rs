@@ -14,19 +14,19 @@ pub trait SharingHandler: Send + Sync + 'static {
     async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share>;
     async fn list_sharing_schemas(
         &self,
-        request: ListSharingSchemasRequest,
+        request: ListSchemasRequest,
         context: RequestContext,
-    ) -> Result<ListSharingSchemasResponse>;
-    async fn list_schema_tables(
+    ) -> Result<ListSchemasResponse>;
+    async fn list_tables(
         &self,
-        request: ListSchemaTablesRequest,
+        request: ListTablesRequest,
         context: RequestContext,
-    ) -> Result<ListSchemaTablesResponse>;
-    async fn list_share_tables(
+    ) -> Result<ListTablesResponse>;
+    async fn list_all_tables(
         &self,
-        request: ListShareTablesRequest,
+        request: ListAllTablesRequest,
         context: RequestContext,
-    ) -> Result<ListShareTablesResponse>;
+    ) -> Result<ListAllTablesResponse>;
     async fn get_table_version(
         &self,
         request: GetTableVersionRequest,

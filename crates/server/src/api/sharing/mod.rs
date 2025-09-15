@@ -26,7 +26,7 @@ impl SecuredAction for ListSharesRequest {
         &Permission::Read
     }
 }
-impl SecuredAction for ListSharingSchemasRequest {
+impl SecuredAction for ListSchemasRequest {
     fn resource(&self) -> ResourceIdent {
         ResourceIdent::share(ResourceName::new([self.share.as_str()]))
     }
@@ -36,7 +36,7 @@ impl SecuredAction for ListSharingSchemasRequest {
     }
 }
 
-impl SecuredAction for ListShareTablesRequest {
+impl SecuredAction for ListAllTablesRequest {
     fn resource(&self) -> ResourceIdent {
         ResourceIdent::share(ResourceName::new([self.name.as_str()]))
     }
@@ -46,7 +46,7 @@ impl SecuredAction for ListShareTablesRequest {
     }
 }
 
-impl SecuredAction for ListSchemaTablesRequest {
+impl SecuredAction for ListTablesRequest {
     fn resource(&self) -> ResourceIdent {
         ResourceIdent::share(ResourceName::new([self.share.as_str()]))
     }
