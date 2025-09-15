@@ -45,28 +45,28 @@ pub fn generate_code(
     let plan = analyze_metadata(metadata)?;
 
     // Generate code from plan
-    let common_code = generation::generate_common_code(&plan)?;
+    let common_code = generation::generate_common_code(&plan, metadata)?;
     output::write_generated_code(&common_code, output_dir_common)?;
 
     // Generate server
-    let server_code = generation::generate_server_code(&plan)?;
+    let server_code = generation::generate_server_code(&plan, metadata)?;
     output::write_generated_code(&server_code, output_dir_server)?;
 
     // Generate client
-    let client_code = generation::generate_client_code(&plan)?;
+    let client_code = generation::generate_client_code(&plan, metadata)?;
     output::write_generated_code(&client_code, output_dir_client)?;
 
     // Generate Python bindings if output directory is provided
-    let python_code = generation::generate_python_code(&plan)?;
+    let python_code = generation::generate_python_code(&plan, metadata)?;
     output::write_generated_code(&python_code, output_dir_python)?;
 
     // Generate Python typing file
-    let python_typing = generation::generate_python_typing(&plan, metadata)?;
-    let python_client_dir = output_dir_python
+    let _python_typing = generation::generate_python_typing(&plan, metadata)?;
+    let _typing_file_path = output_dir_python
         .parent()
         .and_then(|p| p.parent())
-        .ok_or("Could not find Python client directory")?;
-    // let typing_file_path = python_client_dir.join("unitycatalog_client_generated.pyi");
+        .ok_or("Could not find Python client directory")?
+        .join("unitycatalog_client_generated.pyi");
     // std::fs::write(&typing_file_path, python_typing)?;
 
     Ok(())

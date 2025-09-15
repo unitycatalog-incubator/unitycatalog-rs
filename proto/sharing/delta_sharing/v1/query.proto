@@ -5,7 +5,6 @@ package delta_sharing.v1;
 import "buf/validate/validate.proto";
 import "delta_sharing/v1/protocol.proto";
 import "google/api/field_behavior.proto";
-import "google/api/resource.proto";
 
 // Get the version of a table.
 message GetTableVersionRequest {

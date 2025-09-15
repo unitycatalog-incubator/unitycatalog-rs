@@ -1,9 +1,58 @@
 #![allow(unused_mut)]
 use super::client::*;
-use crate::error::Result;
-use futures::future::BoxFuture;
+use crate::{error::Result, utils::stream_paginated};
+use futures::{Stream, future::BoxFuture};
 use std::future::IntoFuture;
 use unitycatalog_common::models::shares::v1::*;
+/// Builder for creating requests
+pub struct ListSharesBuilder {
+    client: ShareClient,
+    request: ListSharesRequest,
+}
+impl ListSharesBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: ShareClient) -> Self {
+        let request = ListSharesRequest {
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    ///Opaque pagination token to go to next page based on previous query.
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+    /// Convert paginated request into stream of results
+    pub(crate) fn into_stream(&self) -> impl Stream<Item = Result<ListSharesResponse>> {
+        let request = self.request.clone();
+        stream_paginated(request, move |mut request, page_token| async move {
+            request.page_token = page_token;
+            let res = self.client.list_shares(&request).await?;
+            if let Some(ref mut remaining) = request.max_results {
+                *remaining -= res.shares.len() as i32;
+                if *remaining <= 0 {
+                    request.max_results = Some(0);
+                }
+            }
+            let next_page_token = res.next_page_token.clone();
+            Ok((res, request, next_page_token))
+        })
+    }
+}
+impl IntoFuture for ListSharesBuilder {
+    type Output = Result<ListSharesResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_shares(&request).await })
+    }
+}
 /// Builder for creating requests
 pub struct CreateShareBuilder {
     client: ShareClient,

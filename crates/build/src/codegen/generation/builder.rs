@@ -6,11 +6,14 @@ use syn::Path;
 use super::format_tokens;
 use crate::analysis::{MethodPlan, RequestType, ServicePlan};
 use crate::google::api::http_rule::Pattern;
-use crate::parsing::MessageField;
+use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo};
 use crate::utils::strings;
 
 /// Generate builder code for all request types in a service
-pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+pub(crate) fn generate(
+    service: &ServicePlan,
+    metadata: &CodeGenMetadata,
+) -> Result<String, Box<dyn std::error::Error>> {
     let mut builder_impls = Vec::new();
 
     for method in &service.methods {
@@ -21,11 +24,12 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
                 | RequestType::Update
                 | RequestType::Get
                 | RequestType::Delete
+                | RequestType::List
                 | RequestType::Custom(Pattern::Post(_))
                 | RequestType::Custom(Pattern::Get(_))
                 | RequestType::Custom(Pattern::Patch(_))
         ) {
-            let builder_code = generate_request_builder(method, service)?;
+            let builder_code = generate_request_builder(metadata, method, service)?;
             builder_impls.push(builder_code);
         }
     }
@@ -35,25 +39,13 @@ pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::err
     }
 
     let service_namespace = &service.base_path;
-    let client_name = format!(
-        "{}Client",
-        service
-            .handler_name
-            .strip_suffix("Handler")
-            .unwrap_or(&service.handler_name)
-    );
-
-    let builder_code = generate_builders_module(&client_name, &builder_impls, service_namespace);
+    let builder_code = generate_builders_module(&builder_impls, service_namespace);
 
     Ok(builder_code)
 }
 
 /// Generate the complete builders module
-fn generate_builders_module(
-    _client_name: &str,
-    builders: &[String],
-    service_namespace: &str,
-) -> String {
+fn generate_builders_module(builders: &[String], service_namespace: &str) -> String {
     let builder_tokens: Vec<TokenStream> = builders
         .iter()
         .map(|b| syn::parse_str::<TokenStream>(b).unwrap_or_else(|_| quote! {}))
@@ -67,9 +59,9 @@ fn generate_builders_module(
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use futures::future::BoxFuture;
+        use futures::{future::BoxFuture, Stream};
         use std::future::IntoFuture;
-        use crate::error::Result;
+        use crate::{error::Result, utils::stream_paginated};
         use #mod_path::*;
         use super::client::*;
 
@@ -81,11 +73,13 @@ fn generate_builders_module(
 
 /// Generate a builder for a specific request type
 fn generate_request_builder(
+    metadata: &CodeGenMetadata,
     method: &MethodPlan,
     service: &ServicePlan,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let input_type = strings::extract_simple_type_name(&method.metadata.input_type);
-    let output_type = strings::extract_simple_type_name(&method.metadata.output_type);
+    let output_type_name = strings::extract_simple_type_name(&method.metadata.output_type);
+    let output_type = metadata.messages.get(&method.metadata.output_type).unwrap();
 
     let builder_name = format!(
         "{}Builder",
@@ -93,10 +87,10 @@ fn generate_request_builder(
     );
     let builder_ident = format_ident!("{}", builder_name);
     let request_type_ident = format_ident!("{}", input_type);
-    let output_type_ident = if output_type == "Empty" {
+    let output_type_ident = if output_type_name == "Empty" {
         None
     } else {
-        Some(format_ident!("{}", output_type))
+        Some(format_ident!("{}", output_type_name))
     };
     let method_name = format_ident!("{}", method.handler_function_name);
 
@@ -123,6 +117,16 @@ fn generate_request_builder(
     // Generate with_* methods for optional fields
     let with_methods = generate_with_methods(&builder_ident, &optional_fields);
 
+    let into_stream_impl = if matches!(method.request_type, RequestType::List) {
+        Some(generate_into_stream_impl(
+            output_type,
+            output_type_ident.as_ref(),
+            &method_name,
+        ))
+    } else {
+        None
+    };
+
     // Generate IntoFuture implementation
     let into_future_impl = generate_into_future_impl(
         &builder_ident,
@@ -142,6 +146,8 @@ fn generate_request_builder(
             #constructor
 
             #(#with_methods)*
+
+            #into_stream_impl
         }
 
         #into_future_impl
@@ -614,7 +620,7 @@ fn generate_into_future_impl(
     if let Some(out_ident) = output_type_ident {
         quote! {
             impl IntoFuture for #builder_ident {
-                type Output = Result<#output_type_ident>;
+                type Output = Result<#out_ident>;
                 type IntoFuture = BoxFuture<'static, Self::Output>;
 
                 fn into_future(self) -> Self::IntoFuture {
@@ -636,6 +642,38 @@ fn generate_into_future_impl(
                     Box::pin(async move { client.#method_name(&request).await })
                 }
             }
+        }
+    }
+}
+
+fn generate_into_stream_impl(
+    output_type: &MessageInfo,
+    output_type_ident: Option<&proc_macro2::Ident>,
+    client_method_name: &proc_macro2::Ident,
+) -> TokenStream {
+    let items_field = output_type
+        .fields
+        .iter()
+        .find(|f| !f.name.contains("page_token"))
+        .unwrap();
+    let item_field_ident = format_ident!("{}", items_field.name);
+
+    quote! {
+        /// Convert paginated request into stream of results
+        pub(crate) fn into_stream(&self) -> impl Stream<Item = Result<#output_type_ident>> {
+            let request = self.request.clone();
+            stream_paginated(request, move |mut request, page_token| async move {
+                request.page_token = page_token;
+                let res = self.client.#client_method_name(&request).await?;
+                if let Some(ref mut remaining) = request.max_results {
+                    *remaining -= res.#item_field_ident.len() as i32;
+                    if *remaining <= 0 {
+                        request.max_results = Some(0);
+                    }
+                }
+                let next_page_token = res.next_page_token.clone();
+                Ok((res, request, next_page_token))
+            })
         }
     }
 }

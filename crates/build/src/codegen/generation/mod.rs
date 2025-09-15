@@ -18,6 +18,7 @@ use syn::File;
 use super::{GeneratedCode, extract_type_ident};
 use crate::analysis::MethodPlan;
 use crate::analysis::{GenerationPlan, RequestType, ServicePlan};
+use crate::parsing::CodeGenMetadata;
 
 mod builder;
 mod client;
@@ -43,6 +44,7 @@ impl MethodPlan {
 
 pub fn generate_common_code(
     plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -78,6 +80,7 @@ fn generate_common_module() -> String {
 
 pub fn generate_server_code(
     plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -103,6 +106,7 @@ pub fn generate_server_code(
 
 pub fn generate_python_code(
     plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -142,6 +146,7 @@ pub fn generate_python_typing(
 
 pub fn generate_client_code(
     plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -151,7 +156,7 @@ pub fn generate_client_code(
         let client_code = client::generate(service)?;
         files.insert(format!("{}/client.rs", service.base_path), client_code);
 
-        let client_code = builder::generate(service)?;
+        let client_code = builder::generate(service, metadata)?;
         files.insert(format!("{}/builders.rs", service.base_path), client_code);
 
         // Generate service module
