@@ -68,7 +68,7 @@ rest:
 rest-db:
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres cargo sqlx migrate run --source ./crates/postgres/migrations
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres RUST_LOG=INFO \
-        cargo run -p unitycatalog-cli -- server --rest --use-db
+    cargo run -p unitycatalog-cli -- server --rest --use-db
 
 docs:
     npm run dev -w docs
@@ -80,14 +80,12 @@ build-py: build-py-client
 # build python client bindings
 [group('build')]
 build-py-client:
-    uv run maturin develop --uv \
-      --manifest-path python/client/Cargo.toml
+    uv run maturin develop --uv --manifest-path python/client/Cargo.toml
 
 # build python server bindings
 [group('build')]
 build-py-server:
-    uv run maturin develop --uv \
-      --manifest-path crates/cli/Cargo.toml
+    uv run maturin develop --uv --manifest-path crates/cli/Cargo.toml
 
 # build node bindings
 [group('build')]
@@ -144,19 +142,19 @@ integration-record:
     UC_INTEGRATION_RECORD="true" \
     cargo run --bin unitycatalog-acceptance
 
+# lint nodejs bindings
 lint-node:
-    # lint nodejs bindings
     npm run lint -w @unitycatalog/client
 
 fix: fix-rust fix-node
   just fmt
 
+# fix nodejs bindings
 fix-node:
-    # fix nodejs bindings
     npm run lint-fix -w @unitycatalog/client
 
+# fix rust code
 fix-rust:
-    # fix nodejs bindings
     cargo clippy --fix --workspace --allow-dirty --all-features
 
 fmt:

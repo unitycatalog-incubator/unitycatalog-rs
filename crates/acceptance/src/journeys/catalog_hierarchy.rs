@@ -182,8 +182,6 @@ impl UserJourney for CatalogHierarchyJourney {
 
         for (index, schema_name) in self.schema_names.iter().enumerate() {
             let step_id = format!("create_schema_{}", index + 1);
-            let schema_full_name = format!("{}.{}", self.catalog_name, schema_name);
-
             let created_schema = logger
                 .step(&step_id, async {
                     client

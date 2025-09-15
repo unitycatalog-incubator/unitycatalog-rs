@@ -2,22 +2,23 @@
   "request": {
     "method": "POST",
     "url_path": "/api/2.1/unity-catalog/catalogs",
-    "body": "{\"name\":\"hierarchy_catalog_1755899503\",\"comment\":\"Hierarchy test catalog for schema management\",\"storage_root\":\"s3://open-lakehouse-dev/\"}"
+    "body": "{\"name\":\"hierarchy_catalog_1757916740\",\"comment\":\"Hierarchy test catalog for schema management\",\"storage_root\":\"s3://open-lakehouse-dev/\"}"
   },
   "response": {
     "status": 200,
     "headers": {
-      "x-content-type-options": "nosniff",
-      "date": "Fri, 22 Aug 2025 21:51:45 GMT",
-      "vary": "Accept-Encoding",
-      "x-request-id": "6051db2a-cf65-4abd-9cb9-7f770a313d37",
-      "server": "databricks",
-      "alt-svc": "clear",
-      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
       "x-databricks-org-id": "310942840210298",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+      "x-request-id": "cd19e372-e917-494b-9e13-b9d7740c34f4",
       "content-type": "application/json",
-      "content-length": "1200"
+      "server": "databricks",
+      "content-length": "1200",
+      "vary": "Accept-Encoding",
+      "alt-svc": "clear",
+      "date": "Mon, 15 Sep 2025 06:12:22 GMT",
+      "x-content-type-options": "nosniff",
+      "server-timing": "client_protocol;dur=0;desc=\"HTTP/2\""
     },
-    "body": "{\"name\":\"hierarchy_catalog_1755899503\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Hierarchy test catalog for schema management\",\"storage_root\":\"s3://open-lakehouse-dev/\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"catalog_type\":\"MANAGED_CATALOG\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"created_at\":1755899504881,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1755899504881,\"updated_by\":\"robert.pack@databricks.com\",\"storage_location\":\"s3://open-lakehouse-dev/__unitystorage/catalogs/9526c600-af7d-4d98-a3d3-135b73f452a0\",\"isolation_mode\":\"OPEN\",\"effective_auto_maintenance_flag\":{\"value\":\"DISABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"DISABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"browse_only\":false,\"id\":\"9526c600-af7d-4d98-a3d3-135b73f452a0\",\"full_name\":\"hierarchy_catalog_1755899503\",\"securable_type\":\"CATALOG\",\"securable_kind\":\"CATALOG_STANDARD\",\"resource_name\":\"/metastores/d588dff9-484f-45ac-a020-cc4961a362c7/catalogs/9526c600-af7d-4d98-a3d3-135b73f452a0\",\"metastore_version\":-1}"
+    "body": "{\"name\":\"hierarchy_catalog_1757916740\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Hierarchy test catalog for schema management\",\"storage_root\":\"s3://open-lakehouse-dev/\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"catalog_type\":\"MANAGED_CATALOG\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"created_at\":1757916742717,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1757916742717,\"updated_by\":\"robert.pack@databricks.com\",\"storage_location\":\"s3://open-lakehouse-dev/__unitystorage/catalogs/70088213-df06-4ad8-9303-1deaebb900c9\",\"isolation_mode\":\"OPEN\",\"effective_auto_maintenance_flag\":{\"value\":\"DISABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"DISABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"browse_only\":false,\"id\":\"70088213-df06-4ad8-9303-1deaebb900c9\",\"full_name\":\"hierarchy_catalog_1757916740\",\"securable_type\":\"CATALOG\",\"securable_kind\":\"CATALOG_STANDARD\",\"resource_name\":\"/metastores/d588dff9-484f-45ac-a020-cc4961a362c7/catalogs/70088213-df06-4ad8-9303-1deaebb900c9\",\"metastore_version\":-1}"
   }
 }

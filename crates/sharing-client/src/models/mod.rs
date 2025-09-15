@@ -6,7 +6,7 @@ use delta_kernel::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::error::Error;
+use crate::error::{Error, Result};
 
 #[allow(clippy::empty_docs, clippy::large_enum_variant)]
 pub mod sharing {
@@ -32,6 +32,19 @@ impl FromStr for ResponseFormat {
             "delta" => Ok(ResponseFormat::Delta),
             _ => Err(Error::InvalidArgument(s.to_string())),
         }
+    }
+}
+
+fn parse_reader_feature(s: &str) -> Result<ReaderFeature> {
+    match s.to_lowercase().as_str() {
+        "catalogmanaged" => Ok(ReaderFeature::CatalogManaged),
+        "columnmapping" => Ok(ReaderFeature::ColumnMapping),
+        "deletionvectors" => Ok(ReaderFeature::DeletionVectors),
+        "timestampntz" => Ok(ReaderFeature::TimestampWithoutTimezone),
+        "typewidening" => Ok(ReaderFeature::TypeWidening),
+        "v2checkpoint" => Ok(ReaderFeature::V2Checkpoint),
+        "varianttype" => Ok(ReaderFeature::VariantType),
+        _ => Err(Error::InvalidArgument(s.to_string())),
     }
 }
 
@@ -73,7 +86,7 @@ impl DeltaSharingCapabilities {
                     reader_features = Some(
                         value
                             .split(',')
-                            .map(|s| s.parse())
+                            .map(|s| parse_reader_feature(s))
                             .collect::<Result<Vec<_>, _>>()
                             .unwrap(),
                     );

@@ -1,6 +1,6 @@
 {
   "data": {
-    "catalog_name": "enhanced_catalog_1755899503",
-    "storage_root": "s3://open-lakehouse-dev/"
+    "storage_root": "s3://open-lakehouse-dev/",
+    "catalog_name": "enhanced_catalog_1757916740"
   }
 }
