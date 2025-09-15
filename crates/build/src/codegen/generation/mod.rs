@@ -11,6 +11,7 @@
 
 use std::collections::HashMap;
 
+use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::File;
@@ -18,6 +19,7 @@ use syn::File;
 use super::{GeneratedCode, extract_type_ident};
 use crate::analysis::MethodPlan;
 use crate::analysis::{GenerationPlan, RequestType, ServicePlan};
+use crate::codegen::ServiceHandler;
 use crate::parsing::CodeGenMetadata;
 
 mod builder;
@@ -86,10 +88,15 @@ pub fn generate_server_code(
 
     // Generate code for each service
     for service in &plan.services {
-        let trait_code = handler::generate(service)?;
+        let handler = ServiceHandler {
+            plan: service,
+            metadata,
+        };
+
+        let trait_code = handler::generate(&handler)?;
         files.insert(format!("{}/handler.rs", service.base_path), trait_code);
 
-        let server_code = server::generate_server(service)?;
+        let server_code = server::generate_server(&handler)?;
         files.insert(format!("{}/server.rs", service.base_path), server_code);
 
         // Generate client code
@@ -122,15 +129,23 @@ pub fn generate_python_code(
         .cloned()
         .collect::<Vec<_>>();
 
+    let handlers = services
+        .iter()
+        .map(|service| ServiceHandler {
+            plan: service,
+            metadata,
+        })
+        .collect_vec();
+
     // Generate code for each service
-    for service in &services {
+    for service in &handlers {
         // Generate Python client code
         let python_code = python::generate(service)?;
-        files.insert(format!("{}.rs", service.base_path), python_code);
+        files.insert(format!("{}.rs", service.plan.base_path), python_code);
     }
 
     // Generate the main module file that ties everything together
-    let module_code = python::main_module(&services);
+    let module_code = python::main_module(&handlers);
     files.insert("mod.rs".to_string(), module_code);
 
     Ok(GeneratedCode { files })
@@ -152,11 +167,16 @@ pub fn generate_client_code(
 
     // Generate code for each service
     for service in &plan.services {
+        let handler = ServiceHandler {
+            plan: service,
+            metadata,
+        };
+
         // Generate client code
-        let client_code = client::generate(service)?;
+        let client_code = client::generate(&handler)?;
         files.insert(format!("{}/client.rs", service.base_path), client_code);
 
-        let client_code = builder::generate(service, metadata)?;
+        let client_code = builder::generate(&handler)?;
         files.insert(format!("{}/builders.rs", service.base_path), client_code);
 
         // Generate service module

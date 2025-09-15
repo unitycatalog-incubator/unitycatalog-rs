@@ -22,12 +22,13 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+use convert_case::{Case, Casing};
 use quote::format_ident;
 use syn::Ident;
 
-use crate::analysis::analyze_metadata;
+use crate::analysis::{ManagedResource, MethodPlan, ServicePlan, analyze_metadata};
 use crate::output;
-use crate::parsing::CodeGenMetadata;
+use crate::parsing::{CodeGenMetadata, MessageInfo};
 
 pub mod generation;
 
@@ -77,6 +78,108 @@ pub fn generate_code(
 pub struct GeneratedCode {
     /// Generated files mapped by relative path
     pub files: HashMap<String, String>,
+}
+
+impl CodeGenMetadata {
+    fn get_message_meta(&self, message_name: &str) -> Option<MessageMeta<'_>> {
+        self.messages.get(message_name).map(|info| MessageMeta {
+            info,
+            metadata: self,
+        })
+    }
+}
+
+pub(crate) struct MessageMeta<'a> {
+    info: &'a MessageInfo,
+    metadata: &'a CodeGenMetadata,
+}
+
+pub(crate) struct ServiceHandler<'a> {
+    plan: &'a ServicePlan,
+    metadata: &'a CodeGenMetadata,
+}
+
+impl ServiceHandler<'_> {
+    pub(crate) fn resource(&self) -> Option<&ManagedResource> {
+        self.plan.managed_resources.first()
+    }
+
+    pub(crate) fn methods(&self) -> impl Iterator<Item = MethodHandler<'_>> {
+        self.plan.methods.iter().map(|plan| MethodHandler {
+            plan,
+            metadata: self.metadata,
+        })
+    }
+
+    pub(crate) fn client_type(&self) -> Ident {
+        if let Some(resource) = self.resource() {
+            format_ident!(
+                "{}",
+                format!("{} client", resource.descriptor.singular).to_case(Case::Pascal)
+            )
+        } else {
+            format_ident!(
+                "{}Client",
+                self.plan
+                    .service_name
+                    .trim_end_matches("Service")
+                    .trim_end_matches('s')
+            )
+        }
+    }
+
+    pub(crate) fn models_path(&self) -> syn::Path {
+        syn::parse_str(&format!(
+            "unitycatalog_common::models::{}::v1",
+            self.plan.base_path
+        ))
+        .unwrap()
+    }
+}
+
+pub(crate) struct MethodHandler<'a> {
+    plan: &'a MethodPlan,
+    metadata: &'a CodeGenMetadata,
+}
+
+impl MethodHandler<'_> {
+    pub(crate) fn output_message(&self) -> Option<MessageMeta<'_>> {
+        if self.plan.metadata.output_type.ends_with("Empty") {
+            None
+        } else {
+            self.metadata
+                .get_message_meta(&self.plan.metadata.output_type)
+        }
+    }
+
+    pub(crate) fn output_type(&self) -> Option<Ident> {
+        if self.plan.metadata.output_type.ends_with("Empty") {
+            None
+        } else {
+            Some(extract_type_ident(&self.plan.metadata.output_type))
+        }
+    }
+
+    pub(crate) fn input_message(&self) -> Option<MessageMeta<'_>> {
+        if self.plan.metadata.input_type == "Empty" {
+            None
+        } else {
+            self.metadata
+                .get_message_meta(&self.plan.metadata.input_type)
+        }
+    }
+
+    pub(crate) fn input_type(&self) -> Option<Ident> {
+        if self.plan.metadata.input_type == "Empty" {
+            None
+        } else {
+            Some(extract_type_ident(&self.plan.metadata.input_type))
+        }
+    }
+
+    pub(crate) fn builder_type(&self) -> Ident {
+        format_ident!("{}Builder", self.plan.metadata.method_name)
+    }
 }
 
 /// Extract the final type name from a fully qualified protobuf type and convert to Ident

@@ -61,8 +61,6 @@ pub struct MethodPlan {
     pub metadata: MethodMetadata,
     /// Rust function name for the handler method
     pub handler_function_name: String,
-    /// Rust function name for the route handler
-    pub route_function_name: String,
     /// HTTP method and path for routing
     pub http_method: String,
     pub http_path: String,

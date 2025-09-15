@@ -3,44 +3,33 @@ use quote::{format_ident, quote};
 use syn::Path;
 
 use super::format_tokens;
-use crate::analysis::{MethodPlan, PathParam, QueryParam, RequestType, ServicePlan};
+use crate::analysis::{PathParam, QueryParam, RequestType};
+use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::google::api::http_rule::Pattern;
 use crate::parsing::format_url_template;
-use crate::utils::strings;
 
 /// Generate client code for a service
-pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
     let mut client_methods = Vec::new();
 
-    for method in &service.methods {
+    for method in service.methods() {
         let method_code = client_method(method);
         client_methods.push(method_code);
     }
 
-    let client_name = format!(
-        "{}Client",
-        service
-            .handler_name
-            .strip_suffix("Handler")
-            .unwrap_or(&service.handler_name)
-    );
-    let client_code = client_struct(&client_name, &client_methods, &service.base_path);
+    let client_code = client_struct(service, &client_methods);
 
     Ok(client_code)
 }
 
 /// Generate client struct definition
-fn client_struct(client_name: &str, methods: &[String], service_namespace: &str) -> String {
-    let client_ident = format_ident!("{}", client_name);
+fn client_struct(service: &ServiceHandler<'_>, methods: &[String]) -> String {
+    let client_ident = service.client_type();
     let method_tokens: Vec<TokenStream> = methods
         .iter()
         .map(|m| syn::parse_str::<TokenStream>(m).unwrap_or_else(|_| quote! {}))
         .collect();
-    let mod_path: Path = syn::parse_str(&format!(
-        "unitycatalog_common::models::{}::v1",
-        service_namespace
-    ))
-    .unwrap();
+    let mod_path: Path = service.models_path();
 
     let tokens = quote! {
         #![allow(unused_mut)]
@@ -73,16 +62,15 @@ fn client_struct(client_name: &str, methods: &[String], service_namespace: &str)
 }
 
 /// Generate client method implementation
-pub fn client_method(method: &MethodPlan) -> String {
-    let method_name = format_ident!("{}", method.handler_function_name);
-    let input_type = strings::extract_simple_type_name(&method.metadata.input_type);
-    let input_type_ident = format_ident!("{}", input_type);
-    let http_method = format_ident!("{}", method.http_method.to_lowercase());
-    let url_formatting = generate_url_formatting(&method.http_path, &method.path_params);
-    let query_handling = generate_query_parameters(&method.query_params);
+pub fn client_method(method: MethodHandler<'_>) -> String {
+    let method_name = format_ident!("{}", method.plan.handler_function_name);
+    let input_type_ident = method.input_type();
+    let http_method = format_ident!("{}", method.plan.http_method.to_lowercase());
+    let url_formatting = generate_url_formatting(&method.plan.http_path, &method.plan.path_params);
+    let query_handling = generate_query_parameters(&method.plan.query_params);
 
     let body_handling = if matches!(
-        method.request_type,
+        method.plan.request_type,
         RequestType::Create
             | RequestType::Update
             | RequestType::Custom(Pattern::Post(_))
@@ -93,11 +81,10 @@ pub fn client_method(method: &MethodPlan) -> String {
         quote! {}
     };
 
-    let tokens = if method.has_response {
-        let output_type = strings::extract_simple_type_name(&method.metadata.output_type);
-        let output_type_ident = format_ident!("{}", output_type);
+    let tokens = if method.plan.has_response {
+        let output_type = method.output_type();
         quote! {
-            pub async fn #method_name(&self, request: &#input_type_ident) -> Result<#output_type_ident> {
+            pub async fn #method_name(&self, request: &#input_type_ident) -> Result<#output_type> {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;

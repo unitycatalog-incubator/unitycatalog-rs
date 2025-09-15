@@ -5,6 +5,7 @@ use syn::{Path, Type};
 use super::{extract_type_ident, format_tokens};
 use crate::{
     analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestType, ServicePlan},
+    codegen::ServiceHandler,
     google::api::http_rule::Pattern,
 };
 
@@ -32,17 +33,19 @@ pub(super) fn generate_common(service: &ServicePlan) -> Result<String, Box<dyn s
     Ok(module_code)
 }
 
-pub(super) fn generate_server(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+pub(super) fn generate_server(
+    service: &ServiceHandler<'_>,
+) -> Result<String, Box<dyn std::error::Error>> {
     let mut handler_functions = Vec::new();
-    for method in &service.methods {
-        let handler_code = route_handler_function(method, &service.handler_name);
+    for method in &service.plan.methods {
+        let handler_code = route_handler_function(method, &service.plan.handler_name);
         handler_functions.push(handler_code);
     }
 
     let module_code = server_server(
-        &service.handler_name,
+        &service.plan.handler_name,
         &handler_functions,
-        &service.base_path,
+        &service.plan.base_path,
     );
 
     Ok(module_code)
@@ -121,7 +124,6 @@ fn generate_extractor_for_method(
 
 /// Generate route handler function
 fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
-    let function_name = format_ident!("{}", method.route_function_name);
     let handler_method = format_ident!("{}", method.handler_function_name);
     let input_type = extract_type_ident(&method.metadata.input_type);
     let handler_trait_ident = format_ident!("{}", handler_trait);
@@ -129,7 +131,7 @@ fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
     let tokens = if method.has_response {
         let output_type = extract_type_ident(&method.metadata.output_type);
         quote! {
-            pub async fn #function_name<T: #handler_trait_ident>(
+            pub async fn #handler_method<T: #handler_trait_ident>(
                 State(handler): State<T>,
                 Extension(recipient): Extension<Recipient>,
                 request: #input_type,
@@ -141,7 +143,7 @@ fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
         }
     } else {
         quote! {
-            pub async fn #function_name<T: #handler_trait_ident>(
+            pub async fn #handler_method<T: #handler_trait_ident>(
                 State(handler): State<T>,
                 Extension(recipient): Extension<Recipient>,
                 request: #input_type,

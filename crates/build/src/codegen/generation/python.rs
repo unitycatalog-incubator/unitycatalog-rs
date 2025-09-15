@@ -6,17 +6,17 @@
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::Path;
 
 use super::format_tokens;
-use crate::analysis::{MethodPlan, RequestType, ServicePlan};
+use crate::analysis::{MethodPlan, RequestType};
+use crate::codegen::ServiceHandler;
 use crate::utils::strings;
 
-pub fn main_module(services: &[ServicePlan]) -> String {
+pub fn main_module(services: &[ServiceHandler<'_>]) -> String {
     let service_modules: Vec<TokenStream> = services
         .iter()
         .map(|s| {
-            let module_name = format_ident!("{}", s.base_path);
+            let module_name = format_ident!("{}", s.plan.base_path);
             quote! { pub mod #module_name; }
         })
         .collect();
@@ -33,36 +33,26 @@ pub fn main_module(services: &[ServicePlan]) -> String {
 }
 
 /// Generate Python bindings for a service
-pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
     let client_methods: Vec<_> = service
+        .plan
         .methods
         .iter()
-        .filter_map(|m| resource_client_method(m, service))
+        .filter_map(|m| resource_client_method(service, m))
         .collect();
 
-    let client_code = resource_client_struct(&client_methods, service);
+    let client_code = resource_client_struct(service, &client_methods);
 
     Ok(client_code)
 }
 
 /// Generate Python client struct definition
-fn resource_client_struct(methods: &[TokenStream], service: &ServicePlan) -> String {
-    let base_name = service
-        .handler_name
-        .strip_suffix("Handler")
-        .unwrap_or(&service.handler_name);
+fn resource_client_struct(service: &ServiceHandler<'_>, methods: &[TokenStream]) -> String {
+    let client_ident = format_ident!("{}", format!("Py{}", service.client_type()));
+    let rust_client_ident = service.client_type();
+    let rust_client_name = rust_client_ident.to_string();
 
-    let client_name = format!("Py{}Client", base_name);
-    let client_ident = format_ident!("{}", client_name);
-
-    let rust_client_name = format!("{}Client", base_name);
-    let rust_client_ident = format_ident!("{}", rust_client_name);
-
-    let mod_path: Path = syn::parse_str(&format!(
-        "unitycatalog_common::models::{}::v1",
-        service.base_path
-    ))
-    .unwrap();
+    let mod_path = service.models_path();
 
     let tokens = quote! {
         use std::collections::HashMap;
@@ -92,11 +82,12 @@ fn resource_client_struct(methods: &[TokenStream], service: &ServicePlan) -> Str
     format_tokens(tokens)
 }
 
-fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
+fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
     let methods: Vec<TokenStream> = services
         .iter()
         .flat_map(|s| {
-            s.methods
+            s.plan
+                .methods
                 .iter()
                 .flat_map(|m| collection_client_method(m, s))
         })
@@ -110,9 +101,7 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
     let mod_paths: Vec<TokenStream> = services
         .iter()
         .map(|s| {
-            let mod_path: Path =
-                syn::parse_str(&format!("unitycatalog_common::models::{}::v1", s.base_path))
-                    .unwrap();
+            let mod_path = s.models_path();
             quote! { use #mod_path::*; }
         })
         .collect();
@@ -120,8 +109,8 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
     let codegen_imports: Vec<TokenStream> = services
         .iter()
         .map(|s| {
-            let mod_name = format_ident!("{}", s.base_path);
-            let client_name = format_ident!("Py{}Client", s.handler_name.replace("Handler", ""));
+            let mod_name = format_ident!("{}", s.plan.base_path);
+            let client_name = format_ident!("Py{}", s.client_type().to_string());
             quote! { use crate::codegen::#mod_name::#client_name; }
         })
         .collect();
@@ -161,7 +150,10 @@ fn collection_client_struct(services: &[ServicePlan]) -> TokenStream {
 }
 
 /// Generate Python method wrapper
-fn resource_client_method(method: &MethodPlan, _service: &ServicePlan) -> Option<TokenStream> {
+fn resource_client_method(
+    _service: &ServiceHandler<'_>,
+    method: &MethodPlan,
+) -> Option<TokenStream> {
     let method_name = method.resource_client_method();
     let response_type = extract_response_type(&method.metadata.output_type);
     let response_type_ident = format_ident!("{}", response_type);
@@ -175,7 +167,10 @@ fn resource_client_method(method: &MethodPlan, _service: &ServicePlan) -> Option
     Some(code)
 }
 
-fn collection_client_method(method: &MethodPlan, _service: &ServicePlan) -> Option<TokenStream> {
+fn collection_client_method(
+    method: &MethodPlan,
+    _service: &ServiceHandler<'_>,
+) -> Option<TokenStream> {
     if !method.is_collection_client_method {
         return None;
     }
@@ -740,16 +735,16 @@ fn python_field_type_to_rust_type(field_type: &str, is_optional: bool) -> String
 }
 
 /// Generate resource accessor method for the main client
-fn generate_resource_accessor_method(service: &ServicePlan) -> Option<TokenStream> {
+fn generate_resource_accessor_method(service: &ServiceHandler<'_>) -> Option<TokenStream> {
     // Only generate methods for services that manage resources
-    if service.managed_resources.is_empty() {
+    if service.plan.managed_resources.is_empty() {
         return None;
     }
 
     // For now, assume each service manages exactly one resource type
-    let resource = &service.managed_resources[0];
+    let resource = &service.resource().unwrap();
     let method_name = format_ident!("{}", resource.descriptor.singular);
-    let client_name = format_ident!("Py{}Client", service.handler_name.replace("Handler", ""));
+    let client_name = format_ident!("Py{}", service.client_type().to_string());
 
     // Generate method based on the specific resource patterns
     // Use the singular name from the resource descriptor instead of hardcoded match
