@@ -6,6 +6,7 @@ pub use schemas::SchemaHandler;
 pub use shares::ShareHandler;
 pub use tables::TableHandler;
 pub use temporary_credentials::TemporaryCredentialHandler;
+pub use volumes::VolumeHandler;
 
 use crate::policy::{Permission, Recipient};
 use unitycatalog_common::models::ResourceIdent;
@@ -19,6 +20,7 @@ pub mod shares;
 pub mod sharing;
 pub mod tables;
 pub mod temporary_credentials;
+pub mod volumes;
 
 #[derive(Debug, Clone)]
 pub struct RequestContext {
