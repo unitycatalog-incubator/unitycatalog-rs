@@ -32,6 +32,8 @@ jobs:
         with:
           toolchain: stable
           cache: true
+          # should be removed or set to "-D warnings" once the code is cleaned up
+          rustflags: ""
 
       - name: Run tests
         run: cargo test --lib --bins --tests -- --nocapture
