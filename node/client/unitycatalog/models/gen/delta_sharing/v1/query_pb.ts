@@ -17,7 +17,7 @@ import { file_delta_sharing_v1_protocol } from "./protocol_pb";
 export const file_delta_sharing_v1_query: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "ChxkZWx0YV9zaGFyaW5nL3YxL3F1ZXJ5LnByb3RvEhBkZWx0YV9zaGFyaW5nLnYxItMBChZHZXRUYWJsZVZlcnNpb25SZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAIgASgJQgrgQQK6SARyAhABEhkKBXNoYXJlGAMgASgJQgrgQQK6SARyAhABElEKEnN0YXJ0aW5nX3RpbWVzdGFtcBgEIAEoCUIw4EEBukgqcigyJl5cZHs0fS1cZHsyfS1cZHsyfVRcZHsyfTpcZHsyfTpcZHsyfVokSACIAQFCFQoTX3N0YXJ0aW5nX3RpbWVzdGFtcCKJAQodSW50ZXJuYWxHZXRUYWJsZVZlcnNpb25QYXJhbXMSUQoSc3RhcnRpbmdfdGltZXN0YW1wGAEgASgJQjDgQQG6SCpyKDImXlxkezR9LVxkezJ9LVxkezJ9VFxkezJ9OlxkezJ9OlxkezJ9WiRIAIgBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wIioKF0dldFRhYmxlVmVyc2lvblJlc3BvbnNlEg8KB3ZlcnNpb24YASABKAMiagoXR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QSGAoEbmFtZRgBIAEoCUIK4EECukgEcgIQARIZCgVzaGFyZRgCIAEoCUIK4EECukgEcgIQARIaCgZzY2hlbWEYAyABKAlCCuBBArpIBHICEAEigwEKDVF1ZXJ5UmVzcG9uc2USNAoHcGFycXVldBgBIAEoCzIhLmRlbHRhX3NoYXJpbmcudjEuUGFycXVldFJlc3BvbnNlSAASMAoFZGVsdGEYAiABKAsyHy5kZWx0YV9zaGFyaW5nLnYxLkRlbHRhUmVzcG9uc2VIAEIKCghyZXNwb25zZSJHCg9QYXJxdWV0UmVzcG9uc2USNAoHZW50cmllcxgBIAMoCzIjLmRlbHRhX3NoYXJpbmcudjEuUGFycXVldExvZ01lc3NhZ2UiigEKEVBhcnF1ZXRMb2dNZXNzYWdlEjUKCHByb3RvY29sGAEgASgLMiEuZGVsdGFfc2hhcmluZy52MS5Qcm90b2NvbFBhcnF1ZXRIABI1CghtZXRhZGF0YRgCIAEoCzIhLmRlbHRhX3NoYXJpbmcudjEuTWV0YWRhdGFQYXJxdWV0SABCBwoFZW50cnkiLQoPUHJvdG9jb2xQYXJxdWV0EhoKEm1pbl9yZWFkZXJfdmVyc2lvbhgBIAEoBSK/AQoPTWV0YWRhdGFQYXJxdWV0EgoKAmlkGAEgASgJEhEKBG5hbWUYAiABKAlIAIgBARIYCgtkZXNjcmlwdGlvbhgDIAEoCUgBiAEBEigKBmZvcm1hdBgEIAEoCzIYLmRlbHRhX3NoYXJpbmcudjEuRm9ybWF0EhUKDXNjaGVtYV9zdHJpbmcYBSABKAkSGQoRcGFydGl0aW9uX2NvbHVtbnMYBiADKAlCBwoFX25hbWVCDgoMX2Rlc2NyaXB0aW9uIkMKDURlbHRhUmVzcG9uc2USMgoHZW50cmllcxgBIAMoCzIhLmRlbHRhX3NoYXJpbmcudjEuRGVsdGFMb2dNZXNzYWdlIoMBCg9EZWx0YUxvZ01lc3NhZ2USMwoIcHJvdG9jb2wYASABKAsyHy5kZWx0YV9zaGFyaW5nLnYxLlByb3RvY29sRGVsdGFIABIyCghtZXRhZGF0YRgCIAEoCzIeLmRlbHRhX3NoYXJpbmcudjEuTWV0YWRhdERlbHRhSABCBwoFZW50cnkiRwoNUHJvdG9jb2xEZWx0YRIaChJtaW5fcmVhZGVyX3ZlcnNpb24YASABKAUSGgoSbWluX3dyaXRlcl92ZXJzaW9uGAIgASgFIqYBCgxNZXRhZGF0RGVsdGESMgoOZGVsdGFfbWV0YWRhdGEYASABKAsyGi5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhEhQKB3ZlcnNpb24YAiABKANIAIgBARIRCgRzaXplGAMgASgDSAGIAQESFgoJbnVtX2ZpbGVzGAQgASgDSAKIAQFCCgoIX3ZlcnNpb25CBwoFX3NpemVCDAoKX251bV9maWxlcyKwAQoNSnNvblByZWRpY2F0ZRIKCgJvcBgBIAEoCRIxCghjaGlsZHJlbhgCIAMoCzIfLmRlbHRhX3NoYXJpbmcudjEuSnNvblByZWRpY2F0ZRIRCgRuYW1lGAMgASgJSACIAQESEgoFdmFsdWUYBCABKAlIAYgBARIXCgp2YWx1ZV90eXBlGAUgASgJSAKIAQFCBwoFX25hbWVCCAoGX3ZhbHVlQg0KC192YWx1ZV90eXBlQn8KFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgpRdWVyeVByb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM",
+    "ChxkZWx0YV9zaGFyaW5nL3YxL3F1ZXJ5LnByb3RvEhBkZWx0YV9zaGFyaW5nLnYxItMBChZHZXRUYWJsZVZlcnNpb25SZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAIgASgJQgrgQQK6SARyAhABEhkKBXNoYXJlGAMgASgJQgrgQQK6SARyAhABElEKEnN0YXJ0aW5nX3RpbWVzdGFtcBgEIAEoCUIw4EEBukgqcigyJl5cZHs0fS1cZHsyfS1cZHsyfVRcZHsyfTpcZHsyfTpcZHsyfVokSACIAQFCFQoTX3N0YXJ0aW5nX3RpbWVzdGFtcCIqChdHZXRUYWJsZVZlcnNpb25SZXNwb25zZRIPCgd2ZXJzaW9uGAEgASgDImoKF0dldFRhYmxlTWV0YWRhdGFSZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGQoFc2hhcmUYAiABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAMgASgJQgrgQQK6SARyAhABIoMBCg1RdWVyeVJlc3BvbnNlEjQKB3BhcnF1ZXQYASABKAsyIS5kZWx0YV9zaGFyaW5nLnYxLlBhcnF1ZXRSZXNwb25zZUgAEjAKBWRlbHRhGAIgASgLMh8uZGVsdGFfc2hhcmluZy52MS5EZWx0YVJlc3BvbnNlSABCCgoIcmVzcG9uc2UiRwoPUGFycXVldFJlc3BvbnNlEjQKB2VudHJpZXMYASADKAsyIy5kZWx0YV9zaGFyaW5nLnYxLlBhcnF1ZXRMb2dNZXNzYWdlIooBChFQYXJxdWV0TG9nTWVzc2FnZRI1Cghwcm90b2NvbBgBIAEoCzIhLmRlbHRhX3NoYXJpbmcudjEuUHJvdG9jb2xQYXJxdWV0SAASNQoIbWV0YWRhdGEYAiABKAsyIS5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhUGFycXVldEgAQgcKBWVudHJ5Ii0KD1Byb3RvY29sUGFycXVldBIaChJtaW5fcmVhZGVyX3ZlcnNpb24YASABKAUivwEKD01ldGFkYXRhUGFycXVldBIKCgJpZBgBIAEoCRIRCgRuYW1lGAIgASgJSACIAQESGAoLZGVzY3JpcHRpb24YAyABKAlIAYgBARIoCgZmb3JtYXQYBCABKAsyGC5kZWx0YV9zaGFyaW5nLnYxLkZvcm1hdBIVCg1zY2hlbWFfc3RyaW5nGAUgASgJEhkKEXBhcnRpdGlvbl9jb2x1bW5zGAYgAygJQgcKBV9uYW1lQg4KDF9kZXNjcmlwdGlvbiJDCg1EZWx0YVJlc3BvbnNlEjIKB2VudHJpZXMYASADKAsyIS5kZWx0YV9zaGFyaW5nLnYxLkRlbHRhTG9nTWVzc2FnZSKDAQoPRGVsdGFMb2dNZXNzYWdlEjMKCHByb3RvY29sGAEgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Qcm90b2NvbERlbHRhSAASMgoIbWV0YWRhdGEYAiABKAsyHi5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXREZWx0YUgAQgcKBWVudHJ5IkcKDVByb3RvY29sRGVsdGESGgoSbWluX3JlYWRlcl92ZXJzaW9uGAEgASgFEhoKEm1pbl93cml0ZXJfdmVyc2lvbhgCIAEoBSKmAQoMTWV0YWRhdERlbHRhEjIKDmRlbHRhX21ldGFkYXRhGAEgASgLMhouZGVsdGFfc2hhcmluZy52MS5NZXRhZGF0YRIUCgd2ZXJzaW9uGAIgASgDSACIAQESEQoEc2l6ZRgDIAEoA0gBiAEBEhYKCW51bV9maWxlcxgEIAEoA0gCiAEBQgoKCF92ZXJzaW9uQgcKBV9zaXplQgwKCl9udW1fZmlsZXMisAEKDUpzb25QcmVkaWNhdGUSCgoCb3AYASABKAkSMQoIY2hpbGRyZW4YAiADKAsyHy5kZWx0YV9zaGFyaW5nLnYxLkpzb25QcmVkaWNhdGUSEQoEbmFtZRgDIAEoCUgAiAEBEhIKBXZhbHVlGAQgASgJSAGIAQESFwoKdmFsdWVfdHlwZRgFIAEoCUgCiAEBQgcKBV9uYW1lQggKBl92YWx1ZUINCgtfdmFsdWVfdHlwZUJ/ChRjb20uZGVsdGFfc2hhcmluZy52MUIKUXVlcnlQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z",
     [
       file_buf_validate_validate,
       file_delta_sharing_v1_protocol,
@@ -73,29 +73,6 @@ export const GetTableVersionRequestSchema: GenMessage<GetTableVersionRequest> =
   messageDesc(file_delta_sharing_v1_query, 0);
 
 /**
- * helper message internally used to parse the rest request.
- * we do this over a manual implementation since the generated code
- * will allow for snake_case as well as camelCase query parameters
- *
- * @generated from message delta_sharing.v1.InternalGetTableVersionParams
- */
-export type InternalGetTableVersionParams =
-  Message<"delta_sharing.v1.InternalGetTableVersionParams"> & {
-    /**
-     * @generated from field: optional string starting_timestamp = 1;
-     */
-    startingTimestamp?: string;
-  };
-
-/**
- * Describes the message delta_sharing.v1.InternalGetTableVersionParams.
- * Use `create(InternalGetTableVersionParamsSchema)` to create a new message.
- */
-export const InternalGetTableVersionParamsSchema: GenMessage<InternalGetTableVersionParams> =
-  /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 1);
-
-/**
  * Response for GetTableVersionRequest.
  *
  * @generated from message delta_sharing.v1.GetTableVersionResponse
@@ -116,7 +93,7 @@ export type GetTableVersionResponse =
  */
 export const GetTableVersionResponseSchema: GenMessage<GetTableVersionResponse> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 2);
+  messageDesc(file_delta_sharing_v1_query, 1);
 
 /**
  * Get metadata of a table.
@@ -153,7 +130,7 @@ export type GetTableMetadataRequest =
  */
 export const GetTableMetadataRequestSchema: GenMessage<GetTableMetadataRequest> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 3);
+  messageDesc(file_delta_sharing_v1_query, 2);
 
 /**
  * Response for a query against a table.
@@ -192,7 +169,7 @@ export type QueryResponse = Message<"delta_sharing.v1.QueryResponse"> & {
  */
 export const QueryResponseSchema: GenMessage<QueryResponse> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 4);
+  messageDesc(file_delta_sharing_v1_query, 3);
 
 /**
  * Response for a query against a table in Parquet format.
@@ -212,7 +189,7 @@ export type ParquetResponse = Message<"delta_sharing.v1.ParquetResponse"> & {
  */
 export const ParquetResponseSchema: GenMessage<ParquetResponse> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 5);
+  messageDesc(file_delta_sharing_v1_query, 4);
 
 /**
  * Log message for Parquet response.
@@ -248,7 +225,7 @@ export type ParquetLogMessage =
  */
 export const ParquetLogMessageSchema: GenMessage<ParquetLogMessage> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 6);
+  messageDesc(file_delta_sharing_v1_query, 5);
 
 /**
  * Protocol for Parquet response.
@@ -271,7 +248,7 @@ export type ProtocolParquet = Message<"delta_sharing.v1.ProtocolParquet"> & {
  */
 export const ProtocolParquetSchema: GenMessage<ProtocolParquet> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 7);
+  messageDesc(file_delta_sharing_v1_query, 6);
 
 /**
  * Metadata for Parquet response.
@@ -328,7 +305,7 @@ export type MetadataParquet = Message<"delta_sharing.v1.MetadataParquet"> & {
  */
 export const MetadataParquetSchema: GenMessage<MetadataParquet> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 8);
+  messageDesc(file_delta_sharing_v1_query, 7);
 
 /**
  * Response for a query against a table in Delta format.
@@ -348,7 +325,7 @@ export type DeltaResponse = Message<"delta_sharing.v1.DeltaResponse"> & {
  */
 export const DeltaResponseSchema: GenMessage<DeltaResponse> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 9);
+  messageDesc(file_delta_sharing_v1_query, 8);
 
 /**
  * Log message for Delta response.
@@ -383,7 +360,7 @@ export type DeltaLogMessage = Message<"delta_sharing.v1.DeltaLogMessage"> & {
  */
 export const DeltaLogMessageSchema: GenMessage<DeltaLogMessage> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 10);
+  messageDesc(file_delta_sharing_v1_query, 9);
 
 /**
  * Protocol for Delta response.
@@ -411,7 +388,7 @@ export type ProtocolDelta = Message<"delta_sharing.v1.ProtocolDelta"> & {
  */
 export const ProtocolDeltaSchema: GenMessage<ProtocolDelta> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 11);
+  messageDesc(file_delta_sharing_v1_query, 10);
 
 /**
  * Metadata for Delta response.
@@ -456,7 +433,7 @@ export type MetadatDelta = Message<"delta_sharing.v1.MetadatDelta"> & {
  */
 export const MetadatDeltaSchema: GenMessage<MetadatDelta> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 12);
+  messageDesc(file_delta_sharing_v1_query, 11);
 
 /**
  * @generated from message delta_sharing.v1.JsonPredicate
@@ -510,4 +487,4 @@ export type JsonPredicate = Message<"delta_sharing.v1.JsonPredicate"> & {
  */
 export const JsonPredicateSchema: GenMessage<JsonPredicate> =
   /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_query, 13);
+  messageDesc(file_delta_sharing_v1_query, 12);

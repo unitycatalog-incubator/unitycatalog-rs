@@ -5,7 +5,6 @@
 import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../google/api/resource_pb";
@@ -16,12 +15,11 @@ import { file_google_api_resource } from "../../google/api/resource_pb";
 export const file_delta_sharing_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSI+CgVTaGFyZRIYCgRuYW1lGAEgASgJQgrgQQi6SARyAhABEhQKAmlkGAIgASgJQgPgQQNIAIgBAUIFCgNfaWQiSQoNU2hhcmluZ1NjaGVtYRIMCgRuYW1lGAEgASgJEg0KBXNoYXJlGAIgASgJEhQKAmlkGAMgASgJQgPgQQNIAIgBAUIFCgNfaWQi+wEKDFNoYXJpbmdUYWJsZRI3CgRuYW1lGAEgASgJQingQQi6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgZzY2hlbWEYAiABKAlCJbpIInIgEAEY/wEyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSNQoFc2hhcmUYAyABKAlCJrpII3IhEAEY/wEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEhQKAmlkGAQgASgJQgPgQQNIAIgBARIaCghzaGFyZV9pZBgFIAEoCUID4EEDSAGIAQFCBQoDX2lkQgsKCV9zaGFyZV9pZCKrAgoRU2hhcmluZ1NjaGVtYUluZm8SDwoCaWQYASABKAlCA+BBAxIYCgRuYW1lGAIgASgJQgrgQQi6SARyAhABEhIKBXNoYXJlGAMgASgJQgPgQQMSGgoIc2hhcmVfaWQYBCABKAlCA+BBA0gAiAEBEh0KC2Rlc2NyaXB0aW9uGAUgASgJQgPgQQFIAYgBARJMCgpwcm9wZXJ0aWVzGAYgAygLMjMuZGVsdGFfc2hhcmluZy52MS5TaGFyaW5nU2NoZW1hSW5mby5Qcm9wZXJ0aWVzRW50cnlCA+BBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUILCglfc2hhcmVfaWRCDgoMX2Rlc2NyaXB0aW9uQoABChRjb20uZGVsdGFfc2hhcmluZy52MUILTW9kZWxzUHJvdG9QAaICA0RYWKoCD0RlbHRhU2hhcmluZy5WMcoCD0RlbHRhU2hhcmluZ1xWMeICG0RlbHRhU2hhcmluZ1xWMVxHUEJNZXRhZGF0YeoCEERlbHRhU2hhcmluZzo6VjFiBnByb3RvMw",
+    "Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSI+CgVTaGFyZRIYCgRuYW1lGAEgASgJQgrgQQi6SARyAhABEhQKAmlkGAIgASgJQgPgQQNIAIgBAUIFCgNfaWQiQgoGU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL0AQoFVGFibGUSNwoEbmFtZRgBIAEoCUIp4EEIukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNQoGc2NoZW1hGAIgASgJQiW6SCJyIBABGP8BMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjUKBXNoYXJlGAMgASgJQia6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIUCgJpZBgEIAEoCUID4EEDSACIAQESGgoIc2hhcmVfaWQYBSABKAlCA+BBA0gBiAEBQgUKA19pZEILCglfc2hhcmVfaWRCgAEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgtNb2RlbHNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z",
     [
       file_buf_validate_validate,
       file_google_api_field_behavior,
       file_google_api_resource,
-      file_google_protobuf_struct,
     ],
   );
 
@@ -56,11 +54,14 @@ export const ShareSchema: GenMessage<Share> =
   messageDesc(file_delta_sharing_v1_models, 0);
 
 /**
- * A schema is a logical grouping of tables. A schema may contain multiple tables.
+ * A schema in a delta sharing service.
  *
- * @generated from message delta_sharing.v1.SharingSchema
+ * A schema is a logical grouping of tables.
+ * A schema may contain multiple tables.
+ *
+ * @generated from message delta_sharing.v1.Schema
  */
-export type SharingSchema = Message<"delta_sharing.v1.SharingSchema"> & {
+export type Schema = Message<"delta_sharing.v1.Schema"> & {
   /**
    * The name of the schema
    *
@@ -84,19 +85,19 @@ export type SharingSchema = Message<"delta_sharing.v1.SharingSchema"> & {
 };
 
 /**
- * Describes the message delta_sharing.v1.SharingSchema.
- * Use `create(SharingSchemaSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.Schema.
+ * Use `create(SchemaSchema)` to create a new message.
  */
-export const SharingSchemaSchema: GenMessage<SharingSchema> =
+export const SchemaSchema: GenMessage<Schema> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_models, 1);
 
 /**
  * A table is a Delta Lake table or a view on top of a Delta Lake table.
  *
- * @generated from message delta_sharing.v1.SharingTable
+ * @generated from message delta_sharing.v1.Table
  */
-export type SharingTable = Message<"delta_sharing.v1.SharingTable"> & {
+export type Table = Message<"delta_sharing.v1.Table"> & {
   /**
    * The name of the table.
    *
@@ -134,70 +135,9 @@ export type SharingTable = Message<"delta_sharing.v1.SharingTable"> & {
 };
 
 /**
- * Describes the message delta_sharing.v1.SharingTable.
- * Use `create(SharingTableSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.Table.
+ * Use `create(TableSchema)` to create a new message.
  */
-export const SharingTableSchema: GenMessage<SharingTable> =
+export const TableSchema: GenMessage<Table> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_models, 2);
-
-/**
- * A schema in a delta sharing service.
- *
- * A schema is a logical grouping of tables.
- * It may contain multiple tables.
- *
- * @generated from message delta_sharing.v1.SharingSchemaInfo
- */
-export type SharingSchemaInfo =
-  Message<"delta_sharing.v1.SharingSchemaInfo"> & {
-    /**
-     * Unique identifier for the schema.
-     *
-     * @generated from field: string id = 1;
-     */
-    id: string;
-
-    /**
-     * The name of the schema.
-     *
-     * @generated from field: string name = 2;
-     */
-    name: string;
-
-    /**
-     * The share name that the schema belongs to.
-     *
-     * @generated from field: string share = 3;
-     */
-    share: string;
-
-    /**
-     * The unique identifier for the share this schema belongs to.
-     *
-     * @generated from field: optional string share_id = 4;
-     */
-    shareId?: string;
-
-    /**
-     * User-provided free-form text description.
-     *
-     * @generated from field: optional string description = 5;
-     */
-    description?: string;
-
-    /**
-     * A map of key-value properties attached to the securable.
-     *
-     * @generated from field: map<string, string> properties = 6;
-     */
-    properties: { [key: string]: string };
-  };
-
-/**
- * Describes the message delta_sharing.v1.SharingSchemaInfo.
- * Use `create(SharingSchemaInfoSchema)` to create a new message.
- */
-export const SharingSchemaInfoSchema: GenMessage<SharingSchemaInfo> =
-  /*@__PURE__*/
-  messageDesc(file_delta_sharing_v1_models, 3);

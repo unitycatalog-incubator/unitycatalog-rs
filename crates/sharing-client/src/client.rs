@@ -75,43 +75,24 @@ impl DeltaSharingClient {
         self.discovery.get_share(&request).await
     }
 
-    async fn list_share_schemas_inner(
-        &self,
-        request: ListSharingSchemasRequest,
-    ) -> Result<ListSharingSchemasResponse> {
-        let mut url = self
-            .base_url
-            .join(&format!("shares/{}/schemas", request.share))?;
-        if let Some(page_token) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &page_token);
-        }
-        if let Some(max_results) = request.max_results {
-            url.query_pairs_mut()
-                .append_pair("max_results", &max_results.to_string());
-        }
-        let result = self.client.get(url).send().await?;
-        result.error_for_status_ref()?;
-        let result = result.bytes().await?;
-        Ok(::serde_json::from_slice(&result)?)
-    }
-
     pub fn list_share_schemas(
         &self,
         share: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<SharingSchema>> {
+    ) -> BoxStream<'_, Result<Schema>> {
         let share = share.into();
         let max_results = max_results.into();
         stream_paginated(
             (share, max_results),
             move |(share, mut max_results), page_token| async move {
-                let request = ListSharingSchemasRequest {
+                let request = ListSchemasRequest {
                     share: share.clone(),
                     max_results,
                     page_token,
                 };
                 let res = self
-                    .list_share_schemas_inner(request)
+                    .discovery
+                    .list_sharing_schemas(&request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
 
@@ -131,43 +112,24 @@ impl DeltaSharingClient {
         .boxed()
     }
 
-    async fn list_share_tables_inner(
-        &self,
-        request: ListShareTablesRequest,
-    ) -> Result<ListShareTablesResponse> {
-        let mut url = self
-            .base_url
-            .join(&format!("shares/{}/all-tables", request.name))?;
-        if let Some(page_token) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &page_token);
-        }
-        if let Some(max_results) = request.max_results {
-            url.query_pairs_mut()
-                .append_pair("max_results", &max_results.to_string());
-        }
-        let result = self.client.get(url).send().await?;
-        result.error_for_status_ref()?;
-        let result = result.bytes().await?;
-        Ok(::serde_json::from_slice(&result)?)
-    }
-
-    pub fn list_share_tables(
+    pub fn list_all_tables(
         &self,
         share: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<SharingTable>> {
+    ) -> BoxStream<'_, Result<Table>> {
         let share = share.into();
         let max_results = max_results.into();
         stream_paginated(
             (share, max_results),
             move |(share, mut max_results), page_token| async move {
-                let request = ListShareTablesRequest {
+                let request = ListAllTablesRequest {
                     name: share.clone(),
                     max_results,
                     page_token,
                 };
                 let res = self
-                    .list_share_tables_inner(request)
+                    .discovery
+                    .list_share_tables(&request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
 
@@ -185,27 +147,6 @@ impl DeltaSharingClient {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-
-    async fn list_schema_tables_inner(
-        &self,
-        request: ListSchemaTablesRequest,
-    ) -> Result<ListSchemaTablesResponse> {
-        let mut url = self.base_url.join(&format!(
-            "shares/{}/schemas/{}/tables",
-            request.share, request.name
-        ))?;
-        if let Some(page_token) = request.page_token {
-            url.query_pairs_mut().append_pair("page_token", &page_token);
-        }
-        if let Some(max_results) = request.max_results {
-            url.query_pairs_mut()
-                .append_pair("max_results", &max_results.to_string());
-        }
-        let result = self.client.get(url).send().await?;
-        result.error_for_status_ref()?;
-        let result = result.bytes().await?;
-        Ok(::serde_json::from_slice(&result)?)
     }
 
     pub fn list_schema_tables(
@@ -213,21 +154,22 @@ impl DeltaSharingClient {
         share: impl Into<String>,
         schema: impl Into<String>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<SharingTable>> {
+    ) -> BoxStream<'_, Result<Table>> {
         let share = share.into();
         let schema = schema.into();
         let max_results = max_results.into();
         stream_paginated(
             (share, schema, max_results),
             move |(share, schema, mut max_results), page_token| async move {
-                let request = ListSchemaTablesRequest {
+                let request = ListTablesRequest {
                     share: share.clone(),
                     name: schema.clone(),
                     max_results,
                     page_token,
                 };
                 let res = self
-                    .list_schema_tables_inner(request)
+                    .discovery
+                    .list_schema_tables(&request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
 

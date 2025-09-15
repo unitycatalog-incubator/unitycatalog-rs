@@ -252,6 +252,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    #[ignore]
     async fn test_list_store_with_temp_credential() {
         let databricks_host = std::env::var("DATABRICKS_HOST").unwrap();
         let databricks_token = std::env::var("DATABRICKS_TOKEN").unwrap();

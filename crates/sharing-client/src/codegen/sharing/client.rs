@@ -48,8 +48,8 @@ impl SharingClient {
 
     pub async fn list_sharing_schemas(
         &self,
-        request: &ListSharingSchemasRequest,
-    ) -> Result<ListSharingSchemasResponse> {
+        request: &ListSchemasRequest,
+    ) -> Result<ListSchemasResponse> {
         let formatted_path = format!("shares/{}/schemas", request.share);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
@@ -68,8 +68,8 @@ impl SharingClient {
 
     pub async fn list_schema_tables(
         &self,
-        request: &ListSchemaTablesRequest,
-    ) -> Result<ListSchemaTablesResponse> {
+        request: &ListTablesRequest,
+    ) -> Result<ListTablesResponse> {
         let formatted_path = format!("shares/{}/schemas/{}/tables", request.share, request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
@@ -88,8 +88,8 @@ impl SharingClient {
 
     pub async fn list_share_tables(
         &self,
-        request: &ListShareTablesRequest,
-    ) -> Result<ListShareTablesResponse> {
+        request: &ListAllTablesRequest,
+    ) -> Result<ListAllTablesResponse> {
         let formatted_path = format!("shares/{}/all-tables", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {

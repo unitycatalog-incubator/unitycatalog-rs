@@ -22,12 +22,7 @@ import { file_gnostic_openapi_v3_annotations } from "../../gnostic/openapi/v3/an
 import { file_google_api_annotations } from "../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../google/api/resource_pb";
-import type {
-  Share,
-  ShareSchema,
-  SharingSchema,
-  SharingTable,
-} from "./models_pb";
+import type { Schema, Share, ShareSchema, Table } from "./models_pb";
 import { file_delta_sharing_v1_models } from "./models_pb";
 import type {
   GetTableMetadataRequestSchema,
@@ -44,7 +39,7 @@ import { file_delta_sharing_v1_query } from "./query_pb";
 export const file_delta_sharing_v1_svc: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "ChpkZWx0YV9zaGFyaW5nL3YxL3N2Yy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJuChJMaXN0U2hhcmVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrgBChlMaXN0U2hhcmluZ1NjaGVtYXNSZXF1ZXN0EjUKBXNoYXJlGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJ+ChpMaXN0U2hhcmluZ1NjaGVtYXNSZXNwb25zZRIuCgVpdGVtcxgBIAMoCzIfLmRlbHRhX3NoYXJpbmcudjEuU2hhcmluZ1NjaGVtYRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIukBChdMaXN0U2NoZW1hVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgVzaGFyZRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJAoLbWF4X3Jlc3VsdHMYAyABKAVCCuBBAbpIBBoCIABIAIgBARIcCgpwYWdlX3Rva2VuGAQgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4iewoYTGlzdFNjaGVtYVRhYmxlc1Jlc3BvbnNlEi0KBWl0ZW1zGAEgAygLMh4uZGVsdGFfc2hhcmluZy52MS5TaGFyaW5nVGFibGUSHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSACIAQFCEgoQX25leHRfcGFnZV90b2tlbiK0AQoWTGlzdFNoYXJlVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiK6BAoRUXVlcnlUYWJsZVJlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjYKBnNjaGVtYRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNAoEbmFtZRgDIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSHwoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJSACIAQESFwoPcHJlZGljYXRlX2hpbnRzGAUgAygJEkIKFGpzb25fcHJlZGljYXRlX2hpbnRzGAYgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Kc29uUHJlZGljYXRlSAGIAQESFwoKbGltaXRfaGludBgHIAEoBUgCiAEBEhQKB3ZlcnNpb24YCCABKANIA4gBARIWCgl0aW1lc3RhbXAYCSABKAlIBIgBARIdChBzdGFydGluZ192ZXJzaW9uGAogASgDSAWIAQESGwoOZW5kaW5nX3ZlcnNpb24YCyABKANIBogBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wQhcKFV9qc29uX3ByZWRpY2F0ZV9oaW50c0INCgtfbGltaXRfaGludEIKCghfdmVyc2lvbkIMCgpfdGltZXN0YW1wQhMKEV9zdGFydGluZ192ZXJzaW9uQhEKD19lbmRpbmdfdmVyc2lvbiJ6ChdMaXN0U2hhcmVUYWJsZXNSZXNwb25zZRItCgVpdGVtcxgBIAMoCzIeLmRlbHRhX3NoYXJpbmcudjEuU2hhcmluZ1RhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yiQoKDlNoYXJpbmdTZXJ2aWNlEncKCkxpc3RTaGFyZXMSIy5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZXNSZXF1ZXN0GiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJrCghHZXRTaGFyZRIhLmRlbHRhX3NoYXJpbmcudjEuR2V0U2hhcmVSZXF1ZXN0GhcuZGVsdGFfc2hhcmluZy52MS5TaGFyZSIjukcKKghHZXRTaGFyZYLT5JMCEBIOL3NoYXJlcy97bmFtZX0SpwEKEkxpc3RTaGFyaW5nU2NoZW1hcxIrLmRlbHRhX3NoYXJpbmcudjEuTGlzdFNoYXJpbmdTY2hlbWFzUmVxdWVzdBosLmRlbHRhX3NoYXJpbmcudjEuTGlzdFNoYXJpbmdTY2hlbWFzUmVzcG9uc2UiNrpHFCoSTGlzdFNoYXJpbmdTY2hlbWFzgtPkkwIZEhcvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcxKtAQoQTGlzdFNjaGVtYVRhYmxlcxIpLmRlbHRhX3NoYXJpbmcudjEuTGlzdFNjaGVtYVRhYmxlc1JlcXVlc3QaKi5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTY2hlbWFUYWJsZXNSZXNwb25zZSJCukcSKhBMaXN0U2NoZW1hVGFibGVzgtPkkwInEiUvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcy97bmFtZX0vdGFibGVzEp0BCg9MaXN0U2hhcmVUYWJsZXMSKC5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZVRhYmxlc1JlcXVlc3QaKS5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZVRhYmxlc1Jlc3BvbnNlIjW6RxEqD0xpc3RTaGFyZVRhYmxlc4LT5JMCGxIZL3NoYXJlcy97bmFtZX0vYWxsLXRhYmxlcxK6AQoPR2V0VGFibGVWZXJzaW9uEiguZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXF1ZXN0GikuZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXNwb25zZSJSukcRKg9HZXRUYWJsZVZlcnNpb26C0+STAjgSNi9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vdmVyc2lvbhK0AQoQR2V0VGFibGVNZXRhZGF0YRIpLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiVLpHEioQR2V0VGFibGVNZXRhZGF0YYLT5JMCORI3L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9tZXRhZGF0YRKiAQoKUXVlcnlUYWJsZRIjLmRlbHRhX3NoYXJpbmcudjEuUXVlcnlUYWJsZVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiTrpHDCoKUXVlcnlUYWJsZYLT5JMCOToBKiI0L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9xdWVyeUKeAgoUY29tLmRlbHRhX3NoYXJpbmcudjFCCFN2Y1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxukedARKEAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqPgoKQXBhY2hlIDIuMBIwaHR0cHM6Ly93d3cuYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMC5odG1sMgUxLjAuMBoUChJ7c2NoZW1lfTovL3tob3N0fS9iBnByb3RvMw",
+    "ChpkZWx0YV9zaGFyaW5nL3YxL3N2Yy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJuChJMaXN0U2hhcmVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrEBChJMaXN0U2NoZW1hc1JlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInAKE0xpc3RTY2hlbWFzUmVzcG9uc2USJwoFaXRlbXMYASADKAsyGC5kZWx0YV9zaGFyaW5nLnYxLlNjaGVtYRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIuMBChFMaXN0VGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgVzaGFyZRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJAoLbWF4X3Jlc3VsdHMYAyABKAVCCuBBAbpIBBoCIABIAIgBARIcCgpwYWdlX3Rva2VuGAQgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4ibgoSTGlzdFRhYmxlc1Jlc3BvbnNlEiYKBWl0ZW1zGAEgAygLMhcuZGVsdGFfc2hhcmluZy52MS5UYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrIBChRMaXN0QWxsVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiK6BAoRUXVlcnlUYWJsZVJlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjYKBnNjaGVtYRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNAoEbmFtZRgDIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSHwoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJSACIAQESFwoPcHJlZGljYXRlX2hpbnRzGAUgAygJEkIKFGpzb25fcHJlZGljYXRlX2hpbnRzGAYgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Kc29uUHJlZGljYXRlSAGIAQESFwoKbGltaXRfaGludBgHIAEoBUgCiAEBEhQKB3ZlcnNpb24YCCABKANIA4gBARIWCgl0aW1lc3RhbXAYCSABKAlIBIgBARIdChBzdGFydGluZ192ZXJzaW9uGAogASgDSAWIAQESGwoOZW5kaW5nX3ZlcnNpb24YCyABKANIBogBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wQhcKFV9qc29uX3ByZWRpY2F0ZV9oaW50c0INCgtfbGltaXRfaGludEIKCghfdmVyc2lvbkIMCgpfdGltZXN0YW1wQhMKEV9zdGFydGluZ192ZXJzaW9uQhEKD19lbmRpbmdfdmVyc2lvbiJxChVMaXN0QWxsVGFibGVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlRhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yzQkKDlNoYXJpbmdTZXJ2aWNlEncKCkxpc3RTaGFyZXMSIy5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZXNSZXF1ZXN0GiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJrCghHZXRTaGFyZRIhLmRlbHRhX3NoYXJpbmcudjEuR2V0U2hhcmVSZXF1ZXN0GhcuZGVsdGFfc2hhcmluZy52MS5TaGFyZSIjukcKKghHZXRTaGFyZYLT5JMCEBIOL3NoYXJlcy97bmFtZX0SiwEKC0xpc3RTY2hlbWFzEiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2NoZW1hc1JlcXVlc3QaJS5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTY2hlbWFzUmVzcG9uc2UiL7pHDSoLTGlzdFNjaGVtYXOC0+STAhkSFy9zaGFyZXMve3NoYXJlfS9zY2hlbWFzEpUBCgpMaXN0VGFibGVzEiMuZGVsdGFfc2hhcmluZy52MS5MaXN0VGFibGVzUmVxdWVzdBokLmRlbHRhX3NoYXJpbmcudjEuTGlzdFRhYmxlc1Jlc3BvbnNlIjy6RwwqCkxpc3RUYWJsZXOC0+STAicSJS9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tuYW1lfS90YWJsZXMSlQEKDUxpc3RBbGxUYWJsZXMSJi5kZWx0YV9zaGFyaW5nLnYxLkxpc3RBbGxUYWJsZXNSZXF1ZXN0GicuZGVsdGFfc2hhcmluZy52MS5MaXN0QWxsVGFibGVzUmVzcG9uc2UiM7pHDyoNTGlzdEFsbFRhYmxlc4LT5JMCGxIZL3NoYXJlcy97bmFtZX0vYWxsLXRhYmxlcxK6AQoPR2V0VGFibGVWZXJzaW9uEiguZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXF1ZXN0GikuZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXNwb25zZSJSukcRKg9HZXRUYWJsZVZlcnNpb26C0+STAjgSNi9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vdmVyc2lvbhK0AQoQR2V0VGFibGVNZXRhZGF0YRIpLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiVLpHEioQR2V0VGFibGVNZXRhZGF0YYLT5JMCORI3L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9tZXRhZGF0YRKiAQoKUXVlcnlUYWJsZRIjLmRlbHRhX3NoYXJpbmcudjEuUXVlcnlUYWJsZVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiTrpHDCoKUXVlcnlUYWJsZYLT5JMCOToBKiI0L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9xdWVyeUKeAgoUY29tLmRlbHRhX3NoYXJpbmcudjFCCFN2Y1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxukedARKEAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqPgoKQXBhY2hlIDIuMBIwaHR0cHM6Ly93d3cuYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMC5odG1sMgUxLjAuMBoUChJ7c2NoZW1lfTovL3tob3N0fS9iBnByb3RvMw",
     [
       file_buf_validate_validate,
       file_delta_sharing_v1_models,
@@ -145,10 +140,10 @@ export const GetShareRequestSchema: GenMessage<GetShareRequest> =
 /**
  * List schemas in a share.
  *
- * @generated from message delta_sharing.v1.ListSharingSchemasRequest
+ * @generated from message delta_sharing.v1.ListSchemasRequest
  */
-export type ListSharingSchemasRequest =
-  Message<"delta_sharing.v1.ListSharingSchemasRequest"> & {
+export type ListSchemasRequest =
+  Message<"delta_sharing.v1.ListSchemasRequest"> & {
     /**
      * The share name to query. It's case-insensitive.
      *
@@ -173,26 +168,26 @@ export type ListSharingSchemasRequest =
   };
 
 /**
- * Describes the message delta_sharing.v1.ListSharingSchemasRequest.
- * Use `create(ListSharingSchemasRequestSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.ListSchemasRequest.
+ * Use `create(ListSchemasRequestSchema)` to create a new message.
  */
-export const ListSharingSchemasRequestSchema: GenMessage<ListSharingSchemasRequest> =
+export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 3);
 
 /**
- * Response for ListSharingSchemasRequest.
+ * Response for ListSchemasRequest.
  *
- * @generated from message delta_sharing.v1.ListSharingSchemasResponse
+ * @generated from message delta_sharing.v1.ListSchemasResponse
  */
-export type ListSharingSchemasResponse =
-  Message<"delta_sharing.v1.ListSharingSchemasResponse"> & {
+export type ListSchemasResponse =
+  Message<"delta_sharing.v1.ListSchemasResponse"> & {
     /**
      * The schemas that were requested.
      *
-     * @generated from field: repeated delta_sharing.v1.SharingSchema items = 1;
+     * @generated from field: repeated delta_sharing.v1.Schema items = 1;
      */
-    items: SharingSchema[];
+    items: Schema[];
 
     /**
      * Token that can be used to retrieve the next page of schemas.
@@ -204,20 +199,20 @@ export type ListSharingSchemasResponse =
   };
 
 /**
- * Describes the message delta_sharing.v1.ListSharingSchemasResponse.
- * Use `create(ListSharingSchemasResponseSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.ListSchemasResponse.
+ * Use `create(ListSchemasResponseSchema)` to create a new message.
  */
-export const ListSharingSchemasResponseSchema: GenMessage<ListSharingSchemasResponse> =
+export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 4);
 
 /**
  * List tables in a schema.
  *
- * @generated from message delta_sharing.v1.ListSchemaTablesRequest
+ * @generated from message delta_sharing.v1.ListTablesRequest
  */
-export type ListSchemaTablesRequest =
-  Message<"delta_sharing.v1.ListSchemaTablesRequest"> & {
+export type ListTablesRequest =
+  Message<"delta_sharing.v1.ListTablesRequest"> & {
     /**
      * The schema name to query. It's case-insensitive.
      *
@@ -249,26 +244,26 @@ export type ListSchemaTablesRequest =
   };
 
 /**
- * Describes the message delta_sharing.v1.ListSchemaTablesRequest.
- * Use `create(ListSchemaTablesRequestSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.ListTablesRequest.
+ * Use `create(ListTablesRequestSchema)` to create a new message.
  */
-export const ListSchemaTablesRequestSchema: GenMessage<ListSchemaTablesRequest> =
+export const ListTablesRequestSchema: GenMessage<ListTablesRequest> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 5);
 
 /**
- * Response for ListSchemaTablesRequest.
+ * Response for ListTablesRequest.
  *
- * @generated from message delta_sharing.v1.ListSchemaTablesResponse
+ * @generated from message delta_sharing.v1.ListTablesResponse
  */
-export type ListSchemaTablesResponse =
-  Message<"delta_sharing.v1.ListSchemaTablesResponse"> & {
+export type ListTablesResponse =
+  Message<"delta_sharing.v1.ListTablesResponse"> & {
     /**
      * The tables that were requested.
      *
-     * @generated from field: repeated delta_sharing.v1.SharingTable items = 1;
+     * @generated from field: repeated delta_sharing.v1.Table items = 1;
      */
-    items: SharingTable[];
+    items: Table[];
 
     /**
      * Token that can be used to retrieve the next page of tables.
@@ -280,20 +275,20 @@ export type ListSchemaTablesResponse =
   };
 
 /**
- * Describes the message delta_sharing.v1.ListSchemaTablesResponse.
- * Use `create(ListSchemaTablesResponseSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.ListTablesResponse.
+ * Use `create(ListTablesResponseSchema)` to create a new message.
  */
-export const ListSchemaTablesResponseSchema: GenMessage<ListSchemaTablesResponse> =
+export const ListTablesResponseSchema: GenMessage<ListTablesResponse> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 6);
 
 /**
  * List tables in a share.
  *
- * @generated from message delta_sharing.v1.ListShareTablesRequest
+ * @generated from message delta_sharing.v1.ListAllTablesRequest
  */
-export type ListShareTablesRequest =
-  Message<"delta_sharing.v1.ListShareTablesRequest"> & {
+export type ListAllTablesRequest =
+  Message<"delta_sharing.v1.ListAllTablesRequest"> & {
     /**
      * The share name to query. It's case-insensitive.
      *
@@ -318,10 +313,10 @@ export type ListShareTablesRequest =
   };
 
 /**
- * Describes the message delta_sharing.v1.ListShareTablesRequest.
- * Use `create(ListShareTablesRequestSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.ListAllTablesRequest.
+ * Use `create(ListAllTablesRequestSchema)` to create a new message.
  */
-export const ListShareTablesRequestSchema: GenMessage<ListShareTablesRequest> =
+export const ListAllTablesRequestSchema: GenMessage<ListAllTablesRequest> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 7);
 
@@ -401,18 +396,18 @@ export const QueryTableRequestSchema: GenMessage<QueryTableRequest> =
   messageDesc(file_delta_sharing_v1_svc, 8);
 
 /**
- * Response for ListShareTablesRequest.
+ * Response for ListAllTablesRequest.
  *
- * @generated from message delta_sharing.v1.ListShareTablesResponse
+ * @generated from message delta_sharing.v1.ListAllTablesResponse
  */
-export type ListShareTablesResponse =
-  Message<"delta_sharing.v1.ListShareTablesResponse"> & {
+export type ListAllTablesResponse =
+  Message<"delta_sharing.v1.ListAllTablesResponse"> & {
     /**
      * The tables that were requested.
      *
-     * @generated from field: repeated delta_sharing.v1.SharingTable items = 1;
+     * @generated from field: repeated delta_sharing.v1.Table items = 1;
      */
-    items: SharingTable[];
+    items: Table[];
 
     /**
      * Token that can be used to retrieve the next page of tables.
@@ -424,10 +419,10 @@ export type ListShareTablesResponse =
   };
 
 /**
- * Describes the message delta_sharing.v1.ListShareTablesResponse.
- * Use `create(ListShareTablesResponseSchema)` to create a new message.
+ * Describes the message delta_sharing.v1.ListAllTablesResponse.
+ * Use `create(ListAllTablesResponseSchema)` to create a new message.
  */
-export const ListShareTablesResponseSchema: GenMessage<ListShareTablesResponse> =
+export const ListAllTablesResponseSchema: GenMessage<ListAllTablesResponse> =
   /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 9);
 
@@ -460,32 +455,32 @@ export const SharingService: GenService<{
   /**
    * List the schemas in a share.
    *
-   * @generated from rpc delta_sharing.v1.SharingService.ListSharingSchemas
+   * @generated from rpc delta_sharing.v1.SharingService.ListSchemas
    */
-  listSharingSchemas: {
+  listSchemas: {
     methodKind: "unary";
-    input: typeof ListSharingSchemasRequestSchema;
-    output: typeof ListSharingSchemasResponseSchema;
+    input: typeof ListSchemasRequestSchema;
+    output: typeof ListSchemasResponseSchema;
   };
   /**
    * List the tables in a given share's schema.
    *
-   * @generated from rpc delta_sharing.v1.SharingService.ListSchemaTables
+   * @generated from rpc delta_sharing.v1.SharingService.ListTables
    */
-  listSchemaTables: {
+  listTables: {
     methodKind: "unary";
-    input: typeof ListSchemaTablesRequestSchema;
-    output: typeof ListSchemaTablesResponseSchema;
+    input: typeof ListTablesRequestSchema;
+    output: typeof ListTablesResponseSchema;
   };
   /**
-   * List all the tables under all schemas in a share.
+   * List all the tables under a share.
    *
-   * @generated from rpc delta_sharing.v1.SharingService.ListShareTables
+   * @generated from rpc delta_sharing.v1.SharingService.ListAllTables
    */
-  listShareTables: {
+  listAllTables: {
     methodKind: "unary";
-    input: typeof ListShareTablesRequestSchema;
-    output: typeof ListShareTablesResponseSchema;
+    input: typeof ListAllTablesRequestSchema;
+    output: typeof ListAllTablesResponseSchema;
   };
   /**
    * Get the current version for a table within a schema.

@@ -2,4 +2,5 @@
 pub use client::*;
 pub mod builders;
 pub mod client;
+#[cfg(feature = "server")]
 pub mod server;
