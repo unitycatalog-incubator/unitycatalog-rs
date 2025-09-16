@@ -22,14 +22,6 @@ impl CodeGenMetadata {
             .map(|msg| msg.fields.clone())
             .unwrap_or_default()
     }
-
-    /// Get enum values for a given enum type name
-    pub(crate) fn get_enum_values(&self, type_name: &str) -> Vec<EnumValue> {
-        self.enums
-            .get(type_name)
-            .map(|enum_info| enum_info.values.clone())
-            .unwrap_or_default()
-    }
 }
 
 /// Information about a protobuf message

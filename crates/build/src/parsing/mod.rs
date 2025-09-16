@@ -72,13 +72,14 @@ pub fn process_file_descriptor(
         } else {
             format!(".{}", package_name)
         };
+
         message::process_message(
             message,
             file_name,
             codegen_metadata,
             &type_prefix,
             source_code_info,
-            &[4, message_index as i32],
+            &[4, message_index as i32], // message_type is field 4 in FileDescriptorProto
         )?;
     }
 

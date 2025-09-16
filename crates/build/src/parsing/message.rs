@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use convert_case::{Case, Casing};
 use prost::Message as _;
 use protobuf::Message;
-use protobuf::descriptor::field_descriptor_proto::Type;
+use protobuf::descriptor::field_descriptor_proto::{Label, Type};
 use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, SourceCodeInfo};
 
 use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
@@ -24,13 +24,9 @@ pub(super) fn process_message(
         format!("{}.{}", type_prefix, message_name)
     };
 
-    // Extract message-level documentation
-    let message_documentation = extract_message_documentation(source_code_info, path_prefix);
-
     // Collect field information, handling oneof fields specially
     let mut fields = Vec::new();
-    let mut oneof_groups: HashMap<String, Vec<String>> = HashMap::new();
-    let mut oneof_field_info: HashMap<String, Vec<OneofVariant>> = HashMap::new();
+    let mut oneof_fields: HashMap<String, Vec<OneofVariant>> = HashMap::new();
 
     // Build a map of field paths to documentation
     let field_docs = extract_field_documentation(source_code_info, path_prefix);
@@ -42,77 +38,51 @@ pub(super) fn process_message(
         // 2. They have LABEL_REPEATED (repeated fields are inherently optional)
         // All other fields are required in Proto3
         let is_optional = match field.label() {
-            protobuf::descriptor::field_descriptor_proto::Label::LABEL_REPEATED => true,
-            protobuf::descriptor::field_descriptor_proto::Label::LABEL_OPTIONAL => {
-                // Check if this is a proto3 optional field
-                field.proto3_optional()
-            }
-            protobuf::descriptor::field_descriptor_proto::Label::LABEL_REQUIRED => false,
+            Label::LABEL_REPEATED => true,
+            Label::LABEL_OPTIONAL => field.proto3_optional(),
+            Label::LABEL_REQUIRED => false,
         };
 
         // Check if this is a repeated field
-        let is_repeated = matches!(
-            field.label(),
-            protobuf::descriptor::field_descriptor_proto::Label::LABEL_REPEATED
-        );
+        let is_repeated = matches!(field.label(), Label::LABEL_REPEATED);
 
-        // Check if this field belongs to a oneof group
-        if field.has_oneof_index() {
-            let oneof_index = field.oneof_index() as usize;
-            if oneof_index < message.oneof_decl.len() {
-                let oneof_name = message.oneof_decl[oneof_index].name().to_string();
+        // Get documentation for this field
+        let field_path = [path_prefix, &[2, field_index as i32]].concat();
+        let documentation = field_docs.get(&field_path).cloned();
 
-                // Skip proto3_optional fields - they're not true oneofs
-                if !field.proto3_optional() {
-                    let field_name = field.name().to_string();
-                    oneof_groups
-                        .entry(oneof_name.clone())
-                        .or_default()
-                        .push(field_name.clone());
+        // Check if this field belongs to a oneof group.
+        // Skip proto3_optional fields - they're not true oneofs
+        if field.has_oneof_index() && !field.proto3_optional() {
+            if let Some(oneof_desc) = message.oneof_decl.get(field.oneof_index() as usize) {
+                let field_name = field.name().to_string();
 
-                    // Get field documentation
-                    let field_path = [path_prefix, &[2, field_index as i32]].concat();
-                    let documentation = field_docs.get(&field_path).cloned();
+                // Extract the rust type name from the field type
+                let rust_type = if field.has_type_name() {
+                    let clean_type = field.type_name().trim_start_matches('.');
+                    clean_type
+                        .split('.')
+                        .next_back()
+                        .unwrap_or(clean_type)
+                        .to_string()
+                } else {
+                    field_name.clone()
+                };
 
-                    // Extract the rust type name from the field type
-                    let rust_type = if field.has_type_name() {
-                        // Remove leading dot and extract the type name
-                        let clean_type = field.type_name().trim_start_matches('.');
-                        clean_type
-                            .split('.')
-                            .next_back()
-                            .unwrap_or(clean_type)
-                            .to_string()
-                    } else {
-                        field_name.clone()
-                    };
+                let variant = OneofVariant {
+                    variant_name: field_name.to_case(Case::Pascal),
+                    field_name,
+                    rust_type,
+                    documentation,
+                };
 
-                    // Create variant name by capitalizing the field name segments
-                    let variant_name = field_name.to_case(Case::Pascal);
-
-                    let variant = OneofVariant {
-                        field_name: field_name.clone(),
-                        variant_name,
-                        rust_type,
-                        documentation,
-                    };
-
-                    oneof_field_info
-                        .entry(oneof_name)
-                        .or_default()
-                        .push(variant);
-
-                    continue; // Skip adding this field individually
-                }
+                let oneof_name = format!("{}.{}", full_type_name, oneof_desc.name());
+                oneof_fields.entry(oneof_name).or_default().push(variant);
+                continue;
             }
         }
 
         // Add regular field (including proto3_optional fields)
         let field_type_str = format_field_type(field);
-
-        // Get documentation for this field
-        let field_path = [path_prefix, &[2, field_index as i32]].concat();
-        let documentation = field_docs.get(&field_path).cloned();
 
         // Extract field behavior annotations
         let field_behavior = extract_field_behavior_option(field)?;
@@ -123,36 +93,34 @@ pub(super) fn process_message(
             field_type: field_type_str,
             optional: is_optional,
             repeated: is_repeated,
-            oneof_name: None,
             documentation,
-            oneof_variants: None,
             field_behavior,
+            oneof_name: None,
+            oneof_variants: None,
         };
         fields.push(field_info);
     }
 
     // Second pass: create single fields for each oneof group
-    for (oneof_name, _field_names) in oneof_groups {
+    for (oneof_name, variants) in oneof_fields {
         // Create a single field representing the oneof enum
         // The enum type name follows the pattern: message_name::OneofName
+        let oneof_field_name = oneof_name.split('.').next_back().unwrap().to_string();
         let enum_type_name = format!(
             "{}::{}",
             message_name.to_case(Case::Snake),
-            oneof_name.to_case(Case::Pascal)
+            oneof_field_name.to_case(Case::Pascal)
         );
-
-        // Get the collected variant information for this oneof
-        let variants = oneof_field_info.get(&oneof_name).cloned();
 
         let oneof_field = MessageField {
             name: oneof_name.clone(),
             type_label: Type::TYPE_GROUP,
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
-            optional: true,      // oneof fields are always optional (Option<enum>)
-            repeated: false,     // oneof fields are never repeated
-            oneof_name: None,    // This is the oneof field itself, not a member
-            documentation: None, // TODO: Extract oneof documentation if needed
-            oneof_variants: variants.clone(),
+            oneof_variants: Some(variants),
+            documentation: None,    // TODO: Extract oneof documentation if needed
+            optional: true,         // oneof fields are always optional (Option<enum>)
+            repeated: false,        // oneof fields are never repeated
+            oneof_name: None,       // This is the oneof field itself, not a member
             field_behavior: vec![], // Oneof fields don't have field behavior
         };
 
@@ -161,13 +129,15 @@ pub(super) fn process_message(
 
     // Extract message-level options (like google.api.resource)
     let resource_descriptor = extract_message_resource_option(message)?;
+    // Extract message-level documentation
+    let documentation = extract_message_documentation(source_code_info, path_prefix);
 
     // Store message information
     let message_info = MessageInfo {
         name: full_type_name.clone(),
         fields,
         resource_descriptor,
-        documentation: message_documentation,
+        documentation,
     };
     codegen_metadata
         .messages

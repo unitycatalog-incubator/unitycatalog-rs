@@ -488,45 +488,10 @@ fn generate_oneof_variant_methods(field: &MessageField) -> Vec<TokenStream> {
     let oneof_field_ident = format_ident!("{}", field.name);
 
     // Extract the enum type name from the field type
-    let enum_type = field
+    let enum_type_rust = field
         .field_type
         .strip_prefix("TYPE_ONEOF:")
         .unwrap_or(&field.field_type);
-
-    let enum_type_rust = if enum_type.contains("::") {
-        let parts: Vec<&str> = enum_type.split("::").collect();
-        if parts.len() == 2 {
-            let module_name = parts[0];
-            let type_name = parts[1];
-
-            // Convert module name to snake_case for known patterns
-            let snake_case_module = match module_name {
-                "createcredentialrequest" => "create_credential_request".to_string(),
-                "updatecredentialrequest" => "update_credential_request".to_string(),
-                "createcataloguestrequest" => "create_catalogs_request".to_string(),
-                "updatecataloguestrequest" => "update_catalogs_request".to_string(),
-                _ => {
-                    if module_name.chars().any(|c| c.is_uppercase()) {
-                        module_name.chars().fold(String::new(), |mut acc, c| {
-                            if c.is_uppercase() && !acc.is_empty() {
-                                acc.push('_');
-                            }
-                            acc.push(c.to_lowercase().next().unwrap());
-                            acc
-                        })
-                    } else {
-                        module_name.to_string()
-                    }
-                }
-            };
-
-            format!("{}::{}", snake_case_module, type_name)
-        } else {
-            enum_type.to_string()
-        }
-    } else {
-        enum_type.to_string()
-    };
 
     variants
         .iter()
@@ -548,7 +513,7 @@ fn generate_oneof_variant_methods(field: &MessageField) -> Vec<TokenStream> {
             };
 
             // Parse the enum type for the assignment
-            let enum_type_tokens: syn::Type = syn::parse_str(&enum_type_rust)
+            let enum_type_tokens: syn::Type = syn::parse_str(enum_type_rust)
                 .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
             quote! {
