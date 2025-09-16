@@ -1,24 +1,24 @@
 {
   "request": {
     "method": "GET",
-    "url_path": "/api/2.1/unity-catalog/schemas/hierarchy_catalog_1757916740.test_schema_1757916740",
+    "url_path": "/api/2.1/unity-catalog/schemas/hierarchy_catalog_1758050044.test_schema_1758050044",
     "body": null
   },
   "response": {
     "status": 200,
     "headers": {
-      "x-databricks-org-id": "310942840210298",
-      "content-length": "976",
-      "vary": "Accept-Encoding",
+      "alt-svc": "clear",
+      "x-request-id": "cd911631-9365-489a-bd21-1f79745f3b36",
       "x-content-type-options": "nosniff",
-      "server-timing": "client_protocol;dur=0;desc=\"HTTP/2\"",
-      "server": "databricks",
       "content-type": "application/json",
-      "date": "Mon, 15 Sep 2025 06:12:23 GMT",
+      "x-databricks-org-id": "310942840210298",
+      "date": "Tue, 16 Sep 2025 19:14:07 GMT",
       "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
-      "x-request-id": "f940e331-dd4f-4916-a8cf-a26f818270ab",
-      "alt-svc": "clear"
+      "vary": "Accept-Encoding",
+      "server": "databricks",
+      "server-timing": "client_protocol;dur=0;desc=\"HTTP/2\"",
+      "content-length": "976"
     },
-    "body": "{\"name\":\"test_schema_1757916740\",\"catalog_name\":\"hierarchy_catalog_1757916740\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Test schema 1 for hierarchy validation\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"full_name\":\"hierarchy_catalog_1757916740.test_schema_1757916740\",\"created_at\":1757916743003,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1757916743003,\"updated_by\":\"robert.pack@databricks.com\",\"catalog_type\":\"MANAGED_CATALOG\",\"effective_auto_maintenance_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"schema_id\":\"5fbf2e3e-2443-4d76-a360-d2ab3ca10796\",\"securable_type\":\"SCHEMA\",\"securable_kind\":\"SCHEMA_STANDARD\",\"browse_only\":false,\"metastore_version\":171}"
+    "body": "{\"name\":\"test_schema_1758050044\",\"catalog_name\":\"hierarchy_catalog_1758050044\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Test schema 1 for hierarchy validation\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"full_name\":\"hierarchy_catalog_1758050044.test_schema_1758050044\",\"created_at\":1758050046706,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1758050046706,\"updated_by\":\"robert.pack@databricks.com\",\"catalog_type\":\"MANAGED_CATALOG\",\"effective_auto_maintenance_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"schema_id\":\"5a710c12-f706-4b1a-8f78-9244697f94f7\",\"securable_type\":\"SCHEMA\",\"securable_kind\":\"SCHEMA_STANDARD\",\"browse_only\":false,\"metastore_version\":181}"
   }
 }
