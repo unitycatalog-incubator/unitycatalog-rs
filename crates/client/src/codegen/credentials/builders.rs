@@ -1,9 +1,65 @@
 #![allow(unused_mut)]
 use super::client::*;
-use crate::error::Result;
-use futures::future::BoxFuture;
+use crate::{error::Result, utils::stream_paginated};
+use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::credentials::v1::*;
+/// Builder for creating requests
+pub struct ListCredentialsBuilder {
+    client: CredentialClient,
+    request: ListCredentialsRequest,
+}
+impl ListCredentialsBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: CredentialClient) -> Self {
+        let request = ListCredentialsRequest {
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///Return only credentials for the specified purpose.
+    pub fn with_purpose(mut self, purpose: impl Into<Option<Purpose>>) -> Self {
+        self.request.purpose = purpose.into().map(|e| e as i32);
+        self
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    ///Opaque pagination token to go to next page based on previous query.
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+    /// Convert paginated request into stream of results
+    pub fn into_stream(self) -> BoxStream<'static, Result<CredentialInfo>> {
+        stream_paginated(self, move |mut builder, page_token| async move {
+            builder.request.page_token = page_token;
+            let res = builder.client.list_credentials(&builder.request).await?;
+            if let Some(ref mut remaining) = builder.request.max_results {
+                *remaining -= res.credentials.len() as i32;
+                if *remaining <= 0 {
+                    builder.request.max_results = Some(0);
+                }
+            }
+            let next_page_token = res.next_page_token.clone();
+            Ok((res, builder, next_page_token))
+        })
+        .map_ok(|resp| futures::stream::iter(resp.credentials.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
+    }
+}
+impl IntoFuture for ListCredentialsBuilder {
+    type Output = Result<ListCredentialsResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_credentials(&request).await })
+    }
+}
 /// Builder for creating requests
 pub struct CreateCredentialBuilder {
     client: CredentialClient,

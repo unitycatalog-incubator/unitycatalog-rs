@@ -48,8 +48,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
     ) -> Result<Self, Self::Rejection> {
         #[derive(serde::Deserialize)]
         struct QueryParams {
-            schema_name: String,
             catalog_name: String,
+            schema_name: String,
             #[serde(default)]
             max_results: Option<i32>,
             #[serde(default)]
@@ -68,8 +68,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             include_manifest_capabilities: Option<bool>,
         }
         let axum::extract::Query(QueryParams {
-            schema_name,
             catalog_name,
+            schema_name,
             max_results,
             page_token,
             include_delta_metadata,
@@ -80,8 +80,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             include_manifest_capabilities,
         }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
         Ok(ListTablesRequest {
-            schema_name,
             catalog_name,
+            schema_name,
             max_results,
             page_token,
             include_delta_metadata,

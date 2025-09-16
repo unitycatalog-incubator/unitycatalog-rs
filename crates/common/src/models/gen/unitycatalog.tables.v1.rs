@@ -5,9 +5,9 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TableSummary {
     /// The full name of the table.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub full_name: ::prost::alloc::string::String,
-    #[prost(enumeration="TableType", tag="2")]
+    #[prost(enumeration = "TableType", tag = "2")]
     pub table_type: i32,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -15,40 +15,40 @@ pub struct TableSummary {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ColumnInfo {
     /// Name of the column
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Full data type specification as SQL/catalogString text.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub type_text: ::prost::alloc::string::String,
     /// Full data type specification, JSON-serialized.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub type_json: ::prost::alloc::string::String,
     /// Ordinal position of column (starting at position 0).
-    #[prost(int32, optional, tag="4")]
+    #[prost(int32, optional, tag = "4")]
     pub position: ::core::option::Option<i32>,
     /// Data type name.
-    #[prost(enumeration="ColumnTypeName", tag="5")]
+    #[prost(enumeration = "ColumnTypeName", tag = "5")]
     pub type_name: i32,
     /// Digits of precision; required for DecimalTypes.
-    #[prost(int32, optional, tag="6")]
+    #[prost(int32, optional, tag = "6")]
     pub type_precision: ::core::option::Option<i32>,
     /// Digits to right of decimal; Required for DecimalTypes.
-    #[prost(int32, optional, tag="7")]
+    #[prost(int32, optional, tag = "7")]
     pub type_scale: ::core::option::Option<i32>,
     /// Format of IntervalType.
-    #[prost(string, optional, tag="8")]
+    #[prost(string, optional, tag = "8")]
     pub type_interval_type: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="9")]
+    #[prost(string, optional, tag = "9")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// Whether field may be Null.
-    #[prost(bool, optional, tag="10")]
+    #[prost(bool, optional, tag = "10")]
     pub nullable: ::core::option::Option<bool>,
     /// Partition index for column.
-    #[prost(int32, optional, tag="11")]
+    #[prost(int32, optional, tag = "11")]
     pub partition_index: ::core::option::Option<i32>,
     /// a unique id for the column
-    #[prost(string, optional, tag="12")]
+    #[prost(string, optional, tag = "12")]
     pub column_id: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -56,24 +56,24 @@ pub struct ColumnInfo {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TableInfo {
     /// Name of table, relative to parent schema.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Name of parent catalog.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub catalog_name: ::prost::alloc::string::String,
     /// Name of parent schema.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub schema_name: ::prost::alloc::string::String,
-    #[prost(enumeration="TableType", tag="4")]
+    #[prost(enumeration = "TableType", tag = "4")]
     pub table_type: i32,
     /// Data source format of the table.
-    #[prost(enumeration="DataSourceFormat", tag="5")]
+    #[prost(enumeration = "DataSourceFormat", tag = "5")]
     pub data_source_format: i32,
     /// The array of ColumnInfo definitions of the table's columns.
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub columns: ::prost::alloc::vec::Vec<ColumnInfo>,
     /// Storage root URL for table (for MANAGED, EXTERNAL tables)
-    #[prost(string, optional, tag="7")]
+    #[prost(string, optional, tag = "7")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
     // View definition SQL (when table_type is VIEW, MATERIALIZED_VIEW, or STREAMING_TABLE)
     // optional string view_definition = 8;
@@ -81,44 +81,43 @@ pub struct TableInfo {
     // optional string view_dependencies = 9;
 
     // optional string sql_path = 10;
-
     /// Username of current owner of table.
-    #[prost(string, optional, tag="11")]
+    #[prost(string, optional, tag = "11")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="12")]
+    #[prost(string, optional, tag = "12")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(map="string, string", tag="13")]
-    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "13")]
+    pub properties:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Name of the storage credential, when a storage credential is configured for use with this table.
-    #[prost(string, optional, tag="14")]
+    #[prost(string, optional, tag = "14")]
     pub storage_credential_name: ::core::option::Option<::prost::alloc::string::String>,
     // List of table constraints. Note: this field is not set in the output of the listTables API.
     // repeated TableConstraint constraints = 15;
 
     // optional string row_filter = 16;
-
     /// Full name of table, in form of catalog_name.schema_name.table_name.
-    #[prost(string, tag="17")]
+    #[prost(string, tag = "17")]
     pub full_name: ::prost::alloc::string::String,
     /// Time at which this table was created, in epoch milliseconds.
-    #[prost(int64, optional, tag="18")]
+    #[prost(int64, optional, tag = "18")]
     pub created_at: ::core::option::Option<i64>,
     /// Username of table creator.
-    #[prost(string, optional, tag="19")]
+    #[prost(string, optional, tag = "19")]
     pub created_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this table was last updated, in epoch milliseconds.
-    #[prost(int64, optional, tag="20")]
+    #[prost(int64, optional, tag = "20")]
     pub updated_at: ::core::option::Option<i64>,
     /// Username of user who last modified table.
-    #[prost(string, optional, tag="21")]
+    #[prost(string, optional, tag = "21")]
     pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted.
-    #[prost(int64, optional, tag="22")]
+    #[prost(int64, optional, tag = "22")]
     pub deleted_at: ::core::option::Option<i64>,
     /// Unique identifier for the table.
-    #[prost(string, optional, tag="23")]
+    #[prost(string, optional, tag = "23")]
     pub table_id: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// The type of the table.
@@ -304,22 +303,22 @@ impl ColumnTypeName {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTableSummariesRequest {
     /// Name of parent catalog for tables of interest.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub catalog_name: ::prost::alloc::string::String,
     /// A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub schema_name_pattern: ::core::option::Option<::prost::alloc::string::String>,
     /// A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub table_name_pattern: ::core::option::Option<::prost::alloc::string::String>,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="100")]
+    #[prost(int32, optional, tag = "100")]
     pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
-    #[prost(string, optional, tag="101")]
+    #[prost(string, optional, tag = "101")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
     /// Whether to include a manifest containing capabilities the table has.
-    #[prost(bool, optional, tag="102")]
+    #[prost(bool, optional, tag = "102")]
     pub include_manifest_capabilities: ::core::option::Option<bool>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -327,45 +326,45 @@ pub struct ListTableSummariesRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTableSummariesResponse {
     /// The table summaries returned.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub tables: ::prost::alloc::vec::Vec<TableSummary>,
     /// The next_page_token value to include in the next List request.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTablesRequest {
-    /// Name of parent schema for tables of interest.
-    #[prost(string, tag="1")]
-    pub schema_name: ::prost::alloc::string::String,
     /// Name of parent catalog for tables of interest.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "1")]
     pub catalog_name: ::prost::alloc::string::String,
+    /// Name of parent schema for tables of interest.
+    #[prost(string, tag = "2")]
+    pub schema_name: ::prost::alloc::string::String,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="3")]
+    #[prost(int32, optional, tag = "3")]
     pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
     /// Whether delta metadata should be included in the response.
-    #[prost(bool, optional, tag="5")]
+    #[prost(bool, optional, tag = "5")]
     pub include_delta_metadata: ::core::option::Option<bool>,
     /// Whether to omit the columns of the table from the response or not.
-    #[prost(bool, optional, tag="6")]
+    #[prost(bool, optional, tag = "6")]
     pub omit_columns: ::core::option::Option<bool>,
     /// Whether to omit the properties of the table from the response or not.
-    #[prost(bool, optional, tag="7")]
+    #[prost(bool, optional, tag = "7")]
     pub omit_properties: ::core::option::Option<bool>,
     /// Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or not.
-    #[prost(bool, optional, tag="8")]
+    #[prost(bool, optional, tag = "8")]
     pub omit_username: ::core::option::Option<bool>,
     /// Whether to include tables in the response for which the principal can only access selective metadata for
-    #[prost(bool, optional, tag="9")]
+    #[prost(bool, optional, tag = "9")]
     pub include_browse: ::core::option::Option<bool>,
     /// Whether to include a manifest containing capabilities the table has.
-    #[prost(bool, optional, tag="10")]
+    #[prost(bool, optional, tag = "10")]
     pub include_manifest_capabilities: ::core::option::Option<bool>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -373,10 +372,10 @@ pub struct ListTablesRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTablesResponse {
     /// The tables returned.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub tables: ::prost::alloc::vec::Vec<TableInfo>,
     /// The next_page_token value to include in the next List request.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Create a table
@@ -387,30 +386,31 @@ pub struct ListTablesResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateTableRequest {
     /// Name of table, relative to parent schema.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Name of parent schema relative to its parent catalog.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub schema_name: ::prost::alloc::string::String,
     /// Name of parent catalog.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub catalog_name: ::prost::alloc::string::String,
-    #[prost(enumeration="TableType", tag="4")]
+    #[prost(enumeration = "TableType", tag = "4")]
     pub table_type: i32,
-    #[prost(enumeration="DataSourceFormat", tag="5")]
+    #[prost(enumeration = "DataSourceFormat", tag = "5")]
     pub data_source_format: i32,
     /// The array of ColumnInfo definitions of the table's columns.
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub columns: ::prost::alloc::vec::Vec<ColumnInfo>,
     /// Storage root URL for external table.
-    #[prost(string, optional, tag="7")]
+    #[prost(string, optional, tag = "7")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="8")]
+    #[prost(string, optional, tag = "8")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(map="string, string", tag="9")]
-    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "9")]
+    pub properties:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Get a table
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -418,16 +418,16 @@ pub struct CreateTableRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetTableRequest {
     /// Full name of the table.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub full_name: ::prost::alloc::string::String,
     /// Whether delta metadata should be included in the response.
-    #[prost(bool, optional, tag="2")]
+    #[prost(bool, optional, tag = "2")]
     pub include_delta_metadata: ::core::option::Option<bool>,
     /// Whether to include tables in the response for which the principal can only access selective metadata for
-    #[prost(bool, optional, tag="3")]
+    #[prost(bool, optional, tag = "3")]
     pub include_browse: ::core::option::Option<bool>,
     /// Whether to include a manifest containing capabilities the table has.
-    #[prost(bool, optional, tag="4")]
+    #[prost(bool, optional, tag = "4")]
     pub include_manifest_capabilities: ::core::option::Option<bool>,
 }
 /// Get boolean reflecting if table exists
@@ -436,7 +436,7 @@ pub struct GetTableRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetTableExistsRequest {
     /// Full name of the table.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub full_name: ::prost::alloc::string::String,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -444,7 +444,7 @@ pub struct GetTableExistsRequest {
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GetTableExistsResponse {
     /// Boolean reflecting if table exists.
-    #[prost(bool, tag="1")]
+    #[prost(bool, tag = "1")]
     pub table_exists: bool,
 }
 /// Delete a table
@@ -453,7 +453,7 @@ pub struct GetTableExistsResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteTableRequest {
     /// Full name of the table.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub full_name: ::prost::alloc::string::String,
 }
 include!("unitycatalog.tables.v1.serde.rs");

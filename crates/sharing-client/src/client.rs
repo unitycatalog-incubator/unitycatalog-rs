@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;
-use crate::codegen::sharing::builders::QueryTableBuilder;
+use crate::codegen::sharing::builders::{GetShareBuilder, QueryTableBuilder};
 use crate::models::sharing::v1::*;
 use crate::models::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::{Error, Result};
@@ -70,9 +70,8 @@ impl DeltaSharingClient {
         .boxed()
     }
 
-    pub async fn get_share(&self, name: impl Into<String>) -> Result<Share> {
-        let request = GetShareRequest { name: name.into() };
-        self.discovery.get_share(&request).await
+    pub fn get_share(&self, name: impl Into<String>) -> GetShareBuilder {
+        GetShareBuilder::new(self.discovery.clone(), name)
     }
 
     pub fn list_share_schemas(
@@ -257,7 +256,6 @@ impl DeltaSharingClient {
         Ok((protocol.unwrap(), metadata.unwrap()))
     }
 
-    /// Create a query table request using the builder pattern.
     pub fn query_table(
         &self,
         share: impl Into<String>,

@@ -120,9 +120,6 @@ pub fn analyze_method(
 
     let planner = MethodPlanner::try_new(method, registry)?;
 
-    // Generate function names
-    let handler_function_name = strings::operation_to_method_name(&method.method_name);
-
     // Get input message fields from metadata
     let input_fields = method.input_fields.clone();
 
@@ -134,8 +131,7 @@ pub fn analyze_method(
 
     let method_plan = MethodPlan {
         metadata: method.clone(),
-        handler_function_name,
-        route_function_name: method.method_name.to_case(Case::Snake),
+        handler_function_name: method.method_name.to_case(Case::Snake),
         http_method,
         http_path,
         path_params,

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use protobuf::descriptor::field_descriptor_proto::Type;
+
 use super::http::extract_path_parameters;
 use crate::gnostic::openapi::v3::Operation;
 use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
@@ -43,6 +45,7 @@ pub struct MessageInfo {
 #[derive(Debug, Clone)]
 pub struct MessageField {
     pub name: String,
+    pub type_label: Type,
     pub field_type: String,
     pub optional: bool,
     pub repeated: bool,

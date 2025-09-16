@@ -7,7 +7,6 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
-import { file_google_api_resource } from "../../google/api/resource_pb";
 
 /**
  * Describes the file delta_sharing/v1/models.proto.
@@ -16,11 +15,7 @@ export const file_delta_sharing_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
     "Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSI+CgVTaGFyZRIYCgRuYW1lGAEgASgJQgrgQQi6SARyAhABEhQKAmlkGAIgASgJQgPgQQNIAIgBAUIFCgNfaWQiQgoGU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL0AQoFVGFibGUSNwoEbmFtZRgBIAEoCUIp4EEIukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNQoGc2NoZW1hGAIgASgJQiW6SCJyIBABGP8BMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjUKBXNoYXJlGAMgASgJQia6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIUCgJpZBgEIAEoCUID4EEDSACIAQESGgoIc2hhcmVfaWQYBSABKAlCA+BBA0gBiAEBQgUKA19pZEILCglfc2hhcmVfaWRCgAEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgtNb2RlbHNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z",
-    [
-      file_buf_validate_validate,
-      file_google_api_field_behavior,
-      file_google_api_resource,
-    ],
+    [file_buf_validate_validate, file_google_api_field_behavior],
   );
 
 /**

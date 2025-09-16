@@ -1,75 +1,43 @@
 use convert_case::{Case, Casing};
+use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
 use super::format_tokens;
-use crate::analysis::{MethodPlan, RequestType, ServicePlan};
-use crate::google::api::http_rule::Pattern;
+use crate::analysis::RequestType;
+use crate::codegen::{MethodHandler, ServiceHandler, extract_type_ident};
 use crate::parsing::MessageField;
-use crate::utils::strings;
 
 /// Generate builder code for all request types in a service
-pub(crate) fn generate(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
-    let mut builder_impls = Vec::new();
-
-    for method in &service.methods {
-        // Generate builders for Create, Update, and Get operations
-        if matches!(
-            method.request_type,
-            RequestType::Create
-                | RequestType::Update
-                | RequestType::Get
-                | RequestType::Delete
-                | RequestType::Custom(Pattern::Post(_))
-                | RequestType::Custom(Pattern::Get(_))
-                | RequestType::Custom(Pattern::Patch(_))
-        ) {
-            let builder_code = generate_request_builder(method, service)?;
-            builder_impls.push(builder_code);
-        }
-    }
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
+    let builder_impls: Vec<_> = service
+        .methods()
+        .map(|method| generate_request_builder(method, service))
+        .try_collect()?;
 
     if builder_impls.is_empty() {
         return Ok(String::new());
     }
 
-    let service_namespace = &service.base_path;
-    let client_name = format!(
-        "{}Client",
-        service
-            .handler_name
-            .strip_suffix("Handler")
-            .unwrap_or(&service.handler_name)
-    );
-
-    let builder_code = generate_builders_module(&client_name, &builder_impls, service_namespace);
+    let builder_code = generate_builders_module(service, &builder_impls);
 
     Ok(builder_code)
 }
 
 /// Generate the complete builders module
-fn generate_builders_module(
-    _client_name: &str,
-    builders: &[String],
-    service_namespace: &str,
-) -> String {
+fn generate_builders_module(service: &ServiceHandler<'_>, builders: &[String]) -> String {
     let builder_tokens: Vec<TokenStream> = builders
         .iter()
         .map(|b| syn::parse_str::<TokenStream>(b).unwrap_or_else(|_| quote! {}))
         .collect();
-
-    let mod_path: Path = syn::parse_str(&format!(
-        "unitycatalog_common::models::{}::v1",
-        service_namespace
-    ))
-    .unwrap();
+    let mod_path: Path = service.models_path();
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use futures::future::BoxFuture;
+        use futures::{future::BoxFuture, stream::BoxStream, TryStreamExt, StreamExt};
         use std::future::IntoFuture;
-        use crate::error::Result;
+        use crate::{error::Result, utils::stream_paginated};
         use #mod_path::*;
         use super::client::*;
 
@@ -81,36 +49,18 @@ fn generate_builders_module(
 
 /// Generate a builder for a specific request type
 fn generate_request_builder(
-    method: &MethodPlan,
-    service: &ServicePlan,
+    method: MethodHandler<'_>,
+    service: &ServiceHandler<'_>,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let input_type = strings::extract_simple_type_name(&method.metadata.input_type);
-    let output_type = strings::extract_simple_type_name(&method.metadata.output_type);
-
-    let builder_name = format!(
-        "{}Builder",
-        input_type.strip_suffix("Request").unwrap_or(&input_type)
-    );
-    let builder_ident = format_ident!("{}", builder_name);
-    let request_type_ident = format_ident!("{}", input_type);
-    let output_type_ident = if output_type == "Empty" {
-        None
-    } else {
-        Some(format_ident!("{}", output_type))
-    };
-    let method_name = format_ident!("{}", method.handler_function_name);
-
-    let client_name = format!(
-        "{}Client",
-        service
-            .handler_name
-            .strip_suffix("Handler")
-            .unwrap_or(&service.handler_name)
-    );
-    let client_type_ident = format_ident!("{}", client_name);
+    let builder_ident = method.builder_type();
+    let request_type_ident = method.input_type().unwrap();
+    let output_type_ident = method.output_type();
+    let client_type_ident = service.client_type();
+    let method_name = format_ident!("{}", method.plan.handler_function_name);
 
     // Analyze fields to determine required vs optional
-    let (required_fields, optional_fields) = analyze_request_fields(&method.metadata.input_fields);
+    let (required_fields, optional_fields) =
+        analyze_request_fields(&method.plan.metadata.input_fields);
 
     // Generate constructor
     let constructor = generate_constructor(
@@ -122,6 +72,12 @@ fn generate_request_builder(
 
     // Generate with_* methods for optional fields
     let with_methods = generate_with_methods(&builder_ident, &optional_fields);
+
+    let into_stream_impl = if matches!(method.plan.request_type, RequestType::List) {
+        Some(generate_into_stream_impl(method, &method_name))
+    } else {
+        None
+    };
 
     // Generate IntoFuture implementation
     let into_future_impl = generate_into_future_impl(
@@ -142,6 +98,8 @@ fn generate_request_builder(
             #constructor
 
             #(#with_methods)*
+
+            #into_stream_impl
         }
 
         #into_future_impl
@@ -302,7 +260,7 @@ fn generate_with_methods(
                         let base_type = if field.field_type.starts_with("TYPE_STRING") {
                             "String".to_string()
                         } else {
-                            get_with_method_param_type(&field.field_type).to_string()
+                            get_constructor_param_type(&field.field_type).to_string()
                         };
                         (base_type, true)
                     }
@@ -505,7 +463,7 @@ fn generate_with_methods(
                     }
                 } else {
                     // Use the original pattern for required fields
-                    let param_type = get_with_method_param_type(&field.field_type);
+                    let param_type = get_constructor_param_type(&field.field_type);
                     let assignment = get_field_assignment(&field.field_type, &field_ident);
 
                     quote! {
@@ -614,7 +572,7 @@ fn generate_into_future_impl(
     if let Some(out_ident) = output_type_ident {
         quote! {
             impl IntoFuture for #builder_ident {
-                type Output = Result<#output_type_ident>;
+                type Output = Result<#out_ident>;
                 type IntoFuture = BoxFuture<'static, Self::Output>;
 
                 fn into_future(self) -> Self::IntoFuture {
@@ -640,30 +598,45 @@ fn generate_into_future_impl(
     }
 }
 
-/// Get the appropriate parameter type for constructor arguments
-fn get_constructor_param_type(field_type: &str) -> TokenStream {
-    match field_type {
-        "TYPE_STRING" => quote! { impl Into<String> },
-        "TYPE_INT32" => quote! { i32 },
-        "TYPE_INT64" => quote! { i64 },
-        "TYPE_BOOL" => quote! { bool },
-        "TYPE_DOUBLE" => quote! { f64 },
-        "TYPE_FLOAT" => quote! { f32 },
-        _ if field_type.starts_with("TYPE_ENUM:") => {
-            let enum_type = convert_protobuf_enum_to_rust_type(field_type);
-            let enum_ident: syn::Type =
-                syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
-            quote! { #enum_ident }
+fn generate_into_stream_impl(
+    method: MethodHandler<'_>,
+    client_method_name: &proc_macro2::Ident,
+) -> TokenStream {
+    let items_field = method
+        .output_message()
+        .unwrap()
+        .info
+        .fields
+        .iter()
+        .find(|f| !f.name.contains("page_token"))
+        .unwrap();
+    let item_field_ident = format_ident!("{}", items_field.name);
+    let output_type_ident = extract_type_ident(&items_field.field_type);
+
+    quote! {
+        /// Convert paginated request into stream of results
+        pub fn into_stream(self) -> BoxStream<'static, Result<#output_type_ident>> {
+            stream_paginated(self, move |mut builder, page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.#client_method_name(&builder.request).await?;
+                if let Some(ref mut remaining) = builder.request.max_results {
+                    *remaining -= res.#item_field_ident.len() as i32;
+                    if *remaining <= 0 {
+                        builder.request.max_results = Some(0);
+                    }
+                }
+                let next_page_token = res.next_page_token.clone();
+                Ok((res, builder, next_page_token))
+            })
+            .map_ok(|resp| futures::stream::iter(resp.#item_field_ident.into_iter().map(Ok)))
+            .try_flatten()
+            .boxed()
         }
-        _ if field_type.contains("map<") => {
-            quote! { impl IntoIterator<Item = (impl Into<String>, impl Into<String>)> }
-        }
-        _ => quote! { impl Into<String> },
     }
 }
 
-/// Get the appropriate parameter type for with_* methods
-fn get_with_method_param_type(field_type: &str) -> TokenStream {
+/// Get the appropriate parameter type for constructor-like arguments (also for builder methods)
+fn get_constructor_param_type(field_type: &str) -> TokenStream {
     match field_type {
         "TYPE_STRING" => quote! { impl Into<String> },
         "TYPE_INT32" => quote! { i32 },
@@ -763,6 +736,8 @@ fn convert_protobuf_enum_to_rust_type(field_type: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use protobuf::descriptor::field_descriptor_proto::Type;
+
     use super::*;
     use crate::parsing::MessageField;
 
@@ -828,6 +803,7 @@ mod tests {
         let fields = vec![
             MessageField {
                 name: "name".to_string(),
+                type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
                 optional: false,
                 repeated: false,
@@ -838,6 +814,7 @@ mod tests {
             },
             MessageField {
                 name: "comment".to_string(),
+                type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
                 optional: true,
                 repeated: false,
@@ -848,6 +825,7 @@ mod tests {
             },
             MessageField {
                 name: "properties".to_string(),
+                type_label: Type::TYPE_GROUP,
                 field_type: "map<string, string>".to_string(),
                 optional: true,
                 repeated: false,

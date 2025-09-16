@@ -125,7 +125,7 @@ impl UserJourney for CatalogSimpleJourney {
         logger.info("📋 Listing all catalogs")?;
         let _catalog_found = logger
             .step("list_catalogs", async {
-                let catalogs = client.list_catalogs(Some(50));
+                let catalogs = client.list_catalogs().with_max_results(50).into_stream();
                 let found = catalogs
                     .any(|c| async {
                         c.ok()

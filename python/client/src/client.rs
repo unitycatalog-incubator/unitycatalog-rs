@@ -49,14 +49,11 @@ impl PyUnityCatalogClient {
         py: Python,
         max_results: Option<i32>,
     ) -> PyUnityCatalogResult<Vec<CatalogInfo>> {
+        let stream = self.0.list_catalogs().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let catalogs = runtime.block_on(async move {
-                self.0
-                    .list_catalogs(max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let catalogs =
+                runtime.block_on(async move { stream.into_stream().try_collect().await })?;
             Ok::<_, PyUnityCatalogError>(catalogs)
         })
     }
@@ -75,14 +72,15 @@ impl PyUnityCatalogClient {
         max_results: Option<i32>,
         include_browse: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
+        let stream = self
+            .0
+            .list_schemas(catalog_name)
+            .with_max_results(max_results)
+            .with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let schemas = runtime.block_on(async move {
-                self.0
-                    .list_schemas(catalog_name, max_results, include_browse)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let schemas = runtime
+                .block_on(async move { stream.into_stream().try_collect::<Vec<_>>().await })?;
             Ok::<_, PyUnityCatalogError>(schemas)
         })
     }
@@ -117,24 +115,20 @@ impl PyUnityCatalogClient {
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<TableInfo>> {
+        let stream = self
+            .0
+            .list_tables(catalog_name, schema_name)
+            .with_max_results(max_results)
+            .with_include_browse(include_browse)
+            .with_include_delta_metadata(include_delta_metadata)
+            .with_omit_columns(omit_columns)
+            .with_omit_properties(omit_properties)
+            .with_omit_username(omit_username)
+            .with_include_manifest_capabilities(include_manifest_capabilities);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let tables = runtime.block_on(async move {
-                self.0
-                    .list_tables(
-                        catalog_name,
-                        schema_name,
-                        max_results,
-                        include_delta_metadata,
-                        omit_columns,
-                        omit_properties,
-                        omit_username,
-                        include_browse,
-                        include_manifest_capabilities,
-                    )
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let tables = runtime
+                .block_on(async move { stream.into_stream().try_collect::<Vec<_>>().await })?;
             Ok::<_, PyUnityCatalogError>(tables)
         })
     }
@@ -151,14 +145,11 @@ impl PyUnityCatalogClient {
         py: Python,
         max_results: Option<i32>,
     ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
+        let stream = self.0.list_shares().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let shares = runtime.block_on(async move {
-                self.0
-                    .list_shares(max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let shares = runtime
+                .block_on(async move { stream.into_stream().try_collect::<Vec<_>>().await })?;
             Ok::<_, PyUnityCatalogError>(shares)
         })
     }
@@ -175,14 +166,11 @@ impl PyUnityCatalogClient {
         py: Python,
         max_results: Option<i32>,
     ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
+        let stream = self.0.list_recipients().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let recipients = runtime.block_on(async move {
-                self.0
-                    .list_recipients(max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let recipients = runtime
+                .block_on(async move { stream.into_stream().try_collect::<Vec<_>>().await })?;
             Ok::<_, PyUnityCatalogError>(recipients)
         })
     }
@@ -200,14 +188,15 @@ impl PyUnityCatalogClient {
         purpose: Option<CredentialPurpose>,
         max_results: Option<i32>,
     ) -> PyUnityCatalogResult<Vec<CredentialInfo>> {
+        let stream = self
+            .0
+            .list_credentials()
+            .with_max_results(max_results)
+            .with_purpose(purpose);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let credentials = runtime.block_on(async move {
-                self.0
-                    .list_credentials(purpose, max_results)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let credentials = runtime
+                .block_on(async move { stream.into_stream().try_collect::<Vec<_>>().await })?;
             Ok::<_, PyUnityCatalogError>(credentials)
         })
     }
@@ -225,14 +214,15 @@ impl PyUnityCatalogClient {
         max_results: Option<i32>,
         include_browse: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
+        let stream = self
+            .0
+            .list_external_locations()
+            .with_max_results(max_results)
+            .with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let locations = runtime.block_on(async move {
-                self.0
-                    .list_external_locations(max_results, include_browse)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let locations = runtime
+                .block_on(async move { stream.into_stream().try_collect::<Vec<_>>().await })?;
             Ok::<_, PyUnityCatalogError>(locations)
         })
     }
@@ -403,14 +393,15 @@ impl PyUnityCatalogClient {
         max_results: Option<i32>,
         include_browse: Option<bool>,
     ) -> PyUnityCatalogResult<Vec<VolumeInfo>> {
+        let stream = self
+            .0
+            .list_volumes(catalog_name, schema_name)
+            .with_max_results(max_results)
+            .with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let volumes = runtime.block_on(async move {
-                self.0
-                    .list_volumes(catalog_name, schema_name, max_results, include_browse)
-                    .try_collect::<Vec<_>>()
-                    .await
-            })?;
+            let volumes =
+                runtime.block_on(async move { stream.into_stream().try_collect().await })?;
             Ok::<_, PyUnityCatalogError>(volumes)
         })
     }

@@ -981,14 +981,14 @@ paths:
         \ on the parent schema. There is no guarantee of a\n specific ordering of the elements in the array."
       operationId: ListTables
       parameters:
-        - name: schemaName
-          in: query
-          description: Name of parent schema for tables of interest.
-          schema:
-            type: string
         - name: catalogName
           in: query
           description: Name of parent catalog for tables of interest.
+          schema:
+            type: string
+        - name: schemaName
+          in: query
+          description: Name of parent schema for tables of interest.
           schema:
             type: string
         - name: maxResults
@@ -3507,8 +3507,8 @@ components:
           pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
           type: string
       required:
-        - schema_name
         - catalog_name
+        - schema_name
       title: List Tables Request
       type: object
     AwsIamRoleConfig:

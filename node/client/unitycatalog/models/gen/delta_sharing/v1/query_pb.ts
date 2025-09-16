@@ -7,7 +7,6 @@ import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
-import { file_google_api_resource } from "../../google/api/resource_pb";
 import type { Format, Metadata } from "./protocol_pb";
 import { file_delta_sharing_v1_protocol } from "./protocol_pb";
 
@@ -22,7 +21,6 @@ export const file_delta_sharing_v1_query: GenFile =
       file_buf_validate_validate,
       file_delta_sharing_v1_protocol,
       file_google_api_field_behavior,
-      file_google_api_resource,
     ],
   );
 

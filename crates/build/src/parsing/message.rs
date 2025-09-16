@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use convert_case::{Case, Casing};
 use prost::Message as _;
 use protobuf::Message;
+use protobuf::descriptor::field_descriptor_proto::Type;
 use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, SourceCodeInfo};
 
 use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
@@ -118,6 +119,7 @@ pub(super) fn process_message(
 
         let field_info = MessageField {
             name: field.name().to_string(),
+            type_label: field.type_(),
             field_type: field_type_str,
             optional: is_optional,
             repeated: is_repeated,
@@ -144,6 +146,7 @@ pub(super) fn process_message(
 
         let oneof_field = MessageField {
             name: oneof_name.clone(),
+            type_label: Type::TYPE_GROUP,
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
             optional: true,      // oneof fields are always optional (Option<enum>)
             repeated: false,     // oneof fields are never repeated

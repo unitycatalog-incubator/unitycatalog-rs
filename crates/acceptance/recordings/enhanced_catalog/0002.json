@@ -1,24 +1,24 @@
 {
   "request": {
     "method": "GET",
-    "url_path": "/api/2.1/unity-catalog/catalogs/enhanced_catalog_1757916740",
+    "url_path": "/api/2.1/unity-catalog/catalogs/enhanced_catalog_1758050044",
     "body": null
   },
   "response": {
     "status": 200,
     "headers": {
-      "vary": "Accept-Encoding",
-      "server-timing": "client_protocol;dur=0;desc=\"HTTP/2\"",
-      "x-request-id": "659a887f-c651-4f40-90c5-bcc7d4d7937a",
-      "content-length": "1194",
-      "content-type": "application/json",
-      "alt-svc": "clear",
-      "date": "Mon, 15 Sep 2025 06:12:22 GMT",
-      "x-databricks-org-id": "310942840210298",
-      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
       "x-content-type-options": "nosniff",
-      "server": "databricks"
+      "content-length": "1194",
+      "date": "Tue, 16 Sep 2025 19:14:06 GMT",
+      "x-request-id": "72b533a2-a60b-454d-8517-56d124a459eb",
+      "alt-svc": "clear",
+      "server": "databricks",
+      "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+      "vary": "Accept-Encoding",
+      "content-type": "application/json",
+      "x-databricks-org-id": "310942840210298",
+      "server-timing": "client_protocol;dur=0;desc=\"HTTP/2\""
     },
-    "body": "{\"name\":\"enhanced_catalog_1757916740\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Enhanced test catalog with rich reporting\",\"storage_root\":\"s3://open-lakehouse-dev/\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"catalog_type\":\"MANAGED_CATALOG\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"created_at\":1757916741598,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1757916741598,\"updated_by\":\"robert.pack@databricks.com\",\"storage_location\":\"s3://open-lakehouse-dev/__unitystorage/catalogs/289602a2-40b3-4013-808a-6042967cfbd5\",\"isolation_mode\":\"OPEN\",\"effective_auto_maintenance_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"browse_only\":false,\"id\":\"289602a2-40b3-4013-808a-6042967cfbd5\",\"full_name\":\"enhanced_catalog_1757916740\",\"securable_type\":\"CATALOG\",\"securable_kind\":\"CATALOG_STANDARD\",\"resource_name\":\"/metastores/d588dff9-484f-45ac-a020-cc4961a362c7/catalogs/289602a2-40b3-4013-808a-6042967cfbd5\",\"metastore_version\":168}"
+    "body": "{\"name\":\"enhanced_catalog_1758050044\",\"owner\":\"robert.pack@databricks.com\",\"comment\":\"Enhanced test catalog with rich reporting\",\"storage_root\":\"s3://open-lakehouse-dev/\",\"enable_auto_maintenance\":\"INHERIT\",\"enable_predictive_optimization\":\"INHERIT\",\"catalog_type\":\"MANAGED_CATALOG\",\"metastore_id\":\"d588dff9-484f-45ac-a020-cc4961a362c7\",\"created_at\":1758050045534,\"created_by\":\"robert.pack@databricks.com\",\"updated_at\":1758050045534,\"updated_by\":\"robert.pack@databricks.com\",\"storage_location\":\"s3://open-lakehouse-dev/__unitystorage/catalogs/669a6ba8-0fec-4219-ac39-5bdf542f4616\",\"isolation_mode\":\"OPEN\",\"effective_auto_maintenance_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"effective_predictive_optimization_flag\":{\"value\":\"ENABLE\",\"inherited_from_type\":\"METASTORE\",\"inherited_from_name\":\"metastore_aws_eu_central_1\"},\"browse_only\":false,\"id\":\"669a6ba8-0fec-4219-ac39-5bdf542f4616\",\"full_name\":\"enhanced_catalog_1758050044\",\"securable_type\":\"CATALOG\",\"securable_kind\":\"CATALOG_STANDARD\",\"resource_name\":\"/metastores/d588dff9-484f-45ac-a020-cc4961a362c7/catalogs/669a6ba8-0fec-4219-ac39-5bdf542f4616\",\"metastore_version\":178}"
   }
 }
