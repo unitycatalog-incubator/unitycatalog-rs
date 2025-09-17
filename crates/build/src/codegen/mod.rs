@@ -30,6 +30,7 @@ use syn::Ident;
 use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, analyze_metadata};
 use crate::google::api::http_rule::Pattern;
 use crate::output;
+use crate::parsing::types::UnifiedType;
 use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext, TypeConverter};
 
 pub mod generation;

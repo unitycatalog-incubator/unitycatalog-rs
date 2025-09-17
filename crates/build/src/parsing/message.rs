@@ -91,7 +91,6 @@ pub(super) fn process_message(
 
         let field_info = MessageField {
             name: field.name().to_string(),
-            type_label: field.type_(),
             field_type: field_type_str,
             unified_type,
             optional: is_optional,
@@ -117,7 +116,6 @@ pub(super) fn process_message(
 
         let oneof_field = MessageField {
             name: oneof_name.clone(),
-            type_label: Type::TYPE_GROUP,
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
             unified_type: UnifiedType {
                 base_type: BaseType::OneOf(enum_type_name.clone()),
@@ -303,9 +301,7 @@ fn extract_message_resource_option(
             let data = match field_value {
                 protobuf::UnknownValueRef::LengthDelimited(bytes) => bytes,
                 _ => {
-                    println!(
-                        "cargo:warning=    Skipping non-length-delimited google.api.resource field"
-                    );
+                    println!("Skipping non-length-delimited google.api.resource field");
                     continue;
                 }
             };
@@ -423,9 +419,28 @@ fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
         Type::TYPE_FLOAT => BaseType::Float32,
         Type::TYPE_BYTES => BaseType::Bytes,
         Type::TYPE_MESSAGE => {
-            // Remove leading dot if present and convert to message type
-            let type_name = field.type_name().trim_start_matches('.');
-            BaseType::Message(type_name.to_string())
+            // HACK: Somehow map type fields end up as message types (which is expected)
+            // with the type name <FieldName>Entry, so checking for that name is how we identify maps.
+            let aux_name = format!("{} entry", field.name()).to_case(Case::Pascal);
+            if field.type_name().ends_with(&aux_name) {
+                UnifiedType::map(
+                    UnifiedType {
+                        base_type: BaseType::String,
+                        is_optional: false,
+                        is_repeated: false,
+                    },
+                    UnifiedType {
+                        base_type: BaseType::String,
+                        is_optional: false,
+                        is_repeated: false,
+                    },
+                )
+                .base_type
+            } else {
+                // Remove leading dot if present and convert to message type
+                let type_name = field.type_name().trim_start_matches('.');
+                BaseType::Message(type_name.to_string())
+            }
         }
         Type::TYPE_ENUM => {
             // Remove leading dot if present and convert to enum type
@@ -443,6 +458,32 @@ fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
         is_optional,
         is_repeated,
     }
+}
+
+fn is_map_field(field: &FieldDescriptorProto, parent_message: &DescriptorProto) -> bool {
+    // Check if the field is repeated and is a message type
+    if field.label() != Label::LABEL_REPEATED || field.type_() != Type::TYPE_MESSAGE {
+        return false;
+    }
+
+    // Map fields reference a nested message type with map_entry = true
+    let type_name = field.type_name();
+
+    for nested_type in parent_message.nested_type.iter() {
+        // Type names in FieldDescriptorProto start with ".<ParentMessage>.<NestedType>"
+        if let Some(nt_name) = nested_type.name.as_ref() {
+            let full_nested_type_name = format!(".{}.{}", parent_message.name(), nt_name);
+            if type_name == full_nested_type_name {
+                if let Some(options) = nested_type.options.as_ref() {
+                    if options.map_entry == Some(true) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    false
 }
 
 #[cfg(test)]

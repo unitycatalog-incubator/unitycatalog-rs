@@ -201,25 +201,13 @@ fn generate_with_methods(
                 // Handle complex types with direct assignment - no trait bounds needed
                 let (field_type_str, is_repeated) = if field.repeated {
                     if field.field_type.starts_with("TYPE_MESSAGE:") {
-                        // For repeated message fields, extract the inner type using the handler
-                        let rust_type = if field.field_type.starts_with("TYPE_MESSAGE:") {
-                            method.rust_field_type(&field.field_type)
-                        } else {
-                            method.rust_field_type(&field.field_type)
-                        };
-
+                        let rust_type =  method.rust_field_type(&field.field_type);
                         (rust_type, true)
                     } else {
                         // For other repeated fields, determine the correct base type
                         let base_type = method.rust_field_type(&field.field_type);
                         (base_type, true)
                     }
-                } else if field.field_type.starts_with("TYPE_MESSAGE:") {
-                    let rust_type = method.rust_field_type(&field.field_type);
-                    (rust_type, false)
-                } else if field.field_type.starts_with("TYPE_ONEOF:") {
-                    let rust_type = method.rust_field_type(&field.field_type);
-                    (rust_type, false)
                 } else {
                     let rust_type = method.rust_field_type(&field.field_type);
                     (rust_type, false)
@@ -492,8 +480,6 @@ fn generate_into_stream_impl(
 
 #[cfg(test)]
 mod tests {
-    use protobuf::descriptor::field_descriptor_proto::Type;
-
     use crate::parsing::MessageField;
     use crate::parsing::types::{BaseType, UnifiedType};
 
@@ -507,7 +493,6 @@ mod tests {
         let fields = vec![
             MessageField {
                 name: "name".to_string(),
-                type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
                 unified_type: UnifiedType {
                     base_type: BaseType::String,
@@ -523,7 +508,6 @@ mod tests {
             },
             MessageField {
                 name: "comment".to_string(),
-                type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
                 unified_type: UnifiedType {
                     base_type: BaseType::String,
@@ -539,7 +523,6 @@ mod tests {
             },
             MessageField {
                 name: "properties".to_string(),
-                type_label: Type::TYPE_GROUP,
                 field_type: "map<string, string>".to_string(),
                 unified_type: UnifiedType {
                     base_type: BaseType::Map(
