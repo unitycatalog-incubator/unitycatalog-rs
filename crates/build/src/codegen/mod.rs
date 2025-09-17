@@ -204,11 +204,14 @@ impl MethodHandler<'_> {
         param_type_str.parse().unwrap_or_else(|_| quote! { String })
     }
 
-    /// Get Rust field type for a protobuf field type
-    pub(crate) fn rust_field_type(&self, field_type: &str) -> String {
+    pub(crate) fn rust_field_type_unified(
+        &self,
+        field_type: &UnifiedType,
+        ctx: RenderContext,
+    ) -> syn::Type {
         let type_converter = TypeConverter::new();
-        let unified_type = type_converter.protobuf_to_unified(field_type);
-        type_converter.unified_to_rust(&unified_type, RenderContext::FieldType)
+        let rust_type = type_converter.unified_to_rust(field_type, ctx);
+        syn::parse_str(&rust_type).expect("proper field type")
     }
 
     /// Get Python parameter type for a Rust type

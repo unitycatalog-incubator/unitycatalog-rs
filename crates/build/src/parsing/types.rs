@@ -145,13 +145,15 @@ impl TypeConverter {
 
         let mut result = base_type_str;
 
-        // Apply repeated wrapper
-        if unified_type.is_repeated {
+        // Apply repeated wrapper.
+        // when creating a builder method, we require the innre type only.
+        if unified_type.is_repeated && !matches!(context, RenderContext::BuilderMethod) {
             result = format!("Vec<{}>", result);
         }
 
         // Apply optional wrapper
-        if unified_type.is_optional {
+        // - in builder methods we wrap this in impl Into<Option<T>> so we just need the inner type
+        if unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod) {
             result = format!("Option<{}>", result);
         }
 

@@ -6,7 +6,8 @@ use syn::Path;
 use super::format_tokens;
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler, extract_type_ident};
-use crate::parsing::MessageField;
+use crate::parsing::types::BaseType;
+use crate::parsing::{MessageField, RenderContext};
 
 /// Generate builder code for all request types in a service
 pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
@@ -70,7 +71,7 @@ fn generate_request_builder(
     );
 
     // Generate with_* methods for optional fields
-    let with_methods = generate_with_methods(&method, &builder_ident, &optional_fields);
+    let with_methods = generate_with_methods(&method, &optional_fields);
 
     let into_stream_impl = if matches!(method.plan.request_type, RequestType::List) {
         Some(generate_into_stream_impl(method, &method_name))
@@ -148,216 +149,102 @@ fn generate_constructor(
 /// Generate with_* methods for optional fields
 fn generate_with_methods(
     method: &MethodHandler<'_>,
-    _builder_ident: &proc_macro2::Ident,
     optional_fields: &[&MessageField],
 ) -> Vec<TokenStream> {
     let mut methods = Vec::new();
 
     // First, generate individual methods for oneof variants
     for field in optional_fields {
-        if field.field_type.starts_with("TYPE_ONEOF:") && field.oneof_variants.is_some() {
+        if matches!(field.unified_type.base_type, BaseType::OneOf(_))
+            && field.oneof_variants.is_some()
+        {
             methods.extend(generate_oneof_variant_methods(method, field));
-            continue; // Skip the regular oneof method generation
         }
     }
 
     // Then generate regular methods for non-oneof fields
     let regular_methods: Vec<TokenStream> = optional_fields
         .iter()
-        .filter(|field| !(field.field_type.starts_with("TYPE_ONEOF:") && field.oneof_variants.is_some()))
-        .map(|field| {
-            let field_ident = format_ident!("{}", field.name);
-            let method_name = format_ident!("with_{}", field.name);
-            let field_name = &field.name;
-
-            // Generate appropriate documentation for the method
-            let doc_attr = if let Some(ref doc) = field.documentation {
-                quote! { #[doc = #doc] }
-            } else {
-                quote! { #[doc = concat!("Set ", #field_name)] }
-            };
-
-            if field.field_type.contains("map<") || field.name == "properties" {
-                // Handle HashMap properties with generic method
-                quote! {
-                    #doc_attr
-                    pub fn #method_name<I, K, V>(mut self, #field_ident: I) -> Self
-                    where
-                        I: IntoIterator<Item = (K, V)>,
-                        K: Into<String>,
-                        V: Into<String>,
-                    {
-                        self.request.#field_ident = #field_ident
-                            .into_iter()
-                            .map(|(k, v)| (k.into(), v.into()))
-                            .collect();
-                        self
-                    }
-                }
-            } else if field.field_type.starts_with("TYPE_MESSAGE:")
-                || field.field_type.starts_with("TYPE_ONEOF:")
-                || field.repeated
-            {
-                // Handle complex types with direct assignment - no trait bounds needed
-                let (field_type_str, is_repeated) = if field.repeated {
-                    if field.field_type.starts_with("TYPE_MESSAGE:") {
-                        let rust_type =  method.rust_field_type(&field.field_type);
-                        (rust_type, true)
-                    } else {
-                        // For other repeated fields, determine the correct base type
-                        let base_type = method.rust_field_type(&field.field_type);
-                        (base_type, true)
-                    }
-                } else {
-                    let rust_type = method.rust_field_type(&field.field_type);
-                    (rust_type, false)
-                };
-
-                if is_repeated {
-                    // For repeated fields, use generic IntoIterator
-                    let inner_type: syn::Type = syn::parse_str(&field_type_str)
-                        .unwrap_or_else(|_| syn::parse_str("String").unwrap());
-
-                    // For repeated fields, assignment is always collecting the iterator
-                    let assignment = quote! { #field_ident.into_iter().collect() };
-
-                    quote! {
-                        #doc_attr
-                        pub fn #method_name<I>(mut self, #field_ident: I) -> Self
-                        where
-                            I: IntoIterator<Item = #inner_type>,
-                        {
-                            self.request.#field_ident = #assignment;
-                            self
-                        }
-                    }
-                } else {
-                    // Parse the type string as a proper Type token for non-repeated fields
-                    let field_type: syn::Type = syn::parse_str(&field_type_str)
-                        .unwrap_or_else(|_| syn::parse_str("String").unwrap());
-
-                    if field.optional {
-                        // For optional complex types, use impl Into<Option<T>> pattern
-                        quote! {
-                            #doc_attr
-                            pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
-                                self.request.#field_ident = #field_ident.into();
-                                self
-                            }
-                        }
-                    } else {
-                        // For required complex types, use direct assignment
-                        quote! {
-                            #doc_attr
-                            pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
-                                self.request.#field_ident = #field_ident;
-                                self
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Handle all other fields with appropriate type conversion
-                if field.optional {
-                    // Use flexible impl Into<Option<T>> pattern for optional fields
-                    let assignment = method.flexible_optional_field_assignment(&field.field_type, &field_ident);
-
-                    match field.field_type.as_str() {
-                        "TYPE_STRING" => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<String>>) -> Self {
-                                    self.request.#field_ident = #field_ident.into();
-                                    self
-                                }
-                            }
-                        }
-                        "TYPE_INT32" => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<i32>>) -> Self {
-                                    self.request.#field_ident = #assignment;
-                                    self
-                                }
-                            }
-                        }
-                        "TYPE_INT64" => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<i64>>) -> Self {
-                                    self.request.#field_ident = #assignment;
-                                    self
-                                }
-                            }
-                        }
-                        "TYPE_BOOL" => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<bool>>) -> Self {
-                                    self.request.#field_ident = #assignment;
-                                    self
-                                }
-                            }
-                        }
-                        "TYPE_DOUBLE" => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<f64>>) -> Self {
-                                    self.request.#field_ident = #assignment;
-                                    self
-                                }
-                            }
-                        }
-                        "TYPE_FLOAT" => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<f32>>) -> Self {
-                                    self.request.#field_ident = #assignment;
-                                    self
-                                }
-                            }
-                        }
-                        _ if field.field_type.starts_with("TYPE_ENUM:") => {
-                            let enum_type = method.rust_field_type(&field.field_type);
-                            let enum_ident: syn::Type =
-                                syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<#enum_ident>>) -> Self {
-                                    self.request.#field_ident = #assignment;
-                                    self
-                                }
-                            }
-                        }
-                        _ => {
-                            quote! {
-                                #doc_attr
-                                pub fn #method_name(mut self, #field_ident: impl Into<Option<String>>) -> Self {
-                                    self.request.#field_ident = #field_ident.into();
-                                    self
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // Use the original pattern for required fields
-                    let param_type = method.rust_parameter_type(&field.field_type);
-                    let assignment = method.field_assignment(&field.field_type, &field_ident);
-
-                    quote! {
-                        #doc_attr
-                        pub fn #method_name(mut self, #field_ident: #param_type) -> Self {
-                            self.request.#field_ident = #assignment;
-                            self
-                        }
-                    }
-                }
-            }
-        })
+        .filter(|field| !matches!(field.unified_type.base_type, BaseType::OneOf(_)))
+        .map(|field| builder_with_impl(method, field))
         .collect();
 
     methods.extend(regular_methods);
     methods
+}
+
+fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenStream {
+    let field_ident = format_ident!("{}", field.name);
+    let method_name = format_ident!("with_{}", field.name);
+    let field_name = &field.name;
+
+    // Generate appropriate documentation for the method
+    let doc_attr = if let Some(ref doc) = field.documentation {
+        quote! { #[doc = #doc] }
+    } else {
+        quote! { #[doc = concat!("Set ", #field_name)] }
+    };
+
+    if matches!(field.unified_type.base_type, BaseType::Map(_, _)) {
+        quote! {
+            #doc_attr
+            pub fn #method_name<I, K, V>(mut self, #field_ident: I) -> Self
+            where
+                I: IntoIterator<Item = (K, V)>,
+                K: Into<String>,
+                V: Into<String>,
+            {
+                self.request.#field_ident = #field_ident
+                    .into_iter()
+                    .map(|(k, v)| (k.into(), v.into()))
+                    .collect();
+                self
+            }
+        }
+    } else if matches!(field.unified_type.base_type, BaseType::Enum(_)) {
+        let enum_ident =
+            method.rust_field_type_unified(&field.unified_type, RenderContext::BuilderMethod);
+        let assignment = method.flexible_optional_field_assignment(&field.field_type, &field_ident);
+        quote! {
+            #doc_attr
+            pub fn #method_name(mut self, #field_ident: impl Into<Option<#enum_ident>>) -> Self {
+                self.request.#field_ident = #assignment;
+                self
+            }
+        }
+    } else {
+        let field_type =
+            method.rust_field_type_unified(&field.unified_type, RenderContext::BuilderMethod);
+        if field.repeated {
+            let assignment = quote! { #field_ident.into_iter().collect() };
+            quote! {
+                #doc_attr
+                pub fn #method_name<I>(mut self, #field_ident: I) -> Self
+                where
+                    I: IntoIterator<Item = #field_type>,
+                {
+                    self.request.#field_ident = #assignment;
+                    self
+                }
+            }
+        } else if field.optional {
+            quote! {
+                #doc_attr
+                pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
+                    self.request.#field_ident = #field_ident.into();
+                    self
+                }
+            }
+        } else {
+            quote! {
+                #doc_attr
+                pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
+                    self.request.#field_ident = #field_ident;
+                    self
+                }
+            }
+        }
+    }
 }
 
 /// Generate individual methods for each variant of a oneof field
@@ -368,8 +255,8 @@ fn generate_oneof_variant_methods(
     let variants = field.oneof_variants.as_ref().unwrap();
     let oneof_field_ident = format_ident!("{}", field.name);
 
-    // Extract the enum type name from the field type using the handler
-    let enum_type_rust = method.rust_field_type(&field.field_type);
+    let enum_type_tokens =
+        method.rust_field_type_unified(&field.unified_type, RenderContext::BuilderMethod);
 
     variants
         .iter()
@@ -389,10 +276,6 @@ fn generate_oneof_variant_methods(
                 let field_name = &variant.field_name;
                 quote! { #[doc = concat!("Set ", #field_name)] }
             };
-
-            // Parse the enum type for the assignment
-            let enum_type_tokens: syn::Type = syn::parse_str(&enum_type_rust)
-                .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
             quote! {
                 #doc_attr
