@@ -111,7 +111,7 @@ pub fn analyze_method(
         Some(info) => info,
         None => {
             println!(
-                "cargo:warning=Method {}.{} missing HTTP info",
+                "Method {}.{} missing HTTP info",
                 method.service_name, method.method_name
             );
             return Ok(None);

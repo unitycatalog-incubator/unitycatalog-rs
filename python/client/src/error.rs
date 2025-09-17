@@ -1,5 +1,5 @@
 use pyo3::create_exception;
-use pyo3::exceptions::PyIOError;
+use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
 use thiserror::Error;
 use unitycatalog_common::error::Error as UCError;
@@ -42,6 +42,10 @@ pub enum PyUnityCatalogError {
     /// A wrapped [std::io::Error]
     #[error(transparent)]
     IOError(#[from] std::io::Error),
+
+    /// A wrapped [url::ParseError]
+    #[error(transparent)]
+    InvalidUrl(#[from] url::ParseError),
 }
 
 impl From<PyUnityCatalogError> for PyErr {
@@ -56,6 +60,7 @@ impl From<PyUnityCatalogError> for PyErr {
                 GenericError::new_err(print_with_debug_client(err))
             }
             PyUnityCatalogError::IOError(err) => PyIOError::new_err(err),
+            PyUnityCatalogError::InvalidUrl(err) => PyValueError::new_err(err.to_string()),
         }
     }
 }

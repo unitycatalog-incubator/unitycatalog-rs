@@ -138,7 +138,7 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
                 } else {
                     cloud_client::CloudClient::new_unauthenticated()
                 };
-                let base_url = base_url.parse().unwrap();
+                let base_url = base_url.parse().map_err(PyUnityCatalogError::from)?;
                 Ok(Self { client: UnityCatalogClient::new(client, base_url) })
             }
 
