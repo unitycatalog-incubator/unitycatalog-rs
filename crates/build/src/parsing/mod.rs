@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
 use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet};
+pub use types::{RenderContext, TypeConverter};
 
 pub(crate) use self::http::*;
 pub(crate) use self::models::*;
+pub mod types;
 
 mod enum_parser;
 mod http;

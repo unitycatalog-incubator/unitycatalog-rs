@@ -494,8 +494,8 @@ fn generate_into_stream_impl(
 mod tests {
     use protobuf::descriptor::field_descriptor_proto::Type;
 
-    use super::*;
     use crate::parsing::MessageField;
+    use crate::parsing::types::{BaseType, UnifiedType};
 
     // Note: Tests for enum conversion and field analysis are now integrated into the MethodHandler
     // and would be better tested as part of handler integration tests
@@ -509,6 +509,11 @@ mod tests {
                 name: "name".to_string(),
                 type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
+                unified_type: UnifiedType {
+                    base_type: BaseType::String,
+                    is_optional: false,
+                    is_repeated: false,
+                },
                 optional: false,
                 repeated: false,
                 oneof_name: None,
@@ -520,6 +525,11 @@ mod tests {
                 name: "comment".to_string(),
                 type_label: Type::TYPE_STRING,
                 field_type: "TYPE_STRING".to_string(),
+                unified_type: UnifiedType {
+                    base_type: BaseType::String,
+                    is_optional: true,
+                    is_repeated: false,
+                },
                 optional: true,
                 repeated: false,
                 oneof_name: None,
@@ -531,6 +541,22 @@ mod tests {
                 name: "properties".to_string(),
                 type_label: Type::TYPE_GROUP,
                 field_type: "map<string, string>".to_string(),
+                unified_type: UnifiedType {
+                    base_type: BaseType::Map(
+                        Box::new(UnifiedType {
+                            base_type: BaseType::String,
+                            is_optional: false,
+                            is_repeated: false,
+                        }),
+                        Box::new(UnifiedType {
+                            base_type: BaseType::String,
+                            is_optional: false,
+                            is_repeated: false,
+                        }),
+                    ),
+                    is_optional: true,
+                    is_repeated: false,
+                },
                 optional: true,
                 repeated: false,
                 oneof_name: None,

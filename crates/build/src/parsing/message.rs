@@ -7,6 +7,7 @@ use protobuf::descriptor::field_descriptor_proto::{Label, Type};
 use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, SourceCodeInfo};
 
 use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
+use crate::parsing::types::{BaseType, UnifiedType};
 
 /// Process a protobuf message definition
 pub(super) fn process_message(
@@ -82,7 +83,8 @@ pub(super) fn process_message(
         }
 
         // Add regular field (including proto3_optional fields)
-        let field_type_str = format_field_type(field);
+        let unified_type = parse_field_to_unified_type(field);
+        let field_type_str = format_field_type(field); // Legacy for backward compatibility
 
         // Extract field behavior annotations
         let field_behavior = extract_field_behavior_option(field)?;
@@ -91,6 +93,7 @@ pub(super) fn process_message(
             name: field.name().to_string(),
             type_label: field.type_(),
             field_type: field_type_str,
+            unified_type,
             optional: is_optional,
             repeated: is_repeated,
             documentation,
@@ -116,6 +119,11 @@ pub(super) fn process_message(
             name: oneof_name.clone(),
             type_label: Type::TYPE_GROUP,
             field_type: format!("TYPE_ONEOF:{}", enum_type_name),
+            unified_type: UnifiedType {
+                base_type: BaseType::OneOf(enum_type_name.clone()),
+                is_optional: true,
+                is_repeated: false,
+            },
             oneof_variants: Some(variants),
             documentation: None,    // TODO: Extract oneof documentation if needed
             optional: true,         // oneof fields are always optional (Option<enum>)
@@ -399,6 +407,41 @@ fn format_field_type(field: &FieldDescriptorProto) -> String {
             format!("TYPE_ENUM:{}", field.type_name())
         }
         _ => "TYPE_UNKNOWN".to_string(),
+    }
+}
+
+/// Parse a protobuf field directly to UnifiedType
+fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
+    use protobuf::descriptor::field_descriptor_proto::Type;
+
+    let base_type = match field.type_() {
+        Type::TYPE_STRING => BaseType::String,
+        Type::TYPE_INT32 => BaseType::Int32,
+        Type::TYPE_INT64 => BaseType::Int64,
+        Type::TYPE_BOOL => BaseType::Bool,
+        Type::TYPE_DOUBLE => BaseType::Float64,
+        Type::TYPE_FLOAT => BaseType::Float32,
+        Type::TYPE_BYTES => BaseType::Bytes,
+        Type::TYPE_MESSAGE => {
+            // Remove leading dot if present and convert to message type
+            let type_name = field.type_name().trim_start_matches('.');
+            BaseType::Message(type_name.to_string())
+        }
+        Type::TYPE_ENUM => {
+            // Remove leading dot if present and convert to enum type
+            let type_name = field.type_name().trim_start_matches('.');
+            BaseType::Enum(type_name.to_string())
+        }
+        _ => BaseType::String, // Fallback for unknown types
+    };
+
+    let is_repeated = field.label() == Label::LABEL_REPEATED;
+    let is_optional = field.label() == Label::LABEL_OPTIONAL || field.proto3_optional();
+
+    UnifiedType {
+        base_type,
+        is_optional,
+        is_repeated,
     }
 }
 

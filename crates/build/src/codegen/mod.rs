@@ -30,7 +30,7 @@ use syn::Ident;
 use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, analyze_metadata};
 use crate::google::api::http_rule::Pattern;
 use crate::output;
-use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo};
+use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext, TypeConverter};
 
 pub mod generation;
 
@@ -197,54 +197,24 @@ impl MethodHandler<'_> {
 
     /// Get Rust parameter type for constructor-like arguments (builder methods)
     pub(crate) fn rust_parameter_type(&self, field_type: &str) -> TokenStream {
-        match field_type {
-            "TYPE_STRING" => quote! { impl Into<String> },
-            "TYPE_INT32" => quote! { i32 },
-            "TYPE_INT64" => quote! { i64 },
-            "TYPE_BOOL" => quote! { bool },
-            "TYPE_DOUBLE" => quote! { f64 },
-            "TYPE_FLOAT" => quote! { f32 },
-            _ if field_type.starts_with("TYPE_ENUM:") => {
-                let enum_type = self.convert_protobuf_enum_to_rust_type(field_type);
-                let enum_ident: syn::Type =
-                    syn::parse_str(&enum_type).unwrap_or_else(|_| syn::parse_str("i32").unwrap());
-                quote! { #enum_ident }
-            }
-            _ if field_type.contains("map<") => {
-                quote! { impl IntoIterator<Item = (impl Into<String>, impl Into<String>)> }
-            }
-            _ => quote! { impl Into<String> },
-        }
+        let type_converter = TypeConverter::new();
+        let unified_type = type_converter.protobuf_to_unified(field_type);
+        let param_type_str = type_converter.rust_parameter_type(&unified_type);
+        param_type_str.parse().unwrap_or_else(|_| quote! { String })
     }
 
     /// Get Rust field type for a protobuf field type
     pub(crate) fn rust_field_type(&self, field_type: &str) -> String {
-        match field_type {
-            "TYPE_STRING" => "String".to_string(),
-            "TYPE_INT32" => "i32".to_string(),
-            "TYPE_INT64" => "i64".to_string(),
-            "TYPE_BOOL" => "bool".to_string(),
-            "TYPE_DOUBLE" => "f64".to_string(),
-            "TYPE_FLOAT" => "f32".to_string(),
-            "TYPE_BYTES" => "Vec<u8>".to_string(),
-            _ if field_type.starts_with("TYPE_ENUM:") => {
-                self.convert_protobuf_enum_to_rust_type(field_type)
-            }
-            _ if field_type.ends_with("PropertiesEntry") => "HashMap<String, String>".to_string(),
-            _ if field_type.starts_with("TYPE_MESSAGE:") => {
-                self.extract_simple_type_name(&field_type[13..])
-            }
-            _ if field_type.starts_with("TYPE_ONEOF:") => {
-                self.extract_simple_type_name(&field_type[11..])
-            }
-            _ => "String".to_string(),
-        }
+        let type_converter = TypeConverter::new();
+        let unified_type = type_converter.protobuf_to_unified(field_type);
+        type_converter.unified_to_rust(&unified_type, RenderContext::FieldType)
     }
 
     /// Get Python parameter type for a Rust type
     pub(crate) fn python_parameter_type(&self, rust_type: &str, optional: bool) -> TokenStream {
+        // This method needs to convert Rust type strings back to Python types
+        // Since this is used by existing Python generation code, we keep it simple
         let base_type = if rust_type.starts_with("Option<") {
-            // Extract inner type from Option<T>
             rust_type
                 .strip_prefix("Option<")
                 .and_then(|s| s.strip_suffix(">"))
@@ -253,7 +223,20 @@ impl MethodHandler<'_> {
             rust_type
         };
 
-        let converted = self.convert_basic_type_to_python(base_type);
+        let converted = match base_type {
+            "String" | "str" => quote! { String },
+            "i32" => quote! { i32 },
+            "i64" => quote! { i64 },
+            "bool" => quote! { bool },
+            "f32" => quote! { f32 },
+            "f64" => quote! { f64 },
+            s if s.contains("HashMap") => quote! { HashMap<String, String> },
+            _ => {
+                // Assume it's a struct type, use as-is
+                let type_ident = format_ident!("{}", base_type);
+                quote! { #type_ident }
+            }
+        };
 
         if optional || rust_type.starts_with("Option<") {
             quote! { Option<#converted> }
@@ -268,17 +251,9 @@ impl MethodHandler<'_> {
         field_type: &str,
         field_ident: &proc_macro2::Ident,
     ) -> TokenStream {
-        match field_type {
-            "TYPE_STRING" => quote! { #field_ident.into() },
-            "TYPE_INT32" | "TYPE_INT64" | "TYPE_BOOL" | "TYPE_DOUBLE" | "TYPE_FLOAT" => {
-                quote! { #field_ident }
-            }
-            _ if field_type.starts_with("TYPE_ENUM:") => quote! { #field_ident as i32 },
-            _ if field_type.contains("map<") => quote! {
-                #field_ident.into_iter().map(|(k, v)| (k.into(), v.into())).collect()
-            },
-            _ => quote! { #field_ident.into() },
-        }
+        let type_converter = TypeConverter::new();
+        let unified_type = type_converter.protobuf_to_unified(field_type);
+        type_converter.field_assignment(&unified_type, field_ident)
     }
 
     /// Get flexible field assignment for optional fields using impl Into<Option<T>>
@@ -287,16 +262,9 @@ impl MethodHandler<'_> {
         field_type: &str,
         field_ident: &proc_macro2::Ident,
     ) -> TokenStream {
-        match field_type {
-            "TYPE_STRING" => quote! { #field_ident.into() },
-            "TYPE_INT32" | "TYPE_INT64" | "TYPE_BOOL" | "TYPE_DOUBLE" | "TYPE_FLOAT" => {
-                quote! { #field_ident.into() }
-            }
-            _ if field_type.starts_with("TYPE_ENUM:") => {
-                quote! { #field_ident.into().map(|e| e as i32) }
-            }
-            _ => quote! { #field_ident.into().map(|s| s.to_string()) },
-        }
+        let type_converter = TypeConverter::new();
+        let unified_type = type_converter.protobuf_to_unified(field_type);
+        type_converter.flexible_optional_field_assignment(&unified_type, field_ident)
     }
 
     /// Analyze request fields to separate required from optional
@@ -335,81 +303,6 @@ impl MethodHandler<'_> {
     pub(crate) fn optional_builder_fields(&self) -> Vec<&MessageField> {
         let (_, optional) = self.analyze_request_fields();
         optional
-    }
-
-    /// Convert protobuf enum type to Rust enum type
-    fn convert_protobuf_enum_to_rust_type(&self, field_type: &str) -> String {
-        if let Some(enum_name) = field_type.strip_prefix("TYPE_ENUM:") {
-            // Remove leading dot if present
-            let enum_name = enum_name.trim_start_matches('.');
-
-            // Parse the enum name parts
-            let parts: Vec<&str> = enum_name.split('.').collect();
-
-            match parts.as_slice() {
-                // unitycatalog.tables.v1.TableType -> TableType
-                ["unitycatalog", "tables", "v1", enum_type] => enum_type.to_string(),
-                // unitycatalog.credentials.v1.Purpose -> Purpose
-                ["unitycatalog", "credentials", "v1", enum_type] => enum_type.to_string(),
-                // unitycatalog.recipients.v1.AuthenticationType -> AuthenticationType
-                ["unitycatalog", "recipients", "v1", enum_type] => enum_type.to_string(),
-                // unitycatalog.volumes.v1.VolumeType -> VolumeType
-                ["unitycatalog", "volumes", "v1", enum_type] => enum_type.to_string(),
-                // unitycatalog.temporary_credentials.v1.generate_temporary_table_credentials_request.Operation
-                [
-                    "unitycatalog",
-                    "temporary_credentials",
-                    "v1",
-                    nested_type,
-                    enum_type,
-                ] => {
-                    // Convert to snake_case module name
-                    let snake_case_module =
-                        nested_type.chars().fold(String::new(), |mut acc, c| {
-                            if c.is_uppercase() && !acc.is_empty() {
-                                acc.push('_');
-                            }
-                            acc.push(c.to_lowercase().next().unwrap());
-                            acc
-                        });
-                    format!("{}::{}", snake_case_module, enum_type)
-                }
-                // Fallback: use the last part as the enum name
-                _ => parts.last().map_or("i32", |v| v).to_string(),
-            }
-        } else {
-            // Not an enum type, return as-is (fallback to i32)
-            "i32".to_string()
-        }
-    }
-
-    /// Extract simple type name from fully qualified protobuf type
-    fn extract_simple_type_name(&self, full_type: &str) -> String {
-        // Remove leading dots and extract the last component
-        let trimmed = full_type.trim_start_matches('.');
-        trimmed
-            .split('.')
-            .next_back()
-            .unwrap_or(trimmed)
-            .to_string()
-    }
-
-    /// Convert basic Rust types to Python-compatible types
-    fn convert_basic_type_to_python(&self, rust_type: &str) -> TokenStream {
-        match rust_type {
-            "String" | "str" => quote! { String },
-            "i32" => quote! { i32 },
-            "i64" => quote! { i64 },
-            "bool" => quote! { bool },
-            "f32" => quote! { f32 },
-            "f64" => quote! { f64 },
-            s if s.contains("HashMap") => quote! { HashMap<String, String> },
-            _ => {
-                // Assume it's a struct type, use as-is
-                let type_ident = format_ident!("{}", rust_type);
-                quote! { #type_ident }
-            }
-        }
     }
 }
 
