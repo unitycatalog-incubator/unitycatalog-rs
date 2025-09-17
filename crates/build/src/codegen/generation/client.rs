@@ -63,7 +63,7 @@ fn client_struct(service: &ServiceHandler<'_>, methods: &[String]) -> String {
 
 /// Generate client method implementation
 pub fn client_method(method: MethodHandler<'_>) -> String {
-    let method_name = format_ident!("{}", method.plan.handler_function_name);
+    let method_name = method.plan.base_method_ident();
     let input_type_ident = method.input_type();
     let http_method = format_ident!("{}", method.plan.http_method.to_lowercase());
     let url_formatting = generate_url_formatting(&method.plan.http_path, &method.plan.path_params);

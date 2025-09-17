@@ -39,7 +39,7 @@ impl MethodPlan {
         }
     }
 
-    fn collection_client_method(&self) -> syn::Ident {
+    fn base_method_ident(&self) -> syn::Ident {
         format_ident!("{}", self.handler_function_name)
     }
 }
