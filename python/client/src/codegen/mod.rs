@@ -43,9 +43,107 @@ impl PyUnityCatalogClientABC {
         } else {
             cloud_client::CloudClient::new_unauthenticated()
         };
-        let base_url = base_url.parse().unwrap();
+        let base_url = base_url.parse().map_err(PyUnityCatalogError::from)?;
         Ok(Self {
             client: UnityCatalogClient::new(client, base_url),
+        })
+    }
+    #[pyo3(signature = (max_results = None, include_browse = None))]
+    pub fn list_external_locations(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
+        let mut request = self.client.list_external_locations();
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            name,
+            url,
+            credential_name,
+            read_only = None,
+            comment = None,
+            skip_validation = None
+        )
+    )]
+    pub fn create_external_location(
+        &self,
+        py: Python,
+        name: String,
+        url: String,
+        credential_name: String,
+        read_only: Option<bool>,
+        comment: Option<String>,
+        skip_validation: Option<bool>,
+    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
+        let mut request = self
+            .client
+            .create_external_location(name, url, credential_name);
+        request = request.with_read_only(read_only);
+        request = request.with_comment(comment);
+        request = request.with_skip_validation(skip_validation);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (max_results = None))]
+    pub fn list_recipients(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+    ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
+        let mut request = self.client.list_recipients();
+        request = request.with_max_results(max_results);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            name,
+            authentication_type,
+            owner,
+            comment = None,
+            properties = None,
+            expiration_time = None
+        )
+    )]
+    pub fn create_recipient(
+        &self,
+        py: Python,
+        name: String,
+        authentication_type: AuthenticationType,
+        owner: String,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+        expiration_time: Option<i64>,
+    ) -> PyUnityCatalogResult<RecipientInfo> {
+        let mut request = self
+            .client
+            .create_recipient(name, authentication_type, owner);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request = request.with_expiration_time(expiration_time);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
         })
     }
     #[pyo3(signature = (max_results = None))]
@@ -91,6 +189,74 @@ impl PyUnityCatalogClientABC {
         request = request.with_storage_root(storage_root);
         request = request.with_provider_name(provider_name);
         request = request.with_share_name(share_name);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (catalog_name, max_results = None, include_browse = None))]
+    pub fn list_schemas(
+        &self,
+        py: Python,
+        catalog_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
+        let mut request = self.client.list_schemas(catalog_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (name, catalog_name, comment = None, properties = None))]
+    pub fn create_schema(
+        &self,
+        py: Python,
+        name: String,
+        catalog_name: String,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> PyUnityCatalogResult<SchemaInfo> {
+        let mut request = self.client.create_schema(name, catalog_name);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (max_results = None))]
+    pub fn list_shares(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+    ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
+        let mut request = self.client.list_shares();
+        request = request.with_max_results(max_results);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (name, comment = None))]
+    pub fn create_share(
+        &self,
+        py: Python,
+        name: String,
+        comment: Option<String>,
+    ) -> PyUnityCatalogResult<ShareInfo> {
+        let mut request = self.client.create_share(name);
+        request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -147,123 +313,6 @@ impl PyUnityCatalogClientABC {
             .client
             .create_volume(catalog_name, schema_name, name, volume_type);
         request = request.with_storage_location(storage_location);
-        request = request.with_comment(comment);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(signature = (catalog_name, max_results = None, include_browse = None))]
-    pub fn list_schemas(
-        &self,
-        py: Python,
-        catalog_name: String,
-        max_results: Option<i32>,
-        include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
-        let mut request = self.client.list_schemas(catalog_name);
-        request = request.with_max_results(max_results);
-        request = request.with_include_browse(include_browse);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result =
-                runtime.block_on(async move { request.into_stream().try_collect().await })?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(signature = (name, catalog_name, comment = None, properties = None))]
-    pub fn create_schema(
-        &self,
-        py: Python,
-        name: String,
-        catalog_name: String,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
-        let mut request = self.client.create_schema(name, catalog_name);
-        request = request.with_comment(comment);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
-        }
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(signature = (max_results = None, include_browse = None))]
-    pub fn list_external_locations(
-        &self,
-        py: Python,
-        max_results: Option<i32>,
-        include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
-        let mut request = self.client.list_external_locations();
-        request = request.with_max_results(max_results);
-        request = request.with_include_browse(include_browse);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result =
-                runtime.block_on(async move { request.into_stream().try_collect().await })?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(
-        signature = (
-            name,
-            url,
-            credential_name,
-            read_only = None,
-            comment = None,
-            skip_validation = None
-        )
-    )]
-    pub fn create_external_location(
-        &self,
-        py: Python,
-        name: String,
-        url: String,
-        credential_name: String,
-        read_only: Option<bool>,
-        comment: Option<String>,
-        skip_validation: Option<bool>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
-        let mut request = self
-            .client
-            .create_external_location(name, url, credential_name);
-        request = request.with_read_only(read_only);
-        request = request.with_comment(comment);
-        request = request.with_skip_validation(skip_validation);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(signature = (max_results = None))]
-    pub fn list_shares(
-        &self,
-        py: Python,
-        max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
-        let mut request = self.client.list_shares();
-        request = request.with_max_results(max_results);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result =
-                runtime.block_on(async move { request.into_stream().try_collect().await })?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(signature = (name, comment = None))]
-    pub fn create_share(
-        &self,
-        py: Python,
-        name: String,
-        comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
-        let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -411,58 +460,29 @@ impl PyUnityCatalogClientABC {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    #[pyo3(signature = (max_results = None))]
-    pub fn list_recipients(
-        &self,
-        py: Python,
-        max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
-        let mut request = self.client.list_recipients();
-        request = request.with_max_results(max_results);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result =
-                runtime.block_on(async move { request.into_stream().try_collect().await })?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
-    }
-    #[pyo3(
-        signature = (
-            name,
-            authentication_type,
-            owner,
-            comment = None,
-            properties = None,
-            expiration_time = None
-        )
-    )]
-    pub fn create_recipient(
-        &self,
-        py: Python,
-        name: String,
-        authentication_type: AuthenticationType,
-        owner: String,
-        comment: Option<String>,
-        properties: Option<HashMap<String, String>>,
-        expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
-        let mut request = self
-            .client
-            .create_recipient(name, authentication_type, owner);
-        request = request.with_comment(comment);
-        if let Some(properties) = properties {
-            request = request.with_properties(properties);
+    pub fn external_location(&self, name: String) -> PyExternalLocationClient {
+        PyExternalLocationClient {
+            client: self.client.external_location(&name),
         }
-        request = request.with_expiration_time(expiration_time);
-        let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+    }
+    pub fn recipient(&self, name: String) -> PyRecipientClient {
+        PyRecipientClient {
+            client: self.client.recipient(&name),
+        }
     }
     pub fn catalog(&self, name: String) -> PyCatalogClient {
         PyCatalogClient {
             client: self.client.catalog(&name),
+        }
+    }
+    pub fn schema(&self, catalog_name: String, schema_name: String) -> PySchemaClient {
+        PySchemaClient {
+            client: self.client.schema(&catalog_name, &schema_name),
+        }
+    }
+    pub fn share(&self, name: String) -> PyShareClient {
+        PyShareClient {
+            client: self.client.share(&name),
         }
     }
     pub fn volume(
@@ -475,21 +495,6 @@ impl PyUnityCatalogClientABC {
             client: self.client.volume(catalog_name, schema_name, volume_name),
         }
     }
-    pub fn schema(&self, catalog_name: String, schema_name: String) -> PySchemaClient {
-        PySchemaClient {
-            client: self.client.schema(&catalog_name, &schema_name),
-        }
-    }
-    pub fn external_location(&self, name: String) -> PyExternalLocationClient {
-        PyExternalLocationClient {
-            client: self.client.external_location(&name),
-        }
-    }
-    pub fn share(&self, name: String) -> PyShareClient {
-        PyShareClient {
-            client: self.client.share(&name),
-        }
-    }
     pub fn credential(&self, name: String) -> PyCredentialClient {
         PyCredentialClient {
             client: self.client.credential(&name),
@@ -498,11 +503,6 @@ impl PyUnityCatalogClientABC {
     pub fn table(&self, full_name: String) -> PyTableClient {
         PyTableClient {
             client: self.client.table(&full_name),
-        }
-    }
-    pub fn recipient(&self, name: String) -> PyRecipientClient {
-        PyRecipientClient {
-            client: self.client.recipient(&name),
         }
     }
 }

@@ -129,11 +129,20 @@ pub fn analyze_method(
     // Extract parameters based on HTTP rule
     let (path_params, query_params, body_fields) = extract_request_fields(method, &input_fields)?;
 
+    let parameters = path_params
+        .clone()
+        .into_iter()
+        .map(Into::into)
+        .chain(query_params.clone().into_iter().map(Into::into))
+        .chain(body_fields.clone().into_iter().map(Into::into))
+        .collect();
+
     let method_plan = MethodPlan {
         metadata: method.clone(),
         handler_function_name: method.method_name.to_case(Case::Snake),
         http_method,
         http_path,
+        parameters,
         path_params,
         query_params,
         body_fields,

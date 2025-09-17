@@ -1,10 +1,11 @@
+use itertools::Itertools;
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
 use syn::{Path, Type};
 
 use super::{extract_type_ident, format_tokens};
 use crate::{
-    analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestType, ServicePlan},
+    analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestType},
     codegen::ServiceHandler,
     google::api::http_rule::Pattern,
 };
@@ -14,51 +15,14 @@ use crate::{
 /// This geneartes:
 /// - FromRequestParts extractor implementations for path/query parameters
 /// - FromRequest extractor implementations for JSON body
-/// - Route handler functions
-pub(super) fn generate_common(service: &ServicePlan) -> Result<String, Box<dyn std::error::Error>> {
-    let mut handler_functions = Vec::new();
-    for method in &service.methods {
-        let handler_code = route_handler_function(method, &service.handler_name);
-        handler_functions.push(handler_code);
-    }
+pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
+    let extractor_impls = service
+        .methods()
+        .map(|method| from_request_extractor(method.plan))
+        .collect_vec();
 
-    let mut extractor_impls = Vec::new();
-    for method in &service.methods {
-        let extractor_code = generate_extractor_for_method(method)?;
-        extractor_impls.push(extractor_code);
-    }
-
-    let module_code = server_common(&extractor_impls, &service.base_path);
-
-    Ok(module_code)
-}
-
-pub(super) fn generate_server(
-    service: &ServiceHandler<'_>,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let mut handler_functions = Vec::new();
-    for method in &service.plan.methods {
-        let handler_code = route_handler_function(method, &service.plan.handler_name);
-        handler_functions.push(handler_code);
-    }
-
-    let module_code = server_server(
-        &service.plan.handler_name,
-        &handler_functions,
-        &service.plan.base_path,
-    );
-
-    Ok(module_code)
-}
-
-/// Generate server module
-pub fn server_common(extractors: &[String], service_namespace: &str) -> String {
-    let extractor_tokens: Vec<TokenStream> = extractors
-        .iter()
-        .map(|e| syn::parse_str::<TokenStream>(e).unwrap_or_else(|_| quote! {}))
-        .collect();
     let mod_path: Path =
-        syn::parse_str(&format!("crate::models::{}::v1", service_namespace)).unwrap();
+        syn::parse_str(&format!("crate::models::{}::v1", &service.plan.base_path)).unwrap();
 
     let tokens = quote! {
         #![allow(unused_mut)]
@@ -66,23 +30,26 @@ pub fn server_common(extractors: &[String], service_namespace: &str) -> String {
         use #mod_path::*;
         use axum::{RequestExt, RequestPartsExt};
 
-        #(#extractor_tokens)*
+        #(#extractor_impls)*
     };
 
     format_tokens(tokens)
 }
 
-pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &str) -> String {
-    let handler_tokens: Vec<TokenStream> = handlers
-        .iter()
-        .map(|h| syn::parse_str::<TokenStream>(h).unwrap_or_else(|_| quote! {}))
-        .collect();
+pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
+    let mut handler_function_impls = Vec::new();
+    for method in &service.plan.methods {
+        let handler_code = route_handler_function(method, &service.plan.handler_name);
+        handler_function_impls.push(handler_code);
+    }
+
     let mod_path: Path = syn::parse_str(&format!(
         "unitycatalog_common::models::{}::v1",
-        service_namespace
+        &service.plan.base_path
     ))
     .unwrap();
-    let trait_path: Path = syn::parse_str(&format!("super::handler::{}", trait_name)).unwrap();
+    let trait_path: Path =
+        syn::parse_str(&format!("super::handler::{}", &service.plan.handler_name)).unwrap();
 
     let tokens = quote! {
         #![allow(unused_mut)]
@@ -93,7 +60,7 @@ pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &
         use crate::policy::Recipient;
         use axum::extract::{State, Extension};
 
-        #(#handler_tokens)*
+        #(#handler_function_impls)*
 
     };
 
@@ -101,9 +68,7 @@ pub fn server_server(trait_name: &str, handlers: &[String], service_namespace: &
 }
 
 /// Generate extractor implementation for a specific method
-fn generate_extractor_for_method(
-    method: &MethodPlan,
-) -> Result<String, Box<dyn std::error::Error>> {
+fn from_request_extractor(method: &MethodPlan) -> TokenStream {
     match &method.request_type {
         RequestType::List | RequestType::Get | RequestType::Delete => {
             // These use FromRequestParts for path/query parameters
@@ -123,12 +88,12 @@ fn generate_extractor_for_method(
 }
 
 /// Generate route handler function
-fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
+fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> TokenStream {
     let handler_method = format_ident!("{}", method.handler_function_name);
     let input_type = extract_type_ident(&method.metadata.input_type);
     let handler_trait_ident = format_ident!("{}", handler_trait);
 
-    let tokens = if method.has_response {
+    if method.has_response {
         let output_type = extract_type_ident(&method.metadata.output_type);
         quote! {
             pub async fn #handler_method<T: #handler_trait_ident>(
@@ -153,23 +118,17 @@ fn route_handler_function(method: &MethodPlan, handler_trait: &str) -> String {
                 Ok(())
             }
         }
-    };
-
-    format_tokens(tokens)
+    }
 }
 
 /// Generate FromRequestParts implementation for path/query parameters
-pub fn from_request_parts_impl(method: &MethodPlan) -> Result<String, Box<dyn std::error::Error>> {
+fn from_request_parts_impl(method: &MethodPlan) -> TokenStream {
     let input_type = extract_type_ident(&method.metadata.input_type);
-    let path_extractions = generate_path_extractions_tokens(&method.path_params, false);
-    let query_extractions = generate_query_extractions_tokens(&method.query_params);
-    let field_assignments = generate_field_assignments_tokens(
-        &method.path_params,
-        &method.query_params,
-        &method.body_fields,
-    );
+    let path_extractions = path_extractions(method, false);
+    let query_extractions = query_extractions(method);
+    let field_assignments = field_assignments_plain(method);
 
-    let tokens = quote! {
+    quote! {
         impl<S: Send + Sync> axum::extract::FromRequestParts<S> for #input_type {
             type Rejection = crate::Error;
 
@@ -185,13 +144,11 @@ pub fn from_request_parts_impl(method: &MethodPlan) -> Result<String, Box<dyn st
                 })
             }
         }
-    };
-
-    Ok(format_tokens(tokens))
+    }
 }
 
 /// Generate FromRequest implementation for JSON body
-pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::error::Error>> {
+fn from_request_impl(method: &MethodPlan) -> TokenStream {
     let input_type = extract_type_ident(&method.metadata.input_type);
 
     // Check if we need a hybrid extractor (path/query + body)
@@ -200,7 +157,7 @@ pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::err
         generate_hybrid_request_impl(method)
     } else {
         // Simple JSON body extraction
-        let tokens = quote! {
+        quote! {
             impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
                 type Rejection = axum::response::Response;
 
@@ -215,17 +172,15 @@ pub fn from_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::err
                     Ok(request)
                 }
             }
-        };
-
-        Ok(format_tokens(tokens))
+        }
     }
 }
 
 /// Generate hybrid FromRequest implementation for methods with path/query + body
-fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn std::error::Error>> {
+fn generate_hybrid_request_impl(method: &MethodPlan) -> TokenStream {
     let input_type = extract_type_ident(&method.metadata.input_type);
-    let path_extractions = generate_path_extractions_tokens(&method.path_params, true);
-    let query_extractions = generate_query_extractions_tokens(&method.query_params);
+    let path_extractions = path_extractions(method, true);
+    let query_extractions = query_extractions(method);
 
     // Check if we have any oneof fields
     let has_oneof_fields = method
@@ -243,7 +198,7 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
             &method.body_fields,
         );
 
-        let tokens = quote! {
+        quote! {
             impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
                 type Rejection = axum::response::Response;
 
@@ -265,19 +220,13 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
                     })
                 }
             }
-        };
-
-        Ok(format_tokens(tokens))
+        }
     } else {
         // Use traditional destructuring for regular fields
         let body_extractions = generate_body_extractions_tokens(&method.body_fields, &input_type);
-        let field_assignments = generate_field_assignments_tokens(
-            &method.path_params,
-            &method.query_params,
-            &method.body_fields,
-        );
+        let field_assignments = field_assignments_plain(method);
 
-        let tokens = quote! {
+        quote! {
             impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
                 type Rejection = axum::response::Response;
 
@@ -299,17 +248,14 @@ fn generate_hybrid_request_impl(method: &MethodPlan) -> Result<String, Box<dyn s
                     })
                 }
             }
-        };
-
-        Ok(format_tokens(tokens))
+        }
     }
 }
 
 /// Generate path parameter extractions as TokenStream
-pub(crate) fn generate_path_extractions_tokens(
-    params: &[PathParam],
-    is_request: bool,
-) -> TokenStream {
+fn path_extractions(method: &MethodPlan, is_request: bool) -> TokenStream {
+    let params = &method.path_parameters().collect_vec();
+
     if params.is_empty() {
         quote! {}
     } else {
@@ -344,7 +290,8 @@ pub(crate) fn generate_path_extractions_tokens(
 }
 
 /// Generate query parameter extractions as TokenStream
-pub(crate) fn generate_query_extractions_tokens(params: &[QueryParam]) -> TokenStream {
+fn query_extractions(method: &MethodPlan) -> TokenStream {
+    let params = method.query_parameters().collect_vec();
     if params.is_empty() {
         quote! {}
     } else {
@@ -384,28 +331,11 @@ pub(crate) fn generate_query_extractions_tokens(params: &[QueryParam]) -> TokenS
 }
 
 /// Generate field assignments for request struct construction as TokenStream
-pub(crate) fn generate_field_assignments_tokens(
-    path_params: &[PathParam],
-    query_params: &[QueryParam],
-    body_fields: &[BodyField],
-) -> TokenStream {
-    let mut assignments = Vec::new();
-
-    for param in path_params {
-        let name = format_ident!("{}", param.field_name);
-        assignments.push(quote! { #name });
-    }
-
-    for param in query_params {
-        let name = format_ident!("{}", param.name);
-        assignments.push(quote! { #name });
-    }
-
-    for field in body_fields {
-        let name = format_ident!("{}", field.name);
-        assignments.push(quote! { #name });
-    }
-
+fn field_assignments_plain(method: &MethodPlan) -> TokenStream {
+    let assignments = method.parameters.iter().map(|param| {
+        let ident = param.field_ident();
+        quote! { #ident }
+    });
     quote! { #(#assignments,)* }
 }
 

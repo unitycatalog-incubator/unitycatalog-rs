@@ -291,7 +291,7 @@ fn generate_resource_param_definitions(method: &MethodPlan) -> Vec<TokenStream> 
     let mut params = Vec::new();
 
     // Add required body fields (non-optional)
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if !body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             let rust_type = convert_to_python_type(&body_field.rust_type, false);
@@ -300,7 +300,7 @@ fn generate_resource_param_definitions(method: &MethodPlan) -> Vec<TokenStream> 
     }
 
     // Add required query parameters
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if !query_param.optional {
             let param_name = format_ident!("{}", query_param.name);
             let rust_type = convert_to_python_type(&query_param.rust_type, true);
@@ -309,7 +309,7 @@ fn generate_resource_param_definitions(method: &MethodPlan) -> Vec<TokenStream> 
     }
 
     // Add optional body fields
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             let rust_type = convert_to_python_type(&body_field.rust_type, true);
@@ -318,7 +318,7 @@ fn generate_resource_param_definitions(method: &MethodPlan) -> Vec<TokenStream> 
     }
 
     // Add optional query parameters
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if query_param.optional {
             let param_name = format_ident!("{}", query_param.name);
             let rust_type = convert_to_python_type(&query_param.rust_type, true);
@@ -334,14 +334,14 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
     let mut params = Vec::new();
 
     // Add required path parameters first (these don't have Option wrapper)
-    for path_param in &method.path_params {
+    for path_param in method.path_parameters() {
         let param_name = format_ident!("{}", path_param.field_name);
         let rust_type = convert_to_python_type(&path_param.rust_type, false);
         params.push(quote! { #param_name: #rust_type });
     }
 
     // Add required body fields (non-optional)
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if !body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             // Use the original field type to get proper enum handling
@@ -352,7 +352,7 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
     }
 
     // Add required query parameters (non-optional)
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if !query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
             let param_name = format_ident!("{}", query_param.name);
             // Use the original field type to get proper enum handling
@@ -363,7 +363,7 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
     }
 
     // Add optional query parameters
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
             let param_name = format_ident!("{}", query_param.name);
             // Use the original field type to get proper enum handling
@@ -374,7 +374,7 @@ fn generate_param_definitions(method: &MethodPlan, is_list: bool) -> Vec<TokenSt
     }
 
     // Add optional body fields
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             // Use the original field type to get proper enum handling
@@ -392,33 +392,33 @@ fn generate_pyo3_signature(method: &MethodPlan, is_list: bool) -> TokenStream {
     let mut signature_parts = Vec::new();
 
     // Add path parameters first
-    for path_param in &method.path_params {
+    for path_param in method.path_parameters() {
         signature_parts.push(path_param.field_name.clone());
     }
 
     // Required body fields (no default values)
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if !body_field.optional {
             signature_parts.push(body_field.name.clone());
         }
     }
 
     // Required query parameters (no default values)
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if !query_param.optional && !(is_list && query_param.name == "page_token") {
             signature_parts.push(query_param.name.clone());
         }
     }
 
     // Optional body fields with defaults
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if body_field.optional {
             signature_parts.push(format!("{} = None", body_field.name));
         }
     }
 
     // Optional query parameters with defaults - exclude page_token for list methods
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if query_param.optional && !(is_list && query_param.name == "page_token") {
             signature_parts.push(format!("{} = None", query_param.name));
         }
@@ -444,28 +444,28 @@ fn generate_pyo3_signature_for_resource(method: &MethodPlan) -> TokenStream {
     // Don't add path parameters for resource methods - they're part of the client instance
 
     // Required body fields (no default values)
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if !body_field.optional {
             signature_parts.push(body_field.name.clone());
         }
     }
 
     // Required query parameters (no default values)
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if !query_param.optional {
             signature_parts.push(query_param.name.clone());
         }
     }
 
     // Optional body fields with defaults
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if body_field.optional {
             signature_parts.push(format!("{} = None", body_field.name));
         }
     }
 
     // Optional query parameters with defaults
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if query_param.optional {
             signature_parts.push(format!("{} = None", query_param.name));
         }
@@ -495,7 +495,7 @@ fn generate_resource_client_call(method: &MethodPlan, _is_list: bool) -> TokenSt
     let mut args = Vec::new();
 
     // Add required body fields as direct arguments
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if !body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             args.push(quote! { #param_name });
@@ -503,7 +503,7 @@ fn generate_resource_client_call(method: &MethodPlan, _is_list: bool) -> TokenSt
     }
 
     // Add required query parameters
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if !query_param.optional {
             let param_name = format_ident!("{}", query_param.name);
             args.push(quote! { #param_name });
@@ -520,7 +520,7 @@ fn generate_builder_pattern(method: &MethodPlan, is_list: bool) -> Vec<TokenStre
     let mut builder_calls = Vec::new();
 
     // Optional parameters become builder calls
-    for query_param in &method.query_params {
+    for query_param in method.query_parameters() {
         if query_param.optional && !(is_list && query_param.name == "page_token") {
             let param_name =
                 format_ident!("{}", strings::operation_to_method_name(&query_param.name));
@@ -531,7 +531,7 @@ fn generate_builder_pattern(method: &MethodPlan, is_list: bool) -> Vec<TokenStre
         }
     }
 
-    for body_field in &method.body_fields {
+    for body_field in method.body_fields() {
         if body_field.optional {
             let param_name =
                 format_ident!("{}", strings::operation_to_method_name(&body_field.name));
