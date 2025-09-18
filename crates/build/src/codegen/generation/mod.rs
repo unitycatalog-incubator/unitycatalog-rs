@@ -145,7 +145,7 @@ pub fn generate_python_code(
     // Generate code for each service
     for service in &handlers {
         // Generate Python client code
-        let python_code = python::generate(service)?;
+        let python_code = python::generate(service);
         files.insert(format!("{}.rs", service.plan.base_path), python_code);
     }
 

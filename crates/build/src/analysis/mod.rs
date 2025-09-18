@@ -46,7 +46,7 @@ use crate::parsing::{
     CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo, extract_http_rule_pattern,
     find_matching_field_for_path_param, should_be_body_field,
 };
-use crate::utils::{strings, types};
+use crate::utils::strings;
 
 use services::extract_managed_resources;
 pub(crate) use services::*;
@@ -201,7 +201,6 @@ fn extract_request_fields(
             // Oneof fields are always body fields and always optional
             body_fields.push(BodyField {
                 name: field_name.clone(),
-                rust_type: types::field_type_to_rust_type(&field.field_type),
                 optional: true, // oneof fields are always optional
                 field_type: field.unified_type.clone(),
             });
@@ -214,7 +213,6 @@ fn extract_request_fields(
         if should_be_body_field(field_name, body_spec) {
             body_fields.push(BodyField {
                 name: field_name.clone(),
-                rust_type: types::field_type_to_rust_type(&field.field_type),
                 optional: field.optional,
                 field_type: field.unified_type.clone(),
             });
@@ -236,18 +234,6 @@ mod tests {
     use crate::google::api::{HttpRule, ResourceDescriptor, http_rule::Pattern};
     use crate::parsing::{MessageInfo, MethodMetadata, ServiceInfo};
     use std::collections::HashMap;
-
-    #[test]
-    fn test_field_type_conversion() {
-        use crate::utils::types::field_type_to_rust_type;
-        assert_eq!(field_type_to_rust_type("TYPE_STRING"), "String");
-        assert_eq!(field_type_to_rust_type("TYPE_INT32"), "i32");
-        assert_eq!(field_type_to_rust_type("TYPE_BOOL"), "bool");
-        assert_eq!(
-            field_type_to_rust_type("TYPE_MESSAGE:.unitycatalog.CatalogInfo"),
-            "CatalogInfo"
-        );
-    }
 
     #[test]
     fn test_managed_resources_extraction() {

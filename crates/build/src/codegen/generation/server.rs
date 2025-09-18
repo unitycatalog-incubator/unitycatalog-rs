@@ -8,7 +8,7 @@ use crate::{
     analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestParam, RequestType},
     codegen::{MethodHandler, ServiceHandler},
     google::api::http_rule::Pattern,
-    parsing::RenderContext,
+    parsing::{RenderContext, types::BaseType},
 };
 
 /// Generate server side code for axum servers
@@ -182,7 +182,7 @@ fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
     let has_oneof_fields = method
         .plan
         .body_fields()
-        .any(|f| f.rust_type.contains("::"));
+        .any(|f| matches!(f.field_type.base_type, BaseType::OneOf(_)));
 
     if has_oneof_fields {
         // Use mixed body extraction for oneof fields

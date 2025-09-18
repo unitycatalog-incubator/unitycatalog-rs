@@ -166,8 +166,6 @@ impl From<QueryParam> for RequestParam {
 pub struct BodyField {
     /// Field name
     pub name: String,
-    /// Rust type for this field
-    pub rust_type: String,
     /// Whether this field is optional
     pub optional: bool,
     /// Parsed type of the query parameter

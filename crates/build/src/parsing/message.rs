@@ -447,7 +447,10 @@ fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
         _ => BaseType::String, // Fallback for unknown types
     };
 
-    let is_repeated = field.label() == Label::LABEL_REPEATED;
+    // NOTE: technically map types are encoded as repeated fields, but for our purposes
+    // this is not relevant for our purposes as we treat repeated == vec.
+    let is_repeated =
+        field.label() == Label::LABEL_REPEATED && !matches!(base_type, BaseType::Map(_, _));
     let is_optional = field.label() == Label::LABEL_OPTIONAL && field.proto3_optional();
 
     UnifiedType {

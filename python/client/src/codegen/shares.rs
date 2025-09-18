@@ -27,13 +27,15 @@ impl PyShareClient {
     pub fn update(
         &self,
         py: Python,
-        updates: Option<DataObjectUpdate>,
+        updates: Option<Vec<DataObjectUpdate>>,
         new_name: Option<String>,
         owner: Option<String>,
         comment: Option<String>,
     ) -> PyUnityCatalogResult<ShareInfo> {
         let mut request = self.client.update();
-        request = request.with_updates(updates);
+        if let Some(updates) = updates {
+            request = request.with_updates(updates);
+        }
         request = request.with_new_name(new_name);
         request = request.with_owner(owner);
         request = request.with_comment(comment);

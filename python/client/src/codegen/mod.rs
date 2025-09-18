@@ -379,7 +379,7 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: Option<ColumnInfo>,
+        columns: Option<Vec<ColumnInfo>>,
         storage_location: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
@@ -391,7 +391,9 @@ impl PyUnityCatalogClientABC {
             table_type,
             data_source_format,
         );
-        request = request.with_columns(columns);
+        if let Some(columns) = columns {
+            request = request.with_columns(columns);
+        }
         request = request.with_storage_location(storage_location);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
