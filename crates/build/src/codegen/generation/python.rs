@@ -4,6 +4,7 @@
 //! It creates wrapper structs that expose the Rust client functionality to Python
 //! while handling async operations and error conversion.
 
+use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
@@ -82,6 +83,9 @@ fn resource_client_struct(service: &ServiceHandler<'_>, methods: &[TokenStream])
 }
 
 fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
+    let mut services = services.iter().collect_vec();
+    services.sort_by(|a, b| a.plan.service_name.cmp(&b.plan.service_name));
+
     let methods: Vec<TokenStream> = services
         .iter()
         .flat_map(|s| {
@@ -95,7 +99,7 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
 
     let resource_accessor_methods: Vec<TokenStream> = services
         .iter()
-        .filter_map(generate_resource_accessor_method)
+        .filter_map(|s| generate_resource_accessor_method(s))
         .collect();
 
     let mod_paths: Vec<TokenStream> = services
@@ -288,6 +292,8 @@ fn generate_resource_param_definitions(method: &MethodHandler<'_>) -> Vec<TokenS
         if !body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             let rust_type = convert_to_python_type(method, &body_field.rust_type, false);
+            // let rust_type =
+            //     method.field_type(&body_field.field_type, RenderContext::PythonParameter);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -307,6 +313,8 @@ fn generate_resource_param_definitions(method: &MethodHandler<'_>) -> Vec<TokenS
         if body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
             let rust_type = convert_to_python_type(method, &body_field.rust_type, true);
+            // let rust_type =
+            //     method.field_type(&body_field.field_type, RenderContext::PythonParameter);
             params.push(quote! { #param_name: #rust_type });
         }
     }

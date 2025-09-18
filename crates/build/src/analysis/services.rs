@@ -170,6 +170,8 @@ pub struct BodyField {
     pub rust_type: String,
     /// Whether this field is optional
     pub optional: bool,
+    /// Parsed type of the query parameter
+    pub field_type: UnifiedType,
 }
 
 impl From<BodyField> for RequestParam {

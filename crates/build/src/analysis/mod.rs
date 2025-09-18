@@ -203,6 +203,7 @@ fn extract_request_fields(
                 name: field_name.clone(),
                 rust_type: types::field_type_to_rust_type(&field.field_type),
                 optional: true, // oneof fields are always optional
+                field_type: field.unified_type.clone(),
             });
             processed_fields.insert(field_name.clone());
             continue;
@@ -211,19 +212,13 @@ fn extract_request_fields(
         processed_fields.insert(field_name.clone());
 
         if should_be_body_field(field_name, body_spec) {
-            // Field should be extracted from request body
             body_fields.push(BodyField {
                 name: field_name.clone(),
                 rust_type: types::field_type_to_rust_type(&field.field_type),
                 optional: field.optional,
+                field_type: field.unified_type.clone(),
             });
         } else {
-            // Field is a query parameter - handle optionality correctly
-            let rust_type = if field.optional {
-                types::make_optional(&types::field_type_to_rust_type(&field.field_type))
-            } else {
-                types::field_type_to_rust_type(&field.field_type)
-            };
             query_params.push(QueryParam {
                 name: field_name.clone(),
                 optional: field.optional,
