@@ -41,6 +41,7 @@ use std::collections::HashSet;
 use convert_case::{Case, Casing};
 
 use crate::analysis::messages::MessageRegistry;
+use crate::parsing::types::BaseType;
 use crate::parsing::{
     CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo, extract_http_rule_pattern,
     find_matching_field_for_path_param, should_be_body_field,
@@ -84,7 +85,7 @@ fn analyze_service(
             method_plans.push(method_plan);
         } else {
             println!(
-                "cargo:warning=Skipping method {}.{} - incomplete metadata",
+                "Skipping method {}.{} - incomplete metadata",
                 info.name, method.method_name
             );
         }
@@ -120,14 +121,12 @@ pub fn analyze_method(
 
     let planner = MethodPlanner::try_new(method, registry)?;
 
-    // Get input message fields from metadata
-    let input_fields = method.input_fields.clone();
-
     // Determine if method has response
     let request_type = planner.request_type();
 
     // Extract parameters based on HTTP rule
-    let (path_params, query_params, body_fields) = extract_request_fields(method, &input_fields)?;
+    let (path_params, query_params, body_fields) =
+        extract_request_fields(method, &method.input_fields)?;
 
     let parameters = path_params
         .clone()
@@ -198,7 +197,7 @@ fn extract_request_fields(
         }
 
         // Skip oneof fields that should be handled as individual enum variants in the body
-        if field.field_type.starts_with("TYPE_ONEOF:") {
+        if matches!(field.unified_type.base_type, BaseType::OneOf(_)) {
             // Oneof fields are always body fields and always optional
             body_fields.push(BodyField {
                 name: field_name.clone(),

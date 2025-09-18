@@ -451,7 +451,7 @@ fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
     };
 
     let is_repeated = field.label() == Label::LABEL_REPEATED;
-    let is_optional = field.label() == Label::LABEL_OPTIONAL || field.proto3_optional();
+    let is_optional = field.label() == Label::LABEL_OPTIONAL && field.proto3_optional();
 
     UnifiedType {
         base_type,
