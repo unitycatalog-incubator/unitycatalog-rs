@@ -3,11 +3,13 @@ use std::collections::HashMap;
 use convert_case::{Case, Casing};
 use prost::Message as _;
 use protobuf::Message;
-use protobuf::descriptor::field_descriptor_proto::{Label, Type};
+use protobuf::descriptor::field_descriptor_proto::Label;
 use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, SourceCodeInfo};
 
 use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
+use crate::google::api::{FieldBehavior, ResourceDescriptor};
 use crate::parsing::types::{BaseType, UnifiedType};
+use crate::{Error, Result};
 
 /// Process a protobuf message definition
 pub(super) fn process_message(
@@ -17,7 +19,7 @@ pub(super) fn process_message(
     type_prefix: &str,
     source_code_info: Option<&SourceCodeInfo>,
     path_prefix: &[i32],
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let message_name = message.name();
     let full_type_name = if type_prefix.is_empty() {
         format!(".{}", message_name)
@@ -182,9 +184,7 @@ pub(super) fn process_message(
 /// # Returns
 /// - `Ok(Vec<FieldBehavior>)` containing all field behaviors found
 /// - `Err(...)` if there's an error parsing the extension data
-fn extract_field_behavior_option(
-    field: &FieldDescriptorProto,
-) -> Result<Vec<crate::google::api::FieldBehavior>, Box<dyn std::error::Error>> {
+fn extract_field_behavior_option(field: &FieldDescriptorProto) -> Result<Vec<FieldBehavior>> {
     if field.options.is_none() {
         return Ok(vec![]);
     }
@@ -200,8 +200,7 @@ fn extract_field_behavior_option(
             match field_value {
                 protobuf::UnknownValueRef::Varint(value) => {
                     // Single varint value - this is the common case
-                    if let Ok(behavior) = crate::google::api::FieldBehavior::try_from(value as i32)
-                    {
+                    if let Ok(behavior) = FieldBehavior::try_from(value as i32) {
                         behaviors.push(behavior);
                     }
                 }
@@ -211,9 +210,7 @@ fn extract_field_behavior_option(
                     while cursor.position() < bytes.len() as u64 {
                         match decode_varint(&mut cursor) {
                             Ok(value) => {
-                                if let Ok(behavior) =
-                                    crate::google::api::FieldBehavior::try_from(value as i32)
-                                {
+                                if let Ok(behavior) = FieldBehavior::try_from(value as i32) {
                                     behaviors.push(behavior);
                                 }
                             }
@@ -287,7 +284,7 @@ fn decode_varint(cursor: &mut std::io::Cursor<&[u8]>) -> Result<u64, std::io::Er
 /// - `Err(...)` if there's an error parsing the extension data
 fn extract_message_resource_option(
     message: &DescriptorProto,
-) -> Result<Option<crate::google::api::ResourceDescriptor>, Box<dyn std::error::Error>> {
+) -> Result<Option<ResourceDescriptor>> {
     if message.options.is_none() {
         return Ok(None);
     }
@@ -307,15 +304,15 @@ fn extract_message_resource_option(
             };
 
             // Parse ResourceDescriptor from extension data
-            match crate::google::api::ResourceDescriptor::decode(data) {
+            match ResourceDescriptor::decode(data) {
                 Ok(resource_descriptor) => {
                     return Ok(Some(resource_descriptor));
                 }
                 Err(e) => {
-                    println!(
-                        "cargo:warning=    Failed to parse google.api.resource: {}",
-                        e
-                    );
+                    return Err(Error::InvalidAnnotation {
+                        object: message.name().to_string(),
+                        message: format!("Failed to parse google.api.resource: {}", e),
+                    });
                 }
             }
         }
@@ -458,32 +455,6 @@ fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
         is_optional,
         is_repeated,
     }
-}
-
-fn is_map_field(field: &FieldDescriptorProto, parent_message: &DescriptorProto) -> bool {
-    // Check if the field is repeated and is a message type
-    if field.label() != Label::LABEL_REPEATED || field.type_() != Type::TYPE_MESSAGE {
-        return false;
-    }
-
-    // Map fields reference a nested message type with map_entry = true
-    let type_name = field.type_name();
-
-    for nested_type in parent_message.nested_type.iter() {
-        // Type names in FieldDescriptorProto start with ".<ParentMessage>.<NestedType>"
-        if let Some(nt_name) = nested_type.name.as_ref() {
-            let full_nested_type_name = format!(".{}.{}", parent_message.name(), nt_name);
-            if type_name == full_nested_type_name {
-                if let Some(options) = nested_type.options.as_ref() {
-                    if options.map_entry == Some(true) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    false
 }
 
 #[cfg(test)]

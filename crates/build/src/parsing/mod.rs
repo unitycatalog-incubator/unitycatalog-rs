@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet};
-pub use types::{RenderContext, TypeConverter};
+pub(crate) use types::{CONVERTER, RenderContext};
 
 pub(crate) use self::http::*;
 pub(crate) use self::models::*;

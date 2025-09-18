@@ -22,6 +22,8 @@ pub enum RenderContext {
     PythonParameter,
 }
 
+pub(crate) static CONVERTER: TypeConverter = TypeConverter {};
+
 /// Utility for converting between protobuf and Rust types
 pub struct TypeConverter;
 
@@ -413,50 +415,38 @@ impl UnifiedType {
 mod tests {
     use super::*;
 
-    fn create_test_converter() -> TypeConverter {
-        TypeConverter::new()
-    }
-
     #[test]
     fn test_basic_type_conversion() {
-        let converter = create_test_converter();
-
-        let string_type = converter.protobuf_to_unified("TYPE_STRING");
+        let string_type = CONVERTER.protobuf_to_unified("TYPE_STRING");
         assert!(matches!(string_type.base_type, BaseType::String));
         assert!(!string_type.is_optional);
         assert!(!string_type.is_repeated);
 
-        let rust_type = converter.unified_to_rust(&string_type, RenderContext::Parameter);
+        let rust_type = CONVERTER.unified_to_rust(&string_type, RenderContext::Parameter);
         assert_eq!(rust_type, "String");
     }
 
     #[test]
     fn test_optional_type_conversion() {
-        let converter = create_test_converter();
-
-        let mut string_type = converter.protobuf_to_unified("TYPE_STRING");
+        let mut string_type = CONVERTER.protobuf_to_unified("TYPE_STRING");
         string_type.is_optional = true;
 
-        let rust_type = converter.unified_to_rust(&string_type, RenderContext::Parameter);
+        let rust_type = CONVERTER.unified_to_rust(&string_type, RenderContext::Parameter);
         assert_eq!(rust_type, "Option<String>");
     }
 
     #[test]
     fn test_repeated_type_conversion() {
-        let converter = create_test_converter();
-
-        let mut string_type = converter.protobuf_to_unified("TYPE_STRING");
+        let mut string_type = CONVERTER.protobuf_to_unified("TYPE_STRING");
         string_type.is_repeated = true;
 
-        let rust_type = converter.unified_to_rust(&string_type, RenderContext::Parameter);
+        let rust_type = CONVERTER.unified_to_rust(&string_type, RenderContext::Parameter);
         assert_eq!(rust_type, "Vec<String>");
     }
 
     #[test]
     fn test_map_type_parsing() {
-        let converter = create_test_converter();
-
-        if let Some((key, value)) = converter.parse_map_type("map<string, int32>") {
+        if let Some((key, value)) = CONVERTER.parse_map_type("map<string, int32>") {
             assert_eq!(key, "TYPE_STRING");
             assert_eq!(value, "TYPE_INT32");
         } else {
@@ -466,46 +456,41 @@ mod tests {
 
     #[test]
     fn test_message_type_conversion() {
-        let converter = create_test_converter();
-
         let message_type =
-            converter.protobuf_to_unified("TYPE_MESSAGE:unity.catalog.CreateCatalogRequest");
-        let rust_type = converter.unified_to_rust(&message_type, RenderContext::Parameter);
+            CONVERTER.protobuf_to_unified("TYPE_MESSAGE:unity.catalog.CreateCatalogRequest");
+        let rust_type = CONVERTER.unified_to_rust(&message_type, RenderContext::Parameter);
         assert_eq!(rust_type, "CreateCatalogRequest");
     }
 
     #[test]
     fn test_enum_type_conversion() {
-        let converter = create_test_converter();
-
-        // Test simple enum
-        let enum_type = converter.protobuf_to_unified("TYPE_ENUM:CATALOG_TYPE");
-        let rust_type = converter.unified_to_rust(&enum_type, RenderContext::Parameter);
+        let enum_type = CONVERTER.protobuf_to_unified("TYPE_ENUM:CATALOG_TYPE");
+        let rust_type = CONVERTER.unified_to_rust(&enum_type, RenderContext::Parameter);
         assert_eq!(rust_type, "CatalogType");
 
         // Test package-level enum (not nested in a message)
         let package_enum_type =
-            converter.protobuf_to_unified("TYPE_ENUM:.unitycatalog.credentials.v1.Purpose");
+            CONVERTER.protobuf_to_unified("TYPE_ENUM:.unitycatalog.credentials.v1.Purpose");
         let package_rust_type =
-            converter.unified_to_rust(&package_enum_type, RenderContext::Parameter);
+            CONVERTER.unified_to_rust(&package_enum_type, RenderContext::Parameter);
         assert_eq!(package_rust_type, "Purpose");
 
         // Test nested enum with qualified path
-        let nested_enum_type = converter.protobuf_to_unified(
+        let nested_enum_type = CONVERTER.protobuf_to_unified(
             "TYPE_ENUM:.unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest.Operation"
         );
         let nested_rust_type =
-            converter.unified_to_rust(&nested_enum_type, RenderContext::Parameter);
+            CONVERTER.unified_to_rust(&nested_enum_type, RenderContext::Parameter);
         assert_eq!(
             nested_rust_type,
             "generate_temporary_table_credentials_request::Operation"
         );
 
         // Test another nested enum
-        let path_enum_type = converter.protobuf_to_unified(
+        let path_enum_type = CONVERTER.protobuf_to_unified(
             "TYPE_ENUM:.unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.Operation"
         );
-        let path_rust_type = converter.unified_to_rust(&path_enum_type, RenderContext::Parameter);
+        let path_rust_type = CONVERTER.unified_to_rust(&path_enum_type, RenderContext::Parameter);
         assert_eq!(
             path_rust_type,
             "generate_temporary_path_credentials_request::Operation"

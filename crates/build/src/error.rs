@@ -7,4 +7,7 @@ pub enum Error {
 
     #[error("Missing annotation for {object}: {message}")]
     MissingAnnotation { object: String, message: String },
+
+    #[error("Invalid annotation for {object}: {message}")]
+    InvalidAnnotation { object: String, message: String },
 }

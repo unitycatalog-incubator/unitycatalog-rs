@@ -31,7 +31,7 @@ use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, ana
 use crate::google::api::http_rule::Pattern;
 use crate::output;
 use crate::parsing::types::UnifiedType;
-use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext, TypeConverter};
+use crate::parsing::{CONVERTER, CodeGenMetadata, MessageField, MessageInfo, RenderContext};
 
 pub mod generation;
 
@@ -198,9 +198,8 @@ impl MethodHandler<'_> {
 
     /// Get Rust parameter type for constructor-like arguments (builder methods)
     pub(crate) fn rust_parameter_type(&self, field_type: &str) -> TokenStream {
-        let type_converter = TypeConverter::new();
-        let unified_type = type_converter.protobuf_to_unified(field_type);
-        let param_type_str = type_converter.rust_parameter_type(&unified_type);
+        let unified_type = CONVERTER.protobuf_to_unified(field_type);
+        let param_type_str = CONVERTER.rust_parameter_type(&unified_type);
         param_type_str.parse().unwrap_or_else(|_| quote! { String })
     }
 
@@ -209,8 +208,7 @@ impl MethodHandler<'_> {
         field_type: &UnifiedType,
         ctx: RenderContext,
     ) -> syn::Type {
-        let type_converter = TypeConverter::new();
-        let rust_type = type_converter.unified_to_rust(field_type, ctx);
+        let rust_type = CONVERTER.unified_to_rust(field_type, ctx);
         syn::parse_str(&rust_type).expect("proper field type")
     }
 
@@ -255,9 +253,8 @@ impl MethodHandler<'_> {
         field_type: &str,
         field_ident: &proc_macro2::Ident,
     ) -> TokenStream {
-        let type_converter = TypeConverter::new();
-        let unified_type = type_converter.protobuf_to_unified(field_type);
-        type_converter.field_assignment(&unified_type, field_ident)
+        let unified_type = CONVERTER.protobuf_to_unified(field_type);
+        CONVERTER.field_assignment(&unified_type, field_ident)
     }
 
     /// Get flexible field assignment for optional fields using impl Into<Option<T>>
@@ -266,9 +263,8 @@ impl MethodHandler<'_> {
         field_type: &str,
         field_ident: &proc_macro2::Ident,
     ) -> TokenStream {
-        let type_converter = TypeConverter::new();
-        let unified_type = type_converter.protobuf_to_unified(field_type);
-        type_converter.flexible_optional_field_assignment(&unified_type, field_ident)
+        let unified_type = CONVERTER.protobuf_to_unified(field_type);
+        CONVERTER.flexible_optional_field_assignment(&unified_type, field_ident)
     }
 
     /// Analyze request fields to separate required from optional
