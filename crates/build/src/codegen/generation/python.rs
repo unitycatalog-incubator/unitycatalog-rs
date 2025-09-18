@@ -9,19 +9,17 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use super::format_tokens;
-use crate::analysis::{MethodPlan, RequestType};
+use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::parsing::RenderContext;
+use crate::parsing::types::BaseType;
 use crate::utils::strings;
 
 pub fn main_module(services: &[ServiceHandler<'_>]) -> String {
-    let service_modules: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let module_name = format_ident!("{}", s.plan.base_path);
-            quote! { pub mod #module_name; }
-        })
-        .collect();
+    let service_modules = services.iter().map(|s| {
+        let module_name = format_ident!("{}", s.plan.base_path);
+        quote! { pub mod #module_name; }
+    });
     let uc_client_module = collection_client_struct(services);
 
     let tokens = quote! {
@@ -35,23 +33,12 @@ pub fn main_module(services: &[ServiceHandler<'_>]) -> String {
 }
 
 /// Generate Python bindings for a service
-pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
-    let client_methods: Vec<_> = service
-        .methods()
-        .filter_map(resource_client_method)
-        .collect();
-
-    let client_code = resource_client_struct(service, &client_methods);
-
-    Ok(client_code)
-}
-
-/// Generate Python client struct definition
-fn resource_client_struct(service: &ServiceHandler<'_>, methods: &[TokenStream]) -> String {
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> String {
     let client_ident = format_ident!("{}", format!("Py{}", service.client_type()));
     let rust_client_ident = service.client_type();
     let rust_client_name = rust_client_ident.to_string();
 
+    let methods = service.methods().filter_map(resource_client_method);
     let mod_path = service.models_path();
 
     let tokens = quote! {
@@ -86,38 +73,28 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
     let mut services = services.iter().collect_vec();
     services.sort_by(|a, b| a.plan.service_name.cmp(&b.plan.service_name));
 
-    let methods: Vec<TokenStream> = services
-        .iter()
-        .flat_map(|s| {
-            s.methods().filter_map(|m| {
-                m.is_collection_method()
-                    .then(|| collection_client_method(m))
-                    .flatten()
-            })
+    let methods = services.iter().flat_map(|s| {
+        s.methods().filter_map(|m| {
+            m.is_collection_method()
+                .then(|| collection_client_method(m))
+                .flatten()
         })
-        .collect();
+    });
 
-    let resource_accessor_methods: Vec<TokenStream> = services
+    let resource_accessor_methods = services
         .iter()
-        .filter_map(|s| generate_resource_accessor_method(s))
-        .collect();
+        .filter_map(|s| generate_resource_accessor_method(s));
 
-    let mod_paths: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let mod_path = s.models_path();
-            quote! { use #mod_path::*; }
-        })
-        .collect();
+    let mod_paths = services.iter().map(|s| {
+        let mod_path = s.models_path();
+        quote! { use #mod_path::*; }
+    });
 
-    let codegen_imports: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let mod_name = format_ident!("{}", s.plan.base_path);
-            let client_name = format_ident!("Py{}", s.client_type().to_string());
-            quote! { use crate::codegen::#mod_name::#client_name; }
-        })
-        .collect();
+    let codegen_imports = services.iter().map(|s| {
+        let mod_name = format_ident!("{}", s.plan.base_path);
+        let client_name = format_ident!("Py{}", s.client_type().to_string());
+        quote! { use crate::codegen::#mod_name::#client_name; }
+    });
 
     quote! {
         use std::collections::HashMap;
@@ -158,8 +135,8 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
 /// Generate Python method wrapper
 fn resource_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
     let code = match &method.plan.request_type {
-        RequestType::Get | RequestType::Update => generate_resource_method(&method),
-        RequestType::Delete => generate_delete_method(&method),
+        RequestType::Get | RequestType::Update => resource_get_update_method_impl(&method),
+        RequestType::Delete => resource_delete_method_impl(&method),
         _ => return None,
     };
     Some(code)
@@ -167,19 +144,19 @@ fn resource_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
 
 fn collection_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
     match &method.plan.request_type {
-        RequestType::List => Some(generate_list_method(&method)),
-        RequestType::Create => Some(generate_create_method(&method)),
+        RequestType::List => Some(collection_list_method_impl(&method)),
+        RequestType::Create => Some(collection_create_method_impl(&method)),
         _ => None,
     }
 }
 
 /// Generate List method (returns Vec<T> and uses try_collect)
-fn generate_list_method(method: &MethodHandler<'_>) -> TokenStream {
+fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
 
     let param_defs = generate_param_definitions(method, true);
     let pyo3_signature = generate_pyo3_signature(method, true);
-    let client_call = generate_resource_client_call(method, true);
+    let client_call = inner_resource_client_call(method, true);
     let builder_calls = generate_builder_pattern(method, true);
 
     let response_type = extract_list_inner_type(&method.output_type().unwrap().to_string());
@@ -204,12 +181,12 @@ fn generate_list_method(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate Create method (uses builder pattern)
-fn generate_create_method(method: &MethodHandler<'_>) -> TokenStream {
+fn collection_create_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
     let response_type = method.output_type().unwrap();
     let param_defs = generate_param_definitions(method, false);
     let pyo3_signature = generate_pyo3_signature_for_resource(method);
-    let client_call = generate_resource_client_call(method, false);
+    let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
     quote! {
@@ -231,12 +208,12 @@ fn generate_create_method(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate a method call to a resource client.
-fn generate_resource_method(method: &MethodHandler<'_>) -> TokenStream {
+fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let response_type = method.output_type();
-    let param_defs = generate_resource_param_definitions(method);
+    let param_defs = resource_method_parameters(method);
     let pyo3_signature = generate_pyo3_signature_for_resource(method);
-    let client_call = generate_resource_client_call(method, false);
+    let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
     quote! {
@@ -258,11 +235,11 @@ fn generate_resource_method(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate Delete method (returns unit type)
-fn generate_delete_method(method: &MethodHandler<'_>) -> TokenStream {
+fn resource_delete_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
-    let param_defs = generate_resource_param_definitions(method);
+    let param_defs = resource_method_parameters(method);
     let pyo3_signature = generate_pyo3_signature_for_resource(method);
-    let client_call = generate_resource_client_call(method, false);
+    let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
     quote! {
@@ -284,16 +261,15 @@ fn generate_delete_method(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate parameter definitions for method signature
-fn generate_resource_param_definitions(method: &MethodHandler<'_>) -> Vec<TokenStream> {
+fn resource_method_parameters(method: &MethodHandler<'_>) -> Vec<TokenStream> {
     let mut params = Vec::new();
 
     // Add required body fields (non-optional)
     for body_field in method.plan.body_fields() {
         if !body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
-            let rust_type = convert_to_python_type(method, &body_field.rust_type, false);
-            // let rust_type =
-            //     method.field_type(&body_field.field_type, RenderContext::PythonParameter);
+            let rust_type =
+                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -312,9 +288,8 @@ fn generate_resource_param_definitions(method: &MethodHandler<'_>) -> Vec<TokenS
     for body_field in method.plan.body_fields() {
         if body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
-            let rust_type = convert_to_python_type(method, &body_field.rust_type, true);
-            // let rust_type =
-            //     method.field_type(&body_field.field_type, RenderContext::PythonParameter);
+            let rust_type =
+                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -347,10 +322,8 @@ fn generate_param_definitions(method: &MethodHandler<'_>, is_list: bool) -> Vec<
     for body_field in method.plan.body_fields() {
         if !body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
-            // Use the original field type to get proper enum handling
-            let python_type =
-                get_python_type_from_method_field(method.plan, &body_field.name, false);
-            let rust_type = convert_to_python_type(method, &python_type, false);
+            let rust_type =
+                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -379,10 +352,8 @@ fn generate_param_definitions(method: &MethodHandler<'_>, is_list: bool) -> Vec<
     for body_field in method.plan.body_fields() {
         if body_field.optional {
             let param_name = format_ident!("{}", body_field.name);
-            // Use the original field type to get proper enum handling
-            let python_type =
-                get_python_type_from_method_field(method.plan, &body_field.name, true);
-            let rust_type = convert_to_python_type(method, &python_type, true);
+            let rust_type =
+                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
             params.push(quote! { #param_name: #rust_type });
         }
     }
@@ -493,7 +464,7 @@ fn generate_pyo3_signature_for_resource(method: &MethodHandler<'_>) -> TokenStre
 /// Specifically this assumes that all path parameters which identify
 /// the resource are encoded in the client and don't need to be passed
 /// as arguments.
-fn generate_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> TokenStream {
+fn inner_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let mut args = Vec::new();
 
@@ -541,7 +512,9 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
             let with_method = format_ident!("with_{}", body_field.name);
 
             // Special handling for HashMap/properties fields
-            if body_field.rust_type.contains("HashMap") {
+            if matches!(body_field.field_type.base_type, BaseType::Map(_, _))
+                || body_field.field_type.is_repeated
+            {
                 builder_calls.push(quote! {
                     if let Some(#param_name) = #param_name {
                         request = request.#with_method(#param_name);
@@ -556,15 +529,6 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
     }
 
     builder_calls
-}
-
-/// Convert Rust type to Python-compatible type annotation using MethodHandler
-fn convert_to_python_type(
-    method: &MethodHandler<'_>,
-    rust_type: &str,
-    force_optional: bool,
-) -> TokenStream {
-    method.python_parameter_type(rust_type, force_optional)
 }
 
 /// Extract inner type from List response types
@@ -585,65 +549,6 @@ fn extract_list_inner_type(response_type: &str) -> String {
         }
     } else {
         response_type.to_string()
-    }
-}
-
-/// Get the correct Python type for a method field, handling enums properly
-fn get_python_type_from_method_field(
-    method: &MethodPlan,
-    field_name: &str,
-    is_optional: bool,
-) -> String {
-    // Look for the field in the method metadata to get the original field type
-    for field in &method.metadata.input_fields {
-        if field.name == field_name {
-            // Note: This should be refactored to use MethodHandler directly
-            // For now, we'll create a temporary handler or use the existing logic
-            return python_field_type_to_rust_type_fallback(&field.field_type, is_optional);
-        }
-    }
-
-    // Fallback to existing logic if field not found
-    if is_optional {
-        format!("Option<{}>", "String")
-    } else {
-        "String".to_string()
-    }
-}
-
-/// Temporary fallback function until we fully refactor to use MethodHandler
-fn python_field_type_to_rust_type_fallback(field_type: &str, is_optional: bool) -> String {
-    let base_type = match field_type {
-        "TYPE_STRING" => "String".to_string(),
-        "TYPE_INT32" => "i32".to_string(),
-        "TYPE_INT64" => "i64".to_string(),
-        "TYPE_BOOL" => "bool".to_string(),
-        "TYPE_DOUBLE" => "f64".to_string(),
-        "TYPE_FLOAT" => "f32".to_string(),
-        "TYPE_BYTES" => "Vec<u8>".to_string(),
-        _ => {
-            // For message types, extract the simple name
-            if field_type.ends_with("PropertiesEntry") {
-                "HashMap<String, String>".to_string()
-            } else if field_type.starts_with("TYPE_MESSAGE:") {
-                strings::extract_simple_type_name(&field_type[13..])
-            } else if field_type.starts_with("TYPE_ENUM:") {
-                // For Python generation, use the actual enum type name instead of i32
-                strings::extract_simple_type_name(&field_type[10..])
-            } else if let Some(oneof_name) = field_type.strip_prefix("TYPE_ONEOF:") {
-                // Extract the oneof name and create an enum type
-                strings::extract_simple_type_name(oneof_name)
-            } else {
-                // Default to String for unknown types
-                "String".to_string()
-            }
-        }
-    };
-
-    if is_optional {
-        format!("Option<{}>", base_type)
-    } else {
-        base_type
     }
 }
 

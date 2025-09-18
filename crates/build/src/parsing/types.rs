@@ -7,6 +7,8 @@ use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::quote;
 
+pub(crate) static CONVERTER: TypeConverter = TypeConverter {};
+
 /// Context for rendering types in different situations
 #[derive(Debug, Clone, Copy)]
 pub enum RenderContext {
@@ -25,8 +27,6 @@ pub enum RenderContext {
     /// Python parameter type
     PythonParameter,
 }
-
-pub(crate) static CONVERTER: TypeConverter = TypeConverter {};
 
 /// Utility for converting between protobuf and Rust types
 pub struct TypeConverter;
@@ -91,7 +91,13 @@ impl TypeConverter {
 
         // Apply optional wrapper
         // - in builder methods we wrap this in impl Into<Option<T>> so we just need the inner type
-        if unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod) {
+        // - in python parameters signatures we wrap repeated fields in optional `Option<Vec<T>>`
+        //   to distinguish an empty array from a missing field
+        if (unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod))
+            || (matches!(context, RenderContext::PythonParameter)
+                && (matches!(unified_type.base_type, BaseType::Map(_, _))
+                    || unified_type.is_repeated))
+        {
             result = format!("Option<{}>", result);
         }
 

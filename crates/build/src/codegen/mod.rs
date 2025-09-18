@@ -24,7 +24,7 @@ use std::path::Path;
 
 use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::format_ident;
 use syn::Ident;
 
 use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, analyze_metadata};
@@ -202,41 +202,6 @@ impl MethodHandler<'_> {
     pub(crate) fn field_type(&self, field_type: &UnifiedType, ctx: RenderContext) -> syn::Type {
         let rust_type = CONVERTER.unified_to_rust(field_type, ctx);
         syn::parse_str(&rust_type).expect("proper field type")
-    }
-
-    /// Get Python parameter type for a Rust type
-    pub(crate) fn python_parameter_type(&self, rust_type: &str, optional: bool) -> TokenStream {
-        // This method needs to convert Rust type strings back to Python types
-        // Since this is used by existing Python generation code, we keep it simple
-        let base_type = if rust_type.starts_with("Option<") {
-            rust_type
-                .strip_prefix("Option<")
-                .and_then(|s| s.strip_suffix(">"))
-                .unwrap_or(rust_type)
-        } else {
-            rust_type
-        };
-
-        let converted = match base_type {
-            "String" | "str" => quote! { String },
-            "i32" => quote! { i32 },
-            "i64" => quote! { i64 },
-            "bool" => quote! { bool },
-            "f32" => quote! { f32 },
-            "f64" => quote! { f64 },
-            s if s.contains("HashMap") => quote! { HashMap<String, String> },
-            _ => {
-                // Assume it's a struct type, use as-is
-                let type_ident = format_ident!("{}", base_type);
-                quote! { #type_ident }
-            }
-        };
-
-        if optional || rust_type.starts_with("Option<") {
-            quote! { Option<#converted> }
-        } else {
-            converted
-        }
     }
 
     /// Get field assignment TokenStream for constructor
