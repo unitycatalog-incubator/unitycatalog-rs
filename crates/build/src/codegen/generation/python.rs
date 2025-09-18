@@ -86,38 +86,28 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
     let mut services = services.iter().collect_vec();
     services.sort_by(|a, b| a.plan.service_name.cmp(&b.plan.service_name));
 
-    let methods: Vec<TokenStream> = services
-        .iter()
-        .flat_map(|s| {
-            s.methods().filter_map(|m| {
-                m.is_collection_method()
-                    .then(|| collection_client_method(m))
-                    .flatten()
-            })
+    let methods = services.iter().flat_map(|s| {
+        s.methods().filter_map(|m| {
+            m.is_collection_method()
+                .then(|| collection_client_method(m))
+                .flatten()
         })
-        .collect();
+    });
 
-    let resource_accessor_methods: Vec<TokenStream> = services
+    let resource_accessor_methods = services
         .iter()
-        .filter_map(|s| generate_resource_accessor_method(s))
-        .collect();
+        .filter_map(|s| generate_resource_accessor_method(s));
 
-    let mod_paths: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let mod_path = s.models_path();
-            quote! { use #mod_path::*; }
-        })
-        .collect();
+    let mod_paths = services.iter().map(|s| {
+        let mod_path = s.models_path();
+        quote! { use #mod_path::*; }
+    });
 
-    let codegen_imports: Vec<TokenStream> = services
-        .iter()
-        .map(|s| {
-            let mod_name = format_ident!("{}", s.plan.base_path);
-            let client_name = format_ident!("Py{}", s.client_type().to_string());
-            quote! { use crate::codegen::#mod_name::#client_name; }
-        })
-        .collect();
+    let codegen_imports = services.iter().map(|s| {
+        let mod_name = format_ident!("{}", s.plan.base_path);
+        let client_name = format_ident!("Py{}", s.client_type().to_string());
+        quote! { use crate::codegen::#mod_name::#client_name; }
+    });
 
     quote! {
         use std::collections::HashMap;
