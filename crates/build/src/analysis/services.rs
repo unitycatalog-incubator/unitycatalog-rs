@@ -1,10 +1,13 @@
 use std::collections::HashSet;
 
 use convert_case::{Case, Casing};
+use quote::format_ident;
+use syn::Ident;
 
 use crate::analysis::messages::MessageRegistry;
 use crate::error::{Error, Result};
 use crate::google::api::{ResourceDescriptor, http_rule::Pattern};
+use crate::parsing::types::UnifiedType;
 use crate::parsing::{HttpPattern, MethodMetadata};
 
 /// The Operation a method is performing
@@ -64,6 +67,8 @@ pub struct MethodPlan {
     /// HTTP method and path for routing
     pub http_method: String,
     pub http_path: String,
+    /// parameters passed to the method
+    pub parameters: Vec<RequestParam>,
     /// Path parameters extracted from the URL template
     pub path_params: Vec<PathParam>,
     /// Query parameters (for List operations)
@@ -82,6 +87,46 @@ pub struct MethodPlan {
     pub output_resource_type: Option<String>,
 }
 
+impl MethodPlan {
+    pub fn path_parameters(&self) -> impl Iterator<Item = &PathParam> {
+        self.parameters.iter().filter_map(|param| match param {
+            RequestParam::Path(path_param) => Some(path_param),
+            _ => None,
+        })
+    }
+
+    pub fn query_parameters(&self) -> impl Iterator<Item = &QueryParam> {
+        self.parameters.iter().filter_map(|param| match param {
+            RequestParam::Query(query_param) => Some(query_param),
+            _ => None,
+        })
+    }
+
+    pub fn body_fields(&self) -> impl Iterator<Item = &BodyField> {
+        self.parameters.iter().filter_map(|param| match param {
+            RequestParam::Body(body_field) => Some(body_field),
+            _ => None,
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum RequestParam {
+    Path(PathParam),
+    Query(QueryParam),
+    Body(BodyField),
+}
+
+impl RequestParam {
+    pub fn field_ident(&self) -> Ident {
+        match self {
+            RequestParam::Path(param) => format_ident!("{}", param.field_name),
+            RequestParam::Query(param) => format_ident!("{}", param.name),
+            RequestParam::Body(param) => format_ident!("{}", param.name),
+        }
+    }
+}
+
 /// A path parameter in a URL template
 #[derive(Debug, Clone)]
 pub struct PathParam {
@@ -89,8 +134,14 @@ pub struct PathParam {
     pub template_param: String,
     /// Field name in the request struct (e.g., "full_name")
     pub field_name: String,
-    /// Rust type for this parameter
-    pub rust_type: String,
+    /// Parsed type of the path parameter
+    pub field_type: UnifiedType,
+}
+
+impl From<PathParam> for RequestParam {
+    fn from(param: PathParam) -> Self {
+        RequestParam::Path(param)
+    }
 }
 
 /// A query parameter for HTTP requests
@@ -98,10 +149,16 @@ pub struct PathParam {
 pub struct QueryParam {
     /// Parameter name
     pub name: String,
-    /// Rust type for this parameter
-    pub rust_type: String,
     /// Whether this parameter is optional
     pub optional: bool,
+    /// Parsed type of the query parameter
+    pub field_type: UnifiedType,
+}
+
+impl From<QueryParam> for RequestParam {
+    fn from(param: QueryParam) -> Self {
+        RequestParam::Query(param)
+    }
 }
 
 /// A body field that should be extracted from request body
@@ -113,6 +170,14 @@ pub struct BodyField {
     pub rust_type: String,
     /// Whether this field is optional
     pub optional: bool,
+    /// Parsed type of the query parameter
+    pub field_type: UnifiedType,
+}
+
+impl From<BodyField> for RequestParam {
+    fn from(field: BodyField) -> Self {
+        RequestParam::Body(field)
+    }
 }
 
 /// Information about a resource managed by a service

@@ -461,7 +461,7 @@ impl PyTemporaryCredentialClient {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let table_ref = TableReference::Name(table);
-            let op = match operation.as_str().to_ascii_lowercase().as_str() {
+            let op = match operation.to_ascii_lowercase().as_str() {
                 "read" => TableOperation::Read,
                 "read_write" => TableOperation::ReadWrite,
                 _ => {

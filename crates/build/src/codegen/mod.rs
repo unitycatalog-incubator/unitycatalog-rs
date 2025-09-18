@@ -23,13 +23,15 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use convert_case::{Case, Casing};
-use quote::format_ident;
+use proc_macro2::TokenStream;
+use quote::{format_ident, quote};
 use syn::Ident;
 
 use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, analyze_metadata};
 use crate::google::api::http_rule::Pattern;
 use crate::output;
-use crate::parsing::{CodeGenMetadata, MessageInfo};
+use crate::parsing::types::UnifiedType;
+use crate::parsing::{CONVERTER, CodeGenMetadata, MessageField, MessageInfo, RenderContext};
 
 pub mod generation;
 
@@ -136,6 +138,10 @@ impl ServiceHandler<'_> {
         ))
         .unwrap()
     }
+
+    pub(crate) fn models_path_crate(&self) -> syn::Path {
+        syn::parse_str(&format!("crate::models::{}::v1", self.plan.base_path)).unwrap()
+    }
 }
 
 pub(crate) struct MethodHandler<'a> {
@@ -188,6 +194,87 @@ impl MethodHandler<'_> {
 
     pub(crate) fn builder_type(&self) -> Ident {
         format_ident!("{}Builder", self.plan.metadata.method_name)
+    }
+
+    /// Get type representation for rust depending on context
+    ///
+    /// Depending on context we may want concrete types (e.g. 'String') or more flexible types (e.g. 'Into<String d>')
+    pub(crate) fn field_type(&self, field_type: &UnifiedType, ctx: RenderContext) -> syn::Type {
+        let rust_type = CONVERTER.unified_to_rust(field_type, ctx);
+        syn::parse_str(&rust_type).expect("proper field type")
+    }
+
+    /// Get Python parameter type for a Rust type
+    pub(crate) fn python_parameter_type(&self, rust_type: &str, optional: bool) -> TokenStream {
+        // This method needs to convert Rust type strings back to Python types
+        // Since this is used by existing Python generation code, we keep it simple
+        let base_type = if rust_type.starts_with("Option<") {
+            rust_type
+                .strip_prefix("Option<")
+                .and_then(|s| s.strip_suffix(">"))
+                .unwrap_or(rust_type)
+        } else {
+            rust_type
+        };
+
+        let converted = match base_type {
+            "String" | "str" => quote! { String },
+            "i32" => quote! { i32 },
+            "i64" => quote! { i64 },
+            "bool" => quote! { bool },
+            "f32" => quote! { f32 },
+            "f64" => quote! { f64 },
+            s if s.contains("HashMap") => quote! { HashMap<String, String> },
+            _ => {
+                // Assume it's a struct type, use as-is
+                let type_ident = format_ident!("{}", base_type);
+                quote! { #type_ident }
+            }
+        };
+
+        if optional || rust_type.starts_with("Option<") {
+            quote! { Option<#converted> }
+        } else {
+            converted
+        }
+    }
+
+    /// Get field assignment TokenStream for constructor
+    pub(crate) fn field_assignment(
+        &self,
+        field_type: &UnifiedType,
+        field_ident: &proc_macro2::Ident,
+        ctx: &RenderContext,
+    ) -> TokenStream {
+        CONVERTER.field_assignment(field_type, field_ident, ctx)
+    }
+
+    /// Get flexible field assignment for optional fields using impl Into<Option<T>>
+
+    /// Analyze request fields to separate required from optional
+    pub(crate) fn analyze_request_fields(&self) -> (Vec<&MessageField>, Vec<&MessageField>) {
+        let fields = &self.plan.metadata.input_fields;
+        let mut required = Vec::new();
+        let mut optional = Vec::new();
+
+        for field in fields {
+            if field.optional {
+                optional.push(field);
+            } else if field.field_type.contains("map<") {
+                // Maps are not required in constructor, but are optional with_* methods
+                optional.push(field);
+            } else if field.field_type.starts_with("TYPE_MESSAGE:")
+                || field.field_type.starts_with("TYPE_ONEOF:")
+                || field.repeated
+            {
+                // Complex message types, oneof fields, and repeated fields go to optional with direct setters
+                optional.push(field);
+            } else {
+                required.push(field);
+            }
+        }
+
+        (required, optional)
     }
 }
 

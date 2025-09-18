@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
 use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet};
+pub(crate) use types::{CONVERTER, RenderContext};
 
 pub(crate) use self::http::*;
 pub(crate) use self::models::*;
+pub mod types;
 
 mod enum_parser;
 mod http;
@@ -72,13 +74,14 @@ pub fn process_file_descriptor(
         } else {
             format!(".{}", package_name)
         };
+
         message::process_message(
             message,
             file_name,
             codegen_metadata,
             &type_prefix,
             source_code_info,
-            &[4, message_index as i32],
+            &[4, message_index as i32], // message_type is field 4 in FileDescriptorProto
         )?;
     }
 

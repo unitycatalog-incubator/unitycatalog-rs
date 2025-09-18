@@ -16,7 +16,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::File;
 
-use super::{GeneratedCode, extract_type_ident};
+use super::GeneratedCode;
 use crate::analysis::MethodPlan;
 use crate::analysis::{GenerationPlan, RequestType, ServicePlan};
 use crate::codegen::ServiceHandler;
@@ -39,7 +39,7 @@ impl MethodPlan {
         }
     }
 
-    fn collection_client_method(&self) -> syn::Ident {
+    fn base_method_ident(&self) -> syn::Ident {
         format_ident!("{}", self.handler_function_name)
     }
 }
@@ -52,8 +52,13 @@ pub fn generate_common_code(
 
     // Generate code for each service
     for service in &plan.services {
+        let handler = ServiceHandler {
+            plan: service,
+            metadata,
+        };
+
         // Generate server code
-        let server_code = server::generate_common(service)?;
+        let server_code = server::generate_common(&handler);
         files.insert(format!("{}/server.rs", service.base_path), server_code);
 
         // Generate service module
@@ -96,7 +101,7 @@ pub fn generate_server_code(
         let trait_code = handler::generate(&handler)?;
         files.insert(format!("{}/handler.rs", service.base_path), trait_code);
 
-        let server_code = server::generate_server(&handler)?;
+        let server_code = server::generate_server(&handler);
         files.insert(format!("{}/server.rs", service.base_path), server_code);
 
         // Generate client code

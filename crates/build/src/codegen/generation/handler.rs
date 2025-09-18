@@ -1,14 +1,14 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::{extract_type_ident, format_tokens};
-use crate::{analysis::MethodPlan, codegen::ServiceHandler};
+use super::format_tokens;
+use crate::codegen::{MethodHandler, ServiceHandler};
 
 /// Generate handler trait for a service
 pub(super) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
     let mut trait_methods = Vec::new();
-    for method in &service.plan.methods {
-        let method_code = handler_trait_method(method);
+    for method in service.methods() {
+        let method_code = handler_trait_method(&method);
         trait_methods.push(method_code);
     }
 
@@ -43,12 +43,12 @@ pub fn handler_trait(
 }
 
 /// Generate a single handler trait method
-pub fn handler_trait_method(method: &MethodPlan) -> TokenStream {
-    let input_type = extract_type_ident(&method.metadata.input_type);
-    let method_name = format_ident!("{}", method.handler_function_name);
+pub fn handler_trait_method(method: &MethodHandler<'_>) -> TokenStream {
+    let input_type = method.input_type();
+    let method_name = method.plan.base_method_ident();
 
-    if method.has_response {
-        let output_type = extract_type_ident(&method.metadata.output_type);
+    if method.plan.has_response {
+        let output_type = method.output_type();
         quote! {
             async fn #method_name(
                 &self,

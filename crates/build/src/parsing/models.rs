@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
-use protobuf::descriptor::field_descriptor_proto::Type;
-
 use super::http::extract_path_parameters;
 use crate::gnostic::openapi::v3::Operation;
 use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
+use crate::parsing::types::UnifiedType;
 
 /// Collected metadata for code generation
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct CodeGenMetadata {
     pub messages: HashMap<String, MessageInfo>,
     pub enums: HashMap<String, EnumInfo>,
@@ -20,14 +19,6 @@ impl CodeGenMetadata {
         self.messages
             .get(type_name)
             .map(|msg| msg.fields.clone())
-            .unwrap_or_default()
-    }
-
-    /// Get enum values for a given enum type name
-    pub(crate) fn get_enum_values(&self, type_name: &str) -> Vec<EnumValue> {
-        self.enums
-            .get(type_name)
-            .map(|enum_info| enum_info.values.clone())
             .unwrap_or_default()
     }
 }
@@ -45,8 +36,8 @@ pub struct MessageInfo {
 #[derive(Debug, Clone)]
 pub struct MessageField {
     pub name: String,
-    pub type_label: Type,
     pub field_type: String,
+    pub unified_type: UnifiedType,
     pub optional: bool,
     pub repeated: bool,
     pub oneof_name: Option<String>,

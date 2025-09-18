@@ -41,6 +41,7 @@ use std::collections::HashSet;
 use convert_case::{Case, Casing};
 
 use crate::analysis::messages::MessageRegistry;
+use crate::parsing::types::BaseType;
 use crate::parsing::{
     CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo, extract_http_rule_pattern,
     find_matching_field_for_path_param, should_be_body_field,
@@ -84,7 +85,7 @@ fn analyze_service(
             method_plans.push(method_plan);
         } else {
             println!(
-                "cargo:warning=Skipping method {}.{} - incomplete metadata",
+                "Skipping method {}.{} - incomplete metadata",
                 info.name, method.method_name
             );
         }
@@ -111,7 +112,7 @@ pub fn analyze_method(
         Some(info) => info,
         None => {
             println!(
-                "cargo:warning=Method {}.{} missing HTTP info",
+                "Method {}.{} missing HTTP info",
                 method.service_name, method.method_name
             );
             return Ok(None);
@@ -120,20 +121,27 @@ pub fn analyze_method(
 
     let planner = MethodPlanner::try_new(method, registry)?;
 
-    // Get input message fields from metadata
-    let input_fields = method.input_fields.clone();
-
     // Determine if method has response
     let request_type = planner.request_type();
 
     // Extract parameters based on HTTP rule
-    let (path_params, query_params, body_fields) = extract_request_fields(method, &input_fields)?;
+    let (path_params, query_params, body_fields) =
+        extract_request_fields(method, &method.input_fields)?;
+
+    let parameters = path_params
+        .clone()
+        .into_iter()
+        .map(Into::into)
+        .chain(query_params.clone().into_iter().map(Into::into))
+        .chain(body_fields.clone().into_iter().map(Into::into))
+        .collect();
 
     let method_plan = MethodPlan {
         metadata: method.clone(),
         handler_function_name: method.method_name.to_case(Case::Snake),
         http_method,
         http_path,
+        parameters,
         path_params,
         query_params,
         body_fields,
@@ -173,7 +181,7 @@ fn extract_request_fields(
             path_params.push(PathParam {
                 template_param: path_param_name.clone(),
                 field_name: field.name.clone(),
-                rust_type: types::field_type_to_rust_type(&field.field_type),
+                field_type: field.unified_type.clone(),
             });
             processed_fields.insert(field.name.clone());
         }
@@ -189,12 +197,13 @@ fn extract_request_fields(
         }
 
         // Skip oneof fields that should be handled as individual enum variants in the body
-        if field.field_type.starts_with("TYPE_ONEOF:") {
+        if matches!(field.unified_type.base_type, BaseType::OneOf(_)) {
             // Oneof fields are always body fields and always optional
             body_fields.push(BodyField {
                 name: field_name.clone(),
                 rust_type: types::field_type_to_rust_type(&field.field_type),
                 optional: true, // oneof fields are always optional
+                field_type: field.unified_type.clone(),
             });
             processed_fields.insert(field_name.clone());
             continue;
@@ -203,23 +212,17 @@ fn extract_request_fields(
         processed_fields.insert(field_name.clone());
 
         if should_be_body_field(field_name, body_spec) {
-            // Field should be extracted from request body
             body_fields.push(BodyField {
                 name: field_name.clone(),
                 rust_type: types::field_type_to_rust_type(&field.field_type),
                 optional: field.optional,
+                field_type: field.unified_type.clone(),
             });
         } else {
-            // Field is a query parameter - handle optionality correctly
-            let rust_type = if field.optional {
-                types::make_optional(&types::field_type_to_rust_type(&field.field_type))
-            } else {
-                types::field_type_to_rust_type(&field.field_type)
-            };
             query_params.push(QueryParam {
                 name: field_name.clone(),
-                rust_type,
                 optional: field.optional,
+                field_type: field.unified_type.clone(),
             });
         }
     }
