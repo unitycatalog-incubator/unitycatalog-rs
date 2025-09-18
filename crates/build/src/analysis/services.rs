@@ -7,6 +7,7 @@ use syn::Ident;
 use crate::analysis::messages::MessageRegistry;
 use crate::error::{Error, Result};
 use crate::google::api::{ResourceDescriptor, http_rule::Pattern};
+use crate::parsing::types::UnifiedType;
 use crate::parsing::{HttpPattern, MethodMetadata};
 
 /// The Operation a method is performing
@@ -133,8 +134,8 @@ pub struct PathParam {
     pub template_param: String,
     /// Field name in the request struct (e.g., "full_name")
     pub field_name: String,
-    /// Rust type for this parameter
-    pub rust_type: String,
+    /// Parsed type of the path parameter
+    pub field_type: UnifiedType,
 }
 
 impl From<PathParam> for RequestParam {
@@ -148,10 +149,10 @@ impl From<PathParam> for RequestParam {
 pub struct QueryParam {
     /// Parameter name
     pub name: String,
-    /// Rust type for this parameter
-    pub rust_type: String,
     /// Whether this parameter is optional
     pub optional: bool,
+    /// Parsed type of the query parameter
+    pub field_type: UnifiedType,
 }
 
 impl From<QueryParam> for RequestParam {

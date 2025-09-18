@@ -1,6 +1,6 @@
 use itertools::Itertools;
 use proc_macro2::{Ident, TokenStream};
-use quote::{ToTokens, format_ident, quote};
+use quote::{format_ident, quote};
 use syn::{Path, Type};
 
 use super::format_tokens;
@@ -8,6 +8,7 @@ use crate::{
     analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestParam, RequestType},
     codegen::{MethodHandler, ServiceHandler},
     google::api::http_rule::Pattern,
+    parsing::RenderContext,
 };
 
 /// Generate server side code for axum servers
@@ -113,8 +114,8 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
 /// Generate FromRequestParts implementation for path/query parameters
 fn from_request_parts_impl(method: &MethodHandler<'_>) -> TokenStream {
     let input_type = method.input_type();
-    let path_extractions = path_extractions(method.plan, false);
-    let query_extractions = query_extractions(method.plan);
+    let path_extractions = path_extractions(method, false);
+    let query_extractions = query_extractions(method);
     let field_assignments = field_assignments_plain(method.plan);
 
     quote! {
@@ -174,8 +175,8 @@ fn from_request_impl(method: &MethodHandler<'_>) -> TokenStream {
 /// Generate hybrid FromRequest implementation for methods with path/query + body
 fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
     let input_type = method.input_type().unwrap();
-    let path_extractions = path_extractions(method.plan, true);
-    let query_extractions = query_extractions(method.plan);
+    let path_extractions = path_extractions(method, true);
+    let query_extractions = query_extractions(method);
 
     // Check if we have any oneof fields
     let has_oneof_fields = method
@@ -249,8 +250,8 @@ fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate path parameter extractions as TokenStream
-fn path_extractions(method: &MethodPlan, is_request: bool) -> TokenStream {
-    let params = &method.path_parameters().collect_vec();
+fn path_extractions(method: &MethodHandler<'_>, is_request: bool) -> TokenStream {
+    let params = &method.plan.path_parameters().collect_vec();
 
     if params.is_empty() {
         quote! {}
@@ -259,13 +260,9 @@ fn path_extractions(method: &MethodPlan, is_request: bool) -> TokenStream {
             .iter()
             .map(|p| format_ident!("{}", p.field_name))
             .collect();
-        let param_types: Vec<TokenStream> = params
+        let param_types: Vec<Type> = params
             .iter()
-            .map(|p| {
-                syn::parse_str::<Type>(&p.rust_type)
-                    .unwrap()
-                    .to_token_stream()
-            })
+            .map(|p| method.field_type(&p.field_type, RenderContext::Extractor))
             .collect();
 
         if is_request {
@@ -286,33 +283,20 @@ fn path_extractions(method: &MethodPlan, is_request: bool) -> TokenStream {
 }
 
 /// Generate query parameter extractions as TokenStream
-fn query_extractions(method: &MethodPlan) -> TokenStream {
-    let params = method.query_parameters().collect_vec();
+fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
+    let params = method.plan.query_parameters().collect_vec();
     if params.is_empty() {
         quote! {}
     } else {
-        let query_fields: Vec<TokenStream> = params
-            .iter()
-            .map(|p| {
-                let name = format_ident!("{}", p.name);
-                // Handle Option<T> types by parsing the inner type
-                let type_tokens =
-                    if p.rust_type.starts_with("Option<") && p.rust_type.ends_with(">") {
-                        let inner_type = &p.rust_type[7..p.rust_type.len() - 1];
-                        let inner = format_ident!("{}", inner_type);
-                        quote! { Option<#inner> }
-                    } else {
-                        let type_ident = format_ident!("{}", p.rust_type);
-                        quote! { #type_ident }
-                    };
-
-                if p.optional {
-                    quote! { #[serde(default)] #name: #type_tokens }
-                } else {
-                    quote! { #name: #type_tokens }
-                }
-            })
-            .collect();
+        let query_fields = params.iter().map(|p| {
+            let name = format_ident!("{}", p.name);
+            let type_tokens = method.field_type(&p.field_type, RenderContext::Extractor);
+            if p.optional {
+                quote! { #[serde(default)] #name: #type_tokens }
+            } else {
+                quote! { #name: #type_tokens }
+            }
+        });
 
         let param_names: Vec<Ident> = params.iter().map(|p| format_ident!("{}", p.name)).collect();
 

@@ -64,7 +64,6 @@ fn generate_request_builder(
     // Generate constructor
     let constructor = generate_constructor(
         &method,
-        &builder_ident,
         &request_type_ident,
         &client_type_ident,
         &required_fields,
@@ -111,28 +110,25 @@ fn generate_request_builder(
 /// Generate the constructor for the builder
 fn generate_constructor(
     method: &MethodHandler<'_>,
-    _builder_ident: &proc_macro2::Ident,
     request_type_ident: &proc_macro2::Ident,
     client_type_ident: &proc_macro2::Ident,
     required_fields: &[&MessageField],
 ) -> TokenStream {
-    let param_list: Vec<TokenStream> = required_fields
-        .iter()
-        .map(|field| {
-            let field_ident = format_ident!("{}", field.name);
-            let param_type = method.rust_parameter_type(&field.field_type);
-            quote! { #field_ident: #param_type }
-        })
-        .collect();
+    let param_list = required_fields.iter().map(|field| {
+        let field_ident = format_ident!("{}", field.name);
+        let param_type = method.field_type(&field.unified_type, RenderContext::Constructor);
+        quote! { #field_ident: #param_type }
+    });
 
-    let field_assignments: Vec<TokenStream> = required_fields
-        .iter()
-        .map(|field| {
-            let field_ident = format_ident!("{}", field.name);
-            let assignment = method.field_assignment(&field.field_type, &field_ident);
-            quote! { #field_ident: #assignment }
-        })
-        .collect();
+    let field_assignments = required_fields.iter().map(|field| {
+        let field_ident = format_ident!("{}", field.name);
+        let assignment = method.field_assignment(
+            &field.unified_type,
+            &field_ident,
+            &RenderContext::Constructor,
+        );
+        quote! { #field_ident: #assignment }
+    });
 
     quote! {
         /// Create a new builder instance
@@ -202,9 +198,12 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
             }
         }
     } else if matches!(field.unified_type.base_type, BaseType::Enum(_)) {
-        let enum_ident =
-            method.rust_field_type_unified(&field.unified_type, RenderContext::BuilderMethod);
-        let assignment = method.flexible_optional_field_assignment(&field.field_type, &field_ident);
+        let enum_ident = method.field_type(&field.unified_type, RenderContext::BuilderMethod);
+        let assignment = method.field_assignment(
+            &field.unified_type,
+            &field_ident,
+            &RenderContext::BuilderMethod,
+        );
         quote! {
             #doc_attr
             pub fn #method_name(mut self, #field_ident: impl Into<Option<#enum_ident>>) -> Self {
@@ -213,8 +212,7 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
             }
         }
     } else {
-        let field_type =
-            method.rust_field_type_unified(&field.unified_type, RenderContext::BuilderMethod);
+        let field_type = method.field_type(&field.unified_type, RenderContext::BuilderMethod);
         if field.repeated {
             let assignment = quote! { #field_ident.into_iter().collect() };
             quote! {
@@ -255,8 +253,7 @@ fn generate_oneof_variant_methods(
     let variants = field.oneof_variants.as_ref().unwrap();
     let oneof_field_ident = format_ident!("{}", field.name);
 
-    let enum_type_tokens =
-        method.rust_field_type_unified(&field.unified_type, RenderContext::BuilderMethod);
+    let enum_type_tokens = method.field_type(&field.unified_type, RenderContext::BuilderMethod);
 
     variants
         .iter()

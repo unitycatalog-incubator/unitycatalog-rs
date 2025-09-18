@@ -181,7 +181,7 @@ fn extract_request_fields(
             path_params.push(PathParam {
                 template_param: path_param_name.clone(),
                 field_name: field.name.clone(),
-                rust_type: types::field_type_to_rust_type(&field.field_type),
+                field_type: field.unified_type.clone(),
             });
             processed_fields.insert(field.name.clone());
         }
@@ -226,8 +226,8 @@ fn extract_request_fields(
             };
             query_params.push(QueryParam {
                 name: field_name.clone(),
-                rust_type,
                 optional: field.optional,
+                field_type: field.unified_type.clone(),
             });
         }
     }

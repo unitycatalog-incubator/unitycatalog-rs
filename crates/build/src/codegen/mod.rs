@@ -196,18 +196,10 @@ impl MethodHandler<'_> {
         format_ident!("{}Builder", self.plan.metadata.method_name)
     }
 
-    /// Get Rust parameter type for constructor-like arguments (builder methods)
-    pub(crate) fn rust_parameter_type(&self, field_type: &str) -> TokenStream {
-        let unified_type = CONVERTER.protobuf_to_unified(field_type);
-        let param_type_str = CONVERTER.rust_parameter_type(&unified_type);
-        param_type_str.parse().unwrap_or_else(|_| quote! { String })
-    }
-
-    pub(crate) fn rust_field_type_unified(
-        &self,
-        field_type: &UnifiedType,
-        ctx: RenderContext,
-    ) -> syn::Type {
+    /// Get type representation for rust depending on context
+    ///
+    /// Depending on context we may want concrete types (e.g. 'String') or more flexible types (e.g. 'Into<String d>')
+    pub(crate) fn field_type(&self, field_type: &UnifiedType, ctx: RenderContext) -> syn::Type {
         let rust_type = CONVERTER.unified_to_rust(field_type, ctx);
         syn::parse_str(&rust_type).expect("proper field type")
     }
@@ -250,22 +242,14 @@ impl MethodHandler<'_> {
     /// Get field assignment TokenStream for constructor
     pub(crate) fn field_assignment(
         &self,
-        field_type: &str,
+        field_type: &UnifiedType,
         field_ident: &proc_macro2::Ident,
+        ctx: &RenderContext,
     ) -> TokenStream {
-        let unified_type = CONVERTER.protobuf_to_unified(field_type);
-        CONVERTER.field_assignment(&unified_type, field_ident)
+        CONVERTER.field_assignment(field_type, field_ident, ctx)
     }
 
     /// Get flexible field assignment for optional fields using impl Into<Option<T>>
-    pub(crate) fn flexible_optional_field_assignment(
-        &self,
-        field_type: &str,
-        field_ident: &proc_macro2::Ident,
-    ) -> TokenStream {
-        let unified_type = CONVERTER.protobuf_to_unified(field_type);
-        CONVERTER.flexible_optional_field_assignment(&unified_type, field_ident)
-    }
 
     /// Analyze request fields to separate required from optional
     pub(crate) fn analyze_request_fields(&self) -> (Vec<&MessageField>, Vec<&MessageField>) {
@@ -291,18 +275,6 @@ impl MethodHandler<'_> {
         }
 
         (required, optional)
-    }
-
-    /// Get required fields for constructor
-    pub(crate) fn required_constructor_fields(&self) -> Vec<&MessageField> {
-        let (required, _) = self.analyze_request_fields();
-        required
-    }
-
-    /// Get optional fields for builder methods
-    pub(crate) fn optional_builder_fields(&self) -> Vec<&MessageField> {
-        let (_, optional) = self.analyze_request_fields();
-        optional
     }
 }
 

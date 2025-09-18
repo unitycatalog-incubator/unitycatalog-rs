@@ -179,6 +179,8 @@ fn generate_query_parameters(query_params: &[QueryParam]) -> proc_macro2::TokenS
 
 #[cfg(test)]
 mod tests {
+    use crate::parsing::types::{BaseType, UnifiedType};
+
     use super::*;
 
     #[test]
@@ -192,13 +194,21 @@ mod tests {
         let params = vec![
             QueryParam {
                 name: "max_results".to_string(),
-                rust_type: "Option<i32>".to_string(),
                 optional: true,
+                field_type: UnifiedType {
+                    base_type: BaseType::Int32,
+                    is_optional: true,
+                    is_repeated: false,
+                },
             },
             QueryParam {
                 name: "page_token".to_string(),
-                rust_type: "Option<String>".to_string(),
                 optional: true,
+                field_type: UnifiedType {
+                    base_type: BaseType::String,
+                    is_optional: true,
+                    is_repeated: false,
+                },
             },
         ];
         let result = generate_query_parameters(&params);
@@ -210,8 +220,12 @@ mod tests {
         // Test with required query parameters
         let required_params = vec![QueryParam {
             name: "filter".to_string(),
-            rust_type: "String".to_string(),
             optional: false,
+            field_type: UnifiedType {
+                base_type: BaseType::String,
+                is_optional: false,
+                is_repeated: false,
+            },
         }];
         let result = generate_query_parameters(&required_params);
         let code = result.to_string();
