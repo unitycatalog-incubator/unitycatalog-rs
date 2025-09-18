@@ -296,8 +296,9 @@ mod tests {
         // This should return an error since HTTP rule is required
         let result = extract_method_annotations(&method, "TestService");
         assert!(result.is_err());
-
-        let error_message = result.unwrap_err().to_string();
-        assert!(error_message.contains("has no options - HTTP rule annotation is required"));
+        assert!(matches!(
+            result.unwrap_err(),
+            Error::MissingAnnotation { .. }
+        ));
     }
 }
