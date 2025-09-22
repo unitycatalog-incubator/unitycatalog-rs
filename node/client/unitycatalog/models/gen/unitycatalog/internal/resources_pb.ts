@@ -20,7 +20,7 @@ import type { RecipientInfo } from "../recipients/v1/models_pb";
 import { file_unitycatalog_recipients_v1_models } from "../recipients/v1/models_pb";
 import type { SchemaInfo } from "../schemas/v1/models_pb";
 import { file_unitycatalog_schemas_v1_models } from "../schemas/v1/models_pb";
-import type { ShareInfo } from "../shares/v1/models_pb";
+import type { Share } from "../shares/v1/models_pb";
 import { file_unitycatalog_shares_v1_models } from "../shares/v1/models_pb";
 import type { ColumnInfo, TableInfo } from "../tables/v1/models_pb";
 import { file_unitycatalog_tables_v1_models } from "../tables/v1/models_pb";
@@ -31,7 +31,7 @@ import { file_unitycatalog_tables_v1_models } from "../tables/v1/models_pb";
 export const file_unitycatalog_internal_resources: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiV1bml0eWNhdGFsb2cvaW50ZXJuYWwvcmVzb3VyY2VzLnByb3RvEhV1bml0eWNhdGFsb2cuaW50ZXJuYWwipwQKCFJlc291cmNlEjcKCnNoYXJlX2luZm8YASABKAsyIS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlNoYXJlSW5mb0gAEkYKD2NyZWRlbnRpYWxfaW5mbxgEIAEoCzIrLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsSW5mb0gAEj0KDGNhdGFsb2dfaW5mbxgGIAEoCzIlLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nSW5mb0gAEjoKC3NjaGVtYV9pbmZvGAcgASgLMiMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mb0gAEjcKCnRhYmxlX2luZm8YCCABKAsyIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlSW5mb0gAEjkKC2NvbHVtbl9pbmZvGAkgASgLMiIudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5JbmZvSAASWgoWZXh0ZXJuYWxfbG9jYXRpb25faW5mbxgKIAEoCzI4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm9IABJDCg5yZWNpcGllbnRfaW5mbxgLIAEoCzIpLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm9IAEIKCghyZXNvdXJjZSJ/Cg9PYmplY3RSZWxhdGlvbnMSEgoFb3duZXIYASABKAlIAIgBARIXCgpjcmVhdGVkX2J5GAIgASgJSAGIAQESFwoKdXBkYXRlZF9ieRgDIAEoCUgCiAEBQggKBl9vd25lckINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9ieULmAQoZY29tLnVuaXR5Y2F0YWxvZy5pbnRlcm5hbEIOUmVzb3VyY2VzUHJvdG9QAVpEZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvaW50ZXJuYWyiAgNVSViqAhVVbml0eWNhdGFsb2cuSW50ZXJuYWzKAhVVbml0eWNhdGFsb2dcSW50ZXJuYWziAiFVbml0eWNhdGFsb2dcSW50ZXJuYWxcR1BCTWV0YWRhdGHqAhZVbml0eWNhdGFsb2c6OkludGVybmFsYgZwcm90bzM",
+    "CiV1bml0eWNhdGFsb2cvaW50ZXJuYWwvcmVzb3VyY2VzLnByb3RvEhV1bml0eWNhdGFsb2cuaW50ZXJuYWwingQKCFJlc291cmNlEi4KBXNoYXJlGAEgASgLMh0udW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZUgAEkYKD2NyZWRlbnRpYWxfaW5mbxgEIAEoCzIrLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsSW5mb0gAEj0KDGNhdGFsb2dfaW5mbxgGIAEoCzIlLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nSW5mb0gAEjoKC3NjaGVtYV9pbmZvGAcgASgLMiMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mb0gAEjcKCnRhYmxlX2luZm8YCCABKAsyIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlSW5mb0gAEjkKC2NvbHVtbl9pbmZvGAkgASgLMiIudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5JbmZvSAASWgoWZXh0ZXJuYWxfbG9jYXRpb25faW5mbxgKIAEoCzI4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm9IABJDCg5yZWNpcGllbnRfaW5mbxgLIAEoCzIpLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm9IAEIKCghyZXNvdXJjZSJ/Cg9PYmplY3RSZWxhdGlvbnMSEgoFb3duZXIYASABKAlIAIgBARIXCgpjcmVhdGVkX2J5GAIgASgJSAGIAQESFwoKdXBkYXRlZF9ieRgDIAEoCUgCiAEBQggKBl9vd25lckINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9ieULmAQoZY29tLnVuaXR5Y2F0YWxvZy5pbnRlcm5hbEIOUmVzb3VyY2VzUHJvdG9QAVpEZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvaW50ZXJuYWyiAgNVSViqAhVVbml0eWNhdGFsb2cuSW50ZXJuYWzKAhVVbml0eWNhdGFsb2dcSW50ZXJuYWziAiFVbml0eWNhdGFsb2dcSW50ZXJuYWxcR1BCTWV0YWRhdGHqAhZVbml0eWNhdGFsb2c6OkludGVybmFsYgZwcm90bzM",
     [
       file_unitycatalog_catalogs_v1_models,
       file_unitycatalog_credentials_v1_models,
@@ -55,10 +55,10 @@ export type Resource = Message<"unitycatalog.internal.Resource"> & {
   resource:
     | {
         /**
-         * @generated from field: unitycatalog.shares.v1.ShareInfo share_info = 1;
+         * @generated from field: unitycatalog.shares.v1.Share share = 1;
          */
-        value: ShareInfo;
-        case: "shareInfo";
+        value: Share;
+        case: "share";
       }
     | {
         /**

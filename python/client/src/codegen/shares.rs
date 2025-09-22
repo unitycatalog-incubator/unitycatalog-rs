@@ -14,7 +14,7 @@ impl PyShareClient {
         &self,
         py: Python,
         include_shared_data: Option<bool>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
+    ) -> PyUnityCatalogResult<Share> {
         let mut request = self.client.get();
         request = request.with_include_shared_data(include_shared_data);
         let runtime = get_runtime(py)?;
@@ -31,7 +31,7 @@ impl PyShareClient {
         new_name: Option<String>,
         owner: Option<String>,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
+    ) -> PyUnityCatalogResult<Share> {
         let mut request = self.client.update();
         if let Some(updates) = updates {
             request = request.with_updates(updates);

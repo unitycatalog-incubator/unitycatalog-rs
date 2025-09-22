@@ -34,7 +34,7 @@ pub mod resource {
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Resource {
         #[prost(message, tag = "1")]
-        ShareInfo(super::super::shares::v1::ShareInfo),
+        Share(super::super::shares::v1::Share),
         #[prost(message, tag = "4")]
         CredentialInfo(super::super::credentials::v1::CredentialInfo),
         #[prost(message, tag = "6")]

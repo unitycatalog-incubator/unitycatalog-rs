@@ -25,7 +25,7 @@ message ListSharesRequest {
 // Response to list shares.
 message ListSharesResponse {
   // List of shares.
-  repeated ShareInfo shares = 1;
+  repeated Share shares = 1;
 
   // Opaque pagination token to go to next page based on previous query.
   optional string next_page_token = 2;
@@ -126,6 +126,53 @@ message DeleteShareRequest {
   ];
 }
 
+// Get permissions for a data share.
+message GetPermissionsRequest {
+  // Name of the share.
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The maximum number of results per page that should be returned.
+  optional int32 max_results = 2 [
+    (buf.validate.field).int32.gt = 0,
+    (buf.validate.field).int32.lt = 1000,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Response to list shares.
+message GetPermissionsResponse {
+  // The privileges assigned to each principal
+  repeated PrivilegeAssignment privilege_assignments = 1;
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string next_page_token = 2;
+}
+
+message UpdatePermissionsRequest {
+  // Name of the share.
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Array of permissions change objects.
+  repeated PermissionsChange changes = 2;
+
+  // Whether to return the latest permissions list of the share in the response.
+  optional bool omit_permissions_list = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message UpdatePermissionsResponse {
+  // The privileges assigned to each principal
+  repeated PrivilegeAssignment privilege_assignments = 1;
+}
+
 // Service for managing shares
 service SharesService {
   // List shares.
@@ -135,7 +182,7 @@ service SharesService {
   }
 
   // Create a new share.
-  rpc CreateShare(CreateShareRequest) returns (ShareInfo) {
+  rpc CreateShare(CreateShareRequest) returns (Share) {
     option (google.api.http) = {
       post: "/shares"
       body: "*"
@@ -144,13 +191,13 @@ service SharesService {
   }
 
   // Get a share by name.
-  rpc GetShare(GetShareRequest) returns (ShareInfo) {
+  rpc GetShare(GetShareRequest) returns (Share) {
     option (google.api.http) = {get: "/shares/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetShare"};
   }
 
   // Update a share.
-  rpc UpdateShare(UpdateShareRequest) returns (ShareInfo) {
+  rpc UpdateShare(UpdateShareRequest) returns (Share) {
     option (google.api.http) = {
       patch: "/shares/{name}"
       body: "*"
@@ -162,5 +209,20 @@ service SharesService {
   rpc DeleteShare(DeleteShareRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/shares/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "DeleteShare"};
+  }
+
+  // Gets the permissions for a data share from the metastore.
+  rpc GetPermissions(GetPermissionsRequest) returns (GetPermissionsResponse) {
+    option (google.api.http) = {get: "/shares/{name}/permissions"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "GetPermissions"};
+  }
+
+  // Updates the permissions for a data share in the metastore.
+  rpc UpdatePermissions(UpdatePermissionsRequest) returns (UpdatePermissionsResponse) {
+    option (google.api.http) = {
+      patch: "/shares/{name}/permissions"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "UpdatePermissions"};
   }
 }

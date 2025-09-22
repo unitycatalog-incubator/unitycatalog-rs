@@ -1,7 +1,7 @@
 use bytes::Bytes;
 
 use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableInfo};
-use unitycatalog_common::{ResourceIdent, ResourceName, ShareInfo};
+use unitycatalog_common::{ResourceIdent, ResourceName, Share};
 use unitycatalog_sharing_client::models::sharing::v1::*;
 
 use super::{Policy, ServerHandler, StorageLocationUrl, TableManager};
@@ -38,9 +38,9 @@ impl<T: ResourceStore> SharingExt for T {
         table_ref: &SharingTableReference,
     ) -> Result<StorageLocationUrl> {
         let share_ident = ResourceIdent::share(ResourceName::new([table_ref.share.as_str()]));
-        let share_info: ShareInfo = self.get(&share_ident).await?.0.try_into()?;
+        let share_info: Share = self.get(&share_ident).await?.0.try_into()?;
         let Some(table_object) = share_info
-            .data_objects
+            .objects
             .iter()
             .find(|o| o.shared_as() == &format!("{}.{}", table_ref.schema, table_ref.table))
         else {

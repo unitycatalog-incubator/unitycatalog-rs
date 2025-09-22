@@ -10,7 +10,7 @@ use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as Cr
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
-use unitycatalog_common::models::shares::v1::ShareInfo;
+use unitycatalog_common::models::shares::v1::Share;
 use unitycatalog_common::models::tables::v1::TableInfo;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
@@ -144,7 +144,7 @@ impl PyUnityCatalogClient {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Share>> {
         let stream = self.0.list_shares().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -309,7 +309,7 @@ impl PyUnityCatalogClient {
         py: Python,
         name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
+    ) -> PyUnityCatalogResult<Share> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_share(name);

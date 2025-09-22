@@ -28,7 +28,7 @@ impl ListSharesBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<ShareInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Share>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_shares(&builder.request).await?;
@@ -76,7 +76,7 @@ impl CreateShareBuilder {
     }
 }
 impl IntoFuture for CreateShareBuilder {
-    type Output = Result<ShareInfo>;
+    type Output = Result<Share>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -108,7 +108,7 @@ impl GetShareBuilder {
     }
 }
 impl IntoFuture for GetShareBuilder {
-    type Output = Result<ShareInfo>;
+    type Output = Result<Share>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -155,7 +155,7 @@ impl UpdateShareBuilder {
     }
 }
 impl IntoFuture for UpdateShareBuilder {
-    type Output = Result<ShareInfo>;
+    type Output = Result<Share>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -185,5 +185,79 @@ impl IntoFuture for DeleteShareBuilder {
         let client = self.client;
         let request = self.request;
         Box::pin(async move { client.delete_share(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetPermissionsBuilder {
+    client: ShareClient,
+    request: GetPermissionsRequest,
+}
+impl GetPermissionsBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+        let request = GetPermissionsRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    ///Opaque pagination token to go to next page based on previous query.
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+}
+impl IntoFuture for GetPermissionsBuilder {
+    type Output = Result<GetPermissionsResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_permissions(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct UpdatePermissionsBuilder {
+    client: ShareClient,
+    request: UpdatePermissionsRequest,
+}
+impl UpdatePermissionsBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+        let request = UpdatePermissionsRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    ///Array of permissions change objects.
+    pub fn with_changes<I>(mut self, changes: I) -> Self
+    where
+        I: IntoIterator<Item = PermissionsChange>,
+    {
+        self.request.changes = changes.into_iter().collect();
+        self
+    }
+    ///Whether to return the latest permissions list of the share in the response.
+    pub fn with_omit_permissions_list(
+        mut self,
+        omit_permissions_list: impl Into<Option<bool>>,
+    ) -> Self {
+        self.request.omit_permissions_list = omit_permissions_list.into();
+        self
+    }
+}
+impl IntoFuture for UpdatePermissionsBuilder {
+    type Output = Result<UpdatePermissionsResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.update_permissions(&request).await })
     }
 }

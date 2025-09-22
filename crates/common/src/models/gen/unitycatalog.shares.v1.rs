@@ -7,35 +7,35 @@ pub struct DataObject {
     /// A fully qualified name that uniquely identifies a data object.
     ///
     /// For example, a table's fully qualified name is in the format of <catalog>.<schema>.<table>,
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Type of the data object.
-    #[prost(enumeration="DataObjectType", tag="2")]
+    #[prost(enumeration = "DataObjectType", tag = "2")]
     pub data_object_type: i32,
     /// The time when this data object is added to the share, in epoch milliseconds.
-    #[prost(int64, optional, tag="3")]
+    #[prost(int64, optional, tag = "3")]
     pub added_at: ::core::option::Option<i64>,
     /// Username of the sharer.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub added_by: ::core::option::Option<::prost::alloc::string::String>,
     /// A user-provided comment when adding the data object to the share.
-    #[prost(string, optional, tag="5")]
+    #[prost(string, optional, tag = "5")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A user-provided new name for the data object within the share.
     ///
     /// If this new name is not provided, the object's original name will be used as the shared_as name.
     /// The shared_as name must be unique within a share.
     /// For tables, the new name must follow the format of <schema>.<table>.
-    #[prost(string, optional, tag="6")]
+    #[prost(string, optional, tag = "6")]
     pub shared_as: ::core::option::Option<::prost::alloc::string::String>,
     /// Array of partitions for the shared data.
-    #[prost(string, repeated, tag="7")]
+    #[prost(string, repeated, tag = "7")]
     pub partitions: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Whether to enable cdf or indicate if cdf is enabled on the shared object.
-    #[prost(bool, optional, tag="8")]
+    #[prost(bool, optional, tag = "8")]
     pub enable_cdf: ::core::option::Option<bool>,
     /// Whether to enable or disable sharing of data history. If not specified, the default is DISABLED.
-    #[prost(enumeration="HistoryStatus", optional, tag="9")]
+    #[prost(enumeration = "HistoryStatus", optional, tag = "9")]
     pub history_data_sharing_status: ::core::option::Option<i32>,
     /// The start version associated with the object.
     ///
@@ -44,43 +44,73 @@ pub struct DataObject {
     /// If not specified, clients can only query starting from the version of the object at the time it was added to the share.
     ///
     /// NOTE: The start_version should be <= the current version of the object.
-    #[prost(int64, optional, tag="10")]
+    #[prost(int64, optional, tag = "10")]
     pub start_version: ::core::option::Option<i64>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ShareInfo {
+pub struct Share {
     /// Unique ID of the recipient.
-    #[prost(string, optional, tag="100")]
+    #[prost(string, optional, tag = "100")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
     /// Name of the share.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
+    /// A list of shared data objects within the share.
+    #[prost(message, repeated, tag = "6")]
+    pub objects: ::prost::alloc::vec::Vec<DataObject>,
     /// Username of current owner of share.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
-    // Storage root URL for the share.
-    // optional string storage_root = 4;
-
-    /// A list of shared data objects within the share.
-    #[prost(message, repeated, tag="5")]
-    pub data_objects: ::prost::alloc::vec::Vec<DataObject>,
+    /// Storage Location URL (full path) for the share.
+    #[prost(string, optional, tag = "4")]
+    pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
+    /// Storage root URL for the share.
+    #[prost(string, optional, tag = "5")]
+    pub storage_root: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this share was created, in epoch milliseconds.
-    #[prost(int64, optional, tag="6")]
+    #[prost(int64, optional, tag = "7")]
     pub created_at: ::core::option::Option<i64>,
     /// Username of the creator of the share.
-    #[prost(string, optional, tag="7")]
+    #[prost(string, optional, tag = "8")]
     pub created_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this share was updated, in epoch milliseconds.
-    #[prost(int64, optional, tag="8")]
+    #[prost(int64, optional, tag = "9")]
     pub updated_at: ::core::option::Option<i64>,
     /// Username of share updater.
-    #[prost(string, optional, tag="9")]
+    #[prost(string, optional, tag = "10")]
     pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PrivilegeAssignment {
+    /// The principal (user email address or group name).
+    ///
+    /// For deleted principals, principal is empty while principal_id is populated.
+    #[prost(string, tag = "1")]
+    pub principal: ::prost::alloc::string::String,
+    /// The privileges assigned to the principal.
+    #[prost(string, repeated, tag = "2")]
+    pub privileges: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PermissionsChange {
+    /// The principal (user email address or group name).
+    #[prost(string, tag = "1")]
+    pub principal: ::prost::alloc::string::String,
+    /// The set of privileges to add.
+    #[prost(string, repeated, tag = "2")]
+    pub add: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// The set of privileges to remove.
+    #[prost(string, repeated, tag = "3")]
+    pub remove: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -148,10 +178,10 @@ impl HistoryStatus {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSharesRequest {
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="1")]
+    #[prost(int32, optional, tag = "1")]
     pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response to list shares.
@@ -160,10 +190,10 @@ pub struct ListSharesRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSharesResponse {
     /// List of shares.
-    #[prost(message, repeated, tag="1")]
-    pub shares: ::prost::alloc::vec::Vec<ShareInfo>,
+    #[prost(message, repeated, tag = "1")]
+    pub shares: ::prost::alloc::vec::Vec<Share>,
     /// Opaque pagination token to go to next page based on previous query.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Creates a new share for data objects.
@@ -175,10 +205,10 @@ pub struct ListSharesResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateShareRequest {
     /// Name of the share.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a share by name.
@@ -187,10 +217,10 @@ pub struct CreateShareRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetShareRequest {
     /// Name of the share.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Query for data to include in the share.
-    #[prost(bool, optional, tag="2")]
+    #[prost(bool, optional, tag = "2")]
     pub include_shared_data: ::core::option::Option<bool>,
 }
 /// Data object update.
@@ -199,10 +229,10 @@ pub struct GetShareRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DataObjectUpdate {
     /// Name of the share.
-    #[prost(enumeration="Action", tag="1")]
+    #[prost(enumeration = "Action", tag = "1")]
     pub action: i32,
     /// User-provided free-form text description.
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub data_object: ::core::option::Option<DataObject>,
 }
 /// Update a share.
@@ -213,19 +243,19 @@ pub struct DataObjectUpdate {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateShareRequest {
     /// Name of the share.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Array of shared data object updates.
-    #[prost(message, repeated, tag="2")]
+    #[prost(message, repeated, tag = "2")]
     pub updates: ::prost::alloc::vec::Vec<DataObjectUpdate>,
     /// A new name for the share.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub new_name: ::core::option::Option<::prost::alloc::string::String>,
     /// Owner of the share.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="5")]
+    #[prost(string, optional, tag = "5")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Delete a share.
@@ -236,8 +266,57 @@ pub struct UpdateShareRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteShareRequest {
     /// Name of the share.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
+}
+/// Get permissions for a data share.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetPermissionsRequest {
+    /// Name of the share.
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// The maximum number of results per page that should be returned.
+    #[prost(int32, optional, tag = "2")]
+    pub max_results: ::core::option::Option<i32>,
+    /// Opaque pagination token to go to next page based on previous query.
+    #[prost(string, optional, tag = "3")]
+    pub page_token: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// Response to list shares.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetPermissionsResponse {
+    /// The privileges assigned to each principal
+    #[prost(message, repeated, tag = "1")]
+    pub privilege_assignments: ::prost::alloc::vec::Vec<PrivilegeAssignment>,
+    /// Opaque pagination token to go to next page based on previous query.
+    #[prost(string, optional, tag = "2")]
+    pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdatePermissionsRequest {
+    /// Name of the share.
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Array of permissions change objects.
+    #[prost(message, repeated, tag = "2")]
+    pub changes: ::prost::alloc::vec::Vec<PermissionsChange>,
+    /// Whether to return the latest permissions list of the share in the response.
+    #[prost(bool, optional, tag = "3")]
+    pub omit_permissions_list: ::core::option::Option<bool>,
+}
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdatePermissionsResponse {
+    /// The privileges assigned to each principal
+    #[prost(message, repeated, tag = "1")]
+    pub privilege_assignments: ::prost::alloc::vec::Vec<PrivilegeAssignment>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]

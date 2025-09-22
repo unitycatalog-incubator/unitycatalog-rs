@@ -166,6 +166,14 @@ impl MethodHandler<'_> {
             .map(|t| extract_type_ident(&t.info.name))
     }
 
+    pub(crate) fn list_output_field(&self) -> Option<&MessageField> {
+        self.output_message()?
+            .info
+            .fields
+            .iter()
+            .find(|f| !f.name.contains("page_token"))
+    }
+
     pub(crate) fn input_message(&self) -> Option<MessageMeta<'_>> {
         if self.plan.metadata.input_type == "Empty" {
             return None;

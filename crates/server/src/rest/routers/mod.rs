@@ -88,6 +88,8 @@ pub fn create_shares_router<T: ShareHandler + Clone>(handler: T) -> axum::Router
         .route("/shares/{name}", get(get_share::<T>))
         .route("/shares/{name}", patch(update_share::<T>))
         .route("/shares/{name}", delete(delete_share::<T>))
+        .route("/shares/{name}/permissions", get(get_permissions::<T>))
+        .route("/shares/{name}/permissions", patch(update_permissions::<T>))
         .with_state(handler)
 }
 

@@ -158,8 +158,8 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let client_call = inner_resource_client_call(method, true);
     let builder_calls = generate_builder_pattern(method, true);
 
-    let response_type = extract_list_inner_type(&method.output_type().unwrap().to_string());
-    let response_type = format_ident!("{}", response_type);
+    let items_field = method.list_output_field().unwrap();
+    let response_type = method.field_type(&items_field.unified_type, RenderContext::ReturnType);
 
     quote! {
         #pyo3_signature
@@ -167,7 +167,7 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
             &self,
             py: Python,
             #(#param_defs,)*
-        ) -> PyUnityCatalogResult<Vec<#response_type>> {
+        ) -> PyUnityCatalogResult<#response_type> {
             let mut request = #client_call;
             #(#builder_calls)*
             let runtime = get_runtime(py)?;
@@ -528,27 +528,6 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
     }
 
     builder_calls
-}
-
-/// Extract inner type from List response types
-fn extract_list_inner_type(response_type: &str) -> String {
-    // Convert "ListCatalogsResponse" -> "CatalogInfo"
-    // Convert "ListSchemasResponse" -> "SchemaInfo"
-    if let Some(stripped) = response_type.strip_prefix("List") {
-        if let Some(base) = stripped.strip_suffix("Response") {
-            // Handle plural -> singular conversion
-            let singular = if base.ends_with("s") {
-                &base[..base.len() - 1]
-            } else {
-                base
-            };
-            format!("{}Info", singular)
-        } else {
-            response_type.to_string()
-        }
-    } else {
-        response_type.to_string()
-    }
 }
 
 /// Generate resource accessor method for the main client

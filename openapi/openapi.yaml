@@ -822,7 +822,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ShareInfo"
+                $ref: "#/components/schemas/Share"
         default:
           description: Default error response
           content:
@@ -853,7 +853,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ShareInfo"
+                $ref: "#/components/schemas/Share"
         default:
           description: Default error response
           content:
@@ -906,7 +906,75 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ShareInfo"
+                $ref: "#/components/schemas/Share"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /shares/{name}/permissions:
+    get:
+      tags:
+        - SharesService
+      description: Gets the permissions for a data share from the metastore.
+      operationId: GetPermissions
+      parameters:
+        - name: name
+          in: path
+          description: Name of the share.
+          required: true
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Opaque pagination token to go to next page based on previous query.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPermissionsResponse"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    patch:
+      tags:
+        - SharesService
+      description: Updates the permissions for a data share in the metastore.
+      operationId: UpdatePermissions
+      parameters:
+        - name: name
+          in: path
+          description: Name of the share.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePermissionsRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdatePermissionsResponse"
         default:
           description: Default error response
           content:
@@ -2136,6 +2204,20 @@ components:
         - operation
       title: Generate Temporary Table Credentials Request
       type: object
+    GetPermissionsResponse:
+      additionalProperties: false
+      description: Response to list shares.
+      properties:
+        next_page_token:
+          description: Opaque pagination token to go to next page based on previous query.
+          type: string
+        privilege_assignments:
+          description: The privileges assigned to each principal
+          items:
+            $ref: "#/$defs/unitycatalog.shares.v1.PrivilegeAssignment.schema.strict.json"
+          type: array
+      title: Get Permissions Response
+      type: object
     GetTableExistsResponse:
       additionalProperties: false
       properties:
@@ -2479,6 +2561,42 @@ components:
           type: array
       title: List Volumes Response
       type: object
+    PermissionsChange:
+      additionalProperties: false
+      properties:
+        add:
+          description: The set of privileges to add.
+          items:
+            type: string
+          type: array
+        principal:
+          description: The principal (user email address or group name).
+          type: string
+        remove:
+          description: The set of privileges to remove.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Permissions Change
+      type: object
+    PrivilegeAssignment:
+      additionalProperties: false
+      properties:
+        principal:
+          description: For deleted principals, principal is empty while principal_id is populated.
+          title: The principal (user email address or group name).
+          type: string
+        privileges:
+          description: The privileges assigned to the principal.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Privilege Assignment
+      type: object
     R2TemporaryCredentials:
       additionalProperties: false
       properties:
@@ -2631,7 +2749,7 @@ components:
         - full_name
       title: Schema Info
       type: object
-    ShareInfo:
+    Share:
       additionalProperties: false
       properties:
         added_at:
@@ -2925,6 +3043,42 @@ components:
         - name
       title: Update External Location Request
       type: object
+    UpdatePermissionsRequest:
+      additionalProperties: false
+      properties:
+        add:
+          description: The set of privileges to add.
+          items:
+            type: string
+          type: array
+        principal:
+          description: The principal (user email address or group name).
+          type: string
+        remove:
+          description: The set of privileges to remove.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Permissions Change
+      type: object
+    UpdatePermissionsResponse:
+      additionalProperties: false
+      properties:
+        principal:
+          description: For deleted principals, principal is empty while principal_id is populated.
+          title: The principal (user email address or group name).
+          type: string
+        privileges:
+          description: The privileges assigned to the principal.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Privilege Assignment
+      type: object
     UpdateRecipientRequest:
       additionalProperties: false
       description: Update a recipient
@@ -3167,6 +3321,28 @@ components:
       required:
         - name
       title: Get Share Request
+      type: object
+    GetPermissionsRequest:
+      additionalProperties: false
+      description: Get permissions for a data share.
+      properties:
+        max_results:
+          description: The maximum number of results per page that should be returned.
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          maximum: 1000
+          exclusiveMaximum: true
+        name:
+          description: Name of the share.
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        page_token:
+          description: Opaque pagination token to go to next page based on previous query.
+          type: string
+      required:
+        - name
+      title: Get Permissions Request
       type: object
     DeleteRecipientRequest:
       additionalProperties: false

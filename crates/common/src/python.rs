@@ -9,8 +9,7 @@ use crate::models::external_locations::v1::ExternalLocationInfo;
 use crate::models::recipients::v1::{RecipientInfo, RecipientToken};
 use crate::models::schemas::v1::SchemaInfo;
 use crate::models::shares::v1::{
-    Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus,
-    ShareInfo,
+    Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, Share,
 };
 use crate::models::tables::v1::{ColumnInfo, TableInfo};
 
@@ -270,10 +269,10 @@ impl ColumnInfo {
 }
 
 #[pymethods]
-impl ShareInfo {
+impl Share {
     pub fn __repr__(&self) -> String {
         format!(
-            "ShareInfo(id={}, name={}, comment={}, owner={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
+            "Share(id={}, name={}, comment={}, owner={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
             self.id.as_ref().unwrap_or(&"None".to_owned()),
             self.name,
             self.comment.as_ref().unwrap_or(&"None".to_owned()),

@@ -152,8 +152,8 @@ impl serde::Serialize for Resource {
         let mut struct_ser = serializer.serialize_struct("unitycatalog.internal.Resource", len)?;
         if let Some(v) = self.resource.as_ref() {
             match v {
-                resource::Resource::ShareInfo(v) => {
-                    struct_ser.serialize_field("share_info", v)?;
+                resource::Resource::Share(v) => {
+                    struct_ser.serialize_field("share", v)?;
                 }
                 resource::Resource::CredentialInfo(v) => {
                     struct_ser.serialize_field("credential_info", v)?;
@@ -188,8 +188,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "share_info",
-            "shareInfo",
+            "share",
             "credential_info",
             "credentialInfo",
             "catalog_info",
@@ -208,7 +207,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            ShareInfo,
+            Share,
             CredentialInfo,
             CatalogInfo,
             SchemaInfo,
@@ -241,7 +240,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
                         E: serde::de::Error,
                     {
                         match value {
-                            "shareInfo" | "share_info" => Ok(GeneratedField::ShareInfo),
+                            "share" => Ok(GeneratedField::Share),
                             "credentialInfo" | "credential_info" => {
                                 Ok(GeneratedField::CredentialInfo)
                             }
@@ -275,13 +274,13 @@ impl<'de> serde::Deserialize<'de> for Resource {
                 let mut resource__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::ShareInfo => {
+                        GeneratedField::Share => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("shareInfo"));
+                                return Err(serde::de::Error::duplicate_field("share"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ShareInfo);
+                                .map(resource::Resource::Share);
                         }
                         GeneratedField::CredentialInfo => {
                             if resource__.is_some() {

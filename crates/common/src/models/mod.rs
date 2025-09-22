@@ -9,7 +9,7 @@ pub use object::Object;
 pub use recipients::v1::RecipientInfo;
 pub use resources::*;
 pub use schemas::v1::SchemaInfo;
-pub use shares::v1::ShareInfo;
+pub use shares::v1::Share;
 pub use tables::v1::{ColumnInfo, TableInfo};
 pub use volumes::v1::{VolumeInfo, VolumeType};
 
@@ -97,7 +97,7 @@ pub(crate) mod internal {
 impl ObjectLabel {
     pub fn to_ident(&self, id: impl Into<ResourceRef>) -> ResourceIdent {
         match self {
-            ObjectLabel::ShareInfo => ResourceIdent::share(id),
+            ObjectLabel::Share => ResourceIdent::share(id),
             ObjectLabel::CredentialInfo => ResourceIdent::credential(id),
             ObjectLabel::CatalogInfo => ResourceIdent::catalog(id),
             ObjectLabel::SchemaInfo => ResourceIdent::schema(id),

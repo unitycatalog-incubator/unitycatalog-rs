@@ -292,7 +292,7 @@ impl PyUnityCatalogClientABC {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Share>> {
         let mut request = self.client.list_shares();
         request = request.with_max_results(max_results);
         let runtime = get_runtime(py)?;
@@ -308,7 +308,7 @@ impl PyUnityCatalogClientABC {
         py: Python,
         name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
+    ) -> PyUnityCatalogResult<Share> {
         let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
