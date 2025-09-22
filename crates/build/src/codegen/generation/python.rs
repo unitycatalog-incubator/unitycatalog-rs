@@ -154,7 +154,7 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
 
     let (param_defs, pyo3_signature) = collection_method_parameters(method, true);
-    let client_call = inner_resource_client_call(method, true);
+    let client_call = inner_resource_client_call(method);
     let builder_calls = generate_builder_pattern(method, true);
 
     let items_field = method.list_output_field().unwrap();
@@ -183,7 +183,7 @@ fn collection_create_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
     let response_type = method.output_type().unwrap();
     let (param_defs, pyo3_signature) = collection_method_parameters(method, false);
-    let client_call = inner_resource_client_call(method, false);
+    let client_call = inner_resource_client_call(method);
     let builder_calls = generate_builder_pattern(method, false);
 
     quote! {
@@ -209,7 +209,7 @@ fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let response_type = method.output_type();
     let (param_defs, pyo3_signature) = resource_method_parameters(method);
-    let client_call = inner_resource_client_call(method, false);
+    let client_call = inner_resource_client_call(method);
     let builder_calls = generate_builder_pattern(method, false);
 
     quote! {
@@ -234,7 +234,7 @@ fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 fn resource_delete_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let (param_defs, pyo3_signature) = resource_method_parameters(method);
-    let client_call = inner_resource_client_call(method, false);
+    let client_call = inner_resource_client_call(method);
     let builder_calls = generate_builder_pattern(method, false);
 
     quote! {
@@ -321,7 +321,7 @@ fn render_pyo3(signature_parts: &[&RequestParam]) -> TokenStream {
 /// Specifically this assumes that all path parameters which identify
 /// the resource are encoded in the client and don't need to be passed
 /// as arguments.
-fn inner_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> TokenStream {
+fn inner_resource_client_call(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let args = method
         .required_parameters()
@@ -339,7 +339,6 @@ fn inner_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> Tok
 fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<TokenStream> {
     let mut builder_calls = Vec::new();
 
-    // Optional parameters become builder calls
     for query_param in method.plan.query_parameters() {
         if query_param.is_optional() && !(is_list && query_param.name == "page_token") {
             let param_name =
