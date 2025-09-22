@@ -22,7 +22,7 @@ impl PyTableClient {
         include_delta_metadata: Option<bool>,
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<TableInfo> {
+    ) -> PyUnityCatalogResult<Table> {
         let mut request = self.client.get();
         request = request.with_include_delta_metadata(include_delta_metadata);
         request = request.with_include_browse(include_browse);

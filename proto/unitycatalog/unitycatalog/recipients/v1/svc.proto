@@ -25,7 +25,7 @@ message ListRecipientsRequest {
 // Response to list recipients.
 message ListRecipientsResponse {
   // List of recipients.
-  repeated RecipientInfo recipients = 1;
+  repeated Recipient recipients = 1;
 
   // Opaque pagination token to go to next page based on previous query.
   optional string next_page_token = 2;
@@ -125,7 +125,7 @@ service RecipientsService {
   }
 
   // Create a new recipient.
-  rpc CreateRecipient(CreateRecipientRequest) returns (RecipientInfo) {
+  rpc CreateRecipient(CreateRecipientRequest) returns (Recipient) {
     option (google.api.http) = {
       post: "/recipients"
       body: "*"
@@ -134,13 +134,13 @@ service RecipientsService {
   }
 
   // Get a recipient by name.
-  rpc GetRecipient(GetRecipientRequest) returns (RecipientInfo) {
+  rpc GetRecipient(GetRecipientRequest) returns (Recipient) {
     option (google.api.http) = {get: "/recipients/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetRecipient"};
   }
 
   // Update a recipient.
-  rpc UpdateRecipient(UpdateRecipientRequest) returns (RecipientInfo) {
+  rpc UpdateRecipient(UpdateRecipientRequest) returns (Recipient) {
     option (google.api.http) = {
       patch: "/recipients/{name}"
       body: "*"

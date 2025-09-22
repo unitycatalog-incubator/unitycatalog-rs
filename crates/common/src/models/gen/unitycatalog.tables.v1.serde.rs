@@ -1,5 +1,5 @@
 // @generated
-impl serde::Serialize for ColumnInfo {
+impl serde::Serialize for Column {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -43,8 +43,7 @@ impl serde::Serialize for ColumnInfo {
         if self.column_id.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.ColumnInfo", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.Column", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -87,7 +86,7 @@ impl serde::Serialize for ColumnInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for ColumnInfo {
+impl<'de> serde::Deserialize<'de> for Column {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -180,13 +179,13 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = ColumnInfo;
+            type Value = Column;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.tables.v1.ColumnInfo")
+                formatter.write_str("struct unitycatalog.tables.v1.Column")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ColumnInfo, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Column, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
@@ -289,7 +288,7 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                         }
                     }
                 }
-                Ok(ColumnInfo {
+                Ok(Column {
                     name: name__.unwrap_or_default(),
                     type_text: type_text__.unwrap_or_default(),
                     type_json: type_json__.unwrap_or_default(),
@@ -305,11 +304,7 @@ impl<'de> serde::Deserialize<'de> for ColumnInfo {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.ColumnInfo",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.Column", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ColumnTypeName {
@@ -2004,7 +1999,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
         )
     }
 }
-impl serde::Serialize for TableInfo {
+impl serde::Serialize for Table {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -2066,8 +2061,7 @@ impl serde::Serialize for TableInfo {
         if self.table_id.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.TableInfo", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.Table", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -2137,7 +2131,7 @@ impl serde::Serialize for TableInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for TableInfo {
+impl<'de> serde::Deserialize<'de> for Table {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -2255,13 +2249,13 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = TableInfo;
+            type Value = Table;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.tables.v1.TableInfo")
+                formatter.write_str("struct unitycatalog.tables.v1.Table")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<TableInfo, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Table, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
@@ -2408,7 +2402,7 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                         }
                     }
                 }
-                Ok(TableInfo {
+                Ok(Table {
                     name: name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
                     schema_name: schema_name__.unwrap_or_default(),
@@ -2430,11 +2424,7 @@ impl<'de> serde::Deserialize<'de> for TableInfo {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.TableInfo",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.Table", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for TableSummary {

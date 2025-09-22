@@ -1,17 +1,17 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub use catalogs::v1::CatalogInfo;
-pub use credentials::v1::CredentialInfo;
-pub use external_locations::v1::ExternalLocationInfo;
+pub use catalogs::v1::Catalog;
+pub use credentials::v1::Credential;
+pub use external_locations::v1::ExternalLocation;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
-pub use recipients::v1::RecipientInfo;
+pub use recipients::v1::Recipient;
 pub use resources::*;
-pub use schemas::v1::SchemaInfo;
-pub use shares::v1::ShareInfo;
-pub use tables::v1::{ColumnInfo, TableInfo};
-pub use volumes::v1::{VolumeInfo, VolumeType};
+pub use schemas::v1::Schema;
+pub use shares::v1::Share;
+pub use tables::v1::{Column, Table};
+pub use volumes::v1::{Volume, VolumeType};
 
 mod object;
 mod resources;
@@ -97,14 +97,14 @@ pub(crate) mod internal {
 impl ObjectLabel {
     pub fn to_ident(&self, id: impl Into<ResourceRef>) -> ResourceIdent {
         match self {
-            ObjectLabel::ShareInfo => ResourceIdent::share(id),
-            ObjectLabel::CredentialInfo => ResourceIdent::credential(id),
-            ObjectLabel::CatalogInfo => ResourceIdent::catalog(id),
-            ObjectLabel::SchemaInfo => ResourceIdent::schema(id),
-            ObjectLabel::TableInfo => ResourceIdent::table(id),
-            ObjectLabel::ExternalLocationInfo => ResourceIdent::external_location(id),
-            ObjectLabel::RecipientInfo => ResourceIdent::recipient(id),
-            ObjectLabel::ColumnInfo => ResourceIdent::column(id),
+            ObjectLabel::Share => ResourceIdent::share(id),
+            ObjectLabel::Credential => ResourceIdent::credential(id),
+            ObjectLabel::Catalog => ResourceIdent::catalog(id),
+            ObjectLabel::Schema => ResourceIdent::schema(id),
+            ObjectLabel::Table => ResourceIdent::table(id),
+            ObjectLabel::ExternalLocation => ResourceIdent::external_location(id),
+            ObjectLabel::Recipient => ResourceIdent::recipient(id),
+            ObjectLabel::Column => ResourceIdent::column(id),
         }
     }
 }

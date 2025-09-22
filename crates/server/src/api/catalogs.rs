@@ -15,14 +15,14 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         &self,
         request: CreateCatalogRequest,
         context: RequestContext,
-    ) -> Result<CatalogInfo> {
+    ) -> Result<Catalog> {
         self.check_required(&request, context.as_ref()).await?;
         let catalog_type = if request.provider_name.is_some() {
             CatalogType::DeltasharingCatalog
         } else {
             CatalogType::ManagedCatalog
         };
-        let resource = CatalogInfo {
+        let resource = Catalog {
             name: request.name,
             comment: request.comment,
             properties: request.properties,
@@ -54,7 +54,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         &self,
         request: GetCatalogRequest,
         context: RequestContext,
-    ) -> Result<CatalogInfo> {
+    ) -> Result<Catalog> {
         self.check_required(&request, context.recipient()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
@@ -67,7 +67,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::CatalogInfo,
+                &ObjectLabel::Catalog,
                 None,
                 request.max_results.map(|v| v as usize),
                 request.page_token,
@@ -84,10 +84,10 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         &self,
         request: UpdateCatalogRequest,
         context: RequestContext,
-    ) -> Result<CatalogInfo> {
+    ) -> Result<Catalog> {
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
-        let resource = CatalogInfo {
+        let resource = Catalog {
             name: request.new_name.unwrap_or(request.name),
             comment: request.comment,
             properties: request.properties,

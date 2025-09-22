@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 use unitycatalog_derive::object_conversions;
 use uuid::Uuid;
 
-use super::ExternalLocationInfo;
+use super::ExternalLocation;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    CatalogInfo, ColumnInfo, CredentialInfo, ObjectLabel, RecipientInfo, Resource, ResourceExt,
-    ResourceName, ResourceRef, SchemaInfo, ShareInfo, TableInfo,
+    Catalog, Column, Credential, ObjectLabel, Recipient, Resource, ResourceExt, ResourceName,
+    ResourceRef, Schema, Share, Table,
 };
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
@@ -48,40 +48,40 @@ impl ResourceExt for Object {
 impl ResourceExt for Resource {
     fn resource_label(&self) -> &ObjectLabel {
         match self {
-            Resource::ShareInfo(_) => &ObjectLabel::ShareInfo,
-            Resource::CredentialInfo(_) => &ObjectLabel::CredentialInfo,
-            Resource::CatalogInfo(_) => &ObjectLabel::CatalogInfo,
-            Resource::SchemaInfo(_) => &ObjectLabel::SchemaInfo,
-            Resource::TableInfo(_) => &ObjectLabel::TableInfo,
-            Resource::ExternalLocationInfo(_) => &ObjectLabel::ExternalLocationInfo,
-            Resource::RecipientInfo(_) => &ObjectLabel::RecipientInfo,
-            Resource::ColumnInfo(_) => &ObjectLabel::ColumnInfo,
+            Resource::Share(_) => &ObjectLabel::Share,
+            Resource::Credential(_) => &ObjectLabel::Credential,
+            Resource::Catalog(_) => &ObjectLabel::Catalog,
+            Resource::Schema(_) => &ObjectLabel::Schema,
+            Resource::Table(_) => &ObjectLabel::Table,
+            Resource::ExternalLocation(_) => &ObjectLabel::ExternalLocation,
+            Resource::Recipient(_) => &ObjectLabel::Recipient,
+            Resource::Column(_) => &ObjectLabel::Column,
         }
     }
 
     fn resource_name(&self) -> ResourceName {
         match self {
-            Resource::ShareInfo(obj) => obj.resource_name(),
-            Resource::CredentialInfo(obj) => obj.resource_name(),
-            Resource::CatalogInfo(obj) => obj.resource_name(),
-            Resource::SchemaInfo(obj) => obj.resource_name(),
-            Resource::TableInfo(obj) => obj.resource_name(),
-            Resource::ExternalLocationInfo(obj) => obj.resource_name(),
-            Resource::RecipientInfo(obj) => obj.resource_name(),
-            Resource::ColumnInfo(obj) => obj.resource_name(),
+            Resource::Share(obj) => obj.resource_name(),
+            Resource::Credential(obj) => obj.resource_name(),
+            Resource::Catalog(obj) => obj.resource_name(),
+            Resource::Schema(obj) => obj.resource_name(),
+            Resource::Table(obj) => obj.resource_name(),
+            Resource::ExternalLocation(obj) => obj.resource_name(),
+            Resource::Recipient(obj) => obj.resource_name(),
+            Resource::Column(obj) => obj.resource_name(),
         }
     }
 
     fn resource_ref(&self) -> ResourceRef {
         match self {
-            Resource::ShareInfo(obj) => obj.resource_ref(),
-            Resource::CredentialInfo(obj) => obj.resource_ref(),
-            Resource::CatalogInfo(obj) => obj.resource_ref(),
-            Resource::SchemaInfo(obj) => obj.resource_ref(),
-            Resource::TableInfo(obj) => obj.resource_ref(),
-            Resource::ExternalLocationInfo(obj) => obj.resource_ref(),
-            Resource::RecipientInfo(obj) => obj.resource_ref(),
-            Resource::ColumnInfo(obj) => obj.resource_ref(),
+            Resource::Share(obj) => obj.resource_ref(),
+            Resource::Credential(obj) => obj.resource_ref(),
+            Resource::Catalog(obj) => obj.resource_ref(),
+            Resource::Schema(obj) => obj.resource_ref(),
+            Resource::Table(obj) => obj.resource_ref(),
+            Resource::ExternalLocation(obj) => obj.resource_ref(),
+            Resource::Recipient(obj) => obj.resource_ref(),
+            Resource::Column(obj) => obj.resource_ref(),
         }
     }
 }
@@ -91,14 +91,14 @@ impl TryFrom<Resource> for Object {
 
     fn try_from(resource: Resource) -> Result<Self, Self::Error> {
         match resource {
-            Resource::ShareInfo(obj) => obj.try_into(),
-            Resource::CredentialInfo(obj) => obj.try_into(),
-            Resource::CatalogInfo(obj) => obj.try_into(),
-            Resource::SchemaInfo(obj) => obj.try_into(),
-            Resource::TableInfo(obj) => obj.try_into(),
-            Resource::ExternalLocationInfo(obj) => obj.try_into(),
-            Resource::RecipientInfo(obj) => obj.try_into(),
-            Resource::ColumnInfo(obj) => obj.try_into(),
+            Resource::Share(obj) => obj.try_into(),
+            Resource::Credential(obj) => obj.try_into(),
+            Resource::Catalog(obj) => obj.try_into(),
+            Resource::Schema(obj) => obj.try_into(),
+            Resource::Table(obj) => obj.try_into(),
+            Resource::ExternalLocation(obj) => obj.try_into(),
+            Resource::Recipient(obj) => obj.try_into(),
+            Resource::Column(obj) => obj.try_into(),
         }
     }
 }
@@ -108,22 +108,20 @@ impl TryFrom<Object> for Resource {
 
     fn try_from(obj: Object) -> Result<Self, Self::Error> {
         match obj.label {
-            ObjectLabel::ShareInfo => Ok(Resource::ShareInfo(obj.try_into()?)),
-            ObjectLabel::CredentialInfo => Ok(Resource::CredentialInfo(obj.try_into()?)),
-            ObjectLabel::CatalogInfo => Ok(Resource::CatalogInfo(obj.try_into()?)),
-            ObjectLabel::SchemaInfo => Ok(Resource::SchemaInfo(obj.try_into()?)),
-            ObjectLabel::TableInfo => Ok(Resource::TableInfo(obj.try_into()?)),
-            ObjectLabel::ExternalLocationInfo => {
-                Ok(Resource::ExternalLocationInfo(obj.try_into()?))
-            }
-            ObjectLabel::RecipientInfo => Ok(Resource::RecipientInfo(obj.try_into()?)),
-            ObjectLabel::ColumnInfo => Ok(Resource::ColumnInfo(obj.try_into()?)),
+            ObjectLabel::Share => Ok(Resource::Share(obj.try_into()?)),
+            ObjectLabel::Credential => Ok(Resource::Credential(obj.try_into()?)),
+            ObjectLabel::Catalog => Ok(Resource::Catalog(obj.try_into()?)),
+            ObjectLabel::Schema => Ok(Resource::Schema(obj.try_into()?)),
+            ObjectLabel::Table => Ok(Resource::Table(obj.try_into()?)),
+            ObjectLabel::ExternalLocation => Ok(Resource::ExternalLocation(obj.try_into()?)),
+            ObjectLabel::Recipient => Ok(Resource::Recipient(obj.try_into()?)),
+            ObjectLabel::Column => Ok(Resource::Column(obj.try_into()?)),
         }
     }
 }
 
-impl From<TableInfo> for TableSummary {
-    fn from(table: TableInfo) -> Self {
+impl From<Table> for TableSummary {
+    fn from(table: Table) -> Self {
         TableSummary {
             table_type: table.table_type,
             full_name: table.full_name,
@@ -132,12 +130,12 @@ impl From<TableInfo> for TableSummary {
 }
 
 object_conversions!(
-    ExternalLocationInfo, ObjectLabel::ExternalLocationInfo, external_location_id, [name], true;
-    ShareInfo, ObjectLabel::ShareInfo, id, [name], true;
-    CatalogInfo, ObjectLabel::CatalogInfo, id, [name], true;
-    SchemaInfo, ObjectLabel::SchemaInfo, schema_id, [catalog_name, name], true;
-    TableInfo, ObjectLabel::TableInfo, table_id, [catalog_name, schema_name, name], true;
-    ColumnInfo, ObjectLabel::ColumnInfo, column_id, [name], true;
-    CredentialInfo, ObjectLabel::CredentialInfo, id, [name], true;
-    RecipientInfo, ObjectLabel::RecipientInfo, id, [name], true;
+    ExternalLocation, ObjectLabel::ExternalLocation, external_location_id, [name], true;
+    Share, ObjectLabel::Share, id, [name], true;
+    Catalog, ObjectLabel::Catalog, id, [name], true;
+    Schema, ObjectLabel::Schema, schema_id, [catalog_name, name], true;
+    Table, ObjectLabel::Table, table_id, [catalog_name, schema_name, name], true;
+    Column, ObjectLabel::Column, column_id, [name], true;
+    Credential, ObjectLabel::Credential, id, [name], true;
+    Recipient, ObjectLabel::Recipient, id, [name], true;
 );

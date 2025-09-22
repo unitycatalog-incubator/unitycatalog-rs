@@ -1,143 +1,4 @@
 // @generated
-impl serde::Serialize for ObjectRelations {
-    #[allow(deprecated)]
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut len = 0;
-        if self.owner.is_some() {
-            len += 1;
-        }
-        if self.created_by.is_some() {
-            len += 1;
-        }
-        if self.updated_by.is_some() {
-            len += 1;
-        }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.internal.ObjectRelations", len)?;
-        if let Some(v) = self.owner.as_ref() {
-            struct_ser.serialize_field("owner", v)?;
-        }
-        if let Some(v) = self.created_by.as_ref() {
-            struct_ser.serialize_field("created_by", v)?;
-        }
-        if let Some(v) = self.updated_by.as_ref() {
-            struct_ser.serialize_field("updated_by", v)?;
-        }
-        struct_ser.end()
-    }
-}
-impl<'de> serde::Deserialize<'de> for ObjectRelations {
-    #[allow(deprecated)]
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "owner",
-            "created_by",
-            "createdBy",
-            "updated_by",
-            "updatedBy",
-        ];
-
-        #[allow(clippy::enum_variant_names)]
-        enum GeneratedField {
-            Owner,
-            CreatedBy,
-            UpdatedBy,
-            __SkipField__,
-        }
-        impl<'de> serde::Deserialize<'de> for GeneratedField {
-            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                struct GeneratedVisitor;
-
-                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-                    type Value = GeneratedField;
-
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
-                        write!(formatter, "expected one of: {:?}", &FIELDS)
-                    }
-
-                    #[allow(unused_variables)]
-                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
-                    where
-                        E: serde::de::Error,
-                    {
-                        match value {
-                            "owner" => Ok(GeneratedField::Owner),
-                            "createdBy" | "created_by" => Ok(GeneratedField::CreatedBy),
-                            "updatedBy" | "updated_by" => Ok(GeneratedField::UpdatedBy),
-                            _ => Ok(GeneratedField::__SkipField__),
-                        }
-                    }
-                }
-                deserializer.deserialize_identifier(GeneratedVisitor)
-            }
-        }
-        struct GeneratedVisitor;
-        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = ObjectRelations;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.internal.ObjectRelations")
-            }
-
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ObjectRelations, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
-            {
-                let mut owner__ = None;
-                let mut created_by__ = None;
-                let mut updated_by__ = None;
-                while let Some(k) = map_.next_key()? {
-                    match k {
-                        GeneratedField::Owner => {
-                            if owner__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("owner"));
-                            }
-                            owner__ = map_.next_value()?;
-                        }
-                        GeneratedField::CreatedBy => {
-                            if created_by__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("createdBy"));
-                            }
-                            created_by__ = map_.next_value()?;
-                        }
-                        GeneratedField::UpdatedBy => {
-                            if updated_by__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("updatedBy"));
-                            }
-                            updated_by__ = map_.next_value()?;
-                        }
-                        GeneratedField::__SkipField__ => {
-                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
-                        }
-                    }
-                }
-                Ok(ObjectRelations {
-                    owner: owner__,
-                    created_by: created_by__,
-                    updated_by: updated_by__,
-                })
-            }
-        }
-        deserializer.deserialize_struct(
-            "unitycatalog.internal.ObjectRelations",
-            FIELDS,
-            GeneratedVisitor,
-        )
-    }
-}
 impl serde::Serialize for Resource {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -152,29 +13,29 @@ impl serde::Serialize for Resource {
         let mut struct_ser = serializer.serialize_struct("unitycatalog.internal.Resource", len)?;
         if let Some(v) = self.resource.as_ref() {
             match v {
-                resource::Resource::ShareInfo(v) => {
-                    struct_ser.serialize_field("share_info", v)?;
+                resource::Resource::Share(v) => {
+                    struct_ser.serialize_field("share", v)?;
                 }
-                resource::Resource::CredentialInfo(v) => {
-                    struct_ser.serialize_field("credential_info", v)?;
+                resource::Resource::Credential(v) => {
+                    struct_ser.serialize_field("credential", v)?;
                 }
-                resource::Resource::CatalogInfo(v) => {
-                    struct_ser.serialize_field("catalog_info", v)?;
+                resource::Resource::Catalog(v) => {
+                    struct_ser.serialize_field("catalog", v)?;
                 }
-                resource::Resource::SchemaInfo(v) => {
-                    struct_ser.serialize_field("schema_info", v)?;
+                resource::Resource::Schema(v) => {
+                    struct_ser.serialize_field("schema", v)?;
                 }
-                resource::Resource::TableInfo(v) => {
-                    struct_ser.serialize_field("table_info", v)?;
+                resource::Resource::Table(v) => {
+                    struct_ser.serialize_field("table", v)?;
                 }
-                resource::Resource::ColumnInfo(v) => {
-                    struct_ser.serialize_field("column_info", v)?;
+                resource::Resource::Column(v) => {
+                    struct_ser.serialize_field("column", v)?;
                 }
-                resource::Resource::ExternalLocationInfo(v) => {
-                    struct_ser.serialize_field("external_location_info", v)?;
+                resource::Resource::ExternalLocation(v) => {
+                    struct_ser.serialize_field("external_location", v)?;
                 }
-                resource::Resource::RecipientInfo(v) => {
-                    struct_ser.serialize_field("recipient_info", v)?;
+                resource::Resource::Recipient(v) => {
+                    struct_ser.serialize_field("recipient", v)?;
                 }
             }
         }
@@ -188,34 +49,27 @@ impl<'de> serde::Deserialize<'de> for Resource {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "share_info",
-            "shareInfo",
-            "credential_info",
-            "credentialInfo",
-            "catalog_info",
-            "catalogInfo",
-            "schema_info",
-            "schemaInfo",
-            "table_info",
-            "tableInfo",
-            "column_info",
-            "columnInfo",
-            "external_location_info",
-            "externalLocationInfo",
-            "recipient_info",
-            "recipientInfo",
+            "share",
+            "credential",
+            "catalog",
+            "schema",
+            "table",
+            "column",
+            "external_location",
+            "externalLocation",
+            "recipient",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            ShareInfo,
-            CredentialInfo,
-            CatalogInfo,
-            SchemaInfo,
-            TableInfo,
-            ColumnInfo,
-            ExternalLocationInfo,
-            RecipientInfo,
+            Share,
+            Credential,
+            Catalog,
+            Schema,
+            Table,
+            Column,
+            ExternalLocation,
+            Recipient,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -241,18 +95,16 @@ impl<'de> serde::Deserialize<'de> for Resource {
                         E: serde::de::Error,
                     {
                         match value {
-                            "shareInfo" | "share_info" => Ok(GeneratedField::ShareInfo),
-                            "credentialInfo" | "credential_info" => {
-                                Ok(GeneratedField::CredentialInfo)
+                            "share" => Ok(GeneratedField::Share),
+                            "credential" => Ok(GeneratedField::Credential),
+                            "catalog" => Ok(GeneratedField::Catalog),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "table" => Ok(GeneratedField::Table),
+                            "column" => Ok(GeneratedField::Column),
+                            "externalLocation" | "external_location" => {
+                                Ok(GeneratedField::ExternalLocation)
                             }
-                            "catalogInfo" | "catalog_info" => Ok(GeneratedField::CatalogInfo),
-                            "schemaInfo" | "schema_info" => Ok(GeneratedField::SchemaInfo),
-                            "tableInfo" | "table_info" => Ok(GeneratedField::TableInfo),
-                            "columnInfo" | "column_info" => Ok(GeneratedField::ColumnInfo),
-                            "externalLocationInfo" | "external_location_info" => {
-                                Ok(GeneratedField::ExternalLocationInfo)
-                            }
-                            "recipientInfo" | "recipient_info" => Ok(GeneratedField::RecipientInfo),
+                            "recipient" => Ok(GeneratedField::Recipient),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -275,71 +127,69 @@ impl<'de> serde::Deserialize<'de> for Resource {
                 let mut resource__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::ShareInfo => {
+                        GeneratedField::Share => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("shareInfo"));
+                                return Err(serde::de::Error::duplicate_field("share"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ShareInfo);
+                                .map(resource::Resource::Share);
                         }
-                        GeneratedField::CredentialInfo => {
+                        GeneratedField::Credential => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("credentialInfo"));
+                                return Err(serde::de::Error::duplicate_field("credential"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::CredentialInfo);
+                                .map(resource::Resource::Credential);
                         }
-                        GeneratedField::CatalogInfo => {
+                        GeneratedField::Catalog => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("catalogInfo"));
+                                return Err(serde::de::Error::duplicate_field("catalog"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::CatalogInfo);
+                                .map(resource::Resource::Catalog);
                         }
-                        GeneratedField::SchemaInfo => {
+                        GeneratedField::Schema => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("schemaInfo"));
+                                return Err(serde::de::Error::duplicate_field("schema"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::SchemaInfo);
+                                .map(resource::Resource::Schema);
                         }
-                        GeneratedField::TableInfo => {
+                        GeneratedField::Table => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("tableInfo"));
+                                return Err(serde::de::Error::duplicate_field("table"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::TableInfo);
+                                .map(resource::Resource::Table);
                         }
-                        GeneratedField::ColumnInfo => {
+                        GeneratedField::Column => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("columnInfo"));
+                                return Err(serde::de::Error::duplicate_field("column"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ColumnInfo);
+                                .map(resource::Resource::Column);
                         }
-                        GeneratedField::ExternalLocationInfo => {
+                        GeneratedField::ExternalLocation => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "externalLocationInfo",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("externalLocation"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ExternalLocationInfo);
+                                .map(resource::Resource::ExternalLocation);
                         }
-                        GeneratedField::RecipientInfo => {
+                        GeneratedField::Recipient => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("recipientInfo"));
+                                return Err(serde::de::Error::duplicate_field("recipient"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::RecipientInfo);
+                                .map(resource::Resource::Recipient);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;

@@ -2,12 +2,12 @@
 use super::handler::TableHandler;
 use crate::Result;
 use crate::api::RequestContext;
-use crate::policy::Recipient;
+use crate::policy::Principal;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::tables::v1::*;
 pub async fn list_table_summaries<T: TableHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListTableSummariesRequest,
 ) -> Result<::axum::Json<ListTableSummariesResponse>> {
     let context = RequestContext { recipient };
@@ -16,7 +16,7 @@ pub async fn list_table_summaries<T: TableHandler>(
 }
 pub async fn list_tables<T: TableHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListTablesRequest,
 ) -> Result<::axum::Json<ListTablesResponse>> {
     let context = RequestContext { recipient };
@@ -25,25 +25,25 @@ pub async fn list_tables<T: TableHandler>(
 }
 pub async fn create_table<T: TableHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: CreateTableRequest,
-) -> Result<::axum::Json<TableInfo>> {
+) -> Result<::axum::Json<Table>> {
     let context = RequestContext { recipient };
     let result = handler.create_table(request, context).await?;
     Ok(axum::Json(result))
 }
 pub async fn get_table<T: TableHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: GetTableRequest,
-) -> Result<::axum::Json<TableInfo>> {
+) -> Result<::axum::Json<Table>> {
     let context = RequestContext { recipient };
     let result = handler.get_table(request, context).await?;
     Ok(axum::Json(result))
 }
 pub async fn get_table_exists<T: TableHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: GetTableExistsRequest,
 ) -> Result<::axum::Json<GetTableExistsResponse>> {
     let context = RequestContext { recipient };
@@ -52,7 +52,7 @@ pub async fn get_table_exists<T: TableHandler>(
 }
 pub async fn delete_table<T: TableHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: DeleteTableRequest,
 ) -> Result<()> {
     let context = RequestContext { recipient };

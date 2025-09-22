@@ -10,7 +10,7 @@ use crate::codegen::catalogs::{DeleteCatalogBuilder, GetCatalogBuilder, UpdateCa
 use crate::codegen::schemas::CreateSchemaBuilder;
 
 impl CatalogClientBase {
-    pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<CatalogInfo>> {
+    pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Catalog>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListCatalogsRequest {

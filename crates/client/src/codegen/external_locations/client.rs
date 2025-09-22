@@ -42,7 +42,7 @@ impl ExternalLocationClient {
     pub async fn create_external_location(
         &self,
         request: &CreateExternalLocationRequest,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocation> {
         let mut url = self.base_url.join("external-locations")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
@@ -52,7 +52,7 @@ impl ExternalLocationClient {
     pub async fn get_external_location(
         &self,
         request: &GetExternalLocationRequest,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocation> {
         let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -63,7 +63,7 @@ impl ExternalLocationClient {
     pub async fn update_external_location(
         &self,
         request: &UpdateExternalLocationRequest,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocation> {
         let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;

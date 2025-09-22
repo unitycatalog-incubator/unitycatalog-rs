@@ -8,57 +8,54 @@ pub mod catalogs_service_server {
     pub trait CatalogsService: Send + Sync + 'static {
         /** List catalogs
 
- Gets an array of catalogs in the metastore. If the caller is the metastore admin,
- all catalogs will be retrieved. Otherwise, only catalogs owned by the caller
- (or for which the caller has the USE_CATALOG privilege) will be retrieved.
- There is no guarantee of a specific ordering of the elements in the array.
-*/
+         Gets an array of catalogs in the metastore. If the caller is the metastore admin,
+         all catalogs will be retrieved. Otherwise, only catalogs owned by the caller
+         (or for which the caller has the USE_CATALOG privilege) will be retrieved.
+         There is no guarantee of a specific ordering of the elements in the array.
+        */
         async fn list_catalogs(
             &self,
             request: tonic::Request<super::ListCatalogsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListCatalogsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListCatalogsResponse>, tonic::Status>;
         /** Create a new catalog
 
- Creates a new catalog instance in the parent metastore if the caller
- is a metastore admin or has the CREATE_CATALOG privilege.
-*/
+         Creates a new catalog instance in the parent metastore if the caller
+         is a metastore admin or has the CREATE_CATALOG privilege.
+        */
         async fn create_catalog(
             &self,
             request: tonic::Request<super::CreateCatalogRequest>,
-        ) -> std::result::Result<tonic::Response<super::CatalogInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Catalog>, tonic::Status>;
         /** Get a catalog
 
- Gets the specified catalog in a metastore. The caller must be a metastore admin,
- the owner of the catalog, or a user that has the USE_CATALOG privilege set for their account.
-*/
+         Gets the specified catalog in a metastore. The caller must be a metastore admin,
+         the owner of the catalog, or a user that has the USE_CATALOG privilege set for their account.
+        */
         async fn get_catalog(
             &self,
             request: tonic::Request<super::GetCatalogRequest>,
-        ) -> std::result::Result<tonic::Response<super::CatalogInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Catalog>, tonic::Status>;
         /** Update a catalog
 
- Updates the catalog that matches the supplied name. The caller must be either
- the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
-*/
+         Updates the catalog that matches the supplied name. The caller must be either
+         the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
+        */
         async fn update_catalog(
             &self,
             request: tonic::Request<super::UpdateCatalogRequest>,
-        ) -> std::result::Result<tonic::Response<super::CatalogInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Catalog>, tonic::Status>;
         /** Delete a catalog
 
- Deletes the catalog that matches the supplied name. The caller must
- be a metastore admin or the owner of the catalog.
-*/
+         Deletes the catalog that matches the supplied name. The caller must
+         be a metastore admin or the owner of the catalog.
+        */
         async fn delete_catalog(
             &self,
             request: tonic::Request<super::DeleteCatalogRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     /** Manage catalogs and schemas in the service.
-*/
+     */
     #[derive(Debug)]
     pub struct CatalogsServiceServer<T: CatalogsService> {
         inner: Arc<T>,
@@ -80,10 +77,7 @@ pub mod catalogs_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -138,15 +132,11 @@ pub mod catalogs_service_server {
                 "/unitycatalog.catalogs.v1.CatalogsService/ListCatalogs" => {
                     #[allow(non_camel_case_types)]
                     struct ListCatalogsSvc<T: CatalogsService>(pub Arc<T>);
-                    impl<
-                        T: CatalogsService,
-                    > tonic::server::UnaryService<super::ListCatalogsRequest>
-                    for ListCatalogsSvc<T> {
+                    impl<T: CatalogsService> tonic::server::UnaryService<super::ListCatalogsRequest>
+                        for ListCatalogsSvc<T>
+                    {
                         type Response = super::ListCatalogsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListCatalogsRequest>,
@@ -183,23 +173,19 @@ pub mod catalogs_service_server {
                 "/unitycatalog.catalogs.v1.CatalogsService/CreateCatalog" => {
                     #[allow(non_camel_case_types)]
                     struct CreateCatalogSvc<T: CatalogsService>(pub Arc<T>);
-                    impl<
-                        T: CatalogsService,
-                    > tonic::server::UnaryService<super::CreateCatalogRequest>
-                    for CreateCatalogSvc<T> {
-                        type Response = super::CatalogInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: CatalogsService>
+                        tonic::server::UnaryService<super::CreateCatalogRequest>
+                        for CreateCatalogSvc<T>
+                    {
+                        type Response = super::Catalog;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateCatalogRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CatalogsService>::create_catalog(&inner, request)
-                                    .await
+                                <T as CatalogsService>::create_catalog(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -229,15 +215,11 @@ pub mod catalogs_service_server {
                 "/unitycatalog.catalogs.v1.CatalogsService/GetCatalog" => {
                     #[allow(non_camel_case_types)]
                     struct GetCatalogSvc<T: CatalogsService>(pub Arc<T>);
-                    impl<
-                        T: CatalogsService,
-                    > tonic::server::UnaryService<super::GetCatalogRequest>
-                    for GetCatalogSvc<T> {
-                        type Response = super::CatalogInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: CatalogsService> tonic::server::UnaryService<super::GetCatalogRequest>
+                        for GetCatalogSvc<T>
+                    {
+                        type Response = super::Catalog;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetCatalogRequest>,
@@ -274,23 +256,19 @@ pub mod catalogs_service_server {
                 "/unitycatalog.catalogs.v1.CatalogsService/UpdateCatalog" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateCatalogSvc<T: CatalogsService>(pub Arc<T>);
-                    impl<
-                        T: CatalogsService,
-                    > tonic::server::UnaryService<super::UpdateCatalogRequest>
-                    for UpdateCatalogSvc<T> {
-                        type Response = super::CatalogInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: CatalogsService>
+                        tonic::server::UnaryService<super::UpdateCatalogRequest>
+                        for UpdateCatalogSvc<T>
+                    {
+                        type Response = super::Catalog;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateCatalogRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CatalogsService>::update_catalog(&inner, request)
-                                    .await
+                                <T as CatalogsService>::update_catalog(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -320,23 +298,19 @@ pub mod catalogs_service_server {
                 "/unitycatalog.catalogs.v1.CatalogsService/DeleteCatalog" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteCatalogSvc<T: CatalogsService>(pub Arc<T>);
-                    impl<
-                        T: CatalogsService,
-                    > tonic::server::UnaryService<super::DeleteCatalogRequest>
-                    for DeleteCatalogSvc<T> {
+                    impl<T: CatalogsService>
+                        tonic::server::UnaryService<super::DeleteCatalogRequest>
+                        for DeleteCatalogSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteCatalogRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CatalogsService>::delete_catalog(&inner, request)
-                                    .await
+                                <T as CatalogsService>::delete_catalog(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -363,21 +337,17 @@ pub mod catalogs_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

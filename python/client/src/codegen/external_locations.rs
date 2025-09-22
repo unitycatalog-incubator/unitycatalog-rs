@@ -9,7 +9,7 @@ pub struct PyExternalLocationClient {
 }
 #[pymethods]
 impl PyExternalLocationClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocationInfo> {
+    pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocation> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -40,7 +40,7 @@ impl PyExternalLocationClient {
         new_name: Option<String>,
         force: Option<bool>,
         skip_validation: Option<bool>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
+    ) -> PyUnityCatalogResult<ExternalLocation> {
         let mut request = self.client.update();
         request = request.with_url(url);
         request = request.with_credential_name(credential_name);

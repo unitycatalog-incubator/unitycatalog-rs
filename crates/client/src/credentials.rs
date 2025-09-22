@@ -14,7 +14,7 @@ impl CredentialClientBase {
         &self,
         purpose: Option<Purpose>,
         max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<CredentialInfo>> {
+    ) -> BoxStream<'_, Result<Credential>> {
         let max_results = max_results.into();
         let purpose = purpose.map(|p| p as i32);
         stream_paginated(max_results, move |mut max_results, page_token| async move {

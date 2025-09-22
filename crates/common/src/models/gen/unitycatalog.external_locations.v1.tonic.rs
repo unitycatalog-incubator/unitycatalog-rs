@@ -7,43 +7,31 @@ pub mod external_locations_service_server {
     #[async_trait]
     pub trait ExternalLocationsService: Send + Sync + 'static {
         /** List external locations
-*/
+         */
         async fn list_external_locations(
             &self,
             request: tonic::Request<super::ListExternalLocationsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListExternalLocationsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListExternalLocationsResponse>, tonic::Status>;
         /** Create a new external location
-*/
+         */
         async fn create_external_location(
             &self,
             request: tonic::Request<super::CreateExternalLocationRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ExternalLocationInfo>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ExternalLocation>, tonic::Status>;
         /** Get an external location
-*/
+         */
         async fn get_external_location(
             &self,
             request: tonic::Request<super::GetExternalLocationRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ExternalLocationInfo>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ExternalLocation>, tonic::Status>;
         /** Update an external location
-*/
+         */
         async fn update_external_location(
             &self,
             request: tonic::Request<super::UpdateExternalLocationRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ExternalLocationInfo>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ExternalLocation>, tonic::Status>;
         /** Delete an external location
-*/
+         */
         async fn delete_external_location(
             &self,
             request: tonic::Request<super::DeleteExternalLocationRequest>,
@@ -71,10 +59,7 @@ pub mod external_locations_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -109,8 +94,7 @@ pub mod external_locations_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>>
-    for ExternalLocationsServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for ExternalLocationsServiceServer<T>
     where
         T: ExternalLocationsService,
         B: Body + Send + 'static,
@@ -127,20 +111,16 @@ pub mod external_locations_service_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/unitycatalog.external_locations.v1.ExternalLocationsService/ListExternalLocations" => {
+                "/unitycatalog.external_locations.v1.ExternalLocationsService/ListExternalLocations" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct ListExternalLocationsSvc<T: ExternalLocationsService>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ExternalLocationsService,
-                    > tonic::server::UnaryService<super::ListExternalLocationsRequest>
-                    for ListExternalLocationsSvc<T> {
+                    struct ListExternalLocationsSvc<T: ExternalLocationsService>(pub Arc<T>);
+                    impl<T: ExternalLocationsService>
+                        tonic::server::UnaryService<super::ListExternalLocationsRequest>
+                        for ListExternalLocationsSvc<T>
+                    {
                         type Response = super::ListExternalLocationsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListExternalLocationsRequest>,
@@ -148,10 +128,9 @@ pub mod external_locations_service_server {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 <T as ExternalLocationsService>::list_external_locations(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                    &inner, request,
+                                )
+                                .await
                             };
                             Box::pin(fut)
                         }
@@ -178,20 +157,16 @@ pub mod external_locations_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.external_locations.v1.ExternalLocationsService/CreateExternalLocation" => {
+                "/unitycatalog.external_locations.v1.ExternalLocationsService/CreateExternalLocation" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct CreateExternalLocationSvc<T: ExternalLocationsService>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ExternalLocationsService,
-                    > tonic::server::UnaryService<super::CreateExternalLocationRequest>
-                    for CreateExternalLocationSvc<T> {
-                        type Response = super::ExternalLocationInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    struct CreateExternalLocationSvc<T: ExternalLocationsService>(pub Arc<T>);
+                    impl<T: ExternalLocationsService>
+                        tonic::server::UnaryService<super::CreateExternalLocationRequest>
+                        for CreateExternalLocationSvc<T>
+                    {
+                        type Response = super::ExternalLocation;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateExternalLocationRequest>,
@@ -199,10 +174,9 @@ pub mod external_locations_service_server {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 <T as ExternalLocationsService>::create_external_location(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                    &inner, request,
+                                )
+                                .await
                             };
                             Box::pin(fut)
                         }
@@ -229,20 +203,16 @@ pub mod external_locations_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.external_locations.v1.ExternalLocationsService/GetExternalLocation" => {
+                "/unitycatalog.external_locations.v1.ExternalLocationsService/GetExternalLocation" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct GetExternalLocationSvc<T: ExternalLocationsService>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ExternalLocationsService,
-                    > tonic::server::UnaryService<super::GetExternalLocationRequest>
-                    for GetExternalLocationSvc<T> {
-                        type Response = super::ExternalLocationInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    struct GetExternalLocationSvc<T: ExternalLocationsService>(pub Arc<T>);
+                    impl<T: ExternalLocationsService>
+                        tonic::server::UnaryService<super::GetExternalLocationRequest>
+                        for GetExternalLocationSvc<T>
+                    {
+                        type Response = super::ExternalLocation;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetExternalLocationRequest>,
@@ -250,10 +220,9 @@ pub mod external_locations_service_server {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 <T as ExternalLocationsService>::get_external_location(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                    &inner, request,
+                                )
+                                .await
                             };
                             Box::pin(fut)
                         }
@@ -280,20 +249,16 @@ pub mod external_locations_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.external_locations.v1.ExternalLocationsService/UpdateExternalLocation" => {
+                "/unitycatalog.external_locations.v1.ExternalLocationsService/UpdateExternalLocation" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct UpdateExternalLocationSvc<T: ExternalLocationsService>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ExternalLocationsService,
-                    > tonic::server::UnaryService<super::UpdateExternalLocationRequest>
-                    for UpdateExternalLocationSvc<T> {
-                        type Response = super::ExternalLocationInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    struct UpdateExternalLocationSvc<T: ExternalLocationsService>(pub Arc<T>);
+                    impl<T: ExternalLocationsService>
+                        tonic::server::UnaryService<super::UpdateExternalLocationRequest>
+                        for UpdateExternalLocationSvc<T>
+                    {
+                        type Response = super::ExternalLocation;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateExternalLocationRequest>,
@@ -301,10 +266,9 @@ pub mod external_locations_service_server {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 <T as ExternalLocationsService>::update_external_location(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                    &inner, request,
+                                )
+                                .await
                             };
                             Box::pin(fut)
                         }
@@ -331,20 +295,16 @@ pub mod external_locations_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.external_locations.v1.ExternalLocationsService/DeleteExternalLocation" => {
+                "/unitycatalog.external_locations.v1.ExternalLocationsService/DeleteExternalLocation" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct DeleteExternalLocationSvc<T: ExternalLocationsService>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ExternalLocationsService,
-                    > tonic::server::UnaryService<super::DeleteExternalLocationRequest>
-                    for DeleteExternalLocationSvc<T> {
+                    struct DeleteExternalLocationSvc<T: ExternalLocationsService>(pub Arc<T>);
+                    impl<T: ExternalLocationsService>
+                        tonic::server::UnaryService<super::DeleteExternalLocationRequest>
+                        for DeleteExternalLocationSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteExternalLocationRequest>,
@@ -352,10 +312,9 @@ pub mod external_locations_service_server {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 <T as ExternalLocationsService>::delete_external_location(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                    &inner, request,
+                                )
+                                .await
                             };
                             Box::pin(fut)
                         }
@@ -382,21 +341,17 @@ pub mod external_locations_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -413,7 +368,8 @@ pub mod external_locations_service_server {
         }
     }
     impl<T: ExternalLocationsService> tonic::server::NamedService
-    for ExternalLocationsServiceServer<T> {
+        for ExternalLocationsServiceServer<T>
+    {
         const NAME: &'static str = "unitycatalog.external_locations.v1.ExternalLocationsService";
     }
 }

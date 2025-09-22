@@ -39,7 +39,7 @@ message RecipientToken {
   string updated_by = 7;
 }
 
-message RecipientInfo {
+message Recipient {
   option (google.api.resource) = {
     type: "unitycatalog.io/Recipient"
     pattern: "recipients/{recipient}"

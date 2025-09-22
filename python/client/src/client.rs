@@ -5,15 +5,15 @@ use pyo3::prelude::*;
 use unitycatalog_client::{
     PathOperation, TableOperation, TableReference, TemporaryCredentialClient, UnityCatalogClient,
 };
-use unitycatalog_common::models::catalogs::v1::CatalogInfo;
-use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
-use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
-use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
-use unitycatalog_common::models::schemas::v1::SchemaInfo;
-use unitycatalog_common::models::shares::v1::ShareInfo;
-use unitycatalog_common::models::tables::v1::TableInfo;
+use unitycatalog_common::models::catalogs::v1::Catalog;
+use unitycatalog_common::models::credentials::v1::{Credential, Purpose as CredentialPurpose};
+use unitycatalog_common::models::external_locations::v1::ExternalLocation;
+use unitycatalog_common::models::recipients::v1::{AuthenticationType, Recipient};
+use unitycatalog_common::models::schemas::v1::Schema;
+use unitycatalog_common::models::shares::v1::Share;
+use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
-use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
+use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
 pub use crate::codegen::catalogs::PyCatalogClient;
 pub use crate::codegen::credentials::PyCredentialClient;
@@ -48,7 +48,7 @@ impl PyUnityCatalogClient {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CatalogInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Catalog>> {
         let stream = self.0.list_catalogs().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -71,7 +71,7 @@ impl PyUnityCatalogClient {
         catalog_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Schema>> {
         let stream = self
             .0
             .list_schemas(catalog_name)
@@ -114,7 +114,7 @@ impl PyUnityCatalogClient {
         omit_username: Option<bool>,
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<TableInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Table>> {
         let stream = self
             .0
             .list_tables(catalog_name, schema_name)
@@ -144,7 +144,7 @@ impl PyUnityCatalogClient {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Share>> {
         let stream = self.0.list_shares().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -165,7 +165,7 @@ impl PyUnityCatalogClient {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Recipient>> {
         let stream = self.0.list_recipients().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -187,7 +187,7 @@ impl PyUnityCatalogClient {
         py: Python,
         purpose: Option<CredentialPurpose>,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CredentialInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Credential>> {
         let stream = self
             .0
             .list_credentials()
@@ -213,7 +213,7 @@ impl PyUnityCatalogClient {
         py: Python,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
+    ) -> PyUnityCatalogResult<Vec<ExternalLocation>> {
         let stream = self
             .0
             .list_external_locations()
@@ -242,7 +242,7 @@ impl PyUnityCatalogClient {
         storage_root: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self
             .0
             .create_catalog(name)
@@ -267,7 +267,7 @@ impl PyUnityCatalogClient {
         share_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self
             .0
             .create_catalog(name)
@@ -291,7 +291,7 @@ impl PyUnityCatalogClient {
         catalog_name: String,
         schema_name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
+    ) -> PyUnityCatalogResult<Schema> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_schema(catalog_name, schema_name);
@@ -309,7 +309,7 @@ impl PyUnityCatalogClient {
         py: Python,
         name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
+    ) -> PyUnityCatalogResult<Share> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_share(name);
@@ -328,7 +328,7 @@ impl PyUnityCatalogClient {
         name: String,
         authentication_type: AuthenticationType,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
+    ) -> PyUnityCatalogResult<Recipient> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_recipient(name, authentication_type, "");
@@ -347,7 +347,7 @@ impl PyUnityCatalogClient {
         name: String,
         purpose: CredentialPurpose,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
+    ) -> PyUnityCatalogResult<Credential> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_credential(name, purpose);
@@ -367,7 +367,7 @@ impl PyUnityCatalogClient {
         url: String,
         credential_name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
+    ) -> PyUnityCatalogResult<ExternalLocation> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_external_location(name, url, credential_name);
@@ -392,7 +392,7 @@ impl PyUnityCatalogClient {
         schema_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<VolumeInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Volume>> {
         let stream = self
             .0
             .list_volumes(catalog_name, schema_name)
@@ -426,7 +426,7 @@ impl PyUnityCatalogClient {
         volume_type: VolumeType,
         storage_location: Option<String>,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
+    ) -> PyUnityCatalogResult<Volume> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request =
@@ -458,22 +458,21 @@ impl PyTemporaryCredentialClient {
         table: String,
         operation: String,
     ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
+        let table_ref = TableReference::Name(table);
+        let op = match operation.to_ascii_lowercase().as_str() {
+            "read" => TableOperation::Read,
+            "read_write" => TableOperation::ReadWrite,
+            _ => {
+                return Err(PyUnityCatalogError::from(
+                    unitycatalog_common::error::Error::invalid_argument(format!(
+                        "Invalid operation: {}. Must be 'read' or 'read_write'",
+                        operation
+                    )),
+                ));
+            }
+        };
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
-            let table_ref = TableReference::Name(table);
-            let op = match operation.to_ascii_lowercase().as_str() {
-                "read" => TableOperation::Read,
-                "read_write" => TableOperation::ReadWrite,
-                _ => {
-                    return Err(PyUnityCatalogError::from(
-                        unitycatalog_common::error::Error::invalid_argument(format!(
-                            "Invalid operation: {}. Must be 'read' or 'read_write'",
-                            operation
-                        )),
-                    ));
-                }
-            };
-
             let (credential, uuid) =
                 runtime.block_on(self.client.temporary_table_credential(table_ref, op))?;
             Ok::<_, PyUnityCatalogError>((credential, uuid.to_string()))
@@ -489,21 +488,22 @@ impl PyTemporaryCredentialClient {
         dry_run: Option<bool>,
     ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
         let runtime = get_runtime(py)?;
+        let op = match operation.as_str().to_ascii_lowercase().as_str() {
+            "read" => PathOperation::Read,
+            "read_write" => PathOperation::ReadWrite,
+            "create_table" => PathOperation::CreateTable,
+            _ => {
+                return Err(PyUnityCatalogError::from(
+                    unitycatalog_common::error::Error::invalid_argument(format!(
+                        "Invalid operation: {}. Must be 'read', 'read_write', or 'create_table'",
+                        operation
+                    )),
+                ));
+            }
+        };
         py.allow_threads(|| {
-            let op = match operation.as_str().to_ascii_lowercase().as_str() {
-                "read" => PathOperation::Read,
-                "read_write" => PathOperation::ReadWrite,
-                "create_table" => PathOperation::CreateTable,
-                _ => return Err(PyUnityCatalogError::from(
-                    unitycatalog_common::error::Error::invalid_argument(
-                        format!("Invalid operation: {}. Must be 'read', 'read_write', or 'create_table'", operation)
-                    )
-                )),
-            };
-
-            let (credential, url) = runtime.block_on(
-                self.client.temporary_path_credential(path, op, dry_run)
-            )?;
+            let (credential, url) =
+                runtime.block_on(self.client.temporary_path_credential(path, op, dry_run))?;
             Ok::<_, PyUnityCatalogError>((credential, url.to_string()))
         })
     }

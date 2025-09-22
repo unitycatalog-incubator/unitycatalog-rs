@@ -64,15 +64,6 @@ pub fn generate_code(
     let python_code = generation::generate_python_code(&plan, metadata)?;
     output::write_generated_code(&python_code, output_dir_python)?;
 
-    // Generate Python typing file
-    let _python_typing = generation::generate_python_typing(&plan, metadata)?;
-    let _typing_file_path = output_dir_python
-        .parent()
-        .and_then(|p| p.parent())
-        .ok_or("Could not find Python client directory")?
-        .join("unitycatalog_client_generated.pyi");
-    // std::fs::write(&typing_file_path, python_typing)?;
-
     Ok(())
 }
 
@@ -156,40 +147,44 @@ impl MethodHandler<'_> {
             RequestType::List | RequestType::Create
         ) || (matches!(self.plan.request_type, RequestType::Custom(Pattern::Get(_)))
             && self.plan.metadata.method_name.starts_with("List"))
+            || (matches!(
+                self.plan.request_type,
+                RequestType::Custom(Pattern::Post(_))
+            ) && self.plan.metadata.method_name.starts_with("Generate"))
     }
 
     pub(crate) fn output_message(&self) -> Option<MessageMeta<'_>> {
         if self.plan.metadata.output_type.ends_with("Empty") {
-            None
-        } else {
-            self.metadata
-                .get_message_meta(&self.plan.metadata.output_type)
+            return None;
         }
+        self.metadata
+            .get_message_meta(&self.plan.metadata.output_type)
     }
 
     pub(crate) fn output_type(&self) -> Option<Ident> {
-        if self.plan.metadata.output_type.ends_with("Empty") {
-            None
-        } else {
-            Some(extract_type_ident(&self.plan.metadata.output_type))
-        }
+        self.output_message()
+            .map(|t| extract_type_ident(&t.info.name))
+    }
+
+    pub(crate) fn list_output_field(&self) -> Option<&MessageField> {
+        self.output_message()?
+            .info
+            .fields
+            .iter()
+            .find(|f| !f.name.contains("page_token"))
     }
 
     pub(crate) fn input_message(&self) -> Option<MessageMeta<'_>> {
         if self.plan.metadata.input_type == "Empty" {
-            None
-        } else {
-            self.metadata
-                .get_message_meta(&self.plan.metadata.input_type)
+            return None;
         }
+        self.metadata
+            .get_message_meta(&self.plan.metadata.input_type)
     }
 
     pub(crate) fn input_type(&self) -> Option<Ident> {
-        if self.plan.metadata.input_type == "Empty" {
-            None
-        } else {
-            Some(extract_type_ident(&self.plan.metadata.input_type))
-        }
+        self.input_message()
+            .map(|t| extract_type_ident(&t.info.name))
     }
 
     pub(crate) fn builder_type(&self) -> Ident {

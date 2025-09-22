@@ -40,14 +40,14 @@ impl VolumeClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_volume(&self, request: &CreateVolumeRequest) -> Result<VolumeInfo> {
+    pub async fn create_volume(&self, request: &CreateVolumeRequest) -> Result<Volume> {
         let mut url = self.base_url.join("volumes")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_volume(&self, request: &GetVolumeRequest) -> Result<VolumeInfo> {
+    pub async fn get_volume(&self, request: &GetVolumeRequest) -> Result<Volume> {
         let formatted_path = format!("volumes/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_browse {
@@ -59,7 +59,7 @@ impl VolumeClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn update_volume(&self, request: &UpdateVolumeRequest) -> Result<VolumeInfo> {
+    pub async fn update_volume(&self, request: &UpdateVolumeRequest) -> Result<Volume> {
         let formatted_path = format!("volumes/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;

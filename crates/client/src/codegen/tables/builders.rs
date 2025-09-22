@@ -128,7 +128,7 @@ impl ListTablesBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<TableInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Table>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_tables(&builder.request).await?;
@@ -180,10 +180,10 @@ impl CreateTableBuilder {
         };
         Self { client, request }
     }
-    ///The array of ColumnInfo definitions of the table's columns.
+    ///The array of Column definitions of the table's columns.
     pub fn with_columns<I>(mut self, columns: I) -> Self
     where
-        I: IntoIterator<Item = ColumnInfo>,
+        I: IntoIterator<Item = Column>,
     {
         self.request.columns = columns.into_iter().collect();
         self
@@ -213,7 +213,7 @@ impl CreateTableBuilder {
     }
 }
 impl IntoFuture for CreateTableBuilder {
-    type Output = Result<TableInfo>;
+    type Output = Result<Table>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -258,7 +258,7 @@ impl GetTableBuilder {
     }
 }
 impl IntoFuture for GetTableBuilder {
-    type Output = Result<TableInfo>;
+    type Output = Result<Table>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

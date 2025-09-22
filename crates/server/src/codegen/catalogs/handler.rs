@@ -13,17 +13,17 @@ pub trait CatalogHandler: Send + Sync + 'static {
         &self,
         request: CreateCatalogRequest,
         context: RequestContext,
-    ) -> Result<CatalogInfo>;
+    ) -> Result<Catalog>;
     async fn get_catalog(
         &self,
         request: GetCatalogRequest,
         context: RequestContext,
-    ) -> Result<CatalogInfo>;
+    ) -> Result<Catalog>;
     async fn update_catalog(
         &self,
         request: UpdateCatalogRequest,
         context: RequestContext,
-    ) -> Result<CatalogInfo>;
+    ) -> Result<Catalog>;
     async fn delete_catalog(
         &self,
         request: DeleteCatalogRequest,

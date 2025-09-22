@@ -21,7 +21,13 @@ import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import type { DataObject, ShareInfo, ShareInfoSchema } from "./models_pb";
+import type {
+  DataObject,
+  PermissionsChange,
+  PrivilegeAssignment,
+  Share,
+  ShareSchema,
+} from "./models_pb";
 import { file_unitycatalog_shares_v1_models } from "./models_pb";
 
 /**
@@ -30,7 +36,7 @@ import { file_unitycatalog_shares_v1_models } from "./models_pb";
 export const file_unitycatalog_shares_v1_svc: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiB1bml0eWNhdGFsb2cvc2hhcmVzL3YxL3N2Yy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJ5ChJMaXN0U2hhcmVzUmVzcG9uc2USMQoGc2hhcmVzGAEgAygLMiEudW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZUluZm8SHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSACIAQFCEgoQX25leHRfcGFnZV90b2tlbiJwChJDcmVhdGVTaGFyZVJlcXVlc3QSMwoEbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIZCgdjb21tZW50GAIgASgJQgPgQQFIAIgBAUIKCghfY29tbWVudCKDAQoPR2V0U2hhcmVSZXF1ZXN0EjEKBG5hbWUYASABKAlCI+BBArpIHXIbMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEiUKE2luY2x1ZGVfc2hhcmVkX2RhdGEYAiABKAhCA+BBAUgAiAEBQhYKFF9pbmNsdWRlX3NoYXJlZF9kYXRhIoUBChBEYXRhT2JqZWN0VXBkYXRlEjMKBmFjdGlvbhgBIAEoDjIeLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuQWN0aW9uQgPgQQISPAoLZGF0YV9vYmplY3QYAiABKAsyIi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RCA+BBAiKqAgoSVXBkYXRlU2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAMyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEj4KB3VwZGF0ZXMYAiADKAsyKC51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RVcGRhdGVCA+BBARI9CghuZXdfbmFtZRgDIAEoCUIm4EEBukggch4QAzIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSRIAIgBARIhCgVvd25lchgEIAEoCUIN4EEBukgHyAEAcgJgAUgBiAEBEhkKB2NvbW1lbnQYBSABKAlCA+BBAUgCiAEBQgsKCV9uZXdfbmFtZUIICgZfb3duZXJCCgoIX2NvbW1lbnQiSgoSRGVsZXRlU2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAMyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kKkEKBkFjdGlvbhIWChJBQ1RJT05fVU5TUEVDSUZJRUQQABIHCgNBREQQARIKCgZSRU1PVkUQAhIKCgZVUERBVEUQAzKaBQoNU2hhcmVzU2VydmljZRKDAQoKTGlzdFNoYXJlcxIpLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuTGlzdFNoYXJlc1JlcXVlc3QaKi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkxpc3RTaGFyZXNSZXNwb25zZSIeukcMKgpMaXN0U2hhcmVzgtPkkwIJEgcvc2hhcmVzEoABCgtDcmVhdGVTaGFyZRIqLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuQ3JlYXRlU2hhcmVSZXF1ZXN0GiEudW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZUluZm8iIrpHDSoLQ3JlYXRlU2hhcmWC0+STAgw6ASoiBy9zaGFyZXMSewoIR2V0U2hhcmUSJy51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkdldFNoYXJlUmVxdWVzdBohLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuU2hhcmVJbmZvIiO6RwoqCEdldFNoYXJlgtPkkwIQEg4vc2hhcmVzL3tuYW1lfRKHAQoLVXBkYXRlU2hhcmUSKi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlVwZGF0ZVNoYXJlUmVxdWVzdBohLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuU2hhcmVJbmZvIim6Rw0qC1VwZGF0ZVNoYXJlgtPkkwITOgEqMg4vc2hhcmVzL3tuYW1lfRJ5CgtEZWxldGVTaGFyZRIqLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGVsZXRlU2hhcmVSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Iia6Rw0qC0RlbGV0ZVNoYXJlgtPkkwIQKg4vc2hhcmVzL3tuYW1lfULwAQoaY29tLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjFCCFN2Y1Byb3RvUAFaTmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJlcy92MTtzaGFyZXN2MaICA1VTWKoCFlVuaXR5Y2F0YWxvZy5TaGFyZXMuVjHKAhZVbml0eWNhdGFsb2dcU2hhcmVzXFYx4gIiVW5pdHljYXRhbG9nXFNoYXJlc1xWMVxHUEJNZXRhZGF0YeoCGFVuaXR5Y2F0YWxvZzo6U2hhcmVzOjpWMWIGcHJvdG8z",
+    "CiB1bml0eWNhdGFsb2cvc2hhcmVzL3YxL3N2Yy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJ1ChJMaXN0U2hhcmVzUmVzcG9uc2USLQoGc2hhcmVzGAEgAygLMh0udW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuInAKEkNyZWF0ZVNoYXJlUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEhkKB2NvbW1lbnQYAiABKAlCA+BBAUgAiAEBQgoKCF9jb21tZW50IoMBCg9HZXRTaGFyZVJlcXVlc3QSMQoEbmFtZRgBIAEoCUIj4EECukgdchsyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSJQoTaW5jbHVkZV9zaGFyZWRfZGF0YRgCIAEoCEID4EEBSACIAQFCFgoUX2luY2x1ZGVfc2hhcmVkX2RhdGEihQEKEERhdGFPYmplY3RVcGRhdGUSMwoGYWN0aW9uGAEgASgOMh4udW5pdHljYXRhbG9nLnNoYXJlcy52MS5BY3Rpb25CA+BBAhI8CgtkYXRhX29iamVjdBgCIAEoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdEID4EECIqoCChJVcGRhdGVTaGFyZVJlcXVlc3QSNAoEbmFtZRgBIAEoCUIm4EECukggch4QAzIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSPgoHdXBkYXRlcxgCIAMoCzIoLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdFVwZGF0ZUID4EEBEj0KCG5ld19uYW1lGAMgASgJQibgQQG6SCByHhADMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJEgAiAEBEiEKBW93bmVyGAQgASgJQg3gQQG6SAfIAQByAmABSAGIAQESGQoHY29tbWVudBgFIAEoCUID4EEBSAKIAQFCCwoJX25ld19uYW1lQggKBl9vd25lckIKCghfY29tbWVudCJKChJEZWxldGVTaGFyZVJlcXVlc3QSNAoEbmFtZRgBIAEoCUIm4EECukggch4QAzIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQisAEKFUdldFBlcm1pc3Npb25zUmVxdWVzdBIxCgRuYW1lGAEgASgJQiPgQQK6SB1yGzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKWAQoWR2V0UGVybWlzc2lvbnNSZXNwb25zZRJKChVwcml2aWxlZ2VfYXNzaWdubWVudHMYASADKAsyKy51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlByaXZpbGVnZUFzc2lnbm1lbnQSHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSACIAQFCEgoQX25leHRfcGFnZV90b2tlbiLMAQoYVXBkYXRlUGVybWlzc2lvbnNSZXF1ZXN0EjEKBG5hbWUYASABKAlCI+BBArpIHXIbMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjoKB2NoYW5nZXMYAiADKAsyKS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlBlcm1pc3Npb25zQ2hhbmdlEicKFW9taXRfcGVybWlzc2lvbnNfbGlzdBgDIAEoCEID4EEBSACIAQFCGAoWX29taXRfcGVybWlzc2lvbnNfbGlzdCJnChlVcGRhdGVQZXJtaXNzaW9uc1Jlc3BvbnNlEkoKFXByaXZpbGVnZV9hc3NpZ25tZW50cxgBIAMoCzIrLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuUHJpdmlsZWdlQXNzaWdubWVudCpBCgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASBwoDQUREEAESCgoGUkVNT1ZFEAISCgoGVVBEQVRFEAMy7gcKDVNoYXJlc1NlcnZpY2USgwEKCkxpc3RTaGFyZXMSKS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkxpc3RTaGFyZXNSZXF1ZXN0GioudW5pdHljYXRhbG9nLnNoYXJlcy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJ8CgtDcmVhdGVTaGFyZRIqLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuQ3JlYXRlU2hhcmVSZXF1ZXN0Gh0udW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZSIiukcNKgtDcmVhdGVTaGFyZYLT5JMCDDoBKiIHL3NoYXJlcxJ3CghHZXRTaGFyZRInLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuR2V0U2hhcmVSZXF1ZXN0Gh0udW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZSIjukcKKghHZXRTaGFyZYLT5JMCEBIOL3NoYXJlcy97bmFtZX0SgwEKC1VwZGF0ZVNoYXJlEioudW5pdHljYXRhbG9nLnNoYXJlcy52MS5VcGRhdGVTaGFyZVJlcXVlc3QaHS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlNoYXJlIim6Rw0qC1VwZGF0ZVNoYXJlgtPkkwITOgEqMg4vc2hhcmVzL3tuYW1lfRJ5CgtEZWxldGVTaGFyZRIqLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGVsZXRlU2hhcmVSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5Iia6Rw0qC0RlbGV0ZVNoYXJlgtPkkwIQKg4vc2hhcmVzL3tuYW1lfRKmAQoOR2V0UGVybWlzc2lvbnMSLS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkdldFBlcm1pc3Npb25zUmVxdWVzdBouLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuR2V0UGVybWlzc2lvbnNSZXNwb25zZSI1ukcQKg5HZXRQZXJtaXNzaW9uc4LT5JMCHBIaL3NoYXJlcy97bmFtZX0vcGVybWlzc2lvbnMStQEKEVVwZGF0ZVBlcm1pc3Npb25zEjAudW5pdHljYXRhbG9nLnNoYXJlcy52MS5VcGRhdGVQZXJtaXNzaW9uc1JlcXVlc3QaMS51bml0eWNhdGFsb2cuc2hhcmVzLnYxLlVwZGF0ZVBlcm1pc3Npb25zUmVzcG9uc2UiO7pHEyoRVXBkYXRlUGVybWlzc2lvbnOC0+STAh86ASoyGi9zaGFyZXMve25hbWV9L3Blcm1pc3Npb25zQvABChpjb20udW5pdHljYXRhbG9nLnNoYXJlcy52MUIIU3ZjUHJvdG9QAVpOZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvc2hhcmVzL3YxO3NoYXJlc3YxogIDVVNYqgIWVW5pdHljYXRhbG9nLlNoYXJlcy5WMcoCFlVuaXR5Y2F0YWxvZ1xTaGFyZXNcVjHiAiJVbml0eWNhdGFsb2dcU2hhcmVzXFYxXEdQQk1ldGFkYXRh6gIYVW5pdHljYXRhbG9nOjpTaGFyZXM6OlYxYgZwcm90bzM",
     [
       file_buf_validate_validate,
       file_gnostic_openapi_v3_annotations,
@@ -81,9 +87,9 @@ export type ListSharesResponse =
     /**
      * List of shares.
      *
-     * @generated from field: repeated unitycatalog.shares.v1.ShareInfo shares = 1;
+     * @generated from field: repeated unitycatalog.shares.v1.Share shares = 1;
      */
-    shares: ShareInfo[];
+    shares: Share[];
 
     /**
      * Opaque pagination token to go to next page based on previous query.
@@ -273,6 +279,129 @@ export const DeleteShareRequestSchema: GenMessage<DeleteShareRequest> =
   messageDesc(file_unitycatalog_shares_v1_svc, 6);
 
 /**
+ * Get permissions for a data share.
+ *
+ * @generated from message unitycatalog.shares.v1.GetPermissionsRequest
+ */
+export type GetPermissionsRequest =
+  Message<"unitycatalog.shares.v1.GetPermissionsRequest"> & {
+    /**
+     * Name of the share.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+
+    /**
+     * The maximum number of results per page that should be returned.
+     *
+     * @generated from field: optional int32 max_results = 2;
+     */
+    maxResults?: number;
+
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string page_token = 3;
+     */
+    pageToken?: string;
+  };
+
+/**
+ * Describes the message unitycatalog.shares.v1.GetPermissionsRequest.
+ * Use `create(GetPermissionsRequestSchema)` to create a new message.
+ */
+export const GetPermissionsRequestSchema: GenMessage<GetPermissionsRequest> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_shares_v1_svc, 7);
+
+/**
+ * Response to list shares.
+ *
+ * @generated from message unitycatalog.shares.v1.GetPermissionsResponse
+ */
+export type GetPermissionsResponse =
+  Message<"unitycatalog.shares.v1.GetPermissionsResponse"> & {
+    /**
+     * The privileges assigned to each principal
+     *
+     * @generated from field: repeated unitycatalog.shares.v1.PrivilegeAssignment privilege_assignments = 1;
+     */
+    privilegeAssignments: PrivilegeAssignment[];
+
+    /**
+     * Opaque pagination token to go to next page based on previous query.
+     *
+     * @generated from field: optional string next_page_token = 2;
+     */
+    nextPageToken?: string;
+  };
+
+/**
+ * Describes the message unitycatalog.shares.v1.GetPermissionsResponse.
+ * Use `create(GetPermissionsResponseSchema)` to create a new message.
+ */
+export const GetPermissionsResponseSchema: GenMessage<GetPermissionsResponse> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_shares_v1_svc, 8);
+
+/**
+ * @generated from message unitycatalog.shares.v1.UpdatePermissionsRequest
+ */
+export type UpdatePermissionsRequest =
+  Message<"unitycatalog.shares.v1.UpdatePermissionsRequest"> & {
+    /**
+     * Name of the share.
+     *
+     * @generated from field: string name = 1;
+     */
+    name: string;
+
+    /**
+     * Array of permissions change objects.
+     *
+     * @generated from field: repeated unitycatalog.shares.v1.PermissionsChange changes = 2;
+     */
+    changes: PermissionsChange[];
+
+    /**
+     * Whether to return the latest permissions list of the share in the response.
+     *
+     * @generated from field: optional bool omit_permissions_list = 3;
+     */
+    omitPermissionsList?: boolean;
+  };
+
+/**
+ * Describes the message unitycatalog.shares.v1.UpdatePermissionsRequest.
+ * Use `create(UpdatePermissionsRequestSchema)` to create a new message.
+ */
+export const UpdatePermissionsRequestSchema: GenMessage<UpdatePermissionsRequest> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_shares_v1_svc, 9);
+
+/**
+ * @generated from message unitycatalog.shares.v1.UpdatePermissionsResponse
+ */
+export type UpdatePermissionsResponse =
+  Message<"unitycatalog.shares.v1.UpdatePermissionsResponse"> & {
+    /**
+     * The privileges assigned to each principal
+     *
+     * @generated from field: repeated unitycatalog.shares.v1.PrivilegeAssignment privilege_assignments = 1;
+     */
+    privilegeAssignments: PrivilegeAssignment[];
+  };
+
+/**
+ * Describes the message unitycatalog.shares.v1.UpdatePermissionsResponse.
+ * Use `create(UpdatePermissionsResponseSchema)` to create a new message.
+ */
+export const UpdatePermissionsResponseSchema: GenMessage<UpdatePermissionsResponse> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_shares_v1_svc, 10);
+
+/**
  * @generated from enum unitycatalog.shares.v1.Action
  */
 export enum Action {
@@ -330,7 +459,7 @@ export const SharesService: GenService<{
   createShare: {
     methodKind: "unary";
     input: typeof CreateShareRequestSchema;
-    output: typeof ShareInfoSchema;
+    output: typeof ShareSchema;
   };
   /**
    * Get a share by name.
@@ -340,7 +469,7 @@ export const SharesService: GenService<{
   getShare: {
     methodKind: "unary";
     input: typeof GetShareRequestSchema;
-    output: typeof ShareInfoSchema;
+    output: typeof ShareSchema;
   };
   /**
    * Update a share.
@@ -350,7 +479,7 @@ export const SharesService: GenService<{
   updateShare: {
     methodKind: "unary";
     input: typeof UpdateShareRequestSchema;
-    output: typeof ShareInfoSchema;
+    output: typeof ShareSchema;
   };
   /**
    * Deletes a share.
@@ -361,5 +490,25 @@ export const SharesService: GenService<{
     methodKind: "unary";
     input: typeof DeleteShareRequestSchema;
     output: typeof EmptySchema;
+  };
+  /**
+   * Gets the permissions for a data share from the metastore.
+   *
+   * @generated from rpc unitycatalog.shares.v1.SharesService.GetPermissions
+   */
+  getPermissions: {
+    methodKind: "unary";
+    input: typeof GetPermissionsRequestSchema;
+    output: typeof GetPermissionsResponseSchema;
+  };
+  /**
+   * Updates the permissions for a data share in the metastore.
+   *
+   * @generated from rpc unitycatalog.shares.v1.SharesService.UpdatePermissions
+   */
+  updatePermissions: {
+    methodKind: "unary";
+    input: typeof UpdatePermissionsRequestSchema;
+    output: typeof UpdatePermissionsResponseSchema;
   };
 }> = /*@__PURE__*/ serviceDesc(file_unitycatalog_shares_v1_svc, 0);

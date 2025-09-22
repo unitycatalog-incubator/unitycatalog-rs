@@ -53,7 +53,7 @@ async fn test_external_locations_router_crud(app: Router) {
         StatusCode::OK,
         "create location"
     );
-    let body: ExternalLocationInfo = collect_body(create_location_response).await;
+    let body: ExternalLocation = collect_body(create_location_response).await;
     assert_eq!(body.name, storage_location.name);
 
     // List storage locations
@@ -76,7 +76,7 @@ async fn test_external_locations_router_crud(app: Router) {
         StatusCode::OK,
         "get location"
     );
-    let body: ExternalLocationInfo = collect_body(get_location_response).await;
+    let body: ExternalLocation = collect_body(get_location_response).await;
     assert_eq!(body.name, storage_location.name);
 
     // Delete storage location

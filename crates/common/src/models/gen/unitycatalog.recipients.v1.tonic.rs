@@ -7,34 +7,31 @@ pub mod recipients_service_server {
     #[async_trait]
     pub trait RecipientsService: Send + Sync + 'static {
         /** List recipients.
-*/
+         */
         async fn list_recipients(
             &self,
             request: tonic::Request<super::ListRecipientsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListRecipientsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListRecipientsResponse>, tonic::Status>;
         /** Create a new recipient.
-*/
+         */
         async fn create_recipient(
             &self,
             request: tonic::Request<super::CreateRecipientRequest>,
-        ) -> std::result::Result<tonic::Response<super::RecipientInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Recipient>, tonic::Status>;
         /** Get a recipient by name.
-*/
+         */
         async fn get_recipient(
             &self,
             request: tonic::Request<super::GetRecipientRequest>,
-        ) -> std::result::Result<tonic::Response<super::RecipientInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Recipient>, tonic::Status>;
         /** Update a recipient.
-*/
+         */
         async fn update_recipient(
             &self,
             request: tonic::Request<super::UpdateRecipientRequest>,
-        ) -> std::result::Result<tonic::Response<super::RecipientInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Recipient>, tonic::Status>;
         /** Delete a recipient.
-*/
+         */
         async fn delete_recipient(
             &self,
             request: tonic::Request<super::DeleteRecipientRequest>,
@@ -42,12 +39,12 @@ pub mod recipients_service_server {
     }
     /** Recipients
 
- A recipient is an object you create using recipients/create to represent an organization which
- you want to allow access shares. when you create a recipient object, Unity Catalog generates an
- activation link you can send to the recipient. The recipient follows the activation link to download
- the credential file, and then uses the credential file to establish a secure connection to receive
- the shared data. This sharing mode is called open sharing.
-*/
+     A recipient is an object you create using recipients/create to represent an organization which
+     you want to allow access shares. when you create a recipient object, Unity Catalog generates an
+     activation link you can send to the recipient. The recipient follows the activation link to download
+     the credential file, and then uses the credential file to establish a secure connection to receive
+     the shared data. This sharing mode is called open sharing.
+    */
     #[derive(Debug)]
     pub struct RecipientsServiceServer<T: RecipientsService> {
         inner: Arc<T>,
@@ -69,10 +66,7 @@ pub mod recipients_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -127,23 +121,19 @@ pub mod recipients_service_server {
                 "/unitycatalog.recipients.v1.RecipientsService/ListRecipients" => {
                     #[allow(non_camel_case_types)]
                     struct ListRecipientsSvc<T: RecipientsService>(pub Arc<T>);
-                    impl<
-                        T: RecipientsService,
-                    > tonic::server::UnaryService<super::ListRecipientsRequest>
-                    for ListRecipientsSvc<T> {
+                    impl<T: RecipientsService>
+                        tonic::server::UnaryService<super::ListRecipientsRequest>
+                        for ListRecipientsSvc<T>
+                    {
                         type Response = super::ListRecipientsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListRecipientsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RecipientsService>::list_recipients(&inner, request)
-                                    .await
+                                <T as RecipientsService>::list_recipients(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -173,23 +163,19 @@ pub mod recipients_service_server {
                 "/unitycatalog.recipients.v1.RecipientsService/CreateRecipient" => {
                     #[allow(non_camel_case_types)]
                     struct CreateRecipientSvc<T: RecipientsService>(pub Arc<T>);
-                    impl<
-                        T: RecipientsService,
-                    > tonic::server::UnaryService<super::CreateRecipientRequest>
-                    for CreateRecipientSvc<T> {
-                        type Response = super::RecipientInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: RecipientsService>
+                        tonic::server::UnaryService<super::CreateRecipientRequest>
+                        for CreateRecipientSvc<T>
+                    {
+                        type Response = super::Recipient;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateRecipientRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RecipientsService>::create_recipient(&inner, request)
-                                    .await
+                                <T as RecipientsService>::create_recipient(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -219,23 +205,19 @@ pub mod recipients_service_server {
                 "/unitycatalog.recipients.v1.RecipientsService/GetRecipient" => {
                     #[allow(non_camel_case_types)]
                     struct GetRecipientSvc<T: RecipientsService>(pub Arc<T>);
-                    impl<
-                        T: RecipientsService,
-                    > tonic::server::UnaryService<super::GetRecipientRequest>
-                    for GetRecipientSvc<T> {
-                        type Response = super::RecipientInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: RecipientsService>
+                        tonic::server::UnaryService<super::GetRecipientRequest>
+                        for GetRecipientSvc<T>
+                    {
+                        type Response = super::Recipient;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetRecipientRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RecipientsService>::get_recipient(&inner, request)
-                                    .await
+                                <T as RecipientsService>::get_recipient(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -265,23 +247,19 @@ pub mod recipients_service_server {
                 "/unitycatalog.recipients.v1.RecipientsService/UpdateRecipient" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateRecipientSvc<T: RecipientsService>(pub Arc<T>);
-                    impl<
-                        T: RecipientsService,
-                    > tonic::server::UnaryService<super::UpdateRecipientRequest>
-                    for UpdateRecipientSvc<T> {
-                        type Response = super::RecipientInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: RecipientsService>
+                        tonic::server::UnaryService<super::UpdateRecipientRequest>
+                        for UpdateRecipientSvc<T>
+                    {
+                        type Response = super::Recipient;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateRecipientRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RecipientsService>::update_recipient(&inner, request)
-                                    .await
+                                <T as RecipientsService>::update_recipient(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -311,23 +289,19 @@ pub mod recipients_service_server {
                 "/unitycatalog.recipients.v1.RecipientsService/DeleteRecipient" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteRecipientSvc<T: RecipientsService>(pub Arc<T>);
-                    impl<
-                        T: RecipientsService,
-                    > tonic::server::UnaryService<super::DeleteRecipientRequest>
-                    for DeleteRecipientSvc<T> {
+                    impl<T: RecipientsService>
+                        tonic::server::UnaryService<super::DeleteRecipientRequest>
+                        for DeleteRecipientSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteRecipientRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RecipientsService>::delete_recipient(&inner, request)
-                                    .await
+                                <T as RecipientsService>::delete_recipient(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -354,21 +328,17 @@ pub mod recipients_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -384,8 +354,7 @@ pub mod recipients_service_server {
             }
         }
     }
-    impl<T: RecipientsService> tonic::server::NamedService
-    for RecipientsServiceServer<T> {
+    impl<T: RecipientsService> tonic::server::NamedService for RecipientsServiceServer<T> {
         const NAME: &'static str = "unitycatalog.recipients.v1.RecipientsService";
     }
 }

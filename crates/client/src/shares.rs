@@ -9,7 +9,7 @@ pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
 use crate::codegen::shares::builders::{CreateShareBuilder, GetShareBuilder, UpdateShareBuilder};
 
 impl ShareClientBase {
-    pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<ShareInfo>> {
+    pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Share>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListSharesRequest {

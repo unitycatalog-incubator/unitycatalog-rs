@@ -11,10 +11,7 @@ use crate::codegen::recipients::builders::{
 };
 
 impl RecipientClientBase {
-    pub fn list(
-        &self,
-        max_results: impl Into<Option<i32>>,
-    ) -> BoxStream<'_, Result<RecipientInfo>> {
+    pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Recipient>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
             let request = ListRecipientsRequest {

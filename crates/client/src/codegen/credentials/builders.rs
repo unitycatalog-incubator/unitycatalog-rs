@@ -33,7 +33,7 @@ impl ListCredentialsBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<CredentialInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Credential>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_credentials(&builder.request).await?;
@@ -116,7 +116,7 @@ impl CreateCredentialBuilder {
     }
 }
 impl IntoFuture for CreateCredentialBuilder {
-    type Output = Result<CredentialInfo>;
+    type Output = Result<Credential>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -140,7 +140,7 @@ impl GetCredentialBuilder {
     }
 }
 impl IntoFuture for GetCredentialBuilder {
-    type Output = Result<CredentialInfo>;
+    type Output = Result<Credential>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -219,7 +219,7 @@ impl UpdateCredentialBuilder {
     }
 }
 impl IntoFuture for UpdateCredentialBuilder {
-    type Output = Result<CredentialInfo>;
+    type Output = Result<Credential>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

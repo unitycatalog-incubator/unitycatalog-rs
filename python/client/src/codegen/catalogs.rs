@@ -11,11 +11,7 @@ pub struct PyCatalogClient {
 #[pymethods]
 impl PyCatalogClient {
     #[pyo3(signature = (include_browse = None))]
-    pub fn get(
-        &self,
-        py: Python,
-        include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    pub fn get(&self, py: Python, include_browse: Option<bool>) -> PyUnityCatalogResult<Catalog> {
         let mut request = self.client.get();
         request = request.with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
@@ -34,7 +30,7 @@ impl PyCatalogClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
         new_name: Option<String>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self.client.update();
         request = request.with_owner(owner);
         request = request.with_comment(comment);

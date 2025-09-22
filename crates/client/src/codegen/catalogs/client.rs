@@ -35,14 +35,14 @@ impl CatalogClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_catalog(&self, request: &CreateCatalogRequest) -> Result<CatalogInfo> {
+    pub async fn create_catalog(&self, request: &CreateCatalogRequest) -> Result<Catalog> {
         let mut url = self.base_url.join("catalogs")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_catalog(&self, request: &GetCatalogRequest) -> Result<CatalogInfo> {
+    pub async fn get_catalog(&self, request: &GetCatalogRequest) -> Result<Catalog> {
         let formatted_path = format!("catalogs/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_browse {
@@ -54,7 +54,7 @@ impl CatalogClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn update_catalog(&self, request: &UpdateCatalogRequest) -> Result<CatalogInfo> {
+    pub async fn update_catalog(&self, request: &UpdateCatalogRequest) -> Result<Catalog> {
         let formatted_path = format!("catalogs/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;

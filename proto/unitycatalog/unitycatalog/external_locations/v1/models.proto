@@ -6,7 +6,7 @@ import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
-message ExternalLocationInfo {
+message ExternalLocation {
   option (google.api.resource) = {
     type: "unitycatalog.io/ExternalLocation"
     pattern: "external-locations/{external_location}"

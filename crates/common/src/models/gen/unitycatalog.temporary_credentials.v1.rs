@@ -5,7 +5,7 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AzureUserDelegationSas {
     /// The signed URI (SAS Token) used to access blob services for a given path
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub sas_token: ::prost::alloc::string::String,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -13,7 +13,7 @@ pub struct AzureUserDelegationSas {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AzureAad {
     /// Opaque token that contains claims that you can use in Azure Active Directory to access cloud services.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub aad_token: ::prost::alloc::string::String,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -21,13 +21,13 @@ pub struct AzureAad {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct R2TemporaryCredentials {
     /// The access key ID that identifies the temporary credentials.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub access_key_id: ::prost::alloc::string::String,
     /// The secret access key associated with the access key.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub secret_access_key: ::prost::alloc::string::String,
     /// The generated JWT that users must pass to use the temporary credentials.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub session_token: ::prost::alloc::string::String,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -35,7 +35,7 @@ pub struct R2TemporaryCredentials {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GcpOauthToken {
     /// The OAuth token used to access Google Cloud services.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub oauth_token: ::prost::alloc::string::String,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -43,16 +43,16 @@ pub struct GcpOauthToken {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AwsTemporaryCredentials {
     /// The access key ID that identifies the temporary credentials.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub access_key_id: ::prost::alloc::string::String,
     /// The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub access_point: ::prost::alloc::string::String,
     /// The secret access key that can be used to sign AWS API requests.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub secret_access_key: ::prost::alloc::string::String,
     /// The token that users must pass to AWS API to use the temporary credentials.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub session_token: ::prost::alloc::string::String,
 }
 /// The response to the GenerateTemporaryTableCredentialsRequest.
@@ -62,13 +62,16 @@ pub struct AwsTemporaryCredentials {
 pub struct TemporaryCredential {
     /// Server time when the credential will expire, in epoch milliseconds.
     /// The API client is advised to cache the credential given this expiration time.
-    #[prost(int64, tag="1")]
+    #[prost(int64, tag = "1")]
     pub expiration_time: i64,
     /// The URL of the storage path accessible by the temporary credential.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub url: ::prost::alloc::string::String,
     /// The credentials to access the table.
-    #[prost(oneof="temporary_credential::Credentials", tags="100, 101, 102, 103, 104")]
+    #[prost(
+        oneof = "temporary_credential::Credentials",
+        tags = "100, 101, 102, 103, 104"
+    )]
     pub credentials: ::core::option::Option<temporary_credential::Credentials>,
 }
 /// Nested message and enum types in `TemporaryCredential`.
@@ -76,22 +79,22 @@ pub mod temporary_credential {
     /// The credentials to access the table.
     #[cfg_attr(feature = "python", ::pyo3::pyclass)]
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Credentials {
         /// Credentials for Azure Blob Storage.
-        #[prost(message, tag="100")]
+        #[prost(message, tag = "100")]
         AzureUserDelegationSas(super::AzureUserDelegationSas),
         /// Credentials for Azure Active Directory.
-        #[prost(message, tag="101")]
+        #[prost(message, tag = "101")]
         AzureAad(super::AzureAad),
         /// Credentials for AWS S3.
-        #[prost(message, tag="102")]
+        #[prost(message, tag = "102")]
         AwsTempCredentials(super::AwsTemporaryCredentials),
         /// Credentials for Google Cloud Storage.
-        #[prost(message, tag="103")]
+        #[prost(message, tag = "103")]
         GcpOauthToken(super::GcpOauthToken),
         /// Credentials for R2.
-        #[prost(message, tag="104")]
+        #[prost(message, tag = "104")]
         R2TempCredentials(super::R2TemporaryCredentials),
     }
 }
@@ -101,10 +104,13 @@ pub mod temporary_credential {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateTemporaryTableCredentialsRequest {
     /// The name of the table for which to generate credentials.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub table_id: ::prost::alloc::string::String,
     /// The operation to perform with the credentials.
-    #[prost(enumeration="generate_temporary_table_credentials_request::Operation", tag="2")]
+    #[prost(
+        enumeration = "generate_temporary_table_credentials_request::Operation",
+        tag = "2"
+    )]
     pub operation: i32,
 }
 /// Nested message and enum types in `GenerateTemporaryTableCredentialsRequest`.
@@ -149,12 +155,15 @@ pub mod generate_temporary_table_credentials_request {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateTemporaryPathCredentialsRequest {
     /// The name of the volume for which to generate credentials.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub url: ::prost::alloc::string::String,
     /// The operation to perform with the credentials.
-    #[prost(enumeration="generate_temporary_path_credentials_request::Operation", tag="2")]
+    #[prost(
+        enumeration = "generate_temporary_path_credentials_request::Operation",
+        tag = "2"
+    )]
     pub operation: i32,
-    #[prost(bool, optional, tag="3")]
+    #[prost(bool, optional, tag = "3")]
     pub dry_run: ::core::option::Option<bool>,
 }
 /// Nested message and enum types in `GenerateTemporaryPathCredentialsRequest`.

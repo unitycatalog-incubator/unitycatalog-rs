@@ -31,7 +31,7 @@ message ListExternalLocationsRequest {
 // List external locations response.
 message ListExternalLocationsResponse {
   // The external locations returned.
-  repeated ExternalLocationInfo external_locations = 1;
+  repeated ExternalLocation external_locations = 1;
 
   // The next_page_token value to include in the next List request.
   optional string next_page_token = 2;
@@ -145,7 +145,7 @@ service ExternalLocationsService {
   }
 
   // Create a new external location
-  rpc CreateExternalLocation(CreateExternalLocationRequest) returns (ExternalLocationInfo) {
+  rpc CreateExternalLocation(CreateExternalLocationRequest) returns (ExternalLocation) {
     option (google.api.http) = {
       post: "/external-locations"
       body: "*"
@@ -154,13 +154,13 @@ service ExternalLocationsService {
   }
 
   // Get an external location
-  rpc GetExternalLocation(GetExternalLocationRequest) returns (ExternalLocationInfo) {
+  rpc GetExternalLocation(GetExternalLocationRequest) returns (ExternalLocation) {
     option (google.api.http) = {get: "/external-locations/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetExternalLocation"};
   }
 
   // Update an external location
-  rpc UpdateExternalLocation(UpdateExternalLocationRequest) returns (ExternalLocationInfo) {
+  rpc UpdateExternalLocation(UpdateExternalLocationRequest) returns (ExternalLocation) {
     option (google.api.http) = {
       patch: "/external-locations/{name}"
       body: "*"

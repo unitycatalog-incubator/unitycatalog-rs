@@ -10,7 +10,7 @@ pub struct PyRecipientClient {
 }
 #[pymethods]
 impl PyRecipientClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<RecipientInfo> {
+    pub fn get(&self, py: Python) -> PyUnityCatalogResult<Recipient> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -35,7 +35,7 @@ impl PyRecipientClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
         expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
+    ) -> PyUnityCatalogResult<Recipient> {
         let mut request = self.client.update();
         request = request.with_new_name(new_name);
         request = request.with_owner(owner);

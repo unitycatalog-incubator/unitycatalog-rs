@@ -3,7 +3,7 @@ use itertools::Itertools;
 
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::{
-    DataObjectType, GetShareRequest as SharesGetShareRequest, ShareInfo,
+    DataObjectType, GetShareRequest as SharesGetShareRequest, Share,
 };
 use unitycatalog_sharing_client::models::sharing::v1::{Share as SharingShare, *};
 
@@ -44,7 +44,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::ShareInfo,
+                &ObjectLabel::Share,
                 None,
                 request.max_results.map(|v| v as usize),
                 request.page_token.clone(),
@@ -57,7 +57,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
             return SharingHandler::list_shares(self, request, context).await;
         }
 
-        let shares: Vec<ShareInfo> = resources.into_iter().map(|r| r.try_into()).try_collect()?;
+        let shares: Vec<Share> = resources.into_iter().map(|r| r.try_into()).try_collect()?;
 
         Ok(ListSharesResponse {
             items: shares
@@ -71,14 +71,18 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         })
     }
 
-    async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share> {
+    async fn get_share(
+        &self,
+        request: GetShareRequest,
+        context: RequestContext,
+    ) -> Result<SharingShare> {
         self.check_required(&request, context.recipient()).await?;
         let shares_request = SharesGetShareRequest {
             name: request.name,
             include_shared_data: Some(false),
         };
-        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
-        Ok(Share {
+        let share: Share = self.get(&shares_request.resource()).await?.0.try_into()?;
+        Ok(SharingShare {
             name: share.name,
             id: share.id,
         })
@@ -94,10 +98,10 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
             name: request.share,
             include_shared_data: Some(true),
         };
-        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
+        let share: Share = self.get(&shares_request.resource()).await?.0.try_into()?;
         Ok(ListSchemasResponse {
             items: share
-                .data_objects
+                .objects
                 .into_iter()
                 .filter_map(|a| {
                     if matches!(a.data_object_type(), DataObjectType::Table) {
@@ -126,9 +130,9 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
             name: request.share,
             include_shared_data: Some(true),
         };
-        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
+        let share: Share = self.get(&shares_request.resource()).await?.0.try_into()?;
         let items = share
-            .data_objects
+            .objects
             .into_iter()
             .filter_map(|a| {
                 if matches!(a.data_object_type(), DataObjectType::Table) {
@@ -165,9 +169,9 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
             name: request.name,
             include_shared_data: Some(true),
         };
-        let share: ShareInfo = self.get(&shares_request.resource()).await?.0.try_into()?;
+        let share: Share = self.get(&shares_request.resource()).await?.0.try_into()?;
         let items = share
-            .data_objects
+            .objects
             .into_iter()
             .filter_map(|a| {
                 if matches!(a.data_object_type(), DataObjectType::Table) {

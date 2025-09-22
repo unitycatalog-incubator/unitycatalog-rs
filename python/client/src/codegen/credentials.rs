@@ -9,7 +9,7 @@ pub struct PyCredentialClient {
 }
 #[pymethods]
 impl PyCredentialClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<CredentialInfo> {
+    pub fn get(&self, py: Python) -> PyUnityCatalogResult<Credential> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -42,7 +42,7 @@ impl PyCredentialClient {
         azure_service_principal: Option<AzureServicePrincipal>,
         azure_managed_identity: Option<AzureManagedIdentity>,
         azure_storage_key: Option<AzureStorageKey>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
+    ) -> PyUnityCatalogResult<Credential> {
         let mut request = self.client.update();
         request = request.with_new_name(new_name);
         request = request.with_comment(comment);

@@ -8,7 +8,7 @@ pub use tables::TableHandler;
 pub use temporary_credentials::TemporaryCredentialHandler;
 pub use volumes::VolumeHandler;
 
-use crate::policy::{Permission, Recipient};
+use crate::policy::{Permission, Principal};
 use unitycatalog_common::models::ResourceIdent;
 
 pub mod catalogs;
@@ -24,17 +24,17 @@ pub mod volumes;
 
 #[derive(Debug, Clone)]
 pub struct RequestContext {
-    pub recipient: Recipient,
+    pub recipient: Principal,
 }
 
 impl RequestContext {
-    pub fn recipient(&self) -> &Recipient {
+    pub fn recipient(&self) -> &Principal {
         &self.recipient
     }
 }
 
-impl AsRef<Recipient> for RequestContext {
-    fn as_ref(&self) -> &Recipient {
+impl AsRef<Principal> for RequestContext {
+    fn as_ref(&self) -> &Principal {
         &self.recipient
     }
 }

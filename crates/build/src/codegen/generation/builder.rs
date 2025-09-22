@@ -325,14 +325,7 @@ fn generate_into_stream_impl(
     method: MethodHandler<'_>,
     client_method_name: &proc_macro2::Ident,
 ) -> TokenStream {
-    let items_field = method
-        .output_message()
-        .unwrap()
-        .info
-        .fields
-        .iter()
-        .find(|f| !f.name.contains("page_token"))
-        .unwrap();
+    let items_field = method.list_output_field().unwrap();
     let item_field_ident = format_ident!("{}", items_field.name);
     let output_type_ident = extract_type_ident(&items_field.field_type);
 

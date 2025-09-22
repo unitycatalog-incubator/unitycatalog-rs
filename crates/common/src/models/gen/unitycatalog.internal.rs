@@ -34,36 +34,22 @@ pub mod resource {
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Resource {
         #[prost(message, tag = "1")]
-        ShareInfo(super::super::shares::v1::ShareInfo),
+        Share(super::super::shares::v1::Share),
         #[prost(message, tag = "4")]
-        CredentialInfo(super::super::credentials::v1::CredentialInfo),
+        Credential(super::super::credentials::v1::Credential),
         #[prost(message, tag = "6")]
-        CatalogInfo(super::super::catalogs::v1::CatalogInfo),
+        Catalog(super::super::catalogs::v1::Catalog),
         #[prost(message, tag = "7")]
-        SchemaInfo(super::super::schemas::v1::SchemaInfo),
+        Schema(super::super::schemas::v1::Schema),
         #[prost(message, tag = "8")]
-        TableInfo(super::super::tables::v1::TableInfo),
+        Table(super::super::tables::v1::Table),
         #[prost(message, tag = "9")]
-        ColumnInfo(super::super::tables::v1::ColumnInfo),
+        Column(super::super::tables::v1::Column),
         #[prost(message, tag = "10")]
-        ExternalLocationInfo(super::super::external_locations::v1::ExternalLocationInfo),
+        ExternalLocation(super::super::external_locations::v1::ExternalLocation),
         #[prost(message, tag = "11")]
-        RecipientInfo(super::super::recipients::v1::RecipientInfo),
+        Recipient(super::super::recipients::v1::Recipient),
     }
-}
-#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ObjectRelations {
-    /// Username of current owner of table.
-    #[prost(string, optional, tag = "1")]
-    pub owner: ::core::option::Option<::prost::alloc::string::String>,
-    /// Username of table creator.
-    #[prost(string, optional, tag = "2")]
-    pub created_by: ::core::option::Option<::prost::alloc::string::String>,
-    /// Username of user who last modified table.
-    #[prost(string, optional, tag = "3")]
-    pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
 }
 include!("unitycatalog.internal.serde.rs");
 // @@protoc_insertion_point(module)

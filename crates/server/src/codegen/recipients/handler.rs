@@ -13,17 +13,17 @@ pub trait RecipientHandler: Send + Sync + 'static {
         &self,
         request: CreateRecipientRequest,
         context: RequestContext,
-    ) -> Result<RecipientInfo>;
+    ) -> Result<Recipient>;
     async fn get_recipient(
         &self,
         request: GetRecipientRequest,
         context: RequestContext,
-    ) -> Result<RecipientInfo>;
+    ) -> Result<Recipient>;
     async fn update_recipient(
         &self,
         request: UpdateRecipientRequest,
         context: RequestContext,
-    ) -> Result<RecipientInfo>;
+    ) -> Result<Recipient>;
     async fn delete_recipient(
         &self,
         request: DeleteRecipientRequest,

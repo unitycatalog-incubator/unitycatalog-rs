@@ -18,7 +18,7 @@ import { file_google_api_resource } from "../../../google/api/resource_pb";
 export const file_unitycatalog_recipients_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "Cid1bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MS9tb2RlbHMucHJvdG8SGnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxIp0BCg5SZWNpcGllbnRUb2tlbhIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgDEhIKCmNyZWF0ZWRfYnkYAyABKAkSFgoOYWN0aXZhdGlvbl91cmwYBCABKAkSFwoPZXhwaXJhdGlvbl90aW1lGAUgASgDEhIKCnVwZGF0ZWRfYXQYBiABKAMSEgoKdXBkYXRlZF9ieRgHIAEoCSLgBAoNUmVjaXBpZW50SW5mbxIPCgJpZBhkIAEoCUgAiAEBEgwKBG5hbWUYASABKAkSSwoTYXV0aGVudGljYXRpb25fdHlwZRgCIAEoDjIuLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLkF1dGhlbnRpY2F0aW9uVHlwZRINCgVvd25lchgDIAEoCRIUCgdjb21tZW50GAQgASgJSAGIAQESTQoKcHJvcGVydGllcxgGIAMoCzI5LnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudEluZm8uUHJvcGVydGllc0VudHJ5EhcKCmNyZWF0ZWRfYXQYByABKANIAogBARIXCgpjcmVhdGVkX2J5GAggASgJSAOIAQESOgoGdG9rZW5zGAkgAygLMioudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuUmVjaXBpZW50VG9rZW4SFwoKdXBkYXRlZF9hdBgKIAEoA0gEiAEBEhcKCnVwZGF0ZWRfYnkYCyABKAlIBYgBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpN6kFKChl1bml0eWNhdGFsb2cuaW8vUmVjaXBpZW50EhZyZWNpcGllbnRzL3tyZWNpcGllbnR9KgpyZWNpcGllbnRzMglyZWNpcGllbnRCBQoDX2lkQgoKCF9jb21tZW50Qg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5KmIKEkF1dGhlbnRpY2F0aW9uVHlwZRIjCh9BVVRIRU5USUNBVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASCQoFVE9LRU4QARIcChhPQVVUSF9DTElFTlRfQ1JFREVOVElBTFMQAkKPAgoeY29tLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxQgtNb2RlbHNQcm90b1ABWlZnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9yZWNpcGllbnRzL3YxO3JlY2lwaWVudHN2MaICA1VSWKoCGlVuaXR5Y2F0YWxvZy5SZWNpcGllbnRzLlYxygIaVW5pdHljYXRhbG9nXFJlY2lwaWVudHNcVjHiAiZVbml0eWNhdGFsb2dcUmVjaXBpZW50c1xWMVxHUEJNZXRhZGF0YeoCHFVuaXR5Y2F0YWxvZzo6UmVjaXBpZW50czo6VjFiBnByb3RvMw",
+    "Cid1bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MS9tb2RlbHMucHJvdG8SGnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxIp0BCg5SZWNpcGllbnRUb2tlbhIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgDEhIKCmNyZWF0ZWRfYnkYAyABKAkSFgoOYWN0aXZhdGlvbl91cmwYBCABKAkSFwoPZXhwaXJhdGlvbl90aW1lGAUgASgDEhIKCnVwZGF0ZWRfYXQYBiABKAMSEgoKdXBkYXRlZF9ieRgHIAEoCSLYBAoJUmVjaXBpZW50Eg8KAmlkGGQgASgJSACIAQESDAoEbmFtZRgBIAEoCRJLChNhdXRoZW50aWNhdGlvbl90eXBlGAIgASgOMi4udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQXV0aGVudGljYXRpb25UeXBlEg0KBW93bmVyGAMgASgJEhQKB2NvbW1lbnQYBCABKAlIAYgBARJJCgpwcm9wZXJ0aWVzGAYgAygLMjUudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuUmVjaXBpZW50LlByb3BlcnRpZXNFbnRyeRIXCgpjcmVhdGVkX2F0GAcgASgDSAKIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgDiAEBEjoKBnRva2VucxgJIAMoCzIqLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudFRva2VuEhcKCnVwZGF0ZWRfYXQYCiABKANIBIgBARIXCgp1cGRhdGVkX2J5GAsgASgJSAWIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6TepBSgoZdW5pdHljYXRhbG9nLmlvL1JlY2lwaWVudBIWcmVjaXBpZW50cy97cmVjaXBpZW50fSoKcmVjaXBpZW50czIJcmVjaXBpZW50QgUKA19pZEIKCghfY29tbWVudEINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieSpiChJBdXRoZW50aWNhdGlvblR5cGUSIwofQVVUSEVOVElDQVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEgkKBVRPS0VOEAESHAoYT0FVVEhfQ0xJRU5UX0NSRURFTlRJQUxTEAJCjwIKHmNvbS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MUILTW9kZWxzUHJvdG9QAVpWZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MTtyZWNpcGllbnRzdjGiAgNVUliqAhpVbml0eWNhdGFsb2cuUmVjaXBpZW50cy5WMcoCGlVuaXR5Y2F0YWxvZ1xSZWNpcGllbnRzXFYx4gImVW5pdHljYXRhbG9nXFJlY2lwaWVudHNcVjFcR1BCTWV0YWRhdGHqAhxVbml0eWNhdGFsb2c6OlJlY2lwaWVudHM6OlYxYgZwcm90bzM",
     [file_google_api_resource, file_google_protobuf_struct],
   );
 
@@ -86,93 +86,92 @@ export const RecipientTokenSchema: GenMessage<RecipientToken> =
   messageDesc(file_unitycatalog_recipients_v1_models, 0);
 
 /**
- * @generated from message unitycatalog.recipients.v1.RecipientInfo
+ * @generated from message unitycatalog.recipients.v1.Recipient
  */
-export type RecipientInfo =
-  Message<"unitycatalog.recipients.v1.RecipientInfo"> & {
-    /**
-     * Unique ID of the recipient.
-     *
-     * @generated from field: optional string id = 100;
-     */
-    id?: string;
+export type Recipient = Message<"unitycatalog.recipients.v1.Recipient"> & {
+  /**
+   * Unique ID of the recipient.
+   *
+   * @generated from field: optional string id = 100;
+   */
+  id?: string;
 
-    /**
-     * The name of the recipient.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+  /**
+   * The name of the recipient.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The delta sharing authentication type.
-     *
-     * @generated from field: unitycatalog.recipients.v1.AuthenticationType authentication_type = 2;
-     */
-    authenticationType: AuthenticationType;
+  /**
+   * The delta sharing authentication type.
+   *
+   * @generated from field: unitycatalog.recipients.v1.AuthenticationType authentication_type = 2;
+   */
+  authenticationType: AuthenticationType;
 
-    /**
-     * Username of the recipient owner.
-     *
-     * @generated from field: string owner = 3;
-     */
-    owner: string;
+  /**
+   * Username of the recipient owner.
+   *
+   * @generated from field: string owner = 3;
+   */
+  owner: string;
 
-    /**
-     * Description about the recipient.
-     *
-     * @generated from field: optional string comment = 4;
-     */
-    comment?: string;
+  /**
+   * Description about the recipient.
+   *
+   * @generated from field: optional string comment = 4;
+   */
+  comment?: string;
 
-    /**
-     * A map of key-value properties attached to the securable.
-     *
-     * @generated from field: map<string, string> properties = 6;
-     */
-    properties: { [key: string]: string };
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * @generated from field: map<string, string> properties = 6;
+   */
+  properties: { [key: string]: string };
 
-    /**
-     * Time at which this share was created, in epoch milliseconds.
-     *
-     * @generated from field: optional int64 created_at = 7;
-     */
-    createdAt?: bigint;
+  /**
+   * Time at which this share was created, in epoch milliseconds.
+   *
+   * @generated from field: optional int64 created_at = 7;
+   */
+  createdAt?: bigint;
 
-    /**
-     * Username of the creator of the share.
-     *
-     * @generated from field: optional string created_by = 8;
-     */
-    createdBy?: string;
+  /**
+   * Username of the creator of the share.
+   *
+   * @generated from field: optional string created_by = 8;
+   */
+  createdBy?: string;
 
-    /**
-     * This field is only present when the authentication_type is TOKEN.
-     *
-     * @generated from field: repeated unitycatalog.recipients.v1.RecipientToken tokens = 9;
-     */
-    tokens: RecipientToken[];
+  /**
+   * This field is only present when the authentication_type is TOKEN.
+   *
+   * @generated from field: repeated unitycatalog.recipients.v1.RecipientToken tokens = 9;
+   */
+  tokens: RecipientToken[];
 
-    /**
-     * Time at which this share was updated, in epoch milliseconds.
-     *
-     * @generated from field: optional int64 updated_at = 10;
-     */
-    updatedAt?: bigint;
+  /**
+   * Time at which this share was updated, in epoch milliseconds.
+   *
+   * @generated from field: optional int64 updated_at = 10;
+   */
+  updatedAt?: bigint;
 
-    /**
-     * Username of share updater.
-     *
-     * @generated from field: optional string updated_by = 11;
-     */
-    updatedBy?: string;
-  };
+  /**
+   * Username of share updater.
+   *
+   * @generated from field: optional string updated_by = 11;
+   */
+  updatedBy?: string;
+};
 
 /**
- * Describes the message unitycatalog.recipients.v1.RecipientInfo.
- * Use `create(RecipientInfoSchema)` to create a new message.
+ * Describes the message unitycatalog.recipients.v1.Recipient.
+ * Use `create(RecipientSchema)` to create a new message.
  */
-export const RecipientInfoSchema: GenMessage<RecipientInfo> =
+export const RecipientSchema: GenMessage<Recipient> =
   /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_models, 1);
 

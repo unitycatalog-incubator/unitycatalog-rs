@@ -34,8 +34,8 @@ pub fn main_module(services: &[ServiceHandler<'_>]) -> String {
 
 /// Generate Python bindings for a service
 pub(crate) fn generate(service: &ServiceHandler<'_>) -> String {
-    let client_ident = format_ident!("{}", format!("Py{}", service.client_type()));
     let rust_client_ident = service.client_type();
+    let client_ident = format_ident!("{}", format!("Py{}", rust_client_ident));
     let rust_client_name = rust_client_ident.to_string();
 
     let methods = service.methods().filter_map(resource_client_method);
@@ -73,18 +73,6 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
     let mut services = services.iter().collect_vec();
     services.sort_by(|a, b| a.plan.service_name.cmp(&b.plan.service_name));
 
-    let methods = services.iter().flat_map(|s| {
-        s.methods().filter_map(|m| {
-            m.is_collection_method()
-                .then(|| collection_client_method(m))
-                .flatten()
-        })
-    });
-
-    let resource_accessor_methods = services
-        .iter()
-        .filter_map(|s| generate_resource_accessor_method(s));
-
     let mod_paths = services.iter().map(|s| {
         let mod_path = s.models_path();
         quote! { use #mod_path::*; }
@@ -95,6 +83,14 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
         let client_name = format_ident!("Py{}", s.client_type().to_string());
         quote! { use crate::codegen::#mod_name::#client_name; }
     });
+
+    let methods = services
+        .iter()
+        .flat_map(|s| s.methods().filter_map(collection_client_method));
+
+    let resource_accessor_methods = services
+        .iter()
+        .filter_map(|s| generate_resource_accessor_method(s));
 
     quote! {
         use std::collections::HashMap;
@@ -143,6 +139,9 @@ fn resource_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
 }
 
 fn collection_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
+    if !method.is_collection_method() {
+        return None;
+    }
     match &method.plan.request_type {
         RequestType::List => Some(collection_list_method_impl(&method)),
         RequestType::Create => Some(collection_create_method_impl(&method)),
@@ -159,8 +158,8 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let client_call = inner_resource_client_call(method, true);
     let builder_calls = generate_builder_pattern(method, true);
 
-    let response_type = extract_list_inner_type(&method.output_type().unwrap().to_string());
-    let response_type = format_ident!("{}", response_type);
+    let items_field = method.list_output_field().unwrap();
+    let response_type = method.field_type(&items_field.unified_type, RenderContext::ReturnType);
 
     quote! {
         #pyo3_signature
@@ -168,7 +167,7 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
             &self,
             py: Python,
             #(#param_defs,)*
-        ) -> PyUnityCatalogResult<Vec<#response_type>> {
+        ) -> PyUnityCatalogResult<#response_type> {
             let mut request = #client_call;
             #(#builder_calls)*
             let runtime = get_runtime(py)?;
@@ -529,27 +528,6 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
     }
 
     builder_calls
-}
-
-/// Extract inner type from List response types
-fn extract_list_inner_type(response_type: &str) -> String {
-    // Convert "ListCatalogsResponse" -> "CatalogInfo"
-    // Convert "ListSchemasResponse" -> "SchemaInfo"
-    if let Some(stripped) = response_type.strip_prefix("List") {
-        if let Some(base) = stripped.strip_suffix("Response") {
-            // Handle plural -> singular conversion
-            let singular = if base.ends_with("s") {
-                &base[..base.len() - 1]
-            } else {
-                base
-            };
-            format!("{}Info", singular)
-        } else {
-            response_type.to_string()
-        }
-    } else {
-        response_type.to_string()
-    }
 }
 
 /// Generate resource accessor method for the main client

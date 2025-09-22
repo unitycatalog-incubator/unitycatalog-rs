@@ -15,7 +15,7 @@ import { file_google_api_resource } from "../../../google/api/resource_pb";
 export const file_unitycatalog_schemas_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIpAECgpTY2hlbWFJbmZvEgwKBG5hbWUYASABKAkSFAoMY2F0YWxvZ19uYW1lGAIgASgJEhEKCWZ1bGxfbmFtZRgDIAEoCRIUCgdjb21tZW50GAQgASgJSACIAQESRwoKcHJvcGVydGllcxgFIAMoCzIzLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUluZm8uUHJvcGVydGllc0VudHJ5EhIKBW93bmVyGAYgASgJSAGIAQESFwoKY3JlYXRlZF9hdBgHIAEoA0gCiAEBEhcKCmNyZWF0ZWRfYnkYCCABKAlIA4gBARIXCgp1cGRhdGVkX2F0GAkgASgDSASIAQESFwoKdXBkYXRlZF9ieRgKIAEoCUgFiAEBEhYKCXNjaGVtYV9pZBgLIAEoCUgGiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOknqQUYKFnVuaXR5Y2F0YWxvZy5pby9TY2hlbWESEHNjaGVtYXMve3NjaGVtYX0aCWZ1bGxfbmFtZSoHc2NoZW1hczIGc2NoZW1hQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfc2NoZW1hX2lkQvoBChtjb20udW5pdHljYXRhbG9nLnNjaGVtYXMudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NjaGVtYXMvdjE7c2NoZW1hc3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNjaGVtYXMuVjHKAhdVbml0eWNhdGFsb2dcU2NoZW1hc1xWMeICI1VuaXR5Y2F0YWxvZ1xTY2hlbWFzXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTY2hlbWFzOjpWMWIGcHJvdG8z",
+    "CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIogECgZTY2hlbWESDAoEbmFtZRgBIAEoCRIUCgxjYXRhbG9nX25hbWUYAiABKAkSEQoJZnVsbF9uYW1lGAMgASgJEhQKB2NvbW1lbnQYBCABKAlIAIgBARJDCgpwcm9wZXJ0aWVzGAUgAygLMi8udW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hLlByb3BlcnRpZXNFbnRyeRISCgVvd25lchgGIAEoCUgBiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIAogBARIXCgpjcmVhdGVkX2J5GAggASgJSAOIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gEiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBYgBARIWCglzY2hlbWFfaWQYCyABKAlIBogBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpJ6kFGChZ1bml0eWNhdGFsb2cuaW8vU2NoZW1hEhBzY2hlbWFzL3tzY2hlbWF9GglmdWxsX25hbWUqB3NjaGVtYXMyBnNjaGVtYUIKCghfY29tbWVudEIICgZfb3duZXJCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDAoKX3NjaGVtYV9pZEL6AQobY29tLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxQgtNb2RlbHNQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zY2hlbWFzL3YxO3NjaGVtYXN2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TY2hlbWFzLlYxygIXVW5pdHljYXRhbG9nXFNjaGVtYXNcVjHiAiNVbml0eWNhdGFsb2dcU2NoZW1hc1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2NoZW1hczo6VjFiBnByb3RvMw",
     [
       file_google_api_field_behavior,
       file_google_api_resource,
@@ -26,9 +26,9 @@ export const file_unitycatalog_schemas_v1_models: GenFile =
 /**
  * A schema is a namespace within a catalog that contains tables.
  *
- * @generated from message unitycatalog.schemas.v1.SchemaInfo
+ * @generated from message unitycatalog.schemas.v1.Schema
  */
-export type SchemaInfo = Message<"unitycatalog.schemas.v1.SchemaInfo"> & {
+export type Schema = Message<"unitycatalog.schemas.v1.Schema"> & {
   /**
    * Name of schema, relative to parent catalog.
    *
@@ -108,9 +108,9 @@ export type SchemaInfo = Message<"unitycatalog.schemas.v1.SchemaInfo"> & {
 };
 
 /**
- * Describes the message unitycatalog.schemas.v1.SchemaInfo.
- * Use `create(SchemaInfoSchema)` to create a new message.
+ * Describes the message unitycatalog.schemas.v1.Schema.
+ * Use `create(SchemaSchema)` to create a new message.
  */
-export const SchemaInfoSchema: GenMessage<SchemaInfo> =
+export const SchemaSchema: GenMessage<Schema> =
   /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_models, 0);

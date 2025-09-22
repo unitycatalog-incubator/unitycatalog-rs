@@ -28,7 +28,7 @@ impl ListRecipientsBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<RecipientInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Recipient>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_recipients(&builder.request).await?;
@@ -104,7 +104,7 @@ impl CreateRecipientBuilder {
     }
 }
 impl IntoFuture for CreateRecipientBuilder {
-    type Output = Result<RecipientInfo>;
+    type Output = Result<Recipient>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -128,7 +128,7 @@ impl GetRecipientBuilder {
     }
 }
 impl IntoFuture for GetRecipientBuilder {
-    type Output = Result<RecipientInfo>;
+    type Output = Result<Recipient>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -188,7 +188,7 @@ impl UpdateRecipientBuilder {
     }
 }
 impl IntoFuture for UpdateRecipientBuilder {
-    type Output = Result<RecipientInfo>;
+    type Output = Result<Recipient>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

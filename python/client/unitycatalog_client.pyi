@@ -5,7 +5,7 @@ import enum
 # Import Python class for runtime context
 from typing import Literal
 
-class CatalogInfo:
+class Catalog:
     id: str | None
     name: str
     """The name of the catalog."""
@@ -42,7 +42,7 @@ class CatalogInfo:
     through the BROWSE privilege when include_browse is enabled in the request.
     """
 
-class SchemaInfo:
+class Schema:
     name: str
     catalog_name: str
     comment: str | None
@@ -99,7 +99,7 @@ class TableType(enum.Enum):
     Managed = 1
     External = 2
 
-class ColumnInfo:
+class Column:
     name: str
     type_text: str
     type_json: str
@@ -117,13 +117,13 @@ class TableSummary:
     full_name: str
     table_type: TableType
 
-class TableInfo:
+class Table:
     name: str
     schema_name: str
     catalog_name: str
     table_type: TableType
     data_source_format: DataSourceFormat
-    columns: list[ColumnInfo]
+    columns: list[Column]
     storage_location: str | None
     owner: str | None
     comment: str | None
@@ -179,7 +179,7 @@ class AzureStorageKey:
 
     def __init__(self, account_name: str, account_key: str) -> None: ...
 
-class CredentialInfo:
+class Credential:
     id: str
     name: str
     purpose: Purpose
@@ -196,7 +196,7 @@ class CredentialInfo:
     azure_managed_identity: AzureManagedIdentity | None
     azure_storage_key: AzureStorageKey | None
 
-class ExternalLocationInfo:
+class ExternalLocation:
     name: str
     url: str
     credential_name: str
@@ -300,7 +300,7 @@ class VolumeType:
     EXTERNAL = 1
     MANAGED = 2
 
-class VolumeInfo:
+class Volume:
     """Information about a Unity Catalog volume."""
 
     name: str
@@ -371,11 +371,11 @@ class TableClient:
         include_delta_metadata: bool | None = None,
         include_browse: bool | None = None,
         include_manifest_capabilities: bool | None = None,
-    ) -> TableInfo: ...
+    ) -> Table: ...
     def delete(self) -> None: ...
 
 class SchemaClient:
-    def get(self) -> SchemaInfo: ...
+    def get(self) -> Schema: ...
     def table(self, name: str) -> TableClient:
         """Get a TableClient for the specified table in this schema.
 
@@ -390,11 +390,11 @@ class SchemaClient:
         table_name: str,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: list[ColumnInfo],
+        columns: list[Column],
         storage_location: str | None = None,
         comment: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> TableInfo:
+    ) -> Table:
         """Create a new table in this schema.
 
         Args:
@@ -407,23 +407,23 @@ class SchemaClient:
             properties: A map of key-value properties attached to the table.
 
         Returns:
-            The created TableInfo object.
+            The created Table object.
         """
     def update(
         self,
         new_name: str | None = None,
         comment: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> SchemaInfo: ...
+    ) -> Schema: ...
     def delete(self, force: bool | None = None) -> None: ...
 
 class CatalogClient:
-    def get(self) -> CatalogInfo: ...
+    def get(self) -> Catalog: ...
     def create_schema(
         self,
         schema_name: str,
         comment: str | None = None,
-    ) -> SchemaInfo:
+    ) -> Schema:
         """Create a new schema in this catalog.
 
         Args:
@@ -431,7 +431,7 @@ class CatalogClient:
             comment: User-provided free-form text description.
 
         Returns:
-            The created SchemaInfo object.
+            The created Schema object.
         """
     def update(
         self,
@@ -439,11 +439,11 @@ class CatalogClient:
         comment: str | None = None,
         owner: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> CatalogInfo: ...
+    ) -> Catalog: ...
     def delete(self, force: bool | None = None) -> None: ...
 
 class CredentialClient:
-    def get(self) -> CredentialInfo: ...
+    def get(self) -> Credential: ...
     def update(
         self,
         new_name: str | None = None,
@@ -453,11 +453,11 @@ class CredentialClient:
         skip_validation: bool | None = None,
         force: bool | None = None,
         credential: object | None = None,
-    ) -> CredentialInfo: ...
+    ) -> Credential: ...
     def delete(self) -> None: ...
 
 class ExternalLocationClient:
-    def get(self) -> ExternalLocationInfo: ...
+    def get(self) -> ExternalLocation: ...
     def update(
         self,
         new_name: str | None = None,
@@ -468,7 +468,7 @@ class ExternalLocationClient:
         read_only: bool | None = None,
         skip_validation: bool | None = None,
         force: bool | None = None,
-    ) -> ExternalLocationInfo: ...
+    ) -> ExternalLocation: ...
     def delete(self, force: bool | None = None) -> None: ...
 
 class RecipientClient:
@@ -505,7 +505,7 @@ class PyUnityCatalogClient:
         """
 
     # Catalog methods
-    def list_catalogs(self, max_results: int | None = None) -> list[CatalogInfo]:
+    def list_catalogs(self, max_results: int | None = None) -> list[Catalog]:
         """Gets an array of catalogs in the metastore.
 
         If the caller is the metastore admin, all catalogs will be retrieved.
@@ -517,7 +517,7 @@ class PyUnityCatalogClient:
             max_results: The maximum number of catalogs to return.
 
         Returns:
-            A list of CatalogInfo objects.
+            A list of Catalog objects.
         """
 
     def catalog(self, name: str) -> CatalogClient: ...
@@ -525,7 +525,7 @@ class PyUnityCatalogClient:
     # Schema methods
     def list_schemas(
         self, catalog_name: str, max_results: int | None = None
-    ) -> list[SchemaInfo]: ...
+    ) -> list[Schema]: ...
     def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
 
     # Table methods
@@ -538,7 +538,7 @@ class PyUnityCatalogClient:
         omit_columns: bool | None = None,
         omit_properties: bool | None = None,
         omit_username: bool | None = None,
-    ) -> list[TableInfo]: ...
+    ) -> list[Table]: ...
     def table(self, full_name: str) -> TableClient: ...
 
     # Share methods
@@ -554,13 +554,13 @@ class PyUnityCatalogClient:
     # Credential methods
     def list_credentials(
         self, purpose: Purpose | None = None, max_results: int | None = None
-    ) -> list[CredentialInfo]: ...
+    ) -> list[Credential]: ...
     def credential(self, name: str) -> CredentialClient: ...
 
     # External location methods
     def list_external_locations(
         self, max_results: int | None = None
-    ) -> list[ExternalLocationInfo]: ...
+    ) -> list[ExternalLocation]: ...
     def external_location(self, name: str) -> ExternalLocationClient: ...
 
     # Create methods
@@ -570,7 +570,7 @@ class PyUnityCatalogClient:
         storage_root: str | None = None,
         comment: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> CatalogInfo:
+    ) -> Catalog:
         """Create a new managed catalog.
 
         Args:
@@ -580,7 +580,7 @@ class PyUnityCatalogClient:
             properties: A map of key-value properties attached to the catalog.
 
         Returns:
-            The created CatalogInfo object.
+            The created Catalog object.
         """
 
     def create_sharing_catalog(
@@ -590,7 +590,7 @@ class PyUnityCatalogClient:
         share_name: str,
         comment: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> CatalogInfo:
+    ) -> Catalog:
         """Create a new sharing catalog.
 
         Args:
@@ -601,7 +601,7 @@ class PyUnityCatalogClient:
             properties: A map of key-value properties attached to the catalog.
 
         Returns:
-            The created CatalogInfo object.
+            The created Catalog object.
         """
 
     def create_schema(
@@ -609,7 +609,7 @@ class PyUnityCatalogClient:
         catalog_name: str,
         schema_name: str,
         comment: str | None = None,
-    ) -> SchemaInfo:
+    ) -> Schema:
         """Create a new schema.
 
         Args:
@@ -618,7 +618,7 @@ class PyUnityCatalogClient:
             comment: User-provided free-form text description.
 
         Returns:
-            The created SchemaInfo object.
+            The created Schema object.
         """
 
     def create_share(
@@ -658,7 +658,7 @@ class PyUnityCatalogClient:
         name: str,
         purpose: Purpose,
         comment: str | None = None,
-    ) -> CredentialInfo:
+    ) -> Credential:
         """Create a new credential.
 
         Args:
@@ -667,7 +667,7 @@ class PyUnityCatalogClient:
             comment: User-provided free-form text description.
 
         Returns:
-            The created CredentialInfo object.
+            The created Credential object.
         """
 
     def create_external_location(
@@ -676,7 +676,7 @@ class PyUnityCatalogClient:
         url: str,
         credential_name: str,
         comment: str | None = None,
-    ) -> ExternalLocationInfo:
+    ) -> ExternalLocation:
         """Create a new external location.
 
         Args:
@@ -686,7 +686,7 @@ class PyUnityCatalogClient:
             comment: User-provided free-form text description.
 
         Returns:
-            The created ExternalLocationInfo object.
+            The created ExternalLocation object.
         """
     def temporary_credentials(self) -> TemporaryCredentialClient:
         """Get a client for managing temporary credentials.
@@ -702,7 +702,7 @@ class PyUnityCatalogClient:
         schema_name: str,
         max_results: int | None = None,
         include_browse: bool | None = None,
-    ) -> list[VolumeInfo]: ...
+    ) -> list[Volume]: ...
     def volume(
         self, catalog_name: str, schema_name: str, volume_name: str
     ) -> VolumeClient: ...
@@ -715,17 +715,17 @@ class PyUnityCatalogClient:
         volume_type: VolumeType,
         storage_location: str | None = None,
         comment: str | None = None,
-    ) -> VolumeInfo: ...
+    ) -> Volume: ...
 
 class VolumeClient:
-    def get(self, include_browse: bool | None = None) -> VolumeInfo: ...
+    def get(self, include_browse: bool | None = None) -> Volume: ...
     def update(
         self,
         new_name: str | None = None,
         comment: str | None = None,
         owner: str | None = None,
         include_browse: bool | None = None,
-    ) -> VolumeInfo: ...
+    ) -> Volume: ...
     def delete(self) -> None: ...
 
 class TemporaryCredentialClient:

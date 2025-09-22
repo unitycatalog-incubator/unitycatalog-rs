@@ -16,9 +16,9 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         &self,
         request: CreateRecipientRequest,
         context: RequestContext,
-    ) -> Result<RecipientInfo> {
+    ) -> Result<Recipient> {
         self.check_required(&request, context.as_ref()).await?;
-        let resource = RecipientInfo {
+        let resource = Recipient {
             name: request.name,
             authentication_type: request.authentication_type,
             comment: request.comment,
@@ -46,7 +46,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         &self,
         request: GetRecipientRequest,
         context: RequestContext,
-    ) -> Result<RecipientInfo> {
+    ) -> Result<Recipient> {
         self.check_required(&request, context.recipient()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
@@ -59,7 +59,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::RecipientInfo,
+                &ObjectLabel::Recipient,
                 None,
                 request.max_results.map(|v| v as usize),
                 request.page_token,
@@ -76,7 +76,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         &self,
         _request: UpdateRecipientRequest,
         _context: RequestContext,
-    ) -> Result<RecipientInfo> {
+    ) -> Result<Recipient> {
         // TODO: once we have token handling, we can update token expiration etc...
         todo!("update_recipient")
     }

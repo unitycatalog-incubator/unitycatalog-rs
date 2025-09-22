@@ -32,14 +32,14 @@ impl ShareClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_share(&self, request: &CreateShareRequest) -> Result<ShareInfo> {
+    pub async fn create_share(&self, request: &CreateShareRequest) -> Result<Share> {
         let mut url = self.base_url.join("shares")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_share(&self, request: &GetShareRequest) -> Result<ShareInfo> {
+    pub async fn get_share(&self, request: &GetShareRequest) -> Result<Share> {
         let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_shared_data {
@@ -51,7 +51,7 @@ impl ShareClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn update_share(&self, request: &UpdateShareRequest) -> Result<ShareInfo> {
+    pub async fn update_share(&self, request: &UpdateShareRequest) -> Result<Share> {
         let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
@@ -65,5 +65,35 @@ impl ShareClient {
         let response = self.client.delete(url).send().await?;
         response.error_for_status()?;
         Ok(())
+    }
+    pub async fn get_permissions(
+        &self,
+        request: &GetPermissionsRequest,
+    ) -> Result<GetPermissionsResponse> {
+        let formatted_path = format!("shares/{}/permissions", request.name);
+        let mut url = self.base_url.join(&formatted_path)?;
+        if let Some(ref value) = request.max_results {
+            url.query_pairs_mut()
+                .append_pair("max_results", &value.to_string());
+        }
+        if let Some(ref value) = request.page_token {
+            url.query_pairs_mut()
+                .append_pair("page_token", &value.to_string());
+        }
+        let response = self.client.get(url).send().await?;
+        response.error_for_status_ref()?;
+        let result = response.bytes().await?;
+        Ok(serde_json::from_slice(&result)?)
+    }
+    pub async fn update_permissions(
+        &self,
+        request: &UpdatePermissionsRequest,
+    ) -> Result<UpdatePermissionsResponse> {
+        let formatted_path = format!("shares/{}/permissions", request.name);
+        let mut url = self.base_url.join(&formatted_path)?;
+        let response = self.client.patch(url).json(request).send().await?;
+        response.error_for_status_ref()?;
+        let result = response.bytes().await?;
+        Ok(serde_json::from_slice(&result)?)
     }
 }

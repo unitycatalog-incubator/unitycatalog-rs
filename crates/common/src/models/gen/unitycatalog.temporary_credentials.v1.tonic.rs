@@ -7,23 +7,17 @@ pub mod temporary_credentials_service_server {
     #[async_trait]
     pub trait TemporaryCredentialsService: Send + Sync + 'static {
         /** Generate a new set of credentials for a table.
-*/
+         */
         async fn generate_temporary_table_credentials(
             &self,
             request: tonic::Request<super::GenerateTemporaryTableCredentialsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::TemporaryCredential>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::TemporaryCredential>, tonic::Status>;
         /** Generate a new set of credentials for a path.
-*/
+         */
         async fn generate_temporary_path_credentials(
             &self,
             request: tonic::Request<super::GenerateTemporaryPathCredentialsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::TemporaryCredential>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::TemporaryCredential>, tonic::Status>;
     }
     ///
     #[derive(Debug)]
@@ -47,10 +41,7 @@ pub mod temporary_credentials_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -85,8 +76,7 @@ pub mod temporary_credentials_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>>
-    for TemporaryCredentialsServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for TemporaryCredentialsServiceServer<T>
     where
         T: TemporaryCredentialsService,
         B: Body + Send + 'static,
@@ -103,23 +93,18 @@ pub mod temporary_credentials_service_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryTableCredentials" => {
+                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryTableCredentials" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct GenerateTemporaryTableCredentialsSvc<
-                        T: TemporaryCredentialsService,
-                    >(
+                    struct GenerateTemporaryTableCredentialsSvc<T: TemporaryCredentialsService>(
                         pub Arc<T>,
                     );
-                    impl<
-                        T: TemporaryCredentialsService,
-                    > tonic::server::UnaryService<
-                        super::GenerateTemporaryTableCredentialsRequest,
-                    > for GenerateTemporaryTableCredentialsSvc<T> {
+                    impl<T: TemporaryCredentialsService>
+                        tonic::server::UnaryService<super::GenerateTemporaryTableCredentialsRequest>
+                        for GenerateTemporaryTableCredentialsSvc<T>
+                    {
                         type Response = super::TemporaryCredential;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<
@@ -159,28 +144,21 @@ pub mod temporary_credentials_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryPathCredentials" => {
+                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryPathCredentials" =>
+                {
                     #[allow(non_camel_case_types)]
-                    struct GenerateTemporaryPathCredentialsSvc<
-                        T: TemporaryCredentialsService,
-                    >(
+                    struct GenerateTemporaryPathCredentialsSvc<T: TemporaryCredentialsService>(
                         pub Arc<T>,
                     );
-                    impl<
-                        T: TemporaryCredentialsService,
-                    > tonic::server::UnaryService<
-                        super::GenerateTemporaryPathCredentialsRequest,
-                    > for GenerateTemporaryPathCredentialsSvc<T> {
+                    impl<T: TemporaryCredentialsService>
+                        tonic::server::UnaryService<super::GenerateTemporaryPathCredentialsRequest>
+                        for GenerateTemporaryPathCredentialsSvc<T>
+                    {
                         type Response = super::TemporaryCredential;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GenerateTemporaryPathCredentialsRequest,
-                            >,
+                            request: tonic::Request<super::GenerateTemporaryPathCredentialsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
@@ -215,21 +193,17 @@ pub mod temporary_credentials_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -246,7 +220,9 @@ pub mod temporary_credentials_service_server {
         }
     }
     impl<T: TemporaryCredentialsService> tonic::server::NamedService
-    for TemporaryCredentialsServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.temporary_credentials.v1.TemporaryCredentialsService";
+        for TemporaryCredentialsServiceServer<T>
+    {
+        const NAME: &'static str =
+            "unitycatalog.temporary_credentials.v1.TemporaryCredentialsService";
     }
 }

@@ -138,7 +138,7 @@ Clean async trait definitions for easy implementation:
 #[async_trait]
 pub trait CatalogHandler {
     async fn list_catalogs(&self, request: ListCatalogsRequest) -> Result<ListCatalogsResponse>;
-    async fn create_catalog(&self, request: CreateCatalogRequest) -> Result<CatalogInfo>;
+    async fn create_catalog(&self, request: CreateCatalogRequest) -> Result<Catalog>;
     // ... other methods
 }
 ```

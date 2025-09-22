@@ -9,7 +9,7 @@ pub struct Http {
     /// A list of HTTP configuration rules that apply to individual API methods.
     ///
     /// **NOTE:** All service configuration rules follow "last one wins" order.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub rules: ::prost::alloc::vec::Vec<HttpRule>,
     /// When set to true, URL path parameters will be fully URI-decoded except in
     /// cases of single segment matches in reserved expansion, where "%2F" will be
@@ -17,7 +17,7 @@ pub struct Http {
     ///
     /// The default behavior is to not decode RFC 6570 reserved characters in multi
     /// segment matches.
-    #[prost(bool, tag="2")]
+    #[prost(bool, tag = "2")]
     pub fully_decode_reserved_expansion: bool,
 }
 /// gRPC Transcoding
@@ -291,7 +291,7 @@ pub struct HttpRule {
     ///
     /// Refer to [selector][google.api.DocumentationRule.selector] for syntax
     /// details.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub selector: ::prost::alloc::string::String,
     /// The name of the request field whose value is mapped to the HTTP request
     /// body, or `*` for mapping all request fields not captured by the path
@@ -299,7 +299,7 @@ pub struct HttpRule {
     ///
     /// NOTE: the referred field must be present at the top-level of the request
     /// message type.
-    #[prost(string, tag="7")]
+    #[prost(string, tag = "7")]
     pub body: ::prost::alloc::string::String,
     /// Optional. The name of the response field whose value is mapped to the HTTP
     /// response body. When omitted, the entire response message will be used
@@ -307,17 +307,17 @@ pub struct HttpRule {
     ///
     /// NOTE: The referred field must be present at the top-level of the response
     /// message type.
-    #[prost(string, tag="12")]
+    #[prost(string, tag = "12")]
     pub response_body: ::prost::alloc::string::String,
     /// Additional HTTP bindings for the selector. Nested bindings must
     /// not contain an `additional_bindings` field themselves (that is,
     /// the nesting may only be one level deep).
-    #[prost(message, repeated, tag="11")]
+    #[prost(message, repeated, tag = "11")]
     pub additional_bindings: ::prost::alloc::vec::Vec<HttpRule>,
     /// Determines the URL pattern is matched by this rules. This pattern can be
     /// used with any of the {get|put|post|delete|patch} methods. A custom method
     /// can be defined using the 'custom' field.
-    #[prost(oneof="http_rule::Pattern", tags="2, 3, 4, 5, 6, 8")]
+    #[prost(oneof = "http_rule::Pattern", tags = "2, 3, 4, 5, 6, 8")]
     pub pattern: ::core::option::Option<http_rule::Pattern>,
 }
 /// Nested message and enum types in `HttpRule`.
@@ -326,29 +326,29 @@ pub mod http_rule {
     /// used with any of the {get|put|post|delete|patch} methods. A custom method
     /// can be defined using the 'custom' field.
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Pattern {
         /// Maps to HTTP GET. Used for listing and getting information about
         /// resources.
-        #[prost(string, tag="2")]
+        #[prost(string, tag = "2")]
         Get(::prost::alloc::string::String),
         /// Maps to HTTP PUT. Used for replacing a resource.
-        #[prost(string, tag="3")]
+        #[prost(string, tag = "3")]
         Put(::prost::alloc::string::String),
         /// Maps to HTTP POST. Used for creating a resource or performing an action.
-        #[prost(string, tag="4")]
+        #[prost(string, tag = "4")]
         Post(::prost::alloc::string::String),
         /// Maps to HTTP DELETE. Used for deleting a resource.
-        #[prost(string, tag="5")]
+        #[prost(string, tag = "5")]
         Delete(::prost::alloc::string::String),
         /// Maps to HTTP PATCH. Used for updating a resource.
-        #[prost(string, tag="6")]
+        #[prost(string, tag = "6")]
         Patch(::prost::alloc::string::String),
         /// The custom pattern is used for specifying an HTTP method that is not
         /// included in the `pattern` field, such as HEAD, or "*" to leave the
         /// HTTP method unspecified for this rule. The wild-card rule is useful
         /// for services that provide content to Web (HTML) clients.
-        #[prost(message, tag="8")]
+        #[prost(message, tag = "8")]
         Custom(super::CustomHttpPattern),
     }
 }
@@ -357,10 +357,10 @@ pub mod http_rule {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CustomHttpPattern {
     /// The name of this custom HTTP verb.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub kind: ::prost::alloc::string::String,
     /// The path matched by this custom verb.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub path: ::prost::alloc::string::String,
 }
 /// The launch stage as defined by [Google Cloud Platform
@@ -445,13 +445,13 @@ pub struct CommonLanguageSettings {
     /// Link to automatically generated reference documentation.  Example:
     /// <https://cloud.google.com/nodejs/docs/reference/asset/latest>
     #[deprecated]
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub reference_docs_uri: ::prost::alloc::string::String,
     /// The destination where API teams want this client library to be published.
-    #[prost(enumeration="ClientLibraryDestination", repeated, tag="2")]
+    #[prost(enumeration = "ClientLibraryDestination", repeated, tag = "2")]
     pub destinations: ::prost::alloc::vec::Vec<i32>,
     /// Configuration for which RPCs should be generated in the GAPIC client.
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub selective_gapic_generation: ::core::option::Option<SelectiveGapicGeneration>,
 }
 /// Details about how and where to publish client libraries.
@@ -461,38 +461,38 @@ pub struct ClientLibrarySettings {
     /// Version of the API to apply these settings to. This is the full protobuf
     /// package for the API, ending in the version element.
     /// Examples: "google.cloud.speech.v1" and "google.spanner.admin.database.v1".
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub version: ::prost::alloc::string::String,
     /// Launch stage of this version of the API.
-    #[prost(enumeration="LaunchStage", tag="2")]
+    #[prost(enumeration = "LaunchStage", tag = "2")]
     pub launch_stage: i32,
     /// When using transport=rest, the client request will encode enums as
     /// numbers rather than strings.
-    #[prost(bool, tag="3")]
+    #[prost(bool, tag = "3")]
     pub rest_numeric_enums: bool,
     /// Settings for legacy Java features, supported in the Service YAML.
-    #[prost(message, optional, tag="21")]
+    #[prost(message, optional, tag = "21")]
     pub java_settings: ::core::option::Option<JavaSettings>,
     /// Settings for C++ client libraries.
-    #[prost(message, optional, tag="22")]
+    #[prost(message, optional, tag = "22")]
     pub cpp_settings: ::core::option::Option<CppSettings>,
     /// Settings for PHP client libraries.
-    #[prost(message, optional, tag="23")]
+    #[prost(message, optional, tag = "23")]
     pub php_settings: ::core::option::Option<PhpSettings>,
     /// Settings for Python client libraries.
-    #[prost(message, optional, tag="24")]
+    #[prost(message, optional, tag = "24")]
     pub python_settings: ::core::option::Option<PythonSettings>,
     /// Settings for Node client libraries.
-    #[prost(message, optional, tag="25")]
+    #[prost(message, optional, tag = "25")]
     pub node_settings: ::core::option::Option<NodeSettings>,
     /// Settings for .NET client libraries.
-    #[prost(message, optional, tag="26")]
+    #[prost(message, optional, tag = "26")]
     pub dotnet_settings: ::core::option::Option<DotnetSettings>,
     /// Settings for Ruby client libraries.
-    #[prost(message, optional, tag="27")]
+    #[prost(message, optional, tag = "27")]
     pub ruby_settings: ::core::option::Option<RubySettings>,
     /// Settings for Go client libraries.
-    #[prost(message, optional, tag="28")]
+    #[prost(message, optional, tag = "28")]
     pub go_settings: ::core::option::Option<GoSettings>,
 }
 /// This message configures the settings for publishing [Google Cloud Client
@@ -503,47 +503,47 @@ pub struct ClientLibrarySettings {
 pub struct Publishing {
     /// A list of API method settings, e.g. the behavior for methods that use the
     /// long-running operation pattern.
-    #[prost(message, repeated, tag="2")]
+    #[prost(message, repeated, tag = "2")]
     pub method_settings: ::prost::alloc::vec::Vec<MethodSettings>,
     /// Link to a *public* URI where users can report issues.  Example:
     /// <https://issuetracker.google.com/issues/new?component=190865&template=1161103>
-    #[prost(string, tag="101")]
+    #[prost(string, tag = "101")]
     pub new_issue_uri: ::prost::alloc::string::String,
     /// Link to product home page.  Example:
     /// <https://cloud.google.com/asset-inventory/docs/overview>
-    #[prost(string, tag="102")]
+    #[prost(string, tag = "102")]
     pub documentation_uri: ::prost::alloc::string::String,
     /// Used as a tracking tag when collecting data about the APIs developer
     /// relations artifacts like docs, packages delivered to package managers,
     /// etc.  Example: "speech".
-    #[prost(string, tag="103")]
+    #[prost(string, tag = "103")]
     pub api_short_name: ::prost::alloc::string::String,
     /// GitHub label to apply to issues and pull requests opened for this API.
-    #[prost(string, tag="104")]
+    #[prost(string, tag = "104")]
     pub github_label: ::prost::alloc::string::String,
     /// GitHub teams to be added to CODEOWNERS in the directory in GitHub
     /// containing source code for the client libraries for this API.
-    #[prost(string, repeated, tag="105")]
+    #[prost(string, repeated, tag = "105")]
     pub codeowner_github_teams: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// A prefix used in sample code when demarking regions to be included in
     /// documentation.
-    #[prost(string, tag="106")]
+    #[prost(string, tag = "106")]
     pub doc_tag_prefix: ::prost::alloc::string::String,
     /// For whom the client library is being published.
-    #[prost(enumeration="ClientLibraryOrganization", tag="107")]
+    #[prost(enumeration = "ClientLibraryOrganization", tag = "107")]
     pub organization: i32,
     /// Client library settings.  If the same version string appears multiple
     /// times in this list, then the last one wins.  Settings from earlier
     /// settings with the same version string are discarded.
-    #[prost(message, repeated, tag="109")]
+    #[prost(message, repeated, tag = "109")]
     pub library_settings: ::prost::alloc::vec::Vec<ClientLibrarySettings>,
     /// Optional link to proto reference documentation.  Example:
     /// <https://cloud.google.com/pubsub/lite/docs/reference/rpc>
-    #[prost(string, tag="110")]
+    #[prost(string, tag = "110")]
     pub proto_reference_documentation_uri: ::prost::alloc::string::String,
     /// Optional link to REST reference documentation.  Example:
     /// <https://cloud.google.com/pubsub/lite/docs/reference/rest>
-    #[prost(string, tag="111")]
+    #[prost(string, tag = "111")]
     pub rest_reference_documentation_uri: ::prost::alloc::string::String,
 }
 /// Settings for Java client libraries.
@@ -561,7 +561,7 @@ pub struct JavaSettings {
     ///   publishing:
     ///     java_settings:
     ///       library_package: com.google.cloud.pubsub.v1
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub library_package: ::prost::alloc::string::String,
     /// Configure the Java class name to use instead of the service's for its
     /// corresponding generated GAPIC client. Keys are fully-qualified
@@ -577,10 +577,11 @@ pub struct JavaSettings {
     ///       service_class_names:
     ///         - google.pubsub.v1.Publisher: TopicAdmin
     ///         - google.pubsub.v1.Subscriber: SubscriptionAdmin
-    #[prost(map="string, string", tag="2")]
-    pub service_class_names: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "2")]
+    pub service_class_names:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Some settings.
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
 }
 /// Settings for C++ client libraries.
@@ -588,7 +589,7 @@ pub struct JavaSettings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CppSettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
 }
 /// Settings for Php client libraries.
@@ -596,7 +597,7 @@ pub struct CppSettings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PhpSettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
 }
 /// Settings for Python client libraries.
@@ -604,10 +605,10 @@ pub struct PhpSettings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PythonSettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
     /// Experimental features to be included during client library generation.
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub experimental_features: ::core::option::Option<python_settings::ExperimentalFeatures>,
 }
 /// Nested message and enum types in `PythonSettings`.
@@ -616,25 +617,25 @@ pub mod python_settings {
     /// These fields will be deprecated once the feature graduates and is enabled
     /// by default.
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
     pub struct ExperimentalFeatures {
         /// Enables generation of asynchronous REST clients if `rest` transport is
         /// enabled. By default, asynchronous REST clients will not be generated.
         /// This feature will be enabled by default 1 month after launching the
         /// feature in preview packages.
-        #[prost(bool, tag="1")]
+        #[prost(bool, tag = "1")]
         pub rest_async_io_enabled: bool,
         /// Enables generation of protobuf code using new types that are more
         /// Pythonic which are included in `protobuf>=5.29.x`. This feature will be
         /// enabled by default 1 month after launching the feature in preview
         /// packages.
-        #[prost(bool, tag="2")]
+        #[prost(bool, tag = "2")]
         pub protobuf_pythonic_types_enabled: bool,
         /// Disables generation of an unversioned Python package for this client
         /// library. This means that the module names will need to be versioned in
         /// import statements. For example `import google.cloud.library_v2` instead
         /// of `import google.cloud.library`.
-        #[prost(bool, tag="3")]
+        #[prost(bool, tag = "3")]
         pub unversioned_package_disabled: bool,
     }
 }
@@ -643,7 +644,7 @@ pub mod python_settings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NodeSettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
 }
 /// Settings for Dotnet client libraries.
@@ -651,37 +652,39 @@ pub struct NodeSettings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DotnetSettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
     /// Map from original service names to renamed versions.
     /// This is used when the default generated types
     /// would cause a naming conflict. (Neither name is
     /// fully-qualified.)
     /// Example: Subscriber to SubscriberServiceApi.
-    #[prost(map="string, string", tag="2")]
-    pub renamed_services: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "2")]
+    pub renamed_services:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Map from full resource types to the effective short name
     /// for the resource. This is used when otherwise resource
     /// named from different services would cause naming collisions.
     /// Example entry:
     /// "datalabeling.googleapis.com/Dataset": "DataLabelingDataset"
-    #[prost(map="string, string", tag="3")]
-    pub renamed_resources: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "3")]
+    pub renamed_resources:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// List of full resource types to ignore during generation.
     /// This is typically used for API-specific Location resources,
     /// which should be handled by the generator as if they were actually
     /// the common Location resources.
     /// Example entry: "documentai.googleapis.com/Location"
-    #[prost(string, repeated, tag="4")]
+    #[prost(string, repeated, tag = "4")]
     pub ignored_resources: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Namespaces which must be aliased in snippets due to
     /// a known (but non-generator-predictable) naming collision
-    #[prost(string, repeated, tag="5")]
+    #[prost(string, repeated, tag = "5")]
     pub forced_namespace_aliases: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Method signatures (in the form "service.method(signature)")
     /// which are provided separately, so shouldn't be generated.
     /// Snippets *calling* these methods are still generated, however.
-    #[prost(string, repeated, tag="6")]
+    #[prost(string, repeated, tag = "6")]
     pub handwritten_signatures: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Settings for Ruby client libraries.
@@ -689,7 +692,7 @@ pub struct DotnetSettings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RubySettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
 }
 /// Settings for Go client libraries.
@@ -697,7 +700,7 @@ pub struct RubySettings {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GoSettings {
     /// Some settings.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub common: ::core::option::Option<CommonLanguageSettings>,
     /// Map of service names to renamed services. Keys are the package relative
     /// service names and values are the name to be used for the service client
@@ -707,8 +710,9 @@ pub struct GoSettings {
     ///    go_settings:
     ///      renamed_services:
     ///        Publisher: TopicAdmin
-    #[prost(map="string, string", tag="2")]
-    pub renamed_services: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "2")]
+    pub renamed_services:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Describes the generator configuration for a method.
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -723,7 +727,7 @@ pub struct MethodSettings {
     ///       method_settings:
     ///       - selector: google.storage.control.v2.StorageControl.CreateFolder
     ///         # method settings for CreateFolder...
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub selector: ::prost::alloc::string::String,
     /// Describes settings to use for long-running operations when generating
     /// API methods for RPCs. Complements RPCs that use the annotations in
@@ -739,7 +743,7 @@ pub struct MethodSettings {
     ///           poll_delay_multiplier: 1.5
     ///           max_poll_delay: 360s # 6 minutes
     ///           total_poll_timeout: 54000s # 90 minutes
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub long_running: ::core::option::Option<method_settings::LongRunning>,
     /// List of top-level fields of the request message, that should be
     /// automatically populated by the client libraries based on their
@@ -752,7 +756,7 @@ pub struct MethodSettings {
     ///       - selector: google.example.v1.ExampleService.CreateExample
     ///         auto_populated_fields:
     ///         - request_id
-    #[prost(string, repeated, tag="3")]
+    #[prost(string, repeated, tag = "3")]
     pub auto_populated_fields: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Nested message and enum types in `MethodSettings`.
@@ -763,24 +767,24 @@ pub mod method_settings {
     /// generators (e.g.
     /// [Java](<https://github.com/googleapis/gapic-generator-java/blob/04c2faa191a9b5a10b92392fe8482279c4404803/src/main/java/com/google/api/generator/gapic/composer/common/RetrySettingsComposer.java>)).
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
     pub struct LongRunning {
         /// Initial delay after which the first poll request will be made.
         /// Default value: 5 seconds.
-        #[prost(message, optional, tag="1")]
+        #[prost(message, optional, tag = "1")]
         pub initial_poll_delay: ::core::option::Option<::prost_types::Duration>,
         /// Multiplier to gradually increase delay between subsequent polls until it
         /// reaches max_poll_delay.
         /// Default value: 1.5.
-        #[prost(float, tag="2")]
+        #[prost(float, tag = "2")]
         pub poll_delay_multiplier: f32,
         /// Maximum time between two subsequent poll requests.
         /// Default value: 45 seconds.
-        #[prost(message, optional, tag="3")]
+        #[prost(message, optional, tag = "3")]
         pub max_poll_delay: ::core::option::Option<::prost_types::Duration>,
         /// Total polling timeout.
         /// Default value: 5 minutes.
-        #[prost(message, optional, tag="4")]
+        #[prost(message, optional, tag = "4")]
         pub total_poll_timeout: ::core::option::Option<::prost_types::Duration>,
     }
 }
@@ -791,7 +795,7 @@ pub mod method_settings {
 pub struct SelectiveGapicGeneration {
     /// An allowlist of the fully qualified names of RPCs that should be included
     /// on public client surfaces.
-    #[prost(string, repeated, tag="1")]
+    #[prost(string, repeated, tag = "1")]
     pub methods: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Setting this to true indicates to the client generators that methods
     /// that would be excluded from the generation should instead be generated
@@ -799,7 +803,7 @@ pub struct SelectiveGapicGeneration {
     /// end users. How this is expressed is up to individual language
     /// implementations to decide. Some examples may be: added annotations,
     /// obfuscated identifiers, or other language idiomatic patterns.
-    #[prost(bool, tag="2")]
+    #[prost(bool, tag = "2")]
     pub generate_omitted_as_internal: bool,
 }
 /// The organization for which the client libraries are being published.
@@ -988,13 +992,13 @@ pub struct FieldInfo {
     /// The standard format of a field value. This does not explicitly configure
     /// any API consumer, just documents the API's format for the field it is
     /// applied to.
-    #[prost(enumeration="field_info::Format", tag="1")]
+    #[prost(enumeration = "field_info::Format", tag = "1")]
     pub format: i32,
     /// The type(s) that the annotated, generic field may represent.
     ///
     /// Currently, this must only be used on fields of type `google.protobuf.Any`.
     /// Supporting other generic types may be considered in the future.
-    #[prost(message, repeated, tag="2")]
+    #[prost(message, repeated, tag = "2")]
     pub referenced_types: ::prost::alloc::vec::Vec<TypeReference>,
 }
 /// Nested message and enum types in `FieldInfo`.
@@ -1068,7 +1072,7 @@ pub struct TypeReference {
     /// user input), use the wildcard `"*"` to denote this behavior.
     ///
     /// See [AIP-202](<https://google.aip.dev/202#type-references>) for more details.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub type_name: ::prost::alloc::string::String,
 }
 /// Message that represents an arbitrary HTTP body. It should only be used for
@@ -1118,14 +1122,14 @@ pub struct TypeReference {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HttpBody {
     /// The HTTP Content-Type header value specifying the content type of the body.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub content_type: ::prost::alloc::string::String,
     /// The HTTP request/response body as raw binary.
-    #[prost(bytes="vec", tag="2")]
+    #[prost(bytes = "vec", tag = "2")]
     pub data: ::prost::alloc::vec::Vec<u8>,
     /// Application specific response metadata. Must be set in the first response
     /// for streaming APIs.
-    #[prost(message, repeated, tag="3")]
+    #[prost(message, repeated, tag = "3")]
     pub extensions: ::prost::alloc::vec::Vec<::prost_types::Any>,
 }
 /// A simple descriptor of a resource type.
@@ -1188,7 +1192,7 @@ pub struct ResourceDescriptor {
     /// /[A-Za-z][a-zA-Z0-9]+/. It should start with an upper case character and
     /// should use PascalCase (UpperCamelCase). The maximum number of
     /// characters allowed for the `resource_type_kind` is 100.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
     /// Optional. The relative resource name pattern associated with this resource
     /// type. The DNS prefix of the full resource name shouldn't be specified here.
@@ -1209,11 +1213,11 @@ pub struct ResourceDescriptor {
     /// hierarchy. It is expected that, if multiple patterns are provided,
     /// the same component name (e.g. "project") refers to IDs of the same
     /// type of resource.
-    #[prost(string, repeated, tag="2")]
+    #[prost(string, repeated, tag = "2")]
     pub pattern: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Optional. The field on the resource that designates the resource name
     /// field. If omitted, this is assumed to be "name".
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub name_field: ::prost::alloc::string::String,
     /// Optional. The historical or future-looking state of the resource pattern.
     ///
@@ -1230,7 +1234,7 @@ pub struct ResourceDescriptor {
     ///          history: ORIGINALLY_SINGLE_PATTERN
     ///        };
     ///      }
-    #[prost(enumeration="resource_descriptor::History", tag="4")]
+    #[prost(enumeration = "resource_descriptor::History", tag = "4")]
     pub history: i32,
     /// The plural name used in the resource name and permission names, such as
     /// 'projects' for the resource name of 'projects/{project}' and the permission
@@ -1245,17 +1249,17 @@ pub struct ResourceDescriptor {
     ///
     /// Note: The plural form is required even for singleton resources. See
     /// <https://aip.dev/156>
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub plural: ::prost::alloc::string::String,
     /// The same concept of the `singular` field in k8s CRD spec
     /// <https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/>
     /// Such as "project" for the `resourcemanager.googleapis.com/Project` type.
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub singular: ::prost::alloc::string::String,
     /// Style flag(s) for this resource.
     /// These indicate that a resource is expected to conform to a given
     /// style. See the specific style flags for additional information.
-    #[prost(enumeration="resource_descriptor::Style", repeated, tag="10")]
+    #[prost(enumeration = "resource_descriptor::Style", repeated, tag = "10")]
     pub style: ::prost::alloc::vec::Vec<i32>,
 }
 /// Nested message and enum types in `ResourceDescriptor`.
@@ -1359,7 +1363,7 @@ pub struct ResourceReference {
     ///          type: "*"
     ///        }];
     ///      }
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
     /// The resource type of a child collection that the annotated field
     /// references. This is useful for annotating the `parent` field that
@@ -1372,7 +1376,7 @@ pub struct ResourceReference {
     ///          child_type: "logging.googleapis.com/LogEntry"
     ///        };
     ///      }
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub child_type: ::prost::alloc::string::String,
 }
 /// `Visibility` restricts service consumer's access to service elements,
@@ -1404,7 +1408,7 @@ pub struct Visibility {
     /// A list of visibility rules that apply to individual API elements.
     ///
     /// **NOTE:** All service configuration rules follow "last one wins" order.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub rules: ::prost::alloc::vec::Vec<VisibilityRule>,
 }
 /// A visibility rule provides visibility configuration for an individual API
@@ -1416,7 +1420,7 @@ pub struct VisibilityRule {
     ///
     /// Refer to [selector][google.api.DocumentationRule.selector] for syntax
     /// details.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub selector: ::prost::alloc::string::String,
     /// A comma-separated list of visibility labels that apply to the `selector`.
     /// Any of the listed labels can be used to grant the visibility.
@@ -1433,7 +1437,7 @@ pub struct VisibilityRule {
     ///
     /// Removing INTERNAL from this restriction will break clients that rely on
     /// this method and only had access to it through INTERNAL.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub restriction: ::prost::alloc::string::String,
 }
 // @@protoc_insertion_point(module)

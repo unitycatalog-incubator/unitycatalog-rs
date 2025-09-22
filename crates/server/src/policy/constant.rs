@@ -1,6 +1,6 @@
 use unitycatalog_common::models::ResourceIdent;
 
-use super::{Decision, Permission, Policy, Recipient};
+use super::{Decision, Permission, Policy, Principal};
 use crate::Result;
 
 /// Policy that always returns a constant decision.
@@ -33,7 +33,7 @@ impl Policy for ConstantPolicy {
         &self,
         _: &ResourceIdent,
         _: &Permission,
-        _: &Recipient,
+        _: &Principal,
     ) -> Result<Decision> {
         Ok(self.decision)
     }
@@ -56,7 +56,7 @@ mod test {
 
         let resource = ResourceIdent::share(resource_name!("test_share"));
         let permission = Permission::Read;
-        let recipient = &Recipient::anonymous();
+        let recipient = &Principal::anonymous();
 
         let decision = policy
             .authorize(&resource, &permission, recipient)
@@ -71,7 +71,7 @@ mod test {
 
         let resource = ResourceIdent::share(resource_name!("test_share"));
         let permission = Permission::Read;
-        let recipient = &Recipient::anonymous();
+        let recipient = &Principal::anonymous();
 
         let decision = policy
             .authorize(&resource, &permission, recipient)
@@ -86,7 +86,7 @@ mod test {
 
         let resource = ResourceIdent::share(resource_name!("test_share"));
         let permission = Permission::Read;
-        let recipient = &Recipient::anonymous();
+        let recipient = &Principal::anonymous();
 
         let decision = policy
             .authorize(&resource, &permission, recipient)

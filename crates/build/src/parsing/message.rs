@@ -503,7 +503,7 @@ mod tests {
         };
 
         let message_info = MessageInfo {
-            name: ".unitycatalog.schemas.v1.SchemaInfo".to_string(),
+            name: ".unitycatalog.schemas.v1.Schema".to_string(),
             fields: vec![],
             resource_descriptor: Some(resource_descriptor.clone()),
             documentation: None,

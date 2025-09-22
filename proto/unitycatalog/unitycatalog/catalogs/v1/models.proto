@@ -20,7 +20,7 @@ enum CatalogType {
 }
 
 // A catalog is a root-level namespace that contains schemas.
-message CatalogInfo {
+message Catalog {
   option (google.api.resource) = {
     type: "unitycatalog.io/Catalog"
     pattern: "catalogs/{catalog}"

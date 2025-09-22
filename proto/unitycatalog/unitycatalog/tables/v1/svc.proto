@@ -91,7 +91,7 @@ message ListTablesRequest {
 
 message ListTablesResponse {
   // The tables returned.
-  repeated TableInfo tables = 1;
+  repeated Table tables = 1;
 
   // The next_page_token value to include in the next List request.
   optional string next_page_token = 2;
@@ -126,8 +126,8 @@ message CreateTableRequest {
 
   DataSourceFormat data_source_format = 5 [(google.api.field_behavior) = REQUIRED];
 
-  // The array of ColumnInfo definitions of the table's columns.
-  repeated ColumnInfo columns = 6;
+  // The array of Column definitions of the table's columns.
+  repeated Column columns = 6;
 
   // Storage root URL for external table.
   optional string storage_location = 7;
@@ -196,7 +196,7 @@ service TablesService {
   }
 
   // Create a table
-  rpc CreateTable(CreateTableRequest) returns (TableInfo) {
+  rpc CreateTable(CreateTableRequest) returns (Table) {
     option (google.api.http) = {
       post: "/tables"
       body: "*"
@@ -205,7 +205,7 @@ service TablesService {
   }
 
   // Get a table
-  rpc GetTable(GetTableRequest) returns (TableInfo) {
+  rpc GetTable(GetTableRequest) returns (Table) {
     option (google.api.http) = {get: "/tables/{full_name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetTable"};
   }

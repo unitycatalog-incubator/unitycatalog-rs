@@ -11,7 +11,7 @@ use unitycatalog_common::models::credentials::v1::{
     azure_managed_identity::Identifier as AzureMiIdentifier,
     azure_service_principal::Credential as AzureSpCredential,
 };
-use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
+use unitycatalog_common::models::external_locations::v1::ExternalLocation;
 use url::Url;
 
 use super::ServerHandlerInner;
@@ -48,13 +48,13 @@ pub(crate) async fn get_object_store(
     // introduce an endpoint that allows us to query for specific resource properties instead
     let (locations, _) = handler
         .list(
-            &unitycatalog_common::ObjectLabel::ExternalLocationInfo,
+            &unitycatalog_common::ObjectLabel::ExternalLocation,
             None,
             None,
             None,
         )
         .await?;
-    let locations: Vec<ExternalLocationInfo> =
+    let locations: Vec<ExternalLocation> =
         locations.into_iter().map(|l| l.try_into()).try_collect()?;
     // find the longest matching location
     let ext_loc = locations

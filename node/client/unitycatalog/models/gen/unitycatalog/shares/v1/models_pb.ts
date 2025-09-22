@@ -18,7 +18,7 @@ import { file_google_api_resource } from "../../../google/api/resource_pb";
 export const file_unitycatalog_shares_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiN1bml0eWNhdGFsb2cvc2hhcmVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSLHAwoKRGF0YU9iamVjdBIMCgRuYW1lGAEgASgJEkAKEGRhdGFfb2JqZWN0X3R5cGUYAiABKA4yJi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RUeXBlEhUKCGFkZGVkX2F0GAMgASgDSACIAQESFQoIYWRkZWRfYnkYBCABKAlIAYgBARIUCgdjb21tZW50GAUgASgJSAKIAQESFgoJc2hhcmVkX2FzGAYgASgJSAOIAQESEgoKcGFydGl0aW9ucxgHIAMoCRIXCgplbmFibGVfY2RmGAggASgISASIAQESTwobaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzGAkgASgOMiUudW5pdHljYXRhbG9nLnNoYXJlcy52MS5IaXN0b3J5U3RhdHVzSAWIAQESGgoNc3RhcnRfdmVyc2lvbhgKIAEoA0gGiAEBQgsKCV9hZGRlZF9hdEILCglfYWRkZWRfYnlCCgoIX2NvbW1lbnRCDAoKX3NoYXJlZF9hc0INCgtfZW5hYmxlX2NkZkIeChxfaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzQhAKDl9zdGFydF92ZXJzaW9uIoYDCglTaGFyZUluZm8SDwoCaWQYZCABKAlIAIgBARIMCgRuYW1lGAEgASgJEhIKBW93bmVyGAIgASgJSAGIAQESFAoHY29tbWVudBgDIAEoCUgCiAEBEjgKDGRhdGFfb2JqZWN0cxgFIAMoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdBIXCgpjcmVhdGVkX2F0GAYgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgHIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCCABKANIBYgBARIXCgp1cGRhdGVkX2J5GAkgASgJSAaIAQE6OepBNgoVdW5pdHljYXRhbG9nLmlvL1NoYXJlEg5zaGFyZXMve3NoYXJlfSoGc2hhcmVzMgVzaGFyZUIFCgNfaWRCCAoGX293bmVyQgoKCF9jb21tZW50Qg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5KkkKDkRhdGFPYmplY3RUeXBlEiAKHERBVEFfT0JKRUNUX1RZUEVfVU5TUEVDSUZJRUQQABIJCgVUQUJMRRABEgoKBlNDSEVNQRACKioKDUhpc3RvcnlTdGF0dXMSDAoIRElTQUJMRUQQABILCgdFTkFCTEVEEAFC8wEKGmNvbS51bml0eWNhdGFsb2cuc2hhcmVzLnYxQgtNb2RlbHNQcm90b1ABWk5naXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zaGFyZXMvdjE7c2hhcmVzdjGiAgNVU1iqAhZVbml0eWNhdGFsb2cuU2hhcmVzLlYxygIWVW5pdHljYXRhbG9nXFNoYXJlc1xWMeICIlVuaXR5Y2F0YWxvZ1xTaGFyZXNcVjFcR1BCTWV0YWRhdGHqAhhVbml0eWNhdGFsb2c6OlNoYXJlczo6VjFiBnByb3RvMw",
+    "CiN1bml0eWNhdGFsb2cvc2hhcmVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSLHAwoKRGF0YU9iamVjdBIMCgRuYW1lGAEgASgJEkAKEGRhdGFfb2JqZWN0X3R5cGUYAiABKA4yJi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RUeXBlEhUKCGFkZGVkX2F0GAMgASgDSACIAQESFQoIYWRkZWRfYnkYBCABKAlIAYgBARIUCgdjb21tZW50GAUgASgJSAKIAQESFgoJc2hhcmVkX2FzGAYgASgJSAOIAQESEgoKcGFydGl0aW9ucxgHIAMoCRIXCgplbmFibGVfY2RmGAggASgISASIAQESTwobaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzGAkgASgOMiUudW5pdHljYXRhbG9nLnNoYXJlcy52MS5IaXN0b3J5U3RhdHVzSAWIAQESGgoNc3RhcnRfdmVyc2lvbhgKIAEoA0gGiAEBQgsKCV9hZGRlZF9hdEILCglfYWRkZWRfYnlCCgoIX2NvbW1lbnRCDAoKX3NoYXJlZF9hc0INCgtfZW5hYmxlX2NkZkIeChxfaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzQhAKDl9zdGFydF92ZXJzaW9uIt0DCgVTaGFyZRIPCgJpZBhkIAEoCUgAiAEBEgwKBG5hbWUYASABKAkSMwoHb2JqZWN0cxgGIAMoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdBISCgVvd25lchgCIAEoCUgBiAEBEhQKB2NvbW1lbnQYAyABKAlIAogBARIdChBzdG9yYWdlX2xvY2F0aW9uGAQgASgJSAOIAQESGQoMc3RvcmFnZV9yb290GAUgASgJSASIAQESFwoKY3JlYXRlZF9hdBgHIAEoA0gFiAEBEhcKCmNyZWF0ZWRfYnkYCCABKAlIBogBARIXCgp1cGRhdGVkX2F0GAkgASgDSAeIAQESFwoKdXBkYXRlZF9ieRgKIAEoCUgIiAEBOjnqQTYKFXVuaXR5Y2F0YWxvZy5pby9TaGFyZRIOc2hhcmVzL3tzaGFyZX0qBnNoYXJlczIFc2hhcmVCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudEITChFfc3RvcmFnZV9sb2NhdGlvbkIPCg1fc3RvcmFnZV9yb290Qg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5IjwKE1ByaXZpbGVnZUFzc2lnbm1lbnQSEQoJcHJpbmNpcGFsGAEgASgJEhIKCnByaXZpbGVnZXMYAiADKAkiQwoRUGVybWlzc2lvbnNDaGFuZ2USEQoJcHJpbmNpcGFsGAEgASgJEgsKA2FkZBgCIAMoCRIOCgZyZW1vdmUYAyADKAkqSQoORGF0YU9iamVjdFR5cGUSIAocREFUQV9PQkpFQ1RfVFlQRV9VTlNQRUNJRklFRBAAEgkKBVRBQkxFEAESCgoGU0NIRU1BEAIqKgoNSGlzdG9yeVN0YXR1cxIMCghESVNBQkxFRBAAEgsKB0VOQUJMRUQQAULzAQoaY29tLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjFCC01vZGVsc1Byb3RvUAFaTmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJlcy92MTtzaGFyZXN2MaICA1VTWKoCFlVuaXR5Y2F0YWxvZy5TaGFyZXMuVjHKAhZVbml0eWNhdGFsb2dcU2hhcmVzXFYx4gIiVW5pdHljYXRhbG9nXFNoYXJlc1xWMVxHUEJNZXRhZGF0YeoCGFVuaXR5Y2F0YWxvZzo6U2hhcmVzOjpWMWIGcHJvdG8z",
     [file_google_api_field_behavior, file_google_api_resource],
   );
 
@@ -118,9 +118,9 @@ export const DataObjectSchema: GenMessage<DataObject> =
   messageDesc(file_unitycatalog_shares_v1_models, 0);
 
 /**
- * @generated from message unitycatalog.shares.v1.ShareInfo
+ * @generated from message unitycatalog.shares.v1.Share
  */
-export type ShareInfo = Message<"unitycatalog.shares.v1.ShareInfo"> & {
+export type Share = Message<"unitycatalog.shares.v1.Share"> & {
   /**
    * Unique ID of the recipient.
    *
@@ -134,6 +134,13 @@ export type ShareInfo = Message<"unitycatalog.shares.v1.ShareInfo"> & {
    * @generated from field: string name = 1;
    */
   name: string;
+
+  /**
+   * A list of shared data objects within the share.
+   *
+   * @generated from field: repeated unitycatalog.shares.v1.DataObject objects = 6;
+   */
+  objects: DataObject[];
 
   /**
    * Username of current owner of share.
@@ -150,48 +157,120 @@ export type ShareInfo = Message<"unitycatalog.shares.v1.ShareInfo"> & {
   comment?: string;
 
   /**
-   * A list of shared data objects within the share.
+   * Storage Location URL (full path) for the share.
    *
-   * @generated from field: repeated unitycatalog.shares.v1.DataObject data_objects = 5;
+   * @generated from field: optional string storage_location = 4;
    */
-  dataObjects: DataObject[];
+  storageLocation?: string;
+
+  /**
+   * Storage root URL for the share.
+   *
+   * @generated from field: optional string storage_root = 5;
+   */
+  storageRoot?: string;
 
   /**
    * Time at which this share was created, in epoch milliseconds.
    *
-   * @generated from field: optional int64 created_at = 6;
+   * @generated from field: optional int64 created_at = 7;
    */
   createdAt?: bigint;
 
   /**
    * Username of the creator of the share.
    *
-   * @generated from field: optional string created_by = 7;
+   * @generated from field: optional string created_by = 8;
    */
   createdBy?: string;
 
   /**
    * Time at which this share was updated, in epoch milliseconds.
    *
-   * @generated from field: optional int64 updated_at = 8;
+   * @generated from field: optional int64 updated_at = 9;
    */
   updatedAt?: bigint;
 
   /**
    * Username of share updater.
    *
-   * @generated from field: optional string updated_by = 9;
+   * @generated from field: optional string updated_by = 10;
    */
   updatedBy?: string;
 };
 
 /**
- * Describes the message unitycatalog.shares.v1.ShareInfo.
- * Use `create(ShareInfoSchema)` to create a new message.
+ * Describes the message unitycatalog.shares.v1.Share.
+ * Use `create(ShareSchema)` to create a new message.
  */
-export const ShareInfoSchema: GenMessage<ShareInfo> =
+export const ShareSchema: GenMessage<Share> =
   /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 1);
+
+/**
+ * @generated from message unitycatalog.shares.v1.PrivilegeAssignment
+ */
+export type PrivilegeAssignment =
+  Message<"unitycatalog.shares.v1.PrivilegeAssignment"> & {
+    /**
+     * The principal (user email address or group name).
+     *
+     * For deleted principals, principal is empty while principal_id is populated.
+     *
+     * @generated from field: string principal = 1;
+     */
+    principal: string;
+
+    /**
+     * The privileges assigned to the principal.
+     *
+     * @generated from field: repeated string privileges = 2;
+     */
+    privileges: string[];
+  };
+
+/**
+ * Describes the message unitycatalog.shares.v1.PrivilegeAssignment.
+ * Use `create(PrivilegeAssignmentSchema)` to create a new message.
+ */
+export const PrivilegeAssignmentSchema: GenMessage<PrivilegeAssignment> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_shares_v1_models, 2);
+
+/**
+ * @generated from message unitycatalog.shares.v1.PermissionsChange
+ */
+export type PermissionsChange =
+  Message<"unitycatalog.shares.v1.PermissionsChange"> & {
+    /**
+     * The principal (user email address or group name).
+     *
+     * @generated from field: string principal = 1;
+     */
+    principal: string;
+
+    /**
+     * The set of privileges to add.
+     *
+     * @generated from field: repeated string add = 2;
+     */
+    add: string[];
+
+    /**
+     * The set of privileges to remove.
+     *
+     * @generated from field: repeated string remove = 3;
+     */
+    remove: string[];
+  };
+
+/**
+ * Describes the message unitycatalog.shares.v1.PermissionsChange.
+ * Use `create(PermissionsChangeSchema)` to create a new message.
+ */
+export const PermissionsChangeSchema: GenMessage<PermissionsChange> =
+  /*@__PURE__*/
+  messageDesc(file_unitycatalog_shares_v1_models, 3);
 
 /**
  * @generated from enum unitycatalog.shares.v1.DataObjectType

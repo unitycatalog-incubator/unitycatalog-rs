@@ -10,11 +10,7 @@ pub struct PyVolumeClient {
 #[pymethods]
 impl PyVolumeClient {
     #[pyo3(signature = (include_browse = None))]
-    pub fn get(
-        &self,
-        py: Python,
-        include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
+    pub fn get(&self, py: Python, include_browse: Option<bool>) -> PyUnityCatalogResult<Volume> {
         let mut request = self.client.get();
         request = request.with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
@@ -30,7 +26,7 @@ impl PyVolumeClient {
         new_name: Option<String>,
         comment: Option<String>,
         owner: Option<String>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
+    ) -> PyUnityCatalogResult<Volume> {
         let mut request = self.client.update();
         request = request.with_new_name(new_name);
         request = request.with_comment(comment);

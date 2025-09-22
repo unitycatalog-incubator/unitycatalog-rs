@@ -7,54 +7,51 @@ pub mod schemas_service_server {
     #[async_trait]
     pub trait SchemasService: Send + Sync + 'static {
         /** Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
- admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
- Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
- will be retrieved. There is no guarantee of a specific ordering of the elements in the array.
-*/
+         admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
+         Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
+         will be retrieved. There is no guarantee of a specific ordering of the elements in the array.
+        */
         async fn list_schemas(
             &self,
             request: tonic::Request<super::ListSchemasRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListSchemasResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListSchemasResponse>, tonic::Status>;
         /** Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
- or have the CREATE_SCHEMA privilege in the parent catalog.
-*/
+         or have the CREATE_SCHEMA privilege in the parent catalog.
+        */
         async fn create_schema(
             &self,
             request: tonic::Request<super::CreateSchemaRequest>,
-        ) -> std::result::Result<tonic::Response<super::SchemaInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Schema>, tonic::Status>;
         /** Gets the specified schema within the metastore.
- The caller must be a metastore admin, the owner of the schema,
- or a user that has the USE_SCHEMA privilege on the schema.
-*/
+         The caller must be a metastore admin, the owner of the schema,
+         or a user that has the USE_SCHEMA privilege on the schema.
+        */
         async fn get_schema(
             &self,
             request: tonic::Request<super::GetSchemaRequest>,
-        ) -> std::result::Result<tonic::Response<super::SchemaInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Schema>, tonic::Status>;
         /** Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
- If the caller is a metastore admin, only the owner field can be changed in the update.
- If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
- privilege on the parent catalog.
-*/
+         If the caller is a metastore admin, only the owner field can be changed in the update.
+         If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
+         privilege on the parent catalog.
+        */
         async fn update_schema(
             &self,
             request: tonic::Request<super::UpdateSchemaRequest>,
-        ) -> std::result::Result<tonic::Response<super::SchemaInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Schema>, tonic::Status>;
         /** Deletes the specified schema from the parent catalog. The caller must be the owner
- of the schema or an owner of the parent catalog.
-*/
+         of the schema or an owner of the parent catalog.
+        */
         async fn delete_schema(
             &self,
             request: tonic::Request<super::DeleteSchemaRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     /** A schema (also called a database) is the second layer of Unity Catalog’s three-level namespace.
- A schema organizes tables, views and functions. To access (or list) a table or view in a schema,
- users must have the USE_SCHEMA data permission on the schema and its parent catalog, and they must
- have the SELECT permission on the table or view.
-*/
+     A schema organizes tables, views and functions. To access (or list) a table or view in a schema,
+     users must have the USE_SCHEMA data permission on the schema and its parent catalog, and they must
+     have the SELECT permission on the table or view.
+    */
     #[derive(Debug)]
     pub struct SchemasServiceServer<T: SchemasService> {
         inner: Arc<T>,
@@ -76,10 +73,7 @@ pub mod schemas_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -134,15 +128,11 @@ pub mod schemas_service_server {
                 "/unitycatalog.schemas.v1.SchemasService/ListSchemas" => {
                     #[allow(non_camel_case_types)]
                     struct ListSchemasSvc<T: SchemasService>(pub Arc<T>);
-                    impl<
-                        T: SchemasService,
-                    > tonic::server::UnaryService<super::ListSchemasRequest>
-                    for ListSchemasSvc<T> {
+                    impl<T: SchemasService> tonic::server::UnaryService<super::ListSchemasRequest>
+                        for ListSchemasSvc<T>
+                    {
                         type Response = super::ListSchemasResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListSchemasRequest>,
@@ -179,15 +169,11 @@ pub mod schemas_service_server {
                 "/unitycatalog.schemas.v1.SchemasService/CreateSchema" => {
                     #[allow(non_camel_case_types)]
                     struct CreateSchemaSvc<T: SchemasService>(pub Arc<T>);
-                    impl<
-                        T: SchemasService,
-                    > tonic::server::UnaryService<super::CreateSchemaRequest>
-                    for CreateSchemaSvc<T> {
-                        type Response = super::SchemaInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: SchemasService> tonic::server::UnaryService<super::CreateSchemaRequest>
+                        for CreateSchemaSvc<T>
+                    {
+                        type Response = super::Schema;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateSchemaRequest>,
@@ -224,15 +210,9 @@ pub mod schemas_service_server {
                 "/unitycatalog.schemas.v1.SchemasService/GetSchema" => {
                     #[allow(non_camel_case_types)]
                     struct GetSchemaSvc<T: SchemasService>(pub Arc<T>);
-                    impl<
-                        T: SchemasService,
-                    > tonic::server::UnaryService<super::GetSchemaRequest>
-                    for GetSchemaSvc<T> {
-                        type Response = super::SchemaInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: SchemasService> tonic::server::UnaryService<super::GetSchemaRequest> for GetSchemaSvc<T> {
+                        type Response = super::Schema;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetSchemaRequest>,
@@ -269,15 +249,11 @@ pub mod schemas_service_server {
                 "/unitycatalog.schemas.v1.SchemasService/UpdateSchema" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateSchemaSvc<T: SchemasService>(pub Arc<T>);
-                    impl<
-                        T: SchemasService,
-                    > tonic::server::UnaryService<super::UpdateSchemaRequest>
-                    for UpdateSchemaSvc<T> {
-                        type Response = super::SchemaInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: SchemasService> tonic::server::UnaryService<super::UpdateSchemaRequest>
+                        for UpdateSchemaSvc<T>
+                    {
+                        type Response = super::Schema;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateSchemaRequest>,
@@ -314,15 +290,11 @@ pub mod schemas_service_server {
                 "/unitycatalog.schemas.v1.SchemasService/DeleteSchema" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteSchemaSvc<T: SchemasService>(pub Arc<T>);
-                    impl<
-                        T: SchemasService,
-                    > tonic::server::UnaryService<super::DeleteSchemaRequest>
-                    for DeleteSchemaSvc<T> {
+                    impl<T: SchemasService> tonic::server::UnaryService<super::DeleteSchemaRequest>
+                        for DeleteSchemaSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteSchemaRequest>,
@@ -356,21 +328,17 @@ pub mod schemas_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

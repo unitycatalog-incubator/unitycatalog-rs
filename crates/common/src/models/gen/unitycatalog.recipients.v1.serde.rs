@@ -99,13 +99,15 @@ impl serde::Serialize for CreateRecipientRequest {
         if self.expiration_time.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.CreateRecipientRequest", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.recipients.v1.CreateRecipientRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if self.authentication_type != 0 {
-            let v = AuthenticationType::try_from(self.authentication_type)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.authentication_type)))?;
+            let v = AuthenticationType::try_from(self.authentication_type).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.authentication_type))
+            })?;
             struct_ser.serialize_field("authentication_type", &v)?;
         }
         if !self.owner.is_empty() {
@@ -162,7 +164,10 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -173,11 +178,15 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                     {
                         match value {
                             "name" => Ok(GeneratedField::Name),
-                            "authenticationType" | "authentication_type" => Ok(GeneratedField::AuthenticationType),
+                            "authenticationType" | "authentication_type" => {
+                                Ok(GeneratedField::AuthenticationType)
+                            }
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
-                            "expirationTime" | "expiration_time" => Ok(GeneratedField::ExpirationTime),
+                            "expirationTime" | "expiration_time" => {
+                                Ok(GeneratedField::ExpirationTime)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -193,9 +202,12 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                 formatter.write_str("struct unitycatalog.recipients.v1.CreateRecipientRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateRecipientRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<CreateRecipientRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut authentication_type__ = None;
@@ -213,9 +225,12 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                         }
                         GeneratedField::AuthenticationType => {
                             if authentication_type__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("authenticationType"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "authenticationType",
+                                ));
                             }
-                            authentication_type__ = Some(map_.next_value::<AuthenticationType>()? as i32);
+                            authentication_type__ =
+                                Some(map_.next_value::<AuthenticationType>()? as i32);
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -233,15 +248,14 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::ExpirationTime => {
                             if expiration_time__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("expirationTime"));
                             }
-                            expiration_time__ = 
+                            expiration_time__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -260,7 +274,11 @@ impl<'de> serde::Deserialize<'de> for CreateRecipientRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.CreateRecipientRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.CreateRecipientRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for DeleteRecipientRequest {
@@ -274,7 +292,8 @@ impl serde::Serialize for DeleteRecipientRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.DeleteRecipientRequest", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.recipients.v1.DeleteRecipientRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -287,9 +306,7 @@ impl<'de> serde::Deserialize<'de> for DeleteRecipientRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-        ];
+        const FIELDS: &[&str] = &["name"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -306,7 +323,10 @@ impl<'de> serde::Deserialize<'de> for DeleteRecipientRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -332,9 +352,12 @@ impl<'de> serde::Deserialize<'de> for DeleteRecipientRequest {
                 formatter.write_str("struct unitycatalog.recipients.v1.DeleteRecipientRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeleteRecipientRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<DeleteRecipientRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -355,7 +378,11 @@ impl<'de> serde::Deserialize<'de> for DeleteRecipientRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.DeleteRecipientRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.DeleteRecipientRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GetRecipientRequest {
@@ -369,7 +396,8 @@ impl serde::Serialize for GetRecipientRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.GetRecipientRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.recipients.v1.GetRecipientRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -382,9 +410,7 @@ impl<'de> serde::Deserialize<'de> for GetRecipientRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-        ];
+        const FIELDS: &[&str] = &["name"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -401,7 +427,10 @@ impl<'de> serde::Deserialize<'de> for GetRecipientRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -428,8 +457,8 @@ impl<'de> serde::Deserialize<'de> for GetRecipientRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetRecipientRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -450,7 +479,11 @@ impl<'de> serde::Deserialize<'de> for GetRecipientRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.GetRecipientRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.GetRecipientRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListRecipientsRequest {
@@ -467,7 +500,8 @@ impl serde::Serialize for ListRecipientsRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.ListRecipientsRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.recipients.v1.ListRecipientsRequest", len)?;
         if let Some(v) = self.max_results.as_ref() {
             struct_ser.serialize_field("max_results", v)?;
         }
@@ -483,12 +517,7 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "max_results",
-            "maxResults",
-            "page_token",
-            "pageToken",
-        ];
+        const FIELDS: &[&str] = &["max_results", "maxResults", "page_token", "pageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -506,7 +535,10 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -533,9 +565,12 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsRequest {
                 formatter.write_str("struct unitycatalog.recipients.v1.ListRecipientsRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListRecipientsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListRecipientsRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut max_results__ = None;
                 let mut page_token__ = None;
@@ -545,7 +580,7 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsRequest {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            max_results__ = 
+                            max_results__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -566,7 +601,11 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.ListRecipientsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.ListRecipientsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListRecipientsResponse {
@@ -583,7 +622,8 @@ impl serde::Serialize for ListRecipientsResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.ListRecipientsResponse", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.recipients.v1.ListRecipientsResponse", len)?;
         if !self.recipients.is_empty() {
             struct_ser.serialize_field("recipients", &self.recipients)?;
         }
@@ -599,11 +639,7 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "recipients",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["recipients", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -621,7 +657,10 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -632,7 +671,9 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsResponse {
                     {
                         match value {
                             "recipients" => Ok(GeneratedField::Recipients),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -648,9 +689,12 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsResponse {
                 formatter.write_str("struct unitycatalog.recipients.v1.ListRecipientsResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListRecipientsResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListRecipientsResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut recipients__ = None;
                 let mut next_page_token__ = None;
@@ -679,10 +723,14 @@ impl<'de> serde::Deserialize<'de> for ListRecipientsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.ListRecipientsResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.ListRecipientsResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
-impl serde::Serialize for RecipientInfo {
+impl serde::Serialize for Recipient {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -723,7 +771,8 @@ impl serde::Serialize for RecipientInfo {
         if self.updated_by.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.RecipientInfo", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.recipients.v1.Recipient", len)?;
         if let Some(v) = self.id.as_ref() {
             struct_ser.serialize_field("id", v)?;
         }
@@ -731,8 +780,9 @@ impl serde::Serialize for RecipientInfo {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if self.authentication_type != 0 {
-            let v = AuthenticationType::try_from(self.authentication_type)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.authentication_type)))?;
+            let v = AuthenticationType::try_from(self.authentication_type).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.authentication_type))
+            })?;
             struct_ser.serialize_field("authentication_type", &v)?;
         }
         if !self.owner.is_empty() {
@@ -766,7 +816,7 @@ impl serde::Serialize for RecipientInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for RecipientInfo {
+impl<'de> serde::Deserialize<'de> for Recipient {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -816,7 +866,10 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -828,7 +881,9 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                         match value {
                             "id" => Ok(GeneratedField::Id),
                             "name" => Ok(GeneratedField::Name),
-                            "authenticationType" | "authentication_type" => Ok(GeneratedField::AuthenticationType),
+                            "authenticationType" | "authentication_type" => {
+                                Ok(GeneratedField::AuthenticationType)
+                            }
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
@@ -846,15 +901,15 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = RecipientInfo;
+            type Value = Recipient;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.recipients.v1.RecipientInfo")
+                formatter.write_str("struct unitycatalog.recipients.v1.Recipient")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<RecipientInfo, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Recipient, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut id__ = None;
                 let mut name__ = None;
@@ -883,9 +938,12 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                         }
                         GeneratedField::AuthenticationType => {
                             if authentication_type__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("authenticationType"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "authenticationType",
+                                ));
                             }
-                            authentication_type__ = Some(map_.next_value::<AuthenticationType>()? as i32);
+                            authentication_type__ =
+                                Some(map_.next_value::<AuthenticationType>()? as i32);
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -903,15 +961,14 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::CreatedAt => {
                             if created_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("createdAt"));
                             }
-                            created_at__ = 
+                            created_at__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -931,7 +988,7 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                             if updated_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("updatedAt"));
                             }
-                            updated_at__ = 
+                            updated_at__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -946,7 +1003,7 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                         }
                     }
                 }
-                Ok(RecipientInfo {
+                Ok(Recipient {
                     id: id__,
                     name: name__.unwrap_or_default(),
                     authentication_type: authentication_type__.unwrap_or_default(),
@@ -961,7 +1018,11 @@ impl<'de> serde::Deserialize<'de> for RecipientInfo {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.RecipientInfo", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.Recipient",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for RecipientToken {
@@ -993,14 +1054,16 @@ impl serde::Serialize for RecipientToken {
         if !self.updated_by.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.RecipientToken", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.recipients.v1.RecipientToken", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
         }
         if self.created_at != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("created_at", ToString::to_string(&self.created_at).as_str())?;
+            struct_ser
+                .serialize_field("created_at", ToString::to_string(&self.created_at).as_str())?;
         }
         if !self.created_by.is_empty() {
             struct_ser.serialize_field("created_by", &self.created_by)?;
@@ -1011,12 +1074,16 @@ impl serde::Serialize for RecipientToken {
         if self.expiration_time != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("expiration_time", ToString::to_string(&self.expiration_time).as_str())?;
+            struct_ser.serialize_field(
+                "expiration_time",
+                ToString::to_string(&self.expiration_time).as_str(),
+            )?;
         }
         if self.updated_at != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("updated_at", ToString::to_string(&self.updated_at).as_str())?;
+            struct_ser
+                .serialize_field("updated_at", ToString::to_string(&self.updated_at).as_str())?;
         }
         if !self.updated_by.is_empty() {
             struct_ser.serialize_field("updated_by", &self.updated_by)?;
@@ -1067,7 +1134,10 @@ impl<'de> serde::Deserialize<'de> for RecipientToken {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1081,7 +1151,9 @@ impl<'de> serde::Deserialize<'de> for RecipientToken {
                             "createdAt" | "created_at" => Ok(GeneratedField::CreatedAt),
                             "createdBy" | "created_by" => Ok(GeneratedField::CreatedBy),
                             "activationUrl" | "activation_url" => Ok(GeneratedField::ActivationUrl),
-                            "expirationTime" | "expiration_time" => Ok(GeneratedField::ExpirationTime),
+                            "expirationTime" | "expiration_time" => {
+                                Ok(GeneratedField::ExpirationTime)
+                            }
                             "updatedAt" | "updated_at" => Ok(GeneratedField::UpdatedAt),
                             "updatedBy" | "updated_by" => Ok(GeneratedField::UpdatedBy),
                             _ => Ok(GeneratedField::__SkipField__),
@@ -1100,8 +1172,8 @@ impl<'de> serde::Deserialize<'de> for RecipientToken {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<RecipientToken, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut id__ = None;
                 let mut created_at__ = None;
@@ -1122,9 +1194,10 @@ impl<'de> serde::Deserialize<'de> for RecipientToken {
                             if created_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("createdAt"));
                             }
-                            created_at__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            created_at__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::CreatedBy => {
                             if created_by__.is_some() {
@@ -1142,17 +1215,19 @@ impl<'de> serde::Deserialize<'de> for RecipientToken {
                             if expiration_time__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("expirationTime"));
                             }
-                            expiration_time__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            expiration_time__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::UpdatedAt => {
                             if updated_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("updatedAt"));
                             }
-                            updated_at__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            updated_at__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::UpdatedBy => {
                             if updated_by__.is_some() {
@@ -1176,7 +1251,11 @@ impl<'de> serde::Deserialize<'de> for RecipientToken {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.RecipientToken", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.RecipientToken",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for UpdateRecipientRequest {
@@ -1205,7 +1284,8 @@ impl serde::Serialize for UpdateRecipientRequest {
         if self.expiration_time.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.recipients.v1.UpdateRecipientRequest", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.recipients.v1.UpdateRecipientRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1266,7 +1346,10 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1281,7 +1364,9 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
-                            "expirationTime" | "expiration_time" => Ok(GeneratedField::ExpirationTime),
+                            "expirationTime" | "expiration_time" => {
+                                Ok(GeneratedField::ExpirationTime)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1297,9 +1382,12 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                 formatter.write_str("struct unitycatalog.recipients.v1.UpdateRecipientRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateRecipientRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<UpdateRecipientRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut new_name__ = None;
@@ -1337,15 +1425,14 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::ExpirationTime => {
                             if expiration_time__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("expirationTime"));
                             }
-                            expiration_time__ = 
+                            expiration_time__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -1364,6 +1451,10 @@ impl<'de> serde::Deserialize<'de> for UpdateRecipientRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.recipients.v1.UpdateRecipientRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.recipients.v1.UpdateRecipientRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }

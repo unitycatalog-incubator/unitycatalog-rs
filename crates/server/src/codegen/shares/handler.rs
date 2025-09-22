@@ -13,20 +13,26 @@ pub trait ShareHandler: Send + Sync + 'static {
         &self,
         request: CreateShareRequest,
         context: RequestContext,
-    ) -> Result<ShareInfo>;
-    async fn get_share(
-        &self,
-        request: GetShareRequest,
-        context: RequestContext,
-    ) -> Result<ShareInfo>;
+    ) -> Result<Share>;
+    async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share>;
     async fn update_share(
         &self,
         request: UpdateShareRequest,
         context: RequestContext,
-    ) -> Result<ShareInfo>;
+    ) -> Result<Share>;
     async fn delete_share(
         &self,
         request: DeleteShareRequest,
         context: RequestContext,
     ) -> Result<()>;
+    async fn get_permissions(
+        &self,
+        request: GetPermissionsRequest,
+        context: RequestContext,
+    ) -> Result<GetPermissionsResponse>;
+    async fn update_permissions(
+        &self,
+        request: UpdatePermissionsRequest,
+        context: RequestContext,
+    ) -> Result<UpdatePermissionsResponse>;
 }

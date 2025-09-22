@@ -8,7 +8,7 @@ use unitycatalog_sharing_client::models::sharing::v1::*;
 
 use crate::api::RequestContext;
 use crate::api::sharing::{SharingHandler, SharingQueryHandler};
-use crate::policy::Recipient;
+use crate::policy::Principal;
 use crate::{Error, Result};
 
 /// Create a new [Router] for the Delta Sharing REST API.
@@ -39,7 +39,7 @@ pub fn get_router<T: SharingHandler + SharingQueryHandler + Clone>(state: T) -> 
 
 pub async fn list_shares<T: SharingHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListSharesRequest,
 ) -> Result<::axum::Json<ListSharesResponse>> {
     let context = RequestContext { recipient };
@@ -49,7 +49,7 @@ pub async fn list_shares<T: SharingHandler>(
 
 pub async fn get_share<T: SharingHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: GetShareRequest,
 ) -> Result<::axum::Json<Share>> {
     let context = RequestContext { recipient };
@@ -59,7 +59,7 @@ pub async fn get_share<T: SharingHandler>(
 
 pub async fn list_schemas<T: SharingHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListSchemasRequest,
 ) -> Result<::axum::Json<ListSchemasResponse>> {
     let context = RequestContext { recipient };
@@ -69,7 +69,7 @@ pub async fn list_schemas<T: SharingHandler>(
 
 pub async fn list_tables<T: SharingHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListTablesRequest,
 ) -> Result<::axum::Json<ListTablesResponse>> {
     let context = RequestContext { recipient };
@@ -79,7 +79,7 @@ pub async fn list_tables<T: SharingHandler>(
 
 pub async fn list_all_tables<T: SharingHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListAllTablesRequest,
 ) -> Result<::axum::Json<ListAllTablesResponse>> {
     let context = RequestContext { recipient };
@@ -89,7 +89,7 @@ pub async fn list_all_tables<T: SharingHandler>(
 
 async fn get_table_version<T: SharingQueryHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: GetTableVersionRequest,
 ) -> Result<Response> {
     let ctx = RequestContext { recipient };
@@ -102,7 +102,7 @@ async fn get_table_version<T: SharingQueryHandler>(
 
 async fn get_table_metadata<T: SharingQueryHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: GetTableMetadataRequest,
 ) -> Result<Response> {
     let ctx = RequestContext { recipient };
@@ -116,7 +116,7 @@ async fn get_table_metadata<T: SharingQueryHandler>(
 
 async fn get_table_query<T: SharingQueryHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: QueryTableRequest,
 ) -> Result<Response> {
     let ctx = RequestContext { recipient };

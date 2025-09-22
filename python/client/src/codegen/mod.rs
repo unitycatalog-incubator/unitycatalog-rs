@@ -53,7 +53,7 @@ impl PyUnityCatalogClientABC {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CatalogInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Catalog>> {
         let mut request = self.client.list_catalogs();
         request = request.with_max_results(max_results);
         let runtime = get_runtime(py)?;
@@ -82,7 +82,7 @@ impl PyUnityCatalogClientABC {
         storage_root: Option<String>,
         provider_name: Option<String>,
         share_name: Option<String>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self.client.create_catalog(name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
@@ -103,7 +103,7 @@ impl PyUnityCatalogClientABC {
         py: Python,
         purpose: Option<Purpose>,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CredentialInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Credential>> {
         let mut request = self.client.list_credentials();
         request = request.with_purpose(purpose);
         request = request.with_max_results(max_results);
@@ -137,7 +137,7 @@ impl PyUnityCatalogClientABC {
         azure_service_principal: Option<AzureServicePrincipal>,
         azure_managed_identity: Option<AzureManagedIdentity>,
         azure_storage_key: Option<AzureStorageKey>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
+    ) -> PyUnityCatalogResult<Credential> {
         let mut request = self.client.create_credential(name, purpose);
         request = request.with_comment(comment);
         request = request.with_read_only(read_only);
@@ -157,7 +157,7 @@ impl PyUnityCatalogClientABC {
         py: Python,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
+    ) -> PyUnityCatalogResult<Vec<ExternalLocation>> {
         let mut request = self.client.list_external_locations();
         request = request.with_max_results(max_results);
         request = request.with_include_browse(include_browse);
@@ -187,7 +187,7 @@ impl PyUnityCatalogClientABC {
         read_only: Option<bool>,
         comment: Option<String>,
         skip_validation: Option<bool>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
+    ) -> PyUnityCatalogResult<ExternalLocation> {
         let mut request = self
             .client
             .create_external_location(name, url, credential_name);
@@ -205,7 +205,7 @@ impl PyUnityCatalogClientABC {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Recipient>> {
         let mut request = self.client.list_recipients();
         request = request.with_max_results(max_results);
         let runtime = get_runtime(py)?;
@@ -234,7 +234,7 @@ impl PyUnityCatalogClientABC {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
         expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
+    ) -> PyUnityCatalogResult<Recipient> {
         let mut request = self
             .client
             .create_recipient(name, authentication_type, owner);
@@ -256,7 +256,7 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Schema>> {
         let mut request = self.client.list_schemas(catalog_name);
         request = request.with_max_results(max_results);
         request = request.with_include_browse(include_browse);
@@ -275,7 +275,7 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
+    ) -> PyUnityCatalogResult<Schema> {
         let mut request = self.client.create_schema(name, catalog_name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
@@ -292,7 +292,7 @@ impl PyUnityCatalogClientABC {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<ShareInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Share>> {
         let mut request = self.client.list_shares();
         request = request.with_max_results(max_results);
         let runtime = get_runtime(py)?;
@@ -308,7 +308,7 @@ impl PyUnityCatalogClientABC {
         py: Python,
         name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ShareInfo> {
+    ) -> PyUnityCatalogResult<Share> {
         let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
@@ -342,7 +342,7 @@ impl PyUnityCatalogClientABC {
         omit_username: Option<bool>,
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<TableInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Table>> {
         let mut request = self.client.list_tables(catalog_name, schema_name);
         request = request.with_max_results(max_results);
         request = request.with_include_delta_metadata(include_delta_metadata);
@@ -379,11 +379,11 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: Option<Vec<ColumnInfo>>,
+        columns: Option<Vec<Column>>,
         storage_location: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<TableInfo> {
+    ) -> PyUnityCatalogResult<Table> {
         let mut request = self.client.create_table(
             name,
             schema_name,
@@ -420,7 +420,7 @@ impl PyUnityCatalogClientABC {
         schema_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<VolumeInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Volume>> {
         let mut request = self.client.list_volumes(catalog_name, schema_name);
         request = request.with_max_results(max_results);
         request = request.with_include_browse(include_browse);
@@ -450,7 +450,7 @@ impl PyUnityCatalogClientABC {
         volume_type: VolumeType,
         storage_location: Option<String>,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
+    ) -> PyUnityCatalogResult<Volume> {
         let mut request = self
             .client
             .create_volume(catalog_name, schema_name, name, volume_type);

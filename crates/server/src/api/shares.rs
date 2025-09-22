@@ -17,9 +17,9 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         &self,
         request: CreateShareRequest,
         context: RequestContext,
-    ) -> Result<ShareInfo> {
+    ) -> Result<Share> {
         self.check_required(&request, context.as_ref()).await?;
-        let resource = ShareInfo {
+        let resource = Share {
             name: request.name,
             comment: request.comment,
             ..Default::default()
@@ -47,7 +47,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::ShareInfo,
+                &ObjectLabel::Share,
                 None,
                 request.max_results.map(|v| v as usize),
                 request.page_token,
@@ -60,11 +60,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         })
     }
 
-    async fn get_share(
-        &self,
-        request: GetShareRequest,
-        context: RequestContext,
-    ) -> Result<ShareInfo> {
+    async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share> {
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
@@ -73,14 +69,14 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         &self,
         request: UpdateShareRequest,
         context: RequestContext,
-    ) -> Result<ShareInfo> {
+    ) -> Result<Share> {
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
-        let current: ShareInfo = self.get(&ident).await?.0.try_into()?;
+        let current: Share = self.get(&ident).await?.0.try_into()?;
 
         // update the data_objects according to the actions defined in request
         let mut data_objects: HashMap<String, DataObject> = current
-            .data_objects
+            .objects
             .into_iter()
             .map(|d| (d.name.clone(), d))
             .collect();
@@ -114,16 +110,32 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
             }
         }
 
-        let resource = ShareInfo {
+        let resource = Share {
             name: request.new_name.unwrap_or_else(|| request.name.clone()),
             comment: request.comment.or(current.comment),
             owner: request.owner.or(current.owner),
-            data_objects: data_objects.into_values().collect(),
+            objects: data_objects.into_values().collect(),
             ..Default::default()
         };
         // TODO:
         // - add update_* relations
         Ok(self.update(&ident, resource.into()).await?.0.try_into()?)
+    }
+
+    async fn get_permissions(
+        &self,
+        request: GetPermissionsRequest,
+        context: RequestContext,
+    ) -> Result<GetPermissionsResponse> {
+        todo!()
+    }
+
+    async fn update_permissions(
+        &self,
+        request: UpdatePermissionsRequest,
+        context: RequestContext,
+    ) -> Result<UpdatePermissionsResponse> {
+        todo!()
     }
 }
 

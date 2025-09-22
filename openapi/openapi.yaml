@@ -82,7 +82,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CatalogInfo"
+                $ref: "#/components/schemas/Catalog"
         default:
           description: Default error response
           content:
@@ -117,7 +117,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CatalogInfo"
+                $ref: "#/components/schemas/Catalog"
         default:
           description: Default error response
           content:
@@ -179,7 +179,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CatalogInfo"
+                $ref: "#/components/schemas/Catalog"
         default:
           description: Default error response
           content:
@@ -238,7 +238,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CredentialInfo"
+                $ref: "#/components/schemas/Credential"
         default:
           description: Default error response
           content:
@@ -263,7 +263,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CredentialInfo"
+                $ref: "#/components/schemas/Credential"
         default:
           description: Default error response
           content:
@@ -314,7 +314,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CredentialInfo"
+                $ref: "#/components/schemas/Credential"
         default:
           description: Default error response
           content:
@@ -376,7 +376,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExternalLocationInfo"
+                $ref: "#/components/schemas/ExternalLocation"
         default:
           description: Default error response
           content:
@@ -402,7 +402,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExternalLocationInfo"
+                $ref: "#/components/schemas/ExternalLocation"
         default:
           description: Default error response
           content:
@@ -460,7 +460,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExternalLocationInfo"
+                $ref: "#/components/schemas/ExternalLocation"
         default:
           description: Default error response
           content:
@@ -515,7 +515,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipientInfo"
+                $ref: "#/components/schemas/Recipient"
         default:
           description: Default error response
           content:
@@ -541,7 +541,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipientInfo"
+                $ref: "#/components/schemas/Recipient"
         default:
           description: Default error response
           content:
@@ -594,7 +594,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipientInfo"
+                $ref: "#/components/schemas/Recipient"
         default:
           description: Default error response
           content:
@@ -667,7 +667,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaInfo"
+                $ref: "#/components/schemas/Schema"
         default:
           description: Default error response
           content:
@@ -702,7 +702,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaInfo"
+                $ref: "#/components/schemas/Schema"
         default:
           description: Default error response
           content:
@@ -734,7 +734,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaInfo"
+                $ref: "#/components/schemas/Schema"
         default:
           description: Default error response
           content:
@@ -822,7 +822,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ShareInfo"
+                $ref: "#/components/schemas/Share"
         default:
           description: Default error response
           content:
@@ -853,7 +853,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ShareInfo"
+                $ref: "#/components/schemas/Share"
         default:
           description: Default error response
           content:
@@ -906,7 +906,75 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ShareInfo"
+                $ref: "#/components/schemas/Share"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /shares/{name}/permissions:
+    get:
+      tags:
+        - SharesService
+      description: Gets the permissions for a data share from the metastore.
+      operationId: GetPermissions
+      parameters:
+        - name: name
+          in: path
+          description: Name of the share.
+          required: true
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Opaque pagination token to go to next page based on previous query.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPermissionsResponse"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    patch:
+      tags:
+        - SharesService
+      description: Updates the permissions for a data share in the metastore.
+      operationId: UpdatePermissions
+      parameters:
+        - name: name
+          in: path
+          description: Name of the share.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePermissionsRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdatePermissionsResponse"
         default:
           description: Default error response
           content:
@@ -1064,7 +1132,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TableInfo"
+                $ref: "#/components/schemas/Table"
         default:
           description: Default error response
           content:
@@ -1107,7 +1175,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TableInfo"
+                $ref: "#/components/schemas/Table"
         default:
           description: Default error response
           content:
@@ -1276,7 +1344,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VolumeInfo"
+                $ref: "#/components/schemas/Volume"
         default:
           description: Default error response
           content:
@@ -1308,7 +1376,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VolumeInfo"
+                $ref: "#/components/schemas/Volume"
         default:
           description: Default error response
           content:
@@ -1359,7 +1427,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VolumeInfo"
+                $ref: "#/components/schemas/Volume"
         default:
           description: Default error response
           content:
@@ -1368,6 +1436,20 @@ paths:
                 $ref: "#/components/schemas/Status"
 components:
   schemas:
+    AdditionalPropertiesItem:
+      type: object
+      properties:
+        schemaOrReference:
+          $ref: "#/components/schemas/SchemaOrReference"
+        boolean:
+          type: boolean
+    Any:
+      type: object
+      properties:
+        value:
+          $ref: "#/components/schemas/GoogleProtobufAny"
+        yaml:
+          type: string
     AwsTemporaryCredentials:
       additionalProperties: false
       properties:
@@ -1461,7 +1543,7 @@ components:
         - sas_token
       title: Azure User Delegation Sas
       type: object
-    CatalogInfo:
+    Catalog:
       additionalProperties: false
       description: A catalog is a root-level namespace that contains schemas.
       properties:
@@ -1524,9 +1606,9 @@ components:
           type: string
       required:
         - name
-      title: Catalog Info
+      title: Catalog
       type: object
-    ColumnInfo:
+    Column:
       additionalProperties: false
       properties:
         column_id:
@@ -1603,7 +1685,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     CreateCatalogRequest:
       additionalProperties: false
@@ -1856,7 +1938,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     CreateVolumeRequest:
       additionalProperties: false
@@ -1902,7 +1984,7 @@ components:
         - volume_type
       title: Create Volume Request
       type: object
-    CredentialInfo:
+    Credential:
       additionalProperties: false
       properties:
         application_id:
@@ -2032,7 +2114,45 @@ components:
         - data_object_type
       title: Data Object
       type: object
-    ExternalLocationInfo:
+    DefaultType:
+      type: object
+      properties:
+        number:
+          type: number
+          format: double
+        boolean:
+          type: boolean
+        string:
+          type: string
+    Discriminator:
+      type: object
+      properties:
+        propertyName:
+          type: string
+        mapping:
+          $ref: "#/components/schemas/Strings"
+        specificationExtension:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedAny"
+      description:
+        When request bodies or response payloads may be one of a number of different schemas, a `discriminator`
+        object can be used to aid in serialization, deserialization, and validation.  The discriminator is a specific object
+        in a schema which is used to inform the consumer of the specification of an alternative schema based on the value
+        associated with it.  When using the discriminator, _inline_ schemas will not be considered.
+    ExternalDocs:
+      type: object
+      properties:
+        description:
+          type: string
+        url:
+          type: string
+        specificationExtension:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedAny"
+      description: Allows referencing an external resource for extended documentation.
+    ExternalLocation:
       additionalProperties: false
       properties:
         browse_only:
@@ -2081,7 +2201,7 @@ components:
         - credential_name
         - read_only
         - credential_id
-      title: External Location Info
+      title: External Location
       type: object
     GcpOauthToken:
       additionalProperties: false
@@ -2136,6 +2256,20 @@ components:
         - operation
       title: Generate Temporary Table Credentials Request
       type: object
+    GetPermissionsResponse:
+      additionalProperties: false
+      description: Response to list shares.
+      properties:
+        next_page_token:
+          description: Opaque pagination token to go to next page based on previous query.
+          type: string
+        privilege_assignments:
+          description: The privileges assigned to each principal
+          items:
+            $ref: "#/$defs/unitycatalog.shares.v1.PrivilegeAssignment.schema.strict.json"
+          type: array
+      title: Get Permissions Response
+      type: object
     GetTableExistsResponse:
       additionalProperties: false
       properties:
@@ -2154,6 +2288,13 @@ components:
           description: The type of the serialized message.
       additionalProperties: true
       description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+    ItemsItem:
+      type: object
+      properties:
+        schemaOrReference:
+          type: array
+          items:
+            $ref: "#/components/schemas/SchemaOrReference"
     ListCatalogsResponse:
       additionalProperties: false
       description: A catalog is a root-level namespace that contains schemas.
@@ -2217,7 +2358,7 @@ components:
           type: string
       required:
         - name
-      title: Catalog Info
+      title: Catalog
       type: object
     ListCredentialsResponse:
       additionalProperties: false
@@ -2282,7 +2423,7 @@ components:
         - credential_name
         - read_only
         - credential_id
-      title: External Location Info
+      title: External Location
       type: object
     ListRecipientsResponse:
       additionalProperties: false
@@ -2294,7 +2435,7 @@ components:
         recipients:
           description: List of recipients.
           items:
-            $ref: "#/$defs/unitycatalog.recipients.v1.RecipientInfo.schema.strict.json"
+            $ref: "#/$defs/unitycatalog.recipients.v1.Recipient.schema.strict.json"
           type: array
       title: List Recipients Response
       type: object
@@ -2308,7 +2449,7 @@ components:
         schemas:
           description: The schemas returned.
           items:
-            $ref: "#/$defs/unitycatalog.schemas.v1.SchemaInfo.schema.strict.json"
+            $ref: "#/$defs/unitycatalog.schemas.v1.Schema.schema.strict.json"
           type: array
       title: List Schemas Response
       type: object
@@ -2460,7 +2601,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     ListVolumesResponse:
       additionalProperties: false
@@ -2475,10 +2616,85 @@ components:
         volumes:
           description: The volumes returned.
           items:
-            $ref: "#/$defs/unitycatalog.volumes.v1.VolumeInfo.schema.strict.json"
+            $ref: "#/$defs/unitycatalog.volumes.v1.Volume.schema.strict.json"
           type: array
       title: List Volumes Response
       type: object
+    NamedAny:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Map key
+        value:
+          allOf:
+            - $ref: "#/components/schemas/Any"
+          description: Mapped value
+      description: Automatically-generated message used to represent maps of Any as ordered (name,value) pairs.
+    NamedSchemaOrReference:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Map key
+        value:
+          allOf:
+            - $ref: "#/components/schemas/SchemaOrReference"
+          description: Mapped value
+      description: Automatically-generated message used to represent maps of SchemaOrReference as ordered (name,value) pairs.
+    NamedString:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Map key
+        value:
+          type: string
+          description: Mapped value
+      description: Automatically-generated message used to represent maps of string as ordered (name,value) pairs.
+    PermissionsChange:
+      additionalProperties: false
+      properties:
+        add:
+          description: The set of privileges to add.
+          items:
+            type: string
+          type: array
+        principal:
+          description: The principal (user email address or group name).
+          type: string
+        remove:
+          description: The set of privileges to remove.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Permissions Change
+      type: object
+    PrivilegeAssignment:
+      additionalProperties: false
+      properties:
+        principal:
+          description: For deleted principals, principal is empty while principal_id is populated.
+          title: The principal (user email address or group name).
+          type: string
+        privileges:
+          description: The privileges assigned to the principal.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Privilege Assignment
+      type: object
+    Properties:
+      type: object
+      properties:
+        additionalProperties:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedSchemaOrReference"
     R2TemporaryCredentials:
       additionalProperties: false
       properties:
@@ -2497,7 +2713,7 @@ components:
         - session_token
       title: R2 Temporary Credentials
       type: object
-    RecipientInfo:
+    Recipient:
       additionalProperties: false
       properties:
         authentication_type:
@@ -2548,7 +2764,7 @@ components:
         - name
         - authentication_type
         - owner
-      title: Recipient Info
+      title: Recipient
       type: object
     RecipientToken:
       additionalProperties: false
@@ -2584,7 +2800,20 @@ components:
         - updated_by
       title: Recipient Token
       type: object
-    SchemaInfo:
+    Reference:
+      type: object
+      properties:
+        Ref:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+      description:
+        A simple object to allow referencing other components in the specification, internally and externally.  The
+        Reference Object is defined by JSON Reference and follows the same structure, behavior and rules.   For this specification,
+        reference resolution is accomplished as defined by the JSON Reference specification and not by the JSON Schema specification.
+    Schema:
       additionalProperties: false
       description: A schema is a namespace within a catalog that contains tables.
       properties:
@@ -2629,9 +2858,16 @@ components:
         - name
         - catalog_name
         - full_name
-      title: Schema Info
+      title: Schema
       type: object
-    ShareInfo:
+    SchemaOrReference:
+      type: object
+      properties:
+        schema:
+          $ref: "#/components/schemas/Schema"
+        reference:
+          $ref: "#/components/schemas/Reference"
+    Share:
       additionalProperties: false
       properties:
         added_at:
@@ -2714,7 +2950,14 @@ components:
         including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three
         pieces of data: error code, error message, and error details. You can find out more about this error model and how
         to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."
-    TableInfo:
+    Strings:
+      type: object
+      properties:
+        additionalProperties:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedString"
+    Table:
       additionalProperties: false
       properties:
         column_id:
@@ -2791,7 +3034,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     TableSummary:
       additionalProperties: false
@@ -2924,6 +3167,42 @@ components:
       required:
         - name
       title: Update External Location Request
+      type: object
+    UpdatePermissionsRequest:
+      additionalProperties: false
+      properties:
+        add:
+          description: The set of privileges to add.
+          items:
+            type: string
+          type: array
+        principal:
+          description: The principal (user email address or group name).
+          type: string
+        remove:
+          description: The set of privileges to remove.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Permissions Change
+      type: object
+    UpdatePermissionsResponse:
+      additionalProperties: false
+      properties:
+        principal:
+          description: For deleted principals, principal is empty while principal_id is populated.
+          title: The principal (user email address or group name).
+          type: string
+        privileges:
+          description: The privileges assigned to the principal.
+          items:
+            type: string
+          type: array
+      required:
+        - principal
+      title: Privilege Assignment
       type: object
     UpdateRecipientRequest:
       additionalProperties: false
@@ -3071,7 +3350,7 @@ components:
         - name
       title: Update Volume Request
       type: object
-    VolumeInfo:
+    Volume:
       additionalProperties: false
       properties:
         browse_only:
@@ -3138,8 +3417,29 @@ components:
         - storage_location
         - volume_id
         - volume_type
-      title: Volume Info
+      title: Volume
       type: object
+    Xml:
+      type: object
+      properties:
+        name:
+          type: string
+        namespace:
+          type: string
+        prefix:
+          type: string
+        attribute:
+          type: boolean
+        wrapped:
+          type: boolean
+        specificationExtension:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedAny"
+      description:
+        A metadata object that allows for more fine-tuned XML model definitions.  When using arrays, XML element
+        names are *not* inferred (for singular/plural forms) and the `name` property SHOULD be used to add that information.
+        See examples for expected behavior.
     GetSchemaRequest:
       additionalProperties: false
       description: Get a Schema
@@ -3167,6 +3467,28 @@ components:
       required:
         - name
       title: Get Share Request
+      type: object
+    GetPermissionsRequest:
+      additionalProperties: false
+      description: Get permissions for a data share.
+      properties:
+        max_results:
+          description: The maximum number of results per page that should be returned.
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          maximum: 1000
+          exclusiveMaximum: true
+        name:
+          description: Name of the share.
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        page_token:
+          description: Opaque pagination token to go to next page based on previous query.
+          type: string
+      required:
+        - name
+      title: Get Permissions Request
       type: object
     DeleteRecipientRequest:
       additionalProperties: false

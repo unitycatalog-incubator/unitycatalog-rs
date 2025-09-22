@@ -92,14 +92,14 @@ impl TableClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_table(&self, request: &CreateTableRequest) -> Result<TableInfo> {
+    pub async fn create_table(&self, request: &CreateTableRequest) -> Result<Table> {
         let mut url = self.base_url.join("tables")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_table(&self, request: &GetTableRequest) -> Result<TableInfo> {
+    pub async fn get_table(&self, request: &GetTableRequest) -> Result<Table> {
         let formatted_path = format!("tables/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.include_delta_metadata {

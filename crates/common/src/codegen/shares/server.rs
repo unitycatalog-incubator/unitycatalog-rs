@@ -96,3 +96,52 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteShareRequest {
         Ok(DeleteShareRequest { name })
     }
 }
+impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetPermissionsRequest {
+    type Rejection = crate::Error;
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        _state: &S,
+    ) -> Result<Self, Self::Rejection> {
+        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        #[derive(serde::Deserialize)]
+        struct QueryParams {
+            #[serde(default)]
+            max_results: Option<i32>,
+            #[serde(default)]
+            page_token: Option<String>,
+        }
+        let axum::extract::Query(QueryParams {
+            max_results,
+            page_token,
+        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        Ok(GetPermissionsRequest {
+            name,
+            max_results,
+            page_token,
+        })
+    }
+}
+impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdatePermissionsRequest {
+    type Rejection = axum::response::Response;
+    async fn from_request(
+        mut req: axum::extract::Request<axum::body::Body>,
+        _state: &S,
+    ) -> Result<Self, Self::Rejection> {
+        let (mut parts, body) = req.into_parts();
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
+        let body_req = axum::extract::Request::from_parts(parts, body);
+        let axum::extract::Json::<UpdatePermissionsRequest>(body) = body_req
+            .extract()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
+        let (changes, omit_permissions_list) = (body.changes, body.omit_permissions_list);
+        Ok(UpdatePermissionsRequest {
+            name,
+            changes,
+            omit_permissions_list,
+        })
+    }
+}

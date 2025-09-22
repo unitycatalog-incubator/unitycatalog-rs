@@ -21,10 +21,7 @@ pub trait CredentialHandlerExt: Send + Sync + 'static {
     /// and we need to create internal stores or vended credentials for the resource.
     ///
     // TODO: this could also be done by a server recipient / context type
-    async fn get_credential_internal(
-        &self,
-        request: GetCredentialRequest,
-    ) -> Result<CredentialInfo>;
+    async fn get_credential_internal(&self, request: GetCredentialRequest) -> Result<Credential>;
 }
 
 #[derive(Clone, Serialize, Deserialize, Default)]
@@ -58,7 +55,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::CredentialInfo,
+                &ObjectLabel::Credential,
                 None,
                 request.max_results.map(|v| v as usize),
                 request.page_token,
@@ -74,7 +71,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         &self,
         request: CreateCredentialRequest,
         context: RequestContext,
-    ) -> Result<CredentialInfo> {
+    ) -> Result<Credential> {
         self.check_required(&request, context.recipient()).await?;
         let credential = CredentialContainer {
             azure_msi: request.azure_managed_identity,
@@ -84,7 +81,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         credential.validate()?;
         self.create_secret(&request.name, credential.to_vec()?.into())
             .await?;
-        let cred = CredentialInfo {
+        let cred = Credential {
             name: request.name.clone(),
             full_name: Some(request.name),
             comment: request.comment,
@@ -108,7 +105,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         &self,
         request: GetCredentialRequest,
         context: RequestContext,
-    ) -> Result<CredentialInfo> {
+    ) -> Result<Credential> {
         self.check_required(&request, context.recipient()).await?;
         self.get_credential_internal(request).await
     }
@@ -117,7 +114,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         &self,
         request: UpdateCredentialRequest,
         context: RequestContext,
-    ) -> Result<CredentialInfo> {
+    ) -> Result<Credential> {
         self.check_required(&request, context.recipient()).await?;
         let credential = CredentialContainer {
             azure_msi: request.azure_managed_identity,
@@ -137,7 +134,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
                 context.clone(),
             )
             .await?;
-        let cred = CredentialInfo {
+        let cred = Credential {
             name: request.name.clone(),
             full_name: Some(request.name),
             comment: request.comment,
@@ -178,11 +175,8 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy + SecretManager> CredentialHandlerExt for T {
-    async fn get_credential_internal(
-        &self,
-        request: GetCredentialRequest,
-    ) -> Result<CredentialInfo> {
-        let mut cred: CredentialInfo = self.get(&request.resource()).await?.0.try_into()?;
+    async fn get_credential_internal(&self, request: GetCredentialRequest) -> Result<Credential> {
+        let mut cred: Credential = self.get(&request.resource()).await?.0.try_into()?;
         let (_, secret_data) = self.get_secret(&cred.name).await?;
         let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;
         if secret.azure_msi.is_some() {

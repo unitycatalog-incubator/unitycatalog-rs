@@ -147,14 +147,14 @@ impl AsRef<ResourceRef> for ResourceIdent {
 impl AsRef<ObjectLabel> for ResourceIdent {
     fn as_ref(&self) -> &ObjectLabel {
         match self {
-            ResourceIdent::Share(_) => &ObjectLabel::ShareInfo,
-            ResourceIdent::Credential(_) => &ObjectLabel::CredentialInfo,
-            ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocationInfo,
-            ResourceIdent::Catalog(_) => &ObjectLabel::CatalogInfo,
-            ResourceIdent::Schema(_) => &ObjectLabel::SchemaInfo,
-            ResourceIdent::Table(_) => &ObjectLabel::TableInfo,
-            ResourceIdent::Recipient(_) => &ObjectLabel::RecipientInfo,
-            ResourceIdent::Column(_) => &ObjectLabel::ColumnInfo,
+            ResourceIdent::Share(_) => &ObjectLabel::Share,
+            ResourceIdent::Credential(_) => &ObjectLabel::Credential,
+            ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocation,
+            ResourceIdent::Catalog(_) => &ObjectLabel::Catalog,
+            ResourceIdent::Schema(_) => &ObjectLabel::Schema,
+            ResourceIdent::Table(_) => &ObjectLabel::Table,
+            ResourceIdent::Recipient(_) => &ObjectLabel::Recipient,
+            ResourceIdent::Column(_) => &ObjectLabel::Column,
         }
     }
 }
