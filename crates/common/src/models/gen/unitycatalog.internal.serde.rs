@@ -19,11 +19,11 @@ impl serde::Serialize for Resource {
                 resource::Resource::Credential(v) => {
                     struct_ser.serialize_field("credential", v)?;
                 }
-                resource::Resource::CatalogInfo(v) => {
-                    struct_ser.serialize_field("catalog_info", v)?;
+                resource::Resource::Catalog(v) => {
+                    struct_ser.serialize_field("catalog", v)?;
                 }
-                resource::Resource::SchemaInfo(v) => {
-                    struct_ser.serialize_field("schema_info", v)?;
+                resource::Resource::Schema(v) => {
+                    struct_ser.serialize_field("schema", v)?;
                 }
                 resource::Resource::Table(v) => {
                     struct_ser.serialize_field("table", v)?;
@@ -31,8 +31,8 @@ impl serde::Serialize for Resource {
                 resource::Resource::Column(v) => {
                     struct_ser.serialize_field("column", v)?;
                 }
-                resource::Resource::ExternalLocationInfo(v) => {
-                    struct_ser.serialize_field("external_location_info", v)?;
+                resource::Resource::ExternalLocation(v) => {
+                    struct_ser.serialize_field("external_location", v)?;
                 }
                 resource::Resource::Recipient(v) => {
                     struct_ser.serialize_field("recipient", v)?;
@@ -51,14 +51,12 @@ impl<'de> serde::Deserialize<'de> for Resource {
         const FIELDS: &[&str] = &[
             "share",
             "credential",
-            "catalog_info",
-            "catalogInfo",
-            "schema_info",
-            "schemaInfo",
+            "catalog",
+            "schema",
             "table",
             "column",
-            "external_location_info",
-            "externalLocationInfo",
+            "external_location",
+            "externalLocation",
             "recipient",
         ];
 
@@ -66,11 +64,11 @@ impl<'de> serde::Deserialize<'de> for Resource {
         enum GeneratedField {
             Share,
             Credential,
-            CatalogInfo,
-            SchemaInfo,
+            Catalog,
+            Schema,
             Table,
             Column,
-            ExternalLocationInfo,
+            ExternalLocation,
             Recipient,
             __SkipField__,
         }
@@ -99,12 +97,12 @@ impl<'de> serde::Deserialize<'de> for Resource {
                         match value {
                             "share" => Ok(GeneratedField::Share),
                             "credential" => Ok(GeneratedField::Credential),
-                            "catalogInfo" | "catalog_info" => Ok(GeneratedField::CatalogInfo),
-                            "schemaInfo" | "schema_info" => Ok(GeneratedField::SchemaInfo),
+                            "catalog" => Ok(GeneratedField::Catalog),
+                            "schema" => Ok(GeneratedField::Schema),
                             "table" => Ok(GeneratedField::Table),
                             "column" => Ok(GeneratedField::Column),
-                            "externalLocationInfo" | "external_location_info" => {
-                                Ok(GeneratedField::ExternalLocationInfo)
+                            "externalLocation" | "external_location" => {
+                                Ok(GeneratedField::ExternalLocation)
                             }
                             "recipient" => Ok(GeneratedField::Recipient),
                             _ => Ok(GeneratedField::__SkipField__),
@@ -145,21 +143,21 @@ impl<'de> serde::Deserialize<'de> for Resource {
                                 .next_value::<::std::option::Option<_>>()?
                                 .map(resource::Resource::Credential);
                         }
-                        GeneratedField::CatalogInfo => {
+                        GeneratedField::Catalog => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("catalogInfo"));
+                                return Err(serde::de::Error::duplicate_field("catalog"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::CatalogInfo);
+                                .map(resource::Resource::Catalog);
                         }
-                        GeneratedField::SchemaInfo => {
+                        GeneratedField::Schema => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("schemaInfo"));
+                                return Err(serde::de::Error::duplicate_field("schema"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::SchemaInfo);
+                                .map(resource::Resource::Schema);
                         }
                         GeneratedField::Table => {
                             if resource__.is_some() {
@@ -177,15 +175,13 @@ impl<'de> serde::Deserialize<'de> for Resource {
                                 .next_value::<::std::option::Option<_>>()?
                                 .map(resource::Resource::Column);
                         }
-                        GeneratedField::ExternalLocationInfo => {
+                        GeneratedField::ExternalLocation => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "externalLocationInfo",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("externalLocation"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ExternalLocationInfo);
+                                .map(resource::Resource::ExternalLocation);
                         }
                         GeneratedField::Recipient => {
                             if resource__.is_some() {

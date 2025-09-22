@@ -15,7 +15,7 @@
 //! extracted from the return types of get, create, and update methods. For example:
 //!
 //! ```proto
-//! message CatalogInfo {
+//! message Catalog {
 //!   option (google.api.resource) = {
 //!     type: "unitycatalog.io/Catalog"
 //!     pattern: "catalogs/{catalog}"
@@ -27,9 +27,9 @@
 //! }
 //!
 //! service CatalogsService {
-//!   rpc GetCatalog(GetCatalogRequest) returns (CatalogInfo);
-//!   rpc CreateCatalog(CreateCatalogRequest) returns (CatalogInfo);
-//!   rpc UpdateCatalog(UpdateCatalogRequest) returns (CatalogInfo);
+//!   rpc GetCatalog(GetCatalogRequest) returns (Catalog);
+//!   rpc CreateCatalog(CreateCatalogRequest) returns (Catalog);
+//!   rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog);
 //! }
 //! ```
 //!
@@ -250,12 +250,12 @@ mod tests {
         };
 
         let catalog_info = MessageInfo {
-            name: "CatalogInfo".to_string(),
+            name: "Catalog".to_string(),
             fields: vec![],
             resource_descriptor: Some(catalog_resource.clone()),
             documentation: None,
         };
-        messages.insert("CatalogInfo".to_string(), catalog_info);
+        messages.insert("Catalog".to_string(), catalog_info);
 
         let registry = MessageRegistry::new(&messages);
 
@@ -264,7 +264,7 @@ mod tests {
             service_name: "CatalogsService".to_string(),
             method_name: "GetCatalog".to_string(),
             input_type: "GetCatalogRequest".to_string(),
-            output_type: "CatalogInfo".to_string(),
+            output_type: "Catalog".to_string(),
             operation: None,
             http_rule: HttpRule {
                 selector: "".to_string(),
@@ -288,7 +288,7 @@ mod tests {
 
         // Verify that managed resources were extracted
         assert_eq!(service_plan.managed_resources.len(), 1);
-        assert_eq!(service_plan.managed_resources[0].type_name, "CatalogInfo");
+        assert_eq!(service_plan.managed_resources[0].type_name, "Catalog");
         assert_eq!(
             service_plan.managed_resources[0].descriptor.r#type,
             "unitycatalog.io/Catalog"
@@ -318,12 +318,12 @@ mod tests {
         };
 
         let catalog_info = MessageInfo {
-            name: "CatalogInfo".to_string(),
+            name: "Catalog".to_string(),
             fields: vec![],
             resource_descriptor: Some(catalog_resource.clone()),
             documentation: None,
         };
-        messages.insert("CatalogInfo".to_string(), catalog_info);
+        messages.insert("Catalog".to_string(), catalog_info);
 
         let registry = MessageRegistry::new(&messages);
 
@@ -332,7 +332,7 @@ mod tests {
             service_name: "CatalogsService".to_string(),
             method_name: "GetCatalog".to_string(),
             input_type: "GetCatalogRequest".to_string(),
-            output_type: "CatalogInfo".to_string(),
+            output_type: "Catalog".to_string(),
             operation: None,
             http_rule: HttpRule {
                 selector: "".to_string(),
@@ -349,7 +349,7 @@ mod tests {
             service_name: "CatalogsService".to_string(),
             method_name: "UpdateCatalog".to_string(),
             input_type: "UpdateCatalogRequest".to_string(),
-            output_type: "CatalogInfo".to_string(),
+            output_type: "Catalog".to_string(),
             operation: None,
             http_rule: HttpRule {
                 selector: "".to_string(),
@@ -373,6 +373,6 @@ mod tests {
 
         // Verify that we only have one managed resource despite multiple methods returning it
         assert_eq!(service_plan.managed_resources.len(), 1);
-        assert_eq!(service_plan.managed_resources[0].type_name, "CatalogInfo");
+        assert_eq!(service_plan.managed_resources[0].type_name, "Catalog");
     }
 }

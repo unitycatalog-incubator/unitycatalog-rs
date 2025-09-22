@@ -38,7 +38,7 @@ message ListSchemasRequest {
 // List Schemas response.
 message ListSchemasResponse {
   // The schemas returned.
-  repeated SchemaInfo schemas = 1;
+  repeated Schema schemas = 1;
 
   // The next_page_token value to include in the next List request.
   optional string next_page_token = 2;
@@ -135,7 +135,7 @@ service SchemasService {
 
   // Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
   // or have the CREATE_SCHEMA privilege in the parent catalog.
-  rpc CreateSchema(CreateSchemaRequest) returns (SchemaInfo) {
+  rpc CreateSchema(CreateSchemaRequest) returns (Schema) {
     option (google.api.http) = {
       post: "/schemas"
       body: "*"
@@ -146,7 +146,7 @@ service SchemasService {
   // Gets the specified schema within the metastore.
   // The caller must be a metastore admin, the owner of the schema,
   // or a user that has the USE_SCHEMA privilege on the schema.
-  rpc GetSchema(GetSchemaRequest) returns (SchemaInfo) {
+  rpc GetSchema(GetSchemaRequest) returns (Schema) {
     option (google.api.http) = {get: "/schemas/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetSchema"};
   }
@@ -155,7 +155,7 @@ service SchemasService {
   // If the caller is a metastore admin, only the owner field can be changed in the update.
   // If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
   // privilege on the parent catalog.
-  rpc UpdateSchema(UpdateSchemaRequest) returns (SchemaInfo) {
+  rpc UpdateSchema(UpdateSchemaRequest) returns (Schema) {
     option (google.api.http) = {
       patch: "/schemas/{full_name}"
       body: "*"

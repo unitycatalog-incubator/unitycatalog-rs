@@ -325,7 +325,7 @@ impl<'de> serde::Deserialize<'de> for DeleteExternalLocationRequest {
         )
     }
 }
-impl serde::Serialize for ExternalLocationInfo {
+impl serde::Serialize for ExternalLocation {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -372,10 +372,8 @@ impl serde::Serialize for ExternalLocationInfo {
         if self.external_location_id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.ExternalLocationInfo",
-            len,
-        )?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.external_locations.v1.ExternalLocation", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -422,7 +420,7 @@ impl serde::Serialize for ExternalLocationInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for ExternalLocationInfo {
+impl<'de> serde::Deserialize<'de> for ExternalLocation {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -519,17 +517,13 @@ impl<'de> serde::Deserialize<'de> for ExternalLocationInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = ExternalLocationInfo;
+            type Value = ExternalLocation;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter
-                    .write_str("struct unitycatalog.external_locations.v1.ExternalLocationInfo")
+                formatter.write_str("struct unitycatalog.external_locations.v1.ExternalLocation")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<ExternalLocationInfo, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ExternalLocation, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
@@ -637,7 +631,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocationInfo {
                         }
                     }
                 }
-                Ok(ExternalLocationInfo {
+                Ok(ExternalLocation {
                     name: name__.unwrap_or_default(),
                     url: url__.unwrap_or_default(),
                     credential_name: credential_name__.unwrap_or_default(),
@@ -655,7 +649,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocationInfo {
             }
         }
         deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.ExternalLocationInfo",
+            "unitycatalog.external_locations.v1.ExternalLocation",
             FIELDS,
             GeneratedVisitor,
         )

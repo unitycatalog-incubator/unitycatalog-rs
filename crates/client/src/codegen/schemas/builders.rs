@@ -34,7 +34,7 @@ impl ListSchemasBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<SchemaInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Schema>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_schemas(&builder.request).await?;
@@ -100,7 +100,7 @@ impl CreateSchemaBuilder {
     }
 }
 impl IntoFuture for CreateSchemaBuilder {
-    type Output = Result<SchemaInfo>;
+    type Output = Result<Schema>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -124,7 +124,7 @@ impl GetSchemaBuilder {
     }
 }
 impl IntoFuture for GetSchemaBuilder {
-    type Output = Result<SchemaInfo>;
+    type Output = Result<Schema>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -174,7 +174,7 @@ impl UpdateSchemaBuilder {
     }
 }
 impl IntoFuture for UpdateSchemaBuilder {
-    type Output = Result<SchemaInfo>;
+    type Output = Result<Schema>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

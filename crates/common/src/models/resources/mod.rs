@@ -149,9 +149,9 @@ impl AsRef<ObjectLabel> for ResourceIdent {
         match self {
             ResourceIdent::Share(_) => &ObjectLabel::Share,
             ResourceIdent::Credential(_) => &ObjectLabel::Credential,
-            ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocationInfo,
-            ResourceIdent::Catalog(_) => &ObjectLabel::CatalogInfo,
-            ResourceIdent::Schema(_) => &ObjectLabel::SchemaInfo,
+            ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocation,
+            ResourceIdent::Catalog(_) => &ObjectLabel::Catalog,
+            ResourceIdent::Schema(_) => &ObjectLabel::Schema,
             ResourceIdent::Table(_) => &ObjectLabel::Table,
             ResourceIdent::Recipient(_) => &ObjectLabel::Recipient,
             ResourceIdent::Column(_) => &ObjectLabel::Column,

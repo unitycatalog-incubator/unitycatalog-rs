@@ -4,7 +4,7 @@
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SchemaInfo {
+pub struct Schema {
     /// Name of schema, relative to parent catalog.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -65,7 +65,7 @@ pub struct ListSchemasRequest {
 pub struct ListSchemasResponse {
     /// The schemas returned.
     #[prost(message, repeated, tag = "1")]
-    pub schemas: ::prost::alloc::vec::Vec<SchemaInfo>,
+    pub schemas: ::prost::alloc::vec::Vec<Schema>,
     /// The next_page_token value to include in the next List request.
     #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,

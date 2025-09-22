@@ -31,7 +31,7 @@ message ListCatalogsRequest {
 // List catalogs response.
 message ListCatalogsResponse {
   // The catalogs returned.
-  repeated CatalogInfo catalogs = 1;
+  repeated Catalog catalogs = 1;
 
   // The next_page_token value to include in the next List request.
   optional string next_page_token = 2;
@@ -154,7 +154,7 @@ service CatalogsService {
   //
   // Creates a new catalog instance in the parent metastore if the caller
   // is a metastore admin or has the CREATE_CATALOG privilege.
-  rpc CreateCatalog(CreateCatalogRequest) returns (CatalogInfo) {
+  rpc CreateCatalog(CreateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
       post: "/catalogs"
       body: "*"
@@ -166,7 +166,7 @@ service CatalogsService {
   //
   // Gets the specified catalog in a metastore. The caller must be a metastore admin,
   // the owner of the catalog, or a user that has the USE_CATALOG privilege set for their account.
-  rpc GetCatalog(GetCatalogRequest) returns (CatalogInfo) {
+  rpc GetCatalog(GetCatalogRequest) returns (Catalog) {
     option (google.api.http) = {get: "/catalogs/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetCatalog"};
   }
@@ -175,7 +175,7 @@ service CatalogsService {
   //
   // Updates the catalog that matches the supplied name. The caller must be either
   // the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
-  rpc UpdateCatalog(UpdateCatalogRequest) returns (CatalogInfo) {
+  rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
     option (google.api.http) = {
       patch: "/catalogs/{name}"
       body: "*"

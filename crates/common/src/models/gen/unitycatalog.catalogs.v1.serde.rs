@@ -1,5 +1,5 @@
 // @generated
-impl serde::Serialize for CatalogInfo {
+impl serde::Serialize for Catalog {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -50,7 +50,7 @@ impl serde::Serialize for CatalogInfo {
             len += 1;
         }
         let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.catalogs.v1.CatalogInfo", len)?;
+            serializer.serialize_struct("unitycatalog.catalogs.v1.Catalog", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -102,7 +102,7 @@ impl serde::Serialize for CatalogInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for CatalogInfo {
+impl<'de> serde::Deserialize<'de> for Catalog {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -198,13 +198,13 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = CatalogInfo;
+            type Value = Catalog;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.catalogs.v1.CatalogInfo")
+                formatter.write_str("struct unitycatalog.catalogs.v1.Catalog")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CatalogInfo, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Catalog, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
@@ -320,7 +320,7 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                         }
                     }
                 }
-                Ok(CatalogInfo {
+                Ok(Catalog {
                     name: name__.unwrap_or_default(),
                     id: id__,
                     owner: owner__,
@@ -339,7 +339,7 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
             }
         }
         deserializer.deserialize_struct(
-            "unitycatalog.catalogs.v1.CatalogInfo",
+            "unitycatalog.catalogs.v1.Catalog",
             FIELDS,
             GeneratedVisitor,
         )

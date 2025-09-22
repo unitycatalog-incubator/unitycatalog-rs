@@ -4,7 +4,7 @@
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct CatalogInfo {
+pub struct Catalog {
     /// Name of catalog.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -107,7 +107,7 @@ pub struct ListCatalogsRequest {
 pub struct ListCatalogsResponse {
     /// The catalogs returned.
     #[prost(message, repeated, tag = "1")]
-    pub catalogs: ::prost::alloc::vec::Vec<CatalogInfo>,
+    pub catalogs: ::prost::alloc::vec::Vec<Catalog>,
     /// The next_page_token value to include in the next List request.
     #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,

@@ -1,5 +1,5 @@
 import { fromBinary } from "@bufbuild/protobuf";
-import { type CatalogInfo, CatalogInfoSchema } from "./models";
+import { type Catalog, CatalogSchema } from "./models";
 import {
   type CatalogClient as NativeCatalogClient,
   UnityCatalogClient as NativeClient,
@@ -12,9 +12,9 @@ export class UnityCatalogClient {
     this.inner = NativeClient.fromUrl(url);
   }
 
-  async listCatalogs(maxResults?: number): Promise<CatalogInfo[]> {
+  async listCatalogs(maxResults?: number): Promise<Catalog[]> {
     return (await this.inner.listCatalogs(maxResults)).map((data) =>
-      fromBinary(CatalogInfoSchema, data),
+      fromBinary(CatalogSchema, data),
     );
   }
 
@@ -45,15 +45,15 @@ export class CatalogClient {
     this.inner = inner;
   }
 
-  async get(): Promise<CatalogInfo> {
-    return fromBinary(CatalogInfoSchema, await this.inner.get());
+  async get(): Promise<Catalog> {
+    return fromBinary(CatalogSchema, await this.inner.get());
   }
 
-  // async create(options?: CreateCatalogOptions): Promise<CatalogInfo> {
+  // async create(options?: CreateCatalogOptions): Promise<Catalog> {
   //   let { comment, storageRoot, providerName, shareName, properties } =
   //     options || {};
   //   return fromBinary(
-  //     CatalogInfoSchema,
+  //     CatalogSchema,
   //     await this.inner.create(
   //       comment,
   //       storageRoot,
@@ -64,10 +64,10 @@ export class CatalogClient {
   //   );
   // }
 
-  async update(options?: UpdateCatalogOptions): Promise<CatalogInfo> {
+  async update(options?: UpdateCatalogOptions): Promise<Catalog> {
     const { newName, comment, owner, properties } = options || {};
     return fromBinary(
-      CatalogInfoSchema,
+      CatalogSchema,
       await this.inner.update(newName, comment, owner, properties),
     );
   }

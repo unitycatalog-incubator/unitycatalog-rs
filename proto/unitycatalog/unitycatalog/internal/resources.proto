@@ -19,11 +19,11 @@ message Resource {
   oneof resource {
     unitycatalog.shares.v1.Share share = 1;
     unitycatalog.credentials.v1.Credential credential = 4;
-    unitycatalog.catalogs.v1.CatalogInfo catalog_info = 6;
-    unitycatalog.schemas.v1.SchemaInfo schema_info = 7;
+    unitycatalog.catalogs.v1.Catalog catalog = 6;
+    unitycatalog.schemas.v1.Schema schema = 7;
     unitycatalog.tables.v1.Table table = 8;
     unitycatalog.tables.v1.Column column = 9;
-    unitycatalog.external_locations.v1.ExternalLocationInfo external_location_info = 10;
+    unitycatalog.external_locations.v1.ExternalLocation external_location = 10;
     unitycatalog.recipients.v1.Recipient recipient = 11;
   }
 }

@@ -38,14 +38,14 @@ impl SchemaClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_schema(&self, request: &CreateSchemaRequest) -> Result<SchemaInfo> {
+    pub async fn create_schema(&self, request: &CreateSchemaRequest) -> Result<Schema> {
         let mut url = self.base_url.join("schemas")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_schema(&self, request: &GetSchemaRequest) -> Result<SchemaInfo> {
+    pub async fn get_schema(&self, request: &GetSchemaRequest) -> Result<Schema> {
         let formatted_path = format!("schemas/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -53,7 +53,7 @@ impl SchemaClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn update_schema(&self, request: &UpdateSchemaRequest) -> Result<SchemaInfo> {
+    pub async fn update_schema(&self, request: &UpdateSchemaRequest) -> Result<Schema> {
         let formatted_path = format!("schemas/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;

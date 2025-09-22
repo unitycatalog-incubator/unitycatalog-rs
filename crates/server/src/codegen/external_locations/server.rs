@@ -18,7 +18,7 @@ pub async fn create_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: CreateExternalLocationRequest,
-) -> Result<::axum::Json<ExternalLocationInfo>> {
+) -> Result<::axum::Json<ExternalLocation>> {
     let context = RequestContext { recipient };
     let result = handler.create_external_location(request, context).await?;
     Ok(axum::Json(result))
@@ -27,7 +27,7 @@ pub async fn get_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: GetExternalLocationRequest,
-) -> Result<::axum::Json<ExternalLocationInfo>> {
+) -> Result<::axum::Json<ExternalLocation>> {
     let context = RequestContext { recipient };
     let result = handler.get_external_location(request, context).await?;
     Ok(axum::Json(result))
@@ -36,7 +36,7 @@ pub async fn update_external_location<T: ExternalLocationHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: UpdateExternalLocationRequest,
-) -> Result<::axum::Json<ExternalLocationInfo>> {
+) -> Result<::axum::Json<ExternalLocation>> {
     let context = RequestContext { recipient };
     let result = handler.update_external_location(request, context).await?;
     Ok(axum::Json(result))

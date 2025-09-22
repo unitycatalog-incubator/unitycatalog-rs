@@ -17,9 +17,9 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         &self,
         request: CreateExternalLocationRequest,
         context: RequestContext,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocation> {
         self.check_required(&request, context.as_ref()).await?;
-        let mut resource = ExternalLocationInfo {
+        let mut resource = ExternalLocation {
             name: request.name,
             url: request.url,
             credential_name: request.credential_name,
@@ -55,7 +55,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         &self,
         request: GetExternalLocationRequest,
         context: RequestContext,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocation> {
         self.check_required(&request, context.recipient()).await?;
 
         // TODO: populate relation fields (updated_* etc.)
@@ -71,7 +71,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         self.check_required(&request, context.recipient()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::ExternalLocationInfo,
+                &ObjectLabel::ExternalLocation,
                 None,
                 request.max_results.map(|v| v as usize),
                 request.page_token,
@@ -88,12 +88,12 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         &self,
         request: UpdateExternalLocationRequest,
         context: RequestContext,
-    ) -> Result<ExternalLocationInfo> {
+    ) -> Result<ExternalLocation> {
         self.check_required(&request, context.as_ref()).await?;
 
         let (current, _) = self.get(&request.resource()).await?;
         let curr_ident = current.resource_ident();
-        let mut current: ExternalLocationInfo = current.try_into()?;
+        let mut current: ExternalLocation = current.try_into()?;
 
         if let Some(name) = request.new_name {
             current.name = name;

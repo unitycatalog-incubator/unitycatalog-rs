@@ -25,7 +25,7 @@ pub mod catalogs_service_server {
         async fn create_catalog(
             &self,
             request: tonic::Request<super::CreateCatalogRequest>,
-        ) -> std::result::Result<tonic::Response<super::CatalogInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Catalog>, tonic::Status>;
         /** Get a catalog
 
          Gets the specified catalog in a metastore. The caller must be a metastore admin,
@@ -34,7 +34,7 @@ pub mod catalogs_service_server {
         async fn get_catalog(
             &self,
             request: tonic::Request<super::GetCatalogRequest>,
-        ) -> std::result::Result<tonic::Response<super::CatalogInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Catalog>, tonic::Status>;
         /** Update a catalog
 
          Updates the catalog that matches the supplied name. The caller must be either
@@ -43,7 +43,7 @@ pub mod catalogs_service_server {
         async fn update_catalog(
             &self,
             request: tonic::Request<super::UpdateCatalogRequest>,
-        ) -> std::result::Result<tonic::Response<super::CatalogInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Catalog>, tonic::Status>;
         /** Delete a catalog
 
          Deletes the catalog that matches the supplied name. The caller must
@@ -177,7 +177,7 @@ pub mod catalogs_service_server {
                         tonic::server::UnaryService<super::CreateCatalogRequest>
                         for CreateCatalogSvc<T>
                     {
-                        type Response = super::CatalogInfo;
+                        type Response = super::Catalog;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -218,7 +218,7 @@ pub mod catalogs_service_server {
                     impl<T: CatalogsService> tonic::server::UnaryService<super::GetCatalogRequest>
                         for GetCatalogSvc<T>
                     {
-                        type Response = super::CatalogInfo;
+                        type Response = super::Catalog;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -260,7 +260,7 @@ pub mod catalogs_service_server {
                         tonic::server::UnaryService<super::UpdateCatalogRequest>
                         for UpdateCatalogSvc<T>
                     {
-                        type Response = super::CatalogInfo;
+                        type Response = super::Catalog;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,

@@ -18,7 +18,7 @@ pub async fn create_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: CreateCatalogRequest,
-) -> Result<::axum::Json<CatalogInfo>> {
+) -> Result<::axum::Json<Catalog>> {
     let context = RequestContext { recipient };
     let result = handler.create_catalog(request, context).await?;
     Ok(axum::Json(result))
@@ -27,7 +27,7 @@ pub async fn get_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: GetCatalogRequest,
-) -> Result<::axum::Json<CatalogInfo>> {
+) -> Result<::axum::Json<Catalog>> {
     let context = RequestContext { recipient };
     let result = handler.get_catalog(request, context).await?;
     Ok(axum::Json(result))
@@ -36,7 +36,7 @@ pub async fn update_catalog<T: CatalogHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: UpdateCatalogRequest,
-) -> Result<::axum::Json<CatalogInfo>> {
+) -> Result<::axum::Json<Catalog>> {
     let context = RequestContext { recipient };
     let result = handler.update_catalog(request, context).await?;
     Ok(axum::Json(result))

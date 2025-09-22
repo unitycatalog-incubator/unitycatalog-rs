@@ -15,7 +15,7 @@ impl ExternalLocationClientBase {
         &self,
         max_results: impl Into<Option<i32>>,
         include_browse: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<ExternalLocationInfo>> {
+    ) -> BoxStream<'_, Result<ExternalLocation>> {
         let max_results = max_results.into();
         let include_browse = include_browse.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {

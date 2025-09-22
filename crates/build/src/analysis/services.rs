@@ -181,7 +181,7 @@ impl From<BodyField> for RequestParam {
 /// Information about a resource managed by a service
 #[derive(Debug, Clone)]
 pub struct ManagedResource {
-    /// Resource type name (e.g., "CatalogInfo")
+    /// Resource type name (e.g., "Catalog")
     pub type_name: String,
     /// Resource descriptor information
     pub descriptor: ResourceDescriptor,

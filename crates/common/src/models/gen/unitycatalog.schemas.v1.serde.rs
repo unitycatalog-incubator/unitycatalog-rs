@@ -652,7 +652,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemasResponse {
         )
     }
 }
-impl serde::Serialize for SchemaInfo {
+impl serde::Serialize for Schema {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -693,8 +693,7 @@ impl serde::Serialize for SchemaInfo {
         if self.schema_id.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.schemas.v1.SchemaInfo", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.Schema", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -735,7 +734,7 @@ impl serde::Serialize for SchemaInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for SchemaInfo {
+impl<'de> serde::Deserialize<'de> for Schema {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -820,13 +819,13 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = SchemaInfo;
+            type Value = Schema;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.schemas.v1.SchemaInfo")
+                formatter.write_str("struct unitycatalog.schemas.v1.Schema")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SchemaInfo, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Schema, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
@@ -919,7 +918,7 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                         }
                     }
                 }
-                Ok(SchemaInfo {
+                Ok(Schema {
                     name: name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
                     full_name: full_name__.unwrap_or_default(),
@@ -934,11 +933,7 @@ impl<'de> serde::Deserialize<'de> for SchemaInfo {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.schemas.v1.SchemaInfo",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.schemas.v1.Schema", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for UpdateSchemaRequest {

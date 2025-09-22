@@ -10,15 +10,15 @@
 import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { CatalogInfo } from "../catalogs/v1/models_pb";
+import type { Catalog } from "../catalogs/v1/models_pb";
 import { file_unitycatalog_catalogs_v1_models } from "../catalogs/v1/models_pb";
 import type { Credential } from "../credentials/v1/models_pb";
 import { file_unitycatalog_credentials_v1_models } from "../credentials/v1/models_pb";
-import type { ExternalLocationInfo } from "../external_locations/v1/models_pb";
+import type { ExternalLocation } from "../external_locations/v1/models_pb";
 import { file_unitycatalog_external_locations_v1_models } from "../external_locations/v1/models_pb";
 import type { Recipient } from "../recipients/v1/models_pb";
 import { file_unitycatalog_recipients_v1_models } from "../recipients/v1/models_pb";
-import type { SchemaInfo } from "../schemas/v1/models_pb";
+import type { Schema } from "../schemas/v1/models_pb";
 import { file_unitycatalog_schemas_v1_models } from "../schemas/v1/models_pb";
 import type { Share } from "../shares/v1/models_pb";
 import { file_unitycatalog_shares_v1_models } from "../shares/v1/models_pb";
@@ -31,7 +31,7 @@ import { file_unitycatalog_tables_v1_models } from "../tables/v1/models_pb";
 export const file_unitycatalog_internal_resources: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "CiV1bml0eWNhdGFsb2cvaW50ZXJuYWwvcmVzb3VyY2VzLnByb3RvEhV1bml0eWNhdGFsb2cuaW50ZXJuYWwi+gMKCFJlc291cmNlEi4KBXNoYXJlGAEgASgLMh0udW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZUgAEj0KCmNyZWRlbnRpYWwYBCABKAsyJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEgAEj0KDGNhdGFsb2dfaW5mbxgGIAEoCzIlLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nSW5mb0gAEjoKC3NjaGVtYV9pbmZvGAcgASgLMiMudW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hSW5mb0gAEi4KBXRhYmxlGAggASgLMh0udW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZUgAEjAKBmNvbHVtbhgJIAEoCzIeLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuQ29sdW1uSAASWgoWZXh0ZXJuYWxfbG9jYXRpb25faW5mbxgKIAEoCzI4LnVuaXR5Y2F0YWxvZy5leHRlcm5hbF9sb2NhdGlvbnMudjEuRXh0ZXJuYWxMb2NhdGlvbkluZm9IABI6CglyZWNpcGllbnQYCyABKAsyJS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5SZWNpcGllbnRIAEIKCghyZXNvdXJjZULmAQoZY29tLnVuaXR5Y2F0YWxvZy5pbnRlcm5hbEIOUmVzb3VyY2VzUHJvdG9QAVpEZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvaW50ZXJuYWyiAgNVSViqAhVVbml0eWNhdGFsb2cuSW50ZXJuYWzKAhVVbml0eWNhdGFsb2dcSW50ZXJuYWziAiFVbml0eWNhdGFsb2dcSW50ZXJuYWxcR1BCTWV0YWRhdGHqAhZVbml0eWNhdGFsb2c6OkludGVybmFsYgZwcm90bzM",
+    "CiV1bml0eWNhdGFsb2cvaW50ZXJuYWwvcmVzb3VyY2VzLnByb3RvEhV1bml0eWNhdGFsb2cuaW50ZXJuYWwi3wMKCFJlc291cmNlEi4KBXNoYXJlGAEgASgLMh0udW5pdHljYXRhbG9nLnNoYXJlcy52MS5TaGFyZUgAEj0KCmNyZWRlbnRpYWwYBCABKAsyJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbEgAEjQKB2NhdGFsb2cYBiABKAsyIS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuQ2F0YWxvZ0gAEjEKBnNjaGVtYRgHIAEoCzIfLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxLlNjaGVtYUgAEi4KBXRhYmxlGAggASgLMh0udW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZUgAEjAKBmNvbHVtbhgJIAEoCzIeLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuQ29sdW1uSAASUQoRZXh0ZXJuYWxfbG9jYXRpb24YCiABKAsyNC51bml0eWNhdGFsb2cuZXh0ZXJuYWxfbG9jYXRpb25zLnYxLkV4dGVybmFsTG9jYXRpb25IABI6CglyZWNpcGllbnQYCyABKAsyJS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MS5SZWNpcGllbnRIAEIKCghyZXNvdXJjZULmAQoZY29tLnVuaXR5Y2F0YWxvZy5pbnRlcm5hbEIOUmVzb3VyY2VzUHJvdG9QAVpEZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvaW50ZXJuYWyiAgNVSViqAhVVbml0eWNhdGFsb2cuSW50ZXJuYWzKAhVVbml0eWNhdGFsb2dcSW50ZXJuYWziAiFVbml0eWNhdGFsb2dcSW50ZXJuYWxcR1BCTWV0YWRhdGHqAhZVbml0eWNhdGFsb2c6OkludGVybmFsYgZwcm90bzM",
     [
       file_unitycatalog_catalogs_v1_models,
       file_unitycatalog_credentials_v1_models,
@@ -69,17 +69,17 @@ export type Resource = Message<"unitycatalog.internal.Resource"> & {
       }
     | {
         /**
-         * @generated from field: unitycatalog.catalogs.v1.CatalogInfo catalog_info = 6;
+         * @generated from field: unitycatalog.catalogs.v1.Catalog catalog = 6;
          */
-        value: CatalogInfo;
-        case: "catalogInfo";
+        value: Catalog;
+        case: "catalog";
       }
     | {
         /**
-         * @generated from field: unitycatalog.schemas.v1.SchemaInfo schema_info = 7;
+         * @generated from field: unitycatalog.schemas.v1.Schema schema = 7;
          */
-        value: SchemaInfo;
-        case: "schemaInfo";
+        value: Schema;
+        case: "schema";
       }
     | {
         /**
@@ -97,10 +97,10 @@ export type Resource = Message<"unitycatalog.internal.Resource"> & {
       }
     | {
         /**
-         * @generated from field: unitycatalog.external_locations.v1.ExternalLocationInfo external_location_info = 10;
+         * @generated from field: unitycatalog.external_locations.v1.ExternalLocation external_location = 10;
          */
-        value: ExternalLocationInfo;
-        case: "externalLocationInfo";
+        value: ExternalLocation;
+        case: "externalLocation";
       }
     | {
         /**

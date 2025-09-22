@@ -53,7 +53,7 @@ impl PyUnityCatalogClientABC {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CatalogInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Catalog>> {
         let mut request = self.client.list_catalogs();
         request = request.with_max_results(max_results);
         let runtime = get_runtime(py)?;
@@ -82,7 +82,7 @@ impl PyUnityCatalogClientABC {
         storage_root: Option<String>,
         provider_name: Option<String>,
         share_name: Option<String>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self.client.create_catalog(name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
@@ -157,7 +157,7 @@ impl PyUnityCatalogClientABC {
         py: Python,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
+    ) -> PyUnityCatalogResult<Vec<ExternalLocation>> {
         let mut request = self.client.list_external_locations();
         request = request.with_max_results(max_results);
         request = request.with_include_browse(include_browse);
@@ -187,7 +187,7 @@ impl PyUnityCatalogClientABC {
         read_only: Option<bool>,
         comment: Option<String>,
         skip_validation: Option<bool>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
+    ) -> PyUnityCatalogResult<ExternalLocation> {
         let mut request = self
             .client
             .create_external_location(name, url, credential_name);
@@ -256,7 +256,7 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Schema>> {
         let mut request = self.client.list_schemas(catalog_name);
         request = request.with_max_results(max_results);
         request = request.with_include_browse(include_browse);
@@ -275,7 +275,7 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
+    ) -> PyUnityCatalogResult<Schema> {
         let mut request = self.client.create_schema(name, catalog_name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {

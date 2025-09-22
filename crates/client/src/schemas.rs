@@ -19,7 +19,7 @@ impl SchemaClientBase {
         catalog_name: impl Into<String>,
         max_results: impl Into<Option<i32>>,
         include_browse: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<SchemaInfo>> {
+    ) -> BoxStream<'_, Result<Schema>> {
         let max_results = max_results.into();
         let catalog_name = catalog_name.into();
         let include_browse = include_browse.into();

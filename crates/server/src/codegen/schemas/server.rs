@@ -18,7 +18,7 @@ pub async fn create_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: CreateSchemaRequest,
-) -> Result<::axum::Json<SchemaInfo>> {
+) -> Result<::axum::Json<Schema>> {
     let context = RequestContext { recipient };
     let result = handler.create_schema(request, context).await?;
     Ok(axum::Json(result))
@@ -27,7 +27,7 @@ pub async fn get_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: GetSchemaRequest,
-) -> Result<::axum::Json<SchemaInfo>> {
+) -> Result<::axum::Json<Schema>> {
     let context = RequestContext { recipient };
     let result = handler.get_schema(request, context).await?;
     Ok(axum::Json(result))
@@ -36,7 +36,7 @@ pub async fn update_schema<T: SchemaHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: UpdateSchemaRequest,
-) -> Result<::axum::Json<SchemaInfo>> {
+) -> Result<::axum::Json<Schema>> {
     let context = RequestContext { recipient };
     let result = handler.update_schema(request, context).await?;
     Ok(axum::Json(result))

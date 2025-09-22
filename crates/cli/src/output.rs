@@ -149,7 +149,7 @@ impl OutputFormatter {
     }
 
     /// Print catalog information in a formatted table
-    pub fn catalog_table(catalogs: &[unitycatalog_common::CatalogInfo]) {
+    pub fn catalog_table(catalogs: &[unitycatalog_common::Catalog]) {
         if catalogs.is_empty() {
             Self::info("No catalogs found");
             return;
@@ -187,7 +187,7 @@ impl OutputFormatter {
     }
 
     /// Print schema information in a formatted table
-    pub fn schema_table(schemas: &[unitycatalog_common::SchemaInfo]) {
+    pub fn schema_table(schemas: &[unitycatalog_common::Schema]) {
         if schemas.is_empty() {
             Self::info("No schemas found");
             return;

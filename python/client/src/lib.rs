@@ -3,13 +3,13 @@ use self::client::{
     PySchemaClient, PyShareClient, PyTableClient, PyUnityCatalogClient, PyVolumeClient,
 };
 use pyo3::prelude::*;
-use unitycatalog_common::models::catalogs::v1::{CatalogInfo, CatalogType};
+use unitycatalog_common::models::catalogs::v1::{Catalog, CatalogType};
 use unitycatalog_common::models::credentials::v1::{
     AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential, Purpose,
 };
-use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
+use unitycatalog_common::models::external_locations::v1::ExternalLocation;
 use unitycatalog_common::models::recipients::v1::Recipient;
-use unitycatalog_common::models::schemas::v1::SchemaInfo;
+use unitycatalog_common::models::schemas::v1::Schema;
 use unitycatalog_common::models::shares::v1::{
     Action, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, Share,
 };
@@ -27,16 +27,16 @@ mod runtime;
 #[pymodule]
 fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // objects and enums
-    m.add_class::<CatalogInfo>()?;
+    m.add_class::<Catalog>()?;
     m.add_class::<CatalogType>()?;
     m.add_class::<Credential>()?;
     m.add_class::<Purpose>()?;
     m.add_class::<AzureManagedIdentity>()?;
     m.add_class::<AzureServicePrincipal>()?;
     m.add_class::<AzureStorageKey>()?;
-    m.add_class::<ExternalLocationInfo>()?;
+    m.add_class::<ExternalLocation>()?;
     m.add_class::<Recipient>()?;
-    m.add_class::<SchemaInfo>()?;
+    m.add_class::<Schema>()?;
     m.add_class::<Share>()?;
     m.add_class::<DataObject>()?;
     m.add_class::<DataObjectUpdate>()?;

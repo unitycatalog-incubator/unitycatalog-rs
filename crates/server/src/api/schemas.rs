@@ -16,9 +16,9 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         &self,
         request: CreateSchemaRequest,
         context: RequestContext,
-    ) -> Result<SchemaInfo> {
+    ) -> Result<Schema> {
         self.check_required(&request, context.as_ref()).await?;
-        let resource = SchemaInfo {
+        let resource = Schema {
             full_name: format!("{}.{}", request.catalog_name, request.name),
             name: request.name,
             catalog_name: request.catalog_name,
@@ -49,7 +49,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         self.check_required(&request, context.as_ref()).await?;
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::SchemaInfo,
+                &ObjectLabel::Schema,
                 Some(&ResourceName::new([&request.catalog_name])),
                 request.max_results.map(|v| v as usize),
                 request.page_token,
@@ -66,7 +66,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         &self,
         request: GetSchemaRequest,
         context: RequestContext,
-    ) -> Result<SchemaInfo> {
+    ) -> Result<Schema> {
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
@@ -75,7 +75,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         &self,
         request: UpdateSchemaRequest,
         context: RequestContext,
-    ) -> Result<SchemaInfo> {
+    ) -> Result<Schema> {
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
         let name = ResourceName::from_naive_str_split(request.full_name);
@@ -85,7 +85,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
             ));
         };
         let new_name = request.new_name.unwrap_or(schema_name.to_owned());
-        let resource = SchemaInfo {
+        let resource = Schema {
             name: new_name.clone(),
             comment: request.comment,
             properties: request.properties,

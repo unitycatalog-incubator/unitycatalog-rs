@@ -10,7 +10,7 @@ pub struct PySchemaClient {
 }
 #[pymethods]
 impl PySchemaClient {
-    pub fn get(&self, py: Python) -> PyUnityCatalogResult<SchemaInfo> {
+    pub fn get(&self, py: Python) -> PyUnityCatalogResult<Schema> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -25,7 +25,7 @@ impl PySchemaClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
         new_name: Option<String>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
+    ) -> PyUnityCatalogResult<Schema> {
         let mut request = self.client.update();
         request = request.with_comment(comment);
         if let Some(properties) = properties {

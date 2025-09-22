@@ -28,7 +28,7 @@ impl ListCatalogsBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<CatalogInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Catalog>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_catalogs(&builder.request).await?;
@@ -106,7 +106,7 @@ impl CreateCatalogBuilder {
     }
 }
 impl IntoFuture for CreateCatalogBuilder {
-    type Output = Result<CatalogInfo>;
+    type Output = Result<Catalog>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -135,7 +135,7 @@ impl GetCatalogBuilder {
     }
 }
 impl IntoFuture for GetCatalogBuilder {
-    type Output = Result<CatalogInfo>;
+    type Output = Result<Catalog>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -190,7 +190,7 @@ impl UpdateCatalogBuilder {
     }
 }
 impl IntoFuture for UpdateCatalogBuilder {
-    type Output = Result<CatalogInfo>;
+    type Output = Result<Catalog>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

@@ -5,11 +5,11 @@ use pyo3::prelude::*;
 use unitycatalog_client::{
     PathOperation, TableOperation, TableReference, TemporaryCredentialClient, UnityCatalogClient,
 };
-use unitycatalog_common::models::catalogs::v1::CatalogInfo;
+use unitycatalog_common::models::catalogs::v1::Catalog;
 use unitycatalog_common::models::credentials::v1::{Credential, Purpose as CredentialPurpose};
-use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
+use unitycatalog_common::models::external_locations::v1::ExternalLocation;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, Recipient};
-use unitycatalog_common::models::schemas::v1::SchemaInfo;
+use unitycatalog_common::models::schemas::v1::Schema;
 use unitycatalog_common::models::shares::v1::Share;
 use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
@@ -48,7 +48,7 @@ impl PyUnityCatalogClient {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CatalogInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Catalog>> {
         let stream = self.0.list_catalogs().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -71,7 +71,7 @@ impl PyUnityCatalogClient {
         catalog_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<SchemaInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Schema>> {
         let stream = self
             .0
             .list_schemas(catalog_name)
@@ -213,7 +213,7 @@ impl PyUnityCatalogClient {
         py: Python,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<ExternalLocationInfo>> {
+    ) -> PyUnityCatalogResult<Vec<ExternalLocation>> {
         let stream = self
             .0
             .list_external_locations()
@@ -242,7 +242,7 @@ impl PyUnityCatalogClient {
         storage_root: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self
             .0
             .create_catalog(name)
@@ -267,7 +267,7 @@ impl PyUnityCatalogClient {
         share_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<CatalogInfo> {
+    ) -> PyUnityCatalogResult<Catalog> {
         let mut request = self
             .0
             .create_catalog(name)
@@ -291,7 +291,7 @@ impl PyUnityCatalogClient {
         catalog_name: String,
         schema_name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<SchemaInfo> {
+    ) -> PyUnityCatalogResult<Schema> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_schema(catalog_name, schema_name);
@@ -367,7 +367,7 @@ impl PyUnityCatalogClient {
         url: String,
         credential_name: String,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<ExternalLocationInfo> {
+    ) -> PyUnityCatalogResult<ExternalLocation> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_external_location(name, url, credential_name);

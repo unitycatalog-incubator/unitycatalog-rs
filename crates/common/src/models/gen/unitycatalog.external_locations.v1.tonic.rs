@@ -17,19 +17,19 @@ pub mod external_locations_service_server {
         async fn create_external_location(
             &self,
             request: tonic::Request<super::CreateExternalLocationRequest>,
-        ) -> std::result::Result<tonic::Response<super::ExternalLocationInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::ExternalLocation>, tonic::Status>;
         /** Get an external location
          */
         async fn get_external_location(
             &self,
             request: tonic::Request<super::GetExternalLocationRequest>,
-        ) -> std::result::Result<tonic::Response<super::ExternalLocationInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::ExternalLocation>, tonic::Status>;
         /** Update an external location
          */
         async fn update_external_location(
             &self,
             request: tonic::Request<super::UpdateExternalLocationRequest>,
-        ) -> std::result::Result<tonic::Response<super::ExternalLocationInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::ExternalLocation>, tonic::Status>;
         /** Delete an external location
          */
         async fn delete_external_location(
@@ -165,7 +165,7 @@ pub mod external_locations_service_server {
                         tonic::server::UnaryService<super::CreateExternalLocationRequest>
                         for CreateExternalLocationSvc<T>
                     {
-                        type Response = super::ExternalLocationInfo;
+                        type Response = super::ExternalLocation;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -211,7 +211,7 @@ pub mod external_locations_service_server {
                         tonic::server::UnaryService<super::GetExternalLocationRequest>
                         for GetExternalLocationSvc<T>
                     {
-                        type Response = super::ExternalLocationInfo;
+                        type Response = super::ExternalLocation;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -257,7 +257,7 @@ pub mod external_locations_service_server {
                         tonic::server::UnaryService<super::UpdateExternalLocationRequest>
                         for UpdateExternalLocationSvc<T>
                     {
-                        type Response = super::ExternalLocationInfo;
+                        type Response = super::ExternalLocation;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,

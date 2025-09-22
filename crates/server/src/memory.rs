@@ -359,12 +359,12 @@ impl SecretManager for InMemoryResourceStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use unitycatalog_common::models::{CatalogInfo, ObjectLabel};
+    use unitycatalog_common::models::{Catalog, ObjectLabel};
 
     #[tokio::test]
     async fn test_create_get_delete() {
         let store = InMemoryResourceStore::new();
-        let resource: Resource = CatalogInfo {
+        let resource: Resource = Catalog {
             name: "new_catalog".into(),
             ..Default::default()
         }
@@ -372,7 +372,7 @@ mod tests {
         let (created, reference) = store.create(resource.clone()).await.unwrap();
         assert_eq!(created.resource_name(), resource.resource_name());
 
-        let ident = ObjectLabel::CatalogInfo.to_ident(reference);
+        let ident = ObjectLabel::Catalog.to_ident(reference);
         let (retrieved, _) = store.get(&ident).await.unwrap();
         assert_eq!(retrieved, created);
 
@@ -385,7 +385,7 @@ mod tests {
     #[tokio::test]
     async fn test_list() {
         let store = InMemoryResourceStore::new();
-        let resource: Resource = CatalogInfo {
+        let resource: Resource = Catalog {
             name: "new_catalog".into(),
             ..Default::default()
         }
@@ -393,7 +393,7 @@ mod tests {
         let (created, _) = store.create(resource.clone()).await.unwrap();
 
         let (resources, next) = store
-            .list(&ObjectLabel::CatalogInfo, None, None, None)
+            .list(&ObjectLabel::Catalog, None, None, None)
             .await
             .unwrap();
         assert_eq!(resources.len(), 1);
@@ -401,13 +401,13 @@ mod tests {
         assert!(next.is_none());
 
         // add more resources
-        let resource: Resource = CatalogInfo {
+        let resource: Resource = Catalog {
             name: "new_catalog2".into(),
             ..Default::default()
         }
         .into();
         store.create(resource).await.unwrap();
-        let resource: Resource = CatalogInfo {
+        let resource: Resource = Catalog {
             name: "new_catalog3".into(),
             ..Default::default()
         }
@@ -415,14 +415,14 @@ mod tests {
         store.create(resource).await.unwrap();
 
         let (resources, next) = store
-            .list(&ObjectLabel::CatalogInfo, None, Some(2), None)
+            .list(&ObjectLabel::Catalog, None, Some(2), None)
             .await
             .unwrap();
         assert_eq!(resources.len(), 2);
         assert!(next.is_some());
 
         let (resources, next) = store
-            .list(&ObjectLabel::CatalogInfo, None, Some(2), next)
+            .list(&ObjectLabel::Catalog, None, Some(2), next)
             .await
             .unwrap();
         assert_eq!(resources.len(), 1);

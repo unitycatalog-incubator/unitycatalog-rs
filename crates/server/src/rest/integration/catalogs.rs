@@ -27,7 +27,7 @@ async fn test_catalog_router_list(app: Router) {
     );
 
     // create a catalog
-    let catalog = CatalogInfo {
+    let catalog = Catalog {
         name: "test".to_string(),
         comment: Some("test catalog".to_string()),
         ..Default::default()
@@ -52,7 +52,7 @@ async fn test_catalog_router_list(app: Router) {
     assert_eq!(body.catalogs.len(), 1);
 
     // create a schema
-    let schema = SchemaInfo {
+    let schema = Schema {
         name: "test".to_string(),
         catalog_name: "test".to_string(),
         comment: Some("test schema".to_string()),
@@ -78,7 +78,7 @@ async fn test_catalog_router_list(app: Router) {
     assert_eq!(body.schemas.len(), 1);
 
     // create some more schemas
-    let schema = SchemaInfo {
+    let schema = Schema {
         name: "test2".to_string(),
         catalog_name: "test".to_string(),
         comment: Some("test schema".to_string()),
@@ -88,7 +88,7 @@ async fn test_catalog_router_list(app: Router) {
     let create_schema_response = app.clone().oneshot(create_schema).await.unwrap();
     assert_eq!(create_schema_response.status(), StatusCode::OK);
 
-    let schema = SchemaInfo {
+    let schema = Schema {
         name: "test3".to_string(),
         catalog_name: "test".to_string(),
         comment: Some("test schema".to_string()),
@@ -145,7 +145,7 @@ async fn test_catalog_router_list(app: Router) {
 }
 
 async fn test_catalog_router_crud(app: Router) {
-    let catalog = CatalogInfo {
+    let catalog = Catalog {
         name: "test".to_string(),
         comment: Some("test catalog".to_string()),
         ..Default::default()
@@ -164,7 +164,7 @@ async fn test_catalog_router_crud(app: Router) {
         StatusCode::OK,
         "create catalog"
     );
-    let body: CatalogInfo = collect_body(create_catalog_response).await;
+    let body: Catalog = collect_body(create_catalog_response).await;
     assert_eq!(body.name, catalog.name);
     assert_eq!(body.comment, catalog.comment);
 
@@ -192,7 +192,7 @@ async fn test_catalog_router_crud(app: Router) {
         .unwrap();
     let get_catalog_response = app.clone().oneshot(get_catalog).await.unwrap();
     assert_eq!(get_catalog_response.status(), StatusCode::OK, "get catalog");
-    let body: CatalogInfo = collect_body(get_catalog_response).await;
+    let body: Catalog = collect_body(get_catalog_response).await;
     assert_eq!(body.name, catalog.name);
 
     // update catalog
@@ -214,7 +214,7 @@ async fn test_catalog_router_crud(app: Router) {
         StatusCode::OK,
         "update catalog"
     );
-    let body: CatalogInfo = collect_body(update_catalog_response).await;
+    let body: Catalog = collect_body(update_catalog_response).await;
     assert_eq!(body.name, new_catalog.new_name);
     assert_eq!(body.comment, new_catalog.comment);
 
@@ -230,11 +230,11 @@ async fn test_catalog_router_crud(app: Router) {
         StatusCode::OK,
         "get updated catalog"
     );
-    let body: CatalogInfo = collect_body(get_catalog_response).await;
+    let body: Catalog = collect_body(get_catalog_response).await;
     assert_eq!(body.name, new_catalog.new_name);
 
     // create a schema
-    let schema = SchemaInfo {
+    let schema = Schema {
         name: "test".to_string(),
         catalog_name: "new_test".to_string(),
         comment: Some("test schema".to_string()),
@@ -252,7 +252,7 @@ async fn test_catalog_router_crud(app: Router) {
         StatusCode::OK,
         "create schema"
     );
-    let body: SchemaInfo = collect_body(create_schema_response).await;
+    let body: Schema = collect_body(create_schema_response).await;
     assert_eq!(body.name, schema.name);
     assert_eq!(body.catalog_name, schema.catalog_name);
     assert_eq!(body.comment, schema.comment);
@@ -281,7 +281,7 @@ async fn test_catalog_router_crud(app: Router) {
         .unwrap();
     let get_schema_response = app.clone().oneshot(get_schema).await.unwrap();
     assert_eq!(get_schema_response.status(), StatusCode::OK, "get schema");
-    let body: SchemaInfo = collect_body(get_schema_response).await;
+    let body: Schema = collect_body(get_schema_response).await;
     assert_eq!(body.name, schema.name);
 
     // update schema
@@ -303,7 +303,7 @@ async fn test_catalog_router_crud(app: Router) {
         StatusCode::OK,
         "update schema"
     );
-    let body: SchemaInfo = collect_body(update_schema_response).await;
+    let body: Schema = collect_body(update_schema_response).await;
     assert_eq!(body.name, new_schema.new_name);
     assert_eq!(body.comment, new_schema.comment);
 

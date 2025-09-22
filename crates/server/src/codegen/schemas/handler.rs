@@ -13,17 +13,17 @@ pub trait SchemaHandler: Send + Sync + 'static {
         &self,
         request: CreateSchemaRequest,
         context: RequestContext,
-    ) -> Result<SchemaInfo>;
+    ) -> Result<Schema>;
     async fn get_schema(
         &self,
         request: GetSchemaRequest,
         context: RequestContext,
-    ) -> Result<SchemaInfo>;
+    ) -> Result<Schema>;
     async fn update_schema(
         &self,
         request: UpdateSchemaRequest,
         context: RequestContext,
-    ) -> Result<SchemaInfo>;
+    ) -> Result<Schema>;
     async fn delete_schema(
         &self,
         request: DeleteSchemaRequest,

@@ -33,7 +33,7 @@ impl ListExternalLocationsBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<ExternalLocationInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<ExternalLocation>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder
@@ -101,7 +101,7 @@ impl CreateExternalLocationBuilder {
     }
 }
 impl IntoFuture for CreateExternalLocationBuilder {
-    type Output = Result<ExternalLocationInfo>;
+    type Output = Result<ExternalLocation>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -125,7 +125,7 @@ impl GetExternalLocationBuilder {
     }
 }
 impl IntoFuture for GetExternalLocationBuilder {
-    type Output = Result<ExternalLocationInfo>;
+    type Output = Result<ExternalLocation>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -189,7 +189,7 @@ impl UpdateExternalLocationBuilder {
     }
 }
 impl IntoFuture for UpdateExternalLocationBuilder {
-    type Output = Result<ExternalLocationInfo>;
+    type Output = Result<ExternalLocation>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

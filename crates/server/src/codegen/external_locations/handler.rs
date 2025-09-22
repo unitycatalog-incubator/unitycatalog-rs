@@ -13,17 +13,17 @@ pub trait ExternalLocationHandler: Send + Sync + 'static {
         &self,
         request: CreateExternalLocationRequest,
         context: RequestContext,
-    ) -> Result<ExternalLocationInfo>;
+    ) -> Result<ExternalLocation>;
     async fn get_external_location(
         &self,
         request: GetExternalLocationRequest,
         context: RequestContext,
-    ) -> Result<ExternalLocationInfo>;
+    ) -> Result<ExternalLocation>;
     async fn update_external_location(
         &self,
         request: UpdateExternalLocationRequest,
         context: RequestContext,
-    ) -> Result<ExternalLocationInfo>;
+    ) -> Result<ExternalLocation>;
     async fn delete_external_location(
         &self,
         request: DeleteExternalLocationRequest,

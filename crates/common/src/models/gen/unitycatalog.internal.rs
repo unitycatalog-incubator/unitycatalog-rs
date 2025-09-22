@@ -38,15 +38,15 @@ pub mod resource {
         #[prost(message, tag = "4")]
         Credential(super::super::credentials::v1::Credential),
         #[prost(message, tag = "6")]
-        CatalogInfo(super::super::catalogs::v1::CatalogInfo),
+        Catalog(super::super::catalogs::v1::Catalog),
         #[prost(message, tag = "7")]
-        SchemaInfo(super::super::schemas::v1::SchemaInfo),
+        Schema(super::super::schemas::v1::Schema),
         #[prost(message, tag = "8")]
         Table(super::super::tables::v1::Table),
         #[prost(message, tag = "9")]
         Column(super::super::tables::v1::Column),
         #[prost(message, tag = "10")]
-        ExternalLocationInfo(super::super::external_locations::v1::ExternalLocationInfo),
+        ExternalLocation(super::super::external_locations::v1::ExternalLocation),
         #[prost(message, tag = "11")]
         Recipient(super::super::recipients::v1::Recipient),
     }
