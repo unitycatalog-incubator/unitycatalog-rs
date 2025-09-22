@@ -300,7 +300,7 @@ class VolumeType:
     EXTERNAL = 1
     MANAGED = 2
 
-class VolumeInfo:
+class Volume:
     """Information about a Unity Catalog volume."""
 
     name: str
@@ -702,7 +702,7 @@ class PyUnityCatalogClient:
         schema_name: str,
         max_results: int | None = None,
         include_browse: bool | None = None,
-    ) -> list[VolumeInfo]: ...
+    ) -> list[Volume]: ...
     def volume(
         self, catalog_name: str, schema_name: str, volume_name: str
     ) -> VolumeClient: ...
@@ -715,17 +715,17 @@ class PyUnityCatalogClient:
         volume_type: VolumeType,
         storage_location: str | None = None,
         comment: str | None = None,
-    ) -> VolumeInfo: ...
+    ) -> Volume: ...
 
 class VolumeClient:
-    def get(self, include_browse: bool | None = None) -> VolumeInfo: ...
+    def get(self, include_browse: bool | None = None) -> Volume: ...
     def update(
         self,
         new_name: str | None = None,
         comment: str | None = None,
         owner: str | None = None,
         include_browse: bool | None = None,
-    ) -> VolumeInfo: ...
+    ) -> Volume: ...
     def delete(self) -> None: ...
 
 class TemporaryCredentialClient:

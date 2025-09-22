@@ -13,17 +13,17 @@ pub trait VolumeHandler: Send + Sync + 'static {
         &self,
         request: CreateVolumeRequest,
         context: RequestContext,
-    ) -> Result<VolumeInfo>;
+    ) -> Result<Volume>;
     async fn get_volume(
         &self,
         request: GetVolumeRequest,
         context: RequestContext,
-    ) -> Result<VolumeInfo>;
+    ) -> Result<Volume>;
     async fn update_volume(
         &self,
         request: UpdateVolumeRequest,
         context: RequestContext,
-    ) -> Result<VolumeInfo>;
+    ) -> Result<Volume>;
     async fn delete_volume(
         &self,
         request: DeleteVolumeRequest,

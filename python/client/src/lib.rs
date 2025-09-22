@@ -16,7 +16,7 @@ use unitycatalog_common::models::shares::v1::{
 use unitycatalog_common::models::tables::v1::{
     ColumnInfo, ColumnTypeName, DataSourceFormat, TableInfo, TableType,
 };
-use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
+use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
 mod client;
 mod codegen;
@@ -48,7 +48,7 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ColumnInfo>()?;
     m.add_class::<ColumnTypeName>()?;
     m.add_class::<DataSourceFormat>()?;
-    m.add_class::<VolumeInfo>()?;
+    m.add_class::<Volume>()?;
     m.add_class::<VolumeType>()?;
 
     // service clients

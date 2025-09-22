@@ -860,7 +860,7 @@ impl<'de> serde::Deserialize<'de> for UpdateVolumeRequest {
         )
     }
 }
-impl serde::Serialize for VolumeInfo {
+impl serde::Serialize for Volume {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
@@ -913,8 +913,7 @@ impl serde::Serialize for VolumeInfo {
         if self.metastore_id.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.volumes.v1.VolumeInfo", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.volumes.v1.Volume", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -970,7 +969,7 @@ impl serde::Serialize for VolumeInfo {
         struct_ser.end()
     }
 }
-impl<'de> serde::Deserialize<'de> for VolumeInfo {
+impl<'de> serde::Deserialize<'de> for Volume {
     #[allow(deprecated)]
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
     where
@@ -1074,13 +1073,13 @@ impl<'de> serde::Deserialize<'de> for VolumeInfo {
         }
         struct GeneratedVisitor;
         impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
-            type Value = VolumeInfo;
+            type Value = Volume;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.volumes.v1.VolumeInfo")
+                formatter.write_str("struct unitycatalog.volumes.v1.Volume")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<VolumeInfo, V::Error>
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<Volume, V::Error>
             where
                 V: serde::de::MapAccess<'de>,
             {
@@ -1200,7 +1199,7 @@ impl<'de> serde::Deserialize<'de> for VolumeInfo {
                         }
                     }
                 }
-                Ok(VolumeInfo {
+                Ok(Volume {
                     name: name__.unwrap_or_default(),
                     catalog_name: catalog_name__.unwrap_or_default(),
                     schema_name: schema_name__.unwrap_or_default(),
@@ -1219,11 +1218,7 @@ impl<'de> serde::Deserialize<'de> for VolumeInfo {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.volumes.v1.VolumeInfo",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.volumes.v1.Volume", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for VolumeType {

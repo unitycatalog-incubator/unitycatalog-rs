@@ -422,7 +422,7 @@ impl PyUnityCatalogClientABC {
         schema_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<VolumeInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Volume>> {
         let mut request = self.client.list_volumes(catalog_name, schema_name);
         request = request.with_max_results(max_results);
         request = request.with_include_browse(include_browse);
@@ -452,7 +452,7 @@ impl PyUnityCatalogClientABC {
         volume_type: VolumeType,
         storage_location: Option<String>,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
+    ) -> PyUnityCatalogResult<Volume> {
         let mut request = self
             .client
             .create_volume(catalog_name, schema_name, name, volume_type);

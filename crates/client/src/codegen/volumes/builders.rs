@@ -39,7 +39,7 @@ impl ListVolumesBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<VolumeInfo>> {
+    pub fn into_stream(self) -> BoxStream<'static, Result<Volume>> {
         stream_paginated(self, move |mut builder, page_token| async move {
             builder.request.page_token = page_token;
             let res = builder.client.list_volumes(&builder.request).await?;
@@ -101,7 +101,7 @@ impl CreateVolumeBuilder {
     }
 }
 impl IntoFuture for CreateVolumeBuilder {
-    type Output = Result<VolumeInfo>;
+    type Output = Result<Volume>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -130,7 +130,7 @@ impl GetVolumeBuilder {
     }
 }
 impl IntoFuture for GetVolumeBuilder {
-    type Output = Result<VolumeInfo>;
+    type Output = Result<Volume>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
@@ -169,7 +169,7 @@ impl UpdateVolumeBuilder {
     }
 }
 impl IntoFuture for UpdateVolumeBuilder {
-    type Output = Result<VolumeInfo>;
+    type Output = Result<Volume>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;

@@ -16,17 +16,17 @@ pub mod volumes_service_server {
         async fn create_volume(
             &self,
             request: tonic::Request<super::CreateVolumeRequest>,
-        ) -> std::result::Result<tonic::Response<super::VolumeInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Volume>, tonic::Status>;
         ///
         async fn get_volume(
             &self,
             request: tonic::Request<super::GetVolumeRequest>,
-        ) -> std::result::Result<tonic::Response<super::VolumeInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Volume>, tonic::Status>;
         ///
         async fn update_volume(
             &self,
             request: tonic::Request<super::UpdateVolumeRequest>,
-        ) -> std::result::Result<tonic::Response<super::VolumeInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Volume>, tonic::Status>;
         ///
         async fn delete_volume(
             &self,
@@ -154,7 +154,7 @@ pub mod volumes_service_server {
                     impl<T: VolumesService> tonic::server::UnaryService<super::CreateVolumeRequest>
                         for CreateVolumeSvc<T>
                     {
-                        type Response = super::VolumeInfo;
+                        type Response = super::Volume;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -193,7 +193,7 @@ pub mod volumes_service_server {
                     #[allow(non_camel_case_types)]
                     struct GetVolumeSvc<T: VolumesService>(pub Arc<T>);
                     impl<T: VolumesService> tonic::server::UnaryService<super::GetVolumeRequest> for GetVolumeSvc<T> {
-                        type Response = super::VolumeInfo;
+                        type Response = super::Volume;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -234,7 +234,7 @@ pub mod volumes_service_server {
                     impl<T: VolumesService> tonic::server::UnaryService<super::UpdateVolumeRequest>
                         for UpdateVolumeSvc<T>
                     {
-                        type Response = super::VolumeInfo;
+                        type Response = super::Volume;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,

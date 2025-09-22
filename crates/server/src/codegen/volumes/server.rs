@@ -18,7 +18,7 @@ pub async fn create_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: CreateVolumeRequest,
-) -> Result<::axum::Json<VolumeInfo>> {
+) -> Result<::axum::Json<Volume>> {
     let context = RequestContext { recipient };
     let result = handler.create_volume(request, context).await?;
     Ok(axum::Json(result))
@@ -27,7 +27,7 @@ pub async fn get_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: GetVolumeRequest,
-) -> Result<::axum::Json<VolumeInfo>> {
+) -> Result<::axum::Json<Volume>> {
     let context = RequestContext { recipient };
     let result = handler.get_volume(request, context).await?;
     Ok(axum::Json(result))
@@ -36,7 +36,7 @@ pub async fn update_volume<T: VolumeHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: UpdateVolumeRequest,
-) -> Result<::axum::Json<VolumeInfo>> {
+) -> Result<::axum::Json<Volume>> {
     let context = RequestContext { recipient };
     let result = handler.update_volume(request, context).await?;
     Ok(axum::Json(result))

@@ -3,7 +3,7 @@
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VolumeInfo {
+pub struct Volume {
     /// Name of volume, relative to parent schema.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -114,7 +114,7 @@ pub struct ListVolumesRequest {
 pub struct ListVolumesResponse {
     /// The volumes returned.
     #[prost(message, repeated, tag = "1")]
-    pub volumes: ::prost::alloc::vec::Vec<VolumeInfo>,
+    pub volumes: ::prost::alloc::vec::Vec<Volume>,
     /// Opaque token to retrieve the next page of results.
     ///
     /// Absent if there are no more pages. page_token should be set to

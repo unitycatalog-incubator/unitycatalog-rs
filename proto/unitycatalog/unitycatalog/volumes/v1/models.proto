@@ -11,7 +11,7 @@ enum VolumeType {
   VOLUME_TYPE_MANAGED = 2;
 }
 
-message VolumeInfo {
+message Volume {
   option (google.api.resource) = {
     type: "unitycatalog.io/Volume"
     pattern: "volume/{volume}"

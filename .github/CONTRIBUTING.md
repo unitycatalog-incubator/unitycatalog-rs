@@ -38,7 +38,7 @@ just generate
 To add a new resource/API surface, follow these steps:
 
 1. **Define protobuf schema**: Create the resource in `proto/unitycatalog/<resource>/v1/`
-   - Define messages (e.g., `VolumeInfo`, `CreateVolumeRequest`)
+   - Define messages (e.g., `Volume`, `CreateVolumeRequest`)
    - Define service with RPC methods
    - Annotate with `google.api.http` and `gnostic.openapi.v3.operation`
 

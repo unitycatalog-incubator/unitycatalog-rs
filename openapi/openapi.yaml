@@ -1344,7 +1344,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VolumeInfo"
+                $ref: "#/components/schemas/Volume"
         default:
           description: Default error response
           content:
@@ -1376,7 +1376,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VolumeInfo"
+                $ref: "#/components/schemas/Volume"
         default:
           description: Default error response
           content:
@@ -1427,7 +1427,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VolumeInfo"
+                $ref: "#/components/schemas/Volume"
         default:
           description: Default error response
           content:
@@ -2557,7 +2557,7 @@ components:
         volumes:
           description: The volumes returned.
           items:
-            $ref: "#/$defs/unitycatalog.volumes.v1.VolumeInfo.schema.strict.json"
+            $ref: "#/$defs/unitycatalog.volumes.v1.Volume.schema.strict.json"
           type: array
       title: List Volumes Response
       type: object
@@ -3225,7 +3225,7 @@ components:
         - name
       title: Update Volume Request
       type: object
-    VolumeInfo:
+    Volume:
       additionalProperties: false
       properties:
         browse_only:
@@ -3292,7 +3292,7 @@ components:
         - storage_location
         - volume_id
         - volume_type
-      title: Volume Info
+      title: Volume
       type: object
     GetSchemaRequest:
       additionalProperties: false

@@ -45,7 +45,7 @@ message ListVolumesRequest {
 // List Schemas response.
 message ListVolumesResponse {
   // The volumes returned.
-  repeated VolumeInfo volumes = 1;
+  repeated Volume volumes = 1;
 
   // Opaque token to retrieve the next page of results.
   //
@@ -145,7 +145,7 @@ service VolumesService {
     option (gnostic.openapi.v3.operation) = {operation_id: "ListVolumes"};
   }
 
-  rpc CreateVolume(CreateVolumeRequest) returns (VolumeInfo) {
+  rpc CreateVolume(CreateVolumeRequest) returns (Volume) {
     option (google.api.http) = {
       post: "/volumes"
       body: "*"
@@ -153,12 +153,12 @@ service VolumesService {
     option (gnostic.openapi.v3.operation) = {operation_id: "CreateVolume"};
   }
 
-  rpc GetVolume(GetVolumeRequest) returns (VolumeInfo) {
+  rpc GetVolume(GetVolumeRequest) returns (Volume) {
     option (google.api.http) = {get: "/volumes/{name}"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetVolume"};
   }
 
-  rpc UpdateVolume(UpdateVolumeRequest) returns (VolumeInfo) {
+  rpc UpdateVolume(UpdateVolumeRequest) returns (Volume) {
     option (google.api.http) = {
       patch: "/volumes/{name}"
       body: "*"

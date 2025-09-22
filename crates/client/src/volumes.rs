@@ -17,7 +17,7 @@ impl VolumeClientBase {
         schema_name: impl Into<String>,
         max_results: impl Into<Option<i32>>,
         include_browse: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<VolumeInfo>> {
+    ) -> BoxStream<'_, Result<Volume>> {
         let max_results = max_results.into();
         let catalog_name = catalog_name.into();
         let schema_name = schema_name.into();

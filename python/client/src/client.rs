@@ -13,7 +13,7 @@ use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::Share;
 use unitycatalog_common::models::tables::v1::TableInfo;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
-use unitycatalog_common::models::volumes::v1::{VolumeInfo, VolumeType};
+use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
 pub use crate::codegen::catalogs::PyCatalogClient;
 pub use crate::codegen::credentials::PyCredentialClient;
@@ -392,7 +392,7 @@ impl PyUnityCatalogClient {
         schema_name: String,
         max_results: Option<i32>,
         include_browse: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<VolumeInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Volume>> {
         let stream = self
             .0
             .list_volumes(catalog_name, schema_name)
@@ -426,7 +426,7 @@ impl PyUnityCatalogClient {
         volume_type: VolumeType,
         storage_location: Option<String>,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<VolumeInfo> {
+    ) -> PyUnityCatalogResult<Volume> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request =
