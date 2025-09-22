@@ -51,7 +51,7 @@ pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
         use crate::api::RequestContext;
         use #mod_path::*;
         use #trait_path;
-        use crate::policy::Recipient;
+        use crate::policy::Principal;
         use axum::extract::{State, Extension};
 
         #(#handler_function_impls)*
@@ -88,7 +88,7 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
         quote! {
             pub async fn #handler_method<T: #handler_trait_ident>(
                 State(handler): State<T>,
-                Extension(recipient): Extension<Recipient>,
+                Extension(recipient): Extension<Principal>,
                 request: #input_type,
             ) -> Result<::axum::Json<#output_type>> {
                 let context = RequestContext { recipient };
@@ -100,7 +100,7 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
         quote! {
             pub async fn #handler_method<T: #handler_trait_ident>(
                 State(handler): State<T>,
-                Extension(recipient): Extension<Recipient>,
+                Extension(recipient): Extension<Principal>,
                 request: #input_type,
             ) -> Result<()> {
                 let context = RequestContext { recipient };

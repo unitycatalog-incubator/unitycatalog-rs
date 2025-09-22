@@ -2,12 +2,12 @@
 use super::handler::SchemaHandler;
 use crate::Result;
 use crate::api::RequestContext;
-use crate::policy::Recipient;
+use crate::policy::Principal;
 use axum::extract::{Extension, State};
 use unitycatalog_common::models::schemas::v1::*;
 pub async fn list_schemas<T: SchemaHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: ListSchemasRequest,
 ) -> Result<::axum::Json<ListSchemasResponse>> {
     let context = RequestContext { recipient };
@@ -16,7 +16,7 @@ pub async fn list_schemas<T: SchemaHandler>(
 }
 pub async fn create_schema<T: SchemaHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: CreateSchemaRequest,
 ) -> Result<::axum::Json<SchemaInfo>> {
     let context = RequestContext { recipient };
@@ -25,7 +25,7 @@ pub async fn create_schema<T: SchemaHandler>(
 }
 pub async fn get_schema<T: SchemaHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: GetSchemaRequest,
 ) -> Result<::axum::Json<SchemaInfo>> {
     let context = RequestContext { recipient };
@@ -34,7 +34,7 @@ pub async fn get_schema<T: SchemaHandler>(
 }
 pub async fn update_schema<T: SchemaHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: UpdateSchemaRequest,
 ) -> Result<::axum::Json<SchemaInfo>> {
     let context = RequestContext { recipient };
@@ -43,7 +43,7 @@ pub async fn update_schema<T: SchemaHandler>(
 }
 pub async fn delete_schema<T: SchemaHandler>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Recipient>,
+    Extension(recipient): Extension<Principal>,
     request: DeleteSchemaRequest,
 ) -> Result<()> {
     let context = RequestContext { recipient };

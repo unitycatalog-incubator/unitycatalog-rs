@@ -6,7 +6,7 @@ pub use credentials::v1::CredentialInfo;
 pub use external_locations::v1::ExternalLocationInfo;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
-pub use recipients::v1::RecipientInfo;
+pub use recipients::v1::Recipient;
 pub use resources::*;
 pub use schemas::v1::SchemaInfo;
 pub use shares::v1::Share;
@@ -103,7 +103,7 @@ impl ObjectLabel {
             ObjectLabel::SchemaInfo => ResourceIdent::schema(id),
             ObjectLabel::TableInfo => ResourceIdent::table(id),
             ObjectLabel::ExternalLocationInfo => ResourceIdent::external_location(id),
-            ObjectLabel::RecipientInfo => ResourceIdent::recipient(id),
+            ObjectLabel::Recipient => ResourceIdent::recipient(id),
             ObjectLabel::ColumnInfo => ResourceIdent::column(id),
         }
     }

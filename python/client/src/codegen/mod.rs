@@ -205,7 +205,7 @@ impl PyUnityCatalogClientABC {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Recipient>> {
         let mut request = self.client.list_recipients();
         request = request.with_max_results(max_results);
         let runtime = get_runtime(py)?;
@@ -234,7 +234,7 @@ impl PyUnityCatalogClientABC {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
         expiration_time: Option<i64>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
+    ) -> PyUnityCatalogResult<Recipient> {
         let mut request = self
             .client
             .create_recipient(name, authentication_type, owner);

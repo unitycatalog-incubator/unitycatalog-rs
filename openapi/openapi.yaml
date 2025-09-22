@@ -515,7 +515,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipientInfo"
+                $ref: "#/components/schemas/Recipient"
         default:
           description: Default error response
           content:
@@ -541,7 +541,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipientInfo"
+                $ref: "#/components/schemas/Recipient"
         default:
           description: Default error response
           content:
@@ -594,7 +594,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipientInfo"
+                $ref: "#/components/schemas/Recipient"
         default:
           description: Default error response
           content:
@@ -2376,7 +2376,7 @@ components:
         recipients:
           description: List of recipients.
           items:
-            $ref: "#/$defs/unitycatalog.recipients.v1.RecipientInfo.schema.strict.json"
+            $ref: "#/$defs/unitycatalog.recipients.v1.Recipient.schema.strict.json"
           type: array
       title: List Recipients Response
       type: object
@@ -2615,7 +2615,7 @@ components:
         - session_token
       title: R2 Temporary Credentials
       type: object
-    RecipientInfo:
+    Recipient:
       additionalProperties: false
       properties:
         authentication_type:
@@ -2666,7 +2666,7 @@ components:
         - name
         - authentication_type
         - owner
-      title: Recipient Info
+      title: Recipient
       type: object
     RecipientToken:
       additionalProperties: false

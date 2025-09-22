@@ -7,7 +7,7 @@ use futures_util::{FutureExt, future::BoxFuture};
 use tower::{Layer, Service};
 use unitycatalog_common::Result;
 
-use crate::policy::Recipient;
+use crate::policy::Principal;
 
 /// Authenticator for authenticating requests to a sharing server.
 pub trait Authenticator: Send + Sync + 'static {
@@ -15,7 +15,7 @@ pub trait Authenticator: Send + Sync + 'static {
     ///
     /// This method should return the recipient of the request, or an error if the request
     /// is not authenticated or the recipient cannot be determined from the request.
-    fn authenticate(&self, request: &Request) -> Result<Recipient>;
+    fn authenticate(&self, request: &Request) -> Result<Principal>;
 }
 
 /// Authenticator that always marks the recipient as anonymous.
@@ -23,8 +23,8 @@ pub trait Authenticator: Send + Sync + 'static {
 pub struct AnonymousAuthenticator;
 
 impl Authenticator for AnonymousAuthenticator {
-    fn authenticate(&self, _: &Request) -> Result<Recipient> {
-        Ok(Recipient::anonymous())
+    fn authenticate(&self, _: &Request) -> Result<Principal> {
+        Ok(Principal::anonymous())
     }
 }
 
@@ -113,8 +113,8 @@ mod tests {
 
     async fn check_recipient(req: Request) -> Result<Response<Body>> {
         assert!(matches!(
-            req.extensions().get::<Recipient>(),
-            Some(Recipient::Anonymous) | Some(Recipient::Custom(_)) | Some(Recipient::User(_))
+            req.extensions().get::<Principal>(),
+            Some(Principal::Anonymous) | Some(Principal::Custom(_)) | Some(Principal::User(_))
         ));
         Ok(Response::new(req.into_body()))
     }

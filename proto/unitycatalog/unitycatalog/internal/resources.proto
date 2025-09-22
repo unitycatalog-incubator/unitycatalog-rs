@@ -24,7 +24,7 @@ message Resource {
     unitycatalog.tables.v1.TableInfo table_info = 8;
     unitycatalog.tables.v1.ColumnInfo column_info = 9;
     unitycatalog.external_locations.v1.ExternalLocationInfo external_location_info = 10;
-    unitycatalog.recipients.v1.RecipientInfo recipient_info = 11;
+    unitycatalog.recipients.v1.Recipient recipient = 11;
   }
 }
 

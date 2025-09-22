@@ -8,7 +8,7 @@ use unitycatalog_client::{
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
 use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
-use unitycatalog_common::models::recipients::v1::{AuthenticationType, RecipientInfo};
+use unitycatalog_common::models::recipients::v1::{AuthenticationType, Recipient};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::Share;
 use unitycatalog_common::models::tables::v1::TableInfo;
@@ -165,7 +165,7 @@ impl PyUnityCatalogClient {
         &self,
         py: Python,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<RecipientInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Recipient>> {
         let stream = self.0.list_recipients().with_max_results(max_results);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
@@ -328,7 +328,7 @@ impl PyUnityCatalogClient {
         name: String,
         authentication_type: AuthenticationType,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<RecipientInfo> {
+    ) -> PyUnityCatalogResult<Recipient> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_recipient(name, authentication_type, "");

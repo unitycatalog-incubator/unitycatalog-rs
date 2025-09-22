@@ -18,13 +18,13 @@ use crate::{Error, Result};
 mod constant;
 
 #[derive(Clone, Debug)]
-pub enum Recipient {
+pub enum Principal {
     Anonymous,
     User(String),
     Custom(Bytes),
 }
 
-impl Recipient {
+impl Principal {
     pub fn anonymous() -> Self {
         Self::Anonymous
     }
@@ -69,12 +69,12 @@ pub enum Decision {
 /// Policy for access control.
 #[async_trait::async_trait]
 pub trait Policy: Send + Sync + 'static {
-    async fn check(&self, obj: &dyn SecuredAction, recipient: &Recipient) -> Result<Decision> {
+    async fn check(&self, obj: &dyn SecuredAction, recipient: &Principal) -> Result<Decision> {
         self.authorize(&obj.resource(), obj.permission(), recipient)
             .await
     }
 
-    async fn check_required(&self, obj: &dyn SecuredAction, recipient: &Recipient) -> Result<()> {
+    async fn check_required(&self, obj: &dyn SecuredAction, recipient: &Principal) -> Result<()> {
         match self.check(obj, recipient).await? {
             Decision::Allow => Ok(()),
             Decision::Deny => Err(Error::NotAllowed),
@@ -89,14 +89,14 @@ pub trait Policy: Send + Sync + 'static {
         &self,
         resource: &ResourceIdent,
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<Decision>;
 
     async fn authorize_many(
         &self,
         resources: &[ResourceIdent],
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<Vec<Decision>> {
         let mut decisions = Vec::with_capacity(resources.len());
         for resource in resources {
@@ -110,7 +110,7 @@ pub trait Policy: Send + Sync + 'static {
         &self,
         resource: &ResourceIdent,
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<()> {
         match self.authorize(resource, permission, recipient).await? {
             Decision::Allow => Ok(()),
@@ -129,7 +129,7 @@ impl<T: Policy> Policy for Arc<T> {
         &self,
         resource: &ResourceIdent,
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<Decision> {
         T::authorize(self, resource, permission, recipient).await
     }
@@ -138,7 +138,7 @@ impl<T: Policy> Policy for Arc<T> {
         &self,
         resources: &[ResourceIdent],
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<Vec<Decision>> {
         T::authorize_many(self, resources, permission, recipient).await
     }
@@ -150,7 +150,7 @@ impl<T: ProvidesPolicy> Policy for T {
         &self,
         resource: &ResourceIdent,
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<Decision> {
         self.policy()
             .authorize(resource, permission, recipient)
@@ -161,7 +161,7 @@ impl<T: ProvidesPolicy> Policy for T {
         &self,
         resources: &[ResourceIdent],
         permission: &Permission,
-        recipient: &Recipient,
+        recipient: &Principal,
     ) -> Result<Vec<Decision>> {
         self.policy()
             .authorize_many(resources, permission, recipient)
@@ -173,7 +173,7 @@ impl<T: ProvidesPolicy> Policy for T {
 /// and retains only those that receive an allow decision.
 pub async fn process_resources<T: Policy + Sized, R: ResourceExt + Send>(
     handler: &T,
-    recipient: &Recipient,
+    recipient: &Principal,
     permission: &Permission,
     resources: &mut Vec<R>,
 ) -> Result<()> {

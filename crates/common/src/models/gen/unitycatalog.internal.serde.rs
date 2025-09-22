@@ -173,8 +173,8 @@ impl serde::Serialize for Resource {
                 resource::Resource::ExternalLocationInfo(v) => {
                     struct_ser.serialize_field("external_location_info", v)?;
                 }
-                resource::Resource::RecipientInfo(v) => {
-                    struct_ser.serialize_field("recipient_info", v)?;
+                resource::Resource::Recipient(v) => {
+                    struct_ser.serialize_field("recipient", v)?;
                 }
             }
         }
@@ -201,8 +201,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
             "columnInfo",
             "external_location_info",
             "externalLocationInfo",
-            "recipient_info",
-            "recipientInfo",
+            "recipient",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -214,7 +213,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
             TableInfo,
             ColumnInfo,
             ExternalLocationInfo,
-            RecipientInfo,
+            Recipient,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -251,7 +250,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
                             "externalLocationInfo" | "external_location_info" => {
                                 Ok(GeneratedField::ExternalLocationInfo)
                             }
-                            "recipientInfo" | "recipient_info" => Ok(GeneratedField::RecipientInfo),
+                            "recipient" => Ok(GeneratedField::Recipient),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -332,13 +331,13 @@ impl<'de> serde::Deserialize<'de> for Resource {
                                 .next_value::<::std::option::Option<_>>()?
                                 .map(resource::Resource::ExternalLocationInfo);
                         }
-                        GeneratedField::RecipientInfo => {
+                        GeneratedField::Recipient => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("recipientInfo"));
+                                return Err(serde::de::Error::duplicate_field("recipient"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::RecipientInfo);
+                                .map(resource::Resource::Recipient);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;

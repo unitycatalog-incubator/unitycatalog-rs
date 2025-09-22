@@ -6,7 +6,7 @@ use crate::models::credentials::v1::{
     azure_managed_identity::Identifier, azure_service_principal::Credential as SpCredential,
 };
 use crate::models::external_locations::v1::ExternalLocationInfo;
-use crate::models::recipients::v1::{RecipientInfo, RecipientToken};
+use crate::models::recipients::v1::{Recipient, RecipientToken};
 use crate::models::schemas::v1::SchemaInfo;
 use crate::models::shares::v1::{
     Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, Share,
@@ -290,10 +290,10 @@ impl Share {
 }
 
 #[pymethods]
-impl RecipientInfo {
+impl Recipient {
     pub fn __repr__(&self) -> String {
         format!(
-            "RecipientInfo(id={}, name={}, authentication_type={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={}, tokens={})",
+            "Recipient(id={}, name={}, authentication_type={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={}, tokens={})",
             self.id.as_ref().unwrap_or(&"None".to_owned()),
             self.name,
             self.authentication_type,

@@ -6,7 +6,7 @@ use super::ExternalLocationInfo;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    CatalogInfo, ColumnInfo, CredentialInfo, ObjectLabel, RecipientInfo, Resource, ResourceExt,
+    CatalogInfo, ColumnInfo, CredentialInfo, ObjectLabel, Recipient, Resource, ResourceExt,
     ResourceName, ResourceRef, SchemaInfo, Share, TableInfo,
 };
 
@@ -54,7 +54,7 @@ impl ResourceExt for Resource {
             Resource::SchemaInfo(_) => &ObjectLabel::SchemaInfo,
             Resource::TableInfo(_) => &ObjectLabel::TableInfo,
             Resource::ExternalLocationInfo(_) => &ObjectLabel::ExternalLocationInfo,
-            Resource::RecipientInfo(_) => &ObjectLabel::RecipientInfo,
+            Resource::Recipient(_) => &ObjectLabel::Recipient,
             Resource::ColumnInfo(_) => &ObjectLabel::ColumnInfo,
         }
     }
@@ -67,7 +67,7 @@ impl ResourceExt for Resource {
             Resource::SchemaInfo(obj) => obj.resource_name(),
             Resource::TableInfo(obj) => obj.resource_name(),
             Resource::ExternalLocationInfo(obj) => obj.resource_name(),
-            Resource::RecipientInfo(obj) => obj.resource_name(),
+            Resource::Recipient(obj) => obj.resource_name(),
             Resource::ColumnInfo(obj) => obj.resource_name(),
         }
     }
@@ -80,7 +80,7 @@ impl ResourceExt for Resource {
             Resource::SchemaInfo(obj) => obj.resource_ref(),
             Resource::TableInfo(obj) => obj.resource_ref(),
             Resource::ExternalLocationInfo(obj) => obj.resource_ref(),
-            Resource::RecipientInfo(obj) => obj.resource_ref(),
+            Resource::Recipient(obj) => obj.resource_ref(),
             Resource::ColumnInfo(obj) => obj.resource_ref(),
         }
     }
@@ -97,7 +97,7 @@ impl TryFrom<Resource> for Object {
             Resource::SchemaInfo(obj) => obj.try_into(),
             Resource::TableInfo(obj) => obj.try_into(),
             Resource::ExternalLocationInfo(obj) => obj.try_into(),
-            Resource::RecipientInfo(obj) => obj.try_into(),
+            Resource::Recipient(obj) => obj.try_into(),
             Resource::ColumnInfo(obj) => obj.try_into(),
         }
     }
@@ -116,7 +116,7 @@ impl TryFrom<Object> for Resource {
             ObjectLabel::ExternalLocationInfo => {
                 Ok(Resource::ExternalLocationInfo(obj.try_into()?))
             }
-            ObjectLabel::RecipientInfo => Ok(Resource::RecipientInfo(obj.try_into()?)),
+            ObjectLabel::Recipient => Ok(Resource::Recipient(obj.try_into()?)),
             ObjectLabel::ColumnInfo => Ok(Resource::ColumnInfo(obj.try_into()?)),
         }
     }
@@ -139,5 +139,5 @@ object_conversions!(
     TableInfo, ObjectLabel::TableInfo, table_id, [catalog_name, schema_name, name], true;
     ColumnInfo, ObjectLabel::ColumnInfo, column_id, [name], true;
     CredentialInfo, ObjectLabel::CredentialInfo, id, [name], true;
-    RecipientInfo, ObjectLabel::RecipientInfo, id, [name], true;
+    Recipient, ObjectLabel::Recipient, id, [name], true;
 );

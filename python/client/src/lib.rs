@@ -8,7 +8,7 @@ use unitycatalog_common::models::credentials::v1::{
     AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, CredentialInfo, Purpose,
 };
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
-use unitycatalog_common::models::recipients::v1::RecipientInfo;
+use unitycatalog_common::models::recipients::v1::Recipient;
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::{
     Action, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, Share,
@@ -35,7 +35,7 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<AzureServicePrincipal>()?;
     m.add_class::<AzureStorageKey>()?;
     m.add_class::<ExternalLocationInfo>()?;
-    m.add_class::<RecipientInfo>()?;
+    m.add_class::<Recipient>()?;
     m.add_class::<SchemaInfo>()?;
     m.add_class::<Share>()?;
     m.add_class::<DataObject>()?;

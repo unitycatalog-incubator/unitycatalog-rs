@@ -48,7 +48,7 @@ pub mod resource {
         #[prost(message, tag = "10")]
         ExternalLocationInfo(super::super::external_locations::v1::ExternalLocationInfo),
         #[prost(message, tag = "11")]
-        RecipientInfo(super::super::recipients::v1::RecipientInfo),
+        Recipient(super::super::recipients::v1::Recipient),
     }
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
