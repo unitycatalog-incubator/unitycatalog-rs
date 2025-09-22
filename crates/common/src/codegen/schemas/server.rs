@@ -51,8 +51,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetSchemaRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((full_name)) =
-            parts.extract::<axum::extract::Path<(String)>>().await?;
+        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
         Ok(GetSchemaRequest { full_name })
     }
 }
@@ -63,10 +62,11 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateSchemaRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path((full_name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
-            .await
-            .map_err(axum::response::IntoResponse::into_response)?;
+        let axum::extract::Path(full_name) =
+            parts
+                .extract::<axum::extract::Path<String>>()
+                .await
+                .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
         let axum::extract::Json::<UpdateSchemaRequest>(body) = body_req
             .extract()
@@ -87,8 +87,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteSchemaRequest 
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((full_name)) =
-            parts.extract::<axum::extract::Path<(String)>>().await?;
+        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]

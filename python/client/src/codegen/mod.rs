@@ -14,7 +14,6 @@ use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
 use crate::codegen::tables::PyTableClient;
-use crate::codegen::temporary_credentials::PyTemporaryCredentialClient;
 use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -29,7 +28,6 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
-use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "UnityCatalogClient")]
 pub struct PyUnityCatalogClientABC {
@@ -344,7 +342,7 @@ impl PyUnityCatalogClientABC {
         omit_username: Option<bool>,
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<TableInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Table>> {
         let mut request = self.client.list_tables(catalog_name, schema_name);
         request = request.with_max_results(max_results);
         request = request.with_include_delta_metadata(include_delta_metadata);
@@ -381,11 +379,11 @@ impl PyUnityCatalogClientABC {
         catalog_name: String,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: Option<Vec<ColumnInfo>>,
+        columns: Option<Vec<Column>>,
         storage_location: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-    ) -> PyUnityCatalogResult<TableInfo> {
+    ) -> PyUnityCatalogResult<Table> {
         let mut request = self.client.create_table(
             name,
             schema_name,

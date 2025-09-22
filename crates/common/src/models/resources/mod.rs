@@ -152,9 +152,9 @@ impl AsRef<ObjectLabel> for ResourceIdent {
             ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocationInfo,
             ResourceIdent::Catalog(_) => &ObjectLabel::CatalogInfo,
             ResourceIdent::Schema(_) => &ObjectLabel::SchemaInfo,
-            ResourceIdent::Table(_) => &ObjectLabel::TableInfo,
+            ResourceIdent::Table(_) => &ObjectLabel::Table,
             ResourceIdent::Recipient(_) => &ObjectLabel::Recipient,
-            ResourceIdent::Column(_) => &ObjectLabel::ColumnInfo,
+            ResourceIdent::Column(_) => &ObjectLabel::Column,
         }
     }
 }

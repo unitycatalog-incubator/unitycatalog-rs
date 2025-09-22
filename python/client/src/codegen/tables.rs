@@ -1,7 +1,6 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
-use std::collections::HashMap;
 use unitycatalog_client::TableClient;
 use unitycatalog_common::models::tables::v1::*;
 #[pyclass(name = "TableClient")]
@@ -23,7 +22,7 @@ impl PyTableClient {
         include_delta_metadata: Option<bool>,
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<TableInfo> {
+    ) -> PyUnityCatalogResult<Table> {
         let mut request = self.client.get();
         request = request.with_include_delta_metadata(include_delta_metadata);
         request = request.with_include_browse(include_browse);
@@ -35,7 +34,7 @@ impl PyTableClient {
         })
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let mut request = self.client.delete();
+        let request = self.client.delete();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             runtime.block_on(request.into_future())?;

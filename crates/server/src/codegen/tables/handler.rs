@@ -18,12 +18,8 @@ pub trait TableHandler: Send + Sync + 'static {
         &self,
         request: CreateTableRequest,
         context: RequestContext,
-    ) -> Result<TableInfo>;
-    async fn get_table(
-        &self,
-        request: GetTableRequest,
-        context: RequestContext,
-    ) -> Result<TableInfo>;
+    ) -> Result<Table>;
+    async fn get_table(&self, request: GetTableRequest, context: RequestContext) -> Result<Table>;
     async fn get_table_exists(
         &self,
         request: GetTableExistsRequest,

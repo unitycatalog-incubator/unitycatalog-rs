@@ -11,7 +11,7 @@ use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, Recipient};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
 use unitycatalog_common::models::shares::v1::Share;
-use unitycatalog_common::models::tables::v1::TableInfo;
+use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
@@ -114,7 +114,7 @@ impl PyUnityCatalogClient {
         omit_username: Option<bool>,
         include_browse: Option<bool>,
         include_manifest_capabilities: Option<bool>,
-    ) -> PyUnityCatalogResult<Vec<TableInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Table>> {
         let stream = self
             .0
             .list_tables(catalog_name, schema_name)

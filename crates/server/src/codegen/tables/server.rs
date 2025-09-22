@@ -27,7 +27,7 @@ pub async fn create_table<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: CreateTableRequest,
-) -> Result<::axum::Json<TableInfo>> {
+) -> Result<::axum::Json<Table>> {
     let context = RequestContext { recipient };
     let result = handler.create_table(request, context).await?;
     Ok(axum::Json(result))
@@ -36,7 +36,7 @@ pub async fn get_table<T: TableHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: GetTableRequest,
-) -> Result<::axum::Json<TableInfo>> {
+) -> Result<::axum::Json<Table>> {
     let context = RequestContext { recipient };
     let result = handler.get_table(request, context).await?;
     Ok(axum::Json(result))

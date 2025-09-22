@@ -42,9 +42,9 @@ pub mod resource {
         #[prost(message, tag = "7")]
         SchemaInfo(super::super::schemas::v1::SchemaInfo),
         #[prost(message, tag = "8")]
-        TableInfo(super::super::tables::v1::TableInfo),
+        Table(super::super::tables::v1::Table),
         #[prost(message, tag = "9")]
-        ColumnInfo(super::super::tables::v1::ColumnInfo),
+        Column(super::super::tables::v1::Column),
         #[prost(message, tag = "10")]
         ExternalLocationInfo(super::super::external_locations::v1::ExternalLocationInfo),
         #[prost(message, tag = "11")]

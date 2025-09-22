@@ -10,7 +10,7 @@ pub use recipients::v1::Recipient;
 pub use resources::*;
 pub use schemas::v1::SchemaInfo;
 pub use shares::v1::Share;
-pub use tables::v1::{ColumnInfo, TableInfo};
+pub use tables::v1::{Column, Table};
 pub use volumes::v1::{Volume, VolumeType};
 
 mod object;
@@ -101,10 +101,10 @@ impl ObjectLabel {
             ObjectLabel::Credential => ResourceIdent::credential(id),
             ObjectLabel::CatalogInfo => ResourceIdent::catalog(id),
             ObjectLabel::SchemaInfo => ResourceIdent::schema(id),
-            ObjectLabel::TableInfo => ResourceIdent::table(id),
+            ObjectLabel::Table => ResourceIdent::table(id),
             ObjectLabel::ExternalLocationInfo => ResourceIdent::external_location(id),
             ObjectLabel::Recipient => ResourceIdent::recipient(id),
-            ObjectLabel::ColumnInfo => ResourceIdent::column(id),
+            ObjectLabel::Column => ResourceIdent::column(id),
         }
     }
 }

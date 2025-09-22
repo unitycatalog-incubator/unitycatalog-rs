@@ -106,14 +106,14 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         // TODO: handle like operators for schema and table name
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::TableInfo,
+                &ObjectLabel::Table,
                 Some(&ResourceName::new([&request.catalog_name])),
                 request.max_results.map(|v| v as usize),
                 request.page_token,
             )
             .await?;
         process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
-        let infos: Vec<TableInfo> = resources.into_iter().map(|r| r.try_into()).try_collect()?;
+        let infos: Vec<Table> = resources.into_iter().map(|r| r.try_into()).try_collect()?;
         Ok(ListTableSummariesResponse {
             tables: infos.into_iter().map(|r| r.into()).collect(),
             next_page_token,
@@ -130,7 +130,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         // TODO: handle like operators for schema and table name
         let (mut resources, next_page_token) = self
             .list(
-                &ObjectLabel::TableInfo,
+                &ObjectLabel::Table,
                 Some(&ResourceName::new([
                     &request.catalog_name,
                     &request.schema_name,
@@ -152,7 +152,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         &self,
         request: CreateTableRequest,
         context: RequestContext,
-    ) -> Result<TableInfo> {
+    ) -> Result<Table> {
         self.check_required(&request, context.as_ref()).await?;
         let info = if request.table_type == TableType::External as i32 {
             let Some(location) = request.storage_location.as_ref() else {
@@ -162,7 +162,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
             let snapshot = self
                 .read_snapshot(&location, &request.data_source_format(), None)
                 .await?;
-            TableInfo {
+            Table {
                 name: request.name,
                 catalog_name: request.catalog_name,
                 schema_name: request.schema_name,
@@ -178,7 +178,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
                 ..Default::default()
             }
         } else {
-            TableInfo {
+            Table {
                 name: request.name,
                 catalog_name: request.catalog_name,
                 schema_name: request.schema_name,
@@ -196,11 +196,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         Ok(self.create(info.into()).await?.0.try_into()?)
     }
 
-    async fn get_table(
-        &self,
-        request: GetTableRequest,
-        context: RequestContext,
-    ) -> Result<TableInfo> {
+    async fn get_table(&self, request: GetTableRequest, context: RequestContext) -> Result<Table> {
         self.check_required(&request, context.as_ref()).await?;
         // TODO: get columns etc ...
         Ok(self.get(&request.resource()).await?.0.try_into()?)
@@ -287,13 +283,13 @@ impl FieldExt for StructField {
     }
 }
 
-fn schema_to_columns(schema: &Schema, partition_columns: &[String]) -> Result<Vec<ColumnInfo>> {
+fn schema_to_columns(schema: &Schema, partition_columns: &[String]) -> Result<Vec<Column>> {
     let partition_index = |name: &str| partition_columns.iter().position(|n| n == name);
     schema
         .fields()
         .enumerate()
         .map(|(idx, f)| {
-            Ok(ColumnInfo {
+            Ok(Column {
                 name: f.name.clone(),
                 nullable: Some(f.nullable),
                 type_text: f.type_text(),

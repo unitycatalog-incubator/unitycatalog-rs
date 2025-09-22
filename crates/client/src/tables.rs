@@ -75,7 +75,7 @@ impl TableClientBase {
         omit_username: impl Into<Option<bool>>,
         include_browse: impl Into<Option<bool>>,
         include_manifest_capabilities: impl Into<Option<bool>>,
-    ) -> BoxStream<'_, Result<TableInfo>> {
+    ) -> BoxStream<'_, Result<Table>> {
         let max_results = max_results.into();
         let catalog_name = catalog_name.into();
         let schema_name = schema_name.into();

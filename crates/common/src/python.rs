@@ -11,7 +11,7 @@ use crate::models::schemas::v1::SchemaInfo;
 use crate::models::shares::v1::{
     Action as ShareUpdateAction, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, Share,
 };
-use crate::models::tables::v1::{ColumnInfo, TableInfo};
+use crate::models::tables::v1::{Column, Table};
 
 #[pymethods]
 impl AzureStorageKey {
@@ -211,10 +211,10 @@ impl SchemaInfo {
 }
 
 #[pymethods]
-impl TableInfo {
+impl Table {
     pub fn __repr__(&self) -> String {
         format!(
-            "TableInfo(name={}, catalog_name={}, schema_name={}, table_type={}, data_source_format={}, comment={}, owner={}, storage_location={}, created_at={}, created_by={}, updated_at={}, updated_by={}, table_id={})",
+            "Table(name={}, catalog_name={}, schema_name={}, table_type={}, data_source_format={}, comment={}, owner={}, storage_location={}, created_at={}, created_by={}, updated_at={}, updated_by={}, table_id={})",
             self.name,
             self.catalog_name,
             self.schema_name,
@@ -237,10 +237,10 @@ impl TableInfo {
 }
 
 #[pymethods]
-impl ColumnInfo {
+impl Column {
     pub fn __repr__(&self) -> String {
         format!(
-            "ColumnInfo(name={}, type_text={}, type_json={}, type_name={}, type_precision={}, type_scale={}, type_interval_type={}, position={}, comment={}, nullable={}, partition_index={})",
+            "Column(name={}, type_text={}, type_json={}, type_name={}, type_precision={}, type_scale={}, type_interval_type={}, position={}, comment={}, nullable={}, partition_index={})",
             self.name,
             self.type_text,
             self.type_json,

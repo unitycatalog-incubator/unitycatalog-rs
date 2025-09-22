@@ -34,13 +34,13 @@ pub mod tables_service_server {
         async fn create_table(
             &self,
             request: tonic::Request<super::CreateTableRequest>,
-        ) -> std::result::Result<tonic::Response<super::TableInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Table>, tonic::Status>;
         /** Get a table
          */
         async fn get_table(
             &self,
             request: tonic::Request<super::GetTableRequest>,
-        ) -> std::result::Result<tonic::Response<super::TableInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Table>, tonic::Status>;
         /** Get boolean reflecting if table exists
          */
         async fn get_table_exists(
@@ -215,7 +215,7 @@ pub mod tables_service_server {
                     impl<T: TablesService> tonic::server::UnaryService<super::CreateTableRequest>
                         for CreateTableSvc<T>
                     {
-                        type Response = super::TableInfo;
+                        type Response = super::Table;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
@@ -254,7 +254,7 @@ pub mod tables_service_server {
                     #[allow(non_camel_case_types)]
                     struct GetTableSvc<T: TablesService>(pub Arc<T>);
                     impl<T: TablesService> tonic::server::UnaryService<super::GetTableRequest> for GetTableSvc<T> {
-                        type Response = super::TableInfo;
+                        type Response = super::Table;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,

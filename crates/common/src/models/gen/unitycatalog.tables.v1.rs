@@ -13,7 +13,7 @@ pub struct TableSummary {
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ColumnInfo {
+pub struct Column {
     /// Name of the column
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -54,7 +54,7 @@ pub struct ColumnInfo {
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TableInfo {
+pub struct Table {
     /// Name of table, relative to parent schema.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -69,9 +69,9 @@ pub struct TableInfo {
     /// Data source format of the table.
     #[prost(enumeration = "DataSourceFormat", tag = "5")]
     pub data_source_format: i32,
-    /// The array of ColumnInfo definitions of the table's columns.
+    /// The array of Column definitions of the table's columns.
     #[prost(message, repeated, tag = "6")]
-    pub columns: ::prost::alloc::vec::Vec<ColumnInfo>,
+    pub columns: ::prost::alloc::vec::Vec<Column>,
     /// Storage root URL for table (for MANAGED, EXTERNAL tables)
     #[prost(string, optional, tag = "7")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
@@ -373,7 +373,7 @@ pub struct ListTablesRequest {
 pub struct ListTablesResponse {
     /// The tables returned.
     #[prost(message, repeated, tag = "1")]
-    pub tables: ::prost::alloc::vec::Vec<TableInfo>,
+    pub tables: ::prost::alloc::vec::Vec<Table>,
     /// The next_page_token value to include in the next List request.
     #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
@@ -398,9 +398,9 @@ pub struct CreateTableRequest {
     pub table_type: i32,
     #[prost(enumeration = "DataSourceFormat", tag = "5")]
     pub data_source_format: i32,
-    /// The array of ColumnInfo definitions of the table's columns.
+    /// The array of Column definitions of the table's columns.
     #[prost(message, repeated, tag = "6")]
-    pub columns: ::prost::alloc::vec::Vec<ColumnInfo>,
+    pub columns: ::prost::alloc::vec::Vec<Column>,
     /// Storage root URL for external table.
     #[prost(string, optional, tag = "7")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,

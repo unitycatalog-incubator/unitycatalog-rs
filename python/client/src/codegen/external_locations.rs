@@ -1,7 +1,6 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
-use std::collections::HashMap;
 use unitycatalog_client::ExternalLocationClient;
 use unitycatalog_common::models::external_locations::v1::*;
 #[pyclass(name = "ExternalLocationClient")]
@@ -11,7 +10,7 @@ pub struct PyExternalLocationClient {
 #[pymethods]
 impl PyExternalLocationClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocationInfo> {
-        let mut request = self.client.get();
+        let request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

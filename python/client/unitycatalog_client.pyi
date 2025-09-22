@@ -99,7 +99,7 @@ class TableType(enum.Enum):
     Managed = 1
     External = 2
 
-class ColumnInfo:
+class Column:
     name: str
     type_text: str
     type_json: str
@@ -117,13 +117,13 @@ class TableSummary:
     full_name: str
     table_type: TableType
 
-class TableInfo:
+class Table:
     name: str
     schema_name: str
     catalog_name: str
     table_type: TableType
     data_source_format: DataSourceFormat
-    columns: list[ColumnInfo]
+    columns: list[Column]
     storage_location: str | None
     owner: str | None
     comment: str | None
@@ -371,7 +371,7 @@ class TableClient:
         include_delta_metadata: bool | None = None,
         include_browse: bool | None = None,
         include_manifest_capabilities: bool | None = None,
-    ) -> TableInfo: ...
+    ) -> Table: ...
     def delete(self) -> None: ...
 
 class SchemaClient:
@@ -390,11 +390,11 @@ class SchemaClient:
         table_name: str,
         table_type: TableType,
         data_source_format: DataSourceFormat,
-        columns: list[ColumnInfo],
+        columns: list[Column],
         storage_location: str | None = None,
         comment: str | None = None,
         properties: dict[str, str] | None = None,
-    ) -> TableInfo:
+    ) -> Table:
         """Create a new table in this schema.
 
         Args:
@@ -407,7 +407,7 @@ class SchemaClient:
             properties: A map of key-value properties attached to the table.
 
         Returns:
-            The created TableInfo object.
+            The created Table object.
         """
     def update(
         self,
@@ -538,7 +538,7 @@ class PyUnityCatalogClient:
         omit_columns: bool | None = None,
         omit_properties: bool | None = None,
         omit_username: bool | None = None,
-    ) -> list[TableInfo]: ...
+    ) -> list[Table]: ...
     def table(self, full_name: str) -> TableClient: ...
 
     # Share methods

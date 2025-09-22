@@ -6,8 +6,8 @@ use super::ExternalLocationInfo;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    CatalogInfo, ColumnInfo, Credential, ObjectLabel, Recipient, Resource, ResourceExt,
-    ResourceName, ResourceRef, SchemaInfo, Share, TableInfo,
+    CatalogInfo, Column, Credential, ObjectLabel, Recipient, Resource, ResourceExt, ResourceName,
+    ResourceRef, SchemaInfo, Share, Table,
 };
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
@@ -52,10 +52,10 @@ impl ResourceExt for Resource {
             Resource::Credential(_) => &ObjectLabel::Credential,
             Resource::CatalogInfo(_) => &ObjectLabel::CatalogInfo,
             Resource::SchemaInfo(_) => &ObjectLabel::SchemaInfo,
-            Resource::TableInfo(_) => &ObjectLabel::TableInfo,
+            Resource::Table(_) => &ObjectLabel::Table,
             Resource::ExternalLocationInfo(_) => &ObjectLabel::ExternalLocationInfo,
             Resource::Recipient(_) => &ObjectLabel::Recipient,
-            Resource::ColumnInfo(_) => &ObjectLabel::ColumnInfo,
+            Resource::Column(_) => &ObjectLabel::Column,
         }
     }
 
@@ -65,10 +65,10 @@ impl ResourceExt for Resource {
             Resource::Credential(obj) => obj.resource_name(),
             Resource::CatalogInfo(obj) => obj.resource_name(),
             Resource::SchemaInfo(obj) => obj.resource_name(),
-            Resource::TableInfo(obj) => obj.resource_name(),
+            Resource::Table(obj) => obj.resource_name(),
             Resource::ExternalLocationInfo(obj) => obj.resource_name(),
             Resource::Recipient(obj) => obj.resource_name(),
-            Resource::ColumnInfo(obj) => obj.resource_name(),
+            Resource::Column(obj) => obj.resource_name(),
         }
     }
 
@@ -78,10 +78,10 @@ impl ResourceExt for Resource {
             Resource::Credential(obj) => obj.resource_ref(),
             Resource::CatalogInfo(obj) => obj.resource_ref(),
             Resource::SchemaInfo(obj) => obj.resource_ref(),
-            Resource::TableInfo(obj) => obj.resource_ref(),
+            Resource::Table(obj) => obj.resource_ref(),
             Resource::ExternalLocationInfo(obj) => obj.resource_ref(),
             Resource::Recipient(obj) => obj.resource_ref(),
-            Resource::ColumnInfo(obj) => obj.resource_ref(),
+            Resource::Column(obj) => obj.resource_ref(),
         }
     }
 }
@@ -95,10 +95,10 @@ impl TryFrom<Resource> for Object {
             Resource::Credential(obj) => obj.try_into(),
             Resource::CatalogInfo(obj) => obj.try_into(),
             Resource::SchemaInfo(obj) => obj.try_into(),
-            Resource::TableInfo(obj) => obj.try_into(),
+            Resource::Table(obj) => obj.try_into(),
             Resource::ExternalLocationInfo(obj) => obj.try_into(),
             Resource::Recipient(obj) => obj.try_into(),
-            Resource::ColumnInfo(obj) => obj.try_into(),
+            Resource::Column(obj) => obj.try_into(),
         }
     }
 }
@@ -112,18 +112,18 @@ impl TryFrom<Object> for Resource {
             ObjectLabel::Credential => Ok(Resource::Credential(obj.try_into()?)),
             ObjectLabel::CatalogInfo => Ok(Resource::CatalogInfo(obj.try_into()?)),
             ObjectLabel::SchemaInfo => Ok(Resource::SchemaInfo(obj.try_into()?)),
-            ObjectLabel::TableInfo => Ok(Resource::TableInfo(obj.try_into()?)),
+            ObjectLabel::Table => Ok(Resource::Table(obj.try_into()?)),
             ObjectLabel::ExternalLocationInfo => {
                 Ok(Resource::ExternalLocationInfo(obj.try_into()?))
             }
             ObjectLabel::Recipient => Ok(Resource::Recipient(obj.try_into()?)),
-            ObjectLabel::ColumnInfo => Ok(Resource::ColumnInfo(obj.try_into()?)),
+            ObjectLabel::Column => Ok(Resource::Column(obj.try_into()?)),
         }
     }
 }
 
-impl From<TableInfo> for TableSummary {
-    fn from(table: TableInfo) -> Self {
+impl From<Table> for TableSummary {
+    fn from(table: Table) -> Self {
         TableSummary {
             table_type: table.table_type,
             full_name: table.full_name,
@@ -136,8 +136,8 @@ object_conversions!(
     Share, ObjectLabel::Share, id, [name], true;
     CatalogInfo, ObjectLabel::CatalogInfo, id, [name], true;
     SchemaInfo, ObjectLabel::SchemaInfo, schema_id, [catalog_name, name], true;
-    TableInfo, ObjectLabel::TableInfo, table_id, [catalog_name, schema_name, name], true;
-    ColumnInfo, ObjectLabel::ColumnInfo, column_id, [name], true;
+    Table, ObjectLabel::Table, table_id, [catalog_name, schema_name, name], true;
+    Column, ObjectLabel::Column, column_id, [name], true;
     Credential, ObjectLabel::Credential, id, [name], true;
     Recipient, ObjectLabel::Recipient, id, [name], true;
 );

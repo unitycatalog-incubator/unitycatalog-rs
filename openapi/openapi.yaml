@@ -1132,7 +1132,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TableInfo"
+                $ref: "#/components/schemas/Table"
         default:
           description: Default error response
           content:
@@ -1175,7 +1175,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TableInfo"
+                $ref: "#/components/schemas/Table"
         default:
           description: Default error response
           content:
@@ -1594,7 +1594,7 @@ components:
         - name
       title: Catalog Info
       type: object
-    ColumnInfo:
+    Column:
       additionalProperties: false
       properties:
         column_id:
@@ -1671,7 +1671,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     CreateCatalogRequest:
       additionalProperties: false
@@ -1924,7 +1924,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     CreateVolumeRequest:
       additionalProperties: false
@@ -2542,7 +2542,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     ListVolumesResponse:
       additionalProperties: false
@@ -2832,7 +2832,7 @@ components:
         including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three
         pieces of data: error code, error message, and error details. You can find out more about this error model and how
         to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."
-    TableInfo:
+    Table:
       additionalProperties: false
       properties:
         column_id:
@@ -2909,7 +2909,7 @@ components:
         - type_text
         - type_json
         - type_name
-      title: Column Info
+      title: Column
       type: object
     TableSummary:
       additionalProperties: false

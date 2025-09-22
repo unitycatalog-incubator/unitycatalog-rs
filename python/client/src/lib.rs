@@ -14,7 +14,7 @@ use unitycatalog_common::models::shares::v1::{
     Action, DataObject, DataObjectType, DataObjectUpdate, HistoryStatus, Share,
 };
 use unitycatalog_common::models::tables::v1::{
-    ColumnInfo, ColumnTypeName, DataSourceFormat, TableInfo, TableType,
+    Column, ColumnTypeName, DataSourceFormat, Table, TableType,
 };
 use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
@@ -43,9 +43,9 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<DataObjectType>()?;
     m.add_class::<HistoryStatus>()?;
     m.add_class::<Action>()?;
-    m.add_class::<TableInfo>()?;
+    m.add_class::<Table>()?;
     m.add_class::<TableType>()?;
-    m.add_class::<ColumnInfo>()?;
+    m.add_class::<Column>()?;
     m.add_class::<ColumnTypeName>()?;
     m.add_class::<DataSourceFormat>()?;
     m.add_class::<Volume>()?;

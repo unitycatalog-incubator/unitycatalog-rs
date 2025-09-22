@@ -25,11 +25,11 @@ impl serde::Serialize for Resource {
                 resource::Resource::SchemaInfo(v) => {
                     struct_ser.serialize_field("schema_info", v)?;
                 }
-                resource::Resource::TableInfo(v) => {
-                    struct_ser.serialize_field("table_info", v)?;
+                resource::Resource::Table(v) => {
+                    struct_ser.serialize_field("table", v)?;
                 }
-                resource::Resource::ColumnInfo(v) => {
-                    struct_ser.serialize_field("column_info", v)?;
+                resource::Resource::Column(v) => {
+                    struct_ser.serialize_field("column", v)?;
                 }
                 resource::Resource::ExternalLocationInfo(v) => {
                     struct_ser.serialize_field("external_location_info", v)?;
@@ -55,10 +55,8 @@ impl<'de> serde::Deserialize<'de> for Resource {
             "catalogInfo",
             "schema_info",
             "schemaInfo",
-            "table_info",
-            "tableInfo",
-            "column_info",
-            "columnInfo",
+            "table",
+            "column",
             "external_location_info",
             "externalLocationInfo",
             "recipient",
@@ -70,8 +68,8 @@ impl<'de> serde::Deserialize<'de> for Resource {
             Credential,
             CatalogInfo,
             SchemaInfo,
-            TableInfo,
-            ColumnInfo,
+            Table,
+            Column,
             ExternalLocationInfo,
             Recipient,
             __SkipField__,
@@ -103,8 +101,8 @@ impl<'de> serde::Deserialize<'de> for Resource {
                             "credential" => Ok(GeneratedField::Credential),
                             "catalogInfo" | "catalog_info" => Ok(GeneratedField::CatalogInfo),
                             "schemaInfo" | "schema_info" => Ok(GeneratedField::SchemaInfo),
-                            "tableInfo" | "table_info" => Ok(GeneratedField::TableInfo),
-                            "columnInfo" | "column_info" => Ok(GeneratedField::ColumnInfo),
+                            "table" => Ok(GeneratedField::Table),
+                            "column" => Ok(GeneratedField::Column),
                             "externalLocationInfo" | "external_location_info" => {
                                 Ok(GeneratedField::ExternalLocationInfo)
                             }
@@ -163,21 +161,21 @@ impl<'de> serde::Deserialize<'de> for Resource {
                                 .next_value::<::std::option::Option<_>>()?
                                 .map(resource::Resource::SchemaInfo);
                         }
-                        GeneratedField::TableInfo => {
+                        GeneratedField::Table => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("tableInfo"));
+                                return Err(serde::de::Error::duplicate_field("table"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::TableInfo);
+                                .map(resource::Resource::Table);
                         }
-                        GeneratedField::ColumnInfo => {
+                        GeneratedField::Column => {
                             if resource__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("columnInfo"));
+                                return Err(serde::de::Error::duplicate_field("column"));
                             }
                             resource__ = map_
                                 .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ColumnInfo);
+                                .map(resource::Resource::Column);
                         }
                         GeneratedField::ExternalLocationInfo => {
                             if resource__.is_some() {
