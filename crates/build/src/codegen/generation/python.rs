@@ -275,7 +275,7 @@ fn resource_method_parameters(method: &MethodHandler<'_>) -> Vec<TokenStream> {
 
     // Add required query parameters
     for query_param in method.plan.query_parameters() {
-        if !query_param.optional {
+        if !query_param.is_optional() {
             let param_name = format_ident!("{}", query_param.name);
             let rust_type =
                 method.field_type(&query_param.field_type, RenderContext::PythonParameter);
@@ -295,7 +295,7 @@ fn resource_method_parameters(method: &MethodHandler<'_>) -> Vec<TokenStream> {
 
     // Add optional query parameters
     for query_param in method.plan.query_parameters() {
-        if query_param.optional {
+        if query_param.is_optional() {
             let param_name = format_ident!("{}", query_param.name);
             let rust_type =
                 method.field_type(&query_param.field_type, RenderContext::PythonParameter);
@@ -329,7 +329,7 @@ fn generate_param_definitions(method: &MethodHandler<'_>, is_list: bool) -> Vec<
 
     // Add required query parameters (non-optional)
     for query_param in method.plan.query_parameters() {
-        if !query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
+        if !query_param.is_optional() && !(is_list && query_param.name.as_str() == "page_token") {
             let param_name = format_ident!("{}", query_param.name);
             let rust_type =
                 method.field_type(&query_param.field_type, RenderContext::PythonParameter);
@@ -339,7 +339,7 @@ fn generate_param_definitions(method: &MethodHandler<'_>, is_list: bool) -> Vec<
 
     // Add optional query parameters
     for query_param in method.plan.query_parameters() {
-        if query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
+        if query_param.is_optional() && !(is_list && query_param.name.as_str() == "page_token") {
             let param_name = format_ident!("{}", query_param.name);
             let rust_type =
                 method.field_type(&query_param.field_type, RenderContext::PythonParameter);
@@ -378,7 +378,7 @@ fn generate_pyo3_signature(method: &MethodHandler<'_>, is_list: bool) -> TokenSt
 
     // Required query parameters (no default values)
     for query_param in method.plan.query_parameters() {
-        if !query_param.optional && !(is_list && query_param.name == "page_token") {
+        if !query_param.is_optional() && !(is_list && query_param.name == "page_token") {
             signature_parts.push(query_param.name.clone());
         }
     }
@@ -392,7 +392,7 @@ fn generate_pyo3_signature(method: &MethodHandler<'_>, is_list: bool) -> TokenSt
 
     // Optional query parameters with defaults - exclude page_token for list methods
     for query_param in method.plan.query_parameters() {
-        if query_param.optional && !(is_list && query_param.name == "page_token") {
+        if query_param.is_optional() && !(is_list && query_param.name == "page_token") {
             signature_parts.push(format!("{} = None", query_param.name));
         }
     }
@@ -425,7 +425,7 @@ fn generate_pyo3_signature_for_resource(method: &MethodHandler<'_>) -> TokenStre
 
     // Required query parameters (no default values)
     for query_param in method.plan.query_parameters() {
-        if !query_param.optional {
+        if !query_param.is_optional() {
             signature_parts.push(query_param.name.clone());
         }
     }
@@ -439,7 +439,7 @@ fn generate_pyo3_signature_for_resource(method: &MethodHandler<'_>) -> TokenStre
 
     // Optional query parameters with defaults
     for query_param in method.plan.query_parameters() {
-        if query_param.optional {
+        if query_param.is_optional() {
             signature_parts.push(format!("{} = None", query_param.name));
         }
     }
@@ -477,7 +477,7 @@ fn inner_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> Tok
 
     // Add required query parameters
     for query_param in method.plan.query_parameters() {
-        if !query_param.optional {
+        if !query_param.is_optional() {
             let param_name = format_ident!("{}", query_param.name);
             args.push(quote! { #param_name });
         }
@@ -494,7 +494,7 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
 
     // Optional parameters become builder calls
     for query_param in method.plan.query_parameters() {
-        if query_param.optional && !(is_list && query_param.name == "page_token") {
+        if query_param.is_optional() && !(is_list && query_param.name == "page_token") {
             let param_name =
                 format_ident!("{}", strings::operation_to_method_name(&query_param.name));
             let with_method = format_ident!("with_{}", query_param.name);

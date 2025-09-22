@@ -209,8 +209,6 @@ impl MethodHandler<'_> {
         CONVERTER.field_assignment(field_type, field_ident, ctx)
     }
 
-    /// Get flexible field assignment for optional fields using impl Into<Option<T>>
-
     /// Analyze request fields to separate required from optional
     pub(crate) fn analyze_request_fields(&self) -> (Vec<&MessageField>, Vec<&MessageField>) {
         let fields = &self.plan.metadata.input_fields;

@@ -39,12 +39,13 @@
 use std::collections::HashSet;
 
 use convert_case::{Case, Casing};
+use tracing::warn;
 
 use crate::analysis::messages::MessageRegistry;
 use crate::parsing::types::BaseType;
 use crate::parsing::{
     CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo, extract_http_rule_pattern,
-    find_matching_field_for_path_param, should_be_body_field,
+    should_be_body_field,
 };
 use crate::utils::strings;
 
@@ -84,7 +85,7 @@ fn analyze_service(
         if let Some(method_plan) = analyze_method(registry, method)? {
             method_plans.push(method_plan);
         } else {
-            println!(
+            warn!(
                 "Skipping method {}.{} - incomplete metadata",
                 info.name, method.method_name
             );
@@ -108,10 +109,10 @@ pub fn analyze_method(
     registry: &MessageRegistry<'_>,
     method: &MethodMetadata,
 ) -> Result<Option<MethodPlan>, Box<dyn std::error::Error>> {
-    let (http_method, http_path) = match method.http_info() {
+    let (http_method, _http_path) = match method.http_info() {
         Some(info) => info,
         None => {
-            println!(
+            warn!(
                 "Method {}.{} missing HTTP info",
                 method.service_name, method.method_name
             );
@@ -121,7 +122,6 @@ pub fn analyze_method(
 
     let planner = MethodPlanner::try_new(method, registry)?;
 
-    // Determine if method has response
     let request_type = planner.request_type();
 
     // Extract parameters based on HTTP rule
@@ -140,16 +140,11 @@ pub fn analyze_method(
         metadata: method.clone(),
         handler_function_name: method.method_name.to_case(Case::Snake),
         http_method,
-        http_path,
         parameters,
-        path_params,
-        query_params,
-        body_fields,
         has_response: planner.has_response(),
         request_type,
-        is_collection_client_method: planner.is_collection_client_method(),
-        returns_resource: planner.returns_resource(),
         output_resource_type: planner.output_resource_type(),
+        http_pattern: planner.path,
     };
 
     Ok(Some(method_plan))
@@ -176,10 +171,9 @@ fn extract_request_fields(
 
     // First, add path parameters in URL order
     for path_param_name in &path_param_names_ordered {
-        let field = find_matching_field_for_path_param(path_param_name, input_fields);
+        let field = input_fields.iter().find(|f| &f.name == path_param_name);
         if let Some(field) = field {
             path_params.push(PathParam {
-                template_param: path_param_name.clone(),
                 field_name: field.name.clone(),
                 field_type: field.unified_type.clone(),
             });
@@ -219,7 +213,6 @@ fn extract_request_fields(
         } else {
             query_params.push(QueryParam {
                 name: field_name.clone(),
-                optional: field.optional,
                 field_type: field.unified_type.clone(),
             });
         }

@@ -5,7 +5,7 @@ use syn::{Path, Type};
 
 use super::format_tokens;
 use crate::{
-    analysis::{BodyField, MethodPlan, PathParam, QueryParam, RequestParam, RequestType},
+    analysis::{MethodPlan, RequestParam, RequestType},
     codegen::{MethodHandler, ServiceHandler},
     google::api::http_rule::Pattern,
     parsing::{RenderContext, types::BaseType},
@@ -116,7 +116,7 @@ fn from_request_parts_impl(method: &MethodHandler<'_>) -> TokenStream {
     let input_type = method.input_type();
     let path_extractions = path_extractions(method, false);
     let query_extractions = query_extractions(method);
-    let field_assignments = field_assignments_plain(method.plan);
+    let field_assignments = field_assignments(method.plan);
 
     quote! {
         impl<S: Send + Sync> axum::extract::FromRequestParts<S> for #input_type {
@@ -186,13 +186,8 @@ fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
 
     if has_oneof_fields {
         // Use mixed body extraction for oneof fields
-        let body_extractions =
-            generate_mixed_body_extractions_tokens(&method.plan.body_fields, &input_type);
-        let field_assignments = generate_mixed_field_assignments_tokens(
-            &method.plan.path_params,
-            &method.plan.query_params,
-            &method.plan.body_fields,
-        );
+        let body_extractions = generate_body_extractions_tokens(method.plan, &input_type);
+        let field_assignments = field_assignments(method.plan);
 
         quote! {
             impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
@@ -219,9 +214,8 @@ fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
         }
     } else {
         // Use traditional destructuring for regular fields
-        let body_extractions =
-            generate_body_extractions_tokens(&method.plan.body_fields, &input_type);
-        let field_assignments = field_assignments_plain(method.plan);
+        let body_extractions = generate_body_extractions_tokens(method.plan, &input_type);
+        let field_assignments = field_assignments(method.plan);
 
         quote! {
             impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
@@ -291,7 +285,7 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
         let query_fields = params.iter().map(|p| {
             let name = format_ident!("{}", p.name);
             let type_tokens = method.field_type(&p.field_type, RenderContext::Extractor);
-            if p.optional {
+            if p.is_optional() {
                 quote! { #[serde(default)] #name: #type_tokens }
             } else {
                 quote! { #name: #type_tokens }
@@ -311,7 +305,7 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate field assignments for request struct construction as TokenStream
-fn field_assignments_plain(method: &MethodPlan) -> TokenStream {
+fn field_assignments(method: &MethodPlan) -> TokenStream {
     let assignments = method.parameters.iter().map(|param| {
         let ident = param.field_ident();
         quote! { #ident }
@@ -320,23 +314,11 @@ fn field_assignments_plain(method: &MethodPlan) -> TokenStream {
 }
 
 /// Generate body parameter extractions as TokenStream
-fn generate_body_extractions_tokens(
-    body_fields: &[BodyField],
-    response_type: &Ident,
-) -> TokenStream {
+fn generate_body_extractions_tokens(method: &MethodPlan, response_type: &Ident) -> TokenStream {
+    let body_fields = method.body_fields().collect_vec();
     if body_fields.is_empty() {
         quote! {}
-    } else if body_fields.len() == 1 {
-        // Single body field - extract directly
-        let field_name = format_ident!("{}", body_fields[0].name);
-        quote! {
-            let axum::extract::Json(#field_name) = body_req
-                .extract()
-                .await
-                .map_err(axum::response::IntoResponse::into_response)?;
-        }
     } else {
-        // Multiple body fields - extract as a struct and destructure
         let field_names: Vec<_> = body_fields
             .iter()
             .map(|f| format_ident!("{}", f.name))
@@ -351,48 +333,4 @@ fn generate_body_extractions_tokens(
             );
         }
     }
-}
-
-/// Generate body parameter extractions for mixed fields (including oneof) as TokenStream
-fn generate_mixed_body_extractions_tokens(
-    body_fields: &[BodyField],
-    response_type: &Ident,
-) -> TokenStream {
-    if body_fields.is_empty() {
-        quote! {}
-    } else {
-        // Extract the full request body as a struct
-        quote! {
-            let axum::extract::Json::<#response_type>(body) = body_req
-                .extract()
-                .await
-                .map_err(axum::response::IntoResponse::into_response)?;
-        }
-    }
-}
-
-/// Generate field assignments for mixed fields (including oneof) as TokenStream
-fn generate_mixed_field_assignments_tokens(
-    path_params: &[PathParam],
-    query_params: &[QueryParam],
-    body_fields: &[BodyField],
-) -> TokenStream {
-    let mut assignments = Vec::new();
-
-    for param in path_params {
-        let name = format_ident!("{}", param.field_name);
-        assignments.push(quote! { #name });
-    }
-
-    for param in query_params {
-        let name = format_ident!("{}", param.name);
-        assignments.push(quote! { #name });
-    }
-
-    for field in body_fields {
-        let name = format_ident!("{}", field.name);
-        assignments.push(quote! { #name: body.#name });
-    }
-
-    quote! { #(#assignments,)* }
 }
