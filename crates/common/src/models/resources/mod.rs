@@ -148,7 +148,7 @@ impl AsRef<ObjectLabel> for ResourceIdent {
     fn as_ref(&self) -> &ObjectLabel {
         match self {
             ResourceIdent::Share(_) => &ObjectLabel::Share,
-            ResourceIdent::Credential(_) => &ObjectLabel::CredentialInfo,
+            ResourceIdent::Credential(_) => &ObjectLabel::Credential,
             ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocationInfo,
             ResourceIdent::Catalog(_) => &ObjectLabel::CatalogInfo,
             ResourceIdent::Schema(_) => &ObjectLabel::SchemaInfo,

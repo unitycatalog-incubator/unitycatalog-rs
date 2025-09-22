@@ -1,6 +1,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::VolumeClient;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "VolumeClient")]
@@ -42,7 +43,7 @@ impl PyVolumeClient {
         })
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let request = self.client.delete();
+        let mut request = self.client.delete();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             runtime.block_on(request.into_future())?;

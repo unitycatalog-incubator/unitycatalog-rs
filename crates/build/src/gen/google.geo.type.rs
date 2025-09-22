@@ -39,10 +39,10 @@
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct Viewport {
     /// Required. The low point of the viewport.
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub low: ::core::option::Option<super::super::r#type::LatLng>,
     /// Required. The high point of the viewport.
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub high: ::core::option::Option<super::super::r#type::LatLng>,
 }
 // @@protoc_insertion_point(module)

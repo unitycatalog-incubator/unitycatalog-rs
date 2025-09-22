@@ -36,7 +36,7 @@ pub mod resource {
         #[prost(message, tag = "1")]
         Share(super::super::shares::v1::Share),
         #[prost(message, tag = "4")]
-        CredentialInfo(super::super::credentials::v1::CredentialInfo),
+        Credential(super::super::credentials::v1::Credential),
         #[prost(message, tag = "6")]
         CatalogInfo(super::super::catalogs::v1::CatalogInfo),
         #[prost(message, tag = "7")]
@@ -50,20 +50,6 @@ pub mod resource {
         #[prost(message, tag = "11")]
         Recipient(super::super::recipients::v1::Recipient),
     }
-}
-#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ObjectRelations {
-    /// Username of current owner of table.
-    #[prost(string, optional, tag = "1")]
-    pub owner: ::core::option::Option<::prost::alloc::string::String>,
-    /// Username of table creator.
-    #[prost(string, optional, tag = "2")]
-    pub created_by: ::core::option::Option<::prost::alloc::string::String>,
-    /// Username of user who last modified table.
-    #[prost(string, optional, tag = "3")]
-    pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
 }
 include!("unitycatalog.internal.serde.rs");
 // @@protoc_insertion_point(module)

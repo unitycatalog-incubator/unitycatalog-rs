@@ -5,55 +5,55 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VolumeInfo {
     /// Name of volume, relative to parent schema.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Name of parent catalog.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub catalog_name: ::prost::alloc::string::String,
     /// Name of parent schema.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub schema_name: ::prost::alloc::string::String,
     /// The three-level (fully qualified) name of the volume
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub full_name: ::prost::alloc::string::String,
     /// The storage location on the cloud
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub storage_location: ::prost::alloc::string::String,
     /// The unique identifier of the volume
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub volume_id: ::prost::alloc::string::String,
     /// The type of the volume.
     ///
     /// An external volume is located in the specified external location.
     /// A managed volume is located in the default location which is specified
     /// by the parent schema, or the parent catalog, or the Metastore.
-    #[prost(enumeration="VolumeType", tag="7")]
+    #[prost(enumeration = "VolumeType", tag = "7")]
     pub volume_type: i32,
     /// Username of current owner of table.
-    #[prost(string, optional, tag="8")]
+    #[prost(string, optional, tag = "8")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag="9")]
+    #[prost(string, optional, tag = "9")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this catalog was created, in epoch milliseconds.
-    #[prost(int64, optional, tag="1000")]
+    #[prost(int64, optional, tag = "1000")]
     pub created_at: ::core::option::Option<i64>,
     /// Username of catalog creator.
-    #[prost(string, optional, tag="1001")]
+    #[prost(string, optional, tag = "1001")]
     pub created_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this catalog was last updated, in epoch milliseconds.
-    #[prost(int64, optional, tag="1002")]
+    #[prost(int64, optional, tag = "1002")]
     pub updated_at: ::core::option::Option<i64>,
     /// Username of user who last modified catalog.
-    #[prost(string, optional, tag="1003")]
+    #[prost(string, optional, tag = "1003")]
     pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Indicates whether the principal is limited to retrieving metadata
     /// for the associated object through the BROWSE privilege when include_browse
     /// is enabled in the request.
-    #[prost(bool, optional, tag="1004")]
+    #[prost(bool, optional, tag = "1004")]
     pub browse_only: ::core::option::Option<bool>,
     /// The unique identifier of the metastore
-    #[prost(string, optional, tag="1005")]
+    #[prost(string, optional, tag = "1005")]
     pub metastore_id: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass)]
@@ -92,19 +92,19 @@ impl VolumeType {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListVolumesRequest {
     /// The identifier of the catalog
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub catalog_name: ::prost::alloc::string::String,
     /// The identifier of the schema
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub schema_name: ::prost::alloc::string::String,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="3")]
+    #[prost(int32, optional, tag = "3")]
     pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
     /// Whether to include schemas in the response for which the principal can only access selective metadata for
-    #[prost(bool, optional, tag="5")]
+    #[prost(bool, optional, tag = "5")]
     pub include_browse: ::core::option::Option<bool>,
 }
 /// List Schemas response.
@@ -113,13 +113,13 @@ pub struct ListVolumesRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListVolumesResponse {
     /// The volumes returned.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub volumes: ::prost::alloc::vec::Vec<VolumeInfo>,
     /// Opaque token to retrieve the next page of results.
     ///
     /// Absent if there are no more pages. page_token should be set to
     /// this value for the next request to retrieve the next page of results.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Create a new Volume
@@ -128,26 +128,26 @@ pub struct ListVolumesResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateVolumeRequest {
     /// The identifier of the catalog
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub catalog_name: ::prost::alloc::string::String,
     /// The identifier of the schema
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub schema_name: ::prost::alloc::string::String,
     /// The identifier of the volume
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub name: ::prost::alloc::string::String,
     /// The type of the volume.
     ///
     /// An external volume is located in the specified external location.
     /// A managed volume is located in the default location which is specified
     /// by the parent schema, or the parent catalog, or the Metastore.
-    #[prost(enumeration="VolumeType", tag="4")]
+    #[prost(enumeration = "VolumeType", tag = "4")]
     pub volume_type: i32,
     /// The storage location on the cloud
-    #[prost(string, optional, tag="5")]
+    #[prost(string, optional, tag = "5")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
     /// The storage location on the cloud
-    #[prost(string, optional, tag="6")]
+    #[prost(string, optional, tag = "6")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -155,10 +155,10 @@ pub struct CreateVolumeRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetVolumeRequest {
     /// The three-level (fully qualified) name of the volume
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Whether to include schemas in the response for which the principal can only access selective metadata for
-    #[prost(bool, optional, tag="1005")]
+    #[prost(bool, optional, tag = "1005")]
     pub include_browse: ::core::option::Option<bool>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -166,16 +166,16 @@ pub struct GetVolumeRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateVolumeRequest {
     /// The three-level (fully qualified) name of the volume
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// New name for the volume.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub new_name: ::core::option::Option<::prost::alloc::string::String>,
     /// The comment attached to the volume
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// The identifier of the user who owns the volume
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -183,7 +183,7 @@ pub struct UpdateVolumeRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteVolumeRequest {
     /// The three-level (fully qualified) name of the volume
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
 }
 include!("unitycatalog.volumes.v1.serde.rs");

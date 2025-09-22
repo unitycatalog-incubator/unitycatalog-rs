@@ -6,7 +6,7 @@ use super::ExternalLocationInfo;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    CatalogInfo, ColumnInfo, CredentialInfo, ObjectLabel, Recipient, Resource, ResourceExt,
+    CatalogInfo, ColumnInfo, Credential, ObjectLabel, Recipient, Resource, ResourceExt,
     ResourceName, ResourceRef, SchemaInfo, Share, TableInfo,
 };
 
@@ -49,7 +49,7 @@ impl ResourceExt for Resource {
     fn resource_label(&self) -> &ObjectLabel {
         match self {
             Resource::Share(_) => &ObjectLabel::Share,
-            Resource::CredentialInfo(_) => &ObjectLabel::CredentialInfo,
+            Resource::Credential(_) => &ObjectLabel::Credential,
             Resource::CatalogInfo(_) => &ObjectLabel::CatalogInfo,
             Resource::SchemaInfo(_) => &ObjectLabel::SchemaInfo,
             Resource::TableInfo(_) => &ObjectLabel::TableInfo,
@@ -62,7 +62,7 @@ impl ResourceExt for Resource {
     fn resource_name(&self) -> ResourceName {
         match self {
             Resource::Share(obj) => obj.resource_name(),
-            Resource::CredentialInfo(obj) => obj.resource_name(),
+            Resource::Credential(obj) => obj.resource_name(),
             Resource::CatalogInfo(obj) => obj.resource_name(),
             Resource::SchemaInfo(obj) => obj.resource_name(),
             Resource::TableInfo(obj) => obj.resource_name(),
@@ -75,7 +75,7 @@ impl ResourceExt for Resource {
     fn resource_ref(&self) -> ResourceRef {
         match self {
             Resource::Share(obj) => obj.resource_ref(),
-            Resource::CredentialInfo(obj) => obj.resource_ref(),
+            Resource::Credential(obj) => obj.resource_ref(),
             Resource::CatalogInfo(obj) => obj.resource_ref(),
             Resource::SchemaInfo(obj) => obj.resource_ref(),
             Resource::TableInfo(obj) => obj.resource_ref(),
@@ -92,7 +92,7 @@ impl TryFrom<Resource> for Object {
     fn try_from(resource: Resource) -> Result<Self, Self::Error> {
         match resource {
             Resource::Share(obj) => obj.try_into(),
-            Resource::CredentialInfo(obj) => obj.try_into(),
+            Resource::Credential(obj) => obj.try_into(),
             Resource::CatalogInfo(obj) => obj.try_into(),
             Resource::SchemaInfo(obj) => obj.try_into(),
             Resource::TableInfo(obj) => obj.try_into(),
@@ -109,7 +109,7 @@ impl TryFrom<Object> for Resource {
     fn try_from(obj: Object) -> Result<Self, Self::Error> {
         match obj.label {
             ObjectLabel::Share => Ok(Resource::Share(obj.try_into()?)),
-            ObjectLabel::CredentialInfo => Ok(Resource::CredentialInfo(obj.try_into()?)),
+            ObjectLabel::Credential => Ok(Resource::Credential(obj.try_into()?)),
             ObjectLabel::CatalogInfo => Ok(Resource::CatalogInfo(obj.try_into()?)),
             ObjectLabel::SchemaInfo => Ok(Resource::SchemaInfo(obj.try_into()?)),
             ObjectLabel::TableInfo => Ok(Resource::TableInfo(obj.try_into()?)),
@@ -138,6 +138,6 @@ object_conversions!(
     SchemaInfo, ObjectLabel::SchemaInfo, schema_id, [catalog_name, name], true;
     TableInfo, ObjectLabel::TableInfo, table_id, [catalog_name, schema_name, name], true;
     ColumnInfo, ObjectLabel::ColumnInfo, column_id, [name], true;
-    CredentialInfo, ObjectLabel::CredentialInfo, id, [name], true;
+    Credential, ObjectLabel::Credential, id, [name], true;
     Recipient, ObjectLabel::Recipient, id, [name], true;
 );

@@ -39,17 +39,14 @@ impl CredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn create_credential(
-        &self,
-        request: &CreateCredentialRequest,
-    ) -> Result<CredentialInfo> {
+    pub async fn create_credential(&self, request: &CreateCredentialRequest) -> Result<Credential> {
         let mut url = self.base_url.join("credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn get_credential(&self, request: &GetCredentialRequest) -> Result<CredentialInfo> {
+    pub async fn get_credential(&self, request: &GetCredentialRequest) -> Result<Credential> {
         let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
@@ -57,10 +54,7 @@ impl CredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-    pub async fn update_credential(
-        &self,
-        request: &UpdateCredentialRequest,
-    ) -> Result<CredentialInfo> {
+    pub async fn update_credential(&self, request: &UpdateCredentialRequest) -> Result<Credential> {
         let formatted_path = format!("credentials/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;

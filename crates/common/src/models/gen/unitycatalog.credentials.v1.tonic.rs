@@ -10,25 +10,22 @@ pub mod credentials_service_server {
         async fn list_credentials(
             &self,
             request: tonic::Request<super::ListCredentialsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListCredentialsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListCredentialsResponse>, tonic::Status>;
         ///
         async fn create_credential(
             &self,
             request: tonic::Request<super::CreateCredentialRequest>,
-        ) -> std::result::Result<tonic::Response<super::CredentialInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Credential>, tonic::Status>;
         ///
         async fn get_credential(
             &self,
             request: tonic::Request<super::GetCredentialRequest>,
-        ) -> std::result::Result<tonic::Response<super::CredentialInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Credential>, tonic::Status>;
         ///
         async fn update_credential(
             &self,
             request: tonic::Request<super::UpdateCredentialRequest>,
-        ) -> std::result::Result<tonic::Response<super::CredentialInfo>, tonic::Status>;
+        ) -> std::result::Result<tonic::Response<super::Credential>, tonic::Status>;
         ///
         async fn delete_credential(
             &self,
@@ -36,8 +33,8 @@ pub mod credentials_service_server {
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     /** Manage credentials to access external data sources and services
- as well as generate signed urls for the Delta Sharing service.
-*/
+     as well as generate signed urls for the Delta Sharing service.
+    */
     #[derive(Debug)]
     pub struct CredentialsServiceServer<T: CredentialsService> {
         inner: Arc<T>,
@@ -59,10 +56,7 @@ pub mod credentials_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -117,23 +111,19 @@ pub mod credentials_service_server {
                 "/unitycatalog.credentials.v1.CredentialsService/ListCredentials" => {
                     #[allow(non_camel_case_types)]
                     struct ListCredentialsSvc<T: CredentialsService>(pub Arc<T>);
-                    impl<
-                        T: CredentialsService,
-                    > tonic::server::UnaryService<super::ListCredentialsRequest>
-                    for ListCredentialsSvc<T> {
+                    impl<T: CredentialsService>
+                        tonic::server::UnaryService<super::ListCredentialsRequest>
+                        for ListCredentialsSvc<T>
+                    {
                         type Response = super::ListCredentialsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListCredentialsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CredentialsService>::list_credentials(&inner, request)
-                                    .await
+                                <T as CredentialsService>::list_credentials(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -163,26 +153,19 @@ pub mod credentials_service_server {
                 "/unitycatalog.credentials.v1.CredentialsService/CreateCredential" => {
                     #[allow(non_camel_case_types)]
                     struct CreateCredentialSvc<T: CredentialsService>(pub Arc<T>);
-                    impl<
-                        T: CredentialsService,
-                    > tonic::server::UnaryService<super::CreateCredentialRequest>
-                    for CreateCredentialSvc<T> {
-                        type Response = super::CredentialInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: CredentialsService>
+                        tonic::server::UnaryService<super::CreateCredentialRequest>
+                        for CreateCredentialSvc<T>
+                    {
+                        type Response = super::Credential;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateCredentialRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CredentialsService>::create_credential(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                <T as CredentialsService>::create_credential(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -212,23 +195,19 @@ pub mod credentials_service_server {
                 "/unitycatalog.credentials.v1.CredentialsService/GetCredential" => {
                     #[allow(non_camel_case_types)]
                     struct GetCredentialSvc<T: CredentialsService>(pub Arc<T>);
-                    impl<
-                        T: CredentialsService,
-                    > tonic::server::UnaryService<super::GetCredentialRequest>
-                    for GetCredentialSvc<T> {
-                        type Response = super::CredentialInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: CredentialsService>
+                        tonic::server::UnaryService<super::GetCredentialRequest>
+                        for GetCredentialSvc<T>
+                    {
+                        type Response = super::Credential;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetCredentialRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CredentialsService>::get_credential(&inner, request)
-                                    .await
+                                <T as CredentialsService>::get_credential(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -258,26 +237,19 @@ pub mod credentials_service_server {
                 "/unitycatalog.credentials.v1.CredentialsService/UpdateCredential" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateCredentialSvc<T: CredentialsService>(pub Arc<T>);
-                    impl<
-                        T: CredentialsService,
-                    > tonic::server::UnaryService<super::UpdateCredentialRequest>
-                    for UpdateCredentialSvc<T> {
-                        type Response = super::CredentialInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                    impl<T: CredentialsService>
+                        tonic::server::UnaryService<super::UpdateCredentialRequest>
+                        for UpdateCredentialSvc<T>
+                    {
+                        type Response = super::Credential;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateCredentialRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CredentialsService>::update_credential(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                <T as CredentialsService>::update_credential(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -307,26 +279,19 @@ pub mod credentials_service_server {
                 "/unitycatalog.credentials.v1.CredentialsService/DeleteCredential" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteCredentialSvc<T: CredentialsService>(pub Arc<T>);
-                    impl<
-                        T: CredentialsService,
-                    > tonic::server::UnaryService<super::DeleteCredentialRequest>
-                    for DeleteCredentialSvc<T> {
+                    impl<T: CredentialsService>
+                        tonic::server::UnaryService<super::DeleteCredentialRequest>
+                        for DeleteCredentialSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteCredentialRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as CredentialsService>::delete_credential(
-                                        &inner,
-                                        request,
-                                    )
-                                    .await
+                                <T as CredentialsService>::delete_credential(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -353,21 +318,17 @@ pub mod credentials_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -383,8 +344,7 @@ pub mod credentials_service_server {
             }
         }
     }
-    impl<T: CredentialsService> tonic::server::NamedService
-    for CredentialsServiceServer<T> {
+    impl<T: CredentialsService> tonic::server::NamedService for CredentialsServiceServer<T> {
         const NAME: &'static str = "unitycatalog.credentials.v1.CredentialsService";
     }
 }

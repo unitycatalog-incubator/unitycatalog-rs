@@ -7,57 +7,48 @@ pub mod tables_service_server {
     #[async_trait]
     pub trait TablesService: Send + Sync + 'static {
         /** Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
- - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
- - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
-   SELECT privilege on the table and ownership or USE_SCHEMA privilege on the schema, provided that the user also has ownership
-   or the USE_CATALOG privilege on the parent catalog.
+         - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
+         - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
+           SELECT privilege on the table and ownership or USE_SCHEMA privilege on the schema, provided that the user also has ownership
+           or the USE_CATALOG privilege on the parent catalog.
 
- There is no guarantee of a specific ordering of the elements in the array.
-*/
+         There is no guarantee of a specific ordering of the elements in the array.
+        */
         async fn list_table_summaries(
             &self,
             request: tonic::Request<super::ListTableSummariesRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListTableSummariesResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListTableSummariesResponse>, tonic::Status>;
         /** Gets an array of all tables for the current metastore under the parent catalog and schema.
 
- The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
- For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
- parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
- specific ordering of the elements in the array.
-*/
+         The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
+         For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
+         parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
+         specific ordering of the elements in the array.
+        */
         async fn list_tables(
             &self,
             request: tonic::Request<super::ListTablesRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListTablesResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListTablesResponse>, tonic::Status>;
         /** Create a table
-*/
+         */
         async fn create_table(
             &self,
             request: tonic::Request<super::CreateTableRequest>,
         ) -> std::result::Result<tonic::Response<super::TableInfo>, tonic::Status>;
         /** Get a table
-*/
+         */
         async fn get_table(
             &self,
             request: tonic::Request<super::GetTableRequest>,
         ) -> std::result::Result<tonic::Response<super::TableInfo>, tonic::Status>;
         /** Get boolean reflecting if table exists
-*/
+         */
         async fn get_table_exists(
             &self,
             request: tonic::Request<super::GetTableExistsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::GetTableExistsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::GetTableExistsResponse>, tonic::Status>;
         /** Delete a table
-*/
+         */
         async fn delete_table(
             &self,
             request: tonic::Request<super::DeleteTableRequest>,
@@ -85,10 +76,7 @@ pub mod tables_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -143,23 +131,19 @@ pub mod tables_service_server {
                 "/unitycatalog.tables.v1.TablesService/ListTableSummaries" => {
                     #[allow(non_camel_case_types)]
                     struct ListTableSummariesSvc<T: TablesService>(pub Arc<T>);
-                    impl<
-                        T: TablesService,
-                    > tonic::server::UnaryService<super::ListTableSummariesRequest>
-                    for ListTableSummariesSvc<T> {
+                    impl<T: TablesService>
+                        tonic::server::UnaryService<super::ListTableSummariesRequest>
+                        for ListTableSummariesSvc<T>
+                    {
                         type Response = super::ListTableSummariesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListTableSummariesRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as TablesService>::list_table_summaries(&inner, request)
-                                    .await
+                                <T as TablesService>::list_table_summaries(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -189,15 +173,9 @@ pub mod tables_service_server {
                 "/unitycatalog.tables.v1.TablesService/ListTables" => {
                     #[allow(non_camel_case_types)]
                     struct ListTablesSvc<T: TablesService>(pub Arc<T>);
-                    impl<
-                        T: TablesService,
-                    > tonic::server::UnaryService<super::ListTablesRequest>
-                    for ListTablesSvc<T> {
+                    impl<T: TablesService> tonic::server::UnaryService<super::ListTablesRequest> for ListTablesSvc<T> {
                         type Response = super::ListTablesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListTablesRequest>,
@@ -234,15 +212,11 @@ pub mod tables_service_server {
                 "/unitycatalog.tables.v1.TablesService/CreateTable" => {
                     #[allow(non_camel_case_types)]
                     struct CreateTableSvc<T: TablesService>(pub Arc<T>);
-                    impl<
-                        T: TablesService,
-                    > tonic::server::UnaryService<super::CreateTableRequest>
-                    for CreateTableSvc<T> {
+                    impl<T: TablesService> tonic::server::UnaryService<super::CreateTableRequest>
+                        for CreateTableSvc<T>
+                    {
                         type Response = super::TableInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateTableRequest>,
@@ -279,15 +253,9 @@ pub mod tables_service_server {
                 "/unitycatalog.tables.v1.TablesService/GetTable" => {
                     #[allow(non_camel_case_types)]
                     struct GetTableSvc<T: TablesService>(pub Arc<T>);
-                    impl<
-                        T: TablesService,
-                    > tonic::server::UnaryService<super::GetTableRequest>
-                    for GetTableSvc<T> {
+                    impl<T: TablesService> tonic::server::UnaryService<super::GetTableRequest> for GetTableSvc<T> {
                         type Response = super::TableInfo;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetTableRequest>,
@@ -324,23 +292,18 @@ pub mod tables_service_server {
                 "/unitycatalog.tables.v1.TablesService/GetTableExists" => {
                     #[allow(non_camel_case_types)]
                     struct GetTableExistsSvc<T: TablesService>(pub Arc<T>);
-                    impl<
-                        T: TablesService,
-                    > tonic::server::UnaryService<super::GetTableExistsRequest>
-                    for GetTableExistsSvc<T> {
+                    impl<T: TablesService> tonic::server::UnaryService<super::GetTableExistsRequest>
+                        for GetTableExistsSvc<T>
+                    {
                         type Response = super::GetTableExistsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetTableExistsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as TablesService>::get_table_exists(&inner, request)
-                                    .await
+                                <T as TablesService>::get_table_exists(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -370,15 +333,11 @@ pub mod tables_service_server {
                 "/unitycatalog.tables.v1.TablesService/DeleteTable" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteTableSvc<T: TablesService>(pub Arc<T>);
-                    impl<
-                        T: TablesService,
-                    > tonic::server::UnaryService<super::DeleteTableRequest>
-                    for DeleteTableSvc<T> {
+                    impl<T: TablesService> tonic::server::UnaryService<super::DeleteTableRequest>
+                        for DeleteTableSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteTableRequest>,
@@ -412,21 +371,17 @@ pub mod tables_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

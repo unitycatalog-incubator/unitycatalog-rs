@@ -179,7 +179,7 @@ class AzureStorageKey:
 
     def __init__(self, account_name: str, account_key: str) -> None: ...
 
-class CredentialInfo:
+class Credential:
     id: str
     name: str
     purpose: Purpose
@@ -443,7 +443,7 @@ class CatalogClient:
     def delete(self, force: bool | None = None) -> None: ...
 
 class CredentialClient:
-    def get(self) -> CredentialInfo: ...
+    def get(self) -> Credential: ...
     def update(
         self,
         new_name: str | None = None,
@@ -453,7 +453,7 @@ class CredentialClient:
         skip_validation: bool | None = None,
         force: bool | None = None,
         credential: object | None = None,
-    ) -> CredentialInfo: ...
+    ) -> Credential: ...
     def delete(self) -> None: ...
 
 class ExternalLocationClient:
@@ -554,7 +554,7 @@ class PyUnityCatalogClient:
     # Credential methods
     def list_credentials(
         self, purpose: Purpose | None = None, max_results: int | None = None
-    ) -> list[CredentialInfo]: ...
+    ) -> list[Credential]: ...
     def credential(self, name: str) -> CredentialClient: ...
 
     # External location methods
@@ -658,7 +658,7 @@ class PyUnityCatalogClient:
         name: str,
         purpose: Purpose,
         comment: str | None = None,
-    ) -> CredentialInfo:
+    ) -> Credential:
         """Create a new credential.
 
         Args:
@@ -667,7 +667,7 @@ class PyUnityCatalogClient:
             comment: User-provided free-form text description.
 
         Returns:
-            The created CredentialInfo object.
+            The created Credential object.
         """
 
     def create_external_location(

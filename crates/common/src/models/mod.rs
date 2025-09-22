@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub use catalogs::v1::CatalogInfo;
-pub use credentials::v1::CredentialInfo;
+pub use credentials::v1::Credential;
 pub use external_locations::v1::ExternalLocationInfo;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
@@ -98,7 +98,7 @@ impl ObjectLabel {
     pub fn to_ident(&self, id: impl Into<ResourceRef>) -> ResourceIdent {
         match self {
             ObjectLabel::Share => ResourceIdent::share(id),
-            ObjectLabel::CredentialInfo => ResourceIdent::credential(id),
+            ObjectLabel::Credential => ResourceIdent::credential(id),
             ObjectLabel::CatalogInfo => ResourceIdent::catalog(id),
             ObjectLabel::SchemaInfo => ResourceIdent::schema(id),
             ObjectLabel::TableInfo => ResourceIdent::table(id),

@@ -22,7 +22,7 @@ import { file_google_api_resource } from "../../../google/api/resource_pb";
 export const file_unitycatalog_credentials_v1_models: GenFile =
   /*@__PURE__*/
   fileDesc(
-    "Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIilQcKDkNyZWRlbnRpYWxJbmZvEgwKBG5hbWUYASABKAkSDwoCaWQYAiABKAlIAIgBARI1CgdwdXJwb3NlGAMgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2USEQoJcmVhZF9vbmx5GAQgASgIEhQKB2NvbW1lbnQYBSABKAlIAYgBARISCgVvd25lchgGIAEoCUgCiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIA4gBARIXCgpjcmVhdGVkX2J5GAggASgJSASIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gFiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBogBARIgChh1c2VkX2Zvcl9tYW5hZ2VkX3N0b3JhZ2UYCyABKAgSFgoJZnVsbF9uYW1lGAwgASgJSAeIAQESWAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAiIAQESVgoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgJiAEBEkwKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgKiAEBOp0B6kFPChp1bml0eWNhdGFsb2cuaW8vQ3JlZGVudGlhbBIYY3JlZGVudGlhbHMve2NyZWRlbnRpYWx9KgtjcmVkZW50aWFsczIKY3JlZGVudGlhbLpISCJGChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkQAUIFCgNfaWRCCgoIX2NvbW1lbnRCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9mdWxsX25hbWVCGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleSo8CgdQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABILCgdTVE9SQUdFEAESCwoHU0VSVklDRRACQpYCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQgtNb2RlbHNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw",
+    "Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiIpChBBd3NJYW1Sb2xlQ29uZmlnEhUKCHJvbGVfYXJuGAEgASgJQgPgQQIiYQoKQXdzSWFtUm9sZRIYCgtleHRlcm5hbF9pZBgBIAEoCUID4EECEhUKCHJvbGVfYXJuGAIgASgJQgPgQQISIgoVdW5pdHlfY2F0YWxvZ19pYW1fYXJuGAMgASgJQgPgQQIikQcKCkNyZWRlbnRpYWwSDAoEbmFtZRgBIAEoCRIPCgJpZBgCIAEoCUgAiAEBEjUKB3B1cnBvc2UYAyABKA4yJC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuUHVycG9zZRIRCglyZWFkX29ubHkYBCABKAgSFAoHY29tbWVudBgFIAEoCUgBiAEBEhIKBW93bmVyGAYgASgJSAKIAQESFwoKY3JlYXRlZF9hdBgHIAEoA0gDiAEBEhcKCmNyZWF0ZWRfYnkYCCABKAlIBIgBARIXCgp1cGRhdGVkX2F0GAkgASgDSAWIAQESFwoKdXBkYXRlZF9ieRgKIAEoCUgGiAEBEiAKGHVzZWRfZm9yX21hbmFnZWRfc3RvcmFnZRgLIAEoCBIWCglmdWxsX25hbWUYDCABKAlIB4gBARJYChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbBhkIAEoCzIyLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVNlcnZpY2VQcmluY2lwYWxICIgBARJWChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5GGUgASgLMjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlTWFuYWdlZElkZW50aXR5SAmIAQESTAoRYXp1cmVfc3RvcmFnZV9rZXkYZiABKAsyLC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTdG9yYWdlS2V5SAqIAQE6nQHqQU8KGnVuaXR5Y2F0YWxvZy5pby9DcmVkZW50aWFsEhhjcmVkZW50aWFscy97Y3JlZGVudGlhbH0qC2NyZWRlbnRpYWxzMgpjcmVkZW50aWFsukhIIkYKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5ChFhenVyZV9zdG9yYWdlX2tleRABQgUKA19pZEIKCghfY29tbWVudEIICgZfb3duZXJCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDAoKX2Z1bGxfbmFtZUIaChhfYXp1cmVfc2VydmljZV9wcmluY2lwYWxCGQoXX2F6dXJlX21hbmFnZWRfaWRlbnRpdHlCFAoSX2F6dXJlX3N0b3JhZ2Vfa2V5KjwKB1B1cnBvc2USFwoTUFVSUE9TRV9VTlNQRUNJRklFRBAAEgsKB1NUT1JBR0UQARILCgdTRVJWSUNFEAJClgIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCC01vZGVsc1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z",
     [
       file_buf_validate_validate,
       file_google_api_annotations,
@@ -223,121 +223,120 @@ export const AwsIamRoleSchema: GenMessage<AwsIamRole> =
   messageDesc(file_unitycatalog_credentials_v1_models, 4);
 
 /**
- * @generated from message unitycatalog.credentials.v1.CredentialInfo
+ * @generated from message unitycatalog.credentials.v1.Credential
  */
-export type CredentialInfo =
-  Message<"unitycatalog.credentials.v1.CredentialInfo"> & {
-    /**
-     * The credential name.
-     *
-     * The name must be unique among storage and service credentials within the metastore.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type Credential = Message<"unitycatalog.credentials.v1.Credential"> & {
+  /**
+   * The credential name.
+   *
+   * The name must be unique among storage and service credentials within the metastore.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The unique identifier of the credential.
-     *
-     * @generated from field: optional string id = 2;
-     */
-    id?: string;
+  /**
+   * The unique identifier of the credential.
+   *
+   * @generated from field: optional string id = 2;
+   */
+  id?: string;
 
-    /**
-     * Indicates the purpose of the credential.
-     *
-     * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 3;
-     */
-    purpose: Purpose;
+  /**
+   * Indicates the purpose of the credential.
+   *
+   * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 3;
+   */
+  purpose: Purpose;
 
-    /**
-     * Whether the credential is usable only for read operations.
-     *
-     * Only applicable when purpose is STORAGE.
-     *
-     * @generated from field: bool read_only = 4;
-     */
-    readOnly: boolean;
+  /**
+   * Whether the credential is usable only for read operations.
+   *
+   * Only applicable when purpose is STORAGE.
+   *
+   * @generated from field: bool read_only = 4;
+   */
+  readOnly: boolean;
 
-    /**
-     * User-provided free-form text description.
-     *
-     * @generated from field: optional string comment = 5;
-     */
-    comment?: string;
+  /**
+   * User-provided free-form text description.
+   *
+   * @generated from field: optional string comment = 5;
+   */
+  comment?: string;
 
-    /**
-     * Username of current owner of credential.
-     *
-     * @generated from field: optional string owner = 6;
-     */
-    owner?: string;
+  /**
+   * Username of current owner of credential.
+   *
+   * @generated from field: optional string owner = 6;
+   */
+  owner?: string;
 
-    /**
-     * Time at which this credential was created, in epoch milliseconds.
-     *
-     * @generated from field: optional int64 created_at = 7;
-     */
-    createdAt?: bigint;
+  /**
+   * Time at which this credential was created, in epoch milliseconds.
+   *
+   * @generated from field: optional int64 created_at = 7;
+   */
+  createdAt?: bigint;
 
-    /**
-     * Username of credential creator.
-     *
-     * @generated from field: optional string created_by = 8;
-     */
-    createdBy?: string;
+  /**
+   * Username of credential creator.
+   *
+   * @generated from field: optional string created_by = 8;
+   */
+  createdBy?: string;
 
-    /**
-     * Time at which this credential was last updated, in epoch milliseconds.
-     *
-     * @generated from field: optional int64 updated_at = 9;
-     */
-    updatedAt?: bigint;
+  /**
+   * Time at which this credential was last updated, in epoch milliseconds.
+   *
+   * @generated from field: optional int64 updated_at = 9;
+   */
+  updatedAt?: bigint;
 
-    /**
-     * Username of user who last modified credential.
-     *
-     * @generated from field: optional string updated_by = 10;
-     */
-    updatedBy?: string;
+  /**
+   * Username of user who last modified credential.
+   *
+   * @generated from field: optional string updated_by = 10;
+   */
+  updatedBy?: string;
 
-    /**
-     * Whether this credential is the current metastore's root storage credential.
-     *
-     * Only applicable when purpose is STORAGE.
-     *
-     * @generated from field: bool used_for_managed_storage = 11;
-     */
-    usedForManagedStorage: boolean;
+  /**
+   * Whether this credential is the current metastore's root storage credential.
+   *
+   * Only applicable when purpose is STORAGE.
+   *
+   * @generated from field: bool used_for_managed_storage = 11;
+   */
+  usedForManagedStorage: boolean;
 
-    /**
-     * The full name of the credential.
-     *
-     * @generated from field: optional string full_name = 12;
-     */
-    fullName?: string;
+  /**
+   * The full name of the credential.
+   *
+   * @generated from field: optional string full_name = 12;
+   */
+  fullName?: string;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
-     */
-    azureServicePrincipal?: AzureServicePrincipal;
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
+   */
+  azureServicePrincipal?: AzureServicePrincipal;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
-     */
-    azureManagedIdentity?: AzureManagedIdentity;
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+   */
+  azureManagedIdentity?: AzureManagedIdentity;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
-     */
-    azureStorageKey?: AzureStorageKey;
-  };
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+   */
+  azureStorageKey?: AzureStorageKey;
+};
 
 /**
- * Describes the message unitycatalog.credentials.v1.CredentialInfo.
- * Use `create(CredentialInfoSchema)` to create a new message.
+ * Describes the message unitycatalog.credentials.v1.Credential.
+ * Use `create(CredentialSchema)` to create a new message.
  */
-export const CredentialInfoSchema: GenMessage<CredentialInfo> =
+export const CredentialSchema: GenMessage<Credential> =
   /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 5);
 

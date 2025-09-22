@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 
 use crate::models::catalogs::v1::CatalogInfo;
 use crate::models::credentials::v1::{
-    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, CredentialInfo,
+    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential,
     azure_managed_identity::Identifier, azure_service_principal::Credential as SpCredential,
 };
 use crate::models::external_locations::v1::ExternalLocationInfo;
@@ -336,10 +336,10 @@ impl RecipientToken {
 }
 
 #[pymethods]
-impl CredentialInfo {
+impl Credential {
     pub fn __repr__(&self) -> String {
         format!(
-            "CredentialInfo(id={}, name={}, purpose={}, credential='***', read_only={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
+            "Credential(id={}, name={}, purpose={}, credential='***', read_only={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={})",
             self.id.as_ref().unwrap_or(&"None".to_owned()),
             self.name,
             self.purpose,

@@ -3,70 +3,70 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AdditionalPropertiesItem {
-    #[prost(oneof="additional_properties_item::Oneof", tags="1, 2")]
+    #[prost(oneof = "additional_properties_item::Oneof", tags = "1, 2")]
     pub oneof: ::core::option::Option<additional_properties_item::Oneof>,
 }
 /// Nested message and enum types in `AdditionalPropertiesItem`.
 pub mod additional_properties_item {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Schema(::prost::alloc::boxed::Box<super::Schema>),
-        #[prost(bool, tag="2")]
+        #[prost(bool, tag = "2")]
         Boolean(bool),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Any {
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub value: ::core::option::Option<::prost_types::Any>,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub yaml: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ApiKeySecurity {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub r#in: ::prost::alloc::string::String,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="5")]
+    #[prost(message, repeated, tag = "5")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BasicAuthenticationSecurity {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="3")]
+    #[prost(message, repeated, tag = "3")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BodyParameter {
     /// A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub description: ::prost::alloc::string::String,
     /// The name of the parameter.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub name: ::prost::alloc::string::String,
     /// Determines the location of the parameter.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub r#in: ::prost::alloc::string::String,
     /// Determines whether or not this parameter is required or optional.
-    #[prost(bool, tag="4")]
+    #[prost(bool, tag = "4")]
     pub required: bool,
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub schema: ::core::option::Option<Schema>,
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// Contact information for the owners of the API.
@@ -74,267 +74,267 @@ pub struct BodyParameter {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Contact {
     /// The identifying name of the contact person/organization.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The URL pointing to the contact information.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub url: ::prost::alloc::string::String,
     /// The email address of the contact person/organization.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub email: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="4")]
+    #[prost(message, repeated, tag = "4")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Default {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// One or more JSON objects describing the schemas being consumed and produced by the API.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Definitions {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedSchema>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Document {
     /// The Swagger version of this document.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub swagger: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub info: ::core::option::Option<Info>,
     /// The host (name or ip) of the API. Example: 'swagger.io'
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub host: ::prost::alloc::string::String,
     /// The base path to the API. Example: '/api'.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub base_path: ::prost::alloc::string::String,
     /// The transfer protocol of the API.
-    #[prost(string, repeated, tag="5")]
+    #[prost(string, repeated, tag = "5")]
     pub schemes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// A list of MIME types accepted by the API.
-    #[prost(string, repeated, tag="6")]
+    #[prost(string, repeated, tag = "6")]
     pub consumes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// A list of MIME types the API can produce.
-    #[prost(string, repeated, tag="7")]
+    #[prost(string, repeated, tag = "7")]
     pub produces: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(message, optional, tag="8")]
+    #[prost(message, optional, tag = "8")]
     pub paths: ::core::option::Option<Paths>,
-    #[prost(message, optional, tag="9")]
+    #[prost(message, optional, tag = "9")]
     pub definitions: ::core::option::Option<Definitions>,
-    #[prost(message, optional, tag="10")]
+    #[prost(message, optional, tag = "10")]
     pub parameters: ::core::option::Option<ParameterDefinitions>,
-    #[prost(message, optional, tag="11")]
+    #[prost(message, optional, tag = "11")]
     pub responses: ::core::option::Option<ResponseDefinitions>,
-    #[prost(message, repeated, tag="12")]
+    #[prost(message, repeated, tag = "12")]
     pub security: ::prost::alloc::vec::Vec<SecurityRequirement>,
-    #[prost(message, optional, tag="13")]
+    #[prost(message, optional, tag = "13")]
     pub security_definitions: ::core::option::Option<SecurityDefinitions>,
-    #[prost(message, repeated, tag="14")]
+    #[prost(message, repeated, tag = "14")]
     pub tags: ::prost::alloc::vec::Vec<Tag>,
-    #[prost(message, optional, tag="15")]
+    #[prost(message, optional, tag = "15")]
     pub external_docs: ::core::option::Option<ExternalDocs>,
-    #[prost(message, repeated, tag="16")]
+    #[prost(message, repeated, tag = "16")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Examples {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// information about external documentation
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExternalDocs {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub description: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub url: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="3")]
+    #[prost(message, repeated, tag = "3")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// A deterministic version of a JSON Schema object.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FileSchema {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub format: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub title: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub default: ::core::option::Option<Any>,
-    #[prost(string, repeated, tag="5")]
+    #[prost(string, repeated, tag = "5")]
     pub required: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(bool, tag="7")]
+    #[prost(bool, tag = "7")]
     pub read_only: bool,
-    #[prost(message, optional, tag="8")]
+    #[prost(message, optional, tag = "8")]
     pub external_docs: ::core::option::Option<ExternalDocs>,
-    #[prost(message, optional, tag="9")]
+    #[prost(message, optional, tag = "9")]
     pub example: ::core::option::Option<Any>,
-    #[prost(message, repeated, tag="10")]
+    #[prost(message, repeated, tag = "10")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FormDataParameterSubSchema {
     /// Determines whether or not this parameter is required or optional.
-    #[prost(bool, tag="1")]
+    #[prost(bool, tag = "1")]
     pub required: bool,
     /// Determines the location of the parameter.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub r#in: ::prost::alloc::string::String,
     /// A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
     /// The name of the parameter.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub name: ::prost::alloc::string::String,
     /// allows sending a parameter by name only or with an empty value.
-    #[prost(bool, tag="5")]
+    #[prost(bool, tag = "5")]
     pub allow_empty_value: bool,
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="7")]
+    #[prost(string, tag = "7")]
     pub format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="8")]
+    #[prost(message, optional, tag = "8")]
     pub items: ::core::option::Option<PrimitivesItems>,
-    #[prost(string, tag="9")]
+    #[prost(string, tag = "9")]
     pub collection_format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="10")]
+    #[prost(message, optional, tag = "10")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="11")]
+    #[prost(double, tag = "11")]
     pub maximum: f64,
-    #[prost(bool, tag="12")]
+    #[prost(bool, tag = "12")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="13")]
+    #[prost(double, tag = "13")]
     pub minimum: f64,
-    #[prost(bool, tag="14")]
+    #[prost(bool, tag = "14")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="15")]
+    #[prost(int64, tag = "15")]
     pub max_length: i64,
-    #[prost(int64, tag="16")]
+    #[prost(int64, tag = "16")]
     pub min_length: i64,
-    #[prost(string, tag="17")]
+    #[prost(string, tag = "17")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="18")]
+    #[prost(int64, tag = "18")]
     pub max_items: i64,
-    #[prost(int64, tag="19")]
+    #[prost(int64, tag = "19")]
     pub min_items: i64,
-    #[prost(bool, tag="20")]
+    #[prost(bool, tag = "20")]
     pub unique_items: bool,
-    #[prost(message, repeated, tag="21")]
+    #[prost(message, repeated, tag = "21")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(double, tag="22")]
+    #[prost(double, tag = "22")]
     pub multiple_of: f64,
-    #[prost(message, repeated, tag="23")]
+    #[prost(message, repeated, tag = "23")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Header {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub items: ::core::option::Option<PrimitivesItems>,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub collection_format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="6")]
+    #[prost(double, tag = "6")]
     pub maximum: f64,
-    #[prost(bool, tag="7")]
+    #[prost(bool, tag = "7")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="8")]
+    #[prost(double, tag = "8")]
     pub minimum: f64,
-    #[prost(bool, tag="9")]
+    #[prost(bool, tag = "9")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="10")]
+    #[prost(int64, tag = "10")]
     pub max_length: i64,
-    #[prost(int64, tag="11")]
+    #[prost(int64, tag = "11")]
     pub min_length: i64,
-    #[prost(string, tag="12")]
+    #[prost(string, tag = "12")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="13")]
+    #[prost(int64, tag = "13")]
     pub max_items: i64,
-    #[prost(int64, tag="14")]
+    #[prost(int64, tag = "14")]
     pub min_items: i64,
-    #[prost(bool, tag="15")]
+    #[prost(bool, tag = "15")]
     pub unique_items: bool,
-    #[prost(message, repeated, tag="16")]
+    #[prost(message, repeated, tag = "16")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(double, tag="17")]
+    #[prost(double, tag = "17")]
     pub multiple_of: f64,
-    #[prost(string, tag="18")]
+    #[prost(string, tag = "18")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="19")]
+    #[prost(message, repeated, tag = "19")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HeaderParameterSubSchema {
     /// Determines whether or not this parameter is required or optional.
-    #[prost(bool, tag="1")]
+    #[prost(bool, tag = "1")]
     pub required: bool,
     /// Determines the location of the parameter.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub r#in: ::prost::alloc::string::String,
     /// A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
     /// The name of the parameter.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="7")]
+    #[prost(message, optional, tag = "7")]
     pub items: ::core::option::Option<PrimitivesItems>,
-    #[prost(string, tag="8")]
+    #[prost(string, tag = "8")]
     pub collection_format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="9")]
+    #[prost(message, optional, tag = "9")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="10")]
+    #[prost(double, tag = "10")]
     pub maximum: f64,
-    #[prost(bool, tag="11")]
+    #[prost(bool, tag = "11")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="12")]
+    #[prost(double, tag = "12")]
     pub minimum: f64,
-    #[prost(bool, tag="13")]
+    #[prost(bool, tag = "13")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="14")]
+    #[prost(int64, tag = "14")]
     pub max_length: i64,
-    #[prost(int64, tag="15")]
+    #[prost(int64, tag = "15")]
     pub min_length: i64,
-    #[prost(string, tag="16")]
+    #[prost(string, tag = "16")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="17")]
+    #[prost(int64, tag = "17")]
     pub max_items: i64,
-    #[prost(int64, tag="18")]
+    #[prost(int64, tag = "18")]
     pub min_items: i64,
-    #[prost(bool, tag="19")]
+    #[prost(bool, tag = "19")]
     pub unique_items: bool,
-    #[prost(message, repeated, tag="20")]
+    #[prost(message, repeated, tag = "20")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(double, tag="21")]
+    #[prost(double, tag = "21")]
     pub multiple_of: f64,
-    #[prost(message, repeated, tag="22")]
+    #[prost(message, repeated, tag = "22")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Headers {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedHeader>,
 }
 /// General information about the API.
@@ -342,48 +342,48 @@ pub struct Headers {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Info {
     /// A unique and precise title of the API.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub title: ::prost::alloc::string::String,
     /// A semantic version number of the API.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub version: ::prost::alloc::string::String,
     /// A longer description of the API. Should be different from the title.  GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
     /// The terms of service for the API.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub terms_of_service: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub contact: ::core::option::Option<Contact>,
-    #[prost(message, optional, tag="6")]
+    #[prost(message, optional, tag = "6")]
     pub license: ::core::option::Option<License>,
-    #[prost(message, repeated, tag="7")]
+    #[prost(message, repeated, tag = "7")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ItemsItem {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub schema: ::prost::alloc::vec::Vec<Schema>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct JsonReference {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#ref: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub description: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct License {
     /// The name of the license type. It's encouraged to use an OSI compatible license.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The URL pointing to the license.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub url: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="3")]
+    #[prost(message, repeated, tag = "3")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// Automatically-generated message used to represent maps of Any as ordered (name,value) pairs.
@@ -391,10 +391,10 @@ pub struct License {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedAny {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<Any>,
 }
 /// Automatically-generated message used to represent maps of Header as ordered (name,value) pairs.
@@ -402,10 +402,10 @@ pub struct NamedAny {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedHeader {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<Header>,
 }
 /// Automatically-generated message used to represent maps of Parameter as ordered (name,value) pairs.
@@ -413,10 +413,10 @@ pub struct NamedHeader {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedParameter {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<Parameter>,
 }
 /// Automatically-generated message used to represent maps of PathItem as ordered (name,value) pairs.
@@ -424,10 +424,10 @@ pub struct NamedParameter {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedPathItem {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<PathItem>,
 }
 /// Automatically-generated message used to represent maps of Response as ordered (name,value) pairs.
@@ -435,10 +435,10 @@ pub struct NamedPathItem {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedResponse {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<Response>,
 }
 /// Automatically-generated message used to represent maps of ResponseValue as ordered (name,value) pairs.
@@ -446,10 +446,10 @@ pub struct NamedResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedResponseValue {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<ResponseValue>,
 }
 /// Automatically-generated message used to represent maps of Schema as ordered (name,value) pairs.
@@ -457,10 +457,10 @@ pub struct NamedResponseValue {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedSchema {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<Schema>,
 }
 /// Automatically-generated message used to represent maps of SecurityDefinitionsItem as ordered (name,value) pairs.
@@ -468,10 +468,10 @@ pub struct NamedSchema {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedSecurityDefinitionsItem {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<SecurityDefinitionsItem>,
 }
 /// Automatically-generated message used to represent maps of string as ordered (name,value) pairs.
@@ -479,10 +479,10 @@ pub struct NamedSecurityDefinitionsItem {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedString {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub value: ::prost::alloc::string::String,
 }
 /// Automatically-generated message used to represent maps of StringArray as ordered (name,value) pairs.
@@ -490,156 +490,156 @@ pub struct NamedString {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NamedStringArray {
     /// Map key
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Mapped value
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub value: ::core::option::Option<StringArray>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NonBodyParameter {
-    #[prost(oneof="non_body_parameter::Oneof", tags="1, 2, 3, 4")]
+    #[prost(oneof = "non_body_parameter::Oneof", tags = "1, 2, 3, 4")]
     pub oneof: ::core::option::Option<non_body_parameter::Oneof>,
 }
 /// Nested message and enum types in `NonBodyParameter`.
 pub mod non_body_parameter {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         HeaderParameterSubSchema(super::HeaderParameterSubSchema),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         FormDataParameterSubSchema(super::FormDataParameterSubSchema),
-        #[prost(message, tag="3")]
+        #[prost(message, tag = "3")]
         QueryParameterSubSchema(super::QueryParameterSubSchema),
-        #[prost(message, tag="4")]
+        #[prost(message, tag = "4")]
         PathParameterSubSchema(super::PathParameterSubSchema),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Oauth2AccessCodeSecurity {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub flow: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub scopes: ::core::option::Option<Oauth2Scopes>,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub authorization_url: ::prost::alloc::string::String,
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub token_url: ::prost::alloc::string::String,
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="7")]
+    #[prost(message, repeated, tag = "7")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Oauth2ApplicationSecurity {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub flow: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub scopes: ::core::option::Option<Oauth2Scopes>,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub token_url: ::prost::alloc::string::String,
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Oauth2ImplicitSecurity {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub flow: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub scopes: ::core::option::Option<Oauth2Scopes>,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub authorization_url: ::prost::alloc::string::String,
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Oauth2PasswordSecurity {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub flow: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub scopes: ::core::option::Option<Oauth2Scopes>,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub token_url: ::prost::alloc::string::String,
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Oauth2Scopes {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedString>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Operation {
-    #[prost(string, repeated, tag="1")]
+    #[prost(string, repeated, tag = "1")]
     pub tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// A brief summary of the operation.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub summary: ::prost::alloc::string::String,
     /// A longer description of the operation, GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub external_docs: ::core::option::Option<ExternalDocs>,
     /// A unique identifier of the operation.
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub operation_id: ::prost::alloc::string::String,
     /// A list of MIME types the API can produce.
-    #[prost(string, repeated, tag="6")]
+    #[prost(string, repeated, tag = "6")]
     pub produces: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// A list of MIME types the API can consume.
-    #[prost(string, repeated, tag="7")]
+    #[prost(string, repeated, tag = "7")]
     pub consumes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// The parameters needed to send a valid API call.
-    #[prost(message, repeated, tag="8")]
+    #[prost(message, repeated, tag = "8")]
     pub parameters: ::prost::alloc::vec::Vec<ParametersItem>,
-    #[prost(message, optional, tag="9")]
+    #[prost(message, optional, tag = "9")]
     pub responses: ::core::option::Option<Responses>,
     /// The transfer protocol of the API.
-    #[prost(string, repeated, tag="10")]
+    #[prost(string, repeated, tag = "10")]
     pub schemes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(bool, tag="11")]
+    #[prost(bool, tag = "11")]
     pub deprecated: bool,
-    #[prost(message, repeated, tag="12")]
+    #[prost(message, repeated, tag = "12")]
     pub security: ::prost::alloc::vec::Vec<SecurityRequirement>,
-    #[prost(message, repeated, tag="13")]
+    #[prost(message, repeated, tag = "13")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Parameter {
-    #[prost(oneof="parameter::Oneof", tags="1, 2")]
+    #[prost(oneof = "parameter::Oneof", tags = "1, 2")]
     pub oneof: ::core::option::Option<parameter::Oneof>,
 }
 /// Nested message and enum types in `Parameter`.
 pub mod parameter {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         BodyParameter(super::BodyParameter),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         NonBodyParameter(super::NonBodyParameter),
     }
 }
@@ -647,248 +647,248 @@ pub mod parameter {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ParameterDefinitions {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedParameter>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ParametersItem {
-    #[prost(oneof="parameters_item::Oneof", tags="1, 2")]
+    #[prost(oneof = "parameters_item::Oneof", tags = "1, 2")]
     pub oneof: ::core::option::Option<parameters_item::Oneof>,
 }
 /// Nested message and enum types in `ParametersItem`.
 pub mod parameters_item {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Parameter(super::Parameter),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         JsonReference(super::JsonReference),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PathItem {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#ref: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub get: ::core::option::Option<Operation>,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub put: ::core::option::Option<Operation>,
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub post: ::core::option::Option<Operation>,
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub delete: ::core::option::Option<Operation>,
-    #[prost(message, optional, tag="6")]
+    #[prost(message, optional, tag = "6")]
     pub options: ::core::option::Option<Operation>,
-    #[prost(message, optional, tag="7")]
+    #[prost(message, optional, tag = "7")]
     pub head: ::core::option::Option<Operation>,
-    #[prost(message, optional, tag="8")]
+    #[prost(message, optional, tag = "8")]
     pub patch: ::core::option::Option<Operation>,
     /// The parameters needed to send a valid API call.
-    #[prost(message, repeated, tag="9")]
+    #[prost(message, repeated, tag = "9")]
     pub parameters: ::prost::alloc::vec::Vec<ParametersItem>,
-    #[prost(message, repeated, tag="10")]
+    #[prost(message, repeated, tag = "10")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PathParameterSubSchema {
     /// Determines whether or not this parameter is required or optional.
-    #[prost(bool, tag="1")]
+    #[prost(bool, tag = "1")]
     pub required: bool,
     /// Determines the location of the parameter.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub r#in: ::prost::alloc::string::String,
     /// A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
     /// The name of the parameter.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="7")]
+    #[prost(message, optional, tag = "7")]
     pub items: ::core::option::Option<PrimitivesItems>,
-    #[prost(string, tag="8")]
+    #[prost(string, tag = "8")]
     pub collection_format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="9")]
+    #[prost(message, optional, tag = "9")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="10")]
+    #[prost(double, tag = "10")]
     pub maximum: f64,
-    #[prost(bool, tag="11")]
+    #[prost(bool, tag = "11")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="12")]
+    #[prost(double, tag = "12")]
     pub minimum: f64,
-    #[prost(bool, tag="13")]
+    #[prost(bool, tag = "13")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="14")]
+    #[prost(int64, tag = "14")]
     pub max_length: i64,
-    #[prost(int64, tag="15")]
+    #[prost(int64, tag = "15")]
     pub min_length: i64,
-    #[prost(string, tag="16")]
+    #[prost(string, tag = "16")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="17")]
+    #[prost(int64, tag = "17")]
     pub max_items: i64,
-    #[prost(int64, tag="18")]
+    #[prost(int64, tag = "18")]
     pub min_items: i64,
-    #[prost(bool, tag="19")]
+    #[prost(bool, tag = "19")]
     pub unique_items: bool,
-    #[prost(message, repeated, tag="20")]
+    #[prost(message, repeated, tag = "20")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(double, tag="21")]
+    #[prost(double, tag = "21")]
     pub multiple_of: f64,
-    #[prost(message, repeated, tag="22")]
+    #[prost(message, repeated, tag = "22")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// Relative paths to the individual endpoints. They must be relative to the 'basePath'.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Paths {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
-    #[prost(message, repeated, tag="2")]
+    #[prost(message, repeated, tag = "2")]
     pub path: ::prost::alloc::vec::Vec<NamedPathItem>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PrimitivesItems {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub format: ::prost::alloc::string::String,
-    #[prost(message, optional, boxed, tag="3")]
+    #[prost(message, optional, boxed, tag = "3")]
     pub items: ::core::option::Option<::prost::alloc::boxed::Box<PrimitivesItems>>,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub collection_format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="6")]
+    #[prost(double, tag = "6")]
     pub maximum: f64,
-    #[prost(bool, tag="7")]
+    #[prost(bool, tag = "7")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="8")]
+    #[prost(double, tag = "8")]
     pub minimum: f64,
-    #[prost(bool, tag="9")]
+    #[prost(bool, tag = "9")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="10")]
+    #[prost(int64, tag = "10")]
     pub max_length: i64,
-    #[prost(int64, tag="11")]
+    #[prost(int64, tag = "11")]
     pub min_length: i64,
-    #[prost(string, tag="12")]
+    #[prost(string, tag = "12")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="13")]
+    #[prost(int64, tag = "13")]
     pub max_items: i64,
-    #[prost(int64, tag="14")]
+    #[prost(int64, tag = "14")]
     pub min_items: i64,
-    #[prost(bool, tag="15")]
+    #[prost(bool, tag = "15")]
     pub unique_items: bool,
-    #[prost(message, repeated, tag="16")]
+    #[prost(message, repeated, tag = "16")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(double, tag="17")]
+    #[prost(double, tag = "17")]
     pub multiple_of: f64,
-    #[prost(message, repeated, tag="18")]
+    #[prost(message, repeated, tag = "18")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Properties {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedSchema>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryParameterSubSchema {
     /// Determines whether or not this parameter is required or optional.
-    #[prost(bool, tag="1")]
+    #[prost(bool, tag = "1")]
     pub required: bool,
     /// Determines the location of the parameter.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub r#in: ::prost::alloc::string::String,
     /// A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
     /// The name of the parameter.
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub name: ::prost::alloc::string::String,
     /// allows sending a parameter by name only or with an empty value.
-    #[prost(bool, tag="5")]
+    #[prost(bool, tag = "5")]
     pub allow_empty_value: bool,
-    #[prost(string, tag="6")]
+    #[prost(string, tag = "6")]
     pub r#type: ::prost::alloc::string::String,
-    #[prost(string, tag="7")]
+    #[prost(string, tag = "7")]
     pub format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="8")]
+    #[prost(message, optional, tag = "8")]
     pub items: ::core::option::Option<PrimitivesItems>,
-    #[prost(string, tag="9")]
+    #[prost(string, tag = "9")]
     pub collection_format: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="10")]
+    #[prost(message, optional, tag = "10")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="11")]
+    #[prost(double, tag = "11")]
     pub maximum: f64,
-    #[prost(bool, tag="12")]
+    #[prost(bool, tag = "12")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="13")]
+    #[prost(double, tag = "13")]
     pub minimum: f64,
-    #[prost(bool, tag="14")]
+    #[prost(bool, tag = "14")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="15")]
+    #[prost(int64, tag = "15")]
     pub max_length: i64,
-    #[prost(int64, tag="16")]
+    #[prost(int64, tag = "16")]
     pub min_length: i64,
-    #[prost(string, tag="17")]
+    #[prost(string, tag = "17")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="18")]
+    #[prost(int64, tag = "18")]
     pub max_items: i64,
-    #[prost(int64, tag="19")]
+    #[prost(int64, tag = "19")]
     pub min_items: i64,
-    #[prost(bool, tag="20")]
+    #[prost(bool, tag = "20")]
     pub unique_items: bool,
-    #[prost(message, repeated, tag="21")]
+    #[prost(message, repeated, tag = "21")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(double, tag="22")]
+    #[prost(double, tag = "22")]
     pub multiple_of: f64,
-    #[prost(message, repeated, tag="23")]
+    #[prost(message, repeated, tag = "23")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Response {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub schema: ::core::option::Option<SchemaItem>,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub headers: ::core::option::Option<Headers>,
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub examples: ::core::option::Option<Examples>,
-    #[prost(message, repeated, tag="5")]
+    #[prost(message, repeated, tag = "5")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// One or more JSON representations for responses
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ResponseDefinitions {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedResponse>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ResponseValue {
-    #[prost(oneof="response_value::Oneof", tags="1, 2")]
+    #[prost(oneof = "response_value::Oneof", tags = "1, 2")]
     pub oneof: ::core::option::Option<response_value::Oneof>,
 }
 /// Nested message and enum types in `ResponseValue`.
 pub mod response_value {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Response(super::Response),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         JsonReference(super::JsonReference),
     }
 }
@@ -896,177 +896,178 @@ pub mod response_value {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Responses {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub response_code: ::prost::alloc::vec::Vec<NamedResponseValue>,
-    #[prost(message, repeated, tag="2")]
+    #[prost(message, repeated, tag = "2")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 /// A deterministic version of a JSON Schema object.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Schema {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub r#ref: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub format: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub title: ::prost::alloc::string::String,
-    #[prost(string, tag="4")]
+    #[prost(string, tag = "4")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub default: ::core::option::Option<Any>,
-    #[prost(double, tag="6")]
+    #[prost(double, tag = "6")]
     pub multiple_of: f64,
-    #[prost(double, tag="7")]
+    #[prost(double, tag = "7")]
     pub maximum: f64,
-    #[prost(bool, tag="8")]
+    #[prost(bool, tag = "8")]
     pub exclusive_maximum: bool,
-    #[prost(double, tag="9")]
+    #[prost(double, tag = "9")]
     pub minimum: f64,
-    #[prost(bool, tag="10")]
+    #[prost(bool, tag = "10")]
     pub exclusive_minimum: bool,
-    #[prost(int64, tag="11")]
+    #[prost(int64, tag = "11")]
     pub max_length: i64,
-    #[prost(int64, tag="12")]
+    #[prost(int64, tag = "12")]
     pub min_length: i64,
-    #[prost(string, tag="13")]
+    #[prost(string, tag = "13")]
     pub pattern: ::prost::alloc::string::String,
-    #[prost(int64, tag="14")]
+    #[prost(int64, tag = "14")]
     pub max_items: i64,
-    #[prost(int64, tag="15")]
+    #[prost(int64, tag = "15")]
     pub min_items: i64,
-    #[prost(bool, tag="16")]
+    #[prost(bool, tag = "16")]
     pub unique_items: bool,
-    #[prost(int64, tag="17")]
+    #[prost(int64, tag = "17")]
     pub max_properties: i64,
-    #[prost(int64, tag="18")]
+    #[prost(int64, tag = "18")]
     pub min_properties: i64,
-    #[prost(string, repeated, tag="19")]
+    #[prost(string, repeated, tag = "19")]
     pub required: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(message, repeated, tag="20")]
+    #[prost(message, repeated, tag = "20")]
     pub r#enum: ::prost::alloc::vec::Vec<Any>,
-    #[prost(message, optional, boxed, tag="21")]
-    pub additional_properties: ::core::option::Option<::prost::alloc::boxed::Box<AdditionalPropertiesItem>>,
-    #[prost(message, optional, tag="22")]
+    #[prost(message, optional, boxed, tag = "21")]
+    pub additional_properties:
+        ::core::option::Option<::prost::alloc::boxed::Box<AdditionalPropertiesItem>>,
+    #[prost(message, optional, tag = "22")]
     pub r#type: ::core::option::Option<TypeItem>,
-    #[prost(message, optional, tag="23")]
+    #[prost(message, optional, tag = "23")]
     pub items: ::core::option::Option<ItemsItem>,
-    #[prost(message, repeated, tag="24")]
+    #[prost(message, repeated, tag = "24")]
     pub all_of: ::prost::alloc::vec::Vec<Schema>,
-    #[prost(message, optional, tag="25")]
+    #[prost(message, optional, tag = "25")]
     pub properties: ::core::option::Option<Properties>,
-    #[prost(string, tag="26")]
+    #[prost(string, tag = "26")]
     pub discriminator: ::prost::alloc::string::String,
-    #[prost(bool, tag="27")]
+    #[prost(bool, tag = "27")]
     pub read_only: bool,
-    #[prost(message, optional, tag="28")]
+    #[prost(message, optional, tag = "28")]
     pub xml: ::core::option::Option<Xml>,
-    #[prost(message, optional, tag="29")]
+    #[prost(message, optional, tag = "29")]
     pub external_docs: ::core::option::Option<ExternalDocs>,
-    #[prost(message, optional, tag="30")]
+    #[prost(message, optional, tag = "30")]
     pub example: ::core::option::Option<Any>,
-    #[prost(message, repeated, tag="31")]
+    #[prost(message, repeated, tag = "31")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SchemaItem {
-    #[prost(oneof="schema_item::Oneof", tags="1, 2")]
+    #[prost(oneof = "schema_item::Oneof", tags = "1, 2")]
     pub oneof: ::core::option::Option<schema_item::Oneof>,
 }
 /// Nested message and enum types in `SchemaItem`.
 pub mod schema_item {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Schema(super::Schema),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         FileSchema(super::FileSchema),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SecurityDefinitions {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedSecurityDefinitionsItem>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SecurityDefinitionsItem {
-    #[prost(oneof="security_definitions_item::Oneof", tags="1, 2, 3, 4, 5, 6")]
+    #[prost(oneof = "security_definitions_item::Oneof", tags = "1, 2, 3, 4, 5, 6")]
     pub oneof: ::core::option::Option<security_definitions_item::Oneof>,
 }
 /// Nested message and enum types in `SecurityDefinitionsItem`.
 pub mod security_definitions_item {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Oneof {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         BasicAuthenticationSecurity(super::BasicAuthenticationSecurity),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         ApiKeySecurity(super::ApiKeySecurity),
-        #[prost(message, tag="3")]
+        #[prost(message, tag = "3")]
         Oauth2ImplicitSecurity(super::Oauth2ImplicitSecurity),
-        #[prost(message, tag="4")]
+        #[prost(message, tag = "4")]
         Oauth2PasswordSecurity(super::Oauth2PasswordSecurity),
-        #[prost(message, tag="5")]
+        #[prost(message, tag = "5")]
         Oauth2ApplicationSecurity(super::Oauth2ApplicationSecurity),
-        #[prost(message, tag="6")]
+        #[prost(message, tag = "6")]
         Oauth2AccessCodeSecurity(super::Oauth2AccessCodeSecurity),
     }
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SecurityRequirement {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedStringArray>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct StringArray {
-    #[prost(string, repeated, tag="1")]
+    #[prost(string, repeated, tag = "1")]
     pub value: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Tag {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub description: ::prost::alloc::string::String,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub external_docs: ::core::option::Option<ExternalDocs>,
-    #[prost(message, repeated, tag="4")]
+    #[prost(message, repeated, tag = "4")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TypeItem {
-    #[prost(string, repeated, tag="1")]
+    #[prost(string, repeated, tag = "1")]
     pub value: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Any property starting with x- is valid.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VendorExtension {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub additional_properties: ::prost::alloc::vec::Vec<NamedAny>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Xml {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub namespace: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub prefix: ::prost::alloc::string::String,
-    #[prost(bool, tag="4")]
+    #[prost(bool, tag = "4")]
     pub attribute: bool,
-    #[prost(bool, tag="5")]
+    #[prost(bool, tag = "5")]
     pub wrapped: bool,
-    #[prost(message, repeated, tag="6")]
+    #[prost(message, repeated, tag = "6")]
     pub vendor_extension: ::prost::alloc::vec::Vec<NamedAny>,
 }
 // @@protoc_insertion_point(module)

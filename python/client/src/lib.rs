@@ -5,7 +5,7 @@ use self::client::{
 use pyo3::prelude::*;
 use unitycatalog_common::models::catalogs::v1::{CatalogInfo, CatalogType};
 use unitycatalog_common::models::credentials::v1::{
-    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, CredentialInfo, Purpose,
+    AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential, Purpose,
 };
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::Recipient;
@@ -29,7 +29,7 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // objects and enums
     m.add_class::<CatalogInfo>()?;
     m.add_class::<CatalogType>()?;
-    m.add_class::<CredentialInfo>()?;
+    m.add_class::<Credential>()?;
     m.add_class::<Purpose>()?;
     m.add_class::<AzureManagedIdentity>()?;
     m.add_class::<AzureServicePrincipal>()?;

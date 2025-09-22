@@ -1,7 +1,7 @@
 #![allow(unused_mut)]
 use super::client::*;
-use crate::error::Result;
-use futures::future::BoxFuture;
+use crate::{error::Result, utils::stream_paginated};
+use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 /// Builder for creating requests

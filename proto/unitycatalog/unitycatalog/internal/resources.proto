@@ -18,7 +18,7 @@ import "unitycatalog/tables/v1/models.proto";
 message Resource {
   oneof resource {
     unitycatalog.shares.v1.Share share = 1;
-    unitycatalog.credentials.v1.CredentialInfo credential_info = 4;
+    unitycatalog.credentials.v1.Credential credential = 4;
     unitycatalog.catalogs.v1.CatalogInfo catalog_info = 6;
     unitycatalog.schemas.v1.SchemaInfo schema_info = 7;
     unitycatalog.tables.v1.TableInfo table_info = 8;
@@ -26,15 +26,4 @@ message Resource {
     unitycatalog.external_locations.v1.ExternalLocationInfo external_location_info = 10;
     unitycatalog.recipients.v1.Recipient recipient = 11;
   }
-}
-
-message ObjectRelations {
-  // Username of current owner of table.
-  optional string owner = 1;
-
-  // Username of table creator.
-  optional string created_by = 2;
-
-  // Username of user who last modified table.
-  optional string updated_by = 3;
 }

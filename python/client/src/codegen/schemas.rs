@@ -11,7 +11,7 @@ pub struct PySchemaClient {
 #[pymethods]
 impl PySchemaClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<SchemaInfo> {
-        let request = self.client.get();
+        let mut request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

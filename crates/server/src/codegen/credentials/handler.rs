@@ -13,17 +13,17 @@ pub trait CredentialHandler: Send + Sync + 'static {
         &self,
         request: CreateCredentialRequest,
         context: RequestContext,
-    ) -> Result<CredentialInfo>;
+    ) -> Result<Credential>;
     async fn get_credential(
         &self,
         request: GetCredentialRequest,
         context: RequestContext,
-    ) -> Result<CredentialInfo>;
+    ) -> Result<Credential>;
     async fn update_credential(
         &self,
         request: UpdateCredentialRequest,
         context: RequestContext,
-    ) -> Result<CredentialInfo>;
+    ) -> Result<Credential>;
     async fn delete_credential(
         &self,
         request: DeleteCredentialRequest,

@@ -18,7 +18,7 @@ pub async fn create_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: CreateCredentialRequest,
-) -> Result<::axum::Json<CredentialInfo>> {
+) -> Result<::axum::Json<Credential>> {
     let context = RequestContext { recipient };
     let result = handler.create_credential(request, context).await?;
     Ok(axum::Json(result))
@@ -27,7 +27,7 @@ pub async fn get_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: GetCredentialRequest,
-) -> Result<::axum::Json<CredentialInfo>> {
+) -> Result<::axum::Json<Credential>> {
     let context = RequestContext { recipient };
     let result = handler.get_credential(request, context).await?;
     Ok(axum::Json(result))
@@ -36,7 +36,7 @@ pub async fn update_credential<T: CredentialHandler>(
     State(handler): State<T>,
     Extension(recipient): Extension<Principal>,
     request: UpdateCredentialRequest,
-) -> Result<::axum::Json<CredentialInfo>> {
+) -> Result<::axum::Json<Credential>> {
     let context = RequestContext { recipient };
     let result = handler.update_credential(request, context).await?;
     Ok(axum::Json(result))

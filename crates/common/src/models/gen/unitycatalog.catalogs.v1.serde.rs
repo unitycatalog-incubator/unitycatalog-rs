@@ -49,7 +49,8 @@ impl serde::Serialize for CatalogInfo {
         if self.browse_only.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.CatalogInfo", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.CatalogInfo", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -161,7 +162,10 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -201,8 +205,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<CatalogInfo, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut id__ = None;
@@ -248,9 +252,8 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::StorageRoot => {
                             if storage_root__.is_some() {
@@ -274,13 +277,15 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                             if catalog_type__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("catalogType"));
                             }
-                            catalog_type__ = map_.next_value::<::std::option::Option<CatalogType>>()?.map(|x| x as i32);
+                            catalog_type__ = map_
+                                .next_value::<::std::option::Option<CatalogType>>()?
+                                .map(|x| x as i32);
                         }
                         GeneratedField::CreatedAt => {
                             if created_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("createdAt"));
                             }
-                            created_at__ = 
+                            created_at__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -294,7 +299,7 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                             if updated_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("updatedAt"));
                             }
-                            updated_at__ = 
+                            updated_at__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -333,7 +338,11 @@ impl<'de> serde::Deserialize<'de> for CatalogInfo {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.CatalogInfo", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.CatalogInfo",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for CatalogType {
@@ -439,7 +448,8 @@ impl serde::Serialize for CreateCatalogRequest {
         if self.share_name.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.CreateCatalogRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.CreateCatalogRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -499,7 +509,10 @@ impl<'de> serde::Deserialize<'de> for CreateCatalogRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -530,9 +543,12 @@ impl<'de> serde::Deserialize<'de> for CreateCatalogRequest {
                 formatter.write_str("struct unitycatalog.catalogs.v1.CreateCatalogRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateCatalogRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<CreateCatalogRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut comment__ = None;
@@ -558,9 +574,8 @@ impl<'de> serde::Deserialize<'de> for CreateCatalogRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::StorageRoot => {
                             if storage_root__.is_some() {
@@ -595,7 +610,11 @@ impl<'de> serde::Deserialize<'de> for CreateCatalogRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.CreateCatalogRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.CreateCatalogRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for DeleteCatalogRequest {
@@ -612,7 +631,8 @@ impl serde::Serialize for DeleteCatalogRequest {
         if self.force.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.DeleteCatalogRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.DeleteCatalogRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -628,10 +648,7 @@ impl<'de> serde::Deserialize<'de> for DeleteCatalogRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "force",
-        ];
+        const FIELDS: &[&str] = &["name", "force"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -649,7 +666,10 @@ impl<'de> serde::Deserialize<'de> for DeleteCatalogRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -676,9 +696,12 @@ impl<'de> serde::Deserialize<'de> for DeleteCatalogRequest {
                 formatter.write_str("struct unitycatalog.catalogs.v1.DeleteCatalogRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeleteCatalogRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<DeleteCatalogRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut force__ = None;
@@ -707,7 +730,11 @@ impl<'de> serde::Deserialize<'de> for DeleteCatalogRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.DeleteCatalogRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.DeleteCatalogRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GetCatalogRequest {
@@ -724,7 +751,8 @@ impl serde::Serialize for GetCatalogRequest {
         if self.include_browse.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.GetCatalogRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.GetCatalogRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -740,11 +768,7 @@ impl<'de> serde::Deserialize<'de> for GetCatalogRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "include_browse",
-            "includeBrowse",
-        ];
+        const FIELDS: &[&str] = &["name", "include_browse", "includeBrowse"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -762,7 +786,10 @@ impl<'de> serde::Deserialize<'de> for GetCatalogRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -790,8 +817,8 @@ impl<'de> serde::Deserialize<'de> for GetCatalogRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetCatalogRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut include_browse__ = None;
@@ -820,7 +847,11 @@ impl<'de> serde::Deserialize<'de> for GetCatalogRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.GetCatalogRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.GetCatalogRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListCatalogsRequest {
@@ -837,7 +868,8 @@ impl serde::Serialize for ListCatalogsRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.ListCatalogsRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.ListCatalogsRequest", len)?;
         if let Some(v) = self.max_results.as_ref() {
             struct_ser.serialize_field("max_results", v)?;
         }
@@ -853,12 +885,7 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "max_results",
-            "maxResults",
-            "page_token",
-            "pageToken",
-        ];
+        const FIELDS: &[&str] = &["max_results", "maxResults", "page_token", "pageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -876,7 +903,10 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -904,8 +934,8 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListCatalogsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut max_results__ = None;
                 let mut page_token__ = None;
@@ -915,7 +945,7 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsRequest {
                             if max_results__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            max_results__ = 
+                            max_results__ =
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -936,7 +966,11 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.ListCatalogsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.ListCatalogsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListCatalogsResponse {
@@ -953,7 +987,8 @@ impl serde::Serialize for ListCatalogsResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.ListCatalogsResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.ListCatalogsResponse", len)?;
         if !self.catalogs.is_empty() {
             struct_ser.serialize_field("catalogs", &self.catalogs)?;
         }
@@ -969,11 +1004,7 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "catalogs",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["catalogs", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -991,7 +1022,10 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1002,7 +1036,9 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsResponse {
                     {
                         match value {
                             "catalogs" => Ok(GeneratedField::Catalogs),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1018,9 +1054,12 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsResponse {
                 formatter.write_str("struct unitycatalog.catalogs.v1.ListCatalogsResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListCatalogsResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListCatalogsResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut catalogs__ = None;
                 let mut next_page_token__ = None;
@@ -1049,7 +1088,11 @@ impl<'de> serde::Deserialize<'de> for ListCatalogsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.ListCatalogsResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.ListCatalogsResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for UpdateCatalogRequest {
@@ -1075,7 +1118,8 @@ impl serde::Serialize for UpdateCatalogRequest {
         if self.new_name.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.catalogs.v1.UpdateCatalogRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.catalogs.v1.UpdateCatalogRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1128,7 +1172,10 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1158,9 +1205,12 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                 formatter.write_str("struct unitycatalog.catalogs.v1.UpdateCatalogRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateCatalogRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<UpdateCatalogRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut owner__ = None;
@@ -1191,9 +1241,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::NewName => {
                             if new_name__.is_some() {
@@ -1215,6 +1264,10 @@ impl<'de> serde::Deserialize<'de> for UpdateCatalogRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.catalogs.v1.UpdateCatalogRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.catalogs.v1.UpdateCatalogRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }

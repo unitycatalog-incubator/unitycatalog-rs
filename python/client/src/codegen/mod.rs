@@ -14,6 +14,7 @@ use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
 use crate::codegen::tables::PyTableClient;
+use crate::codegen::temporary_credentials::PyTemporaryCredentialClient;
 use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -28,6 +29,7 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "UnityCatalogClient")]
 pub struct PyUnityCatalogClientABC {
@@ -103,7 +105,7 @@ impl PyUnityCatalogClientABC {
         py: Python,
         purpose: Option<Purpose>,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CredentialInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Credential>> {
         let mut request = self.client.list_credentials();
         request = request.with_purpose(purpose);
         request = request.with_max_results(max_results);
@@ -137,7 +139,7 @@ impl PyUnityCatalogClientABC {
         azure_service_principal: Option<AzureServicePrincipal>,
         azure_managed_identity: Option<AzureManagedIdentity>,
         azure_storage_key: Option<AzureStorageKey>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
+    ) -> PyUnityCatalogResult<Credential> {
         let mut request = self.client.create_credential(name, purpose);
         request = request.with_comment(comment);
         request = request.with_read_only(read_only);

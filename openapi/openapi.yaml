@@ -238,7 +238,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CredentialInfo"
+                $ref: "#/components/schemas/Credential"
         default:
           description: Default error response
           content:
@@ -263,7 +263,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CredentialInfo"
+                $ref: "#/components/schemas/Credential"
         default:
           description: Default error response
           content:
@@ -314,7 +314,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CredentialInfo"
+                $ref: "#/components/schemas/Credential"
         default:
           description: Default error response
           content:
@@ -1970,7 +1970,7 @@ components:
         - volume_type
       title: Create Volume Request
       type: object
-    CredentialInfo:
+    Credential:
       additionalProperties: false
       properties:
         application_id:

@@ -6,7 +6,7 @@ use unitycatalog_client::{
     PathOperation, TableOperation, TableReference, TemporaryCredentialClient, UnityCatalogClient,
 };
 use unitycatalog_common::models::catalogs::v1::CatalogInfo;
-use unitycatalog_common::models::credentials::v1::{CredentialInfo, Purpose as CredentialPurpose};
+use unitycatalog_common::models::credentials::v1::{Credential, Purpose as CredentialPurpose};
 use unitycatalog_common::models::external_locations::v1::ExternalLocationInfo;
 use unitycatalog_common::models::recipients::v1::{AuthenticationType, Recipient};
 use unitycatalog_common::models::schemas::v1::SchemaInfo;
@@ -187,7 +187,7 @@ impl PyUnityCatalogClient {
         py: Python,
         purpose: Option<CredentialPurpose>,
         max_results: Option<i32>,
-    ) -> PyUnityCatalogResult<Vec<CredentialInfo>> {
+    ) -> PyUnityCatalogResult<Vec<Credential>> {
         let stream = self
             .0
             .list_credentials()
@@ -347,7 +347,7 @@ impl PyUnityCatalogClient {
         name: String,
         purpose: CredentialPurpose,
         comment: Option<String>,
-    ) -> PyUnityCatalogResult<CredentialInfo> {
+    ) -> PyUnityCatalogResult<Credential> {
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let mut request = self.0.create_credential(name, purpose);

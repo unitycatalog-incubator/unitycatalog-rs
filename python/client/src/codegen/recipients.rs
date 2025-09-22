@@ -11,7 +11,7 @@ pub struct PyRecipientClient {
 #[pymethods]
 impl PyRecipientClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<Recipient> {
-        let request = self.client.get();
+        let mut request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -51,7 +51,7 @@ impl PyRecipientClient {
         })
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let request = self.client.delete();
+        let mut request = self.client.delete();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             runtime.block_on(request.into_future())?;
