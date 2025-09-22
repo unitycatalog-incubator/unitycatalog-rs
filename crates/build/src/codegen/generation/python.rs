@@ -153,8 +153,7 @@ fn collection_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
 fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
 
-    let param_defs = collection_method_parameters(method, true);
-    let pyo3_signature = collection_method_pyo3_signature(method, true);
+    let (param_defs, pyo3_signature) = collection_method_parameters(method, true);
     let client_call = inner_resource_client_call(method, true);
     let builder_calls = generate_builder_pattern(method, true);
 
@@ -183,8 +182,7 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 fn collection_create_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
     let response_type = method.output_type().unwrap();
-    let param_defs = collection_method_parameters(method, false);
-    let pyo3_signature = resource_method_pyo3_signature(method);
+    let (param_defs, pyo3_signature) = collection_method_parameters(method, false);
     let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
@@ -210,8 +208,7 @@ fn collection_create_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let response_type = method.output_type();
-    let param_defs = resource_method_parameters(method);
-    let pyo3_signature = resource_method_pyo3_signature(method);
+    let (param_defs, pyo3_signature) = resource_method_parameters(method);
     let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
@@ -236,8 +233,7 @@ fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 /// Generate Delete method (returns unit type)
 fn resource_delete_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
-    let param_defs = resource_method_parameters(method);
-    let pyo3_signature = resource_method_pyo3_signature(method);
+    let (param_defs, pyo3_signature) = resource_method_parameters(method);
     let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
@@ -260,57 +256,44 @@ fn resource_delete_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate parameter definitions for method signature
-fn resource_method_parameters(method: &MethodHandler<'_>) -> Vec<TokenStream> {
+fn resource_method_parameters(method: &MethodHandler<'_>) -> (Vec<TokenStream>, TokenStream) {
     let map_param = |p: &RequestParam| {
         let param_name = p.field_ident();
         let rust_type = method.field_type(p.field_type(), RenderContext::PythonParameter);
         quote! { #param_name: #rust_type }
     };
-    method
+    let parameters = method
         .required_parameters()
+        .chain(method.optional_parameters())
         // we omit path parameters since these are encoded in the resource client struct.
         .filter(|field| !field.is_path_param())
-        .chain(method.optional_parameters())
-        .map(map_param)
-        .collect()
+        .collect_vec();
+    let signature = render_pyo3(&parameters);
+    (parameters.into_iter().map(map_param).collect(), signature)
 }
 
 /// Generate parameter definitions for method signature
-fn collection_method_parameters(method: &MethodHandler<'_>, is_list: bool) -> Vec<TokenStream> {
+fn collection_method_parameters(
+    method: &MethodHandler<'_>,
+    is_list: bool,
+) -> (Vec<TokenStream>, TokenStream) {
     let map_param = |p: &RequestParam| {
         let param_name = p.field_ident();
         let rust_type = method.field_type(p.field_type(), RenderContext::PythonParameter);
         quote! { #param_name: #rust_type }
     };
-
-    method
+    let parameters = method
         .required_parameters()
         .chain(method.optional_parameters())
         .filter(|p| !(is_list && p.name() == "page_token"))
-        .map(map_param)
-        .collect()
+        .collect_vec();
+    let signature = render_pyo3(&parameters);
+    (parameters.into_iter().map(map_param).collect(), signature)
 }
 
-/// Generate PyO3 signature annotation for collection methods (includes path parameters)
-fn collection_method_pyo3_signature(method: &MethodHandler<'_>, is_list: bool) -> TokenStream {
-    let signature_parts = method
-        .required_parameters()
-        .chain(method.optional_parameters())
-        .filter(|p| !(is_list && p.name() == "page_token"));
-    render_pyo3(signature_parts)
-}
-
-/// Generate PyO3 signature annotation for resource methods (excludes path parameters)
-fn resource_method_pyo3_signature(method: &MethodHandler<'_>) -> TokenStream {
-    let signature_parts = method
-        .required_parameters()
-        .chain(method.optional_parameters())
-        .filter(|p| !p.is_path_param());
-    render_pyo3(signature_parts)
-}
-
-fn render_pyo3<'a>(signature_parts: impl Iterator<Item = &'a RequestParam>) -> TokenStream {
+fn render_pyo3(signature_parts: &[&RequestParam]) -> TokenStream {
     let signature_parts = signature_parts
+        .iter()
         .map(|p| {
             if p.is_optional() {
                 format!("{} = None", p.name())
@@ -340,24 +323,13 @@ fn render_pyo3<'a>(signature_parts: impl Iterator<Item = &'a RequestParam>) -> T
 /// as arguments.
 fn inner_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> TokenStream {
     let method_name = method.plan.resource_client_method();
-    let mut args = Vec::new();
-
-    // Add required body fields as direct arguments
-    for body_field in method.plan.body_fields() {
-        if !body_field.optional {
-            let param_name = format_ident!("{}", body_field.name);
-            args.push(quote! { #param_name });
-        }
-    }
-
-    // Add required query parameters
-    for query_param in method.plan.query_parameters() {
-        if !query_param.is_optional() {
-            let param_name = format_ident!("{}", query_param.name);
-            args.push(quote! { #param_name });
-        }
-    }
-
+    let args = method
+        .required_parameters()
+        .filter(|param| !param.is_path_param())
+        .map(|param| {
+            let param_name = param.field_ident();
+            quote! { #param_name }
+        });
     quote! {
         self.client.#method_name(#(#args,)*)
     }
