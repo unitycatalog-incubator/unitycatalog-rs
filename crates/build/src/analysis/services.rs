@@ -116,6 +116,14 @@ impl RequestParam {
         }
     }
 
+    pub fn field_type(&self) -> &UnifiedType {
+        match self {
+            RequestParam::Path(param) => &param.field_type,
+            RequestParam::Query(param) => &param.field_type,
+            RequestParam::Body(param) => &param.field_type,
+        }
+    }
+
     pub fn field_ident(&self) -> Ident {
         format_ident!("{}", self.name())
     }
@@ -126,6 +134,10 @@ impl RequestParam {
             RequestParam::Query(param) => param.is_optional(),
             RequestParam::Body(param) => param.is_optional(),
         }
+    }
+
+    pub fn is_path_param(&self) -> bool {
+        matches!(self, RequestParam::Path(_))
     }
 }
 
@@ -180,7 +192,7 @@ pub struct BodyField {
 impl BodyField {
     /// denotes if the parameter is optional
     pub fn is_optional(&self) -> bool {
-        self.field_type.is_optional
+        self.optional
     }
 }
 

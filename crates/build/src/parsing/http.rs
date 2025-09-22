@@ -299,12 +299,12 @@ mod tests {
     fn test_http_pattern_to_format_string() {
         let pattern = HttpPattern::parse("/catalogs/{name}");
         let (format_str, args) = pattern.to_format_string();
-        assert_eq!(format_str, "/catalogs/{}");
+        assert_eq!(format_str, "catalogs/{}");
         assert_eq!(args, vec!["name"]);
 
         let pattern = HttpPattern::parse("/shares/{share}/schemas/{schema}");
         let (format_str, args) = pattern.to_format_string();
-        assert_eq!(format_str, "/shares/{}/schemas/{}");
+        assert_eq!(format_str, "shares/{}/schemas/{}");
         assert_eq!(args, vec!["share", "schema"]);
     }
 

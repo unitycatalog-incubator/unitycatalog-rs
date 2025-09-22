@@ -27,7 +27,9 @@ use proc_macro2::TokenStream;
 use quote::format_ident;
 use syn::Ident;
 
-use crate::analysis::{ManagedResource, MethodPlan, RequestType, ServicePlan, analyze_metadata};
+use crate::analysis::{
+    ManagedResource, MethodPlan, RequestParam, RequestType, ServicePlan, analyze_metadata,
+};
 use crate::google::api::http_rule::Pattern;
 use crate::output;
 use crate::parsing::types::UnifiedType;
@@ -207,6 +209,20 @@ impl MethodHandler<'_> {
         ctx: &RenderContext,
     ) -> TokenStream {
         CONVERTER.field_assignment(field_type, field_ident, ctx)
+    }
+
+    pub(crate) fn required_parameters(&self) -> impl Iterator<Item = &RequestParam> {
+        self.plan
+            .parameters
+            .iter()
+            .filter(|param| !param.is_optional())
+    }
+
+    pub(crate) fn optional_parameters(&self) -> impl Iterator<Item = &RequestParam> {
+        self.plan
+            .parameters
+            .iter()
+            .filter(|param| param.is_optional())
     }
 
     /// Analyze request fields to separate required from optional

@@ -185,7 +185,6 @@ fn extract_request_fields(
     for field in input_fields {
         let field_name = &field.name;
 
-        // Skip if already processed as path parameter
         if processed_fields.contains(field_name) {
             continue;
         }
@@ -202,8 +201,6 @@ fn extract_request_fields(
             continue;
         }
 
-        processed_fields.insert(field_name.clone());
-
         if should_be_body_field(field_name, body_spec) {
             body_fields.push(BodyField {
                 name: field_name.clone(),
@@ -216,6 +213,7 @@ fn extract_request_fields(
                 field_type: field.unified_type.clone(),
             });
         }
+        processed_fields.insert(field_name.clone());
     }
 
     Ok((path_params, query_params, body_fields))

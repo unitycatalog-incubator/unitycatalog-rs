@@ -69,7 +69,7 @@ pub fn client_method(method: MethodHandler<'_>) -> TokenStream {
         quote! {}
     };
 
-    let tokens = if let Some(output_type) = method.output_type() {
+    if let Some(output_type) = method.output_type() {
         quote! {
             pub async fn #method_name(&self, request: &#input_type_ident) -> Result<#output_type> {
                 #url_formatting
@@ -90,9 +90,7 @@ pub fn client_method(method: MethodHandler<'_>) -> TokenStream {
                 Ok(())
             }
         }
-    };
-
-    tokens
+    }
 }
 
 /// Generate URL formatting code that properly substitutes path parameters
