@@ -103,12 +103,12 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
         #(#codegen_imports)*
 
         #[pyclass(name = "UnityCatalogClient")]
-        pub struct PyUnityCatalogClientABC {
+        pub struct PyUnityCatalogClient {
             client: UnityCatalogClient
         }
 
         #[pymethods]
-        impl PyUnityCatalogClientABC {
+        impl PyUnityCatalogClient {
             #[new]
             #[pyo3(signature = (base_url, token = None))]
             pub fn new(base_url: String, token: Option<String>) -> PyResult<Self> {
