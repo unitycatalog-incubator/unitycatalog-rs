@@ -53,36 +53,26 @@ pub struct ServicePlan {
     pub base_path: String,
     /// Methods to generate for this service
     pub methods: Vec<MethodPlan>,
-    /// Resources managed by this service (extracted from method return types)
+    /// Resources managed by this service
     pub managed_resources: Vec<ManagedResource>,
 }
 
 /// Plan for generating code for a single method
 #[derive(Debug, Clone)]
-pub struct MethodPlan {
+pub(crate) struct MethodPlan {
     /// Original method metadata
     pub metadata: MethodMetadata,
     /// Rust function name for the handler method
     pub handler_function_name: String,
+    pub http_pattern: HttpPattern,
     /// HTTP method and path for routing
     pub http_method: String,
-    pub http_path: String,
     /// parameters passed to the method
     pub parameters: Vec<RequestParam>,
-    /// Path parameters extracted from the URL template
-    pub path_params: Vec<PathParam>,
-    /// Query parameters (for List operations)
-    pub query_params: Vec<QueryParam>,
-    /// Body fields that should be extracted from request body
-    pub body_fields: Vec<BodyField>,
     /// Whether this method returns a response body
     pub has_response: bool,
     /// Request type for this method
     pub request_type: RequestType,
-    /// Denotes if this is a collection client method
-    pub is_collection_client_method: bool,
-    /// Whether this method returns a resource (for get/update/create operations)
-    pub returns_resource: bool,
     /// The resource type name returned by this method (if any)
     pub output_resource_type: Option<String>,
 }
@@ -118,20 +108,42 @@ pub enum RequestParam {
 }
 
 impl RequestParam {
-    pub fn field_ident(&self) -> Ident {
+    pub fn name(&self) -> &str {
         match self {
-            RequestParam::Path(param) => format_ident!("{}", param.field_name),
-            RequestParam::Query(param) => format_ident!("{}", param.name),
-            RequestParam::Body(param) => format_ident!("{}", param.name),
+            RequestParam::Path(param) => &param.field_name,
+            RequestParam::Query(param) => &param.name,
+            RequestParam::Body(param) => &param.name,
         }
+    }
+
+    pub fn field_type(&self) -> &UnifiedType {
+        match self {
+            RequestParam::Path(param) => &param.field_type,
+            RequestParam::Query(param) => &param.field_type,
+            RequestParam::Body(param) => &param.field_type,
+        }
+    }
+
+    pub fn field_ident(&self) -> Ident {
+        format_ident!("{}", self.name())
+    }
+
+    pub fn is_optional(&self) -> bool {
+        match self {
+            RequestParam::Path(_) => false,
+            RequestParam::Query(param) => param.is_optional(),
+            RequestParam::Body(param) => param.is_optional(),
+        }
+    }
+
+    pub fn is_path_param(&self) -> bool {
+        matches!(self, RequestParam::Path(_))
     }
 }
 
 /// A path parameter in a URL template
 #[derive(Debug, Clone)]
 pub struct PathParam {
-    /// Template parameter name (e.g., "name" from "/catalogs/{name}")
-    pub template_param: String,
     /// Field name in the request struct (e.g., "full_name")
     pub field_name: String,
     /// Parsed type of the path parameter
@@ -149,10 +161,15 @@ impl From<PathParam> for RequestParam {
 pub struct QueryParam {
     /// Parameter name
     pub name: String,
-    /// Whether this parameter is optional
-    pub optional: bool,
     /// Parsed type of the query parameter
     pub field_type: UnifiedType,
+}
+
+impl QueryParam {
+    /// denotes if the parameter is optional
+    pub fn is_optional(&self) -> bool {
+        self.field_type.is_optional
+    }
 }
 
 impl From<QueryParam> for RequestParam {
@@ -170,6 +187,13 @@ pub struct BodyField {
     pub optional: bool,
     /// Parsed type of the query parameter
     pub field_type: UnifiedType,
+}
+
+impl BodyField {
+    /// denotes if the parameter is optional
+    pub fn is_optional(&self) -> bool {
+        self.optional
+    }
 }
 
 impl From<BodyField> for RequestParam {
@@ -190,7 +214,7 @@ pub struct ManagedResource {
 pub(super) struct MethodPlanner<'a> {
     method: &'a MethodMetadata,
     pattern: Pattern,
-    path: HttpPattern,
+    pub(super) path: HttpPattern,
     registry: &'a MessageRegistry<'a>,
 }
 
@@ -332,13 +356,6 @@ impl<'a> MethodPlanner<'a> {
         !self.method.output_type.is_empty() && !self.method.output_type.ends_with("Empty")
     }
 
-    pub fn is_collection_client_method(&self) -> bool {
-        match self.request_type() {
-            RequestType::List | RequestType::Create => true,
-            _ => false,
-        }
-    }
-
     /// Extract the resource type name from the method's output type
     pub fn output_resource_type(&self) -> Option<String> {
         if self.has_response() {
@@ -353,14 +370,6 @@ impl<'a> MethodPlanner<'a> {
             None
         }
     }
-
-    /// Check if this method returns a resource (for get/update operations)
-    pub fn returns_resource(&self) -> bool {
-        match self.request_type() {
-            RequestType::Get | RequestType::Update | RequestType::Create => self.has_response(),
-            _ => false,
-        }
-    }
 }
 
 /// Extract managed resources from service methods
@@ -372,21 +381,19 @@ pub fn extract_managed_resources(
     let mut seen_types = HashSet::<String>::new();
 
     for method in methods {
-        if method.returns_resource {
-            if let Some(ref resource_type) = method.output_resource_type {
-                // Skip if we've already processed this resource type
-                if seen_types.contains(resource_type) {
-                    continue;
-                }
+        if let Some(ref resource_type) = method.output_resource_type {
+            // Skip if we've already processed this resource type
+            if seen_types.contains(resource_type) {
+                continue;
+            }
 
-                // Look up the resource descriptor for this type
-                if let Some(descriptor) = registry.get_resource_descriptor(resource_type) {
-                    resources.push(ManagedResource {
-                        type_name: resource_type.clone(),
-                        descriptor: descriptor.clone(),
-                    });
-                    seen_types.insert(resource_type.clone());
-                }
+            // Look up the resource descriptor for this type
+            if let Some(descriptor) = registry.get_resource_descriptor(resource_type) {
+                resources.push(ManagedResource {
+                    type_name: resource_type.clone(),
+                    descriptor: descriptor.clone(),
+                });
+                seen_types.insert(resource_type.clone());
             }
         }
     }

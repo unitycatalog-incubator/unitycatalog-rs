@@ -9,7 +9,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use super::format_tokens;
-use crate::analysis::RequestType;
+use crate::analysis::{RequestParam, RequestType};
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::parsing::RenderContext;
 use crate::parsing::types::BaseType;
@@ -153,8 +153,7 @@ fn collection_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
 fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
 
-    let param_defs = generate_param_definitions(method, true);
-    let pyo3_signature = generate_pyo3_signature(method, true);
+    let (param_defs, pyo3_signature) = collection_method_parameters(method, true);
     let client_call = inner_resource_client_call(method, true);
     let builder_calls = generate_builder_pattern(method, true);
 
@@ -183,8 +182,7 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 fn collection_create_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
     let response_type = method.output_type().unwrap();
-    let param_defs = generate_param_definitions(method, false);
-    let pyo3_signature = generate_pyo3_signature_for_resource(method);
+    let (param_defs, pyo3_signature) = collection_method_parameters(method, false);
     let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
@@ -210,8 +208,7 @@ fn collection_create_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
     let response_type = method.output_type();
-    let param_defs = resource_method_parameters(method);
-    let pyo3_signature = generate_pyo3_signature_for_resource(method);
+    let (param_defs, pyo3_signature) = resource_method_parameters(method);
     let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
@@ -236,8 +233,7 @@ fn resource_get_update_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 /// Generate Delete method (returns unit type)
 fn resource_delete_method_impl(method: &MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.resource_client_method();
-    let param_defs = resource_method_parameters(method);
-    let pyo3_signature = generate_pyo3_signature_for_resource(method);
+    let (param_defs, pyo3_signature) = resource_method_parameters(method);
     let client_call = inner_resource_client_call(method, false);
     let builder_calls = generate_builder_pattern(method, false);
 
@@ -260,199 +256,61 @@ fn resource_delete_method_impl(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate parameter definitions for method signature
-fn resource_method_parameters(method: &MethodHandler<'_>) -> Vec<TokenStream> {
-    let mut params = Vec::new();
-
-    // Add required body fields (non-optional)
-    for body_field in method.plan.body_fields() {
-        if !body_field.optional {
-            let param_name = format_ident!("{}", body_field.name);
-            let rust_type =
-                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    // Add required query parameters
-    for query_param in method.plan.query_parameters() {
-        if !query_param.optional {
-            let param_name = format_ident!("{}", query_param.name);
-            let rust_type =
-                method.field_type(&query_param.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    // Add optional body fields
-    for body_field in method.plan.body_fields() {
-        if body_field.optional {
-            let param_name = format_ident!("{}", body_field.name);
-            let rust_type =
-                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    // Add optional query parameters
-    for query_param in method.plan.query_parameters() {
-        if query_param.optional {
-            let param_name = format_ident!("{}", query_param.name);
-            let rust_type =
-                method.field_type(&query_param.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    params
+fn resource_method_parameters(method: &MethodHandler<'_>) -> (Vec<TokenStream>, TokenStream) {
+    let map_param = |p: &RequestParam| {
+        let param_name = p.field_ident();
+        let rust_type = method.field_type(p.field_type(), RenderContext::PythonParameter);
+        quote! { #param_name: #rust_type }
+    };
+    let parameters = method
+        .required_parameters()
+        .chain(method.optional_parameters())
+        // we omit path parameters since these are encoded in the resource client struct.
+        .filter(|field| !field.is_path_param())
+        .collect_vec();
+    let signature = render_pyo3(&parameters);
+    (parameters.into_iter().map(map_param).collect(), signature)
 }
 
 /// Generate parameter definitions for method signature
-fn generate_param_definitions(method: &MethodHandler<'_>, is_list: bool) -> Vec<TokenStream> {
-    let mut params = Vec::new();
-
-    // Add required path parameters first (these don't have Option wrapper)
-    for path_param in method.plan.path_parameters() {
-        let param_name = format_ident!("{}", path_param.field_name);
-        let rust_type = method.field_type(&path_param.field_type, RenderContext::PythonParameter);
-        params.push(quote! { #param_name: #rust_type });
-    }
-
-    // Add required body fields (non-optional)
-    for body_field in method.plan.body_fields() {
-        if !body_field.optional {
-            let param_name = format_ident!("{}", body_field.name);
-            let rust_type =
-                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    // Add required query parameters (non-optional)
-    for query_param in method.plan.query_parameters() {
-        if !query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
-            let param_name = format_ident!("{}", query_param.name);
-            let rust_type =
-                method.field_type(&query_param.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    // Add optional query parameters
-    for query_param in method.plan.query_parameters() {
-        if query_param.optional && !(is_list && query_param.name.as_str() == "page_token") {
-            let param_name = format_ident!("{}", query_param.name);
-            let rust_type =
-                method.field_type(&query_param.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    // Add optional body fields
-    for body_field in method.plan.body_fields() {
-        if body_field.optional {
-            let param_name = format_ident!("{}", body_field.name);
-            let rust_type =
-                method.field_type(&body_field.field_type, RenderContext::PythonParameter);
-            params.push(quote! { #param_name: #rust_type });
-        }
-    }
-
-    params
+fn collection_method_parameters(
+    method: &MethodHandler<'_>,
+    is_list: bool,
+) -> (Vec<TokenStream>, TokenStream) {
+    let map_param = |p: &RequestParam| {
+        let param_name = p.field_ident();
+        let rust_type = method.field_type(p.field_type(), RenderContext::PythonParameter);
+        quote! { #param_name: #rust_type }
+    };
+    let parameters = method
+        .required_parameters()
+        .chain(method.optional_parameters())
+        .filter(|p| !(is_list && p.name() == "page_token"))
+        .collect_vec();
+    let signature = render_pyo3(&parameters);
+    (parameters.into_iter().map(map_param).collect(), signature)
 }
 
-/// Generate PyO3 signature annotation for collection methods (includes path parameters)
-fn generate_pyo3_signature(method: &MethodHandler<'_>, is_list: bool) -> TokenStream {
-    let mut signature_parts = Vec::new();
-
-    // Add path parameters first
-    for path_param in method.plan.path_parameters() {
-        signature_parts.push(path_param.field_name.clone());
-    }
-
-    // Required body fields (no default values)
-    for body_field in method.plan.body_fields() {
-        if !body_field.optional {
-            signature_parts.push(body_field.name.clone());
-        }
-    }
-
-    // Required query parameters (no default values)
-    for query_param in method.plan.query_parameters() {
-        if !query_param.optional && !(is_list && query_param.name == "page_token") {
-            signature_parts.push(query_param.name.clone());
-        }
-    }
-
-    // Optional body fields with defaults
-    for body_field in method.plan.body_fields() {
-        if body_field.optional {
-            signature_parts.push(format!("{} = None", body_field.name));
-        }
-    }
-
-    // Optional query parameters with defaults - exclude page_token for list methods
-    for query_param in method.plan.query_parameters() {
-        if query_param.optional && !(is_list && query_param.name == "page_token") {
-            signature_parts.push(format!("{} = None", query_param.name));
-        }
-    }
-
+fn render_pyo3(signature_parts: &[&RequestParam]) -> TokenStream {
+    let signature_parts = signature_parts
+        .iter()
+        .map(|p| {
+            if p.is_optional() {
+                format!("{} = None", p.name())
+            } else {
+                p.name().to_string()
+            }
+        })
+        .collect_vec();
     if signature_parts.is_empty() {
         quote! {}
     } else {
         let signature_string = signature_parts.join(", ");
-        let signature_tokens = signature_string
+        let tokens = signature_string
             .parse::<proc_macro2::TokenStream>()
             .unwrap();
         quote! {
-            #[pyo3(signature = (#signature_tokens))]
-        }
-    }
-}
-
-/// Generate PyO3 signature annotation for resource methods (excludes path parameters)
-fn generate_pyo3_signature_for_resource(method: &MethodHandler<'_>) -> TokenStream {
-    let mut signature_parts = Vec::new();
-
-    // Don't add path parameters for resource methods - they're part of the client instance
-
-    // Required body fields (no default values)
-    for body_field in method.plan.body_fields() {
-        if !body_field.optional {
-            signature_parts.push(body_field.name.clone());
-        }
-    }
-
-    // Required query parameters (no default values)
-    for query_param in method.plan.query_parameters() {
-        if !query_param.optional {
-            signature_parts.push(query_param.name.clone());
-        }
-    }
-
-    // Optional body fields with defaults
-    for body_field in method.plan.body_fields() {
-        if body_field.optional {
-            signature_parts.push(format!("{} = None", body_field.name));
-        }
-    }
-
-    // Optional query parameters with defaults
-    for query_param in method.plan.query_parameters() {
-        if query_param.optional {
-            signature_parts.push(format!("{} = None", query_param.name));
-        }
-    }
-
-    if signature_parts.is_empty() {
-        quote! {}
-    } else {
-        let signature_string = signature_parts.join(", ");
-        let signature_tokens = signature_string
-            .parse::<proc_macro2::TokenStream>()
-            .unwrap();
-        quote! {
-            #[pyo3(signature = (#signature_tokens))]
+            #[pyo3(signature = (#tokens))]
         }
     }
 }
@@ -465,24 +323,13 @@ fn generate_pyo3_signature_for_resource(method: &MethodHandler<'_>) -> TokenStre
 /// as arguments.
 fn inner_resource_client_call(method: &MethodHandler<'_>, _is_list: bool) -> TokenStream {
     let method_name = method.plan.resource_client_method();
-    let mut args = Vec::new();
-
-    // Add required body fields as direct arguments
-    for body_field in method.plan.body_fields() {
-        if !body_field.optional {
-            let param_name = format_ident!("{}", body_field.name);
-            args.push(quote! { #param_name });
-        }
-    }
-
-    // Add required query parameters
-    for query_param in method.plan.query_parameters() {
-        if !query_param.optional {
-            let param_name = format_ident!("{}", query_param.name);
-            args.push(quote! { #param_name });
-        }
-    }
-
+    let args = method
+        .required_parameters()
+        .filter(|param| !param.is_path_param())
+        .map(|param| {
+            let param_name = param.field_ident();
+            quote! { #param_name }
+        });
     quote! {
         self.client.#method_name(#(#args,)*)
     }
@@ -494,7 +341,7 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
 
     // Optional parameters become builder calls
     for query_param in method.plan.query_parameters() {
-        if query_param.optional && !(is_list && query_param.name == "page_token") {
+        if query_param.is_optional() && !(is_list && query_param.name == "page_token") {
             let param_name =
                 format_ident!("{}", strings::operation_to_method_name(&query_param.name));
             let with_method = format_ident!("with_{}", query_param.name);
