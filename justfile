@@ -43,6 +43,7 @@ generate-code:
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
     just fmt
+    mv python/client/src/codegen/unitycatalog_client.pyi python/client/unitycatalog_client.pyi
 
 # generate auxiliary types in common crate. (custom google.protobuf build)
 # CURRENTLY not used, but we may need it again come validation ...
@@ -146,7 +147,7 @@ integration-record:
 lint-node:
     npm run lint -w @unitycatalog/client
 
-fix: fix-rust fix-node
+fix: fix-rust fix-node fix-py
   just fmt
 
 # fix nodejs bindings
@@ -157,6 +158,10 @@ fix-node:
 fix-rust:
     cargo clippy --fix --workspace --allow-dirty --all-features
 
+fix-py:
+  uvx ruff check --fix
+
 fmt:
     cargo fmt
     buf format proto/ --write
+    uvx ruff format .

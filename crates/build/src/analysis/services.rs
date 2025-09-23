@@ -139,6 +139,14 @@ impl RequestParam {
     pub fn is_path_param(&self) -> bool {
         matches!(self, RequestParam::Path(_))
     }
+
+    pub fn documentation(&self) -> Option<&str> {
+        match self {
+            RequestParam::Path(param) => param.documentation.as_deref(),
+            RequestParam::Query(param) => param.documentation.as_deref(),
+            RequestParam::Body(param) => param.documentation.as_deref(),
+        }
+    }
 }
 
 /// A path parameter in a URL template
@@ -148,6 +156,8 @@ pub struct PathParam {
     pub field_name: String,
     /// Parsed type of the path parameter
     pub field_type: UnifiedType,
+    /// Documentation from protobuf field comments
+    pub documentation: Option<String>,
 }
 
 impl From<PathParam> for RequestParam {
@@ -163,6 +173,8 @@ pub struct QueryParam {
     pub name: String,
     /// Parsed type of the query parameter
     pub field_type: UnifiedType,
+    /// Documentation from protobuf field comments
+    pub documentation: Option<String>,
 }
 
 impl QueryParam {
@@ -187,6 +199,8 @@ pub struct BodyField {
     pub optional: bool,
     /// Parsed type of the query parameter
     pub field_type: UnifiedType,
+    /// Documentation from protobuf field comments
+    pub documentation: Option<String>,
 }
 
 impl BodyField {

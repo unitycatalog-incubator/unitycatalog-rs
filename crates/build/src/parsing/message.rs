@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use convert_case::{Case, Casing};
 use prost::Message as _;
 use protobuf::Message;
-use protobuf::descriptor::field_descriptor_proto::Label;
+use protobuf::descriptor::field_descriptor_proto::{Label, Type};
 use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, SourceCodeInfo};
 
 use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
@@ -68,7 +68,17 @@ pub(super) fn process_message(
                         .unwrap_or(clean_type)
                         .to_string()
                 } else {
-                    field_name.clone()
+                    // Handle primitive types
+                    match field.type_() {
+                        Type::TYPE_STRING => "String".to_string(),
+                        Type::TYPE_INT32 => "i32".to_string(),
+                        Type::TYPE_INT64 => "i64".to_string(),
+                        Type::TYPE_BOOL => "bool".to_string(),
+                        Type::TYPE_DOUBLE => "f64".to_string(),
+                        Type::TYPE_FLOAT => "f32".to_string(),
+                        Type::TYPE_BYTES => "Vec<u8>".to_string(),
+                        _ => field_name.clone(),
+                    }
                 };
 
                 let variant = OneofVariant {

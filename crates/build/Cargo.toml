@@ -31,6 +31,7 @@ proc-macro2 = "1.0"
 protobuf = "3.0"
 prettyplease = "0.2"
 regex = "1.10"
+textwrap = "0.16"
 
 [dev-dependencies]
 tempfile = "*"

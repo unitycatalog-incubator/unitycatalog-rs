@@ -24,12 +24,12 @@ The script expects to be run from the project root directory and will:
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 
 
-def load_json_schemas(jsonschema_dir: Path) -> Dict[str, Dict[str, Any]]:
+def load_json_schemas(jsonschema_dir: Path) -> dict[str, dict[str, Any]]:
     """
     Load all JSON schema files from the jsonschema directory.
 
@@ -39,7 +39,7 @@ def load_json_schemas(jsonschema_dir: Path) -> Dict[str, Dict[str, Any]]:
 
     for file_path in jsonschema_dir.glob("*.json"):
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 schema_data = json.load(f)
 
             # Extract the schema name from the filename
@@ -84,7 +84,7 @@ def load_json_schemas(jsonschema_dir: Path) -> Dict[str, Dict[str, Any]]:
     return schemas
 
 
-def convert_json_schema_to_openapi(json_schema: Dict[str, Any]) -> Dict[str, Any]:
+def convert_json_schema_to_openapi(json_schema: dict[str, Any]) -> dict[str, Any]:
     """
     Convert a JSON Schema definition to OpenAPI Schema format.
 
@@ -103,7 +103,7 @@ def convert_json_schema_to_openapi(json_schema: Dict[str, Any]) -> Dict[str, Any
 
     # Handle exclusiveMinimum/exclusiveMaximum differences
     if "exclusiveMinimum" in openapi_schema and isinstance(
-        openapi_schema["exclusiveMinimum"], (int, float)
+        openapi_schema["exclusiveMinimum"], int | float
     ):
         # In JSON Schema draft 2020-12, exclusiveMinimum is a number
         # In OpenAPI 3.0, it should be a boolean with minimum set
@@ -112,7 +112,7 @@ def convert_json_schema_to_openapi(json_schema: Dict[str, Any]) -> Dict[str, Any
         openapi_schema["exclusiveMinimum"] = True
 
     if "exclusiveMaximum" in openapi_schema and isinstance(
-        openapi_schema["exclusiveMaximum"], (int, float)
+        openapi_schema["exclusiveMaximum"], int | float
     ):
         exclusive_max = openapi_schema.pop("exclusiveMaximum")
         openapi_schema["maximum"] = exclusive_max
@@ -122,14 +122,12 @@ def convert_json_schema_to_openapi(json_schema: Dict[str, Any]) -> Dict[str, Any
     if "properties" in openapi_schema:
         for prop_name, prop_schema in openapi_schema["properties"].items():
             if isinstance(prop_schema, dict):
-                openapi_schema["properties"][prop_name] = (
-                    convert_json_schema_to_openapi(prop_schema)
+                openapi_schema["properties"][prop_name] = convert_json_schema_to_openapi(
+                    prop_schema
                 )
 
     if "items" in openapi_schema and isinstance(openapi_schema["items"], dict):
-        openapi_schema["items"] = convert_json_schema_to_openapi(
-            openapi_schema["items"]
-        )
+        openapi_schema["items"] = convert_json_schema_to_openapi(openapi_schema["items"])
 
     if "additionalProperties" in openapi_schema and isinstance(
         openapi_schema["additionalProperties"], dict
@@ -141,12 +139,12 @@ def convert_json_schema_to_openapi(json_schema: Dict[str, Any]) -> Dict[str, Any
     return openapi_schema
 
 
-def update_openapi_spec(openapi_file: Path, schemas: Dict[str, Dict[str, Any]]) -> None:
+def update_openapi_spec(openapi_file: Path, schemas: dict[str, dict[str, Any]]) -> None:
     """
     Update the OpenAPI specification file with the rich schema definitions.
     """
     # Load the existing OpenAPI spec
-    with open(openapi_file, "r", encoding="utf-8") as f:
+    with open(openapi_file, encoding="utf-8") as f:
         openapi_spec = yaml.safe_load(f)
 
     # Ensure components.schemas exists
