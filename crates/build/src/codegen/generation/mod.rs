@@ -121,17 +121,7 @@ pub fn generate_python_code(
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
-    let services = plan
-        .services
-        .iter()
-        .filter(|service| {
-            !service
-                .service_name
-                .to_ascii_lowercase()
-                .contains("sharing")
-        })
-        .cloned()
-        .collect::<Vec<_>>();
+    let services = plan.services.to_vec();
 
     let handlers = services
         .iter()
@@ -151,6 +141,10 @@ pub fn generate_python_code(
     // Generate the main module file that ties everything together
     let module_code = python::main_module(&handlers);
     files.insert("mod.rs".to_string(), module_code);
+
+    // Generate single unified typings (.pyi) file for all services
+    let python_typings_code = python::generate_typings(&handlers);
+    files.insert("unitycatalog_client.pyi".to_string(), python_typings_code);
 
     Ok(GeneratedCode { files })
 }

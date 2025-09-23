@@ -26,6 +26,8 @@ pub enum RenderContext {
     BuilderMethod,
     /// Python parameter type
     PythonParameter,
+    /// Python type annotations for .pyi files
+    PythonTypings,
 }
 
 /// Utility for converting between protobuf and Rust types
@@ -162,6 +164,40 @@ impl TypeConverter {
         } else {
             name.to_string()
         }
+    }
+
+    /// Convert a unified type to a Python type annotation string
+    pub fn unified_to_python_type(&self, unified_type: &UnifiedType) -> String {
+        let base_type_str = match &unified_type.base_type {
+            BaseType::String => "str".to_string(),
+            BaseType::Int32 | BaseType::Int64 => "int".to_string(),
+            BaseType::Bool => "bool".to_string(),
+            BaseType::Float64 | BaseType::Float32 => "float".to_string(),
+            BaseType::Bytes => "bytes".to_string(),
+            BaseType::Unit => "None".to_string(),
+            BaseType::Message(name) => self.extract_simple_type_name(name),
+            BaseType::Enum(name) => self.extract_simple_type_name(name),
+            BaseType::OneOf(name) => self.extract_simple_type_name(name),
+            BaseType::Map(key_type, value_type) => {
+                let key_str = self.unified_to_python_type(key_type);
+                let value_str = self.unified_to_python_type(value_type);
+                format!("Dict[{}, {}]", key_str, value_str)
+            }
+        };
+
+        let mut result = base_type_str;
+
+        // Apply repeated wrapper
+        if unified_type.is_repeated {
+            result = format!("List[{}]", result);
+        }
+
+        // Apply optional wrapper
+        if unified_type.is_optional {
+            result = format!("Optional[{}]", result);
+        }
+
+        result
     }
 }
 

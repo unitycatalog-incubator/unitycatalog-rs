@@ -30,11 +30,11 @@ use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "UnityCatalogClient")]
-pub struct PyUnityCatalogClientABC {
+pub struct PyUnityCatalogClient {
     client: UnityCatalogClient,
 }
 #[pymethods]
-impl PyUnityCatalogClientABC {
+impl PyUnityCatalogClient {
     #[new]
     #[pyo3(signature = (base_url, token = None))]
     pub fn new(base_url: String, token: Option<String>) -> PyResult<Self> {

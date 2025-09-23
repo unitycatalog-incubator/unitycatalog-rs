@@ -299,7 +299,9 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
             struct QueryParams {
                 #(#query_fields,)*
             }
-            let axum::extract::Query(QueryParams { #(#param_names),* }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+            let axum::extract::Query(QueryParams { #(#param_names),* }) = parts
+                .extract::<axum::extract::Query<QueryParams>>()
+                .await?;
         }
     }
 }

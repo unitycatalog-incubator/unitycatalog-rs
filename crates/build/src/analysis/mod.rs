@@ -176,6 +176,7 @@ fn extract_request_fields(
             path_params.push(PathParam {
                 field_name: field.name.clone(),
                 field_type: field.unified_type.clone(),
+                documentation: field.documentation.clone(),
             });
             processed_fields.insert(field.name.clone());
         }
@@ -196,6 +197,7 @@ fn extract_request_fields(
                 name: field_name.clone(),
                 optional: true, // oneof fields are always optional
                 field_type: field.unified_type.clone(),
+                documentation: field.documentation.clone(),
             });
             processed_fields.insert(field_name.clone());
             continue;
@@ -206,11 +208,13 @@ fn extract_request_fields(
                 name: field_name.clone(),
                 optional: field.optional,
                 field_type: field.unified_type.clone(),
+                documentation: field.documentation.clone(),
             });
         } else {
             query_params.push(QueryParam {
                 name: field_name.clone(),
                 field_type: field.unified_type.clone(),
+                documentation: field.documentation.clone(),
             });
         }
         processed_fields.insert(field_name.clone());
