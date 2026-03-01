@@ -79,6 +79,11 @@ export interface ClientConfig {
   timeoutConfig?: TimeoutConfig
   extraHeaders?: Record<string, string>
 }
+export declare class NapiCatalogClient {
+  get(includeBrowse?: boolean | undefined | null): Promise<Buffer>
+  update(owner?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, newName?: string | undefined | null): Promise<Buffer>
+  delete(force?: boolean | undefined | null): Promise<void>
+}
 export declare class NapiCredentialClient {
   get(): Promise<Buffer>
   update(newName?: string | undefined | null, comment?: string | undefined | null, readOnly?: boolean | undefined | null, owner?: string | undefined | null, skipValidation?: boolean | undefined | null, force?: boolean | undefined | null): Promise<Buffer>
@@ -88,6 +93,11 @@ export declare class NapiExternalLocationClient {
   get(): Promise<Buffer>
   update(url?: string | undefined | null, credentialName?: string | undefined | null, readOnly?: boolean | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, newName?: string | undefined | null, force?: boolean | undefined | null, skipValidation?: boolean | undefined | null): Promise<Buffer>
   delete(force?: boolean | undefined | null): Promise<void>
+}
+export declare class NapiRecipientClient {
+  get(): Promise<Buffer>
+  update(newName?: string | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, expirationTime?: number | undefined | null): Promise<Buffer>
+  delete(): Promise<void>
 }
 export declare class NapiSchemaClient {
   get(): Promise<Buffer>
@@ -103,22 +113,12 @@ export declare class NapiTableClient {
   get(includeDeltaMetadata?: boolean | undefined | null, includeBrowse?: boolean | undefined | null, includeManifestCapabilities?: boolean | undefined | null): Promise<Buffer>
   delete(): Promise<void>
 }
+export declare class NapiTemporaryCredentialClient { }
 export declare class NapiVolumeClient {
   get(includeBrowse?: boolean | undefined | null): Promise<Buffer>
   update(newName?: string | undefined | null, comment?: string | undefined | null, owner?: string | undefined | null): Promise<Buffer>
   delete(): Promise<void>
 }
-export declare class NapiCatalogClient {
-  get(includeBrowse?: boolean | undefined | null): Promise<Buffer>
-  update(owner?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, newName?: string | undefined | null): Promise<Buffer>
-  delete(force?: boolean | undefined | null): Promise<void>
-}
-export declare class NapiRecipientClient {
-  get(): Promise<Buffer>
-  update(newName?: string | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, expirationTime?: number | undefined | null): Promise<Buffer>
-  delete(): Promise<void>
-}
-export declare class NapiTemporaryCredentialClient { }
 export declare class NapiUnityCatalogClient {
   static fromUrl(baseUrl: string, token?: string | undefined | null): NapiUnityCatalogClient
   listCatalogs(maxResults?: number | undefined | null): Promise<Array<Buffer>>

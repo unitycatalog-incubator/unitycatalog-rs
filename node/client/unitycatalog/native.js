@@ -310,15 +310,15 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { NapiCredentialClient, NapiExternalLocationClient, NapiSchemaClient, NapiShareClient, NapiTableClient, NapiVolumeClient, NapiCatalogClient, NapiRecipientClient, NapiTemporaryCredentialClient, NapiUnityCatalogClient } = nativeBinding
+const { NapiCatalogClient, NapiCredentialClient, NapiExternalLocationClient, NapiRecipientClient, NapiSchemaClient, NapiShareClient, NapiTableClient, NapiTemporaryCredentialClient, NapiVolumeClient, NapiUnityCatalogClient } = nativeBinding
 
+module.exports.NapiCatalogClient = NapiCatalogClient
 module.exports.NapiCredentialClient = NapiCredentialClient
 module.exports.NapiExternalLocationClient = NapiExternalLocationClient
+module.exports.NapiRecipientClient = NapiRecipientClient
 module.exports.NapiSchemaClient = NapiSchemaClient
 module.exports.NapiShareClient = NapiShareClient
 module.exports.NapiTableClient = NapiTableClient
-module.exports.NapiVolumeClient = NapiVolumeClient
-module.exports.NapiCatalogClient = NapiCatalogClient
-module.exports.NapiRecipientClient = NapiRecipientClient
 module.exports.NapiTemporaryCredentialClient = NapiTemporaryCredentialClient
+module.exports.NapiVolumeClient = NapiVolumeClient
 module.exports.NapiUnityCatalogClient = NapiUnityCatalogClient

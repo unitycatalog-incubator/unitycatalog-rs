@@ -195,3 +195,6 @@ Cargo.lock
 !.yarn/versions
 
 *.node
+
+# Integration test server state
+.server-state.json

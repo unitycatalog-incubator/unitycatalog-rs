@@ -129,6 +129,12 @@ _stop_pg_sqlx:
 test-node:
     npm run test -w @unitycatalog/client
 
+# run node integration tests (starts UC server automatically)
+[group('test')]
+test-node-integration:
+    npm run build -w @unitycatalog/client
+    npm run test:integration -w @unitycatalog/client
+
 # run integration tests using mocked server responses
 [group('test')]
 integration:

@@ -82,10 +82,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -101,9 +98,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
                             "schema" => Ok(GeneratedField::Schema),
                             "table" => Ok(GeneratedField::Table),
                             "column" => Ok(GeneratedField::Column),
-                            "externalLocation" | "external_location" => {
-                                Ok(GeneratedField::ExternalLocation)
-                            }
+                            "externalLocation" | "external_location" => Ok(GeneratedField::ExternalLocation),
                             "recipient" => Ok(GeneratedField::Recipient),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -121,8 +116,8 @@ impl<'de> serde::Deserialize<'de> for Resource {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Resource, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut resource__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -131,65 +126,57 @@ impl<'de> serde::Deserialize<'de> for Resource {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("share"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Share);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Share)
+;
                         }
                         GeneratedField::Credential => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("credential"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Credential);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Credential)
+;
                         }
                         GeneratedField::Catalog => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("catalog"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Catalog);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Catalog)
+;
                         }
                         GeneratedField::Schema => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("schema"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Schema);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Schema)
+;
                         }
                         GeneratedField::Table => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("table"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Table);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Table)
+;
                         }
                         GeneratedField::Column => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("column"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Column);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Column)
+;
                         }
                         GeneratedField::ExternalLocation => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("externalLocation"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::ExternalLocation);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::ExternalLocation)
+;
                         }
                         GeneratedField::Recipient => {
                             if resource__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("recipient"));
                             }
-                            resource__ = map_
-                                .next_value::<::std::option::Option<_>>()?
-                                .map(resource::Resource::Recipient);
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Recipient)
+;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;

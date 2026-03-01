@@ -1,13 +1,13 @@
 import {
-  UnityCatalogClient,
   CatalogClient,
+  CredentialClient,
+  ExternalLocationClient,
+  RecipientClient,
   SchemaClient,
   ShareClient,
-  CredentialClient,
-  RecipientClient,
-  ExternalLocationClient,
-  VolumeClient,
   TableClient,
+  UnityCatalogClient,
+  VolumeClient,
 } from "../dist/index";
 
 const BASE_URL = "http://unitycatalog.io/api/2.1/unity-catalog/";
