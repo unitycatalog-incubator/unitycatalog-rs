@@ -7,8 +7,6 @@ use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::quote;
 
-pub(crate) static CONVERTER: TypeConverter = TypeConverter {};
-
 /// Context for rendering types in different situations
 #[derive(Debug, Clone, Copy)]
 pub enum RenderContext {
@@ -30,174 +28,146 @@ pub enum RenderContext {
     PythonTypings,
 }
 
-/// Utility for converting between protobuf and Rust types
-pub struct TypeConverter;
+/// Convert a unified type to a Rust type string
+pub fn unified_to_rust(unified_type: &UnifiedType, context: RenderContext) -> String {
+    let base_type_str = match &unified_type.base_type {
+        BaseType::String => {
+            if matches!(context, RenderContext::Constructor) && !unified_type.is_optional {
+                "impl Into<String>".to_string()
+            } else {
+                "String".to_string()
+            }
+        }
+        BaseType::Int32 => "i32".to_string(),
+        BaseType::Int64 => "i64".to_string(),
+        BaseType::Bool => "bool".to_string(),
+        BaseType::Float64 => "f64".to_string(),
+        BaseType::Float32 => "f32".to_string(),
+        BaseType::Bytes => "Vec<u8>".to_string(),
+        BaseType::Unit => "()".to_string(),
+        BaseType::Message(name) => extract_simple_type_name(name),
+        BaseType::Enum(name) => {
+            if matches!(context, RenderContext::Extractor) {
+                "i32".to_string()
+            } else {
+                convert_protobuf_enum_to_rust_type(&format!("TYPE_ENUM:{}", name))
+            }
+        }
+        BaseType::OneOf(name) => extract_simple_type_name(name),
+        BaseType::Map(key_type, value_type) => {
+            if matches!(context, RenderContext::Constructor) && !unified_type.is_optional {
+                "impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>".to_string()
+            } else {
+                let key_str = unified_to_rust(key_type, context);
+                let value_str = unified_to_rust(value_type, context);
+                format!("HashMap<{}, {}>", key_str, value_str)
+            }
+        }
+    };
 
-impl Default for TypeConverter {
-    fn default() -> Self {
-        Self::new()
+    let mut result = base_type_str;
+
+    // In builder methods we require the inner type only.
+    if unified_type.is_repeated && !matches!(context, RenderContext::BuilderMethod) {
+        result = format!("Vec<{}>", result);
+    }
+
+    // In builder methods we wrap in impl Into<Option<T>> so we just need the inner type.
+    // In python parameter signatures we wrap repeated fields in Option<Vec<T>>
+    // to distinguish an empty array from a missing field.
+    if (unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod))
+        || (matches!(context, RenderContext::PythonParameter)
+            && (matches!(unified_type.base_type, BaseType::Map(_, _)) || unified_type.is_repeated))
+    {
+        result = format!("Option<{}>", result);
+    }
+
+    result
+}
+
+/// Generate field assignment code
+pub fn field_assignment(
+    unified_type: &UnifiedType,
+    field_ident: &proc_macro2::Ident,
+    ctx: &RenderContext,
+) -> TokenStream {
+    if matches!(ctx, RenderContext::BuilderMethod) {
+        return flexible_optional_field_assignment(unified_type, field_ident);
+    }
+    match &unified_type.base_type {
+        BaseType::String if !unified_type.is_optional => quote! { #field_ident.into() },
+        BaseType::Enum(_) => quote! { #field_ident as i32 },
+        BaseType::Map(_, _) => quote! {
+            #field_ident.into_iter().map(|(k, v)| (k.into(), v.into())).collect()
+        },
+        _ => quote! { #field_ident },
     }
 }
 
-impl TypeConverter {
-    /// Create a new type converter
-    pub fn new() -> Self {
-        Self
+/// Convert a unified type to a Python type annotation string
+pub fn unified_to_python_type(unified_type: &UnifiedType) -> String {
+    let base_type_str = match &unified_type.base_type {
+        BaseType::String => "str".to_string(),
+        BaseType::Int32 | BaseType::Int64 => "int".to_string(),
+        BaseType::Bool => "bool".to_string(),
+        BaseType::Float64 | BaseType::Float32 => "float".to_string(),
+        BaseType::Bytes => "bytes".to_string(),
+        BaseType::Unit => "None".to_string(),
+        BaseType::Message(name) => extract_simple_type_name(name),
+        BaseType::Enum(name) => extract_simple_type_name(name),
+        BaseType::OneOf(name) => extract_simple_type_name(name),
+        BaseType::Map(key_type, value_type) => {
+            let key_str = unified_to_python_type(key_type);
+            let value_str = unified_to_python_type(value_type);
+            format!("Dict[{}, {}]", key_str, value_str)
+        }
+    };
+
+    let mut result = base_type_str;
+
+    if unified_type.is_repeated {
+        result = format!("List[{}]", result);
     }
 
-    /// Convert a unified type to a Rust type string
-    pub fn unified_to_rust(&self, unified_type: &UnifiedType, context: RenderContext) -> String {
-        let base_type_str = match &unified_type.base_type {
-            BaseType::String => {
-                if matches!(context, RenderContext::Constructor) && !unified_type.is_optional {
-                    "impl Into<String>".to_string()
-                } else {
-                    "String".to_string()
-                }
-            }
-            BaseType::Int32 => "i32".to_string(),
-            BaseType::Int64 => "i64".to_string(),
-            BaseType::Bool => "bool".to_string(),
-            BaseType::Float64 => "f64".to_string(),
-            BaseType::Float32 => "f32".to_string(),
-            BaseType::Bytes => "Vec<u8>".to_string(),
-            BaseType::Unit => "()".to_string(),
-            BaseType::Message(name) => self.extract_simple_type_name(name),
-            BaseType::Enum(name) => {
-                if matches!(context, RenderContext::Extractor) {
-                    "i32".to_string()
-                } else {
-                    // For enums, extract the simple name and use it directly
-                    convert_protobuf_enum_to_rust_type(&format!("TYPE_ENUM:{}", name))
-                }
-            }
-            BaseType::OneOf(name) => self.extract_simple_type_name(name),
-            BaseType::Map(key_type, value_type) => {
-                if matches!(context, RenderContext::Constructor) && !unified_type.is_optional {
-                    "impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>".to_string()
-                } else {
-                    let key_str = self.unified_to_rust(key_type, context);
-                    let value_str = self.unified_to_rust(value_type, context);
-                    format!("HashMap<{}, {}>", key_str, value_str)
-                }
-            }
-        };
-
-        let mut result = base_type_str;
-
-        // Apply repeated wrapper.
-        // when creating a builder method, we require the inner type only.
-        if unified_type.is_repeated && !matches!(context, RenderContext::BuilderMethod) {
-            result = format!("Vec<{}>", result);
-        }
-
-        // Apply optional wrapper
-        // - in builder methods we wrap this in impl Into<Option<T>> so we just need the inner type
-        // - in python parameters signatures we wrap repeated fields in optional `Option<Vec<T>>`
-        //   to distinguish an empty array from a missing field
-        if (unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod))
-            || (matches!(context, RenderContext::PythonParameter)
-                && (matches!(unified_type.base_type, BaseType::Map(_, _))
-                    || unified_type.is_repeated))
-        {
-            result = format!("Option<{}>", result);
-        }
-
-        result
+    if unified_type.is_optional {
+        result = format!("Optional[{}]", result);
     }
 
-    /// Generate field assignment code for flexible optional fields
-    fn flexible_optional_field_assignment(
-        &self,
-        unified_type: &UnifiedType,
-        field_ident: &proc_macro2::Ident,
-    ) -> TokenStream {
-        if unified_type.is_optional {
-            match &unified_type.base_type {
-                BaseType::Enum(_) => quote! { #field_ident.into().map(|e| e as i32) },
-                _ => quote! { #field_ident.into() },
-            }
-        } else {
-            // For non-optional types that are being made optional in the builder
-            match &unified_type.base_type {
-                BaseType::String => quote! { #field_ident.into() },
-                BaseType::Int32
-                | BaseType::Int64
-                | BaseType::Bool
-                | BaseType::Float64
-                | BaseType::Float32 => {
-                    quote! { #field_ident.into() }
-                }
-                BaseType::Enum(_) => {
-                    quote! { #field_ident as i32 }
-                }
-                _ => quote! { #field_ident.into().map(|s| s.to_string()) },
-            }
-        }
-    }
+    result
+}
 
-    /// Generate field assignment code
-    pub fn field_assignment(
-        &self,
-        unified_type: &UnifiedType,
-        field_ident: &proc_macro2::Ident,
-        ctx: &RenderContext,
-    ) -> TokenStream {
-        if matches!(ctx, RenderContext::BuilderMethod) {
-            return self.flexible_optional_field_assignment(unified_type, field_ident);
-        }
+fn flexible_optional_field_assignment(
+    unified_type: &UnifiedType,
+    field_ident: &proc_macro2::Ident,
+) -> TokenStream {
+    if unified_type.is_optional {
         match &unified_type.base_type {
-            BaseType::String if !unified_type.is_optional => quote! { #field_ident.into() },
-            BaseType::Enum(_) => quote! { #field_ident as i32 },
-            BaseType::Map(_, _) => quote! {
-                #field_ident.into_iter().map(|(k, v)| (k.into(), v.into())).collect()
-            },
-            _ => quote! { #field_ident },
+            BaseType::Enum(_) => quote! { #field_ident.into().map(|e| e as i32) },
+            _ => quote! { #field_ident.into() },
         }
-    }
-
-    /// Extract simple type name from qualified protobuf type
-    fn extract_simple_type_name(&self, name: &str) -> String {
-        // Handle fully qualified names like "unity.catalog.CreateCatalogRequest"
-        if let Some(last_part) = name.split('.').next_back() {
-            last_part.to_string()
-        } else {
-            name.to_string()
-        }
-    }
-
-    /// Convert a unified type to a Python type annotation string
-    pub fn unified_to_python_type(&self, unified_type: &UnifiedType) -> String {
-        let base_type_str = match &unified_type.base_type {
-            BaseType::String => "str".to_string(),
-            BaseType::Int32 | BaseType::Int64 => "int".to_string(),
-            BaseType::Bool => "bool".to_string(),
-            BaseType::Float64 | BaseType::Float32 => "float".to_string(),
-            BaseType::Bytes => "bytes".to_string(),
-            BaseType::Unit => "None".to_string(),
-            BaseType::Message(name) => self.extract_simple_type_name(name),
-            BaseType::Enum(name) => self.extract_simple_type_name(name),
-            BaseType::OneOf(name) => self.extract_simple_type_name(name),
-            BaseType::Map(key_type, value_type) => {
-                let key_str = self.unified_to_python_type(key_type);
-                let value_str = self.unified_to_python_type(value_type);
-                format!("Dict[{}, {}]", key_str, value_str)
+    } else {
+        match &unified_type.base_type {
+            BaseType::String => quote! { #field_ident.into() },
+            BaseType::Int32
+            | BaseType::Int64
+            | BaseType::Bool
+            | BaseType::Float64
+            | BaseType::Float32 => {
+                quote! { #field_ident.into() }
             }
-        };
-
-        let mut result = base_type_str;
-
-        // Apply repeated wrapper
-        if unified_type.is_repeated {
-            result = format!("List[{}]", result);
+            BaseType::Enum(_) => {
+                quote! { #field_ident as i32 }
+            }
+            _ => quote! { #field_ident.into().map(|s| s.to_string()) },
         }
+    }
+}
 
-        // Apply optional wrapper
-        if unified_type.is_optional {
-            result = format!("Optional[{}]", result);
-        }
-
-        result
+fn extract_simple_type_name(name: &str) -> String {
+    if let Some(last_part) = name.split('.').next_back() {
+        last_part.to_string()
+    } else {
+        name.to_string()
     }
 }
 
@@ -308,6 +278,25 @@ pub enum BaseType {
 }
 
 impl UnifiedType {
+    /// Extract a syn::Ident for the inner type name (last segment of a qualified name).
+    pub fn type_ident(&self) -> syn::Ident {
+        let name = match &self.base_type {
+            BaseType::Message(n) | BaseType::Enum(n) | BaseType::OneOf(n) => {
+                n.split('.').next_back().unwrap_or(n)
+            }
+            BaseType::String => "String",
+            BaseType::Int32 => "i32",
+            BaseType::Int64 => "i64",
+            BaseType::Bool => "bool",
+            BaseType::Float64 => "f64",
+            BaseType::Float32 => "f32",
+            BaseType::Bytes => "Bytes",
+            BaseType::Unit => "()",
+            BaseType::Map(_, _) => "HashMap",
+        };
+        quote::format_ident!("{}", name)
+    }
+
     /// Create a simple string type
     pub fn string() -> Self {
         Self {

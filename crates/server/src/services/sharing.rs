@@ -42,7 +42,7 @@ impl<T: ResourceStore> SharingExt for T {
         let Some(table_object) = share_info
             .objects
             .iter()
-            .find(|o| o.shared_as() == &format!("{}.{}", table_ref.schema, table_ref.table))
+            .find(|o| o.shared_as() == format!("{}.{}", table_ref.schema, table_ref.table))
         else {
             return Err(Error::NotFound);
         };

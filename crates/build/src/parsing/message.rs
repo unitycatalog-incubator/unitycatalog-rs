@@ -4,7 +4,7 @@ use convert_case::{Case, Casing};
 use prost::Message as _;
 use protobuf::Message;
 use protobuf::descriptor::field_descriptor_proto::{Label, Type};
-use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, SourceCodeInfo};
+use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, MessageOptions, SourceCodeInfo};
 
 use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
 use crate::google::api::{FieldBehavior, ResourceDescriptor};
@@ -27,11 +27,14 @@ pub(super) fn process_message(
         format!("{}.{}", type_prefix, message_name)
     };
 
-    // Collect field information, handling oneof fields specially
+    // Pre-collect which nested messages are map entries so we can detect map fields
+    // without relying on naming heuristics. Protobuf marks map entry messages with
+    // `option map_entry = true` in their MessageOptions.
+    let map_entries = collect_map_entries(message, &full_type_name);
+
     let mut fields = Vec::new();
     let mut oneof_fields: HashMap<String, Vec<OneofVariant>> = HashMap::new();
 
-    // Build a map of field paths to documentation
     let field_docs = extract_field_documentation(source_code_info, path_prefix);
 
     // First pass: collect regular fields and identify oneof groups
@@ -95,15 +98,13 @@ pub(super) fn process_message(
         }
 
         // Add regular field (including proto3_optional fields)
-        let unified_type = parse_field_to_unified_type(field);
-        let field_type_str = format_field_type(field); // Legacy for backward compatibility
+        let unified_type = parse_field_to_unified_type(field, &map_entries);
 
         // Extract field behavior annotations
         let field_behavior = extract_field_behavior_option(field)?;
 
         let field_info = MessageField {
             name: field.name().to_string(),
-            field_type: field_type_str,
             unified_type,
             optional: is_optional,
             repeated: is_repeated,
@@ -128,7 +129,6 @@ pub(super) fn process_message(
 
         let oneof_field = MessageField {
             name: oneof_name.clone(),
-            field_type: format!("TYPE_ONEOF:{}", enum_type_name),
             unified_type: UnifiedType {
                 base_type: BaseType::OneOf(enum_type_name.clone()),
                 is_optional: true,
@@ -391,32 +391,79 @@ fn extract_message_documentation(
     None
 }
 
-/// Format a protobuf field type for use in Rust code generation
-fn format_field_type(field: &FieldDescriptorProto) -> String {
-    use protobuf::descriptor::field_descriptor_proto::Type;
+/// Collect nested messages that have `option map_entry = true`.
+///
+/// Returns a map from the fully-qualified type name of the map entry message
+/// to a (key_type, value_type) pair extracted from its `key` / `value` fields.
+fn collect_map_entries(
+    message: &DescriptorProto,
+    parent_full_name: &str,
+) -> HashMap<String, (BaseType, BaseType)> {
+    let mut entries = HashMap::new();
 
+    for nested in &message.nested_type {
+        let is_map_entry = nested
+            .options
+            .as_ref()
+            .is_some_and(|opts: &MessageOptions| opts.map_entry());
+
+        if !is_map_entry {
+            continue;
+        }
+
+        let entry_name = format!("{}.{}", parent_full_name, nested.name());
+
+        let key_type = nested
+            .field
+            .iter()
+            .find(|f| f.number() == 1)
+            .map(proto_field_to_base_type)
+            .unwrap_or(BaseType::String);
+
+        let value_type = nested
+            .field
+            .iter()
+            .find(|f| f.number() == 2)
+            .map(proto_field_to_base_type)
+            .unwrap_or(BaseType::String);
+
+        entries.insert(entry_name, (key_type, value_type));
+    }
+
+    entries
+}
+
+/// Convert a proto field descriptor to a `BaseType` (for map entry key/value fields).
+fn proto_field_to_base_type(field: &FieldDescriptorProto) -> BaseType {
     match field.type_() {
-        Type::TYPE_STRING => "TYPE_STRING".to_string(),
-        Type::TYPE_INT32 => "TYPE_INT32".to_string(),
-        Type::TYPE_INT64 => "TYPE_INT64".to_string(),
-        Type::TYPE_BOOL => "TYPE_BOOL".to_string(),
-        Type::TYPE_DOUBLE => "TYPE_DOUBLE".to_string(),
-        Type::TYPE_FLOAT => "TYPE_FLOAT".to_string(),
-        Type::TYPE_BYTES => "TYPE_BYTES".to_string(),
+        Type::TYPE_STRING => BaseType::String,
+        Type::TYPE_INT32 => BaseType::Int32,
+        Type::TYPE_INT64 => BaseType::Int64,
+        Type::TYPE_BOOL => BaseType::Bool,
+        Type::TYPE_DOUBLE => BaseType::Float64,
+        Type::TYPE_FLOAT => BaseType::Float32,
+        Type::TYPE_BYTES => BaseType::Bytes,
         Type::TYPE_MESSAGE => {
-            format!("TYPE_MESSAGE:{}", field.type_name())
+            let type_name = field.type_name().trim_start_matches('.');
+            BaseType::Message(type_name.to_string())
         }
         Type::TYPE_ENUM => {
-            format!("TYPE_ENUM:{}", field.type_name())
+            let type_name = field.type_name().trim_start_matches('.');
+            BaseType::Enum(type_name.to_string())
         }
-        _ => "TYPE_UNKNOWN".to_string(),
+        _ => BaseType::String,
     }
 }
 
-/// Parse a protobuf field directly to UnifiedType
-fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
-    use protobuf::descriptor::field_descriptor_proto::Type;
-
+/// Parse a protobuf field directly to UnifiedType.
+///
+/// `map_entries` provides the set of nested message type names that are
+/// protobuf map entries (i.e. `option map_entry = true`), along with their
+/// resolved key/value base types.
+fn parse_field_to_unified_type(
+    field: &FieldDescriptorProto,
+    map_entries: &HashMap<String, (BaseType, BaseType)>,
+) -> UnifiedType {
     let base_type = match field.type_() {
         Type::TYPE_STRING => BaseType::String,
         Type::TYPE_INT32 => BaseType::Int32,
@@ -426,39 +473,33 @@ fn parse_field_to_unified_type(field: &FieldDescriptorProto) -> UnifiedType {
         Type::TYPE_FLOAT => BaseType::Float32,
         Type::TYPE_BYTES => BaseType::Bytes,
         Type::TYPE_MESSAGE => {
-            // HACK: Somehow map type fields end up as message types (which is expected)
-            // with the type name <FieldName>Entry, so checking for that name is how we identify maps.
-            let aux_name = format!("{} entry", field.name()).to_case(Case::Pascal);
-            if field.type_name().ends_with(&aux_name) {
+            let type_name = field.type_name().trim_start_matches('.');
+            if let Some((key_bt, val_bt)) = map_entries.get(field.type_name()) {
                 UnifiedType::map(
                     UnifiedType {
-                        base_type: BaseType::String,
+                        base_type: key_bt.clone(),
                         is_optional: false,
                         is_repeated: false,
                     },
                     UnifiedType {
-                        base_type: BaseType::String,
+                        base_type: val_bt.clone(),
                         is_optional: false,
                         is_repeated: false,
                     },
                 )
                 .base_type
             } else {
-                // Remove leading dot if present and convert to message type
-                let type_name = field.type_name().trim_start_matches('.');
                 BaseType::Message(type_name.to_string())
             }
         }
         Type::TYPE_ENUM => {
-            // Remove leading dot if present and convert to enum type
             let type_name = field.type_name().trim_start_matches('.');
             BaseType::Enum(type_name.to_string())
         }
-        _ => BaseType::String, // Fallback for unknown types
+        _ => BaseType::String,
     };
 
-    // NOTE: technically map types are encoded as repeated fields, but for our purposes
-    // this is not relevant for our purposes as we treat repeated == vec.
+    // Map types are encoded as repeated fields in proto, but we handle them as maps.
     let is_repeated =
         field.label() == Label::LABEL_REPEATED && !matches!(base_type, BaseType::Map(_, _));
     let is_optional = field.label() == Label::LABEL_OPTIONAL && field.proto3_optional();

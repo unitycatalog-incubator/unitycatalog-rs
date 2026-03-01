@@ -155,9 +155,9 @@ impl KernelSession {
 impl TableManager for KernelSession {
     async fn read_snapshot(
         &self,
-        location: &StorageLocationUrl,
-        format: &DataSourceFormat,
-        version: Option<Version>,
+        _location: &StorageLocationUrl,
+        _format: &DataSourceFormat,
+        _version: Option<Version>,
     ) -> Result<Arc<Snapshot>> {
         todo!()
         // match format {

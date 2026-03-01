@@ -32,8 +32,8 @@ use crate::analysis::{
 };
 use crate::google::api::http_rule::Pattern;
 use crate::output;
-use crate::parsing::types::UnifiedType;
-use crate::parsing::{CONVERTER, CodeGenMetadata, MessageField, MessageInfo, RenderContext};
+use crate::parsing::types::{self, UnifiedType};
+use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext};
 
 pub mod generation;
 
@@ -197,7 +197,7 @@ impl MethodHandler<'_> {
     ///
     /// Depending on context we may want concrete types (e.g. 'String') or more flexible types (e.g. 'Into<String d>')
     pub(crate) fn field_type(&self, field_type: &UnifiedType, ctx: RenderContext) -> syn::Type {
-        let rust_type = CONVERTER.unified_to_rust(field_type, ctx);
+        let rust_type = types::unified_to_rust(field_type, ctx);
         syn::parse_str(&rust_type).expect("proper field type")
     }
 
@@ -208,7 +208,7 @@ impl MethodHandler<'_> {
         field_ident: &proc_macro2::Ident,
         ctx: &RenderContext,
     ) -> TokenStream {
-        CONVERTER.field_assignment(field_type, field_ident, ctx)
+        types::field_assignment(field_type, field_ident, ctx)
     }
 
     pub(crate) fn required_parameters(&self) -> impl Iterator<Item = &RequestParam> {
@@ -232,16 +232,14 @@ impl MethodHandler<'_> {
         let mut optional = Vec::new();
 
         for field in fields {
-            if field.optional {
-                optional.push(field);
-            } else if field.field_type.contains("map<") {
-                // Maps are not required in constructor, but are optional with_* methods
-                optional.push(field);
-            } else if field.field_type.starts_with("TYPE_MESSAGE:")
-                || field.field_type.starts_with("TYPE_ONEOF:")
+            use crate::parsing::types::BaseType;
+            if field.optional
                 || field.repeated
+                || matches!(
+                    field.unified_type.base_type,
+                    BaseType::Map(_, _) | BaseType::Message(_) | BaseType::OneOf(_)
+                )
             {
-                // Complex message types, oneof fields, and repeated fields go to optional with direct setters
                 optional.push(field);
             } else {
                 required.push(field);

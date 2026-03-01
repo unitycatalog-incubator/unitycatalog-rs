@@ -36,7 +36,6 @@ pub struct MessageInfo {
 #[derive(Debug, Clone)]
 pub struct MessageField {
     pub name: String,
-    pub field_type: String,
     pub unified_type: UnifiedType,
     pub optional: bool,
     pub repeated: bool,
