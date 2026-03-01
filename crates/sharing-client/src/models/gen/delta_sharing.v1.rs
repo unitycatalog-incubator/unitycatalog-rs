@@ -230,7 +230,7 @@ pub mod delta_log_message {
         #[prost(message, tag="1")]
         Protocol(super::ProtocolDelta),
         #[prost(message, tag="2")]
-        Metadata(super::MetadatDelta),
+        Metadata(super::MetadataDelta),
     }
 }
 /// Protocol for Delta response.
@@ -247,7 +247,7 @@ pub struct ProtocolDelta {
 /// Metadata for Delta response.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MetadatDelta {
+pub struct MetadataDelta {
     /// Metadata from Delta protocol
     #[prost(message, optional, tag="1")]
     pub delta_metadata: ::core::option::Option<Metadata>,
