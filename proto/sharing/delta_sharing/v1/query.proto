@@ -122,7 +122,7 @@ message DeltaResponse {
 message DeltaLogMessage {
   oneof entry {
     ProtocolDelta protocol = 1;
-    MetadatDelta metadata = 2;
+    MetadataDelta metadata = 2;
   }
 }
 
@@ -136,7 +136,7 @@ message ProtocolDelta {
 }
 
 // Metadata for Delta response.
-message MetadatDelta {
+message MetadataDelta {
   // Metadata from Delta protocol
   Metadata delta_metadata = 1;
 

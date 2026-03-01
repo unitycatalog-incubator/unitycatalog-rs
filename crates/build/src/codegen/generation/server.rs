@@ -13,7 +13,7 @@ use crate::{
 
 /// Generate server side code for axum servers
 ///
-/// This geneartes:
+/// This generates:
 /// - FromRequestParts extractor implementations for path/query parameters
 /// - FromRequest extractor implementations for JSON body
 pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
@@ -70,9 +70,8 @@ fn from_request_extractor(method: &MethodHandler<'_>) -> TokenStream {
         RequestType::Create | RequestType::Update => from_request_impl(method),
         RequestType::Custom(pattern) => match pattern {
             Pattern::Get(_) | Pattern::Delete(_) => from_request_parts_impl(method),
-            Pattern::Post(_) | Pattern::Patch(_) => from_request_impl(method),
-            Pattern::Custom(_) => todo!("Implement custom request type"),
-            Pattern::Put(_) => todo!("Implement PUT request type"),
+            Pattern::Post(_) | Pattern::Patch(_) | Pattern::Put(_) => from_request_impl(method),
+            Pattern::Custom(_) => from_request_impl(method),
         },
     }
 }

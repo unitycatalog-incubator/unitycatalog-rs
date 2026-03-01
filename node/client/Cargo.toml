@@ -17,6 +17,7 @@ napi-derive = { workspace = true }
 env_logger = { workspace = true }
 futures = { workspace = true }
 prost = { workspace = true }
+url = { workspace = true }
 
 [build-dependencies]
 napi-build = "2.1"

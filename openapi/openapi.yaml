@@ -675,6 +675,62 @@ paths:
               schema:
                 $ref: "#/components/schemas/Status"
   /schemas/{fullName}:
+    get:
+      tags:
+        - SchemasService
+      description:
+        "Gets the specified schema within the metastore.\n The caller must be a metastore admin, the owner of the\
+        \ schema,\n or a user that has the USE_SCHEMA privilege on the schema."
+      operationId: GetSchema
+      parameters:
+        - name: fullName
+          in: path
+          description: "Full name of schema.\n\n Format: catalog_name.schema_name"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schema"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    delete:
+      tags:
+        - SchemasService
+      description:
+        "Deletes the specified schema from the parent catalog. The caller must be the owner\n of the schema or\
+        \ an owner of the parent catalog."
+      operationId: DeleteSchema
+      parameters:
+        - name: fullName
+          in: path
+          description: "Full name of schema to delete.\n\n Format: catalog_name.schema_name"
+          required: true
+          schema:
+            type: string
+        - name: force
+          in: query
+          description: Force deletion even if the schema is not empty.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content: {}
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
     patch:
       tags:
         - SchemasService
@@ -703,71 +759,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Schema"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-  /schemas/{name}:
-    get:
-      tags:
-        - SchemasService
-      description:
-        "Gets the specified schema within the metastore.\n The caller must be a metastore admin, the owner of the\
-        \ schema,\n or a user that has the USE_SCHEMA privilege on the schema."
-      operationId: GetSchema
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: fullName
-          in: query
-          description: "Full name of schema.\n\n Format: catalog_name.schema_name"
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Schema"
-        default:
-          description: Default error response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Status"
-    delete:
-      tags:
-        - SchemasService
-      description:
-        "Deletes the specified schema from the parent catalog. The caller must be the owner\n of the schema or\
-        \ an owner of the parent catalog."
-      operationId: DeleteSchema
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: fullName
-          in: query
-          description: "Full name of schema to delete.\n\n Format: catalog_name.schema_name"
-          schema:
-            type: string
-        - name: force
-          in: query
-          description: Force deletion even if the schema is not empty.
-          schema:
-            type: boolean
-      responses:
-        "200":
-          description: OK
-          content: {}
         default:
           description: Default error response
           content:

@@ -124,16 +124,16 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
 
     async fn get_permissions(
         &self,
-        request: GetPermissionsRequest,
-        context: RequestContext,
+        _request: GetPermissionsRequest,
+        _context: RequestContext,
     ) -> Result<GetPermissionsResponse> {
         todo!()
     }
 
     async fn update_permissions(
         &self,
-        request: UpdatePermissionsRequest,
-        context: RequestContext,
+        _request: UpdatePermissionsRequest,
+        _context: RequestContext,
     ) -> Result<UpdatePermissionsResponse> {
         todo!()
     }

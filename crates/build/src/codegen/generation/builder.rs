@@ -5,7 +5,7 @@ use syn::Path;
 
 use super::format_tokens;
 use crate::analysis::RequestType;
-use crate::codegen::{MethodHandler, ServiceHandler, extract_type_ident};
+use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::parsing::types::BaseType;
 use crate::parsing::{MessageField, RenderContext};
 
@@ -327,7 +327,7 @@ fn generate_into_stream_impl(
 ) -> TokenStream {
     let items_field = method.list_output_field().unwrap();
     let item_field_ident = format_ident!("{}", items_field.name);
-    let output_type_ident = extract_type_ident(&items_field.field_type);
+    let output_type_ident = items_field.unified_type.type_ident();
 
     quote! {
         /// Convert paginated request into stream of results
@@ -366,7 +366,6 @@ mod tests {
         let fields = vec![
             MessageField {
                 name: "name".to_string(),
-                field_type: "TYPE_STRING".to_string(),
                 unified_type: UnifiedType {
                     base_type: BaseType::String,
                     is_optional: false,
@@ -381,7 +380,6 @@ mod tests {
             },
             MessageField {
                 name: "comment".to_string(),
-                field_type: "TYPE_STRING".to_string(),
                 unified_type: UnifiedType {
                     base_type: BaseType::String,
                     is_optional: true,
@@ -396,7 +394,6 @@ mod tests {
             },
             MessageField {
                 name: "properties".to_string(),
-                field_type: "map<string, string>".to_string(),
                 unified_type: UnifiedType {
                     base_type: BaseType::Map(
                         Box::new(UnifiedType {
@@ -422,18 +419,16 @@ mod tests {
             },
         ];
 
-        // Simulate field analysis logic for testing
         let mut required = Vec::new();
         let mut optional = Vec::new();
 
         for field in &fields {
-            if field.optional {
-                optional.push(field);
-            } else if field.field_type.contains("map<") {
-                optional.push(field);
-            } else if field.field_type.starts_with("TYPE_MESSAGE:")
-                || field.field_type.starts_with("TYPE_ONEOF:")
+            if field.optional
                 || field.repeated
+                || matches!(
+                    field.unified_type.base_type,
+                    BaseType::Map(_, _) | BaseType::Message(_) | BaseType::OneOf(_)
+                )
             {
                 optional.push(field);
             } else {

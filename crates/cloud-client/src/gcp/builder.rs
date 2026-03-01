@@ -15,19 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::str::FromStr;
+use std::sync::Arc;
+use std::time::Duration;
+
+use serde::{Deserialize, Serialize};
+use tokio::runtime::Handle;
+
+use crate::gcp::GoogleConfig;
+use crate::gcp::credential::GcpCredential;
 use crate::gcp::credential::{
     ApplicationDefaultCredentials, InstanceCredentialProvider, ServiceAccountCredentials,
 };
-use crate::gcp::{GcpCredential, GcpCredentialProvider, credential};
-use crate::gcp::{GoogleClient, GoogleConfig};
+use crate::gcp::{GcpCredentialProvider, credential};
+use crate::service::make_service;
 use crate::{
     ClientConfigKey, ClientOptions, Result, RetryConfig, StaticCredentialProvider,
     TokenCredentialProvider,
 };
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-use std::sync::Arc;
-use std::time::Duration;
 
 const TOKEN_MIN_TTL: Duration = Duration::from_secs(4 * 60);
 
@@ -62,7 +67,7 @@ impl From<Error> for crate::Error {
 /// # Example
 /// ```
 /// # use cloud_client::gcp::GoogleBuilder;
-/// let gcs = GoogleBuilder::from_env().build();
+/// let gcs = GoogleBuilder::from_env().build(None);
 /// ```
 #[derive(Debug, Clone)]
 pub struct GoogleBuilder {
@@ -180,7 +185,7 @@ impl GoogleBuilder {
     /// use cloud_client::gcp::GoogleBuilder;
     ///
     /// let gcs = GoogleBuilder::from_env()
-    ///     .build();
+    ///     .build(None);
     /// ```
     pub fn from_env() -> Self {
         let mut builder = Self::default();
@@ -319,8 +324,11 @@ impl GoogleBuilder {
     }
 
     /// Configure a connection to Google Cloud Storage, returning a
-    /// new [`GoogleClient`] and consuming `self`
-    pub fn build(self) -> Result<GoogleConfig> {
+    /// new [`GoogleConfig`] and consuming `self`
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn build(self, runtime: Option<&Handle>) -> Result<GoogleConfig> {
         // First try to initialize from the service account information.
         let service_account_credentials =
             match (self.service_account_path, self.service_account_key) {
@@ -352,34 +360,48 @@ impl GoogleBuilder {
                 bearer: "".to_string(),
             })) as _
         } else if let Some(credentials) = service_account_credentials.clone() {
+            let client = self.client_options.client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 credentials.token_provider()?,
-                self.client_options.client()?,
+                client,
+                service,
                 self.retry_config.clone(),
             )) as _
         } else if let Some(credentials) = application_default_credentials.clone() {
             match credentials {
-                ApplicationDefaultCredentials::AuthorizedUser(token) => Arc::new(
-                    TokenCredentialProvider::new(
-                        token,
-                        self.client_options.client()?,
-                        self.retry_config.clone(),
-                    )
-                    .with_min_ttl(TOKEN_MIN_TTL),
-                ) as _,
+                ApplicationDefaultCredentials::AuthorizedUser(token) => {
+                    let client = self.client_options.client()?;
+                    let service = make_service(client.clone(), runtime);
+                    Arc::new(
+                        TokenCredentialProvider::new(
+                            token,
+                            client,
+                            service,
+                            self.retry_config.clone(),
+                        )
+                        .with_min_ttl(TOKEN_MIN_TTL),
+                    ) as _
+                }
                 ApplicationDefaultCredentials::ServiceAccount(token) => {
+                    let client = self.client_options.client()?;
+                    let service = make_service(client.clone(), runtime);
                     Arc::new(TokenCredentialProvider::new(
                         token.token_provider()?,
-                        self.client_options.client()?,
+                        client,
+                        service,
                         self.retry_config.clone(),
                     )) as _
                 }
             }
         } else {
+            let client = self.client_options.metadata_client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(
                 TokenCredentialProvider::new(
                     InstanceCredentialProvider::default(),
-                    self.client_options.metadata_client()?,
+                    client,
+                    service,
                     self.retry_config.clone(),
                 )
                 .with_min_ttl(TOKEN_MIN_TTL),
@@ -410,7 +432,7 @@ mod tests {
         let _ = GoogleBuilder::new()
             .with_service_account_key(FAKE_KEY)
             .with_service_account_path(tfile.path().to_str().unwrap())
-            .build()
+            .build(None)
             .unwrap_err();
     }
 
@@ -460,7 +482,7 @@ mod tests {
         let gcs = GoogleBuilder::new()
             .with_service_account_path(service_account_path.to_str().unwrap())
             .with_proxy_url("https://example.com")
-            .build();
+            .build(None);
         assert!(gcs.is_ok());
     }
 
@@ -468,7 +490,7 @@ mod tests {
     fn gcs_test_service_account_key_only() {
         let _ = GoogleBuilder::new()
             .with_service_account_key(FAKE_KEY)
-            .build()
+            .build(None)
             .unwrap();
     }
 

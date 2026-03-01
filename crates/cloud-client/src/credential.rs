@@ -4,6 +4,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use reqwest::Client;
 
+use crate::service::HttpService;
 use crate::{Result, RetryConfig, TemporaryToken, TokenCache};
 
 /// Provides credentials for use when signing requests
@@ -43,20 +44,27 @@ where
     }
 }
 
-/// A [`CredentialProvider`] that uses [`Client`] to fetch temporary tokens
+/// A [`CredentialProvider`] that fetches temporary tokens via HTTP
 #[derive(Debug)]
 pub(crate) struct TokenCredentialProvider<T: TokenProvider> {
     inner: T,
     client: Client,
+    service: Arc<dyn HttpService>,
     retry: RetryConfig,
     cache: TokenCache<Arc<T::Credential>>,
 }
 
 impl<T: TokenProvider> TokenCredentialProvider<T> {
-    pub(crate) fn new(inner: T, client: Client, retry: RetryConfig) -> Self {
+    pub(crate) fn new(
+        inner: T,
+        client: Client,
+        service: Arc<dyn HttpService>,
+        retry: RetryConfig,
+    ) -> Self {
         Self {
             inner,
             client,
+            service,
             retry,
             cache: Default::default(),
         }
@@ -75,7 +83,10 @@ impl<T: TokenProvider> CredentialProvider for TokenCredentialProvider<T> {
 
     async fn get_credential(&self) -> Result<Arc<Self::Credential>> {
         self.cache
-            .get_or_insert_with(|| self.inner.fetch_token(&self.client, &self.retry))
+            .get_or_insert_with(|| {
+                self.inner
+                    .fetch_token(&self.client, &self.service, &self.retry)
+            })
             .await
     }
 }
@@ -87,6 +98,7 @@ pub(crate) trait TokenProvider: std::fmt::Debug + Send + Sync {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> Result<TemporaryToken<Arc<Self::Credential>>>;
 }

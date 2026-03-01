@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 #[cfg(feature = "recording")]
 use std::path::PathBuf;
+use std::sync::Arc;
 #[cfg(feature = "recording")]
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
@@ -14,8 +15,11 @@ use gcp::GoogleConfig;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::{Body, Client, IntoUrl, Method, RequestBuilder};
 use serde::Serialize;
+use tokio::runtime::Handle;
 
+use self::aws::credential::{AwsAuthorizer, CredentialExt};
 use self::azure::credential::AzureCredentialExt;
+use self::service::{HttpService, make_service};
 pub use self::token::{TemporaryToken, TokenCache};
 
 pub mod aws;
@@ -26,8 +30,8 @@ mod config;
 mod credential;
 mod error;
 pub mod gcp;
+pub mod service;
 
-mod pagination;
 mod retry;
 mod token;
 mod util;
@@ -35,8 +39,8 @@ mod util;
 pub use client::{Certificate, ClientConfigKey, ClientOptions};
 pub use credential::*;
 pub use error::*;
-pub use pagination::stream_paginated;
 pub use retry::RetryConfig;
+pub use service::{ReqwestService, SpawnService};
 
 #[derive(Clone)]
 enum Credential {
@@ -50,7 +54,8 @@ enum Credential {
 #[derive(Clone)]
 pub struct CloudClient {
     credential: Credential,
-    http_client: Client,
+    reqwest_client: Client,
+    service: Arc<dyn HttpService>,
     retry_config: RetryConfig,
     #[cfg(feature = "recording")]
     out_dir: Option<PathBuf>,
@@ -59,7 +64,11 @@ pub struct CloudClient {
 }
 
 impl CloudClient {
-    pub fn new_aws<I, K, V>(options: I) -> Result<Self>
+    /// Create a new client with AWS credentials.
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn new_aws<I, K, V>(options: I, runtime: Option<&Handle>) -> Result<Self>
     where
         I: IntoIterator<Item = (K, V)>,
         K: AsRef<str>,
@@ -74,10 +83,13 @@ impl CloudClient {
                     Err(_) => builder,
                 },
             )
-            .build()?;
+            .build(runtime)?;
 
+        let reqwest_client = config.client_options.client()?;
+        let service = make_service(reqwest_client.clone(), runtime);
         Ok(Self {
-            http_client: config.client_options.client()?,
+            reqwest_client,
+            service,
             retry_config: config.retry_config.clone(),
             credential: Credential::Aws(config),
             #[cfg(feature = "recording")]
@@ -87,7 +99,11 @@ impl CloudClient {
         })
     }
 
-    pub fn new_google<I, K, V>(options: I) -> Result<Self>
+    /// Create a new client with Google Cloud credentials.
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn new_google<I, K, V>(options: I, runtime: Option<&Handle>) -> Result<Self>
     where
         I: IntoIterator<Item = (K, V)>,
         K: AsRef<str>,
@@ -102,10 +118,13 @@ impl CloudClient {
                     Err(_) => builder,
                 },
             )
-            .build()?;
+            .build(runtime)?;
 
+        let reqwest_client = config.client_options.client()?;
+        let service = make_service(reqwest_client.clone(), runtime);
         Ok(Self {
-            http_client: config.client_options.client()?,
+            reqwest_client,
+            service,
             retry_config: config.retry_config.clone(),
             credential: Credential::Google(config),
             #[cfg(feature = "recording")]
@@ -115,7 +134,11 @@ impl CloudClient {
         })
     }
 
-    pub fn new_azure<I, K, V>(options: I) -> Result<Self>
+    /// Create a new client with Azure credentials.
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn new_azure<I, K, V>(options: I, runtime: Option<&Handle>) -> Result<Self>
     where
         I: IntoIterator<Item = (K, V)>,
         K: AsRef<str>,
@@ -130,10 +153,13 @@ impl CloudClient {
                     Err(_) => builder,
                 },
             )
-            .build()?;
+            .build(runtime)?;
 
+        let reqwest_client = config.client_options.client()?;
+        let service = make_service(reqwest_client.clone(), runtime);
         Ok(Self {
-            http_client: config.client_options.client()?,
+            reqwest_client,
+            service,
             retry_config: config.retry_config.clone(),
             credential: Credential::Azure(config),
             #[cfg(feature = "recording")]
@@ -143,9 +169,13 @@ impl CloudClient {
         })
     }
 
+    /// Create a new client with a personal access token.
     pub fn new_with_token(token: impl ToString) -> Self {
+        let reqwest_client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(reqwest_client.clone()));
         Self {
-            http_client: Client::new(),
+            reqwest_client,
+            service,
             retry_config: RetryConfig::default(),
             credential: Credential::PersonalAccessToken(token.to_string()),
             #[cfg(feature = "recording")]
@@ -155,9 +185,13 @@ impl CloudClient {
         }
     }
 
+    /// Create a new unauthenticated client.
     pub fn new_unauthenticated() -> Self {
+        let reqwest_client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(reqwest_client.clone()));
         Self {
-            http_client: Client::new(),
+            reqwest_client,
+            service,
             retry_config: RetryConfig::default(),
             credential: Credential::Unauthenticated,
             #[cfg(feature = "recording")]
@@ -167,9 +201,25 @@ impl CloudClient {
         }
     }
 
+    /// Route all HTTP I/O through the given runtime handle.
+    ///
+    /// This is useful for simple constructors (`new_with_token`, `new_unauthenticated`)
+    /// where no credential providers need to perform HTTP I/O. For cloud provider
+    /// constructors, pass the handle at construction time instead.
+    pub fn with_runtime(mut self, handle: Handle) -> Self {
+        self.service = Arc::new(SpawnService::new(self.service, handle));
+        self
+    }
+
+    /// Replace the [`HttpService`] used for request execution.
+    pub fn with_http_service(mut self, service: Arc<dyn HttpService>) -> Self {
+        self.service = service;
+        self
+    }
+
     pub fn request<U: IntoUrl>(&self, method: Method, url: U) -> CloudRequestBuilder {
         CloudRequestBuilder {
-            builder: self.http_client.request(method, url),
+            builder: self.reqwest_client.request(method, url),
             client: self.clone(),
             #[cfg(feature = "recording")]
             out_dir: self.out_dir.clone(),
@@ -303,8 +353,12 @@ impl CloudRequestBuilder {
                 let credential = az.get_credential().await?;
                 self.builder = self.builder.with_azure_authorization(&credential);
             }
-            Credential::Aws(_aws) => {
-                todo!()
+            Credential::Aws(aws) => {
+                if let Some(cred) = aws.get_credential().await? {
+                    let authorizer = AwsAuthorizer::new(&cred, "execute-api", &aws.region)
+                        .with_sign_payload(aws.sign_payload);
+                    self.builder = self.builder.with_aws_sigv4(Some(authorizer), None);
+                }
             }
             Credential::Google(gcp) => {
                 let credential = gcp.get_credential().await?;
@@ -313,15 +367,19 @@ impl CloudRequestBuilder {
             Credential::PersonalAccessToken(token) => {
                 self.builder = self.builder.bearer_auth(token);
             }
-            Credential::Unauthenticated => {
-                // Do nothing
-            }
+            Credential::Unauthenticated => {}
         };
         #[cfg(not(feature = "recording"))]
-        let response = self.builder.send().await?;
+        {
+            let request = self.builder.build()?;
+            let response = self.client.service.call(request).await?;
+            Ok(response)
+        }
         #[cfg(feature = "recording")]
-        let response = send_record(self).await?;
-        Ok(response)
+        {
+            let response = send_record(self).await?;
+            Ok(response)
+        }
     }
 }
 
@@ -349,13 +407,12 @@ pub struct ResponseInfo {
 }
 
 #[cfg(feature = "recording")]
-async fn send_record(
-    mut builder: CloudRequestBuilder,
-) -> Result<reqwest::Response, reqwest::Error> {
+async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, reqwest::Error> {
     let Some(out_dir) = builder.out_dir else {
-        return builder.builder.send().await;
+        let request = builder.builder.build().expect("request to be valid");
+        return builder.client.service.call(request).await;
     };
-    let (client, request) = builder.builder.build_split();
+    let (_client, request) = builder.builder.build_split();
     let request = request.expect("request to be valid");
 
     let request_info = RequestInfo {
@@ -372,7 +429,7 @@ async fn send_record(
             .and_then(|b| b.as_bytes().map(|b| String::from_utf8_lossy(b).to_string())),
     };
 
-    let response = client.execute(request).await?;
+    let response = builder.client.service.call(request).await?;
 
     // Record the response
     let status = response.status().as_u16();

@@ -464,37 +464,37 @@ impl PyUnityCatalogClient {
     }
     pub fn catalog(&self, name: String) -> PyCatalogClient {
         PyCatalogClient {
-            client: self.client.catalog(&name),
+            client: self.client.catalog(name),
         }
     }
     pub fn credential(&self, name: String) -> PyCredentialClient {
         PyCredentialClient {
-            client: self.client.credential(&name),
+            client: self.client.credential(name),
         }
     }
     pub fn external_location(&self, name: String) -> PyExternalLocationClient {
         PyExternalLocationClient {
-            client: self.client.external_location(&name),
+            client: self.client.external_location(name),
         }
     }
     pub fn recipient(&self, name: String) -> PyRecipientClient {
         PyRecipientClient {
-            client: self.client.recipient(&name),
+            client: self.client.recipient(name),
         }
     }
     pub fn schema(&self, catalog_name: String, schema_name: String) -> PySchemaClient {
         PySchemaClient {
-            client: self.client.schema(&catalog_name, &schema_name),
+            client: self.client.schema(catalog_name, schema_name),
         }
     }
     pub fn share(&self, name: String) -> PyShareClient {
         PyShareClient {
-            client: self.client.share(&name),
+            client: self.client.share(name),
         }
     }
-    pub fn table(&self, full_name: String) -> PyTableClient {
+    pub fn table(&self, name: String) -> PyTableClient {
         PyTableClient {
-            client: self.client.table(&full_name),
+            client: self.client.table(name),
         }
     }
     pub fn volume(

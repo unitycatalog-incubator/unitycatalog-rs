@@ -25,6 +25,7 @@ use crate::parsing::CodeGenMetadata;
 mod builder;
 mod client;
 mod handler;
+pub(crate) mod node;
 mod python;
 mod server;
 
@@ -145,6 +146,54 @@ pub fn generate_python_code(
     // Generate single unified typings (.pyi) file for all services
     let python_typings_code = python::generate_typings(&handlers);
     files.insert("unitycatalog_client.pyi".to_string(), python_typings_code);
+
+    Ok(GeneratedCode { files })
+}
+
+pub fn generate_node_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    let services = plan.services.to_vec();
+
+    let handlers = services
+        .iter()
+        .map(|service| ServiceHandler {
+            plan: service,
+            metadata,
+        })
+        .collect_vec();
+
+    for service in &handlers {
+        let napi_code = node::generate(service);
+        files.insert(format!("{}.rs", service.plan.base_path), napi_code);
+    }
+
+    let module_code = node::main_module(&handlers);
+    files.insert("mod.rs".to_string(), module_code);
+
+    Ok(GeneratedCode { files })
+}
+
+pub fn generate_node_ts_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let services = plan.services.to_vec();
+
+    let handlers = services
+        .iter()
+        .map(|service| ServiceHandler {
+            plan: service,
+            metadata,
+        })
+        .collect_vec();
+
+    let ts_code = node::typescript::generate_client_ts(&handlers);
+    let mut files = HashMap::new();
+    files.insert("client.ts".to_string(), ts_code);
 
     Ok(GeneratedCode { files })
 }

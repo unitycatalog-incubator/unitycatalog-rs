@@ -213,7 +213,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
             Err(Error::NotFound) => Ok(GetTableExistsResponse {
                 table_exists: false,
             }),
-            Err(e) => Err(e.into()),
+            Err(e) => Err(e),
         }
     }
 

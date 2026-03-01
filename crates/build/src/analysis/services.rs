@@ -257,113 +257,83 @@ impl<'a> MethodPlanner<'a> {
         })
     }
 
-    /// Determines if the rpc is a standard get method
+    /// Classify the RPC as a standard CRUD operation per Google AIP 131-135.
     ///
-    /// Tests largely on conditions mentioned in [API-131].
-    ///
-    /// [API-131]: https://google.aip.dev/131
-    pub fn is_standard_get(&self) -> bool {
-        let snake_name = self.method.method_name.to_case(Case::Snake);
-        let Some((verb, resource)) = snake_name.split_once("_") else {
-            return false;
-        };
-        if !matches!(self.pattern, Pattern::Get(_)) || verb != "get" || self.path.ends_with_static()
-        {
-            return false;
-        }
-        self.registry.resource_from_singular(resource).is_some()
-    }
-
-    /// Determines if the rpc is a standard list method
-    ///
-    /// Tests largely on conditions mentioned in [API-132].
-    ///
-    /// [API-132]: https://google.aip.dev/132
-    pub fn is_standard_list(&self) -> bool {
-        let snake_name = self.method.method_name.to_case(Case::Snake);
-        let Some((verb, resource)) = snake_name.split_once("_") else {
-            return false;
-        };
-        if !matches!(self.pattern, Pattern::Get(_))
-            || verb != "list"
-            || self.path.ends_with_parameter()
-        {
-            return false;
-        }
-        self.registry.resource_from_plural(resource).is_some()
-    }
-
-    /// Determines if the rpc is a standard create method
-    ///
-    /// Tests largely on conditions mentioned in [API-133].
-    ///
-    /// [API-133]: https://google.aip.dev/133
-    pub fn is_standard_create(&self) -> bool {
-        let snake_name = self.method.method_name.to_case(Case::Snake);
-        let Some((verb, resource)) = snake_name.split_once("_") else {
-            return false;
-        };
-        if !matches!(self.pattern, Pattern::Post(_))
-            || verb != "create"
-            || self.path.ends_with_parameter()
-        {
-            return false;
-        }
-        self.registry.resource_from_singular(resource).is_some()
-    }
-
-    /// Determines if the rpc is a standard update method
-    ///
-    /// Tests largely on conditions mentioned in [API-134].
-    ///
-    /// [API-134]: https://google.aip.dev/134
-    pub fn is_standard_update(&self) -> bool {
-        let snake_name = self.method.method_name.to_case(Case::Snake);
-        let Some((verb, resource)) = snake_name.split_once("_") else {
-            return false;
-        };
-        if !matches!(self.pattern, Pattern::Patch(_))
-            || verb != "update"
-            || self.path.ends_with_static()
-        {
-            return false;
-        }
-        self.registry.resource_from_singular(resource).is_some()
-    }
-
-    /// Determines if the rpc is a standard delete method
-    ///
-    /// Tests largely on conditions mentioned in [API-135].
-    ///
-    /// [API-135]: https://google.aip.dev/135
-    pub fn is_standard_delete(&self) -> bool {
-        let snake_name = self.method.method_name.to_case(Case::Snake);
-        let Some((verb, resource)) = snake_name.split_once("_") else {
-            return false;
-        };
-        if !matches!(self.pattern, Pattern::Delete(_))
-            || verb != "delete"
-            || self.path.ends_with_static()
-        {
-            return false;
-        }
-        self.registry.resource_from_singular(resource).is_some()
-    }
-
+    /// Each standard operation is identified by matching (verb, HTTP method, path shape,
+    /// resource lookup). See:
+    /// - [AIP-131](https://google.aip.dev/131) Get
+    /// - [AIP-132](https://google.aip.dev/132) List
+    /// - [AIP-133](https://google.aip.dev/133) Create
+    /// - [AIP-134](https://google.aip.dev/134) Update
+    /// - [AIP-135](https://google.aip.dev/135) Delete
     pub fn request_type(&self) -> RequestType {
-        match &self.pattern {
-            Pattern::Get(_) if self.is_standard_get() => RequestType::Get,
-            Pattern::Get(_) if self.is_standard_list() => RequestType::List,
-            Pattern::Post(_) if self.is_standard_create() => RequestType::Create,
-            Pattern::Patch(_) if self.is_standard_update() => RequestType::Update,
-            Pattern::Delete(_) if self.is_standard_delete() => RequestType::Delete,
-            Pattern::Get(_) => RequestType::Custom(self.pattern.clone()),
-            Pattern::Post(_) => RequestType::Custom(self.pattern.clone()),
-            Pattern::Delete(_) => RequestType::Custom(self.pattern.clone()),
-            Pattern::Patch(_) => RequestType::Custom(self.pattern.clone()),
-            Pattern::Custom(_) => todo!("Implement custom request type"),
-            Pattern::Put(_) => todo!("Implement PUT request type"),
+        let snake_name = self.method.method_name.to_case(Case::Snake);
+        let verb_resource = snake_name.split_once('_');
+
+        if let Some((verb, resource)) = verb_resource {
+            // Table of (verb, expected pattern, path must end with parameter?, lookup by plural?)
+            let standard_ops: &[(&str, fn(&Pattern) -> bool, bool, bool, RequestType)] = &[
+                (
+                    "get",
+                    |p| matches!(p, Pattern::Get(_)),
+                    true,
+                    false,
+                    RequestType::Get,
+                ),
+                (
+                    "list",
+                    |p| matches!(p, Pattern::Get(_)),
+                    false,
+                    true,
+                    RequestType::List,
+                ),
+                (
+                    "create",
+                    |p| matches!(p, Pattern::Post(_)),
+                    false,
+                    false,
+                    RequestType::Create,
+                ),
+                (
+                    "update",
+                    |p| matches!(p, Pattern::Patch(_)),
+                    true,
+                    false,
+                    RequestType::Update,
+                ),
+                (
+                    "delete",
+                    |p| matches!(p, Pattern::Delete(_)),
+                    true,
+                    false,
+                    RequestType::Delete,
+                ),
+            ];
+
+            for &(expected_verb, pattern_check, ends_with_param, use_plural, ref result_type) in
+                standard_ops
+            {
+                if verb != expected_verb || !pattern_check(&self.pattern) {
+                    continue;
+                }
+                if ends_with_param && self.path.ends_with_static() {
+                    continue;
+                }
+                if !ends_with_param && self.path.ends_with_parameter() {
+                    continue;
+                }
+                let found = if use_plural {
+                    self.registry.resource_from_plural(resource).is_some()
+                } else {
+                    self.registry.resource_from_singular(resource).is_some()
+                };
+                if found {
+                    return result_type.clone();
+                }
+            }
         }
+
+        RequestType::Custom(self.pattern.clone())
     }
 
     pub fn has_response(&self) -> bool {

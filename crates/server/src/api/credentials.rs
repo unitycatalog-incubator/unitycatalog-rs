@@ -168,7 +168,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             // Delete the resource even if the secret is not found to allow cleanup
             // when the secret is deleted manually.
             Ok(_) | Err(Error::NotFound) => Ok(self.delete(&request.resource()).await?),
-            Err(e) => Err(e.into()),
+            Err(e) => Err(e),
         }
     }
 }

@@ -1,5 +1,5 @@
+use std::str::FromStr;
 use std::time::Duration;
-use std::{collections::HashMap, str::FromStr};
 
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, ClientBuilder, NoProxy, Proxy};
@@ -34,8 +34,6 @@ pub enum ClientConfigKey {
     AllowInvalidCertificates,
     /// Timeout for only the connect phase of a Client
     ConnectTimeout,
-    /// default CONTENT_TYPE for uploads
-    DefaultContentType,
     /// Only use http1 connections
     Http1Only,
     /// Interval for HTTP2 Ping frames should be sent to keep a connection alive.
@@ -75,7 +73,6 @@ impl AsRef<str> for ClientConfigKey {
             Self::AllowHttp => "allow_http",
             Self::AllowInvalidCertificates => "allow_invalid_certificates",
             Self::ConnectTimeout => "connect_timeout",
-            Self::DefaultContentType => "default_content_type",
             Self::Http1Only => "http1_only",
             Self::Http2Only => "http2_only",
             Self::Http2KeepAliveInterval => "http2_keep_alive_interval",
@@ -101,7 +98,6 @@ impl FromStr for ClientConfigKey {
             "allow_http" => Ok(Self::AllowHttp),
             "allow_invalid_certificates" => Ok(Self::AllowInvalidCertificates),
             "connect_timeout" => Ok(Self::ConnectTimeout),
-            "default_content_type" => Ok(Self::DefaultContentType),
             "http1_only" => Ok(Self::Http1Only),
             "http2_only" => Ok(Self::Http2Only),
             "http2_keep_alive_interval" => Ok(Self::Http2KeepAliveInterval),
@@ -174,8 +170,6 @@ impl Certificate {
 pub struct ClientOptions {
     user_agent: Option<ConfigValue<HeaderValue>>,
     root_certificates: Vec<Certificate>,
-    content_type_map: HashMap<String, String>,
-    default_content_type: Option<String>,
     default_headers: Option<HeaderMap>,
     proxy_url: Option<String>,
     proxy_ca_certificate: Option<String>,
@@ -206,8 +200,6 @@ impl Default for ClientOptions {
         Self {
             user_agent: None,
             root_certificates: Default::default(),
-            content_type_map: Default::default(),
-            default_content_type: None,
             default_headers: None,
             proxy_url: None,
             proxy_ca_certificate: None,
@@ -245,7 +237,6 @@ impl ClientOptions {
             ClientConfigKey::ConnectTimeout => {
                 self.connect_timeout = Some(ConfigValue::Deferred(value.into()))
             }
-            ClientConfigKey::DefaultContentType => self.default_content_type = Some(value.into()),
             ClientConfigKey::Http1Only => self.http1_only.parse(value),
             ClientConfigKey::Http2Only => self.http2_only.parse(value),
             ClientConfigKey::Http2KeepAliveInterval => {
@@ -283,7 +274,6 @@ impl ClientOptions {
             ClientConfigKey::AllowHttp => Some(self.allow_http.to_string()),
             ClientConfigKey::AllowInvalidCertificates => Some(self.allow_insecure.to_string()),
             ClientConfigKey::ConnectTimeout => self.connect_timeout.as_ref().map(fmt_duration),
-            ClientConfigKey::DefaultContentType => self.default_content_type.clone(),
             ClientConfigKey::Http1Only => Some(self.http1_only.to_string()),
             ClientConfigKey::Http2KeepAliveInterval => {
                 self.http2_keep_alive_interval.as_ref().map(fmt_duration)
@@ -328,22 +318,6 @@ impl ClientOptions {
     /// certificate for example.
     pub fn with_root_certificate(mut self, certificate: Certificate) -> Self {
         self.root_certificates.push(certificate);
-        self
-    }
-
-    /// Set the default CONTENT_TYPE for uploads
-    pub fn with_default_content_type(mut self, mime: impl Into<String>) -> Self {
-        self.default_content_type = Some(mime.into());
-        self
-    }
-
-    /// Set the CONTENT_TYPE for a given file extension
-    pub fn with_content_type_for_suffix(
-        mut self,
-        extension: impl Into<String>,
-        mime: impl Into<String>,
-    ) -> Self {
-        self.content_type_map.insert(extension.into(), mime.into());
         self
     }
 
@@ -620,7 +594,6 @@ mod tests {
         let allow_http = "true".to_string();
         let allow_invalid_certificates = "false".to_string();
         let connect_timeout = "90 seconds".to_string();
-        let default_content_type = "object_store:fake_default_content_type".to_string();
         let http1_only = "true".to_string();
         let http2_only = "false".to_string();
         let http2_keep_alive_interval = "90 seconds".to_string();
@@ -640,7 +613,6 @@ mod tests {
                 allow_invalid_certificates.clone(),
             ),
             ("connect_timeout", connect_timeout.clone()),
-            ("default_content_type", default_content_type.clone()),
             ("http1_only", http1_only.clone()),
             ("http2_only", http2_only.clone()),
             (
@@ -683,12 +655,6 @@ mod tests {
                 .get_config_value(&ClientConfigKey::ConnectTimeout)
                 .unwrap(),
             connect_timeout
-        );
-        assert_eq!(
-            builder
-                .get_config_value(&ClientConfigKey::DefaultContentType)
-                .unwrap(),
-            default_content_type
         );
         assert_eq!(
             builder
