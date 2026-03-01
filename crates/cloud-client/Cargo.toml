@@ -22,8 +22,6 @@ chrono = { version = "0.4.34", default-features = false, features = [
 ] }
 futures = "0.3"
 humantime = "2.1"
-itertools = "0.14.0"
-parking_lot = { version = "0.12" }
 percent-encoding = "2.1"
 tracing = { version = "0.1" }
 url = "2.2"
@@ -48,8 +46,6 @@ tokio = { version = "1.29.0", features = [
   "time",
   "io-util",
 ] }
-md-5 = { version = "0.10.6", default-features = false }
-httparse = { version = "1.8.0", default-features = false, features = ["std"] }
 http = "*"
 
 [dev-dependencies]

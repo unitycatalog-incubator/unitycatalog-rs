@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::aws::{AwsCredentialProvider, STRICT_ENCODE_SET, STRICT_PATH_ENCODE_SET};
 use crate::retry::RetryExt;
 use crate::token::{TemporaryToken, TokenCache};
 use crate::util::{hex_digest, hex_encode, hmac_sha256};
@@ -23,7 +22,6 @@ use crate::{CredentialProvider, Result, RetryConfig, TokenProvider};
 use async_trait::async_trait;
 use bytes::Buf;
 use chrono::{DateTime, Utc};
-use hyper::header::HeaderName;
 use percent_encoding::utf8_percent_encode;
 use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
 use reqwest::{Client, Method, Request, RequestBuilder, StatusCode};
@@ -34,26 +32,10 @@ use std::time::{Duration, Instant};
 use tracing::warn;
 use url::Url;
 
-#[derive(Debug, thiserror::Error)]
-#[allow(clippy::enum_variant_names)]
-enum Error {
-    #[error("Error performing CreateSession request: {source}")]
-    CreateSessionRequest { source: crate::retry::Error },
+use crate::util::STRICT_ENCODE_SET;
 
-    #[error("Error getting CreateSession response: {source}")]
-    CreateSessionResponse { source: reqwest::Error },
-
-    #[error("Invalid CreateSessionOutput response: {source}")]
-    CreateSessionOutput { source: quick_xml::DeError },
-}
-
-impl From<Error> for crate::Error {
-    fn from(value: Error) -> Self {
-        Self::Generic {
-            source: Box::new(value),
-        }
-    }
-}
+/// This is used to maintain the URI path encoding
+const STRICT_PATH_ENCODE_SET: percent_encoding::AsciiSet = STRICT_ENCODE_SET.remove(b'/');
 
 type StdError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -96,16 +78,15 @@ pub struct AwsAuthorizer<'a> {
     credential: &'a AwsCredential,
     service: &'a str,
     region: &'a str,
-    token_header: Option<HeaderName>,
     sign_payload: bool,
-    request_payer: bool,
 }
 
-static DATE_HEADER: HeaderName = HeaderName::from_static("x-amz-date");
-static HASH_HEADER: HeaderName = HeaderName::from_static("x-amz-content-sha256");
-static TOKEN_HEADER: HeaderName = HeaderName::from_static("x-amz-security-token");
-static REQUEST_PAYER_HEADER: HeaderName = HeaderName::from_static("x-amz-request-payer");
-static REQUEST_PAYER_HEADER_VALUE: HeaderValue = HeaderValue::from_static("requester");
+static DATE_HEADER: hyper::header::HeaderName =
+    hyper::header::HeaderName::from_static("x-amz-date");
+static HASH_HEADER: hyper::header::HeaderName =
+    hyper::header::HeaderName::from_static("x-amz-content-sha256");
+static TOKEN_HEADER: hyper::header::HeaderName =
+    hyper::header::HeaderName::from_static("x-amz-security-token");
 const ALGORITHM: &str = "AWS4-HMAC-SHA256";
 
 impl<'a> AwsAuthorizer<'a> {
@@ -117,8 +98,6 @@ impl<'a> AwsAuthorizer<'a> {
             region,
             date: None,
             sign_payload: true,
-            token_header: None,
-            request_payer: false,
         }
     }
 
@@ -129,38 +108,14 @@ impl<'a> AwsAuthorizer<'a> {
         self
     }
 
-    /// Overrides the header name for security tokens, defaults to `x-amz-security-token`
-    pub(crate) fn with_token_header(mut self, header: HeaderName) -> Self {
-        self.token_header = Some(header);
-        self
-    }
-
-    /// Set whether to include requester pays headers
-    ///
-    /// <https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html>
-    pub fn with_request_payer(mut self, request_payer: bool) -> Self {
-        self.request_payer = request_payer;
-        self
-    }
-
     /// Authorize `request` with an optional pre-calculated SHA256 digest by attaching
     /// the relevant [AWS SigV4] headers
-    ///
-    /// # Payload Signature
-    ///
-    /// AWS SigV4 requests must contain the `x-amz-content-sha256` header, it is set as follows:
-    ///
-    /// * If not configured to sign payloads, it is set to `UNSIGNED-PAYLOAD`
-    /// * If a `pre_calculated_digest` is provided, it is set to the hex encoding of it
-    /// * If it is a streaming request, it is set to `STREAMING-AWS4-HMAC-SHA256-PAYLOAD`
-    /// * Otherwise it is set to the hex encoded SHA256 of the request body
     ///
     /// [AWS SigV4]: https://docs.aws.amazon.com/IAM/latest/UserGuide/create-signed-request.html
     pub fn authorize(&self, request: &mut Request, pre_calculated_digest: Option<&[u8]>) {
         if let Some(ref token) = self.credential.token {
             let token_val = HeaderValue::from_str(token).unwrap();
-            let header = self.token_header.as_ref().unwrap_or(&TOKEN_HEADER);
-            request.headers_mut().insert(header, token_val);
+            request.headers_mut().insert(&TOKEN_HEADER, token_val);
         }
 
         let host = &request.url()[url::Position::BeforeHost..url::Position::AfterPort];
@@ -189,15 +144,6 @@ impl<'a> AwsAuthorizer<'a> {
         let header_digest = HeaderValue::from_str(&digest).unwrap();
         request.headers_mut().insert(&HASH_HEADER, header_digest);
 
-        if self.request_payer {
-            // For DELETE, GET, HEAD, POST, and PUT requests, include x-amz-request-payer :
-            // requester in the header
-            // https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html
-            request
-                .headers_mut()
-                .insert(&REQUEST_PAYER_HEADER, REQUEST_PAYER_HEADER_VALUE.clone());
-        }
-
         let (signed_headers, canonical_headers) = canonicalize_headers(request.headers());
 
         let scope = self.scope(date);
@@ -212,12 +158,10 @@ impl<'a> AwsAuthorizer<'a> {
             &digest,
         );
 
-        // sign the string
         let signature = self
             .credential
             .sign(&string_to_sign, date, self.region, self.service);
 
-        // build the actual auth header
         let authorisation = format!(
             "{} Credential={}/{}, SignedHeaders={}, Signature={}",
             ALGORITHM, self.credential.key_id, scope, signed_headers, signature
@@ -233,7 +177,6 @@ impl<'a> AwsAuthorizer<'a> {
         let date = self.date.unwrap_or_else(Utc::now);
         let scope = self.scope(date);
 
-        // https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
         url.query_pairs_mut()
             .append_pair("X-Amz-Algorithm", ALGORITHM)
             .append_pair(
@@ -244,21 +187,11 @@ impl<'a> AwsAuthorizer<'a> {
             .append_pair("X-Amz-Expires", &expires_in.as_secs().to_string())
             .append_pair("X-Amz-SignedHeaders", "host");
 
-        if self.request_payer {
-            // For signed URLs, include x-amz-request-payer=requester in the request
-            // https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html
-            url.query_pairs_mut()
-                .append_pair("x-amz-request-payer", "requester");
-        }
-
-        // For S3, you must include the X-Amz-Security-Token query parameter in the URL if
-        // using credentials sourced from the STS service.
         if let Some(ref token) = self.credential.token {
             url.query_pairs_mut()
                 .append_pair("X-Amz-Security-Token", token);
         }
 
-        // We don't have a payload; the user is going to send the payload directly themselves.
         let digest = UNSIGNED_PAYLOAD;
 
         let host = &url[url::Position::BeforeHost..url::Position::AfterPort].to_string();
@@ -307,7 +240,6 @@ impl<'a> AwsAuthorizer<'a> {
 
         let canonical_query = canonicalize_query(url);
 
-        // https://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
         let canonical_request = format!(
             "{}\n{}\n{}\n{}\n{}\n{}",
             request_method.as_str(),
@@ -687,82 +619,22 @@ async fn task_credential(
     })
 }
 
-/// A session provider as used by S3 Express One Zone
-///
-/// <https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession.html>
-#[derive(Debug)]
-pub(crate) struct SessionProvider {
-    pub endpoint: String,
-    pub region: String,
-    pub credentials: AwsCredentialProvider,
-}
-
-#[async_trait]
-impl TokenProvider for SessionProvider {
-    type Credential = AwsCredential;
-
-    async fn fetch_token(
-        &self,
-        client: &Client,
-        retry: &RetryConfig,
-    ) -> Result<TemporaryToken<Arc<Self::Credential>>> {
-        let creds = self.credentials.get_credential().await?;
-        let authorizer = AwsAuthorizer::new(&creds, "s3", &self.region);
-
-        let bytes = client
-            .get(format!("{}?session", self.endpoint))
-            .with_aws_sigv4(Some(authorizer), None)
-            .send_retry(retry)
-            .await
-            .map_err(|source| Error::CreateSessionRequest { source })?
-            .bytes()
-            .await
-            .map_err(|source| Error::CreateSessionResponse { source })?;
-
-        let resp: CreateSessionOutput = quick_xml::de::from_reader(bytes.reader())
-            .map_err(|source| Error::CreateSessionOutput { source })?;
-
-        let creds = resp.credentials;
-        Ok(TemporaryToken {
-            token: Arc::new(creds.into()),
-            // Credentials last 5 minutes - https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession.html
-            expiry: Some(Instant::now() + Duration::from_secs(5 * 60)),
-        })
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-struct CreateSessionOutput {
-    credentials: SessionCredentials,
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hyper::Response;
-    use mockito;
     use reqwest::{Client, Method};
     use std::env;
 
-    // Test generated using https://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html
     #[test]
     fn test_sign_with_signed_payload() {
         let client = Client::new();
 
-        // Test credentials from https://docs.aws.amazon.com/AmazonS3/latest/userguide/RESTAuthentication.html
         let credential = AwsCredential {
             key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
             secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
             token: None,
         };
 
-        // method = 'GET'
-        // service = 'ec2'
-        // host = 'ec2.amazonaws.com'
-        // region = 'us-east-1'
-        // endpoint = 'https://ec2.amazonaws.com'
-        // request_parameters = ''
         let date = DateTime::parse_from_rfc3339("2022-08-06T18:01:34Z")
             .unwrap()
             .with_timezone(&Utc);
@@ -778,8 +650,6 @@ mod tests {
             service: "ec2",
             region: "us-east-1",
             sign_payload: true,
-            token_header: None,
-            request_payer: false,
         };
 
         signer.authorize(&mut request, None);
@@ -791,65 +661,15 @@ mod tests {
     }
 
     #[test]
-    fn test_sign_with_signed_payload_request_payer() {
-        let client = Client::new();
-
-        // Test credentials from https://docs.aws.amazon.com/AmazonS3/latest/userguide/RESTAuthentication.html
-        let credential = AwsCredential {
-            key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
-            secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
-            token: None,
-        };
-
-        // method = 'GET'
-        // service = 'ec2'
-        // host = 'ec2.amazonaws.com'
-        // region = 'us-east-1'
-        // endpoint = 'https://ec2.amazonaws.com'
-        // request_parameters = ''
-        let date = DateTime::parse_from_rfc3339("2022-08-06T18:01:34Z")
-            .unwrap()
-            .with_timezone(&Utc);
-
-        let mut request = client
-            .request(Method::GET, "https://ec2.amazon.com/")
-            .build()
-            .unwrap();
-
-        let signer = AwsAuthorizer {
-            date: Some(date),
-            credential: &credential,
-            service: "ec2",
-            region: "us-east-1",
-            sign_payload: true,
-            token_header: None,
-            request_payer: true,
-        };
-
-        signer.authorize(&mut request, None);
-        assert_eq!(
-            request.headers().get(&AUTHORIZATION).unwrap(),
-            "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-request-payer, Signature=7030625a9e9b57ed2a40e63d749f4a4b7714b6e15004cab026152f870dd8565d"
-        )
-    }
-
-    #[test]
     fn test_sign_with_unsigned_payload() {
         let client = Client::new();
 
-        // Test credentials from https://docs.aws.amazon.com/AmazonS3/latest/userguide/RESTAuthentication.html
         let credential = AwsCredential {
             key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
             secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
             token: None,
         };
 
-        // method = 'GET'
-        // service = 'ec2'
-        // host = 'ec2.amazonaws.com'
-        // region = 'us-east-1'
-        // endpoint = 'https://ec2.amazonaws.com'
-        // request_parameters = ''
         let date = DateTime::parse_from_rfc3339("2022-08-06T18:01:34Z")
             .unwrap()
             .with_timezone(&Utc);
@@ -864,9 +684,7 @@ mod tests {
             credential: &credential,
             service: "ec2",
             region: "us-east-1",
-            token_header: None,
             sign_payload: false,
-            request_payer: false,
         };
 
         authorizer.authorize(&mut request, None);
@@ -878,7 +696,6 @@ mod tests {
 
     #[test]
     fn signed_get_url() {
-        // Values from https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
         let credential = AwsCredential {
             key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
             secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
@@ -894,9 +711,7 @@ mod tests {
             credential: &credential,
             service: "s3",
             region: "us-east-1",
-            token_header: None,
             sign_payload: false,
-            request_payer: false,
         };
 
         let mut url = Url::parse("https://examplebucket.s3.amazonaws.com/test.txt").unwrap();
@@ -912,48 +727,6 @@ mod tests {
                 X-Amz-Expires=86400&\
                 X-Amz-SignedHeaders=host&\
                 X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"
-            )
-            .unwrap()
-        );
-    }
-
-    #[test]
-    fn signed_get_url_request_payer() {
-        // Values from https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
-        let credential = AwsCredential {
-            key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
-            secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
-            token: None,
-        };
-
-        let date = DateTime::parse_from_rfc3339("2013-05-24T00:00:00Z")
-            .unwrap()
-            .with_timezone(&Utc);
-
-        let authorizer = AwsAuthorizer {
-            date: Some(date),
-            credential: &credential,
-            service: "s3",
-            region: "us-east-1",
-            token_header: None,
-            sign_payload: false,
-            request_payer: true,
-        };
-
-        let mut url = Url::parse("https://examplebucket.s3.amazonaws.com/test.txt").unwrap();
-        authorizer.sign(Method::GET, &mut url, Duration::from_secs(86400));
-
-        assert_eq!(
-            url,
-            Url::parse(
-                "https://examplebucket.s3.amazonaws.com/test.txt?\
-                X-Amz-Algorithm=AWS4-HMAC-SHA256&\
-                X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request&\
-                X-Amz-Date=20130524T000000Z&\
-                X-Amz-Expires=86400&\
-                X-Amz-SignedHeaders=host&\
-                x-amz-request-payer=requester&\
-                X-Amz-Signature=9ad7c781cc30121f199b47d35ed3528473e4375b63c5d91cd87c927803e4e00a"
             )
             .unwrap()
         );
@@ -989,9 +762,7 @@ mod tests {
             credential: &credential,
             service: "s3",
             region: "us-east-1",
-            token_header: None,
             sign_payload: true,
-            request_payer: false,
         };
 
         authorizer.authorize(&mut request, None);
@@ -1008,12 +779,10 @@ mod tests {
             return;
         }
 
-        // For example https://github.com/aws/amazon-ec2-metadata-mock
         let endpoint = env::var("EC2_METADATA_ENDPOINT").unwrap();
         let client = Client::new();
         let retry_config = RetryConfig::default();
 
-        // Verify only allows IMDSv2
         let resp = client
             .request(Method::GET, format!("{endpoint}/latest/meta-data/ami-id"))
             .send()

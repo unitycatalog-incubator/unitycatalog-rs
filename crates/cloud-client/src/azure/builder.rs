@@ -17,8 +17,8 @@
 
 use super::AzureConfig;
 use crate::azure::credential::{
-    AzureCliCredential, ClientSecretOAuthProvider, FabricTokenOAuthProvider,
-    ImdsManagedIdentityProvider, WorkloadIdentityOAuthProvider,
+    AzureCliCredential, ClientSecretOAuthProvider, ImdsManagedIdentityProvider,
+    WorkloadIdentityOAuthProvider,
 };
 use crate::azure::{AzureCredential, AzureCredentialProvider};
 use crate::config::ConfigValue;
@@ -30,57 +30,11 @@ use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
-use url::Url;
-
-/// The well-known account used by Azurite and the legacy Azure Storage Emulator.
-///
-/// <https://docs.microsoft.com/azure/storage/common/storage-use-azurite#well-known-storage-account-and-key>
-const EMULATOR_ACCOUNT: &str = "devstoreaccount1";
-
-/// The well-known account key used by Azurite and the legacy Azure Storage Emulator.
-///
-/// <https://docs.microsoft.com/azure/storage/common/storage-use-azurite#well-known-storage-account-and-key>
-const EMULATOR_ACCOUNT_KEY: &str =
-    "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
 
 const MSI_ENDPOINT_ENV_KEY: &str = "IDENTITY_ENDPOINT";
 
-/// A specialized `Error` for Azure builder-related errors
 #[derive(Debug, thiserror::Error)]
 enum Error {
-    #[error("Unable parse source url. Url: {}, Error: {}", url, source)]
-    UnableToParseUrl {
-        source: url::ParseError,
-        url: String,
-    },
-
-    #[error(
-        "Unable parse emulator url {}={}, Error: {}",
-        env_name,
-        env_value,
-        source
-    )]
-    UnableToParseEmulatorUrl {
-        env_name: String,
-        env_value: String,
-        source: url::ParseError,
-    },
-
-    #[error("Account must be specified")]
-    MissingAccount {},
-
-    #[error("Container name must be specified")]
-    MissingContainerName {},
-
-    #[error(
-        "Unknown url scheme cannot be parsed into storage location: {}",
-        scheme
-    )]
-    UnknownUrlScheme { scheme: String },
-
-    #[error("URL did not match any known pattern for scheme: {}", url)]
-    UrlNotRecognised { url: String },
-
     #[error("Failed parsing an SAS key")]
     DecodeSasKey { source: std::str::Utf8Error },
 
@@ -102,81 +56,39 @@ impl From<Error> for crate::Error {
     }
 }
 
-/// Configure a connection to Microsoft Azure Blob Storage container using
-/// the specified credentials.
+/// Configure Azure authentication credentials.
 ///
 /// # Example
 /// ```
 /// # let ACCOUNT = "foo";
-/// # let BUCKET_NAME = "foo";
 /// # let ACCESS_KEY = "foo";
 /// # use cloud_client::azure::AzureBuilder;
-/// let azure = AzureBuilder::new()
+/// let config = AzureBuilder::new()
 ///  .with_account(ACCOUNT)
 ///  .with_access_key(ACCESS_KEY)
-///  .with_container_name(BUCKET_NAME)
 ///  .build();
 /// ```
 #[derive(Default, Clone)]
 pub struct AzureBuilder {
-    /// Account name
     account_name: Option<String>,
-    /// Access key
     access_key: Option<String>,
-    /// Container name
-    container_name: Option<String>,
-    /// Bearer token
     bearer_token: Option<String>,
-    /// Client id
     client_id: Option<String>,
-    /// Client secret
     client_secret: Option<String>,
-    /// Tenant id
     tenant_id: Option<String>,
-    /// Query pairs for shared access signature authorization
     sas_query_pairs: Option<Vec<(String, String)>>,
-    /// Shared access signature
     sas_key: Option<String>,
-    /// Authority host
     authority_host: Option<String>,
-    /// Url
-    url: Option<String>,
-    /// When set to true, azurite storage emulator has to be used
-    use_emulator: ConfigValue<bool>,
-    /// Storage endpoint
     endpoint: Option<String>,
-    /// Msi endpoint for acquiring managed identity token
     msi_endpoint: Option<String>,
-    /// Object id for use with managed identity authentication
     object_id: Option<String>,
-    /// Msi resource id for use with managed identity authentication
     msi_resource_id: Option<String>,
-    /// File containing token for Azure AD workload identity federation
     federated_token_file: Option<String>,
-    /// When set to true, azure cli has to be used for acquiring access token
     use_azure_cli: ConfigValue<bool>,
-    /// Retry config
     retry_config: RetryConfig,
-    /// Client options
     client_options: ClientOptions,
-    /// Credentials
     credentials: Option<AzureCredentialProvider>,
-    /// Skip signing requests
     skip_signature: ConfigValue<bool>,
-    /// When set to true, fabric url scheme will be used
-    ///
-    /// i.e. https://{account_name}.dfs.fabric.microsoft.com
-    use_fabric_endpoint: ConfigValue<bool>,
-    /// When set to true, skips tagging objects
-    disable_tagging: ConfigValue<bool>,
-    /// Fabric token service url
-    fabric_token_service_url: Option<String>,
-    /// Fabric workload host
-    fabric_workload_host: Option<String>,
-    /// Fabric session token
-    fabric_session_token: Option<String>,
-    /// Fabric cluster identifier
-    fabric_cluster_identifier: Option<String>,
 }
 
 /// Configuration keys for [`AzureBuilder`]
@@ -266,28 +178,13 @@ pub enum AzureConfigKey {
     /// - `token`
     Token,
 
-    /// Use object store with azurite storage emulator
-    ///
-    /// Supported keys:
-    /// - `azure_storage_use_emulator`
-    /// - `object_store_use_emulator`
-    /// - `use_emulator`
-    UseEmulator,
-
-    /// Override the endpoint used to communicate with blob storage
+    /// Override the endpoint used to communicate with Azure
     ///
     /// Supported keys:
     /// - `azure_storage_endpoint`
     /// - `azure_endpoint`
     /// - `endpoint`
     Endpoint,
-
-    /// Use object store with url scheme account.dfs.fabric.microsoft.com
-    ///
-    /// Supported keys:
-    /// - `azure_use_fabric_endpoint`
-    /// - `use_fabric_endpoint`
-    UseFabricEndpoint,
 
     /// Endpoint to request a imds managed identity token
     ///
@@ -333,50 +230,6 @@ pub enum AzureConfigKey {
     /// - `skip_signature`
     SkipSignature,
 
-    /// Container name
-    ///
-    /// Supported keys:
-    /// - `azure_container_name`
-    /// - `container_name`
-    ContainerName,
-
-    /// Disables tagging objects
-    ///
-    /// This can be desirable if not supported by the backing store
-    ///
-    /// Supported keys:
-    /// - `azure_disable_tagging`
-    /// - `disable_tagging`
-    DisableTagging,
-
-    /// Fabric token service url
-    ///
-    /// Supported keys:
-    /// - `azure_fabric_token_service_url`
-    /// - `fabric_token_service_url`
-    FabricTokenServiceUrl,
-
-    /// Fabric workload host
-    ///
-    /// Supported keys:
-    /// - `azure_fabric_workload_host`
-    /// - `fabric_workload_host`
-    FabricWorkloadHost,
-
-    /// Fabric session token
-    ///
-    /// Supported keys:
-    /// - `azure_fabric_session_token`
-    /// - `fabric_session_token`
-    FabricSessionToken,
-
-    /// Fabric cluster identifier
-    ///
-    /// Supported keys:
-    /// - `azure_fabric_cluster_identifier`
-    /// - `fabric_cluster_identifier`
-    FabricClusterIdentifier,
-
     /// Client options
     Client(ClientConfigKey),
 }
@@ -392,8 +245,6 @@ impl AsRef<str> for AzureConfigKey {
             Self::AuthorityHost => "azure_storage_authority_host",
             Self::SasKey => "azure_storage_sas_key",
             Self::Token => "azure_storage_token",
-            Self::UseEmulator => "azure_storage_use_emulator",
-            Self::UseFabricEndpoint => "azure_use_fabric_endpoint",
             Self::Endpoint => "azure_storage_endpoint",
             Self::MsiEndpoint => "azure_msi_endpoint",
             Self::ObjectId => "azure_object_id",
@@ -401,12 +252,6 @@ impl AsRef<str> for AzureConfigKey {
             Self::FederatedTokenFile => "azure_federated_token_file",
             Self::UseAzureCli => "azure_use_azure_cli",
             Self::SkipSignature => "azure_skip_signature",
-            Self::ContainerName => "azure_container_name",
-            Self::DisableTagging => "azure_disable_tagging",
-            Self::FabricTokenServiceUrl => "azure_fabric_token_service_url",
-            Self::FabricWorkloadHost => "azure_fabric_workload_host",
-            Self::FabricSessionToken => "azure_fabric_session_token",
-            Self::FabricClusterIdentifier => "azure_fabric_cluster_identifier",
             Self::Client(key) => key.as_ref(),
         }
     }
@@ -441,7 +286,6 @@ impl FromStr for AzureConfigKey {
                 Ok(Self::SasKey)
             }
             "azure_storage_token" | "bearer_token" | "token" => Ok(Self::Token),
-            "azure_storage_use_emulator" | "use_emulator" => Ok(Self::UseEmulator),
             "azure_storage_endpoint" | "azure_endpoint" | "endpoint" => Ok(Self::Endpoint),
             "azure_msi_endpoint"
             | "azure_identity_endpoint"
@@ -450,20 +294,8 @@ impl FromStr for AzureConfigKey {
             "azure_object_id" | "object_id" => Ok(Self::ObjectId),
             "azure_msi_resource_id" | "msi_resource_id" => Ok(Self::MsiResourceId),
             "azure_federated_token_file" | "federated_token_file" => Ok(Self::FederatedTokenFile),
-            "azure_use_fabric_endpoint" | "use_fabric_endpoint" => Ok(Self::UseFabricEndpoint),
             "azure_use_azure_cli" | "use_azure_cli" => Ok(Self::UseAzureCli),
             "azure_skip_signature" | "skip_signature" => Ok(Self::SkipSignature),
-            "azure_container_name" | "container_name" => Ok(Self::ContainerName),
-            "azure_disable_tagging" | "disable_tagging" => Ok(Self::DisableTagging),
-            "azure_fabric_token_service_url" | "fabric_token_service_url" => {
-                Ok(Self::FabricTokenServiceUrl)
-            }
-            "azure_fabric_workload_host" | "fabric_workload_host" => Ok(Self::FabricWorkloadHost),
-            "azure_fabric_session_token" | "fabric_session_token" => Ok(Self::FabricSessionToken),
-            "azure_fabric_cluster_identifier" | "fabric_cluster_identifier" => {
-                Ok(Self::FabricClusterIdentifier)
-            }
-            // Backwards compatibility
             "azure_allow_http" => Ok(Self::Client(ClientConfigKey::AllowHttp)),
             _ => match s.strip_prefix("azure_").unwrap_or(s).parse() {
                 Ok(key) => Ok(Self::Client(key)),
@@ -477,8 +309,8 @@ impl std::fmt::Debug for AzureBuilder {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "AzureBuilder {{ account: {:?}, container_name: {:?} }}",
-            self.account_name, self.container_name
+            "AzureBuilder {{ account: {:?} }}",
+            self.account_name
         )
     }
 }
@@ -498,14 +330,6 @@ impl AzureBuilder {
     /// * AZURE_STORAGE_CLIENT_ID -> client id for service principal authorization
     /// * AZURE_STORAGE_CLIENT_SECRET -> client secret for service principal authorization
     /// * AZURE_STORAGE_TENANT_ID -> tenant id used in oauth flows
-    /// # Example
-    /// ```
-    /// use cloud_client::azure::AzureBuilder;
-    ///
-    /// let azure = AzureBuilder::from_env()
-    ///     .with_container_name("foo")
-    ///     .build();
-    /// ```
     pub fn from_env() -> Self {
         let mut builder = Self::default();
         for (os_key, os_value) in std::env::vars_os() {
@@ -525,39 +349,6 @@ impl AzureBuilder {
         builder
     }
 
-    /// Parse available connection info form a well-known storage URL.
-    ///
-    /// The supported url schemes are:
-    ///
-    /// - `abfs[s]://<container>/<path>` (according to [fsspec](https://github.com/fsspec/adlfs))
-    /// - `abfs[s]://<file_system>@<account_name>.dfs.core.windows.net/<path>`
-    /// - `abfs[s]://<file_system>@<account_name>.dfs.fabric.microsoft.com/<path>`
-    /// - `az://<container>/<path>` (according to [fsspec](https://github.com/fsspec/adlfs))
-    /// - `adl://<container>/<path>` (according to [fsspec](https://github.com/fsspec/adlfs))
-    /// - `azure://<container>/<path>` (custom)
-    /// - `https://<account>.dfs.core.windows.net`
-    /// - `https://<account>.blob.core.windows.net`
-    /// - `https://<account>.blob.core.windows.net/<container>`
-    /// - `https://<account>.dfs.fabric.microsoft.com`
-    /// - `https://<account>.dfs.fabric.microsoft.com/<container>`
-    /// - `https://<account>.blob.fabric.microsoft.com`
-    /// - `https://<account>.blob.fabric.microsoft.com/<container>`
-    ///
-    /// Note: Settings derived from the URL will override any others set on this builder
-    ///
-    /// # Example
-    /// ```
-    /// use cloud_client::azure::AzureBuilder;
-    ///
-    /// let azure = AzureBuilder::from_env()
-    ///     .with_url("abfss://file_system@account.dfs.core.windows.net/")
-    ///     .build();
-    /// ```
-    pub fn with_url(mut self, url: impl Into<String>) -> Self {
-        self.url = Some(url.into());
-        self
-    }
-
     /// Set an option on the builder via a key - value pair.
     pub fn with_config(mut self, key: AzureConfigKey, value: impl Into<String>) -> Self {
         match key {
@@ -575,37 +366,15 @@ impl AzureBuilder {
             AzureConfigKey::FederatedTokenFile => self.federated_token_file = Some(value.into()),
             AzureConfigKey::UseAzureCli => self.use_azure_cli.parse(value),
             AzureConfigKey::SkipSignature => self.skip_signature.parse(value),
-            AzureConfigKey::UseEmulator => self.use_emulator.parse(value),
             AzureConfigKey::Endpoint => self.endpoint = Some(value.into()),
-            AzureConfigKey::UseFabricEndpoint => self.use_fabric_endpoint.parse(value),
             AzureConfigKey::Client(key) => {
                 self.client_options = self.client_options.with_config(key, value)
-            }
-            AzureConfigKey::ContainerName => self.container_name = Some(value.into()),
-            AzureConfigKey::DisableTagging => self.disable_tagging.parse(value),
-            AzureConfigKey::FabricTokenServiceUrl => {
-                self.fabric_token_service_url = Some(value.into())
-            }
-            AzureConfigKey::FabricWorkloadHost => self.fabric_workload_host = Some(value.into()),
-            AzureConfigKey::FabricSessionToken => self.fabric_session_token = Some(value.into()),
-            AzureConfigKey::FabricClusterIdentifier => {
-                self.fabric_cluster_identifier = Some(value.into())
             }
         };
         self
     }
 
     /// Get config value via a [`AzureConfigKey`].
-    ///
-    /// # Example
-    /// ```
-    /// use cloud_client::azure::{AzureBuilder, AzureConfigKey};
-    ///
-    /// let builder = AzureBuilder::from_env()
-    ///     .with_account("foo");
-    /// let account_name = builder.get_config_value(&AzureConfigKey::AccountName).unwrap_or_default();
-    /// assert_eq!("foo", &account_name);
-    /// ```
     pub fn get_config_value(&self, key: &AzureConfigKey) -> Option<String> {
         match key {
             AzureConfigKey::AccountName => self.account_name.clone(),
@@ -616,8 +385,6 @@ impl AzureBuilder {
             AzureConfigKey::AuthorityHost => self.authority_host.clone(),
             AzureConfigKey::SasKey => self.sas_key.clone(),
             AzureConfigKey::Token => self.bearer_token.clone(),
-            AzureConfigKey::UseEmulator => Some(self.use_emulator.to_string()),
-            AzureConfigKey::UseFabricEndpoint => Some(self.use_fabric_endpoint.to_string()),
             AzureConfigKey::Endpoint => self.endpoint.clone(),
             AzureConfigKey::MsiEndpoint => self.msi_endpoint.clone(),
             AzureConfigKey::ObjectId => self.object_id.clone(),
@@ -626,96 +393,16 @@ impl AzureBuilder {
             AzureConfigKey::UseAzureCli => Some(self.use_azure_cli.to_string()),
             AzureConfigKey::SkipSignature => Some(self.skip_signature.to_string()),
             AzureConfigKey::Client(key) => self.client_options.get_config_value(key),
-            AzureConfigKey::ContainerName => self.container_name.clone(),
-            AzureConfigKey::DisableTagging => Some(self.disable_tagging.to_string()),
-            AzureConfigKey::FabricTokenServiceUrl => self.fabric_token_service_url.clone(),
-            AzureConfigKey::FabricWorkloadHost => self.fabric_workload_host.clone(),
-            AzureConfigKey::FabricSessionToken => self.fabric_session_token.clone(),
-            AzureConfigKey::FabricClusterIdentifier => self.fabric_cluster_identifier.clone(),
         }
     }
 
-    /// Sets properties on this builder based on a URL
-    ///
-    /// This is a separate member function to allow fallible computation to
-    /// be deferred until [`Self::build`] which in turn allows deriving [`Clone`]
-    fn parse_url(&mut self, url: &str) -> Result<()> {
-        let parsed = Url::parse(url).map_err(|source| {
-            let url = url.into();
-            Error::UnableToParseUrl { url, source }
-        })?;
-
-        let host = parsed
-            .host_str()
-            .ok_or_else(|| Error::UrlNotRecognised { url: url.into() })?;
-
-        let validate = |s: &str| match s.contains('.') {
-            true => Err(Error::UrlNotRecognised { url: url.into() }),
-            false => Ok(s.to_string()),
-        };
-
-        match parsed.scheme() {
-            "az" | "adl" | "azure" => self.container_name = Some(validate(host)?),
-            "abfs" | "abfss" => {
-                // abfs(s) might refer to the fsspec convention abfs://<container>/<path>
-                // or the convention for the hadoop driver abfs[s]://<file_system>@<account_name>.dfs.core.windows.net/<path>
-                if parsed.username().is_empty() {
-                    self.container_name = Some(validate(host)?);
-                } else if let Some(a) = host.strip_suffix(".dfs.core.windows.net") {
-                    self.container_name = Some(validate(parsed.username())?);
-                    self.account_name = Some(validate(a)?);
-                } else if let Some(a) = host.strip_suffix(".dfs.fabric.microsoft.com") {
-                    self.container_name = Some(validate(parsed.username())?);
-                    self.account_name = Some(validate(a)?);
-                    self.use_fabric_endpoint = true.into();
-                } else {
-                    return Err(Error::UrlNotRecognised { url: url.into() }.into());
-                }
-            }
-            "https" => match host.split_once('.') {
-                Some((a, "dfs.core.windows.net")) | Some((a, "blob.core.windows.net")) => {
-                    self.account_name = Some(validate(a)?);
-                    if let Some(container) = parsed.path_segments().unwrap().next() {
-                        self.container_name = Some(validate(container)?);
-                    }
-                }
-                Some((a, "dfs.fabric.microsoft.com")) | Some((a, "blob.fabric.microsoft.com")) => {
-                    self.account_name = Some(validate(a)?);
-                    // Attempt to infer the container name from the URL
-                    // - https://onelake.dfs.fabric.microsoft.com/<workspaceGUID>/<itemGUID>/Files/test.csv
-                    // - https://onelake.dfs.fabric.microsoft.com/<workspace>/<item>.<itemtype>/<path>/<fileName>
-                    //
-                    // See <https://learn.microsoft.com/en-us/fabric/onelake/onelake-access-api>
-                    if let Some(workspace) = parsed.path_segments().unwrap().next() {
-                        if !workspace.is_empty() {
-                            self.container_name = Some(workspace.to_string())
-                        }
-                    }
-                    self.use_fabric_endpoint = true.into();
-                }
-                _ => return Err(Error::UrlNotRecognised { url: url.into() }.into()),
-            },
-            scheme => {
-                let scheme = scheme.into();
-                return Err(Error::UnknownUrlScheme { scheme }.into());
-            }
-        }
-        Ok(())
-    }
-
-    /// Set the Azure Account (required)
+    /// Set the Azure Account
     pub fn with_account(mut self, account: impl Into<String>) -> Self {
         self.account_name = Some(account.into());
         self
     }
 
-    /// Set the Azure Container Name (required)
-    pub fn with_container_name(mut self, container_name: impl Into<String>) -> Self {
-        self.container_name = Some(container_name.into());
-        self
-    }
-
-    /// Set the Azure Access Key (required - one of access key, bearer token, or client credentials)
+    /// Set the Azure Access Key
     pub fn with_access_key(mut self, access_key: impl Into<String>) -> Self {
         self.access_key = Some(access_key.into());
         self
@@ -770,47 +457,19 @@ impl AzureBuilder {
         self
     }
 
-    /// Set if the Azure emulator should be used (defaults to false)
-    pub fn with_use_emulator(mut self, use_emulator: bool) -> Self {
-        self.use_emulator = use_emulator.into();
-        self
-    }
-
-    /// Override the endpoint used to communicate with blob storage
-    ///
-    /// Defaults to `https://{account}.blob.core.windows.net`
-    ///
-    /// By default, only HTTPS schemes are enabled. To connect to an HTTP endpoint, enable
-    /// [`Self::with_allow_http`].
+    /// Override the endpoint used to communicate with Azure
     pub fn with_endpoint(mut self, endpoint: String) -> Self {
         self.endpoint = Some(endpoint);
         self
     }
 
-    /// Set if Microsoft Fabric url scheme should be used (defaults to false)
-    ///
-    /// When disabled the url scheme used is `https://{account}.blob.core.windows.net`
-    /// When enabled the url scheme used is `https://{account}.dfs.fabric.microsoft.com`
-    ///
-    /// Note: [`Self::with_endpoint`] will take precedence over this option
-    pub fn with_use_fabric_endpoint(mut self, use_fabric_endpoint: bool) -> Self {
-        self.use_fabric_endpoint = use_fabric_endpoint.into();
-        self
-    }
-
     /// Sets what protocol is allowed
-    ///
-    /// If `allow_http` is :
-    /// * false (default):  Only HTTPS are allowed
-    /// * true:  HTTP and HTTPS are allowed
     pub fn with_allow_http(mut self, allow_http: bool) -> Self {
         self.client_options = self.client_options.with_allow_http(allow_http);
         self
     }
 
     /// Sets an alternative authority host for OAuth based authorization
-    ///
-    /// Common hosts for azure clouds are defined in [authority_hosts](crate::azure::authority_hosts).
     ///
     /// Defaults to <https://login.microsoftonline.com>
     pub fn with_authority_host(mut self, authority_host: impl Into<String>) -> Self {
@@ -857,144 +516,88 @@ impl AzureBuilder {
     }
 
     /// Sets a file path for acquiring azure federated identity token in k8s
-    ///
-    /// requires `client_id` and `tenant_id` to be set
     pub fn with_federated_token_file(mut self, federated_token_file: impl Into<String>) -> Self {
         self.federated_token_file = Some(federated_token_file.into());
         self
     }
 
     /// Set if the Azure Cli should be used for acquiring access token
-    ///
-    /// <https://learn.microsoft.com/en-us/cli/azure/account?view=azure-cli-latest#az-account-get-access-token>
     pub fn with_use_azure_cli(mut self, use_azure_cli: bool) -> Self {
         self.use_azure_cli = use_azure_cli.into();
         self
     }
 
-    /// If enabled, [`MicrosoftAzure`] will not fetch credentials and will not sign requests
-    ///
-    /// This can be useful when interacting with public containers
+    /// If enabled, requests will not be signed
     pub fn with_skip_signature(mut self, skip_signature: bool) -> Self {
         self.skip_signature = skip_signature.into();
         self
     }
 
-    /// If set to `true` will ignore any tags provided to put_opts
-    pub fn with_disable_tagging(mut self, ignore: bool) -> Self {
-        self.disable_tagging = ignore.into();
-        self
-    }
-
+    /// Build an [`AzureConfig`] from the provided values, consuming `self`.
     pub fn build(self) -> Result<AzureConfig> {
         let static_creds = |credential: AzureCredential| -> AzureCredentialProvider {
             Arc::new(StaticCredentialProvider::new(credential))
         };
 
-        let auth = {
-            if let Some(credential) = self.credentials {
-                credential
-            } else if let (
-                Some(fabric_token_service_url),
-                Some(fabric_workload_host),
-                Some(fabric_session_token),
-                Some(fabric_cluster_identifier),
-            ) = (
-                &self.fabric_token_service_url,
-                &self.fabric_workload_host,
-                &self.fabric_session_token,
-                &self.fabric_cluster_identifier,
-            ) {
-                // This case should precede the bearer token case because it is more specific and will utilize the bearer token.
-                let fabric_credential = FabricTokenOAuthProvider::new(
-                    fabric_token_service_url,
-                    fabric_workload_host,
-                    fabric_session_token,
-                    fabric_cluster_identifier,
-                    self.bearer_token.clone(),
-                );
-                Arc::new(TokenCredentialProvider::new(
-                    fabric_credential,
-                    self.client_options.client()?,
-                    self.retry_config.clone(),
-                )) as _
-            } else if let Some(bearer_token) = self.bearer_token {
-                static_creds(AzureCredential::BearerToken(bearer_token))
-            } else if let (Some(client_id), Some(tenant_id), Some(federated_token_file)) =
-                (&self.client_id, &self.tenant_id, self.federated_token_file)
-            {
-                let client_credential = WorkloadIdentityOAuthProvider::new(
-                    client_id,
-                    federated_token_file,
-                    tenant_id,
-                    self.authority_host,
-                );
-                Arc::new(TokenCredentialProvider::new(
-                    client_credential,
-                    self.client_options.client()?,
-                    self.retry_config.clone(),
-                )) as _
-            } else if let (Some(client_id), Some(client_secret), Some(tenant_id)) =
-                (&self.client_id, self.client_secret, &self.tenant_id)
-            {
-                let client_credential = ClientSecretOAuthProvider::new(
-                    client_id.clone(),
-                    client_secret,
-                    tenant_id,
-                    self.authority_host,
-                );
-                Arc::new(TokenCredentialProvider::new(
-                    client_credential,
-                    self.client_options.client()?,
-                    self.retry_config.clone(),
-                )) as _
-            } else if let Some(query_pairs) = self.sas_query_pairs {
-                static_creds(AzureCredential::SASToken(query_pairs))
-            } else if let Some(sas) = self.sas_key {
-                static_creds(AzureCredential::SASToken(split_sas(&sas)?))
-            } else if self.use_azure_cli.get()? {
-                Arc::new(AzureCliCredential::new()) as _
-            } else {
-                let msi_credential = ImdsManagedIdentityProvider::new(
-                    self.client_id,
-                    self.object_id,
-                    self.msi_resource_id,
-                    self.msi_endpoint,
-                );
-                Arc::new(TokenCredentialProvider::new(
-                    msi_credential,
-                    self.client_options.metadata_client()?,
-                    self.retry_config.clone(),
-                )) as _
-            }
+        let auth = if let Some(credential) = self.credentials {
+            credential
+        } else if let Some(bearer_token) = self.bearer_token {
+            static_creds(AzureCredential::BearerToken(bearer_token))
+        } else if let (Some(client_id), Some(tenant_id), Some(federated_token_file)) =
+            (&self.client_id, &self.tenant_id, self.federated_token_file)
+        {
+            let client_credential = WorkloadIdentityOAuthProvider::new(
+                client_id,
+                federated_token_file,
+                tenant_id,
+                self.authority_host,
+            );
+            Arc::new(TokenCredentialProvider::new(
+                client_credential,
+                self.client_options.client()?,
+                self.retry_config.clone(),
+            )) as _
+        } else if let (Some(client_id), Some(client_secret), Some(tenant_id)) =
+            (&self.client_id, self.client_secret, &self.tenant_id)
+        {
+            let client_credential = ClientSecretOAuthProvider::new(
+                client_id.clone(),
+                client_secret,
+                tenant_id,
+                self.authority_host,
+            );
+            Arc::new(TokenCredentialProvider::new(
+                client_credential,
+                self.client_options.client()?,
+                self.retry_config.clone(),
+            )) as _
+        } else if let Some(query_pairs) = self.sas_query_pairs {
+            static_creds(AzureCredential::SASToken(query_pairs))
+        } else if let Some(sas) = self.sas_key {
+            static_creds(AzureCredential::SASToken(split_sas(&sas)?))
+        } else if self.use_azure_cli.get()? {
+            Arc::new(AzureCliCredential::new()) as _
+        } else {
+            let msi_credential = ImdsManagedIdentityProvider::new(
+                self.client_id,
+                self.object_id,
+                self.msi_resource_id,
+                self.msi_endpoint,
+            );
+            Arc::new(TokenCredentialProvider::new(
+                msi_credential,
+                self.client_options.metadata_client()?,
+                self.retry_config.clone(),
+            )) as _
         };
 
-        let config = AzureConfig {
+        Ok(AzureConfig {
             skip_signature: self.skip_signature.get()?,
-            disable_tagging: self.disable_tagging.get()?,
             retry_config: self.retry_config,
             client_options: self.client_options,
             credentials: auth,
-        };
-
-        Ok(config)
+        })
     }
-}
-
-/// Parses the contents of the environment variable `env_name` as a URL
-/// if present, otherwise falls back to default_url
-fn url_from_env(env_name: &str, default_url: &str) -> Result<Url> {
-    let url = match std::env::var(env_name) {
-        Ok(env_value) => {
-            Url::parse(&env_value).map_err(|source| Error::UnableToParseEmulatorUrl {
-                env_name: env_name.into(),
-                env_value,
-                source,
-            })?
-        }
-        Err(_) => Url::parse(default_url).expect("Failed to parse default URL"),
-    };
-    Ok(url)
 }
 
 fn split_sas(sas: &str) -> Result<Vec<(String, String)>, Error> {
@@ -1020,105 +623,6 @@ fn split_sas(sas: &str) -> Result<Vec<(String, String)>, Error> {
 mod tests {
     use super::*;
     use std::collections::HashMap;
-
-    #[test]
-    fn azure_blob_test_urls() {
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("abfss://file_system@account.dfs.core.windows.net/")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name, Some("file_system".to_string()));
-        assert!(!builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("abfss://file_system@account.dfs.fabric.microsoft.com/")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name, Some("file_system".to_string()));
-        assert!(builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder.parse_url("abfs://container/path").unwrap();
-        assert_eq!(builder.container_name, Some("container".to_string()));
-
-        let mut builder = AzureBuilder::new();
-        builder.parse_url("az://container").unwrap();
-        assert_eq!(builder.container_name, Some("container".to_string()));
-
-        let mut builder = AzureBuilder::new();
-        builder.parse_url("az://container/path").unwrap();
-        assert_eq!(builder.container_name, Some("container".to_string()));
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.dfs.core.windows.net/")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert!(!builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.blob.core.windows.net/")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert!(!builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.blob.core.windows.net/container")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name, Some("container".to_string()));
-        assert!(!builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.dfs.fabric.microsoft.com/")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name, None);
-        assert!(builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.dfs.fabric.microsoft.com/container")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name.as_deref(), Some("container"));
-        assert!(builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.blob.fabric.microsoft.com/")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name, None);
-        assert!(builder.use_fabric_endpoint.get().unwrap());
-
-        let mut builder = AzureBuilder::new();
-        builder
-            .parse_url("https://account.blob.fabric.microsoft.com/container")
-            .unwrap();
-        assert_eq!(builder.account_name, Some("account".to_string()));
-        assert_eq!(builder.container_name.as_deref(), Some("container"));
-        assert!(builder.use_fabric_endpoint.get().unwrap());
-
-        let err_cases = [
-            "mailto://account.blob.core.windows.net/",
-            "az://blob.mydomain/",
-            "abfs://container.foo/path",
-            "abfss://file_system@account.foo.dfs.core.windows.net/",
-            "abfss://file_system.bar@account.dfs.core.windows.net/",
-            "https://blob.mydomain/",
-            "https://blob.foo.dfs.core.windows.net/",
-        ];
-        let mut builder = AzureBuilder::new();
-        for case in err_cases {
-            builder.parse_url(case).unwrap_err();
-        }
-    }
 
     #[test]
     fn azure_test_config_from_map() {

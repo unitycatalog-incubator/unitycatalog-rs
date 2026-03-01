@@ -15,11 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::gcp::GoogleConfig;
+use crate::gcp::credential::GcpCredential;
 use crate::gcp::credential::{
     ApplicationDefaultCredentials, InstanceCredentialProvider, ServiceAccountCredentials,
 };
-use crate::gcp::{GcpCredential, GcpCredentialProvider, credential};
-use crate::gcp::{GoogleClient, GoogleConfig};
+use crate::gcp::{GcpCredentialProvider, credential};
 use crate::{
     ClientConfigKey, ClientOptions, Result, RetryConfig, StaticCredentialProvider,
     TokenCredentialProvider,
@@ -319,7 +320,7 @@ impl GoogleBuilder {
     }
 
     /// Configure a connection to Google Cloud Storage, returning a
-    /// new [`GoogleClient`] and consuming `self`
+    /// new [`GoogleConfig`] and consuming `self`
     pub fn build(self) -> Result<GoogleConfig> {
         // First try to initialize from the service account information.
         let service_account_credentials =

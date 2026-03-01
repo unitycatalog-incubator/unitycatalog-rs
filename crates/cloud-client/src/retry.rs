@@ -192,7 +192,6 @@ pub(crate) struct RetryableRequest {
 
     sensitive: bool,
     idempotent: Option<bool>,
-    retry_on_conflict: bool,
 }
 
 impl RetryableRequest {
@@ -203,14 +202,6 @@ impl RetryableRequest {
     pub(crate) fn idempotent(self, idempotent: bool) -> Self {
         Self {
             idempotent: Some(idempotent),
-            ..self
-        }
-    }
-
-    /// Set whether this request should be retried on a 409 Conflict response.
-    pub(crate) fn retry_on_conflict(self, retry_on_conflict: bool) -> Self {
-        Self {
-            retry_on_conflict,
             ..self
         }
     }
@@ -273,8 +264,7 @@ impl RetryableRequest {
                         let status = r.status();
                         if retries == max_retries
                             || now.elapsed() > retry_timeout
-                            || !(status.is_server_error()
-                                || (self.retry_on_conflict && status == StatusCode::CONFLICT))
+                            || !status.is_server_error()
                         {
                             return Err(match status.is_client_error() {
                                 true => match r.text().await {
@@ -400,7 +390,6 @@ impl RetryExt for reqwest::RequestBuilder {
             backoff: Backoff::new(&config.backoff),
             sensitive: false,
             idempotent: None,
-            retry_on_conflict: false,
         }
     }
 

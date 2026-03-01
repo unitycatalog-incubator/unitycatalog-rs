@@ -15,6 +15,7 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::{Body, Client, IntoUrl, Method, RequestBuilder};
 use serde::Serialize;
 
+use self::aws::credential::{AwsAuthorizer, CredentialExt};
 use self::azure::credential::AzureCredentialExt;
 pub use self::token::{TemporaryToken, TokenCache};
 
@@ -27,7 +28,6 @@ mod credential;
 mod error;
 pub mod gcp;
 
-mod pagination;
 mod retry;
 mod token;
 mod util;
@@ -35,7 +35,6 @@ mod util;
 pub use client::{Certificate, ClientConfigKey, ClientOptions};
 pub use credential::*;
 pub use error::*;
-pub use pagination::stream_paginated;
 pub use retry::RetryConfig;
 
 #[derive(Clone)]
@@ -303,8 +302,12 @@ impl CloudRequestBuilder {
                 let credential = az.get_credential().await?;
                 self.builder = self.builder.with_azure_authorization(&credential);
             }
-            Credential::Aws(_aws) => {
-                todo!()
+            Credential::Aws(aws) => {
+                if let Some(cred) = aws.get_credential().await? {
+                    let authorizer = AwsAuthorizer::new(&cred, "execute-api", &aws.region)
+                        .with_sign_payload(aws.sign_payload);
+                    self.builder = self.builder.with_aws_sigv4(Some(authorizer), None);
+                }
             }
             Credential::Google(gcp) => {
                 let credential = gcp.get_credential().await?;
