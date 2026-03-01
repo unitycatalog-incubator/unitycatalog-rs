@@ -5,11 +5,15 @@ use uuid::Uuid;
 
 use crate::GraphStore;
 
-const DUMMY: &str = "dummy";
+const DEFAULT_ENCRYPTION_KEY: &str = "dummy";
 
 #[async_trait::async_trait]
 impl SecretManager for GraphStore {
     async fn get_secret(&self, secret_name: &str) -> Result<(Uuid, Bytes)> {
+        let key = self
+            .encryption_key
+            .as_deref()
+            .unwrap_or(DEFAULT_ENCRYPTION_KEY);
         let mut conn = self.pool.acquire().await.map_err(crate::Error::from)?;
         #[derive(sqlx::FromRow)]
         struct Secret {
@@ -24,7 +28,7 @@ impl SecretManager for GraphStore {
             ORDER BY id DESC
             LIMIT 1
             "#,
-            DUMMY,
+            key,
             secret_name,
         )
         .fetch_one(&mut *conn)
@@ -37,6 +41,10 @@ impl SecretManager for GraphStore {
     }
 
     async fn get_secret_version(&self, secret_name: &str, version: Uuid) -> Result<Bytes> {
+        let key = self
+            .encryption_key
+            .as_deref()
+            .unwrap_or(DEFAULT_ENCRYPTION_KEY);
         let mut conn = self.pool.acquire().await.map_err(crate::Error::from)?;
         let value: Option<String> = sqlx::query_scalar!(
             r#"
@@ -44,7 +52,7 @@ impl SecretManager for GraphStore {
             WHERE name = $1 AND id = $3
             "#,
             secret_name,
-            DUMMY,
+            key,
             version,
         )
         .fetch_one(&mut *conn)
@@ -57,6 +65,10 @@ impl SecretManager for GraphStore {
     }
 
     async fn create_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
+        let key = self
+            .encryption_key
+            .as_deref()
+            .unwrap_or(DEFAULT_ENCRYPTION_KEY);
         let mut txn = self.pool.begin().await.map_err(crate::Error::from)?;
         let value = std::str::from_utf8(&secret_value).unwrap();
         let query_result = sqlx::query_scalar!(
@@ -67,7 +79,7 @@ impl SecretManager for GraphStore {
             "#,
             secret_name,
             value,
-            DUMMY,
+            key,
         )
         .fetch_one(&mut *txn)
         .await;

@@ -35,7 +35,7 @@ mod tests {
     impl Handler {
         fn new(pool: sqlx::PgPool) -> Self {
             Self {
-                store: GraphStore::new(pool.into()),
+                store: GraphStore::new(pool.into(), None),
                 policy: Arc::new(ConstantPolicy::default()),
                 secrets: Arc::new(InMemoryResourceStore::new()),
             }

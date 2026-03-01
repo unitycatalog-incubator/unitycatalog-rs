@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 #[sqlx::test]
 async fn test_objects(pool: sqlx::PgPool) -> Result<(), Box<dyn std::error::Error + 'static>> {
-    let store = GraphStore::new(Arc::new(pool));
+    let store = GraphStore::new(Arc::new(pool), None);
 
     let object = store
         .add_object(
@@ -85,7 +85,7 @@ async fn test_objects(pool: sqlx::PgPool) -> Result<(), Box<dyn std::error::Erro
 
 #[sqlx::test]
 async fn test_associations(pool: sqlx::PgPool) -> Result<(), Box<dyn std::error::Error + 'static>> {
-    let store = GraphStore::new(Arc::new(pool));
+    let store = GraphStore::new(Arc::new(pool), None);
 
     let object1 = store
         .add_object(

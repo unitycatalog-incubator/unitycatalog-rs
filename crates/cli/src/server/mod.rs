@@ -7,29 +7,41 @@ use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::ConstantPolicy;
 use unitycatalog_server::{rest::AnonymousAuthenticator, services::ServerHandler};
 
+use crate::config::{Backend, Config, PostgresBackendConfig, SecretBackend};
 use crate::error::{Error, Result};
 
 mod run;
 
+const DEFAULT_HOST: &str = "0.0.0.0";
+const DEFAULT_PORT: u16 = 8080;
+
 #[derive(Debug, Parser)]
 pub struct ServerArgs {
-    #[clap(long, default_value = "0.0.0.0")]
-    host: String,
+    #[clap(long)]
+    host: Option<String>,
 
-    #[clap(long, short, default_value_t = 8080)]
-    port: u16,
+    #[clap(long, short)]
+    port: Option<u16>,
 
     #[arg(short, long, default_value = "config.yaml")]
     config: String,
-
-    #[clap(long, help = "use database", default_value_t = false)]
-    use_db: bool,
 
     #[clap(long, help = "expose rest API", default_value_t = true)]
     rest: bool,
 
     #[clap(long, help = "expose rest gRPC", default_value_t = false)]
     grpc: bool,
+}
+
+fn load_config(path: &str) -> Result<Config> {
+    let path = std::path::Path::new(path);
+    if !path.exists() {
+        tracing::info!("config file not found at {}, using defaults", path.display());
+        return Ok(Config::default());
+    }
+    let contents =
+        std::fs::read_to_string(path).map_err(|e| Error::Generic(format!("reading config: {e}")))?;
+    serde_yml::from_str(&contents).map_err(|e| Error::Generic(format!("parsing config: {e}")))
 }
 
 pub async fn handle_server(args: &ServerArgs) -> Result<()> {
@@ -50,39 +62,52 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
 
     println!("{}", WELCOME.as_str());
 
-    if args.use_db {
-        let handler = get_db_handler().await?;
-        run::run_server_rest(
-            args.host.clone(),
-            args.port,
-            handler,
-            AnonymousAuthenticator,
-        )
+    let config = load_config(&args.config)?;
+
+    let host = args
+        .host
+        .as_deref()
+        .or(config.host.as_deref())
+        .unwrap_or(DEFAULT_HOST);
+    let port = args.port.or(config.port).unwrap_or(DEFAULT_PORT);
+
+    let handler = match &config.backend {
+        Backend::InMemory => get_memory_handler().await?,
+        Backend::Postgres(pg) => get_db_handler(pg, &config.secret_backend).await?,
+    };
+
+    run::run_server_rest(host, port, handler, AnonymousAuthenticator)
         .await
         .map_err(|_| Error::Generic("Server failed".to_string()))
-    } else {
-        let handler = get_memory_handler().await?;
-        run::run_server_rest(
-            args.host.clone(),
-            args.port,
-            handler,
-            AnonymousAuthenticator,
-        )
-        .await
-        .map_err(|_| Error::Generic("Server failed".to_string()))
-    }
 }
 
 async fn handle_grpc(_args: &ServerArgs) -> Result<()> {
     unimplemented!()
 }
 
-async fn get_db_handler() -> Result<ServerHandler> {
-    let db_url = std::env::var("DATABASE_URL")
-        .map_err(|_| Error::Generic("missing DATABASE_URL".to_string()))?;
-    let store = Arc::new(GraphStore::connect(&db_url).await.unwrap());
+async fn get_db_handler(
+    pg: &PostgresBackendConfig,
+    secret_backend: &Option<SecretBackend>,
+) -> Result<ServerHandler> {
+    let db_url = pg
+        .connection_string()
+        .ok_or_else(|| Error::Generic("incomplete postgres backend configuration".into()))?;
+
+    let encryption_key = match secret_backend {
+        Some(SecretBackend::Postgres(cfg)) => cfg.encryption_key.value(),
+        _ => None,
+    };
+
+    let store = Arc::new(
+        GraphStore::connect(&db_url, encryption_key)
+            .await
+            .map_err(|e| Error::Generic(format!("connecting to database: {e}")))?,
+    );
     let policy = Arc::new(ConstantPolicy::default());
-    store.migrate().await.unwrap();
+    store
+        .migrate()
+        .await
+        .map_err(|e| Error::Generic(format!("running migrations: {e}")))?;
     let handler = ServerHandler::try_new_tokio(policy, store.clone(), store)?;
     Ok(handler)
 }
