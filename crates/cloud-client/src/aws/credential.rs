@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::retry::RetryExt;
-use crate::token::{TemporaryToken, TokenCache};
-use crate::util::{hex_digest, hex_encode, hmac_sha256};
-use crate::{CredentialProvider, Result, RetryConfig, TokenProvider};
+use std::collections::BTreeMap;
+use std::sync::Arc;
+use std::time::{Duration, Instant};
+
 use async_trait::async_trait;
 use bytes::Buf;
 use chrono::{DateTime, Utc};
@@ -26,11 +26,14 @@ use percent_encoding::utf8_percent_encode;
 use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
 use reqwest::{Client, Method, Request, RequestBuilder, StatusCode};
 use serde::Deserialize;
-use std::collections::BTreeMap;
-use std::sync::Arc;
-use std::time::{Duration, Instant};
 use tracing::warn;
 use url::Url;
+
+use crate::retry::RetryExt;
+use crate::service::HttpService;
+use crate::token::{TemporaryToken, TokenCache};
+use crate::util::{hex_digest, hex_encode, hmac_sha256};
+use crate::{CredentialProvider, Result, RetryConfig, TokenProvider};
 
 use crate::util::STRICT_ENCODE_SET;
 
@@ -392,11 +395,18 @@ impl TokenProvider for InstanceCredentialProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> Result<TemporaryToken<Arc<AwsCredential>>> {
-        instance_creds(client, retry, &self.metadata_endpoint, self.imdsv1_fallback)
-            .await
-            .map_err(|source| crate::Error::Generic { source })
+        instance_creds(
+            client,
+            service,
+            retry,
+            &self.metadata_endpoint,
+            self.imdsv1_fallback,
+        )
+        .await
+        .map_err(|source| crate::Error::Generic { source })
     }
 }
 
@@ -418,10 +428,12 @@ impl TokenProvider for WebIdentityProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> Result<TemporaryToken<Arc<AwsCredential>>> {
         web_identity(
             client,
+            service,
             retry,
             &self.token_path,
             &self.role_arn,
@@ -455,6 +467,7 @@ impl From<InstanceCredentials> for AwsCredential {
 /// <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#instance-metadata-security-credentials>
 async fn instance_creds(
     client: &Client,
+    service: &Arc<dyn HttpService>,
     retry_config: &RetryConfig,
     endpoint: &str,
     imdsv1_fallback: bool,
@@ -467,7 +480,7 @@ async fn instance_creds(
     let token_result = client
         .request(Method::PUT, token_url)
         .header("X-aws-ec2-metadata-token-ttl-seconds", "600") // 10 minute TTL
-        .retryable(retry_config)
+        .retryable(retry_config, service.clone())
         .idempotent(true)
         .send()
         .await;
@@ -488,7 +501,11 @@ async fn instance_creds(
         role_request = role_request.header(AWS_EC2_METADATA_TOKEN_HEADER, token);
     }
 
-    let role = role_request.send_retry(retry_config).await?.text().await?;
+    let role = role_request
+        .send_retry(retry_config, service.clone())
+        .await?
+        .text()
+        .await?;
 
     let creds_url = format!("{endpoint}/{CREDENTIALS_PATH}/{role}");
     let mut creds_request = client.request(Method::GET, creds_url);
@@ -496,7 +513,11 @@ async fn instance_creds(
         creds_request = creds_request.header(AWS_EC2_METADATA_TOKEN_HEADER, token);
     }
 
-    let creds: InstanceCredentials = creds_request.send_retry(retry_config).await?.json().await?;
+    let creds: InstanceCredentials = creds_request
+        .send_retry(retry_config, service.clone())
+        .await?
+        .json()
+        .await?;
 
     let now = Utc::now();
     let ttl = (creds.expiration - now).to_std().unwrap_or_default();
@@ -540,6 +561,7 @@ impl From<SessionCredentials> for AwsCredential {
 /// <https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html>
 async fn web_identity(
     client: &Client,
+    service: &Arc<dyn HttpService>,
     retry_config: &RetryConfig,
     token_path: &str,
     role_arn: &str,
@@ -559,7 +581,7 @@ async fn web_identity(
             ("Version", "2011-06-15"),
             ("WebIdentityToken", &token),
         ])
-        .retryable(retry_config)
+        .retryable(retry_config, service.clone())
         .idempotent(true)
         .sensitive(true)
         .send()
@@ -588,6 +610,7 @@ pub(crate) struct TaskCredentialProvider {
     pub url: String,
     pub retry: RetryConfig,
     pub client: Client,
+    pub service: Arc<dyn HttpService>,
     pub cache: TokenCache<Arc<AwsCredential>>,
 }
 
@@ -597,7 +620,9 @@ impl CredentialProvider for TaskCredentialProvider {
 
     async fn get_credential(&self) -> Result<Arc<AwsCredential>> {
         self.cache
-            .get_or_insert_with(|| task_credential(&self.client, &self.retry, &self.url))
+            .get_or_insert_with(|| {
+                task_credential(&self.client, &self.service, &self.retry, &self.url)
+            })
             .await
             .map_err(|source| crate::Error::Generic { source })
     }
@@ -606,10 +631,16 @@ impl CredentialProvider for TaskCredentialProvider {
 /// <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>
 async fn task_credential(
     client: &Client,
+    service: &Arc<dyn HttpService>,
     retry: &RetryConfig,
     url: &str,
 ) -> Result<TemporaryToken<Arc<AwsCredential>>, StdError> {
-    let creds: InstanceCredentials = client.get(url).send_retry(retry).await?.json().await?;
+    let creds: InstanceCredentials = client
+        .get(url)
+        .send_retry(retry, service.clone())
+        .await?
+        .json()
+        .await?;
 
     let now = Utc::now();
     let ttl = (creds.expiration - now).to_std().unwrap_or_default();
@@ -622,6 +653,7 @@ async fn task_credential(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::service::ReqwestService;
     use reqwest::{Client, Method};
     use std::env;
 
@@ -781,6 +813,7 @@ mod tests {
 
         let endpoint = env::var("EC2_METADATA_ENDPOINT").unwrap();
         let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
         let retry_config = RetryConfig::default();
 
         let resp = client
@@ -795,7 +828,7 @@ mod tests {
             "Ensure metadata endpoint is set to only allow IMDSv2"
         );
 
-        let creds = instance_creds(&client, &retry_config, &endpoint, false)
+        let creds = instance_creds(&client, &service, &retry_config, &endpoint, false)
             .await
             .unwrap();
 
@@ -819,6 +852,7 @@ mod tests {
 
         let endpoint = server.url();
         let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
         let retry_config = RetryConfig::default();
 
         // Test IMDSv2
@@ -845,7 +879,7 @@ mod tests {
             .create_async()
             .await;
 
-        let creds = instance_creds(&client, &retry_config, &endpoint, true)
+        let creds = instance_creds(&client, &service, &retry_config, &endpoint, true)
             .await
             .unwrap();
 
@@ -875,7 +909,7 @@ mod tests {
             .create_async()
             .await;
 
-        let creds = instance_creds(&client, &retry_config, &endpoint, true)
+        let creds = instance_creds(&client, &service, &retry_config, &endpoint, true)
             .await
             .unwrap();
 
@@ -892,7 +926,7 @@ mod tests {
             .await;
 
         // Should fail
-        instance_creds(&client, &retry_config, &endpoint, false)
+        instance_creds(&client, &service, &retry_config, &endpoint, false)
             .await
             .unwrap_err();
     }

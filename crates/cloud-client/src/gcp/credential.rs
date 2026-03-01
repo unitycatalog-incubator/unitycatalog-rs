@@ -15,6 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::env;
+use std::fs::File;
+use std::io::BufReader;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::time::{Duration, Instant};
+
 use async_trait::async_trait;
 use base64::Engine;
 use base64::prelude::BASE64_URL_SAFE_NO_PAD;
@@ -22,19 +29,13 @@ use futures::TryFutureExt;
 use reqwest::{Client, Method};
 use ring::signature::RsaKeyPair;
 use serde::Deserialize;
-use std::env;
-use std::fs::File;
-use std::io::BufReader;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::time::{Duration, Instant};
 use tracing::info;
 
-use crate::RetryConfig;
-use crate::TokenProvider;
 use crate::retry::RetryExt;
+use crate::service::HttpService;
 use crate::token::TemporaryToken;
 use crate::util::hex_encode;
+use crate::{RetryConfig, TokenProvider};
 
 pub(crate) const DEFAULT_SCOPE: &str = "https://www.googleapis.com/auth/cloud-platform";
 
@@ -249,6 +250,7 @@ impl TokenProvider for SelfSignedJwt {
     async fn fetch_token(
         &self,
         _client: &Client,
+        _service: &Arc<dyn HttpService>,
         _retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<GcpCredential>>> {
         let now = seconds_since_epoch();
@@ -372,6 +374,7 @@ pub(crate) struct InstanceCredentialProvider {}
 /// Make a request to the metadata server to fetch a token, using a a given hostname.
 async fn make_metadata_request(
     client: &Client,
+    service: &Arc<dyn HttpService>,
     hostname: &str,
     retry: &RetryConfig,
 ) -> crate::Result<TokenResponse> {
@@ -381,7 +384,7 @@ async fn make_metadata_request(
         .request(Method::GET, url)
         .header("Metadata-Flavor", "Google")
         .query(&[("audience", "https://www.googleapis.com/oauth2/v4/token")])
-        .send_retry(retry)
+        .send_retry(retry, service.clone())
         .await
         .map_err(|source| Error::TokenRequest { source })?
         .json()
@@ -403,6 +406,7 @@ impl TokenProvider for InstanceCredentialProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<GcpCredential>>> {
         let metadata_host = if let Ok(host) = env::var("GCE_METADATA_HOST") {
@@ -419,8 +423,8 @@ impl TokenProvider for InstanceCredentialProvider {
         };
 
         info!("fetching token from metadata server");
-        let response = make_metadata_request(client, &metadata_host, retry)
-            .or_else(|_| make_metadata_request(client, &metadata_ip, retry))
+        let response = make_metadata_request(client, service, &metadata_host, retry)
+            .or_else(|_| make_metadata_request(client, service, &metadata_ip, retry))
             .await?;
 
         let token = TemporaryToken {
@@ -436,6 +440,7 @@ impl TokenProvider for InstanceCredentialProvider {
 /// Make a request to the metadata server to fetch the client email, using a given hostname.
 async fn make_metadata_request_for_email(
     client: &Client,
+    service: &Arc<dyn HttpService>,
     hostname: &str,
     retry: &RetryConfig,
 ) -> crate::Result<String> {
@@ -444,7 +449,7 @@ async fn make_metadata_request_for_email(
     let response = client
         .request(Method::GET, url)
         .header("Metadata-Flavor", "Google")
-        .send_retry(retry)
+        .send_retry(retry, service.clone())
         .await
         .map_err(|source| Error::TokenRequest { source })?
         .text()
@@ -472,6 +477,7 @@ impl TokenProvider for InstanceSigningCredentialProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<GcpSigningCredential>>> {
         let metadata_host = if let Ok(host) = env::var("GCE_METADATA_HOST") {
@@ -490,8 +496,8 @@ impl TokenProvider for InstanceSigningCredentialProvider {
 
         info!("fetching token from metadata server");
 
-        let email = make_metadata_request_for_email(client, &metadata_host, retry)
-            .or_else(|_| make_metadata_request_for_email(client, &metadata_ip, retry))
+        let email = make_metadata_request_for_email(client, service, &metadata_host, retry)
+            .or_else(|_| make_metadata_request_for_email(client, service, &metadata_ip, retry))
             .await?;
 
         let token = TemporaryToken {
@@ -581,11 +587,16 @@ impl AuthorizedUserSigningCredentials {
         Ok(Self { credential })
     }
 
-    async fn client_email(&self, client: &Client, retry: &RetryConfig) -> crate::Result<String> {
+    async fn client_email(
+        &self,
+        client: &Client,
+        service: &Arc<dyn HttpService>,
+        retry: &RetryConfig,
+    ) -> crate::Result<String> {
         let response = client
             .request(Method::GET, "https://oauth2.googleapis.com/tokeninfo")
             .query(&[("access_token", &self.credential.refresh_token)])
-            .send_retry(retry)
+            .send_retry(retry, service.clone())
             .await
             .map_err(|source| Error::TokenRequest { source })?
             .json::<EmailResponse>()
@@ -603,9 +614,10 @@ impl TokenProvider for AuthorizedUserSigningCredentials {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<GcpSigningCredential>>> {
-        let email = self.client_email(client, retry).await?;
+        let email = self.client_email(client, service, retry).await?;
 
         Ok(TemporaryToken {
             token: Arc::new(GcpSigningCredential {
@@ -624,6 +636,7 @@ impl TokenProvider for AuthorizedUserCredentials {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<GcpCredential>>> {
         let response = client
@@ -634,7 +647,7 @@ impl TokenProvider for AuthorizedUserCredentials {
                 ("client_secret", &self.client_secret),
                 ("refresh_token", &self.refresh_token),
             ])
-            .retryable(retry)
+            .retryable(retry, service.clone())
             .idempotent(true)
             .send()
             .await

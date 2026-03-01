@@ -17,14 +17,17 @@
 
 //! A shared HTTP client implementation incorporating retries
 
+use std::error::Error as StdError;
+use std::sync::Arc;
+use std::time::{Duration, Instant};
+
 use futures::future::BoxFuture;
 use reqwest::header::LOCATION;
-use reqwest::{Client, Request, Response, StatusCode};
-use std::error::Error as StdError;
-use std::time::{Duration, Instant};
+use reqwest::{Request, Response, StatusCode};
 use tracing::info;
 
 use crate::backoff::{Backoff, BackoffConfig};
+use crate::service::HttpService;
 
 /// Retry request error
 #[derive(Debug, thiserror::Error)]
@@ -183,7 +186,7 @@ impl Default for RetryConfig {
 }
 
 pub(crate) struct RetryableRequest {
-    client: Client,
+    service: Arc<dyn HttpService>,
     request: Request,
 
     max_retries: usize,
@@ -236,7 +239,7 @@ impl RetryableRequest {
                 .try_clone()
                 .expect("request body must be cloneable");
 
-            match self.client.execute(request).await {
+            match self.service.call(request).await {
                 Ok(r) => match r.error_for_status_ref() {
                     Ok(_) if r.status().is_success() => {
                         return Ok(r);
@@ -367,23 +370,27 @@ impl RetryableRequest {
 
 pub(crate) trait RetryExt {
     /// Return a [`RetryableRequest`]
-    fn retryable(self, config: &RetryConfig) -> RetryableRequest;
+    fn retryable(self, config: &RetryConfig, service: Arc<dyn HttpService>) -> RetryableRequest;
 
     /// Dispatch a request with the given retry configuration
     ///
     /// # Panic
     ///
     /// This will panic if the request body is a stream
-    fn send_retry(self, config: &RetryConfig) -> BoxFuture<'static, Result<Response>>;
+    fn send_retry(
+        self,
+        config: &RetryConfig,
+        service: Arc<dyn HttpService>,
+    ) -> BoxFuture<'static, Result<Response>>;
 }
 
 impl RetryExt for reqwest::RequestBuilder {
-    fn retryable(self, config: &RetryConfig) -> RetryableRequest {
-        let (client, request) = self.build_split();
+    fn retryable(self, config: &RetryConfig, service: Arc<dyn HttpService>) -> RetryableRequest {
+        let (_client, request) = self.build_split();
         let request = request.expect("request must be valid");
 
         RetryableRequest {
-            client,
+            service,
             request,
             max_retries: config.max_retries,
             retry_timeout: config.retry_timeout,
@@ -393,8 +400,12 @@ impl RetryExt for reqwest::RequestBuilder {
         }
     }
 
-    fn send_retry(self, config: &RetryConfig) -> BoxFuture<'static, Result<Response>> {
-        let request = self.retryable(config);
+    fn send_retry(
+        self,
+        config: &RetryConfig,
+        service: Arc<dyn HttpService>,
+    ) -> BoxFuture<'static, Result<Response>> {
+        let request = self.retryable(config, service);
         Box::pin(async move { request.send().await })
     }
 }
@@ -403,10 +414,12 @@ impl RetryExt for reqwest::RequestBuilder {
 mod tests {
     use super::RetryConfig;
     use crate::retry::{Error, RetryExt};
+    use crate::service::ReqwestService;
     use hyper::Response;
     use hyper::header::LOCATION;
     use mockito;
     use reqwest::{Client, Method, StatusCode};
+    use std::sync::Arc;
     use std::time::Duration;
 
     #[tokio::test]
@@ -424,8 +437,13 @@ mod tests {
             .build()
             .unwrap();
 
+        let service = Arc::new(ReqwestService::new(client.clone()));
         let server_url = server.url();
-        let do_request = || client.request(Method::GET, &server_url).send_retry(&retry);
+        let do_request = || {
+            client
+                .request(Method::GET, &server_url)
+                .send_retry(&retry, service.clone())
+        };
 
         // Simple request should work
         let _mock1 = server
@@ -562,7 +580,7 @@ mod tests {
 
         let res = client
             .request(Method::GET, &sensitive_url)
-            .send_retry(&retry)
+            .send_retry(&retry, service.clone())
             .await;
         let err = res.unwrap_err().to_string();
         assert!(err.contains("SENSITIVE"), "{err}");
@@ -577,7 +595,7 @@ mod tests {
 
         let req = client
             .request(Method::GET, &sensitive_url)
-            .retryable(&retry)
+            .retryable(&retry, service.clone())
             .sensitive(true);
         let err = req.send().await.unwrap_err().to_string();
         assert!(!err.contains("SENSITIVE"), "{err}");

@@ -15,9 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
+
+use serde::{Deserialize, Serialize};
+use tokio::runtime::Handle;
 use tracing::info;
 
 use super::AmazonConfig;
@@ -26,6 +28,7 @@ use crate::aws::credential::{
 };
 use crate::aws::{AwsCredential, AwsCredentialProvider};
 use crate::config::ConfigValue;
+use crate::service::make_service;
 use crate::{
     ClientConfigKey, ClientOptions, Result, RetryConfig, StaticCredentialProvider,
     TokenCredentialProvider,
@@ -68,7 +71,7 @@ impl From<Error> for crate::Error {
 ///  .with_region(REGION)
 ///  .with_access_key_id(ACCESS_KEY_ID)
 ///  .with_secret_access_key(SECRET_KEY)
-///  .build();
+///  .build(None);
 /// ```
 #[derive(Debug, Default, Clone)]
 pub struct AmazonBuilder {
@@ -395,7 +398,10 @@ impl AmazonBuilder {
     }
 
     /// Build an [`AmazonConfig`] from the provided values, consuming `self`.
-    pub fn build(self) -> Result<AmazonConfig> {
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn build(self, runtime: Option<&Handle>) -> Result<AmazonConfig> {
         let region = self.region.unwrap_or_else(|| "us-east-1".to_string());
 
         let credentials = if let Some(credentials) = self.credentials {
@@ -439,17 +445,22 @@ impl AmazonBuilder {
                 endpoint,
             };
 
+            let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 token,
                 client,
+                service,
                 self.retry_config.clone(),
             )) as _
         } else if let Some(uri) = self.container_credentials_relative_uri {
             info!("Using Task credential provider");
+            let client = self.client_options.clone().with_allow_http(true).client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(TaskCredentialProvider {
                 url: format!("http://169.254.170.2{uri}"),
                 retry: self.retry_config.clone(),
-                client: self.client_options.clone().with_allow_http(true).client()?,
+                client,
+                service,
                 cache: Default::default(),
             }) as _
         } else {
@@ -462,9 +473,12 @@ impl AmazonBuilder {
                     .unwrap_or_else(|| DEFAULT_METADATA_ENDPOINT.into()),
             };
 
+            let client = self.client_options.metadata_client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 token,
-                self.client_options.metadata_client()?,
+                client,
+                service,
                 self.retry_config.clone(),
             )) as _
         };
@@ -559,7 +573,7 @@ mod tests {
 
     #[test]
     fn s3_default_region() {
-        let config = AmazonBuilder::new().build().unwrap();
+        let config = AmazonBuilder::new().build(None).unwrap();
         assert_eq!(config.region, "us-east-1");
     }
 
@@ -571,7 +585,7 @@ mod tests {
             .with_region("region")
             .with_allow_http(true)
             .with_proxy_url("https://example.com")
-            .build();
+            .build(None);
 
         assert!(s3.is_ok());
     }
@@ -581,7 +595,7 @@ mod tests {
         let err = AmazonBuilder::new()
             .with_config(AmazonS3ConfigKey::ImdsV1Fallback, "enabled")
             .with_region("region")
-            .build()
+            .build(None)
             .unwrap_err()
             .to_string();
 

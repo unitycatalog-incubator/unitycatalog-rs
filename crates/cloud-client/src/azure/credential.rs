@@ -15,21 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::RetryConfig;
-use crate::retry::RetryExt;
-use crate::token::{TemporaryToken, TokenCache};
-use crate::{CredentialProvider, TokenProvider};
-use async_trait::async_trait;
-use chrono::{DateTime, Utc};
-use reqwest::header::{ACCEPT, AUTHORIZATION, DATE, HeaderName, HeaderValue};
-use reqwest::{Client, Method, Request, RequestBuilder};
-use serde::Deserialize;
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::process::Command;
 use std::str;
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
+
+use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use reqwest::header::{ACCEPT, AUTHORIZATION, DATE, HeaderName, HeaderValue};
+use reqwest::{Client, Method, Request, RequestBuilder};
+use serde::Deserialize;
+
+use crate::retry::RetryExt;
+use crate::service::HttpService;
+use crate::token::{TemporaryToken, TokenCache};
+use crate::{CredentialProvider, RetryConfig, TokenProvider};
 
 static AZURE_VERSION: HeaderValue = HeaderValue::from_static("2023-11-03");
 static VERSION: HeaderName = HeaderName::from_static("x-ms-version");
@@ -217,6 +219,7 @@ impl TokenProvider for ClientSecretOAuthProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<AzureCredential>>> {
         let response: OAuthTokenResponse = client
@@ -228,7 +231,7 @@ impl TokenProvider for ClientSecretOAuthProvider {
                 ("scope", AZURE_STORAGE_SCOPE),
                 ("grant_type", "client_credentials"),
             ])
-            .retryable(retry)
+            .retryable(retry, service.clone())
             .idempotent(true)
             .send()
             .await
@@ -301,6 +304,7 @@ impl TokenProvider for ImdsManagedIdentityProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<AzureCredential>>> {
         let mut query_items = vec![
@@ -332,7 +336,7 @@ impl TokenProvider for ImdsManagedIdentityProvider {
         };
 
         let response: ImdsTokenResponse = builder
-            .send_retry(retry)
+            .send_retry(retry, service.clone())
             .await
             .map_err(|source| Error::TokenRequest { source })?
             .json()
@@ -385,6 +389,7 @@ impl TokenProvider for WorkloadIdentityOAuthProvider {
     async fn fetch_token(
         &self,
         client: &Client,
+        service: &Arc<dyn HttpService>,
         retry: &RetryConfig,
     ) -> crate::Result<TemporaryToken<Arc<AzureCredential>>> {
         let token_str = std::fs::read_to_string(&self.federated_token_file)
@@ -403,7 +408,7 @@ impl TokenProvider for WorkloadIdentityOAuthProvider {
                 ("scope", AZURE_STORAGE_SCOPE),
                 ("grant_type", "client_credentials"),
             ])
-            .retryable(retry)
+            .retryable(retry, service.clone())
             .idempotent(true)
             .send()
             .await
@@ -538,6 +543,7 @@ mod tests {
     use tempfile::NamedTempFile;
 
     use super::*;
+    use crate::service::ReqwestService;
     use mockito;
 
     #[tokio::test]
@@ -548,6 +554,7 @@ mod tests {
 
         let endpoint = server.url();
         let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
         let retry_config = RetryConfig::default();
 
         let _mock = server
@@ -583,7 +590,7 @@ mod tests {
         );
 
         let token = credential
-            .fetch_token(&client, &retry_config)
+            .fetch_token(&client, &service, &retry_config)
             .await
             .unwrap();
 
@@ -602,6 +609,7 @@ mod tests {
 
         let endpoint = server.url();
         let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
         let retry_config = RetryConfig::default();
 
         let _mock = server
@@ -632,7 +640,7 @@ mod tests {
         );
 
         let token = credential
-            .fetch_token(&client, &retry_config)
+            .fetch_token(&client, &service, &retry_config)
             .await
             .unwrap();
 

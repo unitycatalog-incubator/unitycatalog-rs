@@ -15,6 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::str::FromStr;
+use std::sync::Arc;
+
+use percent_encoding::percent_decode_str;
+use serde::{Deserialize, Serialize};
+use tokio::runtime::Handle;
+
 use super::AzureConfig;
 use crate::azure::credential::{
     AzureCliCredential, ClientSecretOAuthProvider, ImdsManagedIdentityProvider,
@@ -22,14 +29,11 @@ use crate::azure::credential::{
 };
 use crate::azure::{AzureCredential, AzureCredentialProvider};
 use crate::config::ConfigValue;
+use crate::service::make_service;
 use crate::{
     ClientConfigKey, ClientOptions, Result, RetryConfig, StaticCredentialProvider,
     TokenCredentialProvider,
 };
-use percent_encoding::percent_decode_str;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-use std::sync::Arc;
 
 const MSI_ENDPOINT_ENV_KEY: &str = "IDENTITY_ENDPOINT";
 
@@ -66,7 +70,7 @@ impl From<Error> for crate::Error {
 /// let config = AzureBuilder::new()
 ///  .with_account(ACCOUNT)
 ///  .with_access_key(ACCESS_KEY)
-///  .build();
+///  .build(None);
 /// ```
 #[derive(Default, Clone)]
 pub struct AzureBuilder {
@@ -534,7 +538,11 @@ impl AzureBuilder {
     }
 
     /// Build an [`AzureConfig`] from the provided values, consuming `self`.
-    pub fn build(self) -> Result<AzureConfig> {
+    /// Build an [`AzureConfig`] from the provided values, consuming `self`.
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn build(self, runtime: Option<&Handle>) -> Result<AzureConfig> {
         let static_creds = |credential: AzureCredential| -> AzureCredentialProvider {
             Arc::new(StaticCredentialProvider::new(credential))
         };
@@ -552,9 +560,12 @@ impl AzureBuilder {
                 tenant_id,
                 self.authority_host,
             );
+            let client = self.client_options.client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 client_credential,
-                self.client_options.client()?,
+                client,
+                service,
                 self.retry_config.clone(),
             )) as _
         } else if let (Some(client_id), Some(client_secret), Some(tenant_id)) =
@@ -566,9 +577,12 @@ impl AzureBuilder {
                 tenant_id,
                 self.authority_host,
             );
+            let client = self.client_options.client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 client_credential,
-                self.client_options.client()?,
+                client,
+                service,
                 self.retry_config.clone(),
             )) as _
         } else if let Some(query_pairs) = self.sas_query_pairs {
@@ -584,9 +598,12 @@ impl AzureBuilder {
                 self.msi_resource_id,
                 self.msi_endpoint,
             );
+            let client = self.client_options.metadata_client()?;
+            let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 msi_credential,
-                self.client_options.metadata_client()?,
+                client,
+                service,
                 self.retry_config.clone(),
             )) as _
         };
