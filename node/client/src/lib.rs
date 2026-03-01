@@ -9,6 +9,7 @@ use env_logger::Env;
 use napi_derive::*;
 
 mod client;
+mod codegen;
 mod error;
 
 /// Timeout configuration for remote HTTP client.

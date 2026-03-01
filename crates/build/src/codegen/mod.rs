@@ -46,6 +46,8 @@ pub fn generate_code(
     output_dir_server: &Path,
     output_dir_client: &Path,
     output_dir_python: &Path,
+    output_dir_node: Option<&Path>,
+    output_dir_node_ts: Option<&Path>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Analyze metadata and plan generation
     let plan = analyze_metadata(metadata)?;
@@ -62,9 +64,21 @@ pub fn generate_code(
     let client_code = generation::generate_client_code(&plan, metadata)?;
     output::write_generated_code(&client_code, output_dir_client)?;
 
-    // Generate Python bindings if output directory is provided
+    // Generate Python bindings
     let python_code = generation::generate_python_code(&plan, metadata)?;
     output::write_generated_code(&python_code, output_dir_python)?;
+
+    // Generate Node.js NAPI bindings
+    if let Some(output_dir) = output_dir_node {
+        let node_code = generation::generate_node_code(&plan, metadata)?;
+        output::write_generated_code(&node_code, output_dir)?;
+    }
+
+    // Generate Node.js TypeScript client
+    if let Some(output_dir) = output_dir_node_ts {
+        let node_ts_code = generation::generate_node_ts_code(&plan, metadata)?;
+        output::write_generated_code(&node_ts_code, output_dir)?;
+    }
 
     Ok(())
 }

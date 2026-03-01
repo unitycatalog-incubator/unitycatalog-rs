@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 #[cfg(feature = "recording")]
 use std::path::PathBuf;
+use std::sync::Arc;
 #[cfg(feature = "recording")]
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
 use std::time::Duration;
 
 use aws::AmazonConfig;
@@ -172,8 +172,7 @@ impl CloudClient {
     /// Create a new client with a personal access token.
     pub fn new_with_token(token: impl ToString) -> Self {
         let reqwest_client = Client::new();
-        let service: Arc<dyn HttpService> =
-            Arc::new(ReqwestService::new(reqwest_client.clone()));
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(reqwest_client.clone()));
         Self {
             reqwest_client,
             service,
@@ -189,8 +188,7 @@ impl CloudClient {
     /// Create a new unauthenticated client.
     pub fn new_unauthenticated() -> Self {
         let reqwest_client = Client::new();
-        let service: Arc<dyn HttpService> =
-            Arc::new(ReqwestService::new(reqwest_client.clone()));
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(reqwest_client.clone()));
         Self {
             reqwest_client,
             service,
@@ -411,10 +409,7 @@ pub struct ResponseInfo {
 #[cfg(feature = "recording")]
 async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, reqwest::Error> {
     let Some(out_dir) = builder.out_dir else {
-        let request = builder
-            .builder
-            .build()
-            .expect("request to be valid");
+        let request = builder.builder.build().expect("request to be valid");
         return builder.client.service.call(request).await;
     };
     let (_client, request) = builder.builder.build_split();

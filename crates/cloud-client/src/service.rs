@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
@@ -15,7 +16,7 @@ pub trait HttpService: Debug + Send + Sync + 'static {
     fn call(
         &self,
         request: reqwest::Request,
-    ) -> Pin<Box<dyn std::future::Future<Output = Result<reqwest::Response, reqwest::Error>> + Send + '_>>;
+    ) -> Pin<Box<dyn Future<Output = Result<reqwest::Response, reqwest::Error>> + Send + '_>>;
 }
 
 /// Default [`HttpService`] that delegates directly to [`reqwest::Client::execute`].
@@ -32,8 +33,7 @@ impl HttpService for ReqwestService {
     fn call(
         &self,
         request: reqwest::Request,
-    ) -> Pin<Box<dyn std::future::Future<Output = Result<reqwest::Response, reqwest::Error>> + Send + '_>>
-    {
+    ) -> Pin<Box<dyn Future<Output = Result<reqwest::Response, reqwest::Error>> + Send + '_>> {
         Box::pin(self.0.execute(request))
     }
 }
@@ -69,8 +69,7 @@ impl HttpService for SpawnService {
     fn call(
         &self,
         request: reqwest::Request,
-    ) -> Pin<Box<dyn std::future::Future<Output = Result<reqwest::Response, reqwest::Error>> + Send + '_>>
-    {
+    ) -> Pin<Box<dyn Future<Output = Result<reqwest::Response, reqwest::Error>> + Send + '_>> {
         let inner = Arc::clone(&self.inner);
         let handle = self.handle.clone();
         Box::pin(async move {

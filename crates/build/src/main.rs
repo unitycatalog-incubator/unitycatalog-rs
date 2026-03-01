@@ -23,6 +23,12 @@ struct Cli {
     #[clap(long, env = "UC_BUILD_OUTPUT_PYTHON")]
     output_python: String,
 
+    #[clap(long, env = "UC_BUILD_OUTPUT_NODE")]
+    output_node: Option<String>,
+
+    #[clap(long, env = "UC_BUILD_OUTPUT_NODE_TS")]
+    output_node_ts: Option<String>,
+
     #[clap(long, short, env = "UC_BUILD_DESCRIPTORS")]
     descriptors: String,
 }
@@ -43,12 +49,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output_dir_client = fs::canonicalize(PathBuf::from(&args.output_client))?;
     let output_dir_python = fs::canonicalize(PathBuf::from(&args.output_python))?;
 
+    let output_dir_node = args
+        .output_node
+        .as_ref()
+        .map(|p| fs::canonicalize(PathBuf::from(p)))
+        .transpose()?;
+    let output_dir_node_ts = args
+        .output_node_ts
+        .as_ref()
+        .map(|p| fs::canonicalize(PathBuf::from(p)))
+        .transpose()?;
+
     generate_code(
         &codegen_metadata,
         &output_dir_common,
         &output_dir_server,
         &output_dir_client,
         &output_dir_python,
+        output_dir_node.as_deref(),
+        output_dir_node_ts.as_deref(),
     )?;
 
     Ok(())

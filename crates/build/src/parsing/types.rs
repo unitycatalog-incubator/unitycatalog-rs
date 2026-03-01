@@ -26,6 +26,10 @@ pub enum RenderContext {
     PythonParameter,
     /// Python type annotations for .pyi files
     PythonTypings,
+    /// NAPI parameter type (Rust NAPI function signatures for Node.js bindings)
+    NapiParameter,
+    /// TypeScript type annotation
+    TypeScript,
 }
 
 /// Convert a unified type to a Rust type string
@@ -47,7 +51,10 @@ pub fn unified_to_rust(unified_type: &UnifiedType, context: RenderContext) -> St
         BaseType::Unit => "()".to_string(),
         BaseType::Message(name) => extract_simple_type_name(name),
         BaseType::Enum(name) => {
-            if matches!(context, RenderContext::Extractor) {
+            if matches!(
+                context,
+                RenderContext::Extractor | RenderContext::NapiParameter
+            ) {
                 "i32".to_string()
             } else {
                 convert_protobuf_enum_to_rust_type(&format!("TYPE_ENUM:{}", name))
@@ -76,8 +83,11 @@ pub fn unified_to_rust(unified_type: &UnifiedType, context: RenderContext) -> St
     // In python parameter signatures we wrap repeated fields in Option<Vec<T>>
     // to distinguish an empty array from a missing field.
     if (unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod))
-        || (matches!(context, RenderContext::PythonParameter)
-            && (matches!(unified_type.base_type, BaseType::Map(_, _)) || unified_type.is_repeated))
+        || (matches!(
+            context,
+            RenderContext::PythonParameter | RenderContext::NapiParameter
+        ) && (matches!(unified_type.base_type, BaseType::Map(_, _))
+            || unified_type.is_repeated))
     {
         result = format!("Option<{}>", result);
     }
@@ -131,6 +141,80 @@ pub fn unified_to_python_type(unified_type: &UnifiedType) -> String {
 
     if unified_type.is_optional {
         result = format!("Optional[{}]", result);
+    }
+
+    result
+}
+
+/// Convert a unified type to a Rust NAPI parameter type string.
+///
+/// NAPI requires concrete types (no `impl Into<>`). Optional fields
+/// become `Option<T>`, maps become `Option<HashMap<K, V>>`.
+pub fn unified_to_napi(unified_type: &UnifiedType) -> String {
+    let base_type_str = match &unified_type.base_type {
+        BaseType::String => "String".to_string(),
+        BaseType::Int32 => "i32".to_string(),
+        BaseType::Int64 => "i64".to_string(),
+        BaseType::Bool => "bool".to_string(),
+        BaseType::Float64 => "f64".to_string(),
+        BaseType::Float32 => "f32".to_string(),
+        BaseType::Bytes => "Vec<u8>".to_string(),
+        BaseType::Unit => "()".to_string(),
+        BaseType::Message(name) => extract_simple_type_name(name),
+        BaseType::Enum(name) => convert_protobuf_enum_to_rust_type(&format!("TYPE_ENUM:{}", name)),
+        BaseType::OneOf(name) => extract_simple_type_name(name),
+        BaseType::Map(key_type, value_type) => {
+            let key_str = unified_to_napi(key_type);
+            let value_str = unified_to_napi(value_type);
+            format!("HashMap<{}, {}>", key_str, value_str)
+        }
+    };
+
+    let mut result = base_type_str;
+
+    if unified_type.is_repeated {
+        result = format!("Vec<{}>", result);
+    }
+
+    if unified_type.is_optional
+        || matches!(unified_type.base_type, BaseType::Map(_, _))
+        || unified_type.is_repeated
+    {
+        result = format!("Option<{}>", result);
+    }
+
+    result
+}
+
+/// Convert a unified type to a TypeScript type annotation string.
+///
+/// Enums are mapped to `number` since they cross the NAPI boundary as `i32`.
+pub fn unified_to_typescript(unified_type: &UnifiedType) -> String {
+    let base_type_str = match &unified_type.base_type {
+        BaseType::String => "string".to_string(),
+        BaseType::Int32 | BaseType::Int64 => "number".to_string(),
+        BaseType::Bool => "boolean".to_string(),
+        BaseType::Float64 | BaseType::Float32 => "number".to_string(),
+        BaseType::Bytes => "Uint8Array".to_string(),
+        BaseType::Unit => "void".to_string(),
+        BaseType::Message(name) => extract_simple_type_name(name),
+        BaseType::Enum(_) => "number".to_string(),
+        BaseType::OneOf(name) => extract_simple_type_name(name),
+        BaseType::Map(key_type, value_type) => {
+            let key_str = unified_to_typescript(key_type);
+            let value_str = unified_to_typescript(value_type);
+            format!("Record<{}, {}>", key_str, value_str)
+        }
+    };
+
+    let mut result = base_type_str;
+
+    if unified_type.is_repeated {
+        result = format!("{}[]", result);
+    }
+
+    if unified_type.is_optional {
+        result = format!("{} | undefined", result);
     }
 
     result

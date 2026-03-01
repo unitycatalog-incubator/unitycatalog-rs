@@ -311,11 +311,7 @@ impl FromStr for AzureConfigKey {
 
 impl std::fmt::Debug for AzureBuilder {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "AzureBuilder {{ account: {:?} }}",
-            self.account_name
-        )
+        write!(f, "AzureBuilder {{ account: {:?} }}", self.account_name)
     }
 }
 
