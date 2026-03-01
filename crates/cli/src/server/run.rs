@@ -92,7 +92,7 @@ async fn run<S: Into<String> + Clone>(
     let listener = TcpListener::bind(format!("{}:{}", host.as_ref(), port))
         .await
         .map_err(|e| Error::Generic(e.to_string()))?;
-    tracing::info!("Listning on: {}", listener.local_addr().unwrap());
+    tracing::info!("Listening on: {}", listener.local_addr().unwrap());
     axum::serve(listener, router)
         .with_graceful_shutdown(shutdown_signal())
         .await

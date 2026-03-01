@@ -90,7 +90,7 @@ impl PostgresBackendConfig {
 #[serde(tag = "engine")]
 pub enum SecretBackend {
     /// Azure Key Vault secret backend.
-    Azure(AzureKeyValut),
+    Azure(AzureKeyVault),
 
     /// Postgres secret backend.
     ///
@@ -102,7 +102,7 @@ pub enum SecretBackend {
 
 /// Azure Key Vault secret backend configuration.
 #[derive(Debug, Deserialize, Serialize)]
-pub struct AzureKeyValut {
+pub struct AzureKeyVault {
     /// The name of the vault.
     pub vault_name: ConfigValue,
 

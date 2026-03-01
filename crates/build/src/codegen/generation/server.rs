@@ -13,7 +13,7 @@ use crate::{
 
 /// Generate server side code for axum servers
 ///
-/// This geneartes:
+/// This generates:
 /// - FromRequestParts extractor implementations for path/query parameters
 /// - FromRequest extractor implementations for JSON body
 pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {

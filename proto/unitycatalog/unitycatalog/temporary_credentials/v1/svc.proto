@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "unitycatalog/temporary_credentials/v1/models.proto";
 
-// Gebnerate a new set of credentials for a table.
+// Generate a new set of credentials for a table.
 message GenerateTemporaryTableCredentialsRequest {
   enum Operation {
     // The operation is not specified.
@@ -28,7 +28,7 @@ message GenerateTemporaryTableCredentialsRequest {
   Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
-// Genearte a new set of credentials for a volume.
+// Generate a new set of credentials for a volume.
 message GenerateTemporaryPathCredentialsRequest {
   enum Operation {
     // The operation is not specified.

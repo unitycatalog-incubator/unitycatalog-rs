@@ -95,7 +95,7 @@ pub mod temporary_credential {
         R2TempCredentials(super::R2TemporaryCredentials),
     }
 }
-/// Gebnerate a new set of credentials for a table.
+/// Generate a new set of credentials for a table.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -143,7 +143,7 @@ pub mod generate_temporary_table_credentials_request {
         }
     }
 }
-/// Genearte a new set of credentials for a volume.
+/// Generate a new set of credentials for a volume.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]

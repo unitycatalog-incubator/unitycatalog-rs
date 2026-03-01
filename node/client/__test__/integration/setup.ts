@@ -4,7 +4,7 @@ import * as net from "node:net";
 import * as path from "node:path";
 
 const SERVER_READY_TIMEOUT_MS = 180_000;
-const READY_PATTERN = /Listning on: .+:(\d+)/;
+const READY_PATTERN = /Listening on: .+:(\d+)/;
 
 const STATE_FILE = path.join(__dirname, ".server-state.json");
 
