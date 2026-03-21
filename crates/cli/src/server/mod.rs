@@ -36,11 +36,14 @@ pub struct ServerArgs {
 fn load_config(path: &str) -> Result<Config> {
     let path = std::path::Path::new(path);
     if !path.exists() {
-        tracing::info!("config file not found at {}, using defaults", path.display());
+        tracing::info!(
+            "config file not found at {}, using defaults",
+            path.display()
+        );
         return Ok(Config::default());
     }
-    let contents =
-        std::fs::read_to_string(path).map_err(|e| Error::Generic(format!("reading config: {e}")))?;
+    let contents = std::fs::read_to_string(path)
+        .map_err(|e| Error::Generic(format!("reading config: {e}")))?;
     serde_yml::from_str(&contents).map_err(|e| Error::Generic(format!("parsing config: {e}")))
 }
 

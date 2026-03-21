@@ -32,10 +32,7 @@ impl Store {
         }
     }
 
-    pub async fn connect(
-        url: impl AsRef<str>,
-        encryption_key: Option<String>,
-    ) -> Result<Self> {
+    pub async fn connect(url: impl AsRef<str>, encryption_key: Option<String>) -> Result<Self> {
         let options: PgConnectOptions = url.as_ref().parse()?;
         let pool_options = PgPoolOptions::new().max_connections(96);
         let pool = pool_options.connect_with(options).await?;
