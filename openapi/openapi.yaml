@@ -2206,7 +2206,7 @@ components:
       type: object
     GenerateTemporaryPathCredentialsRequest:
       additionalProperties: false
-      description: Genearte a new set of credentials for a volume.
+      description: Generate a new set of credentials for a volume.
       properties:
         dry_run:
           type: boolean
@@ -2229,7 +2229,7 @@ components:
       type: object
     GenerateTemporaryTableCredentialsRequest:
       additionalProperties: false
-      description: Gebnerate a new set of credentials for a table.
+      description: Generate a new set of credentials for a table.
       properties:
         operation:
           description: The operation to perform with the credentials.

@@ -2,26 +2,18 @@
 // @generated from file unitycatalog/schemas/v1/models.proto (package unitycatalog.schemas.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/schemas/v1/models.proto.
  */
-export const file_unitycatalog_schemas_v1_models: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIogECgZTY2hlbWESDAoEbmFtZRgBIAEoCRIUCgxjYXRhbG9nX25hbWUYAiABKAkSEQoJZnVsbF9uYW1lGAMgASgJEhQKB2NvbW1lbnQYBCABKAlIAIgBARJDCgpwcm9wZXJ0aWVzGAUgAygLMi8udW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hLlByb3BlcnRpZXNFbnRyeRISCgVvd25lchgGIAEoCUgBiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIAogBARIXCgpjcmVhdGVkX2J5GAggASgJSAOIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gEiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBYgBARIWCglzY2hlbWFfaWQYCyABKAlIBogBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpJ6kFGChZ1bml0eWNhdGFsb2cuaW8vU2NoZW1hEhBzY2hlbWFzL3tzY2hlbWF9GglmdWxsX25hbWUqB3NjaGVtYXMyBnNjaGVtYUIKCghfY29tbWVudEIICgZfb3duZXJCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDAoKX3NjaGVtYV9pZEL6AQobY29tLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxQgtNb2RlbHNQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zY2hlbWFzL3YxO3NjaGVtYXN2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TY2hlbWFzLlYxygIXVW5pdHljYXRhbG9nXFNjaGVtYXNcVjHiAiNVbml0eWNhdGFsb2dcU2NoZW1hc1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2NoZW1hczo6VjFiBnByb3RvMw",
-    [
-      file_google_api_field_behavior,
-      file_google_api_resource,
-      file_google_protobuf_struct,
-    ],
-  );
+export const file_unitycatalog_schemas_v1_models: GenFile = /*@__PURE__*/
+  fileDesc("CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIogECgZTY2hlbWESDAoEbmFtZRgBIAEoCRIUCgxjYXRhbG9nX25hbWUYAiABKAkSEQoJZnVsbF9uYW1lGAMgASgJEhQKB2NvbW1lbnQYBCABKAlIAIgBARJDCgpwcm9wZXJ0aWVzGAUgAygLMi8udW5pdHljYXRhbG9nLnNjaGVtYXMudjEuU2NoZW1hLlByb3BlcnRpZXNFbnRyeRISCgVvd25lchgGIAEoCUgBiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIAogBARIXCgpjcmVhdGVkX2J5GAggASgJSAOIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gEiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBYgBARIWCglzY2hlbWFfaWQYCyABKAlIBogBARoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpJ6kFGChZ1bml0eWNhdGFsb2cuaW8vU2NoZW1hEhBzY2hlbWFzL3tzY2hlbWF9GglmdWxsX25hbWUqB3NjaGVtYXMyBnNjaGVtYUIKCghfY29tbWVudEIICgZfb3duZXJCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDAoKX3NjaGVtYV9pZEL6AQobY29tLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxQgtNb2RlbHNQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zY2hlbWFzL3YxO3NjaGVtYXN2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TY2hlbWFzLlYxygIXVW5pdHljYXRhbG9nXFNjaGVtYXNcVjHiAiNVbml0eWNhdGFsb2dcU2NoZW1hc1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2NoZW1hczo6VjFiBnByb3RvMw", [file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
 
 /**
  * A schema is a namespace within a catalog that contains tables.
@@ -111,6 +103,6 @@ export type Schema = Message<"unitycatalog.schemas.v1.Schema"> & {
  * Describes the message unitycatalog.schemas.v1.Schema.
  * Use `create(SchemaSchema)` to create a new message.
  */
-export const SchemaSchema: GenMessage<Schema> =
-  /*@__PURE__*/
+export const SchemaSchema: GenMessage<Schema> = /*@__PURE__*/
   messageDesc(file_unitycatalog_schemas_v1_models, 0);
+

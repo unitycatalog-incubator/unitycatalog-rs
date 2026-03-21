@@ -18,6 +18,13 @@ impl TableClient {
         }
         Self { client, base_url }
     }
+    /// Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
+    /// - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
+    /// - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
+    /// SELECT privilege on the table and ownership or USE_SCHEMA privilege on the schema, provided that the user also has ownership
+    /// or the USE_CATALOG privilege on the parent catalog.
+    ///
+    /// There is no guarantee of a specific ordering of the elements in the array.
     pub async fn list_table_summaries(
         &self,
         request: &ListTableSummariesRequest,
@@ -50,6 +57,12 @@ impl TableClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Gets an array of all tables for the current metastore under the parent catalog and schema.
+    ///
+    /// The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
+    /// For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
+    /// parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
+    /// specific ordering of the elements in the array.
     pub async fn list_tables(&self, request: &ListTablesRequest) -> Result<ListTablesResponse> {
         let mut url = self.base_url.join("tables")?;
         url.query_pairs_mut()
@@ -93,6 +106,7 @@ impl TableClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Create a table
     pub async fn create_table(&self, request: &CreateTableRequest) -> Result<Table> {
         let mut url = self.base_url.join("tables")?;
         let response = self.client.post(url).json(request).send().await?;
@@ -100,6 +114,7 @@ impl TableClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Get a table
     pub async fn get_table(&self, request: &GetTableRequest) -> Result<Table> {
         let formatted_path = format!("tables/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
@@ -120,6 +135,7 @@ impl TableClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Get boolean reflecting if table exists
     pub async fn get_table_exists(
         &self,
         request: &GetTableExistsRequest,
@@ -131,6 +147,7 @@ impl TableClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Delete a table
     pub async fn delete_table(&self, request: &DeleteTableRequest) -> Result<()> {
         let formatted_path = format!("tables/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;

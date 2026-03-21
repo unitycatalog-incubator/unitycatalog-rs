@@ -2,32 +2,19 @@
 // @generated from file unitycatalog/catalogs/v1/models.proto (package unitycatalog.catalogs.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenEnum,
-  GenFile,
-  GenMessage,
-} from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/catalogs/v1/models.proto.
  */
-export const file_unitycatalog_catalogs_v1_models: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiV1bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjEvbW9kZWxzLnByb3RvEhh1bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEi2wUKB0NhdGFsb2cSDAoEbmFtZRgBIAEoCRIPCgJpZBgCIAEoCUgAiAEBEhIKBW93bmVyGAMgASgJSAGIAQESFAoHY29tbWVudBgEIAEoCUgCiAEBEkUKCnByb3BlcnRpZXMYBSADKAsyMS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuQ2F0YWxvZy5Qcm9wZXJ0aWVzRW50cnkSGQoMc3RvcmFnZV9yb290GAYgASgJSAOIAQESGgoNcHJvdmlkZXJfbmFtZRgHIAEoCUgEiAEBEhcKCnNoYXJlX25hbWUYCCABKAlIBYgBARJACgxjYXRhbG9nX3R5cGUYCSABKA4yJS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuQ2F0YWxvZ1R5cGVIBogBARIhCgpjcmVhdGVkX2F0GOgHIAEoA0IHukgEIgIgAEgHiAEBEhgKCmNyZWF0ZWRfYnkY6QcgASgJSAiIAQESGAoKdXBkYXRlZF9hdBjqByABKANICYgBARIYCgp1cGRhdGVkX2J5GOsHIAEoCUgKiAEBEhkKC2Jyb3dzZV9vbmx5GOwHIAEoCEgLiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOkPqQUAKF3VuaXR5Y2F0YWxvZy5pby9DYXRhbG9nEhJjYXRhbG9ncy97Y2F0YWxvZ30qCGNhdGFsb2dzMgdjYXRhbG9nQgUKA19pZEIICgZfb3duZXJCCgoIX2NvbW1lbnRCDwoNX3N0b3JhZ2Vfcm9vdEIQCg5fcHJvdmlkZXJfbmFtZUINCgtfc2hhcmVfbmFtZUIPCg1fY2F0YWxvZ190eXBlQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5Qg4KDF9icm93c2Vfb25seSpuCgtDYXRhbG9nVHlwZRIcChhDQVRBTE9HX1RZUEVfVU5TUEVDSUZJRUQQABITCg9NQU5BR0VEX0NBVEFMT0cQARIYChRERUxUQVNIQVJJTkdfQ0FUQUxPRxACEhIKDlNZU1RFTV9DQVRBTE9HEANCgQIKHGNvbS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjFCC01vZGVsc1Byb3RvUAFaUmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NhdGFsb2dzL3YxO2NhdGFsb2dzdjGiAgNVQ1iqAhhVbml0eWNhdGFsb2cuQ2F0YWxvZ3MuVjHKAhhVbml0eWNhdGFsb2dcQ2F0YWxvZ3NcVjHiAiRVbml0eWNhdGFsb2dcQ2F0YWxvZ3NcVjFcR1BCTWV0YWRhdGHqAhpVbml0eWNhdGFsb2c6OkNhdGFsb2dzOjpWMWIGcHJvdG8z",
-    [
-      file_buf_validate_validate,
-      file_google_api_field_behavior,
-      file_google_api_resource,
-      file_google_protobuf_struct,
-    ],
-  );
+export const file_unitycatalog_catalogs_v1_models: GenFile = /*@__PURE__*/
+  fileDesc("CiV1bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjEvbW9kZWxzLnByb3RvEhh1bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEi2wUKB0NhdGFsb2cSDAoEbmFtZRgBIAEoCRIPCgJpZBgCIAEoCUgAiAEBEhIKBW93bmVyGAMgASgJSAGIAQESFAoHY29tbWVudBgEIAEoCUgCiAEBEkUKCnByb3BlcnRpZXMYBSADKAsyMS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuQ2F0YWxvZy5Qcm9wZXJ0aWVzRW50cnkSGQoMc3RvcmFnZV9yb290GAYgASgJSAOIAQESGgoNcHJvdmlkZXJfbmFtZRgHIAEoCUgEiAEBEhcKCnNoYXJlX25hbWUYCCABKAlIBYgBARJACgxjYXRhbG9nX3R5cGUYCSABKA4yJS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuQ2F0YWxvZ1R5cGVIBogBARIhCgpjcmVhdGVkX2F0GOgHIAEoA0IHukgEIgIgAEgHiAEBEhgKCmNyZWF0ZWRfYnkY6QcgASgJSAiIAQESGAoKdXBkYXRlZF9hdBjqByABKANICYgBARIYCgp1cGRhdGVkX2J5GOsHIAEoCUgKiAEBEhkKC2Jyb3dzZV9vbmx5GOwHIAEoCEgLiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOkPqQUAKF3VuaXR5Y2F0YWxvZy5pby9DYXRhbG9nEhJjYXRhbG9ncy97Y2F0YWxvZ30qCGNhdGFsb2dzMgdjYXRhbG9nQgUKA19pZEIICgZfb3duZXJCCgoIX2NvbW1lbnRCDwoNX3N0b3JhZ2Vfcm9vdEIQCg5fcHJvdmlkZXJfbmFtZUINCgtfc2hhcmVfbmFtZUIPCg1fY2F0YWxvZ190eXBlQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5Qg4KDF9icm93c2Vfb25seSpuCgtDYXRhbG9nVHlwZRIcChhDQVRBTE9HX1RZUEVfVU5TUEVDSUZJRUQQABITCg9NQU5BR0VEX0NBVEFMT0cQARIYChRERUxUQVNIQVJJTkdfQ0FUQUxPRxACEhIKDlNZU1RFTV9DQVRBTE9HEANCgQIKHGNvbS51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjFCC01vZGVsc1Byb3RvUAFaUmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NhdGFsb2dzL3YxO2NhdGFsb2dzdjGiAgNVQ1iqAhhVbml0eWNhdGFsb2cuQ2F0YWxvZ3MuVjHKAhhVbml0eWNhdGFsb2dcQ2F0YWxvZ3NcVjHiAiRVbml0eWNhdGFsb2dcQ2F0YWxvZ3NcVjFcR1BCTWV0YWRhdGHqAhpVbml0eWNhdGFsb2c6OkNhdGFsb2dzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
 
 /**
  * A catalog is a root-level namespace that contains schemas.
@@ -142,8 +129,7 @@ export type Catalog = Message<"unitycatalog.catalogs.v1.Catalog"> & {
  * Describes the message unitycatalog.catalogs.v1.Catalog.
  * Use `create(CatalogSchema)` to create a new message.
  */
-export const CatalogSchema: GenMessage<Catalog> =
-  /*@__PURE__*/
+export const CatalogSchema: GenMessage<Catalog> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_models, 0);
 
 /**
@@ -178,6 +164,6 @@ export enum CatalogType {
 /**
  * Describes the enum unitycatalog.catalogs.v1.CatalogType.
  */
-export const CatalogTypeSchema: GenEnum<CatalogType> =
-  /*@__PURE__*/
+export const CatalogTypeSchema: GenEnum<CatalogType> = /*@__PURE__*/
   enumDesc(file_unitycatalog_catalogs_v1_models, 0);
+

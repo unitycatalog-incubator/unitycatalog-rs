@@ -18,12 +18,12 @@ impl ListSharesBuilder {
         };
         Self { client, request }
     }
-    ///The maximum number of results per page that should be returned.
+    /// The maximum number of results per page that should be returned.
     pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
         self.request.max_results = max_results.into();
         self
     }
-    ///Opaque pagination token to go to next page based on previous query.
+    /// Opaque pagination token to go to next page based on previous query.
     pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
         self.request.page_token = page_token.into();
         self
@@ -70,7 +70,7 @@ impl CreateShareBuilder {
         };
         Self { client, request }
     }
-    ///User-provided free-form text description.
+    /// User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
@@ -99,7 +99,7 @@ impl GetShareBuilder {
         };
         Self { client, request }
     }
-    ///Query for data to include in the share.
+    /// Query for data to include in the share.
     pub fn with_include_shared_data(
         mut self,
         include_shared_data: impl Into<Option<bool>>,
@@ -131,7 +131,7 @@ impl UpdateShareBuilder {
         };
         Self { client, request }
     }
-    ///Array of shared data object updates.
+    /// Array of shared data object updates.
     pub fn with_updates<I>(mut self, updates: I) -> Self
     where
         I: IntoIterator<Item = DataObjectUpdate>,
@@ -139,17 +139,17 @@ impl UpdateShareBuilder {
         self.request.updates = updates.into_iter().collect();
         self
     }
-    ///A new name for the share.
+    /// A new name for the share.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    ///Owner of the share.
+    /// Owner of the share.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    ///User-provided free-form text description.
+    /// User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
@@ -202,12 +202,12 @@ impl GetPermissionsBuilder {
         };
         Self { client, request }
     }
-    ///The maximum number of results per page that should be returned.
+    /// The maximum number of results per page that should be returned.
     pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
         self.request.max_results = max_results.into();
         self
     }
-    ///Opaque pagination token to go to next page based on previous query.
+    /// Opaque pagination token to go to next page based on previous query.
     pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
         self.request.page_token = page_token.into();
         self
@@ -236,7 +236,7 @@ impl UpdatePermissionsBuilder {
         };
         Self { client, request }
     }
-    ///Array of permissions change objects.
+    /// Array of permissions change objects.
     pub fn with_changes<I>(mut self, changes: I) -> Self
     where
         I: IntoIterator<Item = PermissionsChange>,
@@ -244,7 +244,7 @@ impl UpdatePermissionsBuilder {
         self.request.changes = changes.into_iter().collect();
         self
     }
-    ///Whether to return the latest permissions list of the share in the response.
+    /// Whether to return the latest permissions list of the share in the response.
     pub fn with_omit_permissions_list(
         mut self,
         omit_permissions_list: impl Into<Option<bool>>,

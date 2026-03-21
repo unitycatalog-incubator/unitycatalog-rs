@@ -13,11 +13,13 @@ use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_external_location(
         &self,
         request: CreateExternalLocationRequest,
         context: RequestContext,
     ) -> Result<ExternalLocation> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let mut resource = ExternalLocation {
             name: request.name,
@@ -41,21 +43,25 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         Ok(info)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_external_location(
         &self,
         request: DeleteExternalLocationRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         // TODO: check if the location is used by any resources
         Ok(self.delete(&request.resource()).await?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_external_location(
         &self,
         request: GetExternalLocationRequest,
         context: RequestContext,
     ) -> Result<ExternalLocation> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
 
         // TODO: populate relation fields (updated_* etc.)
@@ -63,6 +69,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context))]
     async fn list_external_locations(
         &self,
         request: ListExternalLocationsRequest,
@@ -84,11 +91,13 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_external_location(
         &self,
         request: UpdateExternalLocationRequest,
         context: RequestContext,
     ) -> Result<ExternalLocation> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
 
         let (current, _) = self.get(&request.resource()).await?;

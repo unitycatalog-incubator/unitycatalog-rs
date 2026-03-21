@@ -148,12 +148,19 @@ fn clean_and_format_description(text: &str) -> String {
         return String::new();
     }
 
-    let joined_text = cleaned
-        .lines()
-        .map(|line| line.trim())
-        .filter(|line| !line.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ");
+    // Split on blank lines to preserve paragraph structure
+    let paragraphs: Vec<String> = cleaned
+        .split("\n\n")
+        .map(|para| {
+            para.lines()
+                .map(|line| line.trim())
+                .filter(|line| !line.is_empty())
+                .collect::<Vec<_>>()
+                .join(" ")
+        })
+        .filter(|para| !para.is_empty())
+        .map(|para| textwrap::fill(&para, DOCS_TARGET_WIDTH))
+        .collect();
 
-    textwrap::fill(&joined_text, DOCS_TARGET_WIDTH)
+    paragraphs.join("\n\n")
 }

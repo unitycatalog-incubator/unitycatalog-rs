@@ -2,22 +2,8 @@
 // @generated from file unitycatalog/catalogs/v1/svc.proto (package unitycatalog.catalogs.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenFile,
-  GenMessage,
-  GenService,
-} from "@bufbuild/protobuf/codegenv2";
-import {
-  fileDesc,
-  messageDesc,
-  serviceDesc,
-} from "@bufbuild/protobuf/codegenv2";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import {
-  file_google_protobuf_empty,
-  file_google_protobuf_struct,
-} from "@bufbuild/protobuf/wkt";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_gnostic_openapi_v3_openapiv3 } from "../../../gnostic/openapi/v3/openapiv3_pb";
@@ -25,58 +11,44 @@ import { file_google_api_annotations } from "../../../google/api/annotations_pb"
 import { file_google_api_client } from "../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import type { Catalog, CatalogSchema } from "./models_pb";
 import { file_unitycatalog_catalogs_v1_models } from "./models_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/catalogs/v1/svc.proto.
  */
-export const file_unitycatalog_catalogs_v1_svc: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiJ1bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjEvc3ZjLnByb3RvEhh1bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEiewoTTGlzdENhdGFsb2dzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUY6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJ9ChRMaXN0Q2F0YWxvZ3NSZXNwb25zZRIzCghjYXRhbG9ncxgBIAMoCzIhLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i3wMKFENyZWF0ZUNhdGFsb2dSZXF1ZXN0EjYKBG5hbWUYASABKAlCKOBBArpIIsgBAXIdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSGQoHY29tbWVudBgCIAEoCUID4EEBSACIAQESVwoKcHJvcGVydGllcxgDIAMoCzI+LnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DcmVhdGVDYXRhbG9nUmVxdWVzdC5Qcm9wZXJ0aWVzRW50cnlCA+BBARImCgxzdG9yYWdlX3Jvb3QYBCABKAlCC+BBAbpIBXIDiAEBSAGIAQESQgoNcHJvdmlkZXJfbmFtZRgFIAEoCUIm4EEBukggch4QAzIaXlthLXpdWzAtOWEtei1fXSpbMC05YS16XSRIAogBARI+CgpzaGFyZV9uYW1lGAYgASgJQiXgQQG6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kSAOIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCCgoIX2NvbW1lbnRCDwoNX3N0b3JhZ2Vfcm9vdEIQCg5fcHJvdmlkZXJfbmFtZUINCgtfc2hhcmVfbmFtZSJ+ChFHZXRDYXRhbG9nUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCDIAQFyGzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIgCg5pbmNsdWRlX2Jyb3dzZRgCIAEoCEID4EEBSACIAQFCEQoPX2luY2x1ZGVfYnJvd3NlIvkCChRVcGRhdGVDYXRhbG9nUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEiEKBW93bmVyGAIgASgJQg3gQQG6SAfIAQByAmABSACIAQESGQoHY29tbWVudBgDIAEoCUID4EEBSAGIAQESVwoKcHJvcGVydGllcxgEIAMoCzI+LnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5VcGRhdGVDYXRhbG9nUmVxdWVzdC5Qcm9wZXJ0aWVzRW50cnlCA+BBARI8CghuZXdfbmFtZRgFIAEoCUIl4EEBukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJEgCiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQggKBl9vd25lckIKCghfY29tbWVudEILCglfbmV3X25hbWUicQoURGVsZXRlQ2F0YWxvZ1JlcXVlc3QSNgoEbmFtZRgBIAEoCUIo4EECukgiyAEBch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIXCgVmb3JjZRgCIAEoCEID4EEBSACIAQFCCAoGX2ZvcmNlMtQFCg9DYXRhbG9nc1NlcnZpY2USkQEKDExpc3RDYXRhbG9ncxItLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5MaXN0Q2F0YWxvZ3NSZXF1ZXN0Gi4udW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkxpc3RDYXRhbG9nc1Jlc3BvbnNlIiK6Rw4qDExpc3RDYXRhbG9nc4LT5JMCCxIJL2NhdGFsb2dzEooBCg1DcmVhdGVDYXRhbG9nEi4udW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNyZWF0ZUNhdGFsb2dSZXF1ZXN0GiEudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNhdGFsb2ciJrpHDyoNQ3JlYXRlQ2F0YWxvZ4LT5JMCDjoBKiIJL2NhdGFsb2dzEoUBCgpHZXRDYXRhbG9nEisudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkdldENhdGFsb2dSZXF1ZXN0GiEudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNhdGFsb2ciJ7pHDCoKR2V0Q2F0YWxvZ4LT5JMCEhIQL2NhdGFsb2dzL3tuYW1lfRKRAQoNVXBkYXRlQ2F0YWxvZxIuLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5VcGRhdGVDYXRhbG9nUmVxdWVzdBohLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nIi26Rw8qDVVwZGF0ZUNhdGFsb2eC0+STAhU6ASoyEC9jYXRhbG9ncy97bmFtZX0SgwEKDURlbGV0ZUNhdGFsb2cSLi51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuRGVsZXRlQ2F0YWxvZ1JlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiKrpHDyoNRGVsZXRlQ2F0YWxvZ4LT5JMCEioQL2NhdGFsb2dzL3tuYW1lfUL+AQocY29tLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MUIIU3ZjUHJvdG9QAVpSZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjE7Y2F0YWxvZ3N2MaICA1VDWKoCGFVuaXR5Y2F0YWxvZy5DYXRhbG9ncy5WMcoCGFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMeICJFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMVxHUEJNZXRhZGF0YeoCGlVuaXR5Y2F0YWxvZzo6Q2F0YWxvZ3M6OlYxYgZwcm90bzM",
-    [
-      file_buf_validate_validate,
-      file_gnostic_openapi_v3_annotations,
-      file_gnostic_openapi_v3_openapiv3,
-      file_google_api_annotations,
-      file_google_api_client,
-      file_google_api_field_behavior,
-      file_google_api_resource,
-      file_google_protobuf_empty,
-      file_google_protobuf_struct,
-      file_unitycatalog_catalogs_v1_models,
-    ],
-  );
+export const file_unitycatalog_catalogs_v1_svc: GenFile = /*@__PURE__*/
+  fileDesc("CiJ1bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjEvc3ZjLnByb3RvEhh1bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEiewoTTGlzdENhdGFsb2dzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUY6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJ9ChRMaXN0Q2F0YWxvZ3NSZXNwb25zZRIzCghjYXRhbG9ncxgBIAMoCzIhLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i3wMKFENyZWF0ZUNhdGFsb2dSZXF1ZXN0EjYKBG5hbWUYASABKAlCKOBBArpIIsgBAXIdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSGQoHY29tbWVudBgCIAEoCUID4EEBSACIAQESVwoKcHJvcGVydGllcxgDIAMoCzI+LnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DcmVhdGVDYXRhbG9nUmVxdWVzdC5Qcm9wZXJ0aWVzRW50cnlCA+BBARImCgxzdG9yYWdlX3Jvb3QYBCABKAlCC+BBAbpIBXIDiAEBSAGIAQESQgoNcHJvdmlkZXJfbmFtZRgFIAEoCUIm4EEBukggch4QAzIaXlthLXpdWzAtOWEtei1fXSpbMC05YS16XSRIAogBARI+CgpzaGFyZV9uYW1lGAYgASgJQiXgQQG6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kSAOIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCCgoIX2NvbW1lbnRCDwoNX3N0b3JhZ2Vfcm9vdEIQCg5fcHJvdmlkZXJfbmFtZUINCgtfc2hhcmVfbmFtZSJ+ChFHZXRDYXRhbG9nUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCDIAQFyGzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIgCg5pbmNsdWRlX2Jyb3dzZRgCIAEoCEID4EEBSACIAQFCEQoPX2luY2x1ZGVfYnJvd3NlIvkCChRVcGRhdGVDYXRhbG9nUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEiEKBW93bmVyGAIgASgJQg3gQQG6SAfIAQByAmABSACIAQESGQoHY29tbWVudBgDIAEoCUID4EEBSAGIAQESVwoKcHJvcGVydGllcxgEIAMoCzI+LnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5VcGRhdGVDYXRhbG9nUmVxdWVzdC5Qcm9wZXJ0aWVzRW50cnlCA+BBARI8CghuZXdfbmFtZRgFIAEoCUIl4EEBukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJEgCiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQggKBl9vd25lckIKCghfY29tbWVudEILCglfbmV3X25hbWUicQoURGVsZXRlQ2F0YWxvZ1JlcXVlc3QSNgoEbmFtZRgBIAEoCUIo4EECukgiyAEBch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIXCgVmb3JjZRgCIAEoCEID4EEBSACIAQFCCAoGX2ZvcmNlMtQFCg9DYXRhbG9nc1NlcnZpY2USkQEKDExpc3RDYXRhbG9ncxItLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5MaXN0Q2F0YWxvZ3NSZXF1ZXN0Gi4udW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkxpc3RDYXRhbG9nc1Jlc3BvbnNlIiK6Rw4qDExpc3RDYXRhbG9nc4LT5JMCCxIJL2NhdGFsb2dzEooBCg1DcmVhdGVDYXRhbG9nEi4udW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNyZWF0ZUNhdGFsb2dSZXF1ZXN0GiEudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNhdGFsb2ciJrpHDyoNQ3JlYXRlQ2F0YWxvZ4LT5JMCDjoBKiIJL2NhdGFsb2dzEoUBCgpHZXRDYXRhbG9nEisudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkdldENhdGFsb2dSZXF1ZXN0GiEudW5pdHljYXRhbG9nLmNhdGFsb2dzLnYxLkNhdGFsb2ciJ7pHDCoKR2V0Q2F0YWxvZ4LT5JMCEhIQL2NhdGFsb2dzL3tuYW1lfRKRAQoNVXBkYXRlQ2F0YWxvZxIuLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5VcGRhdGVDYXRhbG9nUmVxdWVzdBohLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MS5DYXRhbG9nIi26Rw8qDVVwZGF0ZUNhdGFsb2eC0+STAhU6ASoyEC9jYXRhbG9ncy97bmFtZX0SgwEKDURlbGV0ZUNhdGFsb2cSLi51bml0eWNhdGFsb2cuY2F0YWxvZ3MudjEuRGVsZXRlQ2F0YWxvZ1JlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiKrpHDyoNRGVsZXRlQ2F0YWxvZ4LT5JMCEioQL2NhdGFsb2dzL3tuYW1lfUL+AQocY29tLnVuaXR5Y2F0YWxvZy5jYXRhbG9ncy52MUIIU3ZjUHJvdG9QAVpSZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvY2F0YWxvZ3MvdjE7Y2F0YWxvZ3N2MaICA1VDWKoCGFVuaXR5Y2F0YWxvZy5DYXRhbG9ncy5WMcoCGFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMeICJFVuaXR5Y2F0YWxvZ1xDYXRhbG9nc1xWMVxHUEJNZXRhZGF0YeoCGlVuaXR5Y2F0YWxvZzo6Q2F0YWxvZ3M6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_gnostic_openapi_v3_openapiv3, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_catalogs_v1_models]);
 
 /**
  * List catalogs
  *
  * @generated from message unitycatalog.catalogs.v1.ListCatalogsRequest
  */
-export type ListCatalogsRequest =
-  Message<"unitycatalog.catalogs.v1.ListCatalogsRequest"> & {
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 2;
-     */
-    maxResults?: number;
+export type ListCatalogsRequest = Message<"unitycatalog.catalogs.v1.ListCatalogsRequest"> & {
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 2;
+   */
+  maxResults?: number;
 
-    /**
-     * Opaque pagination token to go to next page based on previous query.
-     *
-     * @generated from field: optional string page_token = 3;
-     */
-    pageToken?: string;
-  };
+  /**
+   * Opaque pagination token to go to next page based on previous query.
+   *
+   * @generated from field: optional string page_token = 3;
+   */
+  pageToken?: string;
+};
 
 /**
  * Describes the message unitycatalog.catalogs.v1.ListCatalogsRequest.
  * Use `create(ListCatalogsRequestSchema)` to create a new message.
  */
-export const ListCatalogsRequestSchema: GenMessage<ListCatalogsRequest> =
-  /*@__PURE__*/
+export const ListCatalogsRequestSchema: GenMessage<ListCatalogsRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_svc, 0);
 
 /**
@@ -84,29 +56,27 @@ export const ListCatalogsRequestSchema: GenMessage<ListCatalogsRequest> =
  *
  * @generated from message unitycatalog.catalogs.v1.ListCatalogsResponse
  */
-export type ListCatalogsResponse =
-  Message<"unitycatalog.catalogs.v1.ListCatalogsResponse"> & {
-    /**
-     * The catalogs returned.
-     *
-     * @generated from field: repeated unitycatalog.catalogs.v1.Catalog catalogs = 1;
-     */
-    catalogs: Catalog[];
+export type ListCatalogsResponse = Message<"unitycatalog.catalogs.v1.ListCatalogsResponse"> & {
+  /**
+   * The catalogs returned.
+   *
+   * @generated from field: repeated unitycatalog.catalogs.v1.Catalog catalogs = 1;
+   */
+  catalogs: Catalog[];
 
-    /**
-     * The next_page_token value to include in the next List request.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * The next_page_token value to include in the next List request.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message unitycatalog.catalogs.v1.ListCatalogsResponse.
  * Use `create(ListCatalogsResponseSchema)` to create a new message.
  */
-export const ListCatalogsResponseSchema: GenMessage<ListCatalogsResponse> =
-  /*@__PURE__*/
+export const ListCatalogsResponseSchema: GenMessage<ListCatalogsResponse> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_svc, 1);
 
 /**
@@ -114,59 +84,57 @@ export const ListCatalogsResponseSchema: GenMessage<ListCatalogsResponse> =
  *
  * @generated from message unitycatalog.catalogs.v1.CreateCatalogRequest
  */
-export type CreateCatalogRequest =
-  Message<"unitycatalog.catalogs.v1.CreateCatalogRequest"> & {
-    /**
-     * Name of catalog.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type CreateCatalogRequest = Message<"unitycatalog.catalogs.v1.CreateCatalogRequest"> & {
+  /**
+   * Name of catalog.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * User-provided free-form text description.
-     *
-     * @generated from field: optional string comment = 2;
-     */
-    comment?: string;
+  /**
+   * User-provided free-form text description.
+   *
+   * @generated from field: optional string comment = 2;
+   */
+  comment?: string;
 
-    /**
-     * A map of key-value properties attached to the securable.
-     *
-     * @generated from field: map<string, string> properties = 3;
-     */
-    properties: { [key: string]: string };
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * @generated from field: map<string, string> properties = 3;
+   */
+  properties: { [key: string]: string };
 
-    /**
-     * Storage root URL for managed tables within catalog.
-     *
-     * @generated from field: optional string storage_root = 4;
-     */
-    storageRoot?: string;
+  /**
+   * Storage root URL for managed tables within catalog.
+   *
+   * @generated from field: optional string storage_root = 4;
+   */
+  storageRoot?: string;
 
-    /**
-     * The name of delta sharing provider.
-     *
-     * A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.
-     *
-     * @generated from field: optional string provider_name = 5;
-     */
-    providerName?: string;
+  /**
+   * The name of delta sharing provider.
+   *
+   * A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.
+   *
+   * @generated from field: optional string provider_name = 5;
+   */
+  providerName?: string;
 
-    /**
-     * The name of the share under the share provider.
-     *
-     * @generated from field: optional string share_name = 6;
-     */
-    shareName?: string;
-  };
+  /**
+   * The name of the share under the share provider.
+   *
+   * @generated from field: optional string share_name = 6;
+   */
+  shareName?: string;
+};
 
 /**
  * Describes the message unitycatalog.catalogs.v1.CreateCatalogRequest.
  * Use `create(CreateCatalogRequestSchema)` to create a new message.
  */
-export const CreateCatalogRequestSchema: GenMessage<CreateCatalogRequest> =
-  /*@__PURE__*/
+export const CreateCatalogRequestSchema: GenMessage<CreateCatalogRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_svc, 2);
 
 /**
@@ -174,29 +142,27 @@ export const CreateCatalogRequestSchema: GenMessage<CreateCatalogRequest> =
  *
  * @generated from message unitycatalog.catalogs.v1.GetCatalogRequest
  */
-export type GetCatalogRequest =
-  Message<"unitycatalog.catalogs.v1.GetCatalogRequest"> & {
-    /**
-     * Name of catalog.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type GetCatalogRequest = Message<"unitycatalog.catalogs.v1.GetCatalogRequest"> & {
+  /**
+   * Name of catalog.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * Whether to include catalogs in the response for which the principal can only access selective metadata for
-     *
-     * @generated from field: optional bool include_browse = 2;
-     */
-    includeBrowse?: boolean;
-  };
+  /**
+   * Whether to include catalogs in the response for which the principal can only access selective metadata for
+   *
+   * @generated from field: optional bool include_browse = 2;
+   */
+  includeBrowse?: boolean;
+};
 
 /**
  * Describes the message unitycatalog.catalogs.v1.GetCatalogRequest.
  * Use `create(GetCatalogRequestSchema)` to create a new message.
  */
-export const GetCatalogRequestSchema: GenMessage<GetCatalogRequest> =
-  /*@__PURE__*/
+export const GetCatalogRequestSchema: GenMessage<GetCatalogRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_svc, 3);
 
 /**
@@ -204,53 +170,51 @@ export const GetCatalogRequestSchema: GenMessage<GetCatalogRequest> =
  *
  * @generated from message unitycatalog.catalogs.v1.UpdateCatalogRequest
  */
-export type UpdateCatalogRequest =
-  Message<"unitycatalog.catalogs.v1.UpdateCatalogRequest"> & {
-    /**
-     * Name of catalog.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type UpdateCatalogRequest = Message<"unitycatalog.catalogs.v1.UpdateCatalogRequest"> & {
+  /**
+   * Name of catalog.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * Username of new owner of catalog.
-     *
-     * @generated from field: optional string owner = 2;
-     */
-    owner?: string;
+  /**
+   * Username of new owner of catalog.
+   *
+   * @generated from field: optional string owner = 2;
+   */
+  owner?: string;
 
-    /**
-     * User-provided free-form text description.
-     *
-     * @generated from field: optional string comment = 3;
-     */
-    comment?: string;
+  /**
+   * User-provided free-form text description.
+   *
+   * @generated from field: optional string comment = 3;
+   */
+  comment?: string;
 
-    /**
-     * A map of key-value properties attached to the securable.
-     *
-     * When provided in update request, the specified properties will override the existing properties.
-     * To add and remove properties, one would need to perform a read-modify-write.
-     *
-     * @generated from field: map<string, string> properties = 4;
-     */
-    properties: { [key: string]: string };
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * When provided in update request, the specified properties will override the existing properties.
+   * To add and remove properties, one would need to perform a read-modify-write.
+   *
+   * @generated from field: map<string, string> properties = 4;
+   */
+  properties: { [key: string]: string };
 
-    /**
-     * Name of catalog.
-     *
-     * @generated from field: optional string new_name = 5;
-     */
-    newName?: string;
-  };
+  /**
+   * Name of catalog.
+   *
+   * @generated from field: optional string new_name = 5;
+   */
+  newName?: string;
+};
 
 /**
  * Describes the message unitycatalog.catalogs.v1.UpdateCatalogRequest.
  * Use `create(UpdateCatalogRequestSchema)` to create a new message.
  */
-export const UpdateCatalogRequestSchema: GenMessage<UpdateCatalogRequest> =
-  /*@__PURE__*/
+export const UpdateCatalogRequestSchema: GenMessage<UpdateCatalogRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_svc, 4);
 
 /**
@@ -258,29 +222,27 @@ export const UpdateCatalogRequestSchema: GenMessage<UpdateCatalogRequest> =
  *
  * @generated from message unitycatalog.catalogs.v1.DeleteCatalogRequest
  */
-export type DeleteCatalogRequest =
-  Message<"unitycatalog.catalogs.v1.DeleteCatalogRequest"> & {
-    /**
-     * Name of catalog.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type DeleteCatalogRequest = Message<"unitycatalog.catalogs.v1.DeleteCatalogRequest"> & {
+  /**
+   * Name of catalog.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * Force deletion even if the catalog is not empty.
-     *
-     * @generated from field: optional bool force = 2;
-     */
-    force?: boolean;
-  };
+  /**
+   * Force deletion even if the catalog is not empty.
+   *
+   * @generated from field: optional bool force = 2;
+   */
+  force?: boolean;
+};
 
 /**
  * Describes the message unitycatalog.catalogs.v1.DeleteCatalogRequest.
  * Use `create(DeleteCatalogRequestSchema)` to create a new message.
  */
-export const DeleteCatalogRequestSchema: GenMessage<DeleteCatalogRequest> =
-  /*@__PURE__*/
+export const DeleteCatalogRequestSchema: GenMessage<DeleteCatalogRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_catalogs_v1_svc, 5);
 
 /**
@@ -303,7 +265,7 @@ export const CatalogsService: GenService<{
     methodKind: "unary";
     input: typeof ListCatalogsRequestSchema;
     output: typeof ListCatalogsResponseSchema;
-  };
+  },
   /**
    * Create a new catalog
    *
@@ -316,7 +278,7 @@ export const CatalogsService: GenService<{
     methodKind: "unary";
     input: typeof CreateCatalogRequestSchema;
     output: typeof CatalogSchema;
-  };
+  },
   /**
    * Get a catalog
    *
@@ -329,7 +291,7 @@ export const CatalogsService: GenService<{
     methodKind: "unary";
     input: typeof GetCatalogRequestSchema;
     output: typeof CatalogSchema;
-  };
+  },
   /**
    * Update a catalog
    *
@@ -342,7 +304,7 @@ export const CatalogsService: GenService<{
     methodKind: "unary";
     input: typeof UpdateCatalogRequestSchema;
     output: typeof CatalogSchema;
-  };
+  },
   /**
    * Delete a catalog
    *
@@ -355,5 +317,7 @@ export const CatalogsService: GenService<{
     methodKind: "unary";
     input: typeof DeleteCatalogRequestSchema;
     output: typeof EmptySchema;
-  };
-}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_catalogs_v1_svc, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_unitycatalog_catalogs_v1_svc, 0);
+

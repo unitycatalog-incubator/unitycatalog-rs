@@ -5,7 +5,7 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Resource {
-    #[prost(oneof="resource::Resource", tags="1, 4, 6, 7, 8, 9, 10, 11")]
+    #[prost(oneof="resource::Resource", tags="1, 4, 6, 7, 8, 9, 10, 11, 12")]
     pub resource: ::core::option::Option<resource::Resource>,
 }
 /// Nested message and enum types in `Resource`.
@@ -38,6 +38,8 @@ pub mod resource {
         ExternalLocation(super::super::external_locations::v1::ExternalLocation),
         #[prost(message, tag="11")]
         Recipient(super::super::recipients::v1::Recipient),
+        #[prost(message, tag="12")]
+        Volume(super::super::volumes::v1::Volume),
     }
 }
 include!("unitycatalog.internal.serde.rs");

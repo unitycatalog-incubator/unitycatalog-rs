@@ -1,31 +1,57 @@
 // @generated — do not edit by hand.
+//! Handler trait for [`TableHandler`].
+//!
+//! Implement this trait to provide a custom backend for this service.
+//! Register your implementation with the generated route setup functions.
+//!
+//! # Composability
+//!
+//! A single struct can implement multiple handler traits to serve multiple
+//! services. Use [`axum::Router::merge`] to compose routers together.
 use crate::Result;
 use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::models::tables::v1::*;
 #[async_trait]
 pub trait TableHandler: Send + Sync + 'static {
+    /// Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
+    /// - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
+    /// - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
+    /// SELECT privilege on the table and ownership or USE_SCHEMA privilege on the schema, provided that the user also has ownership
+    /// or the USE_CATALOG privilege on the parent catalog.
+    ///
+    /// There is no guarantee of a specific ordering of the elements in the array.
     async fn list_table_summaries(
         &self,
         request: ListTableSummariesRequest,
         context: RequestContext,
     ) -> Result<ListTableSummariesResponse>;
+    /// Gets an array of all tables for the current metastore under the parent catalog and schema.
+    ///
+    /// The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
+    /// For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
+    /// parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
+    /// specific ordering of the elements in the array.
     async fn list_tables(
         &self,
         request: ListTablesRequest,
         context: RequestContext,
     ) -> Result<ListTablesResponse>;
+    /// Create a table
     async fn create_table(
         &self,
         request: CreateTableRequest,
         context: RequestContext,
     ) -> Result<Table>;
+    /// Get a table
     async fn get_table(&self, request: GetTableRequest, context: RequestContext) -> Result<Table>;
+    /// Get boolean reflecting if table exists
     async fn get_table_exists(
         &self,
         request: GetTableExistsRequest,
         context: RequestContext,
     ) -> Result<GetTableExistsResponse>;
+    /// Delete a table
     async fn delete_table(
         &self,
         request: DeleteTableRequest,

@@ -18,12 +18,12 @@ impl ListCatalogsBuilder {
         };
         Self { client, request }
     }
-    ///The maximum number of results per page that should be returned.
+    /// The maximum number of results per page that should be returned.
     pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
         self.request.max_results = max_results.into();
         self
     }
-    ///Opaque pagination token to go to next page based on previous query.
+    /// Opaque pagination token to go to next page based on previous query.
     pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
         self.request.page_token = page_token.into();
         self
@@ -70,12 +70,12 @@ impl CreateCatalogBuilder {
         };
         Self { client, request }
     }
-    ///User-provided free-form text description.
+    /// User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    ///A map of key-value properties attached to the securable.
+    /// A map of key-value properties attached to the securable.
     pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
@@ -88,19 +88,19 @@ impl CreateCatalogBuilder {
             .collect();
         self
     }
-    ///Storage root URL for managed tables within catalog.
+    /// Storage root URL for managed tables within catalog.
     pub fn with_storage_root(mut self, storage_root: impl Into<Option<String>>) -> Self {
         self.request.storage_root = storage_root.into();
         self
     }
-    /**The name of delta sharing provider.
+    /** The name of delta sharing provider.
 
     A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server.*/
     pub fn with_provider_name(mut self, provider_name: impl Into<Option<String>>) -> Self {
         self.request.provider_name = provider_name.into();
         self
     }
-    ///The name of the share under the share provider.
+    /// The name of the share under the share provider.
     pub fn with_share_name(mut self, share_name: impl Into<Option<String>>) -> Self {
         self.request.share_name = share_name.into();
         self
@@ -129,7 +129,7 @@ impl GetCatalogBuilder {
         };
         Self { client, request }
     }
-    ///Whether to include catalogs in the response for which the principal can only access selective metadata for
+    /// Whether to include catalogs in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self
@@ -158,17 +158,17 @@ impl UpdateCatalogBuilder {
         };
         Self { client, request }
     }
-    ///Username of new owner of catalog.
+    /// Username of new owner of catalog.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    ///User-provided free-form text description.
+    /// User-provided free-form text description.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    /**A map of key-value properties attached to the securable.
+    /** A map of key-value properties attached to the securable.
 
     When provided in update request, the specified properties will override the existing properties.
     To add and remove properties, one would need to perform a read-modify-write.*/
@@ -184,7 +184,7 @@ impl UpdateCatalogBuilder {
             .collect();
         self
     }
-    ///Name of catalog.
+    /// Name of catalog.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
@@ -213,7 +213,7 @@ impl DeleteCatalogBuilder {
         };
         Self { client, request }
     }
-    ///Force deletion even if the catalog is not empty.
+    /// Force deletion even if the catalog is not empty.
     pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
         self.request.force = force.into();
         self

@@ -1,0 +1,219 @@
+---
+title: Authorization Architecture
+description: >
+  How the Policy trait, Principal, Permission, and Decision types form
+  the authorization layer.
+---
+
+The authorization layer in unitycatalog-rs is deliberately decoupled from HTTP.
+Every authorization decision flows through a small set of types defined in
+`crates/server/src/policy/mod.rs`. This page explains what those types are,
+how they compose, and what the current implementation status is.
+
+## Core types
+
+### Principal
+
+A `Principal` represents the identity that is making a request:
+
+```rust
+#[derive(Clone, Debug)]
+pub enum Principal {
+    Anonymous,
+    User(String),
+    Custom(Bytes),
+}
+```
+
+`Anonymous` is used when no identity information is available — for example,
+when the server is deployed behind a trusted internal proxy that does not
+forward identity headers. `User(String)` carries a username extracted from an
+upstream authentication header. `Custom(Bytes)` provides an escape hatch for
+embedding arbitrary identity tokens (JWT payloads, SPIFFE SVIDs, etc.) without
+requiring changes to the core types.
+
+The enum is intentionally non-exhaustive in spirit: new variants can be added
+without breaking existing `Policy` implementations, because policy code that
+does not care about identity details can match on `_` and return a default
+decision.
+
+### Permission
+
+`Permission` describes what action is being attempted:
+
+```rust
+pub enum Permission {
+    Read,
+    Write,
+    Manage,
+    Create,
+    Use,
+    Browse,
+    Select,
+}
+```
+
+The set covers the privilege model used by Unity Catalog: `Use` mirrors
+`USE_CATALOG` / `USE_SCHEMA`, `Browse` mirrors `BROWSE`, `Select` mirrors
+`SELECT` on tables, and so on. Permissions are passed as `&'static Permission`
+references in the hot path to avoid allocations.
+
+### Decision
+
+```rust
+pub enum Decision {
+    Allow,
+    Deny,
+}
+```
+
+`Allow` and `Deny` are the only possible outcomes. There is no explicit
+"not applicable" or "abstain" — the `Policy` trait is expected to return a
+definitive answer for every call.
+
+## The Policy trait
+
+```rust
+#[async_trait]
+pub trait Policy: Send + Sync + 'static {
+    async fn authorize(
+        &self,
+        resource: &ResourceIdent,
+        permission: &Permission,
+        recipient: &Principal,
+    ) -> Result<Decision>;
+
+    // Convenience helpers built on top of authorize:
+    async fn authorize_checked(...) -> Result<()>;
+    async fn authorize_many(...) -> Result<Vec<Decision>>;
+    async fn check(&self, obj: &dyn SecuredAction, recipient: &Principal) -> Result<Decision>;
+    async fn check_required(&self, obj: &dyn SecuredAction, recipient: &Principal) -> Result<()>;
+}
+```
+
+`authorize` is the only method an implementation must provide. All other
+methods have default implementations that delegate to it. The trait is async
+because real-world policy backends (OPA, external RBAC services, database
+lookups) are network-bound.
+
+`check` and `check_required` accept a `dyn SecuredAction` rather than raw
+arguments. This is the bridge to compile-time enforcement described in the next
+section.
+
+## SecuredAction: compile-time action/permission pairing
+
+Every request type that requires authorization implements `SecuredAction`:
+
+```rust
+pub trait SecuredAction: Send + Sync {
+    fn resource(&self) -> ResourceIdent;
+    fn permission(&self) -> &'static Permission;
+}
+```
+
+Because `permission()` returns `&'static Permission`, the mapping from request
+type to required permission is fixed at compile time. A `GetCatalogRequest`
+always requires `Permission::Read`; a `DeleteCatalogRequest` always requires
+`Permission::Manage`. There is no runtime switch statement that could
+accidentally omit a check.
+
+When a handler calls `policy.check_required(&request, &principal).await?`, it
+is impossible to accidentally supply the wrong permission — the permission comes
+from the request type itself.
+
+## process_resources: list-level filtering
+
+For list operations the server receives a `Vec<Resource>` from the store and
+must filter out entries the caller is not allowed to see:
+
+```rust
+pub async fn process_resources<T: Policy + Sized, R: ResourceExt + Send>(
+    handler: &T,
+    recipient: &Principal,
+    permission: &Permission,
+    resources: &mut Vec<R>,
+) -> Result<()> {
+    let res = resources.iter().map(|r| r.into()).collect::<Vec<_>>();
+    let mut decisions = handler.authorize_many(&res, permission, recipient).await?;
+    resources.retain(|_| decisions.pop() == Some(Decision::Allow));
+    Ok(())
+}
+```
+
+`authorize_many` batches the check so that policy backends with network
+round-trips can pipeline or bulk-fetch decisions. The `retain` call removes
+resources that were denied, in place, without any additional allocation.
+
+## Authentication: how Principal reaches the handler
+
+The server is designed to run behind a reverse proxy (nginx, Envoy, etc.) that
+handles authentication. The proxy sets a header such as `X-Forwarded-User` and
+the internal `Authenticator` trait reads it:
+
+```rust
+pub trait Authenticator: Send + Sync + 'static {
+    fn authenticate(&self, request: &Request) -> Result<Principal>;
+}
+```
+
+`AuthenticationMiddleware` is a Tower middleware layer that calls
+`authenticator.authenticate(&request)` on every inbound request and inserts
+the resulting `Principal` into the request extensions. Axum handlers then
+extract it from extensions and wrap it in a `RequestContext`:
+
+```rust
+pub struct RequestContext {
+    pub recipient: Principal,
+}
+```
+
+The current default implementation is `AnonymousAuthenticator`, which always
+returns `Principal::Anonymous`. The TODO in `auth.rs` notes that a
+`ReverseProxyAuthenticator` should be added that reads the forwarded-user header.
+
+## Current implementation status
+
+The only `Policy` implementation shipped today is `ConstantPolicy`:
+
+```rust
+pub struct ConstantPolicy {
+    decision: Decision,
+}
+
+impl Default for ConstantPolicy {
+    fn default() -> Self {
+        Self { decision: Decision::Allow }
+    }
+}
+```
+
+`ConstantPolicy::default()` always returns `Decision::Allow` regardless of the
+resource, permission, or principal. This makes the server fully open, which is
+appropriate for development deployments or environments where the reverse proxy
+enforces all access control before requests reach the catalog.
+
+Real RBAC — where `Decision` depends on group membership, object ownership, or
+privilege grants stored in the catalog — is a planned future implementation.
+The trait surface is already defined; adding a new policy is a matter of
+implementing `Policy` on a new type and passing it to
+`ServerHandler::try_new_tokio`.
+
+## Summary of the authorization flow
+
+```
+HTTP request
+    │
+    ▼
+AuthenticationMiddleware
+    │  calls Authenticator::authenticate → Principal
+    │  inserts Principal into request extensions
+    ▼
+Axum handler (generated)
+    │  extracts RequestContext { recipient: Principal }
+    │  calls policy.check_required(&request, &recipient)?
+    ▼
+Policy::authorize(resource, permission, principal) → Decision
+    │
+    ├─ Allow → handler proceeds to ResourceStore operation
+    └─ Deny  → handler returns Error::NotAllowed (HTTP 403)
+```

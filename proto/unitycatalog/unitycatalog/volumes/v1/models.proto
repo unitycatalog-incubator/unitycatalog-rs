@@ -20,19 +20,28 @@ message Volume {
   };
 
   // Name of volume, relative to parent schema.
-  string name = 1;
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
 
   // Name of parent catalog.
-  string catalog_name = 2;
+  string catalog_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
 
   // Name of parent schema.
-  string schema_name = 3;
+  string schema_name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
 
   // The three-level (fully qualified) name of the volume
-  string full_name = 4;
+  string full_name = 4 [(buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$"];
 
   // The storage location on the cloud
-  string storage_location = 5;
+  string storage_location = 5 [(buf.validate.field).string.uri = true];
 
   // The unique identifier of the volume
   string volume_id = 6;

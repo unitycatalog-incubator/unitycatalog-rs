@@ -2,86 +2,53 @@
 // @generated from file delta_sharing/v1/svc.proto (package delta_sharing.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenFile,
-  GenMessage,
-  GenService,
-} from "@bufbuild/protobuf/codegenv2";
-import {
-  fileDesc,
-  messageDesc,
-  serviceDesc,
-} from "@bufbuild/protobuf/codegenv2";
-import {
-  file_google_protobuf_empty,
-  file_google_protobuf_struct,
-} from "@bufbuild/protobuf/wkt";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
+import type { Schema, Share, ShareSchema, Table } from "./models_pb";
+import { file_delta_sharing_v1_models } from "./models_pb";
+import type { GetTableMetadataRequestSchema, GetTableVersionRequestSchema, GetTableVersionResponseSchema, JsonPredicate, QueryResponseSchema } from "./query_pb";
+import { file_delta_sharing_v1_query } from "./query_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../google/api/resource_pb";
-import type { Schema, Share, ShareSchema, Table } from "./models_pb";
-import { file_delta_sharing_v1_models } from "./models_pb";
-import type {
-  GetTableMetadataRequestSchema,
-  GetTableVersionRequestSchema,
-  GetTableVersionResponseSchema,
-  JsonPredicate,
-  QueryResponseSchema,
-} from "./query_pb";
-import { file_delta_sharing_v1_query } from "./query_pb";
+import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file delta_sharing/v1/svc.proto.
  */
-export const file_delta_sharing_v1_svc: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "ChpkZWx0YV9zaGFyaW5nL3YxL3N2Yy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJuChJMaXN0U2hhcmVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrEBChJMaXN0U2NoZW1hc1JlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInAKE0xpc3RTY2hlbWFzUmVzcG9uc2USJwoFaXRlbXMYASADKAsyGC5kZWx0YV9zaGFyaW5nLnYxLlNjaGVtYRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIuMBChFMaXN0VGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgVzaGFyZRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJAoLbWF4X3Jlc3VsdHMYAyABKAVCCuBBAbpIBBoCIABIAIgBARIcCgpwYWdlX3Rva2VuGAQgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4ibgoSTGlzdFRhYmxlc1Jlc3BvbnNlEiYKBWl0ZW1zGAEgAygLMhcuZGVsdGFfc2hhcmluZy52MS5UYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrIBChRMaXN0QWxsVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiK6BAoRUXVlcnlUYWJsZVJlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjYKBnNjaGVtYRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNAoEbmFtZRgDIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSHwoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJSACIAQESFwoPcHJlZGljYXRlX2hpbnRzGAUgAygJEkIKFGpzb25fcHJlZGljYXRlX2hpbnRzGAYgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Kc29uUHJlZGljYXRlSAGIAQESFwoKbGltaXRfaGludBgHIAEoBUgCiAEBEhQKB3ZlcnNpb24YCCABKANIA4gBARIWCgl0aW1lc3RhbXAYCSABKAlIBIgBARIdChBzdGFydGluZ192ZXJzaW9uGAogASgDSAWIAQESGwoOZW5kaW5nX3ZlcnNpb24YCyABKANIBogBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wQhcKFV9qc29uX3ByZWRpY2F0ZV9oaW50c0INCgtfbGltaXRfaGludEIKCghfdmVyc2lvbkIMCgpfdGltZXN0YW1wQhMKEV9zdGFydGluZ192ZXJzaW9uQhEKD19lbmRpbmdfdmVyc2lvbiJxChVMaXN0QWxsVGFibGVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlRhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yzQkKDlNoYXJpbmdTZXJ2aWNlEncKCkxpc3RTaGFyZXMSIy5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZXNSZXF1ZXN0GiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJrCghHZXRTaGFyZRIhLmRlbHRhX3NoYXJpbmcudjEuR2V0U2hhcmVSZXF1ZXN0GhcuZGVsdGFfc2hhcmluZy52MS5TaGFyZSIjukcKKghHZXRTaGFyZYLT5JMCEBIOL3NoYXJlcy97bmFtZX0SiwEKC0xpc3RTY2hlbWFzEiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2NoZW1hc1JlcXVlc3QaJS5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTY2hlbWFzUmVzcG9uc2UiL7pHDSoLTGlzdFNjaGVtYXOC0+STAhkSFy9zaGFyZXMve3NoYXJlfS9zY2hlbWFzEpUBCgpMaXN0VGFibGVzEiMuZGVsdGFfc2hhcmluZy52MS5MaXN0VGFibGVzUmVxdWVzdBokLmRlbHRhX3NoYXJpbmcudjEuTGlzdFRhYmxlc1Jlc3BvbnNlIjy6RwwqCkxpc3RUYWJsZXOC0+STAicSJS9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tuYW1lfS90YWJsZXMSlQEKDUxpc3RBbGxUYWJsZXMSJi5kZWx0YV9zaGFyaW5nLnYxLkxpc3RBbGxUYWJsZXNSZXF1ZXN0GicuZGVsdGFfc2hhcmluZy52MS5MaXN0QWxsVGFibGVzUmVzcG9uc2UiM7pHDyoNTGlzdEFsbFRhYmxlc4LT5JMCGxIZL3NoYXJlcy97bmFtZX0vYWxsLXRhYmxlcxK6AQoPR2V0VGFibGVWZXJzaW9uEiguZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXF1ZXN0GikuZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXNwb25zZSJSukcRKg9HZXRUYWJsZVZlcnNpb26C0+STAjgSNi9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vdmVyc2lvbhK0AQoQR2V0VGFibGVNZXRhZGF0YRIpLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiVLpHEioQR2V0VGFibGVNZXRhZGF0YYLT5JMCORI3L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9tZXRhZGF0YRKiAQoKUXVlcnlUYWJsZRIjLmRlbHRhX3NoYXJpbmcudjEuUXVlcnlUYWJsZVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiTrpHDCoKUXVlcnlUYWJsZYLT5JMCOToBKiI0L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9xdWVyeUKeAgoUY29tLmRlbHRhX3NoYXJpbmcudjFCCFN2Y1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxukedARKEAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqPgoKQXBhY2hlIDIuMBIwaHR0cHM6Ly93d3cuYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMC5odG1sMgUxLjAuMBoUChJ7c2NoZW1lfTovL3tob3N0fS9iBnByb3RvMw",
-    [
-      file_buf_validate_validate,
-      file_delta_sharing_v1_models,
-      file_delta_sharing_v1_query,
-      file_gnostic_openapi_v3_annotations,
-      file_google_api_annotations,
-      file_google_api_field_behavior,
-      file_google_api_resource,
-      file_google_protobuf_empty,
-      file_google_protobuf_struct,
-    ],
-  );
+export const file_delta_sharing_v1_svc: GenFile = /*@__PURE__*/
+  fileDesc("ChpkZWx0YV9zaGFyaW5nL3YxL3N2Yy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJuChJMaXN0U2hhcmVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrEBChJMaXN0U2NoZW1hc1JlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInAKE0xpc3RTY2hlbWFzUmVzcG9uc2USJwoFaXRlbXMYASADKAsyGC5kZWx0YV9zaGFyaW5nLnYxLlNjaGVtYRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIuMBChFMaXN0VGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgVzaGFyZRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJAoLbWF4X3Jlc3VsdHMYAyABKAVCCuBBAbpIBBoCIABIAIgBARIcCgpwYWdlX3Rva2VuGAQgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4ibgoSTGlzdFRhYmxlc1Jlc3BvbnNlEiYKBWl0ZW1zGAEgAygLMhcuZGVsdGFfc2hhcmluZy52MS5UYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrIBChRMaXN0QWxsVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiK6BAoRUXVlcnlUYWJsZVJlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjYKBnNjaGVtYRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNAoEbmFtZRgDIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSHwoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJSACIAQESFwoPcHJlZGljYXRlX2hpbnRzGAUgAygJEkIKFGpzb25fcHJlZGljYXRlX2hpbnRzGAYgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Kc29uUHJlZGljYXRlSAGIAQESFwoKbGltaXRfaGludBgHIAEoBUgCiAEBEhQKB3ZlcnNpb24YCCABKANIA4gBARIWCgl0aW1lc3RhbXAYCSABKAlIBIgBARIdChBzdGFydGluZ192ZXJzaW9uGAogASgDSAWIAQESGwoOZW5kaW5nX3ZlcnNpb24YCyABKANIBogBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wQhcKFV9qc29uX3ByZWRpY2F0ZV9oaW50c0INCgtfbGltaXRfaGludEIKCghfdmVyc2lvbkIMCgpfdGltZXN0YW1wQhMKEV9zdGFydGluZ192ZXJzaW9uQhEKD19lbmRpbmdfdmVyc2lvbiJxChVMaXN0QWxsVGFibGVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlRhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yzQkKDlNoYXJpbmdTZXJ2aWNlEncKCkxpc3RTaGFyZXMSIy5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZXNSZXF1ZXN0GiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJrCghHZXRTaGFyZRIhLmRlbHRhX3NoYXJpbmcudjEuR2V0U2hhcmVSZXF1ZXN0GhcuZGVsdGFfc2hhcmluZy52MS5TaGFyZSIjukcKKghHZXRTaGFyZYLT5JMCEBIOL3NoYXJlcy97bmFtZX0SiwEKC0xpc3RTY2hlbWFzEiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2NoZW1hc1JlcXVlc3QaJS5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTY2hlbWFzUmVzcG9uc2UiL7pHDSoLTGlzdFNjaGVtYXOC0+STAhkSFy9zaGFyZXMve3NoYXJlfS9zY2hlbWFzEpUBCgpMaXN0VGFibGVzEiMuZGVsdGFfc2hhcmluZy52MS5MaXN0VGFibGVzUmVxdWVzdBokLmRlbHRhX3NoYXJpbmcudjEuTGlzdFRhYmxlc1Jlc3BvbnNlIjy6RwwqCkxpc3RUYWJsZXOC0+STAicSJS9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tuYW1lfS90YWJsZXMSlQEKDUxpc3RBbGxUYWJsZXMSJi5kZWx0YV9zaGFyaW5nLnYxLkxpc3RBbGxUYWJsZXNSZXF1ZXN0GicuZGVsdGFfc2hhcmluZy52MS5MaXN0QWxsVGFibGVzUmVzcG9uc2UiM7pHDyoNTGlzdEFsbFRhYmxlc4LT5JMCGxIZL3NoYXJlcy97bmFtZX0vYWxsLXRhYmxlcxK6AQoPR2V0VGFibGVWZXJzaW9uEiguZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXF1ZXN0GikuZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXNwb25zZSJSukcRKg9HZXRUYWJsZVZlcnNpb26C0+STAjgSNi9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vdmVyc2lvbhK0AQoQR2V0VGFibGVNZXRhZGF0YRIpLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiVLpHEioQR2V0VGFibGVNZXRhZGF0YYLT5JMCORI3L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9tZXRhZGF0YRKiAQoKUXVlcnlUYWJsZRIjLmRlbHRhX3NoYXJpbmcudjEuUXVlcnlUYWJsZVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiTrpHDCoKUXVlcnlUYWJsZYLT5JMCOToBKiI0L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9xdWVyeUKeAgoUY29tLmRlbHRhX3NoYXJpbmcudjFCCFN2Y1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxukedARKEAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqPgoKQXBhY2hlIDIuMBIwaHR0cHM6Ly93d3cuYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMC5odG1sMgUxLjAuMBoUChJ7c2NoZW1lfTovL3tob3N0fS9iBnByb3RvMw", [file_buf_validate_validate, file_delta_sharing_v1_models, file_delta_sharing_v1_query, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct]);
 
 /**
  * Request to list shares.
  *
  * @generated from message delta_sharing.v1.ListSharesRequest
  */
-export type ListSharesRequest =
-  Message<"delta_sharing.v1.ListSharesRequest"> & {
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 1;
-     */
-    maxResults?: number;
+export type ListSharesRequest = Message<"delta_sharing.v1.ListSharesRequest"> & {
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 1;
+   */
+  maxResults?: number;
 
-    /**
-     * Specifies a page token to use. Set pageToken to the nextPageToken returned
-     * by a previous list request to get the next page of results.
-     *
-     * @generated from field: optional string page_token = 2;
-     */
-    pageToken?: string;
-  };
+  /**
+   * Specifies a page token to use. Set pageToken to the nextPageToken returned
+   * by a previous list request to get the next page of results.
+   *
+   * @generated from field: optional string page_token = 2;
+   */
+  pageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListSharesRequest.
  * Use `create(ListSharesRequestSchema)` to create a new message.
  */
-export const ListSharesRequestSchema: GenMessage<ListSharesRequest> =
-  /*@__PURE__*/
+export const ListSharesRequestSchema: GenMessage<ListSharesRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 0);
 
 /**
@@ -89,30 +56,28 @@ export const ListSharesRequestSchema: GenMessage<ListSharesRequest> =
  *
  * @generated from message delta_sharing.v1.ListSharesResponse
  */
-export type ListSharesResponse =
-  Message<"delta_sharing.v1.ListSharesResponse"> & {
-    /**
-     * The shares that were requested.
-     *
-     * @generated from field: repeated delta_sharing.v1.Share items = 1;
-     */
-    items: Share[];
+export type ListSharesResponse = Message<"delta_sharing.v1.ListSharesResponse"> & {
+  /**
+   * The shares that were requested.
+   *
+   * @generated from field: repeated delta_sharing.v1.Share items = 1;
+   */
+  items: Share[];
 
-    /**
-     * Token that can be used to retrieve the next page of shares.
-     * An empty or missing token means that no more shares are available for retrieval.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * Token that can be used to retrieve the next page of shares.
+   * An empty or missing token means that no more shares are available for retrieval.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListSharesResponse.
  * Use `create(ListSharesResponseSchema)` to create a new message.
  */
-export const ListSharesResponseSchema: GenMessage<ListSharesResponse> =
-  /*@__PURE__*/
+export const ListSharesResponseSchema: GenMessage<ListSharesResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 1);
 
 /**
@@ -133,8 +98,7 @@ export type GetShareRequest = Message<"delta_sharing.v1.GetShareRequest"> & {
  * Describes the message delta_sharing.v1.GetShareRequest.
  * Use `create(GetShareRequestSchema)` to create a new message.
  */
-export const GetShareRequestSchema: GenMessage<GetShareRequest> =
-  /*@__PURE__*/
+export const GetShareRequestSchema: GenMessage<GetShareRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 2);
 
 /**
@@ -142,37 +106,35 @@ export const GetShareRequestSchema: GenMessage<GetShareRequest> =
  *
  * @generated from message delta_sharing.v1.ListSchemasRequest
  */
-export type ListSchemasRequest =
-  Message<"delta_sharing.v1.ListSchemasRequest"> & {
-    /**
-     * The share name to query. It's case-insensitive.
-     *
-     * @generated from field: string share = 1;
-     */
-    share: string;
+export type ListSchemasRequest = Message<"delta_sharing.v1.ListSchemasRequest"> & {
+  /**
+   * The share name to query. It's case-insensitive.
+   *
+   * @generated from field: string share = 1;
+   */
+  share: string;
 
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 2;
-     */
-    maxResults?: number;
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 2;
+   */
+  maxResults?: number;
 
-    /**
-     * Specifies a page token to use. Set pageToken to the nextPageToken returned
-     * by a previous list request to get the next page of results.
-     *
-     * @generated from field: optional string page_token = 3;
-     */
-    pageToken?: string;
-  };
+  /**
+   * Specifies a page token to use. Set pageToken to the nextPageToken returned
+   * by a previous list request to get the next page of results.
+   *
+   * @generated from field: optional string page_token = 3;
+   */
+  pageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListSchemasRequest.
  * Use `create(ListSchemasRequestSchema)` to create a new message.
  */
-export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> =
-  /*@__PURE__*/
+export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 3);
 
 /**
@@ -180,30 +142,28 @@ export const ListSchemasRequestSchema: GenMessage<ListSchemasRequest> =
  *
  * @generated from message delta_sharing.v1.ListSchemasResponse
  */
-export type ListSchemasResponse =
-  Message<"delta_sharing.v1.ListSchemasResponse"> & {
-    /**
-     * The schemas that were requested.
-     *
-     * @generated from field: repeated delta_sharing.v1.Schema items = 1;
-     */
-    items: Schema[];
+export type ListSchemasResponse = Message<"delta_sharing.v1.ListSchemasResponse"> & {
+  /**
+   * The schemas that were requested.
+   *
+   * @generated from field: repeated delta_sharing.v1.Schema items = 1;
+   */
+  items: Schema[];
 
-    /**
-     * Token that can be used to retrieve the next page of schemas.
-     * An empty or missing token means that no more schemas are available for retrieval.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * Token that can be used to retrieve the next page of schemas.
+   * An empty or missing token means that no more schemas are available for retrieval.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListSchemasResponse.
  * Use `create(ListSchemasResponseSchema)` to create a new message.
  */
-export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> =
-  /*@__PURE__*/
+export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 4);
 
 /**
@@ -211,44 +171,42 @@ export const ListSchemasResponseSchema: GenMessage<ListSchemasResponse> =
  *
  * @generated from message delta_sharing.v1.ListTablesRequest
  */
-export type ListTablesRequest =
-  Message<"delta_sharing.v1.ListTablesRequest"> & {
-    /**
-     * The schema name to query. It's case-insensitive.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type ListTablesRequest = Message<"delta_sharing.v1.ListTablesRequest"> & {
+  /**
+   * The schema name to query. It's case-insensitive.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The share name to query. It's case-insensitive.
-     *
-     * @generated from field: string share = 2;
-     */
-    share: string;
+  /**
+   * The share name to query. It's case-insensitive.
+   *
+   * @generated from field: string share = 2;
+   */
+  share: string;
 
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 3;
-     */
-    maxResults?: number;
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 3;
+   */
+  maxResults?: number;
 
-    /**
-     * Specifies a page token to use. Set pageToken to the nextPageToken returned
-     * by a previous list request to get the next page of results.
-     *
-     * @generated from field: optional string page_token = 4;
-     */
-    pageToken?: string;
-  };
+  /**
+   * Specifies a page token to use. Set pageToken to the nextPageToken returned
+   * by a previous list request to get the next page of results.
+   *
+   * @generated from field: optional string page_token = 4;
+   */
+  pageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListTablesRequest.
  * Use `create(ListTablesRequestSchema)` to create a new message.
  */
-export const ListTablesRequestSchema: GenMessage<ListTablesRequest> =
-  /*@__PURE__*/
+export const ListTablesRequestSchema: GenMessage<ListTablesRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 5);
 
 /**
@@ -256,30 +214,28 @@ export const ListTablesRequestSchema: GenMessage<ListTablesRequest> =
  *
  * @generated from message delta_sharing.v1.ListTablesResponse
  */
-export type ListTablesResponse =
-  Message<"delta_sharing.v1.ListTablesResponse"> & {
-    /**
-     * The tables that were requested.
-     *
-     * @generated from field: repeated delta_sharing.v1.Table items = 1;
-     */
-    items: Table[];
+export type ListTablesResponse = Message<"delta_sharing.v1.ListTablesResponse"> & {
+  /**
+   * The tables that were requested.
+   *
+   * @generated from field: repeated delta_sharing.v1.Table items = 1;
+   */
+  items: Table[];
 
-    /**
-     * Token that can be used to retrieve the next page of tables.
-     * An empty or missing token means that no more tables are available for retrieval.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * Token that can be used to retrieve the next page of tables.
+   * An empty or missing token means that no more tables are available for retrieval.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListTablesResponse.
  * Use `create(ListTablesResponseSchema)` to create a new message.
  */
-export const ListTablesResponseSchema: GenMessage<ListTablesResponse> =
-  /*@__PURE__*/
+export const ListTablesResponseSchema: GenMessage<ListTablesResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 6);
 
 /**
@@ -287,37 +243,35 @@ export const ListTablesResponseSchema: GenMessage<ListTablesResponse> =
  *
  * @generated from message delta_sharing.v1.ListAllTablesRequest
  */
-export type ListAllTablesRequest =
-  Message<"delta_sharing.v1.ListAllTablesRequest"> & {
-    /**
-     * The share name to query. It's case-insensitive.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type ListAllTablesRequest = Message<"delta_sharing.v1.ListAllTablesRequest"> & {
+  /**
+   * The share name to query. It's case-insensitive.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 2;
-     */
-    maxResults?: number;
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 2;
+   */
+  maxResults?: number;
 
-    /**
-     * Specifies a page token to use. Set pageToken to the nextPageToken returned
-     * by a previous list request to get the next page of results.
-     *
-     * @generated from field: optional string page_token = 3;
-     */
-    pageToken?: string;
-  };
+  /**
+   * Specifies a page token to use. Set pageToken to the nextPageToken returned
+   * by a previous list request to get the next page of results.
+   *
+   * @generated from field: optional string page_token = 3;
+   */
+  pageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListAllTablesRequest.
  * Use `create(ListAllTablesRequestSchema)` to create a new message.
  */
-export const ListAllTablesRequestSchema: GenMessage<ListAllTablesRequest> =
-  /*@__PURE__*/
+export const ListAllTablesRequestSchema: GenMessage<ListAllTablesRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 7);
 
 /**
@@ -325,74 +279,72 @@ export const ListAllTablesRequestSchema: GenMessage<ListAllTablesRequest> =
  *
  * @generated from message delta_sharing.v1.QueryTableRequest
  */
-export type QueryTableRequest =
-  Message<"delta_sharing.v1.QueryTableRequest"> & {
-    /**
-     * @generated from field: string share = 1;
-     */
-    share: string;
+export type QueryTableRequest = Message<"delta_sharing.v1.QueryTableRequest"> & {
+  /**
+   * @generated from field: string share = 1;
+   */
+  share: string;
 
-    /**
-     * @generated from field: string schema = 2;
-     */
-    schema: string;
+  /**
+   * @generated from field: string schema = 2;
+   */
+  schema: string;
 
-    /**
-     * @generated from field: string name = 3;
-     */
-    name: string;
+  /**
+   * @generated from field: string name = 3;
+   */
+  name: string;
 
-    /**
-     * The starting timestamp to query from.
-     *
-     * @generated from field: optional string starting_timestamp = 4;
-     */
-    startingTimestamp?: string;
+  /**
+   * The starting timestamp to query from.
+   *
+   * @generated from field: optional string starting_timestamp = 4;
+   */
+  startingTimestamp?: string;
 
-    /**
-     * @generated from field: repeated string predicate_hints = 5;
-     */
-    predicateHints: string[];
+  /**
+   * @generated from field: repeated string predicate_hints = 5;
+   */
+  predicateHints: string[];
 
-    /**
-     * The predicate to apply to the table.
-     *
-     * @generated from field: optional delta_sharing.v1.JsonPredicate json_predicate_hints = 6;
-     */
-    jsonPredicateHints?: JsonPredicate;
+  /**
+   * The predicate to apply to the table.
+   *
+   * @generated from field: optional delta_sharing.v1.JsonPredicate json_predicate_hints = 6;
+   */
+  jsonPredicateHints?: JsonPredicate;
 
-    /**
-     * @generated from field: optional int32 limit_hint = 7;
-     */
-    limitHint?: number;
+  /**
+   * @generated from field: optional int32 limit_hint = 7;
+   */
+  limitHint?: number;
 
-    /**
-     * @generated from field: optional int64 version = 8;
-     */
-    version?: bigint;
+  /**
+   * @generated from field: optional int64 version = 8;
+   */
+  version?: bigint;
 
-    /**
-     * @generated from field: optional string timestamp = 9;
-     */
-    timestamp?: string;
+  /**
+   * @generated from field: optional string timestamp = 9;
+   */
+  timestamp?: string;
 
-    /**
-     * @generated from field: optional int64 starting_version = 10;
-     */
-    startingVersion?: bigint;
+  /**
+   * @generated from field: optional int64 starting_version = 10;
+   */
+  startingVersion?: bigint;
 
-    /**
-     * @generated from field: optional int64 ending_version = 11;
-     */
-    endingVersion?: bigint;
-  };
+  /**
+   * @generated from field: optional int64 ending_version = 11;
+   */
+  endingVersion?: bigint;
+};
 
 /**
  * Describes the message delta_sharing.v1.QueryTableRequest.
  * Use `create(QueryTableRequestSchema)` to create a new message.
  */
-export const QueryTableRequestSchema: GenMessage<QueryTableRequest> =
-  /*@__PURE__*/
+export const QueryTableRequestSchema: GenMessage<QueryTableRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 8);
 
 /**
@@ -400,30 +352,28 @@ export const QueryTableRequestSchema: GenMessage<QueryTableRequest> =
  *
  * @generated from message delta_sharing.v1.ListAllTablesResponse
  */
-export type ListAllTablesResponse =
-  Message<"delta_sharing.v1.ListAllTablesResponse"> & {
-    /**
-     * The tables that were requested.
-     *
-     * @generated from field: repeated delta_sharing.v1.Table items = 1;
-     */
-    items: Table[];
+export type ListAllTablesResponse = Message<"delta_sharing.v1.ListAllTablesResponse"> & {
+  /**
+   * The tables that were requested.
+   *
+   * @generated from field: repeated delta_sharing.v1.Table items = 1;
+   */
+  items: Table[];
 
-    /**
-     * Token that can be used to retrieve the next page of tables.
-     * An empty or missing token means that no more tables are available for retrieval.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * Token that can be used to retrieve the next page of tables.
+   * An empty or missing token means that no more tables are available for retrieval.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.ListAllTablesResponse.
  * Use `create(ListAllTablesResponseSchema)` to create a new message.
  */
-export const ListAllTablesResponseSchema: GenMessage<ListAllTablesResponse> =
-  /*@__PURE__*/
+export const ListAllTablesResponseSchema: GenMessage<ListAllTablesResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_svc, 9);
 
 /**
@@ -441,7 +391,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof ListSharesRequestSchema;
     output: typeof ListSharesResponseSchema;
-  };
+  },
   /**
    * Get the metadata for a specific share.
    *
@@ -451,7 +401,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof GetShareRequestSchema;
     output: typeof ShareSchema;
-  };
+  },
   /**
    * List the schemas in a share.
    *
@@ -461,7 +411,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof ListSchemasRequestSchema;
     output: typeof ListSchemasResponseSchema;
-  };
+  },
   /**
    * List the tables in a given share's schema.
    *
@@ -471,7 +421,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof ListTablesRequestSchema;
     output: typeof ListTablesResponseSchema;
-  };
+  },
   /**
    * List all the tables under a share.
    *
@@ -481,7 +431,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof ListAllTablesRequestSchema;
     output: typeof ListAllTablesResponseSchema;
-  };
+  },
   /**
    * Get the current version for a table within a schema.
    *
@@ -491,7 +441,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof GetTableVersionRequestSchema;
     output: typeof GetTableVersionResponseSchema;
-  };
+  },
   /**
    * @generated from rpc delta_sharing.v1.SharingService.GetTableMetadata
    */
@@ -499,7 +449,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof GetTableMetadataRequestSchema;
     output: typeof QueryResponseSchema;
-  };
+  },
   /**
    * @generated from rpc delta_sharing.v1.SharingService.QueryTable
    */
@@ -507,5 +457,7 @@ export const SharingService: GenService<{
     methodKind: "unary";
     input: typeof QueryTableRequestSchema;
     output: typeof QueryResponseSchema;
-  };
-}> = /*@__PURE__*/ serviceDesc(file_delta_sharing_v1_svc, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_delta_sharing_v1_svc, 0);
+

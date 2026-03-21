@@ -21,10 +21,10 @@ export default defineConfig({
         },
         {
           label: "Guides",
-          items: [{ label: "Example Guide", slug: "guides/example" }],
+          autogenerate: { directory: "guides" },
         },
         {
-          label: "Design",
+          label: "Explanation",
           autogenerate: { directory: "explanation" },
         },
         {

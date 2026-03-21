@@ -41,7 +41,7 @@ plugins:
       - no_include=true
   - remote: buf.build/community/google-gnostic-openapi:v0.7.0
     out: openapi
-  - remote: buf.build/bufbuild/es:v2.5.2
+  - remote: buf.build/bufbuild/es:v2.11.0
     out: node/client/unitycatalog/models/gen
     opt:
       - target=ts

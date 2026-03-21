@@ -97,6 +97,7 @@ pub trait TableManager: Send + Sync + 'static {
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
+    #[tracing::instrument(skip(self, context))]
     async fn list_table_summaries(
         &self,
         request: ListTableSummariesRequest,
@@ -120,6 +121,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context))]
     async fn list_tables(
         &self,
         request: ListTablesRequest,
@@ -148,11 +150,13 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_table(
         &self,
         request: CreateTableRequest,
         context: RequestContext,
     ) -> Result<Table> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let info = if request.table_type == TableType::External as i32 {
             let Some(location) = request.storage_location.as_ref() else {
@@ -196,17 +200,21 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         Ok(self.create(info.into()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_table(&self, request: GetTableRequest, context: RequestContext) -> Result<Table> {
+        tracing::Span::current().record("resource_name", &request.full_name);
         self.check_required(&request, context.as_ref()).await?;
         // TODO: get columns etc ...
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_table_exists(
         &self,
         request: GetTableExistsRequest,
         context: RequestContext,
     ) -> Result<GetTableExistsResponse> {
+        tracing::Span::current().record("resource_name", &request.full_name);
         self.check_required(&request, context.as_ref()).await?;
         match self.get(&request.resource()).await {
             Ok(_) => Ok(GetTableExistsResponse { table_exists: true }),
@@ -217,11 +225,13 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         }
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_table(
         &self,
         request: DeleteTableRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.full_name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.delete(&request.resource()).await?)
     }

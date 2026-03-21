@@ -138,6 +138,8 @@ message DeleteVolumeRequest {
   ];
 }
 
+// Service for managing volumes in Unity Catalog.
+// Volumes represent logical storage locations (managed or external) within a schema.
 service VolumesService {
   // Lists volumes.
   rpc ListVolumes(ListVolumesRequest) returns (ListVolumesResponse) {

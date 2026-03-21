@@ -11,6 +11,22 @@ use crate::analysis::{RequestParam, RequestType};
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::parsing::types::{BaseType, unified_to_typescript};
 
+/// Format optional documentation as a JSDoc comment block.
+fn format_jsdoc(documentation: Option<&str>, indent: &str) -> String {
+    let Some(doc) = documentation else {
+        return String::new();
+    };
+    let trimmed = doc.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+    let lines: Vec<String> = trimmed
+        .lines()
+        .map(|l| format!("{}   * {}", indent, l.trim()))
+        .collect();
+    format!("{}/**\n{}\n{}   */\n", indent, lines.join("\n"), indent)
+}
+
 fn is_napi_supported(param: &RequestParam) -> bool {
     is_napi_supported_type(&param.field_type().base_type)
 }
@@ -223,6 +239,7 @@ fn generate_resource_client_class(service: &ServiceHandler<'_>) -> Option<String
 fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> String {
     let schema_name = format!("{}Schema", type_name);
     let options_type = format!("{}Options", method.plan.metadata.method_name);
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
 
     let optional_params: Vec<&RequestParam> = method
         .optional_parameters()
@@ -231,7 +248,7 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
 
     if optional_params.is_empty() {
         return format!(
-            r#"  async get(): Promise<{type_name}> {{
+            r#"{jsdoc}  async get(): Promise<{type_name}> {{
     return fromBinary({schema_name}, await this.inner.get());
   }}
 
@@ -252,7 +269,7 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
         .join(", ");
 
     format!(
-        r#"  async get(options?: {options_type}): Promise<{type_name}> {{
+        r#"{jsdoc}  async get(options?: {options_type}): Promise<{type_name}> {{
     const {{ {destructure_fields} }} = options || {{}};
     return fromBinary({schema_name}, await this.inner.get({call_args}));
   }}
@@ -264,6 +281,7 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
 fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) -> String {
     let schema_name = format!("{}Schema", type_name);
     let options_type = format!("{}Options", method.plan.metadata.method_name);
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
 
     let optional_params: Vec<&RequestParam> = method
         .optional_parameters()
@@ -272,7 +290,7 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
 
     if optional_params.is_empty() {
         return format!(
-            r#"  async update(): Promise<{type_name}> {{
+            r#"{jsdoc}  async update(): Promise<{type_name}> {{
     return fromBinary({schema_name}, await this.inner.update());
   }}
 
@@ -293,7 +311,7 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
         .join(", ");
 
     format!(
-        r#"  async update(options?: {options_type}): Promise<{type_name}> {{
+        r#"{jsdoc}  async update(options?: {options_type}): Promise<{type_name}> {{
     const {{ {destructure_fields} }} = options || {{}};
     return fromBinary({schema_name}, await this.inner.update({call_args}));
   }}
@@ -303,18 +321,20 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
 }
 
 fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
     let optional_params: Vec<&RequestParam> = method
         .optional_parameters()
         .filter(|p| !p.is_path_param() && is_napi_supported(p))
         .collect();
 
     if optional_params.is_empty() {
-        return r#"  async delete(): Promise<void> {
+        return format!(
+            r#"{jsdoc}  async delete(): Promise<void> {{
     await this.inner.delete();
-  }
+  }}
 
 "#
-        .to_string();
+        );
     }
 
     let options_type = format!("{}Options", method.plan.metadata.method_name);
@@ -332,7 +352,7 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
         .join(", ");
 
     format!(
-        r#"  async delete(options?: {options_type}): Promise<void> {{
+        r#"{jsdoc}  async delete(options?: {options_type}): Promise<void> {{
     const {{ {destructure_fields} }} = options || {{}};
     await this.inner.delete({call_args});
   }}
@@ -387,6 +407,7 @@ fn generate_collection_list_method(
     _service: &ServiceHandler<'_>,
     method: &MethodHandler<'_>,
 ) -> String {
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
     let method_name = method.plan.handler_function_name.to_case(Case::Camel);
     let items_field = match method.list_output_field() {
         Some(field) => field,
@@ -457,7 +478,7 @@ fn generate_collection_list_method(
     };
 
     format!(
-        r#"  async {method_name}({full_param_list}): Promise<{item_type_name}[]> {{
+        r#"{jsdoc}  async {method_name}({full_param_list}): Promise<{item_type_name}[]> {{
 {optional_destructure}    return (await this.inner.{method_name}({all_args})).map((data) =>
       fromBinary({schema_name}, data),
     );
@@ -471,6 +492,7 @@ fn generate_collection_create_method(
     _service: &ServiceHandler<'_>,
     method: &MethodHandler<'_>,
 ) -> String {
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
     let method_name = method.plan.handler_function_name.to_case(Case::Camel);
 
     let output_type = match method.output_type() {
@@ -539,7 +561,7 @@ fn generate_collection_create_method(
     };
 
     format!(
-        r#"  async {method_name}({full_param_list}): Promise<{output_type}> {{
+        r#"{jsdoc}  async {method_name}({full_param_list}): Promise<{output_type}> {{
 {optional_destructure}    return fromBinary({schema_name}, await this.inner.{method_name}({all_args}));
   }}
 
@@ -548,6 +570,7 @@ fn generate_collection_create_method(
 }
 
 fn generate_void_create_method(method: &MethodHandler<'_>) -> String {
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
     let method_name = method.plan.handler_function_name.to_case(Case::Camel);
 
     let required_params: Vec<&RequestParam> = method
@@ -610,7 +633,7 @@ fn generate_void_create_method(method: &MethodHandler<'_>) -> String {
     };
 
     format!(
-        r#"  async {method_name}({full_param_list}): Promise<void> {{
+        r#"{jsdoc}  async {method_name}({full_param_list}): Promise<void> {{
 {optional_destructure}    await this.inner.{method_name}({all_args});
   }}
 

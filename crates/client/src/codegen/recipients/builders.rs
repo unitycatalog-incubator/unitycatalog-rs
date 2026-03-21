@@ -18,12 +18,12 @@ impl ListRecipientsBuilder {
         };
         Self { client, request }
     }
-    ///The maximum number of results per page that should be returned.
+    /// The maximum number of results per page that should be returned.
     pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
         self.request.max_results = max_results.into();
         self
     }
-    ///Opaque pagination token to go to next page based on previous query.
+    /// Opaque pagination token to go to next page based on previous query.
     pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
         self.request.page_token = page_token.into();
         self
@@ -77,12 +77,12 @@ impl CreateRecipientBuilder {
         };
         Self { client, request }
     }
-    ///Description about the recipient.
+    /// Description about the recipient.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    /**Recipient properties as map of string key-value pairs.
+    /** Recipient properties as map of string key-value pairs.
 
     When provided in update request, the specified properties will override the existing properties.
     To add and remove properties, one would need to perform a read-modify-write.*/
@@ -98,7 +98,7 @@ impl CreateRecipientBuilder {
             .collect();
         self
     }
-    ///Expiration timestamp of the token, in epoch milliseconds.
+    /// Expiration timestamp of the token, in epoch milliseconds.
     pub fn with_expiration_time(mut self, expiration_time: impl Into<Option<i64>>) -> Self {
         self.request.expiration_time = expiration_time.into();
         self
@@ -151,22 +151,22 @@ impl UpdateRecipientBuilder {
         };
         Self { client, request }
     }
-    ///New name for the recipient
+    /// New name for the recipient
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    ///Username of the recipient owner.
+    /// Username of the recipient owner.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    ///Description about the recipient.
+    /// Description about the recipient.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    /**Recipient properties as map of string key-value pairs.
+    /** Recipient properties as map of string key-value pairs.
 
     When provided in update request, the specified properties will override the existing properties.
     To add and remove properties, one would need to perform a read-modify-write.*/
@@ -182,7 +182,7 @@ impl UpdateRecipientBuilder {
             .collect();
         self
     }
-    ///Expiration timestamp of the token, in epoch milliseconds.
+    /// Expiration timestamp of the token, in epoch milliseconds.
     pub fn with_expiration_time(mut self, expiration_time: impl Into<Option<i64>>) -> Self {
         self.request.expiration_time = expiration_time.into();
         self

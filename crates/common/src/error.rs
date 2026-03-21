@@ -44,6 +44,24 @@ impl Error {
     pub fn invalid_argument(msg: impl Into<String>) -> Self {
         Self::InvalidArgument(msg.into())
     }
+
+    /// Returns a machine-readable error code matching the UC API spec.
+    pub fn error_code(&self) -> &str {
+        match self {
+            Error::NotFound => "RESOURCE_NOT_FOUND",
+            Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+            Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
+            Error::InvalidTableLocation(_) => "INVALID_PARAMETER_VALUE",
+            Error::InvalidUrl(_) => "INVALID_PARAMETER_VALUE",
+            Error::SerDe(_) => "INTERNAL_ERROR",
+            Error::RequestError(_) => "INTERNAL_ERROR",
+            Error::Generic(_) => "INTERNAL_ERROR",
+            #[cfg(feature = "axum")]
+            Error::AxumPath(_) => "INVALID_PARAMETER_VALUE",
+            #[cfg(feature = "axum")]
+            Error::AxumQuery(_) => "INVALID_PARAMETER_VALUE",
+        }
+    }
 }
 
 #[cfg(feature = "axum")]
@@ -68,6 +86,7 @@ mod server {
 
     impl IntoResponse for Error {
         fn into_response(self) -> Response {
+            let error_code = self.error_code().to_string();
             let (status, message) = match self {
                 Error::NotFound => (
                     StatusCode::NOT_FOUND,
@@ -121,7 +140,7 @@ mod server {
             (
                 status,
                 Json(ErrorResponse {
-                    error_code: status.to_string(),
+                    error_code,
                     message: message.to_string(),
                 }),
             )

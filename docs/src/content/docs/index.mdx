@@ -5,16 +5,15 @@ template: splash
 hero:
   tagline: Explore your open table data with native performance.
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Tutorials
+      link: /tutorials/01-first-server/
       icon: right-arrow
     - text: Read the Starlight docs
       link: https://starlight.astro.build
       icon: right-arrow
 ---
 
-import { Card, CardGrid, Code } from '@astrojs/starlight/components';
-import importedCode from './scripts/client.py?raw';
+import { Card, CardGrid } from '@astrojs/starlight/components';
 
 The Open Lakehouse is a loose concept of a collection of open source projects that can be used
 to build and deploy data systems adhering to the lakehouse architecture.
@@ -48,8 +47,6 @@ open lakehouse ecosystem.
 - [delta-datafusion](https://github.com/delta-incubator/deltalake-datafusion)
 
 ## Next steps
-
-<Code code={importedCode} lang="python" title="client.py" />
 
 <CardGrid stagger>
 	<Card title="Configure your site" icon="setting">

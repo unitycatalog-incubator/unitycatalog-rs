@@ -18,6 +18,7 @@ impl VolumeClient {
         }
         Self { client, base_url }
     }
+    /// Lists volumes.
     pub async fn list_volumes(&self, request: &ListVolumesRequest) -> Result<ListVolumesResponse> {
         let mut url = self.base_url.join("volumes")?;
         url.query_pairs_mut()

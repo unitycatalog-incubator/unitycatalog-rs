@@ -137,6 +137,8 @@ message DeleteExternalLocationRequest {
   optional bool force = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// Service for managing external locations in Unity Catalog.
+// External locations define cloud storage paths accessible via storage credentials.
 service ExternalLocationsService {
   // List external locations
   rpc ListExternalLocations(ListExternalLocationsRequest) returns (ListExternalLocationsResponse) {

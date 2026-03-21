@@ -101,6 +101,7 @@ fn analyze_service(
         base_path,
         methods: method_plans,
         managed_resources,
+        documentation: info.documentation.clone(),
     })
 }
 

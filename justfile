@@ -26,7 +26,7 @@ generate-proto:
 generate-openapi:
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
-    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
+    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
     uv run dev/scripts/update_openapi_schemas.py
     rm -rf openapi/jsonschema
     npm run openapi

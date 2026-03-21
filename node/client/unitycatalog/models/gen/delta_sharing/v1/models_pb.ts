@@ -2,21 +2,17 @@
 // @generated from file delta_sharing/v1/models.proto (package delta_sharing.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file delta_sharing/v1/models.proto.
  */
-export const file_delta_sharing_v1_models: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSI+CgVTaGFyZRIYCgRuYW1lGAEgASgJQgrgQQi6SARyAhABEhQKAmlkGAIgASgJQgPgQQNIAIgBAUIFCgNfaWQiQgoGU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL0AQoFVGFibGUSNwoEbmFtZRgBIAEoCUIp4EEIukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNQoGc2NoZW1hGAIgASgJQiW6SCJyIBABGP8BMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjUKBXNoYXJlGAMgASgJQia6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIUCgJpZBgEIAEoCUID4EEDSACIAQESGgoIc2hhcmVfaWQYBSABKAlCA+BBA0gBiAEBQgUKA19pZEILCglfc2hhcmVfaWRCgAEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgtNb2RlbHNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z",
-    [file_buf_validate_validate, file_google_api_field_behavior],
-  );
+export const file_delta_sharing_v1_models: GenFile = /*@__PURE__*/
+  fileDesc("Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSI+CgVTaGFyZRIYCgRuYW1lGAEgASgJQgrgQQi6SARyAhABEhQKAmlkGAIgASgJQgPgQQNIAIgBAUIFCgNfaWQiQgoGU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL0AQoFVGFibGUSNwoEbmFtZRgBIAEoCUIp4EEIukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNQoGc2NoZW1hGAIgASgJQiW6SCJyIBABGP8BMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjUKBXNoYXJlGAMgASgJQia6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIUCgJpZBgEIAEoCUID4EEDSACIAQESGgoIc2hhcmVfaWQYBSABKAlCA+BBA0gBiAEBQgUKA19pZEILCglfc2hhcmVfaWRCgAEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgtNb2RlbHNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior]);
 
 /**
  * A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.
@@ -44,8 +40,7 @@ export type Share = Message<"delta_sharing.v1.Share"> & {
  * Describes the message delta_sharing.v1.Share.
  * Use `create(ShareSchema)` to create a new message.
  */
-export const ShareSchema: GenMessage<Share> =
-  /*@__PURE__*/
+export const ShareSchema: GenMessage<Share> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_models, 0);
 
 /**
@@ -83,8 +78,7 @@ export type Schema = Message<"delta_sharing.v1.Schema"> & {
  * Describes the message delta_sharing.v1.Schema.
  * Use `create(SchemaSchema)` to create a new message.
  */
-export const SchemaSchema: GenMessage<Schema> =
-  /*@__PURE__*/
+export const SchemaSchema: GenMessage<Schema> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_models, 1);
 
 /**
@@ -133,6 +127,6 @@ export type Table = Message<"delta_sharing.v1.Table"> & {
  * Describes the message delta_sharing.v1.Table.
  * Use `create(TableSchema)` to create a new message.
  */
-export const TableSchema: GenMessage<Table> =
-  /*@__PURE__*/
+export const TableSchema: GenMessage<Table> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_models, 2);
+

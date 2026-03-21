@@ -18,6 +18,7 @@ impl RecipientClient {
         }
         Self { client, base_url }
     }
+    /// List recipients.
     pub async fn list_recipients(
         &self,
         request: &ListRecipientsRequest,
@@ -36,6 +37,7 @@ impl RecipientClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Create a new recipient.
     pub async fn create_recipient(&self, request: &CreateRecipientRequest) -> Result<Recipient> {
         let mut url = self.base_url.join("recipients")?;
         let response = self.client.post(url).json(request).send().await?;
@@ -43,6 +45,7 @@ impl RecipientClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Get a recipient by name.
     pub async fn get_recipient(&self, request: &GetRecipientRequest) -> Result<Recipient> {
         let formatted_path = format!("recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
@@ -51,6 +54,7 @@ impl RecipientClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Update a recipient.
     pub async fn update_recipient(&self, request: &UpdateRecipientRequest) -> Result<Recipient> {
         let formatted_path = format!("recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
@@ -59,6 +63,7 @@ impl RecipientClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Delete a recipient.
     pub async fn delete_recipient(&self, request: &DeleteRecipientRequest) -> Result<()> {
         let formatted_path = format!("recipients/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;

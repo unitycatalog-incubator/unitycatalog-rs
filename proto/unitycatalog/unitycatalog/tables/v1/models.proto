@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package unitycatalog.tables.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
@@ -121,13 +122,22 @@ message Table {
   };
 
   // Name of table, relative to parent schema.
-  string name = 1;
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
 
   // Name of parent catalog.
-  string catalog_name = 2;
+  string catalog_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
 
   // Name of parent schema.
-  string schema_name = 3;
+  string schema_name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
 
   TableType table_type = 4;
 
@@ -165,7 +175,7 @@ message Table {
   // optional string row_filter = 16;
 
   // Full name of table, in form of catalog_name.schema_name.table_name.
-  string full_name = 17;
+  string full_name = 17 [(buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$"];
 
   // Time at which this table was created, in epoch milliseconds.
   optional int64 created_at = 18;

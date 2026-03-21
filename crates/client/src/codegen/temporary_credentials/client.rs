@@ -18,6 +18,7 @@ impl TemporaryCredentialClient {
         }
         Self { client, base_url }
     }
+    /// Generate a new set of credentials for a table.
     pub async fn generate_temporary_table_credentials(
         &self,
         request: &GenerateTemporaryTableCredentialsRequest,
@@ -28,6 +29,7 @@ impl TemporaryCredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Generate a new set of credentials for a path.
     pub async fn generate_temporary_path_credentials(
         &self,
         request: &GenerateTemporaryPathCredentialsRequest,

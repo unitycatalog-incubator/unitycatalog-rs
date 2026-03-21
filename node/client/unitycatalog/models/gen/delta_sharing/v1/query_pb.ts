@@ -2,72 +2,62 @@
 // @generated from file delta_sharing/v1/query.proto (package delta_sharing.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
-import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
 import type { Format, Metadata } from "./protocol_pb";
 import { file_delta_sharing_v1_protocol } from "./protocol_pb";
+import { file_google_api_field_behavior } from "../../google/api/field_behavior_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file delta_sharing/v1/query.proto.
  */
-export const file_delta_sharing_v1_query: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "ChxkZWx0YV9zaGFyaW5nL3YxL3F1ZXJ5LnByb3RvEhBkZWx0YV9zaGFyaW5nLnYxItMBChZHZXRUYWJsZVZlcnNpb25SZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAIgASgJQgrgQQK6SARyAhABEhkKBXNoYXJlGAMgASgJQgrgQQK6SARyAhABElEKEnN0YXJ0aW5nX3RpbWVzdGFtcBgEIAEoCUIw4EEBukgqcigyJl5cZHs0fS1cZHsyfS1cZHsyfVRcZHsyfTpcZHsyfTpcZHsyfVokSACIAQFCFQoTX3N0YXJ0aW5nX3RpbWVzdGFtcCIqChdHZXRUYWJsZVZlcnNpb25SZXNwb25zZRIPCgd2ZXJzaW9uGAEgASgDImoKF0dldFRhYmxlTWV0YWRhdGFSZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGQoFc2hhcmUYAiABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAMgASgJQgrgQQK6SARyAhABIoMBCg1RdWVyeVJlc3BvbnNlEjQKB3BhcnF1ZXQYASABKAsyIS5kZWx0YV9zaGFyaW5nLnYxLlBhcnF1ZXRSZXNwb25zZUgAEjAKBWRlbHRhGAIgASgLMh8uZGVsdGFfc2hhcmluZy52MS5EZWx0YVJlc3BvbnNlSABCCgoIcmVzcG9uc2UiRwoPUGFycXVldFJlc3BvbnNlEjQKB2VudHJpZXMYASADKAsyIy5kZWx0YV9zaGFyaW5nLnYxLlBhcnF1ZXRMb2dNZXNzYWdlIooBChFQYXJxdWV0TG9nTWVzc2FnZRI1Cghwcm90b2NvbBgBIAEoCzIhLmRlbHRhX3NoYXJpbmcudjEuUHJvdG9jb2xQYXJxdWV0SAASNQoIbWV0YWRhdGEYAiABKAsyIS5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhUGFycXVldEgAQgcKBWVudHJ5Ii0KD1Byb3RvY29sUGFycXVldBIaChJtaW5fcmVhZGVyX3ZlcnNpb24YASABKAUivwEKD01ldGFkYXRhUGFycXVldBIKCgJpZBgBIAEoCRIRCgRuYW1lGAIgASgJSACIAQESGAoLZGVzY3JpcHRpb24YAyABKAlIAYgBARIoCgZmb3JtYXQYBCABKAsyGC5kZWx0YV9zaGFyaW5nLnYxLkZvcm1hdBIVCg1zY2hlbWFfc3RyaW5nGAUgASgJEhkKEXBhcnRpdGlvbl9jb2x1bW5zGAYgAygJQgcKBV9uYW1lQg4KDF9kZXNjcmlwdGlvbiJDCg1EZWx0YVJlc3BvbnNlEjIKB2VudHJpZXMYASADKAsyIS5kZWx0YV9zaGFyaW5nLnYxLkRlbHRhTG9nTWVzc2FnZSKEAQoPRGVsdGFMb2dNZXNzYWdlEjMKCHByb3RvY29sGAEgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Qcm90b2NvbERlbHRhSAASMwoIbWV0YWRhdGEYAiABKAsyHy5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhRGVsdGFIAEIHCgVlbnRyeSJHCg1Qcm90b2NvbERlbHRhEhoKEm1pbl9yZWFkZXJfdmVyc2lvbhgBIAEoBRIaChJtaW5fd3JpdGVyX3ZlcnNpb24YAiABKAUipwEKDU1ldGFkYXRhRGVsdGESMgoOZGVsdGFfbWV0YWRhdGEYASABKAsyGi5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhEhQKB3ZlcnNpb24YAiABKANIAIgBARIRCgRzaXplGAMgASgDSAGIAQESFgoJbnVtX2ZpbGVzGAQgASgDSAKIAQFCCgoIX3ZlcnNpb25CBwoFX3NpemVCDAoKX251bV9maWxlcyKwAQoNSnNvblByZWRpY2F0ZRIKCgJvcBgBIAEoCRIxCghjaGlsZHJlbhgCIAMoCzIfLmRlbHRhX3NoYXJpbmcudjEuSnNvblByZWRpY2F0ZRIRCgRuYW1lGAMgASgJSACIAQESEgoFdmFsdWUYBCABKAlIAYgBARIXCgp2YWx1ZV90eXBlGAUgASgJSAKIAQFCBwoFX25hbWVCCAoGX3ZhbHVlQg0KC192YWx1ZV90eXBlQn8KFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgpRdWVyeVByb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM",
-    [
-      file_buf_validate_validate,
-      file_delta_sharing_v1_protocol,
-      file_google_api_field_behavior,
-    ],
-  );
+export const file_delta_sharing_v1_query: GenFile = /*@__PURE__*/
+  fileDesc("ChxkZWx0YV9zaGFyaW5nL3YxL3F1ZXJ5LnByb3RvEhBkZWx0YV9zaGFyaW5nLnYxItMBChZHZXRUYWJsZVZlcnNpb25SZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAIgASgJQgrgQQK6SARyAhABEhkKBXNoYXJlGAMgASgJQgrgQQK6SARyAhABElEKEnN0YXJ0aW5nX3RpbWVzdGFtcBgEIAEoCUIw4EEBukgqcigyJl5cZHs0fS1cZHsyfS1cZHsyfVRcZHsyfTpcZHsyfTpcZHsyfVokSACIAQFCFQoTX3N0YXJ0aW5nX3RpbWVzdGFtcCIqChdHZXRUYWJsZVZlcnNpb25SZXNwb25zZRIPCgd2ZXJzaW9uGAEgASgDImoKF0dldFRhYmxlTWV0YWRhdGFSZXF1ZXN0EhgKBG5hbWUYASABKAlCCuBBArpIBHICEAESGQoFc2hhcmUYAiABKAlCCuBBArpIBHICEAESGgoGc2NoZW1hGAMgASgJQgrgQQK6SARyAhABIoMBCg1RdWVyeVJlc3BvbnNlEjQKB3BhcnF1ZXQYASABKAsyIS5kZWx0YV9zaGFyaW5nLnYxLlBhcnF1ZXRSZXNwb25zZUgAEjAKBWRlbHRhGAIgASgLMh8uZGVsdGFfc2hhcmluZy52MS5EZWx0YVJlc3BvbnNlSABCCgoIcmVzcG9uc2UiRwoPUGFycXVldFJlc3BvbnNlEjQKB2VudHJpZXMYASADKAsyIy5kZWx0YV9zaGFyaW5nLnYxLlBhcnF1ZXRMb2dNZXNzYWdlIooBChFQYXJxdWV0TG9nTWVzc2FnZRI1Cghwcm90b2NvbBgBIAEoCzIhLmRlbHRhX3NoYXJpbmcudjEuUHJvdG9jb2xQYXJxdWV0SAASNQoIbWV0YWRhdGEYAiABKAsyIS5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhUGFycXVldEgAQgcKBWVudHJ5Ii0KD1Byb3RvY29sUGFycXVldBIaChJtaW5fcmVhZGVyX3ZlcnNpb24YASABKAUivwEKD01ldGFkYXRhUGFycXVldBIKCgJpZBgBIAEoCRIRCgRuYW1lGAIgASgJSACIAQESGAoLZGVzY3JpcHRpb24YAyABKAlIAYgBARIoCgZmb3JtYXQYBCABKAsyGC5kZWx0YV9zaGFyaW5nLnYxLkZvcm1hdBIVCg1zY2hlbWFfc3RyaW5nGAUgASgJEhkKEXBhcnRpdGlvbl9jb2x1bW5zGAYgAygJQgcKBV9uYW1lQg4KDF9kZXNjcmlwdGlvbiJDCg1EZWx0YVJlc3BvbnNlEjIKB2VudHJpZXMYASADKAsyIS5kZWx0YV9zaGFyaW5nLnYxLkRlbHRhTG9nTWVzc2FnZSKEAQoPRGVsdGFMb2dNZXNzYWdlEjMKCHByb3RvY29sGAEgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Qcm90b2NvbERlbHRhSAASMwoIbWV0YWRhdGEYAiABKAsyHy5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhRGVsdGFIAEIHCgVlbnRyeSJHCg1Qcm90b2NvbERlbHRhEhoKEm1pbl9yZWFkZXJfdmVyc2lvbhgBIAEoBRIaChJtaW5fd3JpdGVyX3ZlcnNpb24YAiABKAUipwEKDU1ldGFkYXRhRGVsdGESMgoOZGVsdGFfbWV0YWRhdGEYASABKAsyGi5kZWx0YV9zaGFyaW5nLnYxLk1ldGFkYXRhEhQKB3ZlcnNpb24YAiABKANIAIgBARIRCgRzaXplGAMgASgDSAGIAQESFgoJbnVtX2ZpbGVzGAQgASgDSAKIAQFCCgoIX3ZlcnNpb25CBwoFX3NpemVCDAoKX251bV9maWxlcyKwAQoNSnNvblByZWRpY2F0ZRIKCgJvcBgBIAEoCRIxCghjaGlsZHJlbhgCIAMoCzIfLmRlbHRhX3NoYXJpbmcudjEuSnNvblByZWRpY2F0ZRIRCgRuYW1lGAMgASgJSACIAQESEgoFdmFsdWUYBCABKAlIAYgBARIXCgp2YWx1ZV90eXBlGAUgASgJSAKIAQFCBwoFX25hbWVCCAoGX3ZhbHVlQg0KC192YWx1ZV90eXBlQn8KFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgpRdWVyeVByb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_delta_sharing_v1_protocol, file_google_api_field_behavior]);
 
 /**
  * Get the version of a table.
  *
  * @generated from message delta_sharing.v1.GetTableVersionRequest
  */
-export type GetTableVersionRequest =
-  Message<"delta_sharing.v1.GetTableVersionRequest"> & {
-    /**
-     * The table name to query. It's case-insensitive.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type GetTableVersionRequest = Message<"delta_sharing.v1.GetTableVersionRequest"> & {
+  /**
+   * The table name to query. It's case-insensitive.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The schema name to query. It's case-insensitive.
-     *
-     * @generated from field: string schema = 2;
-     */
-    schema: string;
+  /**
+   * The schema name to query. It's case-insensitive.
+   *
+   * @generated from field: string schema = 2;
+   */
+  schema: string;
 
-    /**
-     * The share name to query. It's case-insensitive.
-     *
-     * @generated from field: string share = 3;
-     */
-    share: string;
+  /**
+   * The share name to query. It's case-insensitive.
+   *
+   * @generated from field: string share = 3;
+   */
+  share: string;
 
-    /**
-     * The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,
-     * such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
-     * or after the provided timestamp, can be earlier than the timestamp of table version 0.
-     *
-     * @generated from field: optional string starting_timestamp = 4;
-     */
-    startingTimestamp?: string;
-  };
+  /**
+   * The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,
+   * such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
+   * or after the provided timestamp, can be earlier than the timestamp of table version 0.
+   *
+   * @generated from field: optional string starting_timestamp = 4;
+   */
+  startingTimestamp?: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.GetTableVersionRequest.
  * Use `create(GetTableVersionRequestSchema)` to create a new message.
  */
-export const GetTableVersionRequestSchema: GenMessage<GetTableVersionRequest> =
-  /*@__PURE__*/
+export const GetTableVersionRequestSchema: GenMessage<GetTableVersionRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 0);
 
 /**
@@ -75,22 +65,20 @@ export const GetTableVersionRequestSchema: GenMessage<GetTableVersionRequest> =
  *
  * @generated from message delta_sharing.v1.GetTableVersionResponse
  */
-export type GetTableVersionResponse =
-  Message<"delta_sharing.v1.GetTableVersionResponse"> & {
-    /**
-     * The table version that was requested.
-     *
-     * @generated from field: int64 version = 1;
-     */
-    version: bigint;
-  };
+export type GetTableVersionResponse = Message<"delta_sharing.v1.GetTableVersionResponse"> & {
+  /**
+   * The table version that was requested.
+   *
+   * @generated from field: int64 version = 1;
+   */
+  version: bigint;
+};
 
 /**
  * Describes the message delta_sharing.v1.GetTableVersionResponse.
  * Use `create(GetTableVersionResponseSchema)` to create a new message.
  */
-export const GetTableVersionResponseSchema: GenMessage<GetTableVersionResponse> =
-  /*@__PURE__*/
+export const GetTableVersionResponseSchema: GenMessage<GetTableVersionResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 1);
 
 /**
@@ -98,36 +86,34 @@ export const GetTableVersionResponseSchema: GenMessage<GetTableVersionResponse> 
  *
  * @generated from message delta_sharing.v1.GetTableMetadataRequest
  */
-export type GetTableMetadataRequest =
-  Message<"delta_sharing.v1.GetTableMetadataRequest"> & {
-    /**
-     * The table name to query. It's case-insensitive.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type GetTableMetadataRequest = Message<"delta_sharing.v1.GetTableMetadataRequest"> & {
+  /**
+   * The table name to query. It's case-insensitive.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The share name to query. It's case-insensitive.
-     *
-     * @generated from field: string share = 2;
-     */
-    share: string;
+  /**
+   * The share name to query. It's case-insensitive.
+   *
+   * @generated from field: string share = 2;
+   */
+  share: string;
 
-    /**
-     * The schema name to query. It's case-insensitive.
-     *
-     * @generated from field: string schema = 3;
-     */
-    schema: string;
-  };
+  /**
+   * The schema name to query. It's case-insensitive.
+   *
+   * @generated from field: string schema = 3;
+   */
+  schema: string;
+};
 
 /**
  * Describes the message delta_sharing.v1.GetTableMetadataRequest.
  * Use `create(GetTableMetadataRequestSchema)` to create a new message.
  */
-export const GetTableMetadataRequestSchema: GenMessage<GetTableMetadataRequest> =
-  /*@__PURE__*/
+export const GetTableMetadataRequestSchema: GenMessage<GetTableMetadataRequest> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 2);
 
 /**
@@ -139,34 +125,30 @@ export type QueryResponse = Message<"delta_sharing.v1.QueryResponse"> & {
   /**
    * @generated from oneof delta_sharing.v1.QueryResponse.response
    */
-  response:
-    | {
-        /**
-         * Parquet response format
-         *
-         * @generated from field: delta_sharing.v1.ParquetResponse parquet = 1;
-         */
-        value: ParquetResponse;
-        case: "parquet";
-      }
-    | {
-        /**
-         * Delta response format
-         *
-         * @generated from field: delta_sharing.v1.DeltaResponse delta = 2;
-         */
-        value: DeltaResponse;
-        case: "delta";
-      }
-    | { case: undefined; value?: undefined };
+  response: {
+    /**
+     * Parquet response format
+     *
+     * @generated from field: delta_sharing.v1.ParquetResponse parquet = 1;
+     */
+    value: ParquetResponse;
+    case: "parquet";
+  } | {
+    /**
+     * Delta response format
+     *
+     * @generated from field: delta_sharing.v1.DeltaResponse delta = 2;
+     */
+    value: DeltaResponse;
+    case: "delta";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message delta_sharing.v1.QueryResponse.
  * Use `create(QueryResponseSchema)` to create a new message.
  */
-export const QueryResponseSchema: GenMessage<QueryResponse> =
-  /*@__PURE__*/
+export const QueryResponseSchema: GenMessage<QueryResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 3);
 
 /**
@@ -185,8 +167,7 @@ export type ParquetResponse = Message<"delta_sharing.v1.ParquetResponse"> & {
  * Describes the message delta_sharing.v1.ParquetResponse.
  * Use `create(ParquetResponseSchema)` to create a new message.
  */
-export const ParquetResponseSchema: GenMessage<ParquetResponse> =
-  /*@__PURE__*/
+export const ParquetResponseSchema: GenMessage<ParquetResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 4);
 
 /**
@@ -194,35 +175,30 @@ export const ParquetResponseSchema: GenMessage<ParquetResponse> =
  *
  * @generated from message delta_sharing.v1.ParquetLogMessage
  */
-export type ParquetLogMessage =
-  Message<"delta_sharing.v1.ParquetLogMessage"> & {
+export type ParquetLogMessage = Message<"delta_sharing.v1.ParquetLogMessage"> & {
+  /**
+   * @generated from oneof delta_sharing.v1.ParquetLogMessage.entry
+   */
+  entry: {
     /**
-     * @generated from oneof delta_sharing.v1.ParquetLogMessage.entry
+     * @generated from field: delta_sharing.v1.ProtocolParquet protocol = 1;
      */
-    entry:
-      | {
-          /**
-           * @generated from field: delta_sharing.v1.ProtocolParquet protocol = 1;
-           */
-          value: ProtocolParquet;
-          case: "protocol";
-        }
-      | {
-          /**
-           * @generated from field: delta_sharing.v1.MetadataParquet metadata = 2;
-           */
-          value: MetadataParquet;
-          case: "metadata";
-        }
-      | { case: undefined; value?: undefined };
-  };
+    value: ProtocolParquet;
+    case: "protocol";
+  } | {
+    /**
+     * @generated from field: delta_sharing.v1.MetadataParquet metadata = 2;
+     */
+    value: MetadataParquet;
+    case: "metadata";
+  } | { case: undefined; value?: undefined };
+};
 
 /**
  * Describes the message delta_sharing.v1.ParquetLogMessage.
  * Use `create(ParquetLogMessageSchema)` to create a new message.
  */
-export const ParquetLogMessageSchema: GenMessage<ParquetLogMessage> =
-  /*@__PURE__*/
+export const ParquetLogMessageSchema: GenMessage<ParquetLogMessage> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 5);
 
 /**
@@ -244,8 +220,7 @@ export type ProtocolParquet = Message<"delta_sharing.v1.ProtocolParquet"> & {
  * Describes the message delta_sharing.v1.ProtocolParquet.
  * Use `create(ProtocolParquetSchema)` to create a new message.
  */
-export const ProtocolParquetSchema: GenMessage<ProtocolParquet> =
-  /*@__PURE__*/
+export const ProtocolParquetSchema: GenMessage<ProtocolParquet> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 6);
 
 /**
@@ -301,8 +276,7 @@ export type MetadataParquet = Message<"delta_sharing.v1.MetadataParquet"> & {
  * Describes the message delta_sharing.v1.MetadataParquet.
  * Use `create(MetadataParquetSchema)` to create a new message.
  */
-export const MetadataParquetSchema: GenMessage<MetadataParquet> =
-  /*@__PURE__*/
+export const MetadataParquetSchema: GenMessage<MetadataParquet> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 7);
 
 /**
@@ -321,8 +295,7 @@ export type DeltaResponse = Message<"delta_sharing.v1.DeltaResponse"> & {
  * Describes the message delta_sharing.v1.DeltaResponse.
  * Use `create(DeltaResponseSchema)` to create a new message.
  */
-export const DeltaResponseSchema: GenMessage<DeltaResponse> =
-  /*@__PURE__*/
+export const DeltaResponseSchema: GenMessage<DeltaResponse> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 8);
 
 /**
@@ -334,30 +307,26 @@ export type DeltaLogMessage = Message<"delta_sharing.v1.DeltaLogMessage"> & {
   /**
    * @generated from oneof delta_sharing.v1.DeltaLogMessage.entry
    */
-  entry:
-    | {
-        /**
-         * @generated from field: delta_sharing.v1.ProtocolDelta protocol = 1;
-         */
-        value: ProtocolDelta;
-        case: "protocol";
-      }
-    | {
-        /**
-         * @generated from field: delta_sharing.v1.MetadataDelta metadata = 2;
-         */
-        value: MetadataDelta;
-        case: "metadata";
-      }
-    | { case: undefined; value?: undefined };
+  entry: {
+    /**
+     * @generated from field: delta_sharing.v1.ProtocolDelta protocol = 1;
+     */
+    value: ProtocolDelta;
+    case: "protocol";
+  } | {
+    /**
+     * @generated from field: delta_sharing.v1.MetadataDelta metadata = 2;
+     */
+    value: MetadataDelta;
+    case: "metadata";
+  } | { case: undefined; value?: undefined };
 };
 
 /**
  * Describes the message delta_sharing.v1.DeltaLogMessage.
  * Use `create(DeltaLogMessageSchema)` to create a new message.
  */
-export const DeltaLogMessageSchema: GenMessage<DeltaLogMessage> =
-  /*@__PURE__*/
+export const DeltaLogMessageSchema: GenMessage<DeltaLogMessage> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 9);
 
 /**
@@ -384,8 +353,7 @@ export type ProtocolDelta = Message<"delta_sharing.v1.ProtocolDelta"> & {
  * Describes the message delta_sharing.v1.ProtocolDelta.
  * Use `create(ProtocolDeltaSchema)` to create a new message.
  */
-export const ProtocolDeltaSchema: GenMessage<ProtocolDelta> =
-  /*@__PURE__*/
+export const ProtocolDeltaSchema: GenMessage<ProtocolDelta> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 10);
 
 /**
@@ -429,8 +397,7 @@ export type MetadataDelta = Message<"delta_sharing.v1.MetadataDelta"> & {
  * Describes the message delta_sharing.v1.MetadataDelta.
  * Use `create(MetadataDeltaSchema)` to create a new message.
  */
-export const MetadataDeltaSchema: GenMessage<MetadataDelta> =
-  /*@__PURE__*/
+export const MetadataDeltaSchema: GenMessage<MetadataDelta> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 11);
 
 /**
@@ -483,6 +450,6 @@ export type JsonPredicate = Message<"delta_sharing.v1.JsonPredicate"> & {
  * Describes the message delta_sharing.v1.JsonPredicate.
  * Use `create(JsonPredicateSchema)` to create a new message.
  */
-export const JsonPredicateSchema: GenMessage<JsonPredicate> =
-  /*@__PURE__*/
+export const JsonPredicateSchema: GenMessage<JsonPredicate> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 12);
+

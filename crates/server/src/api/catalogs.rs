@@ -11,11 +11,13 @@ use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> CatalogHandler for T {
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_catalog(
         &self,
         request: CreateCatalogRequest,
         context: RequestContext,
     ) -> Result<Catalog> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let catalog_type = if request.provider_name.is_some() {
             CatalogType::DeltasharingCatalog
@@ -41,24 +43,29 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         Ok(info)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_catalog(
         &self,
         request: DeleteCatalogRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_catalog(
         &self,
         request: GetCatalogRequest,
         context: RequestContext,
     ) -> Result<Catalog> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context))]
     async fn list_catalogs(
         &self,
         request: ListCatalogsRequest,
@@ -80,11 +87,13 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_catalog(
         &self,
         request: UpdateCatalogRequest,
         context: RequestContext,
     ) -> Result<Catalog> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
         let resource = Catalog {

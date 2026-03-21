@@ -7,7 +7,7 @@ use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
     Catalog, Column, Credential, ObjectLabel, Recipient, Resource, ResourceExt, ResourceName,
-    ResourceRef, Schema, Share, Table,
+    ResourceRef, Schema, Share, Table, Volume,
 };
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
@@ -56,6 +56,7 @@ impl ResourceExt for Resource {
             Resource::ExternalLocation(_) => &ObjectLabel::ExternalLocation,
             Resource::Recipient(_) => &ObjectLabel::Recipient,
             Resource::Column(_) => &ObjectLabel::Column,
+            Resource::Volume(_) => &ObjectLabel::Volume,
         }
     }
 
@@ -69,6 +70,7 @@ impl ResourceExt for Resource {
             Resource::ExternalLocation(obj) => obj.resource_name(),
             Resource::Recipient(obj) => obj.resource_name(),
             Resource::Column(obj) => obj.resource_name(),
+            Resource::Volume(obj) => obj.resource_name(),
         }
     }
 
@@ -82,6 +84,7 @@ impl ResourceExt for Resource {
             Resource::ExternalLocation(obj) => obj.resource_ref(),
             Resource::Recipient(obj) => obj.resource_ref(),
             Resource::Column(obj) => obj.resource_ref(),
+            Resource::Volume(obj) => obj.resource_ref(),
         }
     }
 }
@@ -99,6 +102,7 @@ impl TryFrom<Resource> for Object {
             Resource::ExternalLocation(obj) => obj.try_into(),
             Resource::Recipient(obj) => obj.try_into(),
             Resource::Column(obj) => obj.try_into(),
+            Resource::Volume(obj) => obj.try_into(),
         }
     }
 }
@@ -116,6 +120,7 @@ impl TryFrom<Object> for Resource {
             ObjectLabel::ExternalLocation => Ok(Resource::ExternalLocation(obj.try_into()?)),
             ObjectLabel::Recipient => Ok(Resource::Recipient(obj.try_into()?)),
             ObjectLabel::Column => Ok(Resource::Column(obj.try_into()?)),
+            ObjectLabel::Volume => Ok(Resource::Volume(obj.try_into()?)),
         }
     }
 }
@@ -138,4 +143,5 @@ object_conversions!(
     Column, ObjectLabel::Column, column_id, [name], true;
     Credential, ObjectLabel::Credential, id, [name], true;
     Recipient, ObjectLabel::Recipient, id, [name], true;
+    Volume, ObjectLabel::Volume, volume_id, [catalog_name, schema_name, name], false;
 );

@@ -55,6 +55,8 @@ pub struct ServicePlan {
     pub methods: Vec<MethodPlan>,
     /// Resources managed by this service
     pub managed_resources: Vec<ManagedResource>,
+    /// Documentation from protobuf service comments
+    pub documentation: Option<String>,
 }
 
 /// Plan for generating code for a single method

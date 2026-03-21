@@ -171,6 +171,8 @@ message DeleteTableRequest {
   string full_name = 1;
 }
 
+// Service for managing tables in Unity Catalog.
+// Tables represent structured data stored in a schema, supporting managed and external storage formats.
 service TablesService {
   // Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
   // - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:

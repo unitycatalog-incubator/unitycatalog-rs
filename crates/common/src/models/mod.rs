@@ -105,6 +105,7 @@ impl ObjectLabel {
             ObjectLabel::ExternalLocation => ResourceIdent::external_location(id),
             ObjectLabel::Recipient => ResourceIdent::recipient(id),
             ObjectLabel::Column => ResourceIdent::column(id),
+            ObjectLabel::Volume => ResourceIdent::volume(id),
         }
     }
 }
