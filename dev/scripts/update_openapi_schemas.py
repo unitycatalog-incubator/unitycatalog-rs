@@ -136,6 +136,13 @@ def convert_json_schema_to_openapi(json_schema: dict[str, Any]) -> dict[str, Any
             openapi_schema["additionalProperties"]
         )
 
+    for combiner in ("allOf", "oneOf", "anyOf"):
+        if combiner in openapi_schema and isinstance(openapi_schema[combiner], list):
+            openapi_schema[combiner] = [
+                convert_json_schema_to_openapi(s) if isinstance(s, dict) else s
+                for s in openapi_schema[combiner]
+            ]
+
     return openapi_schema
 
 
@@ -146,6 +153,17 @@ def update_openapi_spec(openapi_file: Path, schemas: dict[str, dict[str, Any]]) 
     # Load the existing OpenAPI spec
     with open(openapi_file, encoding="utf-8") as f:
         openapi_spec = yaml.safe_load(f)
+
+    # Set info section defaults (gnostic does not populate these from proto)
+    if "info" not in openapi_spec:
+        openapi_spec["info"] = {}
+    if not openapi_spec["info"].get("title"):
+        openapi_spec["info"]["title"] = "Unity Catalog API"
+    if not openapi_spec["info"].get("description"):
+        openapi_spec["info"]["description"] = (
+            "REST API for managing Unity Catalog resources including catalogs, schemas, "
+            "tables, volumes, external locations, and temporary credentials."
+        )
 
     # Ensure components.schemas exists
     if "components" not in openapi_spec:

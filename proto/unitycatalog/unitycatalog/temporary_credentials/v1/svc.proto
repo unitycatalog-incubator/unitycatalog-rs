@@ -52,6 +52,8 @@ message GenerateTemporaryPathCredentialsRequest {
   optional bool dry_run = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// Service for generating temporary credentials to access tables and storage paths.
+// Credentials are short-lived and scoped to a specific operation (read or read/write).
 service TemporaryCredentialsService {
   // Generate a new set of credentials for a table.
   rpc GenerateTemporaryTableCredentials(GenerateTemporaryTableCredentialsRequest) returns (TemporaryCredential) {
