@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 use pyo3::prelude::*;
 use unitycatalog_client::TemporaryCredentialClient;
 #[pyclass(name = "TemporaryCredentialClient")]

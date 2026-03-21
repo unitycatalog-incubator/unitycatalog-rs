@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 #![allow(unused_mut)]
 use super::handler::CatalogHandler;
 use crate::Result;

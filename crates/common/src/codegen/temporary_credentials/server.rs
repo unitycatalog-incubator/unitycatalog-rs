@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 #![allow(unused_mut)]
 use crate::Result;
 use crate::models::temporary_credentials::v1::*;

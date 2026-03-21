@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 #![allow(unused_mut, unused_imports, dead_code, clippy::all)]
 use crate::error::NapiErrorExt;
 use napi::bindgen_prelude::Buffer;
