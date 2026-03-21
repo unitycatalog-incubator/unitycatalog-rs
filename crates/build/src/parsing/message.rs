@@ -62,32 +62,41 @@ pub(super) fn process_message(
             if let Some(oneof_desc) = message.oneof_decl.get(field.oneof_index() as usize) {
                 let field_name = field.name().to_string();
 
-                // Extract the rust type name from the field type
-                let rust_type = if field.has_type_name() {
+                // Build a UnifiedType for the variant's inner value.
+                let field_type = if field.has_type_name() {
                     let clean_type = field.type_name().trim_start_matches('.');
-                    clean_type
-                        .split('.')
-                        .next_back()
-                        .unwrap_or(clean_type)
-                        .to_string()
+                    let base = if field.type_() == Type::TYPE_ENUM {
+                        BaseType::Enum(clean_type.to_string())
+                    } else {
+                        BaseType::Message(clean_type.to_string())
+                    };
+                    UnifiedType {
+                        base_type: base,
+                        is_optional: false,
+                        is_repeated: false,
+                    }
                 } else {
-                    // Handle primitive types
-                    match field.type_() {
-                        Type::TYPE_STRING => "String".to_string(),
-                        Type::TYPE_INT32 => "i32".to_string(),
-                        Type::TYPE_INT64 => "i64".to_string(),
-                        Type::TYPE_BOOL => "bool".to_string(),
-                        Type::TYPE_DOUBLE => "f64".to_string(),
-                        Type::TYPE_FLOAT => "f32".to_string(),
-                        Type::TYPE_BYTES => "Vec<u8>".to_string(),
-                        _ => field_name.clone(),
+                    let base = match field.type_() {
+                        Type::TYPE_STRING => BaseType::String,
+                        Type::TYPE_INT32 => BaseType::Int32,
+                        Type::TYPE_INT64 => BaseType::Int64,
+                        Type::TYPE_BOOL => BaseType::Bool,
+                        Type::TYPE_DOUBLE => BaseType::Float64,
+                        Type::TYPE_FLOAT => BaseType::Float32,
+                        Type::TYPE_BYTES => BaseType::Bytes,
+                        _ => BaseType::String,
+                    };
+                    UnifiedType {
+                        base_type: base,
+                        is_optional: false,
+                        is_repeated: false,
                     }
                 };
 
                 let variant = OneofVariant {
                     variant_name: field_name.to_case(Case::Pascal),
                     field_name,
-                    rust_type,
+                    field_type,
                     documentation,
                 };
 
@@ -118,7 +127,7 @@ pub(super) fn process_message(
 
     // Second pass: create single fields for each oneof group
     for (oneof_name, variants) in oneof_fields {
-        // Create a single field representing the oneof enum
+        // Create a single field representing the oneof enum.
         // The enum type name follows the pattern: message_name::OneofName
         let oneof_field_name = oneof_name.split('.').next_back().unwrap().to_string();
         let enum_type_name = format!(
@@ -128,17 +137,20 @@ pub(super) fn process_message(
         );
 
         let oneof_field = MessageField {
-            name: oneof_name.clone(),
+            // Use the simple field name (e.g. "credential_type") so that downstream
+            // format_ident! calls produce valid Rust identifiers.  The full qualified
+            // name is preserved in `oneof_name` for callers that need it.
+            name: oneof_field_name.clone(),
             unified_type: UnifiedType {
                 base_type: BaseType::OneOf(enum_type_name.clone()),
                 is_optional: true,
                 is_repeated: false,
             },
             oneof_variants: Some(variants),
-            documentation: None,    // TODO: Extract oneof documentation if needed
-            optional: true,         // oneof fields are always optional (Option<enum>)
-            repeated: false,        // oneof fields are never repeated
-            oneof_name: None,       // This is the oneof field itself, not a member
+            documentation: None, // TODO: Extract oneof documentation if needed
+            optional: true,      // oneof fields are always optional (Option<enum>)
+            repeated: false,     // oneof fields are never repeated
+            oneof_name: Some(oneof_name), // The qualified name is still available here
             field_behavior: vec![], // Oneof fields don't have field behavior
         };
 

@@ -3,6 +3,18 @@ use std::path::Path;
 
 use crate::codegen::GeneratedCode;
 
+/// Return the appropriate "do not edit" header for a given file path.
+fn generated_header(path: &str) -> &'static str {
+    if path.ends_with(".ts") || path.ends_with(".js") {
+        "// @generated — do not edit by hand.\n"
+    } else if path.ends_with(".py") || path.ends_with(".pyi") {
+        "# @generated — do not edit by hand.\n"
+    } else {
+        // Rust and everything else
+        "// @generated — do not edit by hand.\n"
+    }
+}
+
 pub fn write_generated_code(
     generated_code: &GeneratedCode,
     output_dir: &Path,
@@ -16,7 +28,14 @@ pub fn write_generated_code(
             fs::create_dir_all(parent)?;
         }
 
-        fs::write(&file_path, content)?;
+        let header = generated_header(relative_path);
+        let final_content = if content.starts_with(header) {
+            content.clone()
+        } else {
+            format!("{}{}", header, content)
+        };
+
+        fs::write(&file_path, final_content)?;
     }
 
     println!("Successfully wrote all generated files");

@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;

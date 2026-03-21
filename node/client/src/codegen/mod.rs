@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 #![allow(unused_mut, unused_imports, dead_code, clippy::all)]
 pub mod catalogs;
 pub mod credentials;

@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;

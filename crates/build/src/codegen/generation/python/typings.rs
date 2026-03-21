@@ -9,7 +9,7 @@ use super::{
 };
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
-use crate::parsing::types::{BaseType, UnifiedType};
+use crate::parsing::types::{BaseType, UnifiedType, unified_to_python_type};
 use crate::parsing::{CodeGenMetadata, EnumInfo, MessageField, MessageInfo};
 
 /// Generate unified Python typings (.pyi file) for all services in a single file
@@ -521,11 +521,8 @@ fn collect_reachable_types(metadata: &CodeGenMetadata) -> (Vec<String>, Vec<Stri
                 collect_field_types(&field.unified_type, &mut queue);
                 if let Some(variants) = &field.oneof_variants {
                     for v in variants {
-                        for m in metadata.messages.keys() {
-                            if extract_simple_type_name(m) == v.rust_type {
-                                queue.push_back(m.clone());
-                            }
-                        }
+                        // Enqueue any message types referenced by this variant.
+                        collect_field_types(&v.field_type, &mut queue);
                     }
                 }
             }
@@ -636,18 +633,7 @@ fn generate_model_class_definition(message: &MessageInfo) -> String {
             for &j in &variant_indices {
                 let variant = &variants[j];
                 let safe_field_name = sanitize_python_field_name(&variant.field_name);
-                let python_type = match variant.rust_type.as_str() {
-                    "String" => "str",
-                    "i32" | "i64" => "int",
-                    "f32" | "f64" => "float",
-                    "bool" => "bool",
-                    "Vec<u8>" => "bytes",
-                    _ => variant
-                        .rust_type
-                        .split("::")
-                        .last()
-                        .unwrap_or(&variant.rust_type),
-                };
+                let python_type = unified_to_python_type(&variant.field_type);
 
                 let mut field_def = format!("    {}: Optional[{}]", safe_field_name, python_type);
                 if let Some(doc) = &variant.documentation {
@@ -713,13 +699,7 @@ fn generate_field_definition(field: &MessageField) -> String {
         return String::new();
     }
 
-    let field_name = if field.name.contains('.') {
-        field.name.split('.').next_back().unwrap_or(&field.name)
-    } else {
-        &field.name
-    };
-
-    let safe_field_name = sanitize_python_field_name(field_name);
+    let safe_field_name = sanitize_python_field_name(&field.name);
     let mut type_annotation = python_type_annotation(&field.unified_type);
 
     if field.repeated {
@@ -779,26 +759,14 @@ fn generate_constructor_definition(message: &MessageInfo) -> String {
             type_annotation = format!("List[{}]", type_annotation);
         }
 
-        let simple_field_name = if field.name.contains('.') {
-            field.name.split('.').next_back().unwrap_or(&field.name)
-        } else {
-            &field.name
-        };
-
-        let safe_field_name = sanitize_python_field_name(simple_field_name);
+        let safe_field_name = sanitize_python_field_name(&field.name);
         params.push(format!("{}: {}", safe_field_name, type_annotation));
     }
 
     for field in &optional_fields {
         let mut type_annotation = python_type_annotation(&field.unified_type);
 
-        let simple_field_name = if field.name.contains('.') {
-            field.name.split('.').next_back().unwrap_or(&field.name)
-        } else {
-            &field.name
-        };
-
-        let safe_field_name = sanitize_python_field_name(simple_field_name);
+        let safe_field_name = sanitize_python_field_name(&field.name);
 
         if field.repeated {
             if type_annotation.starts_with("List[") && type_annotation.ends_with("]") {
@@ -824,18 +792,7 @@ fn generate_constructor_definition(message: &MessageInfo) -> String {
             for &j in &variant_indices {
                 let variant = &variants[j];
                 let safe_field_name = sanitize_python_field_name(&variant.field_name);
-                let python_type = match variant.rust_type.as_str() {
-                    "String" => "str",
-                    "i32" | "i64" => "int",
-                    "f32" | "f64" => "float",
-                    "bool" => "bool",
-                    "Vec<u8>" => "bytes",
-                    _ => variant
-                        .rust_type
-                        .split("::")
-                        .last()
-                        .unwrap_or(&variant.rust_type),
-                };
+                let python_type = unified_to_python_type(&variant.field_type);
                 params.push(format!(
                     "{}: Optional[{}] = None",
                     safe_field_name, python_type

@@ -21,18 +21,22 @@ static MIGRATOR: Migrator = sqlx::migrate!();
 #[derive(Clone)]
 pub struct Store {
     pub(crate) pool: PgPool,
+    pub(crate) encryption_key: Option<String>,
 }
 
 impl Store {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+    pub fn new(pool: PgPool, encryption_key: Option<String>) -> Self {
+        Self {
+            pool,
+            encryption_key,
+        }
     }
 
-    pub async fn connect(url: impl AsRef<str>) -> Result<Self> {
+    pub async fn connect(url: impl AsRef<str>, encryption_key: Option<String>) -> Result<Self> {
         let options: PgConnectOptions = url.as_ref().parse()?;
         let pool_options = PgPoolOptions::new().max_connections(96);
         let pool = pool_options.connect_with(options).await?;
-        Ok(Self::new(pool))
+        Ok(Self::new(pool, encryption_key))
     }
 
     pub async fn migrate(&self) -> Result<()> {

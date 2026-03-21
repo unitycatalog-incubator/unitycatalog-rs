@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::http::extract_path_parameters;
 use crate::gnostic::openapi::v3::Operation;
 use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
-use crate::parsing::types::UnifiedType;
+use crate::parsing::types::{BaseType, UnifiedType};
 
 /// Collected metadata for code generation
 #[derive(Debug, Default)]
@@ -50,10 +50,19 @@ pub struct MessageField {
 /// Information about a variant in a oneof field
 #[derive(Debug, Clone)]
 pub struct OneofVariant {
-    pub field_name: String,   // e.g., "azure_service_principal"
-    pub variant_name: String, // e.g., "AzureServicePrincipal"
-    pub rust_type: String,    // e.g., "AzureServicePrincipal"
+    pub field_name: String,      // e.g., "azure_service_principal"
+    pub variant_name: String,    // e.g., "AzureServicePrincipal"
+    pub field_type: UnifiedType, // the unified type (language-agnostic)
     pub documentation: Option<String>,
+}
+
+impl OneofVariant {
+    /// Primitive-type oneofs use `i32` as the enum discriminant when crossing
+    /// FFI boundaries (NAPI/Python extractors).  Return true when the variant
+    /// holds a plain integer.
+    pub fn is_int32(&self) -> bool {
+        matches!(self.field_type.base_type, BaseType::Int32)
+    }
 }
 
 /// Information about a protobuf enum

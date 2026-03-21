@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 use crate::Result;
 use crate::api::RequestContext;
 use async_trait::async_trait;

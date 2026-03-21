@@ -22,14 +22,10 @@ pub enum RenderContext {
     FieldType,
     /// Builder method parameter
     BuilderMethod,
-    /// Python parameter type
+    /// Python parameter type (Rust FFI signatures for PyO3 bindings)
     PythonParameter,
-    /// Python type annotations for .pyi files
-    PythonTypings,
     /// NAPI parameter type (Rust NAPI function signatures for Node.js bindings)
     NapiParameter,
-    /// TypeScript type annotation
-    TypeScript,
 }
 
 /// Convert a unified type to a Rust type string

@@ -8,7 +8,7 @@ use crate::{
     analysis::{MethodPlan, RequestParam, RequestType},
     codegen::{MethodHandler, ServiceHandler},
     google::api::http_rule::Pattern,
-    parsing::{RenderContext, types::BaseType},
+    parsing::RenderContext,
 };
 
 /// Generate server side code for axum servers
@@ -176,67 +176,30 @@ fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
     let input_type = method.input_type().unwrap();
     let path_extractions = path_extractions(method, true);
     let query_extractions = query_extractions(method);
+    // Oneof fields deserialize from JSON like any other field, so no special treatment needed.
+    let body_extractions = generate_body_extractions_tokens(method.plan, &input_type);
+    let field_assignments = field_assignments(method.plan);
 
-    // Check if we have any oneof fields
-    let has_oneof_fields = method
-        .plan
-        .body_fields()
-        .any(|f| matches!(f.field_type.base_type, BaseType::OneOf(_)));
+    quote! {
+        impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
+            type Rejection = axum::response::Response;
 
-    if has_oneof_fields {
-        // Use mixed body extraction for oneof fields
-        let body_extractions = generate_body_extractions_tokens(method.plan, &input_type);
-        let field_assignments = field_assignments(method.plan);
+            async fn from_request(
+                mut req: axum::extract::Request<axum::body::Body>,
+                _state: &S,
+            ) -> Result<Self, Self::Rejection> {
+                // Extract path and query parameters
+                let (mut parts, body) = req.into_parts();
+                #path_extractions
+                #query_extractions
 
-        quote! {
-            impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
-                type Rejection = axum::response::Response;
+                // Extract body fields
+                let body_req = axum::extract::Request::from_parts(parts, body);
+                #body_extractions
 
-                async fn from_request(
-                    mut req: axum::extract::Request<axum::body::Body>,
-                    _state: &S,
-                ) -> Result<Self, Self::Rejection> {
-                    // Extract path and query parameters
-                    let (mut parts, body) = req.into_parts();
-                    #path_extractions
-                    #query_extractions
-
-                    // Extract body fields
-                    let body_req = axum::extract::Request::from_parts(parts, body);
-                    #body_extractions
-
-                    Ok(#input_type {
-                        #field_assignments
-                    })
-                }
-            }
-        }
-    } else {
-        // Use traditional destructuring for regular fields
-        let body_extractions = generate_body_extractions_tokens(method.plan, &input_type);
-        let field_assignments = field_assignments(method.plan);
-
-        quote! {
-            impl<S: Send + Sync> axum::extract::FromRequest<S> for #input_type {
-                type Rejection = axum::response::Response;
-
-                async fn from_request(
-                    mut req: axum::extract::Request<axum::body::Body>,
-                    _state: &S,
-                ) -> Result<Self, Self::Rejection> {
-                    // Extract path and query parameters
-                    let (mut parts, body) = req.into_parts();
-                    #path_extractions
-                    #query_extractions
-
-                    // Extract body fields
-                    let body_req = axum::extract::Request::from_parts(parts, body);
-                    #body_extractions
-
-                    Ok(#input_type {
-                        #field_assignments
-                    })
-                }
+                Ok(#input_type {
+                    #field_assignments
+                })
             }
         }
     }

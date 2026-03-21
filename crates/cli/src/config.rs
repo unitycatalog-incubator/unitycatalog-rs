@@ -16,8 +16,8 @@ pub enum ConfigValue {
 impl ConfigValue {
     /// Get the resolved value of the config value.
     ///
-    /// This will witerh return the specified value or the value of the environment variable
-    /// specified in the `Environment` variant.
+    /// Returns the specified value directly or resolves it from the environment
+    /// variable specified in the `Environment` variant.
     pub fn value(&self) -> Option<String> {
         match self {
             ConfigValue::Value(value) => Some(value.clone()),
@@ -28,17 +28,35 @@ impl ConfigValue {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
-    pub url: String,
+    /// The host address to bind the server to.
+    #[serde(default)]
+    pub host: Option<String>,
+
+    /// The port to bind the server to.
+    #[serde(default)]
+    pub port: Option<u16>,
 
     /// The backend configuration.
+    #[serde(default)]
     pub backend: Backend,
 
     #[serde(default)]
     pub secret_backend: Option<SecretBackend>,
 }
 
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            host: None,
+            port: None,
+            backend: Backend::InMemory,
+            secret_backend: None,
+        }
+    }
+}
+
 /// Backend configuration for the unity catalog server.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 #[serde(rename_all = "kebab-case", tag = "engine")]
 pub enum Backend {
     /// Postgres backend configuration.
@@ -48,6 +66,7 @@ pub enum Backend {
     ///
     /// This is useful for testing and development purposes
     /// but should not be used in production.
+    #[default]
     InMemory,
 }
 
@@ -89,34 +108,12 @@ impl PostgresBackendConfig {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "engine")]
 pub enum SecretBackend {
-    /// Azure Key Vault secret backend.
-    Azure(AzureKeyVault),
-
     /// Postgres secret backend.
     ///
     /// This is used to store secrets in a Postgres database.
     /// This is generally only recommended for evaluation purposes.
     /// For production use, it is recommended to use a dedicated secret store.
     Postgres(PostgresSecretConfig),
-}
-
-/// Azure Key Vault secret backend configuration.
-#[derive(Debug, Deserialize, Serialize)]
-pub struct AzureKeyVault {
-    /// The name of the vault.
-    pub vault_name: ConfigValue,
-
-    /// The client ID.
-    pub client_id: ConfigValue,
-
-    /// The tenant ID.
-    pub tenant_id: ConfigValue,
-
-    /// The client secret.
-    pub client_secret: Option<ConfigValue>,
-
-    /// The federated token file.
-    pub federated_token_file: Option<ConfigValue>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -132,7 +129,8 @@ mod tests {
     fn test_deserialize_config() {
         let config = r#"
             {
-                "url": "http://localhost:8080",
+                "host": "0.0.0.0",
+                "port": 8080,
                 "backend": {
                     "engine": "postgres",
                     "database": "postgres",
@@ -147,7 +145,8 @@ mod tests {
         "#;
 
         let config: Config = serde_json::from_str(config).unwrap();
-        assert_eq!(config.url, "http://localhost:8080");
+        assert_eq!(config.host.as_deref(), Some("0.0.0.0"));
+        assert_eq!(config.port, Some(8080));
         assert!(matches!(config.backend, Backend::Postgres(_)));
         let backend = match config.backend {
             Backend::Postgres(backend) => backend,
@@ -162,5 +161,21 @@ mod tests {
                 env: "PG_PASSWORD".to_string()
             })
         );
+    }
+
+    #[test]
+    fn test_default_config() {
+        let config = Config::default();
+        assert!(config.host.is_none());
+        assert!(config.port.is_none());
+        assert!(matches!(config.backend, Backend::InMemory));
+        assert!(config.secret_backend.is_none());
+    }
+
+    #[test]
+    fn test_minimal_config() {
+        let config = r#"{}"#;
+        let config: Config = serde_json::from_str(config).unwrap();
+        assert!(matches!(config.backend, Backend::InMemory));
     }
 }

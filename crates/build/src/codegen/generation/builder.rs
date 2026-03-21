@@ -6,7 +6,7 @@ use syn::Path;
 use super::format_tokens;
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
-use crate::parsing::types::BaseType;
+use crate::parsing::types::{BaseType, unified_to_rust};
 use crate::parsing::{MessageField, RenderContext};
 
 /// Generate builder code for all request types in a service
@@ -262,8 +262,9 @@ fn generate_oneof_variant_methods(
             let param_ident = format_ident!("{}", variant.field_name.replace("_", ""));
             let variant_name = format_ident!("{}", variant.variant_name);
 
-            // Parse the rust type for the parameter
-            let param_type: syn::Type = syn::parse_str(&variant.rust_type)
+            // Derive the Rust parameter type from the UnifiedType abstraction.
+            let rust_type_str = unified_to_rust(&variant.field_type, RenderContext::Parameter);
+            let param_type: syn::Type = syn::parse_str(&rust_type_str)
                 .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
             // Generate documentation
