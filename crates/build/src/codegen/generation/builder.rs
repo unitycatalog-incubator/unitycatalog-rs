@@ -176,9 +176,11 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
 
     // Generate appropriate documentation for the method
     let doc_attr = if let Some(ref doc) = field.documentation {
-        quote! { #[doc = #doc] }
+        let doc_spaced = format!(" {}", doc.trim_start());
+        quote! { #[doc = #doc_spaced] }
     } else {
-        quote! { #[doc = concat!("Set ", #field_name)] }
+        let set_msg = format!(" Set {}", field_name);
+        quote! { #[doc = #set_msg] }
     };
 
     if matches!(field.unified_type.base_type, BaseType::Map(_, _)) {
@@ -269,10 +271,11 @@ fn generate_oneof_variant_methods(
 
             // Generate documentation
             let doc_attr = if let Some(ref doc) = variant.documentation {
-                quote! { #[doc = #doc] }
+                let doc_spaced = format!(" {}", doc.trim_start());
+                quote! { #[doc = #doc_spaced] }
             } else {
-                let field_name = &variant.field_name;
-                quote! { #[doc = concat!("Set ", #field_name)] }
+                let set_msg = format!(" Set {}", variant.field_name);
+                quote! { #[doc = #set_msg] }
             };
 
             quote! {

@@ -2,25 +2,17 @@
 // @generated from file unitycatalog/shares/v1/models.proto (package unitycatalog.shares.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenEnum,
-  GenFile,
-  GenMessage,
-} from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/shares/v1/models.proto.
  */
-export const file_unitycatalog_shares_v1_models: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiN1bml0eWNhdGFsb2cvc2hhcmVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSLHAwoKRGF0YU9iamVjdBIMCgRuYW1lGAEgASgJEkAKEGRhdGFfb2JqZWN0X3R5cGUYAiABKA4yJi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RUeXBlEhUKCGFkZGVkX2F0GAMgASgDSACIAQESFQoIYWRkZWRfYnkYBCABKAlIAYgBARIUCgdjb21tZW50GAUgASgJSAKIAQESFgoJc2hhcmVkX2FzGAYgASgJSAOIAQESEgoKcGFydGl0aW9ucxgHIAMoCRIXCgplbmFibGVfY2RmGAggASgISASIAQESTwobaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzGAkgASgOMiUudW5pdHljYXRhbG9nLnNoYXJlcy52MS5IaXN0b3J5U3RhdHVzSAWIAQESGgoNc3RhcnRfdmVyc2lvbhgKIAEoA0gGiAEBQgsKCV9hZGRlZF9hdEILCglfYWRkZWRfYnlCCgoIX2NvbW1lbnRCDAoKX3NoYXJlZF9hc0INCgtfZW5hYmxlX2NkZkIeChxfaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzQhAKDl9zdGFydF92ZXJzaW9uIt0DCgVTaGFyZRIPCgJpZBhkIAEoCUgAiAEBEgwKBG5hbWUYASABKAkSMwoHb2JqZWN0cxgGIAMoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdBISCgVvd25lchgCIAEoCUgBiAEBEhQKB2NvbW1lbnQYAyABKAlIAogBARIdChBzdG9yYWdlX2xvY2F0aW9uGAQgASgJSAOIAQESGQoMc3RvcmFnZV9yb290GAUgASgJSASIAQESFwoKY3JlYXRlZF9hdBgHIAEoA0gFiAEBEhcKCmNyZWF0ZWRfYnkYCCABKAlIBogBARIXCgp1cGRhdGVkX2F0GAkgASgDSAeIAQESFwoKdXBkYXRlZF9ieRgKIAEoCUgIiAEBOjnqQTYKFXVuaXR5Y2F0YWxvZy5pby9TaGFyZRIOc2hhcmVzL3tzaGFyZX0qBnNoYXJlczIFc2hhcmVCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudEITChFfc3RvcmFnZV9sb2NhdGlvbkIPCg1fc3RvcmFnZV9yb290Qg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5IjwKE1ByaXZpbGVnZUFzc2lnbm1lbnQSEQoJcHJpbmNpcGFsGAEgASgJEhIKCnByaXZpbGVnZXMYAiADKAkiQwoRUGVybWlzc2lvbnNDaGFuZ2USEQoJcHJpbmNpcGFsGAEgASgJEgsKA2FkZBgCIAMoCRIOCgZyZW1vdmUYAyADKAkqSQoORGF0YU9iamVjdFR5cGUSIAocREFUQV9PQkpFQ1RfVFlQRV9VTlNQRUNJRklFRBAAEgkKBVRBQkxFEAESCgoGU0NIRU1BEAIqKgoNSGlzdG9yeVN0YXR1cxIMCghESVNBQkxFRBAAEgsKB0VOQUJMRUQQAULzAQoaY29tLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjFCC01vZGVsc1Byb3RvUAFaTmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJlcy92MTtzaGFyZXN2MaICA1VTWKoCFlVuaXR5Y2F0YWxvZy5TaGFyZXMuVjHKAhZVbml0eWNhdGFsb2dcU2hhcmVzXFYx4gIiVW5pdHljYXRhbG9nXFNoYXJlc1xWMVxHUEJNZXRhZGF0YeoCGFVuaXR5Y2F0YWxvZzo6U2hhcmVzOjpWMWIGcHJvdG8z",
-    [file_google_api_field_behavior, file_google_api_resource],
-  );
+export const file_unitycatalog_shares_v1_models: GenFile = /*@__PURE__*/
+  fileDesc("CiN1bml0eWNhdGFsb2cvc2hhcmVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnNoYXJlcy52MSLHAwoKRGF0YU9iamVjdBIMCgRuYW1lGAEgASgJEkAKEGRhdGFfb2JqZWN0X3R5cGUYAiABKA4yJi51bml0eWNhdGFsb2cuc2hhcmVzLnYxLkRhdGFPYmplY3RUeXBlEhUKCGFkZGVkX2F0GAMgASgDSACIAQESFQoIYWRkZWRfYnkYBCABKAlIAYgBARIUCgdjb21tZW50GAUgASgJSAKIAQESFgoJc2hhcmVkX2FzGAYgASgJSAOIAQESEgoKcGFydGl0aW9ucxgHIAMoCRIXCgplbmFibGVfY2RmGAggASgISASIAQESTwobaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzGAkgASgOMiUudW5pdHljYXRhbG9nLnNoYXJlcy52MS5IaXN0b3J5U3RhdHVzSAWIAQESGgoNc3RhcnRfdmVyc2lvbhgKIAEoA0gGiAEBQgsKCV9hZGRlZF9hdEILCglfYWRkZWRfYnlCCgoIX2NvbW1lbnRCDAoKX3NoYXJlZF9hc0INCgtfZW5hYmxlX2NkZkIeChxfaGlzdG9yeV9kYXRhX3NoYXJpbmdfc3RhdHVzQhAKDl9zdGFydF92ZXJzaW9uIt0DCgVTaGFyZRIPCgJpZBhkIAEoCUgAiAEBEgwKBG5hbWUYASABKAkSMwoHb2JqZWN0cxgGIAMoCzIiLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjEuRGF0YU9iamVjdBISCgVvd25lchgCIAEoCUgBiAEBEhQKB2NvbW1lbnQYAyABKAlIAogBARIdChBzdG9yYWdlX2xvY2F0aW9uGAQgASgJSAOIAQESGQoMc3RvcmFnZV9yb290GAUgASgJSASIAQESFwoKY3JlYXRlZF9hdBgHIAEoA0gFiAEBEhcKCmNyZWF0ZWRfYnkYCCABKAlIBogBARIXCgp1cGRhdGVkX2F0GAkgASgDSAeIAQESFwoKdXBkYXRlZF9ieRgKIAEoCUgIiAEBOjnqQTYKFXVuaXR5Y2F0YWxvZy5pby9TaGFyZRIOc2hhcmVzL3tzaGFyZX0qBnNoYXJlczIFc2hhcmVCBQoDX2lkQggKBl9vd25lckIKCghfY29tbWVudEITChFfc3RvcmFnZV9sb2NhdGlvbkIPCg1fc3RvcmFnZV9yb290Qg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5IjwKE1ByaXZpbGVnZUFzc2lnbm1lbnQSEQoJcHJpbmNpcGFsGAEgASgJEhIKCnByaXZpbGVnZXMYAiADKAkiQwoRUGVybWlzc2lvbnNDaGFuZ2USEQoJcHJpbmNpcGFsGAEgASgJEgsKA2FkZBgCIAMoCRIOCgZyZW1vdmUYAyADKAkqSQoORGF0YU9iamVjdFR5cGUSIAocREFUQV9PQkpFQ1RfVFlQRV9VTlNQRUNJRklFRBAAEgkKBVRBQkxFEAESCgoGU0NIRU1BEAIqKgoNSGlzdG9yeVN0YXR1cxIMCghESVNBQkxFRBAAEgsKB0VOQUJMRUQQAULzAQoaY29tLnVuaXR5Y2F0YWxvZy5zaGFyZXMudjFCC01vZGVsc1Byb3RvUAFaTmdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NoYXJlcy92MTtzaGFyZXN2MaICA1VTWKoCFlVuaXR5Y2F0YWxvZy5TaGFyZXMuVjHKAhZVbml0eWNhdGFsb2dcU2hhcmVzXFYx4gIiVW5pdHljYXRhbG9nXFNoYXJlc1xWMVxHUEJNZXRhZGF0YeoCGFVuaXR5Y2F0YWxvZzo6U2hhcmVzOjpWMWIGcHJvdG8z", [file_google_api_field_behavior, file_google_api_resource]);
 
 /**
  * @generated from message unitycatalog.shares.v1.DataObject
@@ -113,8 +105,7 @@ export type DataObject = Message<"unitycatalog.shares.v1.DataObject"> & {
  * Describes the message unitycatalog.shares.v1.DataObject.
  * Use `create(DataObjectSchema)` to create a new message.
  */
-export const DataObjectSchema: GenMessage<DataObject> =
-  /*@__PURE__*/
+export const DataObjectSchema: GenMessage<DataObject> = /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 0);
 
 /**
@@ -203,73 +194,68 @@ export type Share = Message<"unitycatalog.shares.v1.Share"> & {
  * Describes the message unitycatalog.shares.v1.Share.
  * Use `create(ShareSchema)` to create a new message.
  */
-export const ShareSchema: GenMessage<Share> =
-  /*@__PURE__*/
+export const ShareSchema: GenMessage<Share> = /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 1);
 
 /**
  * @generated from message unitycatalog.shares.v1.PrivilegeAssignment
  */
-export type PrivilegeAssignment =
-  Message<"unitycatalog.shares.v1.PrivilegeAssignment"> & {
-    /**
-     * The principal (user email address or group name).
-     *
-     * For deleted principals, principal is empty while principal_id is populated.
-     *
-     * @generated from field: string principal = 1;
-     */
-    principal: string;
+export type PrivilegeAssignment = Message<"unitycatalog.shares.v1.PrivilegeAssignment"> & {
+  /**
+   * The principal (user email address or group name).
+   *
+   * For deleted principals, principal is empty while principal_id is populated.
+   *
+   * @generated from field: string principal = 1;
+   */
+  principal: string;
 
-    /**
-     * The privileges assigned to the principal.
-     *
-     * @generated from field: repeated string privileges = 2;
-     */
-    privileges: string[];
-  };
+  /**
+   * The privileges assigned to the principal.
+   *
+   * @generated from field: repeated string privileges = 2;
+   */
+  privileges: string[];
+};
 
 /**
  * Describes the message unitycatalog.shares.v1.PrivilegeAssignment.
  * Use `create(PrivilegeAssignmentSchema)` to create a new message.
  */
-export const PrivilegeAssignmentSchema: GenMessage<PrivilegeAssignment> =
-  /*@__PURE__*/
+export const PrivilegeAssignmentSchema: GenMessage<PrivilegeAssignment> = /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 2);
 
 /**
  * @generated from message unitycatalog.shares.v1.PermissionsChange
  */
-export type PermissionsChange =
-  Message<"unitycatalog.shares.v1.PermissionsChange"> & {
-    /**
-     * The principal (user email address or group name).
-     *
-     * @generated from field: string principal = 1;
-     */
-    principal: string;
+export type PermissionsChange = Message<"unitycatalog.shares.v1.PermissionsChange"> & {
+  /**
+   * The principal (user email address or group name).
+   *
+   * @generated from field: string principal = 1;
+   */
+  principal: string;
 
-    /**
-     * The set of privileges to add.
-     *
-     * @generated from field: repeated string add = 2;
-     */
-    add: string[];
+  /**
+   * The set of privileges to add.
+   *
+   * @generated from field: repeated string add = 2;
+   */
+  add: string[];
 
-    /**
-     * The set of privileges to remove.
-     *
-     * @generated from field: repeated string remove = 3;
-     */
-    remove: string[];
-  };
+  /**
+   * The set of privileges to remove.
+   *
+   * @generated from field: repeated string remove = 3;
+   */
+  remove: string[];
+};
 
 /**
  * Describes the message unitycatalog.shares.v1.PermissionsChange.
  * Use `create(PermissionsChangeSchema)` to create a new message.
  */
-export const PermissionsChangeSchema: GenMessage<PermissionsChange> =
-  /*@__PURE__*/
+export const PermissionsChangeSchema: GenMessage<PermissionsChange> = /*@__PURE__*/
   messageDesc(file_unitycatalog_shares_v1_models, 3);
 
 /**
@@ -297,8 +283,7 @@ export enum DataObjectType {
 /**
  * Describes the enum unitycatalog.shares.v1.DataObjectType.
  */
-export const DataObjectTypeSchema: GenEnum<DataObjectType> =
-  /*@__PURE__*/
+export const DataObjectTypeSchema: GenEnum<DataObjectType> = /*@__PURE__*/
   enumDesc(file_unitycatalog_shares_v1_models, 0);
 
 /**
@@ -323,6 +308,6 @@ export enum HistoryStatus {
 /**
  * Describes the enum unitycatalog.shares.v1.HistoryStatus.
  */
-export const HistoryStatusSchema: GenEnum<HistoryStatus> =
-  /*@__PURE__*/
+export const HistoryStatusSchema: GenEnum<HistoryStatus> = /*@__PURE__*/
   enumDesc(file_unitycatalog_shares_v1_models, 1);
+

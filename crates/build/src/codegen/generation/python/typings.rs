@@ -132,8 +132,7 @@ fn format_method_docstring_with_params(method: &MethodHandler<'_>) -> String {
     if let Some(doc) = method.plan.metadata.documentation.as_ref() {
         let cleaned_doc = clean_and_format_description(doc);
         if !cleaned_doc.is_empty() {
-            let refilled_doc = refill(&cleaned_doc, DOCS_TARGET_WIDTH);
-            docstring_parts.push(refilled_doc);
+            docstring_parts.push(cleaned_doc);
         }
     }
 

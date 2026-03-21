@@ -18,6 +18,10 @@ impl SchemaClient {
         }
         Self { client, base_url }
     }
+    /// Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
+    /// admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
+    /// Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
+    /// will be retrieved. There is no guarantee of a specific ordering of the elements in the array.
     pub async fn list_schemas(&self, request: &ListSchemasRequest) -> Result<ListSchemasResponse> {
         let mut url = self.base_url.join("schemas")?;
         url.query_pairs_mut()
@@ -39,6 +43,8 @@ impl SchemaClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
+    /// or have the CREATE_SCHEMA privilege in the parent catalog.
     pub async fn create_schema(&self, request: &CreateSchemaRequest) -> Result<Schema> {
         let mut url = self.base_url.join("schemas")?;
         let response = self.client.post(url).json(request).send().await?;
@@ -46,6 +52,9 @@ impl SchemaClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Gets the specified schema within the metastore.
+    /// The caller must be a metastore admin, the owner of the schema,
+    /// or a user that has the USE_SCHEMA privilege on the schema.
     pub async fn get_schema(&self, request: &GetSchemaRequest) -> Result<Schema> {
         let formatted_path = format!("schemas/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
@@ -54,6 +63,10 @@ impl SchemaClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
+    /// If the caller is a metastore admin, only the owner field can be changed in the update.
+    /// If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
+    /// privilege on the parent catalog.
     pub async fn update_schema(&self, request: &UpdateSchemaRequest) -> Result<Schema> {
         let formatted_path = format!("schemas/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
@@ -62,6 +75,8 @@ impl SchemaClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Deletes the specified schema from the parent catalog. The caller must be the owner
+    /// of the schema or an owner of the parent catalog.
     pub async fn delete_schema(&self, request: &DeleteSchemaRequest) -> Result<()> {
         let formatted_path = format!("schemas/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;

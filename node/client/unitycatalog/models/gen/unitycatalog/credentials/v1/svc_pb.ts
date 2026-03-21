@@ -2,119 +2,83 @@
 // @generated from file unitycatalog/credentials/v1/svc.proto (package unitycatalog.credentials.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenFile,
-  GenMessage,
-  GenService,
-} from "@bufbuild/protobuf/codegenv2";
-import {
-  fileDesc,
-  messageDesc,
-  serviceDesc,
-} from "@bufbuild/protobuf/codegenv2";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import {
-  file_google_protobuf_empty,
-  file_google_protobuf_struct,
-} from "@bufbuild/protobuf/wkt";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_client } from "../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
-import type {
-  AzureManagedIdentity,
-  AzureServicePrincipal,
-  AzureStorageKey,
-  Credential,
-  CredentialSchema,
-  Purpose,
-} from "./models_pb";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential, CredentialSchema, Purpose } from "./models_pb";
 import { file_unitycatalog_credentials_v1_models } from "./models_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/credentials/v1/svc.proto.
  */
-export const file_unitycatalog_credentials_v1_svc: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiV1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvc3ZjLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEiywEKFkxpc3RDcmVkZW50aWFsc1JlcXVlc3QSPwoHcHVycG9zZRgBIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlQgPgQQFIAIgBARInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgBiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgCiAEBQgoKCF9wdXJwb3NlQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKJAQoXTGlzdENyZWRlbnRpYWxzUmVzcG9uc2USPAoLY3JlZGVudGlhbHMYASADKAsyJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbBIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrYFChdDcmVhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEkAKB3B1cnBvc2UYAiABKA4yJC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuUHVycG9zZUIJ4EECukgDyAEBEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgAiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAGIAQESIQoPc2tpcF92YWxpZGF0aW9uGAUgASgIQgPgQQFIAogBARJYChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbBhkIAEoCzIyLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVNlcnZpY2VQcmluY2lwYWxIA4gBARJWChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5GGUgASgLMjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlTWFuYWdlZElkZW50aXR5SASIAQESTAoRYXp1cmVfc3RvcmFnZV9rZXkYZiABKAsyLC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTdG9yYWdlS2V5SAWIAQE6S7pISCJGChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkQAUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QhIKEF9za2lwX3ZhbGlkYXRpb25CGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleSJOChRHZXRDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kIo8GChdVcGRhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjwKCG5ld19uYW1lGAIgASgJQiXgQQG6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kSACIAQESGQoHY29tbWVudBgDIAEoCUID4EEBSAGIAQESGwoJcmVhZF9vbmx5GAQgASgIQgPgQQFIAogBARIhCgVvd25lchgFIAEoCUIN4EEBukgHyAEAcgJgAUgDiAEBEiEKD3NraXBfdmFsaWRhdGlvbhgGIAEoCEID4EEBSASIAQESFwoFZm9yY2UYByABKAhCA+BBAUgFiAEBElgKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgGiAEBElYKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIB4gBARJMChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlICIgBATpLukhIIkYKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5ChFhenVyZV9zdG9yYWdlX2tleRABQgsKCV9uZXdfbmFtZUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QggKBl9vd25lckISChBfc2tpcF92YWxpZGF0aW9uQggKBl9mb3JjZUIaChhfYXp1cmVfc2VydmljZV9wcmluY2lwYWxCGQoXX2F6dXJlX21hbmFnZWRfaWRlbnRpdHlCFAoSX2F6dXJlX3N0b3JhZ2Vfa2V5IlAKF0RlbGV0ZUNyZWRlbnRpYWxSZXF1ZXN0EjUKBG5hbWUYASABKAlCJ+BBArpIIcgBAXIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJDK6BgoSQ3JlZGVudGlhbHNTZXJ2aWNlEqYBCg9MaXN0Q3JlZGVudGlhbHMSMy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuTGlzdENyZWRlbnRpYWxzUmVxdWVzdBo0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5MaXN0Q3JlZGVudGlhbHNSZXNwb25zZSIoukcRKg9MaXN0Q3JlZGVudGlhbHOC0+STAg4SDC9jcmVkZW50aWFscxKfAQoQQ3JlYXRlQ3JlZGVudGlhbBI0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVhdGVDcmVkZW50aWFsUmVxdWVzdBonLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsIiy6RxIqEENyZWF0ZUNyZWRlbnRpYWyC0+STAhE6ASoiDC9jcmVkZW50aWFscxKaAQoNR2V0Q3JlZGVudGlhbBIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5HZXRDcmVkZW50aWFsUmVxdWVzdBonLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsIi26Rw8qDUdldENyZWRlbnRpYWyC0+STAhUSEy9jcmVkZW50aWFscy97bmFtZX0SpgEKEFVwZGF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuVXBkYXRlQ3JlZGVudGlhbFJlcXVlc3QaJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbCIzukcSKhBVcGRhdGVDcmVkZW50aWFsgtPkkwIYOgEqMhMvY3JlZGVudGlhbHMve25hbWV9EpIBChBEZWxldGVDcmVkZW50aWFsEjQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkRlbGV0ZUNyZWRlbnRpYWxSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IjC6RxIqEERlbGV0ZUNyZWRlbnRpYWyC0+STAhUqEy9jcmVkZW50aWFscy97bmFtZX1CkwIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCCFN2Y1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z",
-    [
-      file_buf_validate_validate,
-      file_gnostic_openapi_v3_annotations,
-      file_google_api_annotations,
-      file_google_api_client,
-      file_google_api_field_behavior,
-      file_google_api_resource,
-      file_google_protobuf_empty,
-      file_google_protobuf_struct,
-      file_unitycatalog_credentials_v1_models,
-    ],
-  );
+export const file_unitycatalog_credentials_v1_svc: GenFile = /*@__PURE__*/
+  fileDesc("CiV1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvc3ZjLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEiywEKFkxpc3RDcmVkZW50aWFsc1JlcXVlc3QSPwoHcHVycG9zZRgBIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlQgPgQQFIAIgBARInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgBiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgCiAEBQgoKCF9wdXJwb3NlQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKJAQoXTGlzdENyZWRlbnRpYWxzUmVzcG9uc2USPAoLY3JlZGVudGlhbHMYASADKAsyJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbBIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrYFChdDcmVhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEkAKB3B1cnBvc2UYAiABKA4yJC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuUHVycG9zZUIJ4EECukgDyAEBEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgAiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAGIAQESIQoPc2tpcF92YWxpZGF0aW9uGAUgASgIQgPgQQFIAogBARJYChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbBhkIAEoCzIyLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVNlcnZpY2VQcmluY2lwYWxIA4gBARJWChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5GGUgASgLMjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlTWFuYWdlZElkZW50aXR5SASIAQESTAoRYXp1cmVfc3RvcmFnZV9rZXkYZiABKAsyLC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTdG9yYWdlS2V5SAWIAQE6S7pISCJGChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkQAUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QhIKEF9za2lwX3ZhbGlkYXRpb25CGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleSJOChRHZXRDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kIo8GChdVcGRhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjwKCG5ld19uYW1lGAIgASgJQiXgQQG6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kSACIAQESGQoHY29tbWVudBgDIAEoCUID4EEBSAGIAQESGwoJcmVhZF9vbmx5GAQgASgIQgPgQQFIAogBARIhCgVvd25lchgFIAEoCUIN4EEBukgHyAEAcgJgAUgDiAEBEiEKD3NraXBfdmFsaWRhdGlvbhgGIAEoCEID4EEBSASIAQESFwoFZm9yY2UYByABKAhCA+BBAUgFiAEBElgKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgGiAEBElYKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIB4gBARJMChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlICIgBATpLukhIIkYKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5ChFhenVyZV9zdG9yYWdlX2tleRABQgsKCV9uZXdfbmFtZUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QggKBl9vd25lckISChBfc2tpcF92YWxpZGF0aW9uQggKBl9mb3JjZUIaChhfYXp1cmVfc2VydmljZV9wcmluY2lwYWxCGQoXX2F6dXJlX21hbmFnZWRfaWRlbnRpdHlCFAoSX2F6dXJlX3N0b3JhZ2Vfa2V5IlAKF0RlbGV0ZUNyZWRlbnRpYWxSZXF1ZXN0EjUKBG5hbWUYASABKAlCJ+BBArpIIcgBAXIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJDK6BgoSQ3JlZGVudGlhbHNTZXJ2aWNlEqYBCg9MaXN0Q3JlZGVudGlhbHMSMy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuTGlzdENyZWRlbnRpYWxzUmVxdWVzdBo0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5MaXN0Q3JlZGVudGlhbHNSZXNwb25zZSIoukcRKg9MaXN0Q3JlZGVudGlhbHOC0+STAg4SDC9jcmVkZW50aWFscxKfAQoQQ3JlYXRlQ3JlZGVudGlhbBI0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVhdGVDcmVkZW50aWFsUmVxdWVzdBonLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsIiy6RxIqEENyZWF0ZUNyZWRlbnRpYWyC0+STAhE6ASoiDC9jcmVkZW50aWFscxKaAQoNR2V0Q3JlZGVudGlhbBIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5HZXRDcmVkZW50aWFsUmVxdWVzdBonLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsIi26Rw8qDUdldENyZWRlbnRpYWyC0+STAhUSEy9jcmVkZW50aWFscy97bmFtZX0SpgEKEFVwZGF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuVXBkYXRlQ3JlZGVudGlhbFJlcXVlc3QaJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbCIzukcSKhBVcGRhdGVDcmVkZW50aWFsgtPkkwIYOgEqMhMvY3JlZGVudGlhbHMve25hbWV9EpIBChBEZWxldGVDcmVkZW50aWFsEjQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkRlbGV0ZUNyZWRlbnRpYWxSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IjC6RxIqEERlbGV0ZUNyZWRlbnRpYWyC0+STAhUqEy9jcmVkZW50aWFscy97bmFtZX1CkwIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCCFN2Y1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_credentials_v1_models]);
 
 /**
  * @generated from message unitycatalog.credentials.v1.ListCredentialsRequest
  */
-export type ListCredentialsRequest =
-  Message<"unitycatalog.credentials.v1.ListCredentialsRequest"> & {
-    /**
-     * Return only credentials for the specified purpose.
-     *
-     * @generated from field: optional unitycatalog.credentials.v1.Purpose purpose = 1;
-     */
-    purpose?: Purpose;
+export type ListCredentialsRequest = Message<"unitycatalog.credentials.v1.ListCredentialsRequest"> & {
+  /**
+   * Return only credentials for the specified purpose.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.Purpose purpose = 1;
+   */
+  purpose?: Purpose;
 
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 2;
-     */
-    maxResults?: number;
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 2;
+   */
+  maxResults?: number;
 
-    /**
-     * Opaque pagination token to go to next page based on previous query.
-     *
-     * @generated from field: optional string page_token = 3;
-     */
-    pageToken?: string;
-  };
+  /**
+   * Opaque pagination token to go to next page based on previous query.
+   *
+   * @generated from field: optional string page_token = 3;
+   */
+  pageToken?: string;
+};
 
 /**
  * Describes the message unitycatalog.credentials.v1.ListCredentialsRequest.
  * Use `create(ListCredentialsRequestSchema)` to create a new message.
  */
-export const ListCredentialsRequestSchema: GenMessage<ListCredentialsRequest> =
-  /*@__PURE__*/
+export const ListCredentialsRequestSchema: GenMessage<ListCredentialsRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_svc, 0);
 
 /**
  * @generated from message unitycatalog.credentials.v1.ListCredentialsResponse
  */
-export type ListCredentialsResponse =
-  Message<"unitycatalog.credentials.v1.ListCredentialsResponse"> & {
-    /**
-     * The credentials returned.
-     *
-     * @generated from field: repeated unitycatalog.credentials.v1.Credential credentials = 1;
-     */
-    credentials: Credential[];
+export type ListCredentialsResponse = Message<"unitycatalog.credentials.v1.ListCredentialsResponse"> & {
+  /**
+   * The credentials returned.
+   *
+   * @generated from field: repeated unitycatalog.credentials.v1.Credential credentials = 1;
+   */
+  credentials: Credential[];
 
-    /**
-     * The next_page_token value to include in the next List request.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * The next_page_token value to include in the next List request.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message unitycatalog.credentials.v1.ListCredentialsResponse.
  * Use `create(ListCredentialsResponseSchema)` to create a new message.
  */
-export const ListCredentialsResponseSchema: GenMessage<ListCredentialsResponse> =
-  /*@__PURE__*/
+export const ListCredentialsResponseSchema: GenMessage<ListCredentialsResponse> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_svc, 1);
 
 /**
@@ -122,65 +86,63 @@ export const ListCredentialsResponseSchema: GenMessage<ListCredentialsResponse> 
  *
  * @generated from message unitycatalog.credentials.v1.CreateCredentialRequest
  */
-export type CreateCredentialRequest =
-  Message<"unitycatalog.credentials.v1.CreateCredentialRequest"> & {
-    /**
-     * The credential name. The name must be unique among storage and service credentials within the metastore.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type CreateCredentialRequest = Message<"unitycatalog.credentials.v1.CreateCredentialRequest"> & {
+  /**
+   * The credential name. The name must be unique among storage and service credentials within the metastore.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * The credential purpose.
-     *
-     * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 2;
-     */
-    purpose: Purpose;
+  /**
+   * The credential purpose.
+   *
+   * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 2;
+   */
+  purpose: Purpose;
 
-    /**
-     * Comment associated with the credential.
-     *
-     * @generated from field: optional string comment = 3;
-     */
-    comment?: string;
+  /**
+   * Comment associated with the credential.
+   *
+   * @generated from field: optional string comment = 3;
+   */
+  comment?: string;
 
-    /**
-     * Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
-     *
-     * @generated from field: optional bool read_only = 4;
-     */
-    readOnly?: boolean;
+  /**
+   * Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
+   *
+   * @generated from field: optional bool read_only = 4;
+   */
+  readOnly?: boolean;
 
-    /**
-     * Supplying true to this argument skips validation of the created set of credentials.
-     *
-     * @generated from field: optional bool skip_validation = 5;
-     */
-    skipValidation?: boolean;
+  /**
+   * Supplying true to this argument skips validation of the created set of credentials.
+   *
+   * @generated from field: optional bool skip_validation = 5;
+   */
+  skipValidation?: boolean;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
-     */
-    azureServicePrincipal?: AzureServicePrincipal;
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
+   */
+  azureServicePrincipal?: AzureServicePrincipal;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
-     */
-    azureManagedIdentity?: AzureManagedIdentity;
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+   */
+  azureManagedIdentity?: AzureManagedIdentity;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
-     */
-    azureStorageKey?: AzureStorageKey;
-  };
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+   */
+  azureStorageKey?: AzureStorageKey;
+};
 
 /**
  * Describes the message unitycatalog.credentials.v1.CreateCredentialRequest.
  * Use `create(CreateCredentialRequestSchema)` to create a new message.
  */
-export const CreateCredentialRequestSchema: GenMessage<CreateCredentialRequest> =
-  /*@__PURE__*/
+export const CreateCredentialRequestSchema: GenMessage<CreateCredentialRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_svc, 2);
 
 /**
@@ -188,22 +150,20 @@ export const CreateCredentialRequestSchema: GenMessage<CreateCredentialRequest> 
  *
  * @generated from message unitycatalog.credentials.v1.GetCredentialRequest
  */
-export type GetCredentialRequest =
-  Message<"unitycatalog.credentials.v1.GetCredentialRequest"> & {
-    /**
-     * Name of credential.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
-  };
+export type GetCredentialRequest = Message<"unitycatalog.credentials.v1.GetCredentialRequest"> & {
+  /**
+   * Name of credential.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+};
 
 /**
  * Describes the message unitycatalog.credentials.v1.GetCredentialRequest.
  * Use `create(GetCredentialRequestSchema)` to create a new message.
  */
-export const GetCredentialRequestSchema: GenMessage<GetCredentialRequest> =
-  /*@__PURE__*/
+export const GetCredentialRequestSchema: GenMessage<GetCredentialRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_svc, 3);
 
 /**
@@ -211,80 +171,78 @@ export const GetCredentialRequestSchema: GenMessage<GetCredentialRequest> =
  *
  * @generated from message unitycatalog.credentials.v1.UpdateCredentialRequest
  */
-export type UpdateCredentialRequest =
-  Message<"unitycatalog.credentials.v1.UpdateCredentialRequest"> & {
-    /**
-     * Name of credential.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type UpdateCredentialRequest = Message<"unitycatalog.credentials.v1.UpdateCredentialRequest"> & {
+  /**
+   * Name of credential.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * Name of credential.
-     *
-     * @generated from field: optional string new_name = 2;
-     */
-    newName?: string;
+  /**
+   * Name of credential.
+   *
+   * @generated from field: optional string new_name = 2;
+   */
+  newName?: string;
 
-    /**
-     * Comment associated with the credential.
-     *
-     * @generated from field: optional string comment = 3;
-     */
-    comment?: string;
+  /**
+   * Comment associated with the credential.
+   *
+   * @generated from field: optional string comment = 3;
+   */
+  comment?: string;
 
-    /**
-     * Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
-     *
-     * @generated from field: optional bool read_only = 4;
-     */
-    readOnly?: boolean;
+  /**
+   * Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
+   *
+   * @generated from field: optional bool read_only = 4;
+   */
+  readOnly?: boolean;
 
-    /**
-     * Username of current owner of credential.
-     *
-     * @generated from field: optional string owner = 5;
-     */
-    owner?: string;
+  /**
+   * Username of current owner of credential.
+   *
+   * @generated from field: optional string owner = 5;
+   */
+  owner?: string;
 
-    /**
-     * Supply true to this argument to skip validation of the updated credential.
-     *
-     * @generated from field: optional bool skip_validation = 6;
-     */
-    skipValidation?: boolean;
+  /**
+   * Supply true to this argument to skip validation of the updated credential.
+   *
+   * @generated from field: optional bool skip_validation = 6;
+   */
+  skipValidation?: boolean;
 
-    /**
-     * Force an update even if there are dependent services (when purpose is SERVICE)
-     * or dependent external locations and external tables (when purpose is STORAGE).
-     *
-     * @generated from field: optional bool force = 7;
-     */
-    force?: boolean;
+  /**
+   * Force an update even if there are dependent services (when purpose is SERVICE)
+   * or dependent external locations and external tables (when purpose is STORAGE).
+   *
+   * @generated from field: optional bool force = 7;
+   */
+  force?: boolean;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
-     */
-    azureServicePrincipal?: AzureServicePrincipal;
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
+   */
+  azureServicePrincipal?: AzureServicePrincipal;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
-     */
-    azureManagedIdentity?: AzureManagedIdentity;
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
+   */
+  azureManagedIdentity?: AzureManagedIdentity;
 
-    /**
-     * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
-     */
-    azureStorageKey?: AzureStorageKey;
-  };
+  /**
+   * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
+   */
+  azureStorageKey?: AzureStorageKey;
+};
 
 /**
  * Describes the message unitycatalog.credentials.v1.UpdateCredentialRequest.
  * Use `create(UpdateCredentialRequestSchema)` to create a new message.
  */
-export const UpdateCredentialRequestSchema: GenMessage<UpdateCredentialRequest> =
-  /*@__PURE__*/
+export const UpdateCredentialRequestSchema: GenMessage<UpdateCredentialRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_svc, 4);
 
 /**
@@ -292,22 +250,20 @@ export const UpdateCredentialRequestSchema: GenMessage<UpdateCredentialRequest> 
  *
  * @generated from message unitycatalog.credentials.v1.DeleteCredentialRequest
  */
-export type DeleteCredentialRequest =
-  Message<"unitycatalog.credentials.v1.DeleteCredentialRequest"> & {
-    /**
-     * Name of credential.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
-  };
+export type DeleteCredentialRequest = Message<"unitycatalog.credentials.v1.DeleteCredentialRequest"> & {
+  /**
+   * Name of credential.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+};
 
 /**
  * Describes the message unitycatalog.credentials.v1.DeleteCredentialRequest.
  * Use `create(DeleteCredentialRequestSchema)` to create a new message.
  */
-export const DeleteCredentialRequestSchema: GenMessage<DeleteCredentialRequest> =
-  /*@__PURE__*/
+export const DeleteCredentialRequestSchema: GenMessage<DeleteCredentialRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_svc, 5);
 
 /**
@@ -324,7 +280,7 @@ export const CredentialsService: GenService<{
     methodKind: "unary";
     input: typeof ListCredentialsRequestSchema;
     output: typeof ListCredentialsResponseSchema;
-  };
+  },
   /**
    * @generated from rpc unitycatalog.credentials.v1.CredentialsService.CreateCredential
    */
@@ -332,7 +288,7 @@ export const CredentialsService: GenService<{
     methodKind: "unary";
     input: typeof CreateCredentialRequestSchema;
     output: typeof CredentialSchema;
-  };
+  },
   /**
    * @generated from rpc unitycatalog.credentials.v1.CredentialsService.GetCredential
    */
@@ -340,7 +296,7 @@ export const CredentialsService: GenService<{
     methodKind: "unary";
     input: typeof GetCredentialRequestSchema;
     output: typeof CredentialSchema;
-  };
+  },
   /**
    * @generated from rpc unitycatalog.credentials.v1.CredentialsService.UpdateCredential
    */
@@ -348,7 +304,7 @@ export const CredentialsService: GenService<{
     methodKind: "unary";
     input: typeof UpdateCredentialRequestSchema;
     output: typeof CredentialSchema;
-  };
+  },
   /**
    * @generated from rpc unitycatalog.credentials.v1.CredentialsService.DeleteCredential
    */
@@ -356,5 +312,7 @@ export const CredentialsService: GenService<{
     methodKind: "unary";
     input: typeof DeleteCredentialRequestSchema;
     output: typeof EmptySchema;
-  };
-}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_credentials_v1_svc, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_unitycatalog_credentials_v1_svc, 0);
+

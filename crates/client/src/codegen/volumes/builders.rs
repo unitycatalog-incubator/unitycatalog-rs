@@ -24,17 +24,17 @@ impl ListVolumesBuilder {
         };
         Self { client, request }
     }
-    ///The maximum number of results per page that should be returned.
+    /// The maximum number of results per page that should be returned.
     pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
         self.request.max_results = max_results.into();
         self
     }
-    ///Opaque pagination token to go to next page based on previous query.
+    /// Opaque pagination token to go to next page based on previous query.
     pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
         self.request.page_token = page_token.into();
         self
     }
-    ///Whether to include schemas in the response for which the principal can only access selective metadata for
+    /// Whether to include schemas in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self
@@ -90,12 +90,12 @@ impl CreateVolumeBuilder {
         };
         Self { client, request }
     }
-    ///The storage location on the cloud
+    /// The storage location on the cloud
     pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
         self.request.storage_location = storage_location.into();
         self
     }
-    ///The storage location on the cloud
+    /// The storage location on the cloud
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
@@ -124,7 +124,7 @@ impl GetVolumeBuilder {
         };
         Self { client, request }
     }
-    ///Whether to include schemas in the response for which the principal can only access selective metadata for
+    /// Whether to include schemas in the response for which the principal can only access selective metadata for
     pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
         self.request.include_browse = include_browse.into();
         self
@@ -153,17 +153,17 @@ impl UpdateVolumeBuilder {
         };
         Self { client, request }
     }
-    ///New name for the volume.
+    /// New name for the volume.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    ///The comment attached to the volume
+    /// The comment attached to the volume
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    ///The identifier of the user who owns the volume
+    /// The identifier of the user who owns the volume
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self

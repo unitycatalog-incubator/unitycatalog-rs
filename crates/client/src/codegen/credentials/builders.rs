@@ -18,17 +18,17 @@ impl ListCredentialsBuilder {
         };
         Self { client, request }
     }
-    ///Return only credentials for the specified purpose.
+    /// Return only credentials for the specified purpose.
     pub fn with_purpose(mut self, purpose: impl Into<Option<Purpose>>) -> Self {
         self.request.purpose = purpose.into().map(|e| e as i32);
         self
     }
-    ///The maximum number of results per page that should be returned.
+    /// The maximum number of results per page that should be returned.
     pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
         self.request.max_results = max_results.into();
         self
     }
-    ///Opaque pagination token to go to next page based on previous query.
+    /// Opaque pagination token to go to next page based on previous query.
     pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
         self.request.page_token = page_token.into();
         self
@@ -76,22 +76,22 @@ impl CreateCredentialBuilder {
         };
         Self { client, request }
     }
-    ///Comment associated with the credential.
+    /// Comment associated with the credential.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    ///Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
+    /// Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
     pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
         self.request.read_only = read_only.into();
         self
     }
-    ///Supplying true to this argument skips validation of the created set of credentials.
+    /// Supplying true to this argument skips validation of the created set of credentials.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
     }
-    #[doc = concat!("Set ", "azure_service_principal")]
+    /// Set azure_service_principal
     pub fn with_azure_service_principal(
         mut self,
         azure_service_principal: impl Into<Option<AzureServicePrincipal>>,
@@ -99,7 +99,7 @@ impl CreateCredentialBuilder {
         self.request.azure_service_principal = azure_service_principal.into();
         self
     }
-    #[doc = concat!("Set ", "azure_managed_identity")]
+    /// Set azure_managed_identity
     pub fn with_azure_managed_identity(
         mut self,
         azure_managed_identity: impl Into<Option<AzureManagedIdentity>>,
@@ -107,7 +107,7 @@ impl CreateCredentialBuilder {
         self.request.azure_managed_identity = azure_managed_identity.into();
         self
     }
-    #[doc = concat!("Set ", "azure_storage_key")]
+    /// Set azure_storage_key
     pub fn with_azure_storage_key(
         mut self,
         azure_storage_key: impl Into<Option<AzureStorageKey>>,
@@ -163,38 +163,38 @@ impl UpdateCredentialBuilder {
         };
         Self { client, request }
     }
-    ///Name of credential.
+    /// Name of credential.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
     }
-    ///Comment associated with the credential.
+    /// Comment associated with the credential.
     pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
         self.request.comment = comment.into();
         self
     }
-    ///Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
+    /// Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE.
     pub fn with_read_only(mut self, read_only: impl Into<Option<bool>>) -> Self {
         self.request.read_only = read_only.into();
         self
     }
-    ///Username of current owner of credential.
+    /// Username of current owner of credential.
     pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
         self.request.owner = owner.into();
         self
     }
-    ///Supply true to this argument to skip validation of the updated credential.
+    /// Supply true to this argument to skip validation of the updated credential.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
     }
-    /**Force an update even if there are dependent services (when purpose is SERVICE)
+    /** Force an update even if there are dependent services (when purpose is SERVICE)
     or dependent external locations and external tables (when purpose is STORAGE).*/
     pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
         self.request.force = force.into();
         self
     }
-    #[doc = concat!("Set ", "azure_service_principal")]
+    /// Set azure_service_principal
     pub fn with_azure_service_principal(
         mut self,
         azure_service_principal: impl Into<Option<AzureServicePrincipal>>,
@@ -202,7 +202,7 @@ impl UpdateCredentialBuilder {
         self.request.azure_service_principal = azure_service_principal.into();
         self
     }
-    #[doc = concat!("Set ", "azure_managed_identity")]
+    /// Set azure_managed_identity
     pub fn with_azure_managed_identity(
         mut self,
         azure_managed_identity: impl Into<Option<AzureManagedIdentity>>,
@@ -210,7 +210,7 @@ impl UpdateCredentialBuilder {
         self.request.azure_managed_identity = azure_managed_identity.into();
         self
     }
-    #[doc = concat!("Set ", "azure_storage_key")]
+    /// Set azure_storage_key
     pub fn with_azure_storage_key(
         mut self,
         azure_storage_key: impl Into<Option<AzureStorageKey>>,

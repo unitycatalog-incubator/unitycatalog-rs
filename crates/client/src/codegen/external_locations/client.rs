@@ -18,6 +18,7 @@ impl ExternalLocationClient {
         }
         Self { client, base_url }
     }
+    /// List external locations
     pub async fn list_external_locations(
         &self,
         request: &ListExternalLocationsRequest,
@@ -40,6 +41,7 @@ impl ExternalLocationClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Create a new external location
     pub async fn create_external_location(
         &self,
         request: &CreateExternalLocationRequest,
@@ -50,6 +52,7 @@ impl ExternalLocationClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Get an external location
     pub async fn get_external_location(
         &self,
         request: &GetExternalLocationRequest,
@@ -61,6 +64,7 @@ impl ExternalLocationClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Update an external location
     pub async fn update_external_location(
         &self,
         request: &UpdateExternalLocationRequest,
@@ -72,6 +76,7 @@ impl ExternalLocationClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Delete an external location
     pub async fn delete_external_location(
         &self,
         request: &DeleteExternalLocationRequest,

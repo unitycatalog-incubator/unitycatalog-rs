@@ -2,20 +2,16 @@
 // @generated from file delta_sharing/v1/protocol.proto (package delta_sharing.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file delta_sharing/v1/protocol.proto.
  */
-export const file_delta_sharing_v1_protocol: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Ch9kZWx0YV9zaGFyaW5nL3YxL3Byb3RvY29sLnByb3RvEhBkZWx0YV9zaGFyaW5nLnYxIoIBCgZGb3JtYXQSEAoIcHJvdmlkZXIYASABKAkSNgoHb3B0aW9ucxgCIAMoCzIlLmRlbHRhX3NoYXJpbmcudjEuRm9ybWF0Lk9wdGlvbnNFbnRyeRouCgxPcHRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASLOAgoITWV0YWRhdGESCgoCaWQYASABKAkSEQoEbmFtZRgCIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAMgASgJSAGIAQESKAoGZm9ybWF0GAQgASgLMhguZGVsdGFfc2hhcmluZy52MS5Gb3JtYXQSFQoNc2NoZW1hX3N0cmluZxgFIAEoCRIZChFwYXJ0aXRpb25fY29sdW1ucxgGIAMoCRIZCgxjcmVhdGVkX3RpbWUYByABKANIAogBARI4CgdvcHRpb25zGAggAygLMicuZGVsdGFfc2hhcmluZy52MS5NZXRhZGF0YS5PcHRpb25zRW50cnkaLgoMT3B0aW9uc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFX25hbWVCDgoMX2Rlc2NyaXB0aW9uQg8KDV9jcmVhdGVkX3RpbWVCggEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQg1Qcm90b2NvbFByb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM",
-    [file_buf_validate_validate],
-  );
+export const file_delta_sharing_v1_protocol: GenFile = /*@__PURE__*/
+  fileDesc("Ch9kZWx0YV9zaGFyaW5nL3YxL3Byb3RvY29sLnByb3RvEhBkZWx0YV9zaGFyaW5nLnYxIoIBCgZGb3JtYXQSEAoIcHJvdmlkZXIYASABKAkSNgoHb3B0aW9ucxgCIAMoCzIlLmRlbHRhX3NoYXJpbmcudjEuRm9ybWF0Lk9wdGlvbnNFbnRyeRouCgxPcHRpb25zRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASLOAgoITWV0YWRhdGESCgoCaWQYASABKAkSEQoEbmFtZRgCIAEoCUgAiAEBEhgKC2Rlc2NyaXB0aW9uGAMgASgJSAGIAQESKAoGZm9ybWF0GAQgASgLMhguZGVsdGFfc2hhcmluZy52MS5Gb3JtYXQSFQoNc2NoZW1hX3N0cmluZxgFIAEoCRIZChFwYXJ0aXRpb25fY29sdW1ucxgGIAMoCRIZCgxjcmVhdGVkX3RpbWUYByABKANIAogBARI4CgdvcHRpb25zGAggAygLMicuZGVsdGFfc2hhcmluZy52MS5NZXRhZGF0YS5PcHRpb25zRW50cnkaLgoMT3B0aW9uc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFX25hbWVCDgoMX2Rlc2NyaXB0aW9uQg8KDV9jcmVhdGVkX3RpbWVCggEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQg1Qcm90b2NvbFByb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM", [file_buf_validate_validate]);
 
 /**
  * File format for data files in a table
@@ -42,8 +38,7 @@ export type Format = Message<"delta_sharing.v1.Format"> & {
  * Describes the message delta_sharing.v1.Format.
  * Use `create(FormatSchema)` to create a new message.
  */
-export const FormatSchema: GenMessage<Format> =
-  /*@__PURE__*/
+export const FormatSchema: GenMessage<Format> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_protocol, 0);
 
 /**
@@ -114,6 +109,6 @@ export type Metadata = Message<"delta_sharing.v1.Metadata"> & {
  * Describes the message delta_sharing.v1.Metadata.
  * Use `create(MetadataSchema)` to create a new message.
  */
-export const MetadataSchema: GenMessage<Metadata> =
-  /*@__PURE__*/
+export const MetadataSchema: GenMessage<Metadata> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_protocol, 1);
+

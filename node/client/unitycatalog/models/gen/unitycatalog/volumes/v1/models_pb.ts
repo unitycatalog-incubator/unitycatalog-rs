@@ -2,25 +2,17 @@
 // @generated from file unitycatalog/volumes/v1/models.proto (package unitycatalog.volumes.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenEnum,
-  GenFile,
-  GenMessage,
-} from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/volumes/v1/models.proto.
  */
-export const file_unitycatalog_volumes_v1_models: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiR1bml0eWNhdGFsb2cvdm9sdW1lcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy52b2x1bWVzLnYxIr8ECgZWb2x1bWUSDAoEbmFtZRgBIAEoCRIUCgxjYXRhbG9nX25hbWUYAiABKAkSEwoLc2NoZW1hX25hbWUYAyABKAkSEQoJZnVsbF9uYW1lGAQgASgJEhgKEHN0b3JhZ2VfbG9jYXRpb24YBSABKAkSEQoJdm9sdW1lX2lkGAYgASgJEjgKC3ZvbHVtZV90eXBlGAcgASgOMiMudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuVm9sdW1lVHlwZRISCgVvd25lchgIIAEoCUgAiAEBEhQKB2NvbW1lbnQYCSABKAlIAYgBARIhCgpjcmVhdGVkX2F0GOgHIAEoA0IHukgEIgIgAEgCiAEBEhgKCmNyZWF0ZWRfYnkY6QcgASgJSAOIAQESGAoKdXBkYXRlZF9hdBjqByABKANIBIgBARIYCgp1cGRhdGVkX2J5GOsHIAEoCUgFiAEBEhkKC2Jyb3dzZV9vbmx5GOwHIAEoCEgGiAEBEhoKDG1ldGFzdG9yZV9pZBjtByABKAlIB4gBATo96kE6ChZ1bml0eWNhdGFsb2cuaW8vVm9sdW1lEg92b2x1bWUve3ZvbHVtZX0qB3ZvbHVtZXMyBnZvbHVtZUIICgZfb3duZXJCCgoIX2NvbW1lbnRCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDgoMX2Jyb3dzZV9vbmx5Qg8KDV9tZXRhc3RvcmVfaWQqXAoKVm9sdW1lVHlwZRIbChdWT0xVTUVfVFlQRV9VTlNQRUNJRklFRBAAEhgKFFZPTFVNRV9UWVBFX0VYVEVSTkFMEAESFwoTVk9MVU1FX1RZUEVfTUFOQUdFRBACQvoBChtjb20udW5pdHljYXRhbG9nLnZvbHVtZXMudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3ZvbHVtZXMvdjE7dm9sdW1lc3YxogIDVVZYqgIXVW5pdHljYXRhbG9nLlZvbHVtZXMuVjHKAhdVbml0eWNhdGFsb2dcVm9sdW1lc1xWMeICI1VuaXR5Y2F0YWxvZ1xWb2x1bWVzXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpWb2x1bWVzOjpWMWIGcHJvdG8z",
-    [file_buf_validate_validate, file_google_api_resource],
-  );
+export const file_unitycatalog_volumes_v1_models: GenFile = /*@__PURE__*/
+  fileDesc("CiR1bml0eWNhdGFsb2cvdm9sdW1lcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy52b2x1bWVzLnYxIr8ECgZWb2x1bWUSDAoEbmFtZRgBIAEoCRIUCgxjYXRhbG9nX25hbWUYAiABKAkSEwoLc2NoZW1hX25hbWUYAyABKAkSEQoJZnVsbF9uYW1lGAQgASgJEhgKEHN0b3JhZ2VfbG9jYXRpb24YBSABKAkSEQoJdm9sdW1lX2lkGAYgASgJEjgKC3ZvbHVtZV90eXBlGAcgASgOMiMudW5pdHljYXRhbG9nLnZvbHVtZXMudjEuVm9sdW1lVHlwZRISCgVvd25lchgIIAEoCUgAiAEBEhQKB2NvbW1lbnQYCSABKAlIAYgBARIhCgpjcmVhdGVkX2F0GOgHIAEoA0IHukgEIgIgAEgCiAEBEhgKCmNyZWF0ZWRfYnkY6QcgASgJSAOIAQESGAoKdXBkYXRlZF9hdBjqByABKANIBIgBARIYCgp1cGRhdGVkX2J5GOsHIAEoCUgFiAEBEhkKC2Jyb3dzZV9vbmx5GOwHIAEoCEgGiAEBEhoKDG1ldGFzdG9yZV9pZBjtByABKAlIB4gBATo96kE6ChZ1bml0eWNhdGFsb2cuaW8vVm9sdW1lEg92b2x1bWUve3ZvbHVtZX0qB3ZvbHVtZXMyBnZvbHVtZUIICgZfb3duZXJCCgoIX2NvbW1lbnRCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDgoMX2Jyb3dzZV9vbmx5Qg8KDV9tZXRhc3RvcmVfaWQqXAoKVm9sdW1lVHlwZRIbChdWT0xVTUVfVFlQRV9VTlNQRUNJRklFRBAAEhgKFFZPTFVNRV9UWVBFX0VYVEVSTkFMEAESFwoTVk9MVU1FX1RZUEVfTUFOQUdFRBACQvoBChtjb20udW5pdHljYXRhbG9nLnZvbHVtZXMudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3ZvbHVtZXMvdjE7dm9sdW1lc3YxogIDVVZYqgIXVW5pdHljYXRhbG9nLlZvbHVtZXMuVjHKAhdVbml0eWNhdGFsb2dcVm9sdW1lc1xWMeICI1VuaXR5Y2F0YWxvZ1xWb2x1bWVzXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpWb2x1bWVzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_resource]);
 
 /**
  * @generated from message unitycatalog.volumes.v1.Volume
@@ -142,8 +134,7 @@ export type Volume = Message<"unitycatalog.volumes.v1.Volume"> & {
  * Describes the message unitycatalog.volumes.v1.Volume.
  * Use `create(VolumeSchema)` to create a new message.
  */
-export const VolumeSchema: GenMessage<Volume> =
-  /*@__PURE__*/
+export const VolumeSchema: GenMessage<Volume> = /*@__PURE__*/
   messageDesc(file_unitycatalog_volumes_v1_models, 0);
 
 /**
@@ -169,6 +160,6 @@ export enum VolumeType {
 /**
  * Describes the enum unitycatalog.volumes.v1.VolumeType.
  */
-export const VolumeTypeSchema: GenEnum<VolumeType> =
-  /*@__PURE__*/
+export const VolumeTypeSchema: GenEnum<VolumeType> = /*@__PURE__*/
   enumDesc(file_unitycatalog_volumes_v1_models, 0);
+

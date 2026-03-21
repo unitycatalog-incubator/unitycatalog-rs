@@ -2,87 +2,77 @@
 // @generated from file unitycatalog/recipients/v1/models.proto (package unitycatalog.recipients.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenEnum,
-  GenFile,
-  GenMessage,
-} from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_google_api_resource } from "../../../google/api/resource_pb";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/recipients/v1/models.proto.
  */
-export const file_unitycatalog_recipients_v1_models: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Cid1bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MS9tb2RlbHMucHJvdG8SGnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxIp0BCg5SZWNpcGllbnRUb2tlbhIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgDEhIKCmNyZWF0ZWRfYnkYAyABKAkSFgoOYWN0aXZhdGlvbl91cmwYBCABKAkSFwoPZXhwaXJhdGlvbl90aW1lGAUgASgDEhIKCnVwZGF0ZWRfYXQYBiABKAMSEgoKdXBkYXRlZF9ieRgHIAEoCSLYBAoJUmVjaXBpZW50Eg8KAmlkGGQgASgJSACIAQESDAoEbmFtZRgBIAEoCRJLChNhdXRoZW50aWNhdGlvbl90eXBlGAIgASgOMi4udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQXV0aGVudGljYXRpb25UeXBlEg0KBW93bmVyGAMgASgJEhQKB2NvbW1lbnQYBCABKAlIAYgBARJJCgpwcm9wZXJ0aWVzGAYgAygLMjUudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuUmVjaXBpZW50LlByb3BlcnRpZXNFbnRyeRIXCgpjcmVhdGVkX2F0GAcgASgDSAKIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgDiAEBEjoKBnRva2VucxgJIAMoCzIqLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudFRva2VuEhcKCnVwZGF0ZWRfYXQYCiABKANIBIgBARIXCgp1cGRhdGVkX2J5GAsgASgJSAWIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6TepBSgoZdW5pdHljYXRhbG9nLmlvL1JlY2lwaWVudBIWcmVjaXBpZW50cy97cmVjaXBpZW50fSoKcmVjaXBpZW50czIJcmVjaXBpZW50QgUKA19pZEIKCghfY29tbWVudEINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieSpiChJBdXRoZW50aWNhdGlvblR5cGUSIwofQVVUSEVOVElDQVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEgkKBVRPS0VOEAESHAoYT0FVVEhfQ0xJRU5UX0NSRURFTlRJQUxTEAJCjwIKHmNvbS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MUILTW9kZWxzUHJvdG9QAVpWZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MTtyZWNpcGllbnRzdjGiAgNVUliqAhpVbml0eWNhdGFsb2cuUmVjaXBpZW50cy5WMcoCGlVuaXR5Y2F0YWxvZ1xSZWNpcGllbnRzXFYx4gImVW5pdHljYXRhbG9nXFJlY2lwaWVudHNcVjFcR1BCTWV0YWRhdGHqAhxVbml0eWNhdGFsb2c6OlJlY2lwaWVudHM6OlYxYgZwcm90bzM",
-    [file_google_api_resource, file_google_protobuf_struct],
-  );
+export const file_unitycatalog_recipients_v1_models: GenFile = /*@__PURE__*/
+  fileDesc("Cid1bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MS9tb2RlbHMucHJvdG8SGnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxIp0BCg5SZWNpcGllbnRUb2tlbhIKCgJpZBgBIAEoCRISCgpjcmVhdGVkX2F0GAIgASgDEhIKCmNyZWF0ZWRfYnkYAyABKAkSFgoOYWN0aXZhdGlvbl91cmwYBCABKAkSFwoPZXhwaXJhdGlvbl90aW1lGAUgASgDEhIKCnVwZGF0ZWRfYXQYBiABKAMSEgoKdXBkYXRlZF9ieRgHIAEoCSLYBAoJUmVjaXBpZW50Eg8KAmlkGGQgASgJSACIAQESDAoEbmFtZRgBIAEoCRJLChNhdXRoZW50aWNhdGlvbl90eXBlGAIgASgOMi4udW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuQXV0aGVudGljYXRpb25UeXBlEg0KBW93bmVyGAMgASgJEhQKB2NvbW1lbnQYBCABKAlIAYgBARJJCgpwcm9wZXJ0aWVzGAYgAygLMjUudW5pdHljYXRhbG9nLnJlY2lwaWVudHMudjEuUmVjaXBpZW50LlByb3BlcnRpZXNFbnRyeRIXCgpjcmVhdGVkX2F0GAcgASgDSAKIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgDiAEBEjoKBnRva2VucxgJIAMoCzIqLnVuaXR5Y2F0YWxvZy5yZWNpcGllbnRzLnYxLlJlY2lwaWVudFRva2VuEhcKCnVwZGF0ZWRfYXQYCiABKANIBIgBARIXCgp1cGRhdGVkX2J5GAsgASgJSAWIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6TepBSgoZdW5pdHljYXRhbG9nLmlvL1JlY2lwaWVudBIWcmVjaXBpZW50cy97cmVjaXBpZW50fSoKcmVjaXBpZW50czIJcmVjaXBpZW50QgUKA19pZEIKCghfY29tbWVudEINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieSpiChJBdXRoZW50aWNhdGlvblR5cGUSIwofQVVUSEVOVElDQVRJT05fVFlQRV9VTlNQRUNJRklFRBAAEgkKBVRPS0VOEAESHAoYT0FVVEhfQ0xJRU5UX0NSRURFTlRJQUxTEAJCjwIKHmNvbS51bml0eWNhdGFsb2cucmVjaXBpZW50cy52MUILTW9kZWxzUHJvdG9QAVpWZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvcmVjaXBpZW50cy92MTtyZWNpcGllbnRzdjGiAgNVUliqAhpVbml0eWNhdGFsb2cuUmVjaXBpZW50cy5WMcoCGlVuaXR5Y2F0YWxvZ1xSZWNpcGllbnRzXFYx4gImVW5pdHljYXRhbG9nXFJlY2lwaWVudHNcVjFcR1BCTWV0YWRhdGHqAhxVbml0eWNhdGFsb2c6OlJlY2lwaWVudHM6OlYxYgZwcm90bzM", [file_google_api_resource, file_google_protobuf_struct]);
 
 /**
  * @generated from message unitycatalog.recipients.v1.RecipientToken
  */
-export type RecipientToken =
-  Message<"unitycatalog.recipients.v1.RecipientToken"> & {
-    /**
-     * Unique ID of the recipient token.
-     *
-     * @generated from field: string id = 1;
-     */
-    id: string;
+export type RecipientToken = Message<"unitycatalog.recipients.v1.RecipientToken"> & {
+  /**
+   * Unique ID of the recipient token.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
 
-    /**
-     * Time at which this recipient token was created, in epoch milliseconds.
-     *
-     * @generated from field: int64 created_at = 2;
-     */
-    createdAt: bigint;
+  /**
+   * Time at which this recipient token was created, in epoch milliseconds.
+   *
+   * @generated from field: int64 created_at = 2;
+   */
+  createdAt: bigint;
 
-    /**
-     * Username of recipient token creator.
-     *
-     * @generated from field: string created_by = 3;
-     */
-    createdBy: string;
+  /**
+   * Username of recipient token creator.
+   *
+   * @generated from field: string created_by = 3;
+   */
+  createdBy: string;
 
-    /**
-     * Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.
-     *
-     * @generated from field: string activation_url = 4;
-     */
-    activationUrl: string;
+  /**
+   * Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.
+   *
+   * @generated from field: string activation_url = 4;
+   */
+  activationUrl: string;
 
-    /**
-     * Expiration timestamp of the token in epoch milliseconds.
-     *
-     * @generated from field: int64 expiration_time = 5;
-     */
-    expirationTime: bigint;
+  /**
+   * Expiration timestamp of the token in epoch milliseconds.
+   *
+   * @generated from field: int64 expiration_time = 5;
+   */
+  expirationTime: bigint;
 
-    /**
-     * Time at which this recipient token was updated, in epoch milliseconds.
-     *
-     * @generated from field: int64 updated_at = 6;
-     */
-    updatedAt: bigint;
+  /**
+   * Time at which this recipient token was updated, in epoch milliseconds.
+   *
+   * @generated from field: int64 updated_at = 6;
+   */
+  updatedAt: bigint;
 
-    /**
-     * Username of recipient token updater.
-     *
-     * @generated from field: string updated_by = 7;
-     */
-    updatedBy: string;
-  };
+  /**
+   * Username of recipient token updater.
+   *
+   * @generated from field: string updated_by = 7;
+   */
+  updatedBy: string;
+};
 
 /**
  * Describes the message unitycatalog.recipients.v1.RecipientToken.
  * Use `create(RecipientTokenSchema)` to create a new message.
  */
-export const RecipientTokenSchema: GenMessage<RecipientToken> =
-  /*@__PURE__*/
+export const RecipientTokenSchema: GenMessage<RecipientToken> = /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_models, 0);
 
 /**
@@ -171,8 +161,7 @@ export type Recipient = Message<"unitycatalog.recipients.v1.Recipient"> & {
  * Describes the message unitycatalog.recipients.v1.Recipient.
  * Use `create(RecipientSchema)` to create a new message.
  */
-export const RecipientSchema: GenMessage<Recipient> =
-  /*@__PURE__*/
+export const RecipientSchema: GenMessage<Recipient> = /*@__PURE__*/
   messageDesc(file_unitycatalog_recipients_v1_models, 1);
 
 /**
@@ -204,6 +193,6 @@ export enum AuthenticationType {
 /**
  * Describes the enum unitycatalog.recipients.v1.AuthenticationType.
  */
-export const AuthenticationTypeSchema: GenEnum<AuthenticationType> =
-  /*@__PURE__*/
+export const AuthenticationTypeSchema: GenEnum<AuthenticationType> = /*@__PURE__*/
   enumDesc(file_unitycatalog_recipients_v1_models, 0);
+

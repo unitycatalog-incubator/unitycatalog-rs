@@ -55,8 +55,9 @@ class AzureServicePrincipal:
     client_secret: Optional[str]
     """The client secret generated for the above app ID in AAD."""
     federated_token_file: Optional[str]
-    """Location of the file containing a federated token. Specifically useful for workload identity
-federation."""
+    """Location of the file containing a federated token.
+
+Specifically useful for workload identity federation."""
 
     def __init__(
         self,
@@ -790,8 +791,10 @@ class VolumeType(enum.Enum):
 class CatalogClient:
     def delete(self, force: Optional[bool] = None) -> None:
         """
-        Delete a catalog Deletes the catalog that matches the supplied name. The caller must be a metastore
-        admin or the owner of the catalog.
+        Delete a catalog
+
+        Deletes the catalog that matches the supplied name. The caller must be a metastore admin or the
+        owner of the catalog.
 
 
         Args:
@@ -804,8 +807,10 @@ class CatalogClient:
         ...
     def get(self, include_browse: Optional[bool] = None) -> Catalog:
         """
-        Get a catalog Gets the specified catalog in a metastore. The caller must be a metastore admin, the
-        owner of the catalog, or a user that has the USE_CATALOG privilege set for their account.
+        Get a catalog
+
+        Gets the specified catalog in a metastore. The caller must be a metastore admin, the owner of the
+        catalog, or a user that has the USE_CATALOG privilege set for their account.
 
 
         Args:
@@ -825,8 +830,10 @@ class CatalogClient:
         new_name: Optional[str] = None,
     ) -> Catalog:
         """
-        Update a catalog Updates the catalog that matches the supplied name. The caller must be either the
-        owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
+        Update a catalog
+
+        Updates the catalog that matches the supplied name. The caller must be either the owner of the
+        catalog, or a metastore admin (when changing the owner field of the catalog).
 
 
         Args:
@@ -1166,8 +1173,10 @@ class PyUnityCatalogClient:
         share_name: Optional[str] = None,
     ) -> Catalog:
         """
-        Create a new catalog Creates a new catalog instance in the parent metastore if the caller is a
-        metastore admin or has the CREATE_CATALOG privilege.
+        Create a new catalog
+
+        Creates a new catalog instance in the parent metastore if the caller is a metastore admin or has the
+        CREATE_CATALOG privilege.
 
 
         Args:
@@ -1360,10 +1369,12 @@ class PyUnityCatalogClient:
         ...
     def list_catalogs(self, max_results: Optional[int] = None) -> List[Catalog]:
         """
-        List catalogs Gets an array of catalogs in the metastore. If the caller is the metastore admin, all
-        catalogs will be retrieved. Otherwise, only catalogs owned by the caller (or for which the caller
-        has the USE_CATALOG privilege) will be retrieved. There is no guarantee of a specific ordering of
-        the elements in the array.
+        List catalogs
+
+        Gets an array of catalogs in the metastore. If the caller is the metastore admin, all catalogs
+        will be retrieved. Otherwise, only catalogs owned by the caller (or for which the caller has the
+        USE_CATALOG privilege) will be retrieved. There is no guarantee of a specific ordering of the
+        elements in the array.
 
 
         Args:
@@ -1467,8 +1478,9 @@ class PyUnityCatalogClient:
         include_manifest_capabilities: Optional[bool] = None,
     ) -> List[Table]:
         """
-        Gets an array of all tables for the current metastore under the parent catalog and schema. The
-        caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table. For
+        Gets an array of all tables for the current metastore under the parent catalog and schema.
+
+        The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table. For
         the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the parent
         catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a specific
         ordering of the elements in the array.

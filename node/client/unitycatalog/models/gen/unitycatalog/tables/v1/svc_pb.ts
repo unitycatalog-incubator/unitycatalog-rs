@@ -2,244 +2,210 @@
 // @generated from file unitycatalog/tables/v1/svc.proto (package unitycatalog.tables.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenFile,
-  GenMessage,
-  GenService,
-} from "@bufbuild/protobuf/codegenv2";
-import {
-  fileDesc,
-  messageDesc,
-  serviceDesc,
-} from "@bufbuild/protobuf/codegenv2";
-import type { EmptySchema } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import { file_gnostic_openapi_v3_annotations } from "../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../google/api/annotations_pb";
 import { file_google_api_field_behavior } from "../../../google/api/field_behavior_pb";
-import type {
-  Column,
-  DataSourceFormat,
-  Table,
-  TableSchema,
-  TableSummary,
-  TableType,
-} from "./models_pb";
+import type { EmptySchema } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_empty } from "@bufbuild/protobuf/wkt";
+import type { Column, DataSourceFormat, Table, TableSchema, TableSummary, TableType } from "./models_pb";
 import { file_unitycatalog_tables_v1_models } from "./models_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file unitycatalog/tables/v1/svc.proto.
  */
-export const file_unitycatalog_tables_v1_svc: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "CiB1bml0eWNhdGFsb2cvdGFibGVzL3YxL3N2Yy5wcm90bxIWdW5pdHljYXRhbG9nLnRhYmxlcy52MSKNAwoZTGlzdFRhYmxlU3VtbWFyaWVzUmVxdWVzdBI7CgxjYXRhbG9nX25hbWUYASABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSJQoTc2NoZW1hX25hbWVfcGF0dGVybhgCIAEoCUID4EEBSACIAQESJAoSdGFibGVfbmFtZV9wYXR0ZXJuGAMgASgJQgPgQQFIAYgBARInCgttYXhfcmVzdWx0cxhkIAEoBUIN4EEBukgHGgUYkE4gAEgCiAEBEhwKCnBhZ2VfdG9rZW4YZSABKAlCA+BBAUgDiAEBEi8KHWluY2x1ZGVfbWFuaWZlc3RfY2FwYWJpbGl0aWVzGGYgASgIQgPgQQFIBIgBAUIWChRfc2NoZW1hX25hbWVfcGF0dGVybkIVChNfdGFibGVfbmFtZV9wYXR0ZXJuQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIgCh5faW5jbHVkZV9tYW5pZmVzdF9jYXBhYmlsaXRpZXMihAEKGkxpc3RUYWJsZVN1bW1hcmllc1Jlc3BvbnNlEjQKBnRhYmxlcxgBIAMoCzIkLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGVTdW1tYXJ5EhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i2QQKEUxpc3RUYWJsZXNSZXF1ZXN0EjsKDGNhdGFsb2dfbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6CgtzY2hlbWFfbmFtZRgCIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBImCgttYXhfcmVzdWx0cxgDIAEoBUIM4EEBukgGGgQYMiAASACIAQESHAoKcGFnZV90b2tlbhgEIAEoCUID4EEBSAGIAQESKAoWaW5jbHVkZV9kZWx0YV9tZXRhZGF0YRgFIAEoCEID4EEBSAKIAQESHgoMb21pdF9jb2x1bW5zGAYgASgIQgPgQQFIA4gBARIhCg9vbWl0X3Byb3BlcnRpZXMYByABKAhCA+BBAUgEiAEBEh8KDW9taXRfdXNlcm5hbWUYCCABKAhCA+BBAUgFiAEBEiAKDmluY2x1ZGVfYnJvd3NlGAkgASgIQgPgQQFIBogBARIvCh1pbmNsdWRlX21hbmlmZXN0X2NhcGFiaWxpdGllcxgKIAEoCEID4EEBSAeIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuQhkKF19pbmNsdWRlX2RlbHRhX21ldGFkYXRhQg8KDV9vbWl0X2NvbHVtbnNCEgoQX29taXRfcHJvcGVydGllc0IQCg5fb21pdF91c2VybmFtZUIRCg9faW5jbHVkZV9icm93c2VCIAoeX2luY2x1ZGVfbWFuaWZlc3RfY2FwYWJpbGl0aWVzInUKEkxpc3RUYWJsZXNSZXNwb25zZRItCgZ0YWJsZXMYASADKAsyHS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i0wQKEkNyZWF0ZVRhYmxlUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjoKC3NjaGVtYV9uYW1lGAIgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjsKDGNhdGFsb2dfbmFtZRgDIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6Cgp0YWJsZV90eXBlGAQgASgOMiEudW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZVR5cGVCA+BBAhJJChJkYXRhX3NvdXJjZV9mb3JtYXQYBSABKA4yKC51bml0eWNhdGFsb2cudGFibGVzLnYxLkRhdGFTb3VyY2VGb3JtYXRCA+BBAhIvCgdjb2x1bW5zGAYgAygLMh4udW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW4SHQoQc3RvcmFnZV9sb2NhdGlvbhgHIAEoCUgAiAEBEhQKB2NvbW1lbnQYCCABKAlIAYgBARJOCgpwcm9wZXJ0aWVzGAkgAygLMjoudW5pdHljYXRhbG9nLnRhYmxlcy52MS5DcmVhdGVUYWJsZVJlcXVlc3QuUHJvcGVydGllc0VudHJ5GjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQhMKEV9zdG9yYWdlX2xvY2F0aW9uQgoKCF9jb21tZW50IuIBCg9HZXRUYWJsZVJlcXVlc3QSEQoJZnVsbF9uYW1lGAEgASgJEiMKFmluY2x1ZGVfZGVsdGFfbWV0YWRhdGEYAiABKAhIAIgBARIbCg5pbmNsdWRlX2Jyb3dzZRgDIAEoCEgBiAEBEioKHWluY2x1ZGVfbWFuaWZlc3RfY2FwYWJpbGl0aWVzGAQgASgISAKIAQFCGQoXX2luY2x1ZGVfZGVsdGFfbWV0YWRhdGFCEQoPX2luY2x1ZGVfYnJvd3NlQiAKHl9pbmNsdWRlX21hbmlmZXN0X2NhcGFiaWxpdGllcyIqChVHZXRUYWJsZUV4aXN0c1JlcXVlc3QSEQoJZnVsbF9uYW1lGAEgASgJIi4KFkdldFRhYmxlRXhpc3RzUmVzcG9uc2USFAoMdGFibGVfZXhpc3RzGAEgASgIIicKEkRlbGV0ZVRhYmxlUmVxdWVzdBIRCglmdWxsX25hbWUYASABKAky6QYKDVRhYmxlc1NlcnZpY2USrAEKEkxpc3RUYWJsZVN1bW1hcmllcxIxLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuTGlzdFRhYmxlU3VtbWFyaWVzUmVxdWVzdBoyLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuTGlzdFRhYmxlU3VtbWFyaWVzUmVzcG9uc2UiL7pHFCoSTGlzdFRhYmxlU3VtbWFyaWVzgtPkkwISEhAvdGFibGUtc3VtbWFyaWVzEoMBCgpMaXN0VGFibGVzEikudW5pdHljYXRhbG9nLnRhYmxlcy52MS5MaXN0VGFibGVzUmVxdWVzdBoqLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuTGlzdFRhYmxlc1Jlc3BvbnNlIh66RwwqCkxpc3RUYWJsZXOC0+STAgkSBy90YWJsZXMSfAoLQ3JlYXRlVGFibGUSKi51bml0eWNhdGFsb2cudGFibGVzLnYxLkNyZWF0ZVRhYmxlUmVxdWVzdBodLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGUiIrpHDSoLQ3JlYXRlVGFibGWC0+STAgw6ASoiBy90YWJsZXMSfAoIR2V0VGFibGUSJy51bml0eWNhdGFsb2cudGFibGVzLnYxLkdldFRhYmxlUmVxdWVzdBodLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGUiKLpHCioIR2V0VGFibGWC0+STAhUSEy90YWJsZXMve2Z1bGxfbmFtZX0SpgEKDkdldFRhYmxlRXhpc3RzEi0udW5pdHljYXRhbG9nLnRhYmxlcy52MS5HZXRUYWJsZUV4aXN0c1JlcXVlc3QaLi51bml0eWNhdGFsb2cudGFibGVzLnYxLkdldFRhYmxlRXhpc3RzUmVzcG9uc2UiNbpHECoOR2V0VGFibGVFeGlzdHOC0+STAhwSGi90YWJsZXMve2Z1bGxfbmFtZX0vZXhpc3RzEn4KC0RlbGV0ZVRhYmxlEioudW5pdHljYXRhbG9nLnRhYmxlcy52MS5EZWxldGVUYWJsZVJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiK7pHDSoLRGVsZXRlVGFibGWC0+STAhUqEy90YWJsZXMve2Z1bGxfbmFtZX1C8AEKGmNvbS51bml0eWNhdGFsb2cudGFibGVzLnYxQghTdmNQcm90b1ABWk5naXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy90YWJsZXMvdjE7dGFibGVzdjGiAgNVVFiqAhZVbml0eWNhdGFsb2cuVGFibGVzLlYxygIWVW5pdHljYXRhbG9nXFRhYmxlc1xWMeICIlVuaXR5Y2F0YWxvZ1xUYWJsZXNcVjFcR1BCTWV0YWRhdGHqAhhVbml0eWNhdGFsb2c6OlRhYmxlczo6VjFiBnByb3RvMw",
-    [
-      file_buf_validate_validate,
-      file_gnostic_openapi_v3_annotations,
-      file_google_api_annotations,
-      file_google_api_field_behavior,
-      file_google_protobuf_empty,
-      file_unitycatalog_tables_v1_models,
-    ],
-  );
+export const file_unitycatalog_tables_v1_svc: GenFile = /*@__PURE__*/
+  fileDesc("CiB1bml0eWNhdGFsb2cvdGFibGVzL3YxL3N2Yy5wcm90bxIWdW5pdHljYXRhbG9nLnRhYmxlcy52MSKNAwoZTGlzdFRhYmxlU3VtbWFyaWVzUmVxdWVzdBI7CgxjYXRhbG9nX25hbWUYASABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSJQoTc2NoZW1hX25hbWVfcGF0dGVybhgCIAEoCUID4EEBSACIAQESJAoSdGFibGVfbmFtZV9wYXR0ZXJuGAMgASgJQgPgQQFIAYgBARInCgttYXhfcmVzdWx0cxhkIAEoBUIN4EEBukgHGgUYkE4gAEgCiAEBEhwKCnBhZ2VfdG9rZW4YZSABKAlCA+BBAUgDiAEBEi8KHWluY2x1ZGVfbWFuaWZlc3RfY2FwYWJpbGl0aWVzGGYgASgIQgPgQQFIBIgBAUIWChRfc2NoZW1hX25hbWVfcGF0dGVybkIVChNfdGFibGVfbmFtZV9wYXR0ZXJuQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbkIgCh5faW5jbHVkZV9tYW5pZmVzdF9jYXBhYmlsaXRpZXMihAEKGkxpc3RUYWJsZVN1bW1hcmllc1Jlc3BvbnNlEjQKBnRhYmxlcxgBIAMoCzIkLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGVTdW1tYXJ5EhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i2QQKEUxpc3RUYWJsZXNSZXF1ZXN0EjsKDGNhdGFsb2dfbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6CgtzY2hlbWFfbmFtZRgCIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBImCgttYXhfcmVzdWx0cxgDIAEoBUIM4EEBukgGGgQYMiAASACIAQESHAoKcGFnZV90b2tlbhgEIAEoCUID4EEBSAGIAQESKAoWaW5jbHVkZV9kZWx0YV9tZXRhZGF0YRgFIAEoCEID4EEBSAKIAQESHgoMb21pdF9jb2x1bW5zGAYgASgIQgPgQQFIA4gBARIhCg9vbWl0X3Byb3BlcnRpZXMYByABKAhCA+BBAUgEiAEBEh8KDW9taXRfdXNlcm5hbWUYCCABKAhCA+BBAUgFiAEBEiAKDmluY2x1ZGVfYnJvd3NlGAkgASgIQgPgQQFIBogBARIvCh1pbmNsdWRlX21hbmlmZXN0X2NhcGFiaWxpdGllcxgKIAEoCEID4EEBSAeIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuQhkKF19pbmNsdWRlX2RlbHRhX21ldGFkYXRhQg8KDV9vbWl0X2NvbHVtbnNCEgoQX29taXRfcHJvcGVydGllc0IQCg5fb21pdF91c2VybmFtZUIRCg9faW5jbHVkZV9icm93c2VCIAoeX2luY2x1ZGVfbWFuaWZlc3RfY2FwYWJpbGl0aWVzInUKEkxpc3RUYWJsZXNSZXNwb25zZRItCgZ0YWJsZXMYASADKAsyHS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4i0wQKEkNyZWF0ZVRhYmxlUmVxdWVzdBIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjoKC3NjaGVtYV9uYW1lGAIgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjsKDGNhdGFsb2dfbmFtZRgDIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6Cgp0YWJsZV90eXBlGAQgASgOMiEudW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZVR5cGVCA+BBAhJJChJkYXRhX3NvdXJjZV9mb3JtYXQYBSABKA4yKC51bml0eWNhdGFsb2cudGFibGVzLnYxLkRhdGFTb3VyY2VGb3JtYXRCA+BBAhIvCgdjb2x1bW5zGAYgAygLMh4udW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW4SHQoQc3RvcmFnZV9sb2NhdGlvbhgHIAEoCUgAiAEBEhQKB2NvbW1lbnQYCCABKAlIAYgBARJOCgpwcm9wZXJ0aWVzGAkgAygLMjoudW5pdHljYXRhbG9nLnRhYmxlcy52MS5DcmVhdGVUYWJsZVJlcXVlc3QuUHJvcGVydGllc0VudHJ5GjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBQhMKEV9zdG9yYWdlX2xvY2F0aW9uQgoKCF9jb21tZW50IuIBCg9HZXRUYWJsZVJlcXVlc3QSEQoJZnVsbF9uYW1lGAEgASgJEiMKFmluY2x1ZGVfZGVsdGFfbWV0YWRhdGEYAiABKAhIAIgBARIbCg5pbmNsdWRlX2Jyb3dzZRgDIAEoCEgBiAEBEioKHWluY2x1ZGVfbWFuaWZlc3RfY2FwYWJpbGl0aWVzGAQgASgISAKIAQFCGQoXX2luY2x1ZGVfZGVsdGFfbWV0YWRhdGFCEQoPX2luY2x1ZGVfYnJvd3NlQiAKHl9pbmNsdWRlX21hbmlmZXN0X2NhcGFiaWxpdGllcyIqChVHZXRUYWJsZUV4aXN0c1JlcXVlc3QSEQoJZnVsbF9uYW1lGAEgASgJIi4KFkdldFRhYmxlRXhpc3RzUmVzcG9uc2USFAoMdGFibGVfZXhpc3RzGAEgASgIIicKEkRlbGV0ZVRhYmxlUmVxdWVzdBIRCglmdWxsX25hbWUYASABKAky6QYKDVRhYmxlc1NlcnZpY2USrAEKEkxpc3RUYWJsZVN1bW1hcmllcxIxLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuTGlzdFRhYmxlU3VtbWFyaWVzUmVxdWVzdBoyLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuTGlzdFRhYmxlU3VtbWFyaWVzUmVzcG9uc2UiL7pHFCoSTGlzdFRhYmxlU3VtbWFyaWVzgtPkkwISEhAvdGFibGUtc3VtbWFyaWVzEoMBCgpMaXN0VGFibGVzEikudW5pdHljYXRhbG9nLnRhYmxlcy52MS5MaXN0VGFibGVzUmVxdWVzdBoqLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuTGlzdFRhYmxlc1Jlc3BvbnNlIh66RwwqCkxpc3RUYWJsZXOC0+STAgkSBy90YWJsZXMSfAoLQ3JlYXRlVGFibGUSKi51bml0eWNhdGFsb2cudGFibGVzLnYxLkNyZWF0ZVRhYmxlUmVxdWVzdBodLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGUiIrpHDSoLQ3JlYXRlVGFibGWC0+STAgw6ASoiBy90YWJsZXMSfAoIR2V0VGFibGUSJy51bml0eWNhdGFsb2cudGFibGVzLnYxLkdldFRhYmxlUmVxdWVzdBodLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGUiKLpHCioIR2V0VGFibGWC0+STAhUSEy90YWJsZXMve2Z1bGxfbmFtZX0SpgEKDkdldFRhYmxlRXhpc3RzEi0udW5pdHljYXRhbG9nLnRhYmxlcy52MS5HZXRUYWJsZUV4aXN0c1JlcXVlc3QaLi51bml0eWNhdGFsb2cudGFibGVzLnYxLkdldFRhYmxlRXhpc3RzUmVzcG9uc2UiNbpHECoOR2V0VGFibGVFeGlzdHOC0+STAhwSGi90YWJsZXMve2Z1bGxfbmFtZX0vZXhpc3RzEn4KC0RlbGV0ZVRhYmxlEioudW5pdHljYXRhbG9nLnRhYmxlcy52MS5EZWxldGVUYWJsZVJlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiK7pHDSoLRGVsZXRlVGFibGWC0+STAhUqEy90YWJsZXMve2Z1bGxfbmFtZX1C8AEKGmNvbS51bml0eWNhdGFsb2cudGFibGVzLnYxQghTdmNQcm90b1ABWk5naXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy90YWJsZXMvdjE7dGFibGVzdjGiAgNVVFiqAhZVbml0eWNhdGFsb2cuVGFibGVzLlYxygIWVW5pdHljYXRhbG9nXFRhYmxlc1xWMeICIlVuaXR5Y2F0YWxvZ1xUYWJsZXNcVjFcR1BCTWV0YWRhdGHqAhhVbml0eWNhdGFsb2c6OlRhYmxlczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_protobuf_empty, file_unitycatalog_tables_v1_models]);
 
 /**
  * @generated from message unitycatalog.tables.v1.ListTableSummariesRequest
  */
-export type ListTableSummariesRequest =
-  Message<"unitycatalog.tables.v1.ListTableSummariesRequest"> & {
-    /**
-     * Name of parent catalog for tables of interest.
-     *
-     * @generated from field: string catalog_name = 1;
-     */
-    catalogName: string;
+export type ListTableSummariesRequest = Message<"unitycatalog.tables.v1.ListTableSummariesRequest"> & {
+  /**
+   * Name of parent catalog for tables of interest.
+   *
+   * @generated from field: string catalog_name = 1;
+   */
+  catalogName: string;
 
-    /**
-     * A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty.
-     *
-     * @generated from field: optional string schema_name_pattern = 2;
-     */
-    schemaNamePattern?: string;
+  /**
+   * A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty.
+   *
+   * @generated from field: optional string schema_name_pattern = 2;
+   */
+  schemaNamePattern?: string;
 
-    /**
-     * A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty.
-     *
-     * @generated from field: optional string table_name_pattern = 3;
-     */
-    tableNamePattern?: string;
+  /**
+   * A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty.
+   *
+   * @generated from field: optional string table_name_pattern = 3;
+   */
+  tableNamePattern?: string;
 
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 100;
-     */
-    maxResults?: number;
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 100;
+   */
+  maxResults?: number;
 
-    /**
-     * Opaque pagination token to go to next page based on previous query.
-     *
-     * @generated from field: optional string page_token = 101;
-     */
-    pageToken?: string;
+  /**
+   * Opaque pagination token to go to next page based on previous query.
+   *
+   * @generated from field: optional string page_token = 101;
+   */
+  pageToken?: string;
 
-    /**
-     * Whether to include a manifest containing capabilities the table has.
-     *
-     * @generated from field: optional bool include_manifest_capabilities = 102;
-     */
-    includeManifestCapabilities?: boolean;
-  };
+  /**
+   * Whether to include a manifest containing capabilities the table has.
+   *
+   * @generated from field: optional bool include_manifest_capabilities = 102;
+   */
+  includeManifestCapabilities?: boolean;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.ListTableSummariesRequest.
  * Use `create(ListTableSummariesRequestSchema)` to create a new message.
  */
-export const ListTableSummariesRequestSchema: GenMessage<ListTableSummariesRequest> =
-  /*@__PURE__*/
+export const ListTableSummariesRequestSchema: GenMessage<ListTableSummariesRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 0);
 
 /**
  * @generated from message unitycatalog.tables.v1.ListTableSummariesResponse
  */
-export type ListTableSummariesResponse =
-  Message<"unitycatalog.tables.v1.ListTableSummariesResponse"> & {
-    /**
-     * The table summaries returned.
-     *
-     * @generated from field: repeated unitycatalog.tables.v1.TableSummary tables = 1;
-     */
-    tables: TableSummary[];
+export type ListTableSummariesResponse = Message<"unitycatalog.tables.v1.ListTableSummariesResponse"> & {
+  /**
+   * The table summaries returned.
+   *
+   * @generated from field: repeated unitycatalog.tables.v1.TableSummary tables = 1;
+   */
+  tables: TableSummary[];
 
-    /**
-     * The next_page_token value to include in the next List request.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * The next_page_token value to include in the next List request.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.ListTableSummariesResponse.
  * Use `create(ListTableSummariesResponseSchema)` to create a new message.
  */
-export const ListTableSummariesResponseSchema: GenMessage<ListTableSummariesResponse> =
-  /*@__PURE__*/
+export const ListTableSummariesResponseSchema: GenMessage<ListTableSummariesResponse> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 1);
 
 /**
  * @generated from message unitycatalog.tables.v1.ListTablesRequest
  */
-export type ListTablesRequest =
-  Message<"unitycatalog.tables.v1.ListTablesRequest"> & {
-    /**
-     * Name of parent catalog for tables of interest.
-     *
-     * @generated from field: string catalog_name = 1;
-     */
-    catalogName: string;
+export type ListTablesRequest = Message<"unitycatalog.tables.v1.ListTablesRequest"> & {
+  /**
+   * Name of parent catalog for tables of interest.
+   *
+   * @generated from field: string catalog_name = 1;
+   */
+  catalogName: string;
 
-    /**
-     * Name of parent schema for tables of interest.
-     *
-     * @generated from field: string schema_name = 2;
-     */
-    schemaName: string;
+  /**
+   * Name of parent schema for tables of interest.
+   *
+   * @generated from field: string schema_name = 2;
+   */
+  schemaName: string;
 
-    /**
-     * The maximum number of results per page that should be returned.
-     *
-     * @generated from field: optional int32 max_results = 3;
-     */
-    maxResults?: number;
+  /**
+   * The maximum number of results per page that should be returned.
+   *
+   * @generated from field: optional int32 max_results = 3;
+   */
+  maxResults?: number;
 
-    /**
-     * Opaque pagination token to go to next page based on previous query.
-     *
-     * @generated from field: optional string page_token = 4;
-     */
-    pageToken?: string;
+  /**
+   * Opaque pagination token to go to next page based on previous query.
+   *
+   * @generated from field: optional string page_token = 4;
+   */
+  pageToken?: string;
 
-    /**
-     * Whether delta metadata should be included in the response.
-     *
-     * @generated from field: optional bool include_delta_metadata = 5;
-     */
-    includeDeltaMetadata?: boolean;
+  /**
+   * Whether delta metadata should be included in the response.
+   *
+   * @generated from field: optional bool include_delta_metadata = 5;
+   */
+  includeDeltaMetadata?: boolean;
 
-    /**
-     * Whether to omit the columns of the table from the response or not.
-     *
-     * @generated from field: optional bool omit_columns = 6;
-     */
-    omitColumns?: boolean;
+  /**
+   * Whether to omit the columns of the table from the response or not.
+   *
+   * @generated from field: optional bool omit_columns = 6;
+   */
+  omitColumns?: boolean;
 
-    /**
-     * Whether to omit the properties of the table from the response or not.
-     *
-     * @generated from field: optional bool omit_properties = 7;
-     */
-    omitProperties?: boolean;
+  /**
+   * Whether to omit the properties of the table from the response or not.
+   *
+   * @generated from field: optional bool omit_properties = 7;
+   */
+  omitProperties?: boolean;
 
-    /**
-     * Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or not.
-     *
-     * @generated from field: optional bool omit_username = 8;
-     */
-    omitUsername?: boolean;
+  /**
+   * Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or not.
+   *
+   * @generated from field: optional bool omit_username = 8;
+   */
+  omitUsername?: boolean;
 
-    /**
-     * Whether to include tables in the response for which the principal can only access selective metadata for
-     *
-     * @generated from field: optional bool include_browse = 9;
-     */
-    includeBrowse?: boolean;
+  /**
+   * Whether to include tables in the response for which the principal can only access selective metadata for
+   *
+   * @generated from field: optional bool include_browse = 9;
+   */
+  includeBrowse?: boolean;
 
-    /**
-     * Whether to include a manifest containing capabilities the table has.
-     *
-     * @generated from field: optional bool include_manifest_capabilities = 10;
-     */
-    includeManifestCapabilities?: boolean;
-  };
+  /**
+   * Whether to include a manifest containing capabilities the table has.
+   *
+   * @generated from field: optional bool include_manifest_capabilities = 10;
+   */
+  includeManifestCapabilities?: boolean;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.ListTablesRequest.
  * Use `create(ListTablesRequestSchema)` to create a new message.
  */
-export const ListTablesRequestSchema: GenMessage<ListTablesRequest> =
-  /*@__PURE__*/
+export const ListTablesRequestSchema: GenMessage<ListTablesRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 2);
 
 /**
  * @generated from message unitycatalog.tables.v1.ListTablesResponse
  */
-export type ListTablesResponse =
-  Message<"unitycatalog.tables.v1.ListTablesResponse"> & {
-    /**
-     * The tables returned.
-     *
-     * @generated from field: repeated unitycatalog.tables.v1.Table tables = 1;
-     */
-    tables: Table[];
+export type ListTablesResponse = Message<"unitycatalog.tables.v1.ListTablesResponse"> & {
+  /**
+   * The tables returned.
+   *
+   * @generated from field: repeated unitycatalog.tables.v1.Table tables = 1;
+   */
+  tables: Table[];
 
-    /**
-     * The next_page_token value to include in the next List request.
-     *
-     * @generated from field: optional string next_page_token = 2;
-     */
-    nextPageToken?: string;
-  };
+  /**
+   * The next_page_token value to include in the next List request.
+   *
+   * @generated from field: optional string next_page_token = 2;
+   */
+  nextPageToken?: string;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.ListTablesResponse.
  * Use `create(ListTablesResponseSchema)` to create a new message.
  */
-export const ListTablesResponseSchema: GenMessage<ListTablesResponse> =
-  /*@__PURE__*/
+export const ListTablesResponseSchema: GenMessage<ListTablesResponse> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 3);
 
 /**
@@ -249,74 +215,72 @@ export const ListTablesResponseSchema: GenMessage<ListTablesResponse> =
  *
  * @generated from message unitycatalog.tables.v1.CreateTableRequest
  */
-export type CreateTableRequest =
-  Message<"unitycatalog.tables.v1.CreateTableRequest"> & {
-    /**
-     * Name of table, relative to parent schema.
-     *
-     * @generated from field: string name = 1;
-     */
-    name: string;
+export type CreateTableRequest = Message<"unitycatalog.tables.v1.CreateTableRequest"> & {
+  /**
+   * Name of table, relative to parent schema.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
 
-    /**
-     * Name of parent schema relative to its parent catalog.
-     *
-     * @generated from field: string schema_name = 2;
-     */
-    schemaName: string;
+  /**
+   * Name of parent schema relative to its parent catalog.
+   *
+   * @generated from field: string schema_name = 2;
+   */
+  schemaName: string;
 
-    /**
-     * Name of parent catalog.
-     *
-     * @generated from field: string catalog_name = 3;
-     */
-    catalogName: string;
+  /**
+   * Name of parent catalog.
+   *
+   * @generated from field: string catalog_name = 3;
+   */
+  catalogName: string;
 
-    /**
-     * @generated from field: unitycatalog.tables.v1.TableType table_type = 4;
-     */
-    tableType: TableType;
+  /**
+   * @generated from field: unitycatalog.tables.v1.TableType table_type = 4;
+   */
+  tableType: TableType;
 
-    /**
-     * @generated from field: unitycatalog.tables.v1.DataSourceFormat data_source_format = 5;
-     */
-    dataSourceFormat: DataSourceFormat;
+  /**
+   * @generated from field: unitycatalog.tables.v1.DataSourceFormat data_source_format = 5;
+   */
+  dataSourceFormat: DataSourceFormat;
 
-    /**
-     * The array of Column definitions of the table's columns.
-     *
-     * @generated from field: repeated unitycatalog.tables.v1.Column columns = 6;
-     */
-    columns: Column[];
+  /**
+   * The array of Column definitions of the table's columns.
+   *
+   * @generated from field: repeated unitycatalog.tables.v1.Column columns = 6;
+   */
+  columns: Column[];
 
-    /**
-     * Storage root URL for external table.
-     *
-     * @generated from field: optional string storage_location = 7;
-     */
-    storageLocation?: string;
+  /**
+   * Storage root URL for external table.
+   *
+   * @generated from field: optional string storage_location = 7;
+   */
+  storageLocation?: string;
 
-    /**
-     * User-provided free-form text description.
-     *
-     * @generated from field: optional string comment = 8;
-     */
-    comment?: string;
+  /**
+   * User-provided free-form text description.
+   *
+   * @generated from field: optional string comment = 8;
+   */
+  comment?: string;
 
-    /**
-     * A map of key-value properties attached to the securable.
-     *
-     * @generated from field: map<string, string> properties = 9;
-     */
-    properties: { [key: string]: string };
-  };
+  /**
+   * A map of key-value properties attached to the securable.
+   *
+   * @generated from field: map<string, string> properties = 9;
+   */
+  properties: { [key: string]: string };
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.CreateTableRequest.
  * Use `create(CreateTableRequestSchema)` to create a new message.
  */
-export const CreateTableRequestSchema: GenMessage<CreateTableRequest> =
-  /*@__PURE__*/
+export const CreateTableRequestSchema: GenMessage<CreateTableRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 4);
 
 /**
@@ -324,43 +288,41 @@ export const CreateTableRequestSchema: GenMessage<CreateTableRequest> =
  *
  * @generated from message unitycatalog.tables.v1.GetTableRequest
  */
-export type GetTableRequest =
-  Message<"unitycatalog.tables.v1.GetTableRequest"> & {
-    /**
-     * Full name of the table.
-     *
-     * @generated from field: string full_name = 1;
-     */
-    fullName: string;
+export type GetTableRequest = Message<"unitycatalog.tables.v1.GetTableRequest"> & {
+  /**
+   * Full name of the table.
+   *
+   * @generated from field: string full_name = 1;
+   */
+  fullName: string;
 
-    /**
-     * Whether delta metadata should be included in the response.
-     *
-     * @generated from field: optional bool include_delta_metadata = 2;
-     */
-    includeDeltaMetadata?: boolean;
+  /**
+   * Whether delta metadata should be included in the response.
+   *
+   * @generated from field: optional bool include_delta_metadata = 2;
+   */
+  includeDeltaMetadata?: boolean;
 
-    /**
-     * Whether to include tables in the response for which the principal can only access selective metadata for
-     *
-     * @generated from field: optional bool include_browse = 3;
-     */
-    includeBrowse?: boolean;
+  /**
+   * Whether to include tables in the response for which the principal can only access selective metadata for
+   *
+   * @generated from field: optional bool include_browse = 3;
+   */
+  includeBrowse?: boolean;
 
-    /**
-     * Whether to include a manifest containing capabilities the table has.
-     *
-     * @generated from field: optional bool include_manifest_capabilities = 4;
-     */
-    includeManifestCapabilities?: boolean;
-  };
+  /**
+   * Whether to include a manifest containing capabilities the table has.
+   *
+   * @generated from field: optional bool include_manifest_capabilities = 4;
+   */
+  includeManifestCapabilities?: boolean;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.GetTableRequest.
  * Use `create(GetTableRequestSchema)` to create a new message.
  */
-export const GetTableRequestSchema: GenMessage<GetTableRequest> =
-  /*@__PURE__*/
+export const GetTableRequestSchema: GenMessage<GetTableRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 5);
 
 /**
@@ -368,43 +330,39 @@ export const GetTableRequestSchema: GenMessage<GetTableRequest> =
  *
  * @generated from message unitycatalog.tables.v1.GetTableExistsRequest
  */
-export type GetTableExistsRequest =
-  Message<"unitycatalog.tables.v1.GetTableExistsRequest"> & {
-    /**
-     * Full name of the table.
-     *
-     * @generated from field: string full_name = 1;
-     */
-    fullName: string;
-  };
+export type GetTableExistsRequest = Message<"unitycatalog.tables.v1.GetTableExistsRequest"> & {
+  /**
+   * Full name of the table.
+   *
+   * @generated from field: string full_name = 1;
+   */
+  fullName: string;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.GetTableExistsRequest.
  * Use `create(GetTableExistsRequestSchema)` to create a new message.
  */
-export const GetTableExistsRequestSchema: GenMessage<GetTableExistsRequest> =
-  /*@__PURE__*/
+export const GetTableExistsRequestSchema: GenMessage<GetTableExistsRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 6);
 
 /**
  * @generated from message unitycatalog.tables.v1.GetTableExistsResponse
  */
-export type GetTableExistsResponse =
-  Message<"unitycatalog.tables.v1.GetTableExistsResponse"> & {
-    /**
-     * Boolean reflecting if table exists.
-     *
-     * @generated from field: bool table_exists = 1;
-     */
-    tableExists: boolean;
-  };
+export type GetTableExistsResponse = Message<"unitycatalog.tables.v1.GetTableExistsResponse"> & {
+  /**
+   * Boolean reflecting if table exists.
+   *
+   * @generated from field: bool table_exists = 1;
+   */
+  tableExists: boolean;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.GetTableExistsResponse.
  * Use `create(GetTableExistsResponseSchema)` to create a new message.
  */
-export const GetTableExistsResponseSchema: GenMessage<GetTableExistsResponse> =
-  /*@__PURE__*/
+export const GetTableExistsResponseSchema: GenMessage<GetTableExistsResponse> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 7);
 
 /**
@@ -412,22 +370,20 @@ export const GetTableExistsResponseSchema: GenMessage<GetTableExistsResponse> =
  *
  * @generated from message unitycatalog.tables.v1.DeleteTableRequest
  */
-export type DeleteTableRequest =
-  Message<"unitycatalog.tables.v1.DeleteTableRequest"> & {
-    /**
-     * Full name of the table.
-     *
-     * @generated from field: string full_name = 1;
-     */
-    fullName: string;
-  };
+export type DeleteTableRequest = Message<"unitycatalog.tables.v1.DeleteTableRequest"> & {
+  /**
+   * Full name of the table.
+   *
+   * @generated from field: string full_name = 1;
+   */
+  fullName: string;
+};
 
 /**
  * Describes the message unitycatalog.tables.v1.DeleteTableRequest.
  * Use `create(DeleteTableRequestSchema)` to create a new message.
  */
-export const DeleteTableRequestSchema: GenMessage<DeleteTableRequest> =
-  /*@__PURE__*/
+export const DeleteTableRequestSchema: GenMessage<DeleteTableRequest> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_svc, 8);
 
 /**
@@ -449,7 +405,7 @@ export const TablesService: GenService<{
     methodKind: "unary";
     input: typeof ListTableSummariesRequestSchema;
     output: typeof ListTableSummariesResponseSchema;
-  };
+  },
   /**
    * Gets an array of all tables for the current metastore under the parent catalog and schema.
    *
@@ -464,7 +420,7 @@ export const TablesService: GenService<{
     methodKind: "unary";
     input: typeof ListTablesRequestSchema;
     output: typeof ListTablesResponseSchema;
-  };
+  },
   /**
    * Create a table
    *
@@ -474,7 +430,7 @@ export const TablesService: GenService<{
     methodKind: "unary";
     input: typeof CreateTableRequestSchema;
     output: typeof TableSchema;
-  };
+  },
   /**
    * Get a table
    *
@@ -484,7 +440,7 @@ export const TablesService: GenService<{
     methodKind: "unary";
     input: typeof GetTableRequestSchema;
     output: typeof TableSchema;
-  };
+  },
   /**
    * Get boolean reflecting if table exists
    *
@@ -494,7 +450,7 @@ export const TablesService: GenService<{
     methodKind: "unary";
     input: typeof GetTableExistsRequestSchema;
     output: typeof GetTableExistsResponseSchema;
-  };
+  },
   /**
    * Delete a table
    *
@@ -504,5 +460,7 @@ export const TablesService: GenService<{
     methodKind: "unary";
     input: typeof DeleteTableRequestSchema;
     output: typeof EmptySchema;
-  };
-}> = /*@__PURE__*/ serviceDesc(file_unitycatalog_tables_v1_svc, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_unitycatalog_tables_v1_svc, 0);
+
