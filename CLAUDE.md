@@ -125,7 +125,9 @@ Steps 1 and 2 must always run in this order before staging — clippy may rewrit
 
 ### Commit message format
 
-The agent writes the commit message to `/tmp/commit_msg.txt`, then provides a single-line command for the user to paste:
+The agent writes the commit message to `/tmp/commit_msg.txt`, then:
+1. Prints the full commit message in a code block so the user can read it
+2. Provides the single-line command for the user to paste:
 
 ```bash
 git commit -F /tmp/commit_msg.txt
