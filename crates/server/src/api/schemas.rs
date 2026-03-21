@@ -12,11 +12,13 @@ use crate::{Error, Result};
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> SchemaHandler for T {
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_schema(
         &self,
         request: CreateSchemaRequest,
         context: RequestContext,
     ) -> Result<Schema> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let resource = Schema {
             full_name: format!("{}.{}", request.catalog_name, request.name),
@@ -32,15 +34,18 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         Ok(self.create(resource.into()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_schema(
         &self,
         request: DeleteSchemaRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.full_name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
+    #[tracing::instrument(skip(self, context))]
     async fn list_schemas(
         &self,
         request: ListSchemasRequest,
@@ -62,20 +67,24 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_schema(
         &self,
         request: GetSchemaRequest,
         context: RequestContext,
     ) -> Result<Schema> {
+        tracing::Span::current().record("resource_name", &request.full_name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_schema(
         &self,
         request: UpdateSchemaRequest,
         context: RequestContext,
     ) -> Result<Schema> {
+        tracing::Span::current().record("resource_name", &request.full_name);
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
         let name = ResourceName::from_naive_str_split(request.full_name);

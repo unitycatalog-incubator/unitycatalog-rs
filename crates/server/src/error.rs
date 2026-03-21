@@ -73,6 +73,25 @@ impl Error {
     pub fn invalid_argument(message: impl ToString) -> Self {
         Error::InvalidArgument(message.to_string())
     }
+
+    /// Returns a machine-readable error code matching the UC API spec.
+    pub fn error_code(&self) -> &str {
+        match self {
+            Error::NotFound => "RESOURCE_NOT_FOUND",
+            Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
+            Error::NotAllowed => "PERMISSION_DENIED",
+            Error::Unauthenticated => "UNAUTHENTICATED",
+            Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+            Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
+            Error::MissingRecipient => "INVALID_PARAMETER_VALUE",
+            Error::Common { source } => source.error_code(),
+            Error::DeltaKernel { .. } => "INTERNAL_ERROR",
+            Error::Sharing { .. } => "INTERNAL_ERROR",
+            Error::ObjectStore { .. } => "INTERNAL_ERROR",
+            Error::SerDe { .. } => "INTERNAL_ERROR",
+            Error::Generic(_) => "INTERNAL_ERROR",
+        }
+    }
 }
 
 const INTERNAL_ERROR: (StatusCode, &str) = (
@@ -87,6 +106,7 @@ const INVALID_ARGUMENT: (StatusCode, &str) = (
 
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
+        let error_code = self.error_code().to_string();
         let (status, message) = match self {
             Error::Common { source } => return source.into_response(),
             // EXTERNAL ERRORS
@@ -154,7 +174,7 @@ impl IntoResponse for Error {
         (
             status,
             Json(ErrorResponse {
-                error_code: status.to_string(),
+                error_code,
                 message: message.to_string(),
             }),
         )

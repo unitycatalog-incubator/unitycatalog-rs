@@ -1,7 +1,6 @@
 use std::sync::{Arc, LazyLock};
 
 use clap::Parser;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use unitycatalog_postgres::GraphStore;
 use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::ConstantPolicy;
@@ -61,7 +60,7 @@ pub async fn handle_server(args: &ServerArgs) -> Result<()> {
 ///
 /// This function starts a delta-sharing server using the REST protocol.
 async fn handle_rest(args: &ServerArgs) -> Result<()> {
-    init_tracing();
+    unitycatalog_server::telemetry::init_tracing();
 
     println!("{}", WELCOME.as_str());
 
@@ -120,23 +119,6 @@ async fn get_memory_handler() -> Result<ServerHandler> {
     let policy = Arc::new(ConstantPolicy::default());
     let handler = ServerHandler::try_new_tokio(policy, store.clone(), store)?;
     Ok(handler)
-}
-
-pub(crate) fn init_tracing() {
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                // axum logs rejections from built-in extractors with the `axum::rejection`
-                // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
-                format!(
-                    "{}=debug,tower_http=debug,axum::rejection=trace,unitycatalog_common=debug",
-                    env!("CARGO_CRATE_NAME")
-                )
-                .into()
-            }),
-        )
-        .with(tracing_subscriber::fmt::layer())
-        .init();
 }
 
 static WELCOME: LazyLock<String> = LazyLock::new(|| {

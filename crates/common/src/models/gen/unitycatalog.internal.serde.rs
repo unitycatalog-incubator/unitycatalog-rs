@@ -37,6 +37,9 @@ impl serde::Serialize for Resource {
                 resource::Resource::Recipient(v) => {
                     struct_ser.serialize_field("recipient", v)?;
                 }
+                resource::Resource::Volume(v) => {
+                    struct_ser.serialize_field("volume", v)?;
+                }
             }
         }
         struct_ser.end()
@@ -58,6 +61,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
             "external_location",
             "externalLocation",
             "recipient",
+            "volume",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -70,6 +74,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
             Column,
             ExternalLocation,
             Recipient,
+            Volume,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -100,6 +105,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
                             "column" => Ok(GeneratedField::Column),
                             "externalLocation" | "external_location" => Ok(GeneratedField::ExternalLocation),
                             "recipient" => Ok(GeneratedField::Recipient),
+                            "volume" => Ok(GeneratedField::Volume),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -176,6 +182,13 @@ impl<'de> serde::Deserialize<'de> for Resource {
                                 return Err(serde::de::Error::duplicate_field("recipient"));
                             }
                             resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Recipient)
+;
+                        }
+                        GeneratedField::Volume => {
+                            if resource__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("volume"));
+                            }
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Volume)
 ;
                         }
                         GeneratedField::__SkipField__ => {

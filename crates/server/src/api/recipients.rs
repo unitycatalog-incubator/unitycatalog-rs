@@ -12,11 +12,13 @@ use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> RecipientHandler for T {
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_recipient(
         &self,
         request: CreateRecipientRequest,
         context: RequestContext,
     ) -> Result<Recipient> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let resource = Recipient {
             name: request.name,
@@ -26,31 +28,41 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
             ..Default::default()
         };
 
-        // TODO: create a token placeholder for the recipient with the expiration time etc.
-        // this will then later be activated via the activation url
+        // When authentication_type is TOKEN, an initial RecipientToken should be created
+        // here and stored via the SecretManager.  The token's activation_url would be
+        // returned to the caller so they can share it with the recipient.  This requires
+        // a SecretManager to be accessible from the handler — once that is available,
+        // generate a token, store it with the given expiration_time, and embed it in the
+        // returned Recipient's `tokens` field.  Until then, TOKEN-type recipients are
+        // created without a pre-generated token; they can be activated out-of-band.
 
         let info = self.create(resource.into()).await?.0.try_into()?;
         Ok(info)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_recipient(
         &self,
         request: DeleteRecipientRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_recipient(
         &self,
         request: GetRecipientRequest,
         context: RequestContext,
     ) -> Result<Recipient> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context))]
     async fn list_recipients(
         &self,
         request: ListRecipientsRequest,
@@ -72,13 +84,38 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_recipient(
         &self,
-        _request: UpdateRecipientRequest,
-        _context: RequestContext,
+        request: UpdateRecipientRequest,
+        context: RequestContext,
     ) -> Result<Recipient> {
-        // TODO: once we have token handling, we can update token expiration etc...
-        todo!("update_recipient")
+        tracing::Span::current().record("resource_name", &request.name);
+        self.check_required(&request, context.as_ref()).await?;
+        let ident = request.resource();
+        let current: Recipient = self.get(&ident).await?.0.try_into()?;
+
+        // Apply the mutable fields from the request onto the existing recipient.
+        // Token expiration updates (request.expiration_time) are acknowledged here but
+        // cannot yet be persisted: the `Recipient` protobuf stores tokens as
+        // `Vec<RecipientToken>` and token lifecycle management (create / rotate / expire)
+        // requires a SecretManager, which is not available through the ResourceStore +
+        // Policy bound used by RecipientHandler.  Token handling should be added once
+        // a dedicated token-management service is wired into the handler context.
+        let updated = Recipient {
+            name: request.new_name.unwrap_or(request.name),
+            owner: request.owner.unwrap_or(current.owner),
+            comment: request.comment.or(current.comment),
+            properties: if request.properties.is_empty() {
+                current.properties
+            } else {
+                request.properties
+            },
+            // Preserve all fields managed by the store.
+            ..current
+        };
+
+        Ok(self.update(&ident, updated.into()).await?.0.try_into()?)
     }
 }
 

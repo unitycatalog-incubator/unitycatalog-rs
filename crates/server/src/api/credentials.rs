@@ -47,6 +47,7 @@ impl CredentialContainer {
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
+    #[tracing::instrument(skip(self, context))]
     async fn list_credentials(
         &self,
         request: ListCredentialsRequest,
@@ -67,11 +68,13 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             next_page_token,
         })
     }
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_credential(
         &self,
         request: CreateCredentialRequest,
         context: RequestContext,
     ) -> Result<Credential> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
         let credential = CredentialContainer {
             azure_msi: request.azure_managed_identity,
@@ -101,20 +104,24 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         Ok(self.create(cred.into()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_credential(
         &self,
         request: GetCredentialRequest,
         context: RequestContext,
     ) -> Result<Credential> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
         self.get_credential_internal(request).await
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_credential(
         &self,
         request: UpdateCredentialRequest,
         context: RequestContext,
     ) -> Result<Credential> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
         let credential = CredentialContainer {
             azure_msi: request.azure_managed_identity,
@@ -158,11 +165,13 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
             .try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_credential(
         &self,
         request: DeleteCredentialRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.recipient()).await?;
         match self.delete_secret(&request.name).await {
             // Delete the resource even if the secret is not found to allow cleanup

@@ -19,11 +19,21 @@ pub trait Authenticator: Send + Sync + 'static {
 }
 
 /// Authenticator that always marks the recipient as anonymous.
+///
+/// This is the default authenticator used when no authentication is configured.
+/// The server is designed to run behind a reverse proxy (e.g., nginx, Envoy) that
+/// handles authentication and injects the authenticated identity (e.g., via an
+/// `X-Forwarded-User` header). A production `Authenticator` implementation should
+/// read that header and return `Principal::User(name)`.
+///
+/// TODO: implement a `ReverseProxyAuthenticator` that extracts `Principal` from
+/// the `X-Forwarded-User` (or similar) header set by the upstream proxy.
 #[derive(Clone)]
 pub struct AnonymousAuthenticator;
 
 impl Authenticator for AnonymousAuthenticator {
     fn authenticate(&self, _: &Request) -> Result<Principal> {
+        // TODO: extract from reverse proxy middleware (e.g., X-Forwarded-User header)
         Ok(Principal::anonymous())
     }
 }

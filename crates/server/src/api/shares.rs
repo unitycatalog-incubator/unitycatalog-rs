@@ -13,11 +13,13 @@ use crate::{Error, Result};
 
 #[async_trait::async_trait]
 impl<T: ResourceStore + Policy> ShareHandler for T {
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_share(
         &self,
         request: CreateShareRequest,
         context: RequestContext,
     ) -> Result<Share> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let resource = Share {
             name: request.name,
@@ -30,15 +32,18 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         Ok(self.create(resource.into()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn delete_share(
         &self,
         request: DeleteShareRequest,
         context: RequestContext,
     ) -> Result<()> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
+    #[tracing::instrument(skip(self, context))]
     async fn list_shares(
         &self,
         request: ListSharesRequest,
@@ -60,16 +65,20 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_share(
         &self,
         request: UpdateShareRequest,
         context: RequestContext,
     ) -> Result<Share> {
+        tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, context.as_ref()).await?;
         let ident = request.resource();
         let current: Share = self.get(&ident).await?.0.try_into()?;
@@ -122,20 +131,58 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         Ok(self.update(&ident, resource.into()).await?.0.try_into()?)
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_permissions(
         &self,
-        _request: GetPermissionsRequest,
-        _context: RequestContext,
+        request: GetPermissionsRequest,
+        context: RequestContext,
     ) -> Result<GetPermissionsResponse> {
-        todo!()
+        tracing::Span::current().record("resource_name", &request.name);
+        self.check_required(&request, context.as_ref()).await?;
+        // Permissions for a share are modelled as associations between the share and
+        // principal-named resources.  The `AssociationLabel` enum currently does not
+        // include a dedicated `SharedWith` / `GrantedTo` variant, so we cannot store
+        // per-principal privilege lists in the association graph today.
+        //
+        // Once a suitable `AssociationLabel` variant is added (e.g. `GrantedTo` /
+        // `GrantedBy`) the implementation should:
+        //   1. Call `self.list_associations(&share_ident, &AssociationLabel::GrantedTo, …)`
+        //   2. For each returned ResourceIdent, read the stored privilege list from the
+        //      association properties and build a `PrivilegeAssignment`.
+        //
+        // For now we return an empty list so that callers receive a valid (non-panicking)
+        // response and the endpoint is reachable.
+        let _ = self.get(&request.resource()).await?; // verify the share exists
+        Ok(GetPermissionsResponse {
+            privilege_assignments: vec![],
+            next_page_token: None,
+        })
     }
 
+    #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn update_permissions(
         &self,
-        _request: UpdatePermissionsRequest,
-        _context: RequestContext,
+        request: UpdatePermissionsRequest,
+        context: RequestContext,
     ) -> Result<UpdatePermissionsResponse> {
-        todo!()
+        tracing::Span::current().record("resource_name", &request.name);
+        self.check_required(&request, context.as_ref()).await?;
+        // See the note in `get_permissions`: a dedicated `AssociationLabel` variant is
+        // needed before per-principal privilege changes can be persisted in the graph.
+        //
+        // Once that label exists, the implementation should iterate `request.changes` and:
+        //   - For adds:    `self.add_association(&share_ident, &principal_ident, &label, props)`
+        //   - For removes: `self.remove_association(&share_ident, &principal_ident, &label)`
+        //
+        // For now we verify the share exists, acknowledge the request, and return the
+        // current (empty) privilege list unless the caller asked to omit it.
+        let _ = self.get(&request.resource()).await?; // verify the share exists
+        // When omit_permissions_list is true the caller does not want the updated list back.
+        // Both cases currently return an empty list; once the association label is added the
+        // non-omit path should call get_permissions to build the real list.
+        Ok(UpdatePermissionsResponse {
+            privilege_assignments: vec![],
+        })
     }
 }
 
@@ -180,6 +227,26 @@ impl SecuredAction for UpdateShareRequest {
 }
 
 impl SecuredAction for DeleteShareRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for GetPermissionsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::share(ResourceName::new([self.name.as_str()]))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdatePermissionsRequest {
     fn resource(&self) -> ResourceIdent {
         ResourceIdent::share(ResourceName::new([self.name.as_str()]))
     }

@@ -8,5 +8,6 @@ pub mod rest;
 pub mod services;
 pub mod sharing;
 pub mod store;
+pub mod telemetry;
 
 pub use crate::error::{Error, Result};

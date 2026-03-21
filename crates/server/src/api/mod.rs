@@ -11,6 +11,19 @@ pub use volumes::VolumeHandler;
 use crate::policy::{Permission, Principal};
 use unitycatalog_common::models::ResourceIdent;
 
+// TODO: implement once AssociationLabel::CreatedBy and AssociationLabel::UpdatedBy variants are
+// added to unitycatalog_common (they are currently absent from the AssociationLabel enum in
+// crates/common/src/models/mod.rs). Once those variants exist, this function should be called
+// from create_* and update_* handlers to record who created or last updated a resource.
+//
+// Proposed signature:
+// pub async fn record_audit<S: ResourceStore>(
+//     store: &S,
+//     resource: &ResourceIdent,
+//     principal: &Principal,
+//     action: &str, // "created" | "updated"
+// ) -> Result<()>
+
 pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
