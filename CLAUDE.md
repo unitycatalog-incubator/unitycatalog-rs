@@ -170,3 +170,20 @@ The `Co-authored-by: Isaac` trailer must be included on every commit.
 - Body explains *what* changed and *why*
 
 **Code Generation**: Many files are auto-generated. Run `just generate` after proto changes and commit generated code separately when possible.
+
+### Pull Request workflow
+
+1. **Create a feature branch** before starting any implementation — never work on `main`:
+   ```bash
+   git checkout -b feat/<short-description>
+   ```
+
+2. **Create follow-up issues** (via `gh issue create`) *before* opening the PR so they can be referenced in the PR body. Common follow-up patterns:
+   - Migrations deferred to keep the PR focused
+   - Related work in sibling crates not touched by this PR
+
+3. **Open the PR** with `gh pr create` targeting `main`:
+   - Title format: `<type>: <description> (#<issue>)` — reference the issue being closed
+   - Body: bullet-point summary, test plan checklist, `Closes #N` line, follow-up issue references, and the `AI-assisted by Isaac` attribution line
+
+4. **Commit generated code separately** when a feature PR regenerates many files (e.g. `just generate-code` produces 70+ diffs). Stage only the hand-written changes in the feature commit, then open a follow-up PR (`chore: sync generated code`) on a branch off the feature branch to commit the generated output. This keeps review diffs readable.
