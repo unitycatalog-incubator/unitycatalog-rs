@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::credentials::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCredentialsRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -22,7 +22,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCredentialsReque
             purpose,
             max_results,
             page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListCredentialsRequest {
             purpose,
             max_results,
@@ -44,12 +47,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateCredentialRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetCredentialRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetCredentialRequest { name })
     }
 }
@@ -60,8 +66,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(name) = parts
-            .extract::<axum::extract::Path<String>>()
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -105,12 +111,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteCredentialRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteCredentialRequest { name })
     }
 }

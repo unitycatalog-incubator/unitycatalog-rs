@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::shares::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -19,7 +19,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
         let axum::extract::Query(QueryParams {
             max_results,
             page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListSharesRequest {
             max_results,
             page_token,
@@ -40,12 +43,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateShareRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -53,7 +59,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
         }
         let axum::extract::Query(QueryParams {
             include_shared_data,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetShareRequest {
             name,
             include_shared_data,
@@ -67,8 +76,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateShareRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(name) = parts
-            .extract::<axum::extract::Path<String>>()
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -88,22 +97,28 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateShareRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteShareRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteShareRequest { name })
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetPermissionsRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -114,7 +129,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetPermissionsReques
         let axum::extract::Query(QueryParams {
             max_results,
             page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetPermissionsRequest {
             name,
             max_results,
@@ -129,8 +147,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdatePermissionsRequest 
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(name) = parts
-            .extract::<axum::extract::Path<String>>()
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);

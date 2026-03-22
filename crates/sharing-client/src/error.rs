@@ -92,7 +92,27 @@ mod server {
     impl IntoResponse for Error {
         fn into_response(self) -> Response {
             let (status, message) = match self {
-                Error::Common { source } => return source.into_response(),
+                Error::Common { source } => {
+                    let (status, message) = match source {
+                        unitycatalog_common::Error::NotFound => (
+                            StatusCode::NOT_FOUND,
+                            "The requested resource does not exist.",
+                        ),
+                        unitycatalog_common::Error::InvalidArgument(_)
+                        | unitycatalog_common::Error::InvalidIdentifier(_)
+                        | unitycatalog_common::Error::InvalidTableLocation(_)
+                        | unitycatalog_common::Error::InvalidUrl(_) => INVALID_ARGUMENT,
+                        _ => INTERNAL_ERROR,
+                    };
+                    return (
+                        status,
+                        Json(ErrorResponse {
+                            error_code: status.to_string(),
+                            message: message.to_string(),
+                        }),
+                    )
+                        .into_response();
+                }
                 Error::DeltaKernel { source } => {
                     error!("Kernel error: {}", source);
                     INVALID_ARGUMENT
@@ -130,13 +150,11 @@ mod server {
                     INTERNAL_ERROR
                 }
                 // TODO(roeap): what codes should these have?
-                #[cfg(feature = "axum")]
                 Error::AxumPath(rejection) => {
                     let message = format!("Axum path: {}", rejection);
                     error!("{}", message);
                     INTERNAL_ERROR
                 }
-                #[cfg(feature = "axum")]
                 Error::AxumQuery(rejection) => {
                     let message = format!("Axum query: {}", rejection);
                     error!("{}", message);

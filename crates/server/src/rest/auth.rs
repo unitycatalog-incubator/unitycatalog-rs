@@ -83,7 +83,7 @@ where
                 req.extensions_mut().insert(recipient);
                 self.inner.call(req).boxed()
             }
-            Err(e) => async { Ok(e.into_response()) }.boxed(),
+            Err(e) => async { Ok(crate::Error::from(e).into_response()) }.boxed(),
         }
     }
 }

@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::tables::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTableSummariesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -30,7 +30,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTableSummariesRe
             max_results,
             page_token,
             include_manifest_capabilities,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListTableSummariesRequest {
             catalog_name,
             schema_name_pattern,
@@ -42,7 +45,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTableSummariesRe
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -79,7 +82,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             omit_username,
             include_browse,
             include_manifest_capabilities,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListTablesRequest {
             catalog_name,
             schema_name,
@@ -108,12 +114,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateTableRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((full_name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -127,7 +136,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableRequest {
             include_delta_metadata,
             include_browse,
             include_manifest_capabilities,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetTableRequest {
             full_name,
             include_delta_metadata,
@@ -137,22 +149,28 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableExistsRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((full_name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetTableExistsRequest { full_name })
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteTableRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((full_name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteTableRequest { full_name })
     }
 }

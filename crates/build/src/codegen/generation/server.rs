@@ -23,11 +23,28 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
         .collect_vec();
     let mod_path = service.models_path_crate();
 
+    // Only import RequestPartsExt when there are FromRequestParts impls (path/query params).
+    let has_parts_extractors = service.methods().any(|m| {
+        matches!(
+            m.plan.request_type,
+            RequestType::List | RequestType::Get | RequestType::Delete
+        ) || matches!(
+            m.plan.request_type,
+            RequestType::Custom(Pattern::Get(_) | Pattern::Delete(_))
+        )
+    });
+
+    let axum_imports = if has_parts_extractors {
+        quote! { use axum::{RequestExt, RequestPartsExt}; }
+    } else {
+        quote! { use axum::RequestExt; }
+    };
+
     let tokens = quote! {
         #![allow(unused_mut)]
         use crate::Result;
         use #mod_path::*;
-        use axum::{RequestExt, RequestPartsExt};
+        #axum_imports
 
         #(#extractor_impls)*
     };
@@ -113,13 +130,13 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
 /// Generate FromRequestParts implementation for path/query parameters
 fn from_request_parts_impl(method: &MethodHandler<'_>) -> TokenStream {
     let input_type = method.input_type();
-    let path_extractions = path_extractions(method, false);
+    let path_extractions = path_extractions(method);
     let query_extractions = query_extractions(method);
     let field_assignments = field_assignments(method.plan);
 
     quote! {
         impl<S: Send + Sync> axum::extract::FromRequestParts<S> for #input_type {
-            type Rejection = crate::Error;
+            type Rejection = axum::response::Response;
 
             async fn from_request_parts(
                 parts: &mut axum::http::request::Parts,
@@ -174,7 +191,7 @@ fn from_request_impl(method: &MethodHandler<'_>) -> TokenStream {
 /// Generate hybrid FromRequest implementation for methods with path/query + body
 fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
     let input_type = method.input_type().unwrap();
-    let path_extractions = path_extractions(method, true);
+    let path_extractions = path_extractions(method);
     let query_extractions = query_extractions(method);
     // Oneof fields deserialize from JSON like any other field, so no special treatment needed.
     let body_extractions = generate_body_extractions_tokens(method.plan, &input_type);
@@ -206,7 +223,7 @@ fn generate_hybrid_request_impl(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate path parameter extractions as TokenStream
-fn path_extractions(method: &MethodHandler<'_>, is_request: bool) -> TokenStream {
+fn path_extractions(method: &MethodHandler<'_>) -> TokenStream {
     let params = &method.plan.path_parameters().collect_vec();
 
     if params.is_empty() {
@@ -221,19 +238,11 @@ fn path_extractions(method: &MethodHandler<'_>, is_request: bool) -> TokenStream
             .map(|p| method.field_type(&p.field_type, RenderContext::Extractor))
             .collect();
 
-        if is_request {
-            quote! {
-                let axum::extract::Path((#(#param_names),*)) = parts
-                    .extract::<axum::extract::Path<(#(#param_types),*)>>()
-                    .await
-                    .map_err(axum::response::IntoResponse::into_response)?;
-            }
-        } else {
-            quote! {
-                let axum::extract::Path((#(#param_names),*)) = parts
-                    .extract::<axum::extract::Path<(#(#param_types),*)>>()
-                    .await?;
-            }
+        quote! {
+            let axum::extract::Path((#(#param_names),*)) = parts
+                .extract::<axum::extract::Path<(#(#param_types),*)>>()
+                .await
+                .map_err(axum::response::IntoResponse::into_response)?;
         }
     }
 }
@@ -263,7 +272,8 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
             }
             let axum::extract::Query(QueryParams { #(#param_names),* }) = parts
                 .extract::<axum::extract::Query<QueryParams>>()
-                .await?;
+                .await
+                .map_err(axum::response::IntoResponse::into_response)?;
         }
     }
 }

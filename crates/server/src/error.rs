@@ -108,7 +108,27 @@ impl IntoResponse for Error {
     fn into_response(self) -> Response {
         let error_code = self.error_code().to_string();
         let (status, message) = match self {
-            Error::Common { source } => return source.into_response(),
+            Error::Common { source } => {
+                let (status, message) = match source {
+                    unitycatalog_common::Error::NotFound => (
+                        StatusCode::NOT_FOUND,
+                        "The requested resource does not exist.",
+                    ),
+                    unitycatalog_common::Error::InvalidArgument(_)
+                    | unitycatalog_common::Error::InvalidIdentifier(_)
+                    | unitycatalog_common::Error::InvalidTableLocation(_)
+                    | unitycatalog_common::Error::InvalidUrl(_) => INVALID_ARGUMENT,
+                    _ => INTERNAL_ERROR,
+                };
+                return (
+                    status,
+                    Json(ErrorResponse {
+                        error_code,
+                        message: message.to_string(),
+                    }),
+                )
+                    .into_response();
+            }
             // EXTERNAL ERRORS
             Error::DeltaKernel { .. } => {
                 error!("Failed to interact with Delta Kernel");

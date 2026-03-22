@@ -57,7 +57,7 @@ pub fn generate_common_code(
             metadata,
         };
 
-        // Generate server code
+        // Generate server code (FromRequestParts/FromRequest extractor impls)
         let server_code = server::generate_common(&handler);
         files.insert(format!("{}/server.rs", service.base_path), server_code);
 

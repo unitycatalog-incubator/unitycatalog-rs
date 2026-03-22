@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::schemas::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -24,7 +24,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
             max_results,
             page_token,
             include_browse,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListSchemasRequest {
             catalog_name,
             max_results,
@@ -47,12 +50,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateSchemaRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetSchemaRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((full_name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetSchemaRequest { full_name })
     }
 }
@@ -63,11 +69,10 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateSchemaRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(full_name) =
-            parts
-                .extract::<axum::extract::Path<String>>()
-                .await
-                .map_err(axum::response::IntoResponse::into_response)?;
+        let axum::extract::Path((full_name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
         let axum::extract::Json::<UpdateSchemaRequest>(body) = body_req
             .extract()
@@ -83,19 +88,24 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateSchemaRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteSchemaRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(full_name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((full_name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { force }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteSchemaRequest { full_name, force })
     }
 }
