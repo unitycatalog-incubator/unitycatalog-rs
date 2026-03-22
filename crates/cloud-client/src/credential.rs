@@ -1,7 +1,9 @@
+use std::fmt::Debug;
 use std::sync::Arc;
 use std::time::Duration;
 
 use async_trait::async_trait;
+use futures::future::BoxFuture;
 use reqwest::Client;
 
 use crate::service::HttpService;
@@ -88,6 +90,47 @@ impl<T: TokenProvider> CredentialProvider for TokenCredentialProvider<T> {
                     .fetch_token(&self.client, &self.service, &self.retry)
             })
             .await
+    }
+}
+
+/// Applies authentication to a built reqwest request.
+///
+/// Each cloud provider and Databricks implements this trait.
+/// `send()` in `CloudClient` calls `self.signer.sign(builder).await?`.
+pub trait RequestSigner: Debug + Send + Sync {
+    /// Sign a [`reqwest::RequestBuilder`], returning the modified builder.
+    fn sign<'a>(
+        &'a self,
+        req: reqwest::RequestBuilder,
+    ) -> BoxFuture<'a, Result<reqwest::RequestBuilder>>;
+}
+
+/// Tries signers in order; uses the first that succeeds without error.
+///
+/// This enables Databricks-style fallback chains without bespoke builder logic.
+#[derive(Debug)]
+pub struct SignerChain {
+    signers: Vec<Arc<dyn RequestSigner>>,
+}
+
+impl SignerChain {
+    pub fn new(signers: Vec<Arc<dyn RequestSigner>>) -> Self {
+        Self { signers }
+    }
+}
+
+impl RequestSigner for SignerChain {
+    fn sign<'a>(
+        &'a self,
+        req: reqwest::RequestBuilder,
+    ) -> BoxFuture<'a, Result<reqwest::RequestBuilder>> {
+        Box::pin(async move {
+            let mut current = req;
+            for signer in &self.signers {
+                current = signer.sign(current).await?;
+            }
+            Ok(current)
+        })
     }
 }
 

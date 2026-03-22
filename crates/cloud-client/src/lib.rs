@@ -17,8 +17,6 @@ use reqwest::{Body, Client, IntoUrl, Method, RequestBuilder};
 use serde::Serialize;
 use tokio::runtime::Handle;
 
-use self::aws::credential::{AwsAuthorizer, CredentialExt};
-use self::azure::credential::AzureCredentialExt;
 use self::service::{HttpService, make_service};
 pub use self::token::{TemporaryToken, TokenCache};
 
@@ -28,6 +26,7 @@ mod backoff;
 mod client;
 mod config;
 mod credential;
+pub mod databricks;
 mod error;
 pub mod gcp;
 pub mod service;
@@ -42,28 +41,72 @@ pub use error::*;
 pub use retry::RetryConfig;
 pub use service::{ReqwestService, SpawnService};
 
-#[derive(Clone)]
-enum Credential {
-    Aws(AmazonConfig),
-    Google(GoogleConfig),
-    Azure(AzureConfig),
-    PersonalAccessToken(String),
-    Unauthenticated,
+/// A shared, cloneable signer for a `CloudClient`.
+type SharedSigner = Arc<dyn RequestSigner>;
+
+/// A no-op signer used by `new_unauthenticated`.
+#[derive(Debug)]
+struct NoopSigner;
+
+impl RequestSigner for NoopSigner {
+    fn sign<'a>(
+        &'a self,
+        req: RequestBuilder,
+    ) -> futures::future::BoxFuture<'a, Result<RequestBuilder>> {
+        Box::pin(async move { Ok(req) })
+    }
+}
+
+/// A signer that injects a static bearer token.
+#[derive(Debug)]
+struct BearerTokenSigner {
+    token: String,
+}
+
+impl RequestSigner for BearerTokenSigner {
+    fn sign<'a>(
+        &'a self,
+        req: RequestBuilder,
+    ) -> futures::future::BoxFuture<'a, Result<RequestBuilder>> {
+        let token = self.token.clone();
+        Box::pin(async move { Ok(req.bearer_auth(&token)) })
+    }
+}
+
+#[cfg(feature = "recording")]
+#[derive(Debug, Clone)]
+struct RecordingState {
+    out_dir: PathBuf,
+    counter: Arc<AtomicU64>,
 }
 
 #[derive(Clone)]
 pub struct CloudClient {
-    credential: Credential,
+    signer: SharedSigner,
     reqwest_client: Client,
     service: Arc<dyn HttpService>,
     retry_config: RetryConfig,
     #[cfg(feature = "recording")]
-    out_dir: Option<PathBuf>,
-    #[cfg(feature = "recording")]
-    recording_counter: std::sync::Arc<AtomicU64>,
+    recording: Option<RecordingState>,
 }
 
 impl CloudClient {
+    fn new_with_signer(
+        signer: SharedSigner,
+        reqwest_client: Client,
+        service: Arc<dyn HttpService>,
+        retry_config: RetryConfig,
+    ) -> Self {
+        Self {
+            signer,
+            reqwest_client,
+            service,
+            retry_config,
+            #[cfg(feature = "recording")]
+            recording: None,
+        }
+    }
+
     /// Create a new client with AWS credentials.
     ///
     /// If `runtime` is provided, all HTTP I/O (including credential refresh)
@@ -87,16 +130,13 @@ impl CloudClient {
 
         let reqwest_client = config.client_options.client()?;
         let service = make_service(reqwest_client.clone(), runtime);
-        Ok(Self {
+        let retry_config = config.retry_config.clone();
+        Ok(Self::new_with_signer(
+            Arc::new(config),
             reqwest_client,
             service,
-            retry_config: config.retry_config.clone(),
-            credential: Credential::Aws(config),
-            #[cfg(feature = "recording")]
-            out_dir: None,
-            #[cfg(feature = "recording")]
-            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
-        })
+            retry_config,
+        ))
     }
 
     /// Create a new client with Google Cloud credentials.
@@ -122,16 +162,13 @@ impl CloudClient {
 
         let reqwest_client = config.client_options.client()?;
         let service = make_service(reqwest_client.clone(), runtime);
-        Ok(Self {
+        let retry_config = config.retry_config.clone();
+        Ok(Self::new_with_signer(
+            Arc::new(config),
             reqwest_client,
             service,
-            retry_config: config.retry_config.clone(),
-            credential: Credential::Google(config),
-            #[cfg(feature = "recording")]
-            out_dir: None,
-            #[cfg(feature = "recording")]
-            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
-        })
+            retry_config,
+        ))
     }
 
     /// Create a new client with Azure credentials.
@@ -157,48 +194,73 @@ impl CloudClient {
 
         let reqwest_client = config.client_options.client()?;
         let service = make_service(reqwest_client.clone(), runtime);
-        Ok(Self {
+        let retry_config = config.retry_config.clone();
+        Ok(Self::new_with_signer(
+            Arc::new(config),
             reqwest_client,
             service,
-            retry_config: config.retry_config.clone(),
-            credential: Credential::Azure(config),
-            #[cfg(feature = "recording")]
-            out_dir: None,
-            #[cfg(feature = "recording")]
-            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
-        })
+            retry_config,
+        ))
+    }
+
+    /// Create a new client with Databricks credentials.
+    ///
+    /// If `runtime` is provided, all HTTP I/O (including credential refresh)
+    /// will be spawned on the given runtime handle.
+    pub fn new_databricks<I, K, V>(options: I, runtime: Option<&Handle>) -> Result<Self>
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: AsRef<str>,
+        V: Into<String>,
+    {
+        use databricks::DatabricksBuilder;
+
+        let config = options
+            .into_iter()
+            .fold(
+                DatabricksBuilder::new(),
+                |builder, (key, value)| match key.as_ref().parse() {
+                    Ok(k) => builder.with_config(k, value),
+                    Err(_) => builder,
+                },
+            )
+            .build(runtime)?;
+
+        let reqwest_client = config.client_options.client()?;
+        let service = make_service(reqwest_client.clone(), runtime);
+        let retry_config = config.retry_config.clone();
+        Ok(Self::new_with_signer(
+            Arc::new(config),
+            reqwest_client,
+            service,
+            retry_config,
+        ))
     }
 
     /// Create a new client with a personal access token.
     pub fn new_with_token(token: impl ToString) -> Self {
         let reqwest_client = Client::new();
         let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(reqwest_client.clone()));
-        Self {
+        Self::new_with_signer(
+            Arc::new(BearerTokenSigner {
+                token: token.to_string(),
+            }),
             reqwest_client,
             service,
-            retry_config: RetryConfig::default(),
-            credential: Credential::PersonalAccessToken(token.to_string()),
-            #[cfg(feature = "recording")]
-            out_dir: None,
-            #[cfg(feature = "recording")]
-            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
-        }
+            RetryConfig::default(),
+        )
     }
 
     /// Create a new unauthenticated client.
     pub fn new_unauthenticated() -> Self {
         let reqwest_client = Client::new();
         let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(reqwest_client.clone()));
-        Self {
+        Self::new_with_signer(
+            Arc::new(NoopSigner),
             reqwest_client,
             service,
-            retry_config: RetryConfig::default(),
-            credential: Credential::Unauthenticated,
-            #[cfg(feature = "recording")]
-            out_dir: None,
-            #[cfg(feature = "recording")]
-            recording_counter: std::sync::Arc::new(AtomicU64::new(0)),
-        }
+            RetryConfig::default(),
+        )
     }
 
     /// Route all HTTP I/O through the given runtime handle.
@@ -222,7 +284,7 @@ impl CloudClient {
             builder: self.reqwest_client.request(method, url),
             client: self.clone(),
             #[cfg(feature = "recording")]
-            out_dir: self.out_dir.clone(),
+            out_dir: self.recording.as_ref().map(|r| r.out_dir.clone()),
         }
     }
 
@@ -263,8 +325,12 @@ impl CloudClient {
     }
 
     #[cfg(feature = "recording")]
-    pub fn set_recording_dir(&mut self, out_dir: PathBuf) -> Result<(), std::io::Error> {
-        self.out_dir = Some(std::fs::canonicalize(out_dir)?);
+    pub fn set_recording_dir(&mut self, out_dir: std::path::PathBuf) -> Result<(), std::io::Error> {
+        let out_dir = std::fs::canonicalize(out_dir)?;
+        self.recording = Some(RecordingState {
+            out_dir,
+            counter: Arc::new(AtomicU64::new(0)),
+        });
         Ok(())
     }
 }
@@ -348,27 +414,8 @@ impl CloudRequestBuilder {
     }
 
     pub async fn send(mut self) -> Result<reqwest::Response> {
-        match &self.client.credential {
-            Credential::Azure(az) => {
-                let credential = az.get_credential().await?;
-                self.builder = self.builder.with_azure_authorization(&credential);
-            }
-            Credential::Aws(aws) => {
-                if let Some(cred) = aws.get_credential().await? {
-                    let authorizer = AwsAuthorizer::new(&cred, "execute-api", &aws.region)
-                        .with_sign_payload(aws.sign_payload);
-                    self.builder = self.builder.with_aws_sigv4(Some(authorizer), None);
-                }
-            }
-            Credential::Google(gcp) => {
-                let credential = gcp.get_credential().await?;
-                self.builder = self.builder.bearer_auth(&credential.bearer);
-            }
-            Credential::PersonalAccessToken(token) => {
-                self.builder = self.builder.bearer_auth(token);
-            }
-            Credential::Unauthenticated => {}
-        };
+        self.builder = self.client.signer.sign(self.builder).await?;
+
         #[cfg(not(feature = "recording"))]
         {
             let request = self.builder.build()?;
@@ -460,8 +507,10 @@ async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, 
 
     let counter = builder
         .client
-        .recording_counter
-        .fetch_add(1, Ordering::SeqCst);
+        .recording
+        .as_ref()
+        .map(|r| r.counter.fetch_add(1, Ordering::SeqCst))
+        .unwrap_or(0);
     let file_path = out_dir.join(format!("{:04}.json", counter));
     let file = std::fs::File::create(file_path).unwrap();
     serde_json::to_writer_pretty(file, &recording).unwrap();

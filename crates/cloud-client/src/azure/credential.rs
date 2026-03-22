@@ -40,11 +40,17 @@ const CONTENT_TYPE_JSON: &str = "application/json";
 const MSI_SECRET_ENV_KEY: &str = "IDENTITY_HEADER";
 const MSI_API_VERSION: &str = "2019-08-01";
 
-/// OIDC scope used when interacting with OAuth2 APIs
-const AZURE_STORAGE_SCOPE: &str = "https://storage.azure.com/.default";
+/// OIDC scope used when interacting with Azure Storage OAuth2 APIs
+pub(crate) const AZURE_STORAGE_SCOPE: &str = "https://storage.azure.com/.default";
 
-/// Resource ID used when obtaining an access token from the metadata endpoint
-const AZURE_STORAGE_RESOURCE: &str = "https://storage.azure.com";
+/// Resource ID used when obtaining an access token for Azure Storage from the metadata endpoint
+pub(crate) const AZURE_STORAGE_RESOURCE: &str = "https://storage.azure.com";
+
+/// Azure AD Application ID for Databricks; used as resource ID for Azure Databricks API tokens
+pub(crate) const AZURE_DATABRICKS_RESOURCE: &str = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d";
+
+/// OIDC scope for Azure Databricks OAuth2 APIs
+pub(crate) const AZURE_DATABRICKS_SCOPE: &str = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default";
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -188,6 +194,7 @@ pub(crate) struct ClientSecretOAuthProvider {
     token_url: String,
     client_id: String,
     client_secret: String,
+    scope: String,
 }
 
 impl ClientSecretOAuthProvider {
@@ -196,6 +203,23 @@ impl ClientSecretOAuthProvider {
         client_secret: String,
         tenant_id: impl AsRef<str>,
         authority_host: Option<String>,
+    ) -> Self {
+        Self::new_with_scope(
+            client_id,
+            client_secret,
+            tenant_id,
+            authority_host,
+            AZURE_STORAGE_SCOPE,
+        )
+    }
+
+    /// Create a new provider with a custom OAuth scope (e.g. for Databricks).
+    pub(crate) fn new_with_scope(
+        client_id: String,
+        client_secret: String,
+        tenant_id: impl AsRef<str>,
+        authority_host: Option<String>,
+        scope: &str,
     ) -> Self {
         let authority_host =
             authority_host.unwrap_or_else(|| authority_hosts::AZURE_PUBLIC_CLOUD.to_owned());
@@ -208,6 +232,7 @@ impl ClientSecretOAuthProvider {
             ),
             client_id,
             client_secret,
+            scope: scope.to_owned(),
         }
     }
 }
@@ -228,7 +253,7 @@ impl TokenProvider for ClientSecretOAuthProvider {
             .form(&[
                 ("client_id", self.client_id.as_str()),
                 ("client_secret", self.client_secret.as_str()),
-                ("scope", AZURE_STORAGE_SCOPE),
+                ("scope", self.scope.as_str()),
                 ("grant_type", "client_credentials"),
             ])
             .retryable(retry, service.clone())
@@ -276,6 +301,7 @@ pub(crate) struct ImdsManagedIdentityProvider {
     client_id: Option<String>,
     object_id: Option<String>,
     msi_res_id: Option<String>,
+    resource: String,
 }
 
 impl ImdsManagedIdentityProvider {
@@ -285,6 +311,23 @@ impl ImdsManagedIdentityProvider {
         msi_res_id: Option<String>,
         msi_endpoint: Option<String>,
     ) -> Self {
+        Self::new_with_resource(
+            client_id,
+            object_id,
+            msi_res_id,
+            msi_endpoint,
+            AZURE_STORAGE_RESOURCE,
+        )
+    }
+
+    /// Create a new provider with a custom Azure AD resource (e.g. for Databricks).
+    pub(crate) fn new_with_resource(
+        client_id: Option<String>,
+        object_id: Option<String>,
+        msi_res_id: Option<String>,
+        msi_endpoint: Option<String>,
+        resource: &str,
+    ) -> Self {
         let msi_endpoint = msi_endpoint
             .unwrap_or_else(|| "http://169.254.169.254/metadata/identity/oauth2/token".to_owned());
 
@@ -293,6 +336,7 @@ impl ImdsManagedIdentityProvider {
             client_id,
             object_id,
             msi_res_id,
+            resource: resource.to_owned(),
         }
     }
 }
@@ -309,7 +353,7 @@ impl TokenProvider for ImdsManagedIdentityProvider {
     ) -> crate::Result<TemporaryToken<Arc<AzureCredential>>> {
         let mut query_items = vec![
             ("api-version", MSI_API_VERSION),
-            ("resource", AZURE_STORAGE_RESOURCE),
+            ("resource", self.resource.as_str()),
         ];
 
         let mut identity = None;

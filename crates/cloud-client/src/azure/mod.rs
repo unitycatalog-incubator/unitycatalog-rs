@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
+use futures::future::BoxFuture;
+
 use self::credential::AzureCredential;
-use crate::{ClientOptions, CredentialProvider, Result, RetryConfig};
+use crate::{ClientOptions, CredentialProvider, RequestSigner, Result, RetryConfig};
 
 mod builder;
 pub(crate) mod credential;
@@ -27,5 +29,17 @@ impl AzureConfig {
         } else {
             Some(self.credentials.get_credential().await).transpose()
         }
+    }
+}
+
+impl RequestSigner for AzureConfig {
+    fn sign<'a>(
+        &'a self,
+        req: reqwest::RequestBuilder,
+    ) -> BoxFuture<'a, Result<reqwest::RequestBuilder>> {
+        Box::pin(async move {
+            let credential = self.get_credential().await?;
+            Ok(req.with_azure_authorization(&credential))
+        })
     }
 }
