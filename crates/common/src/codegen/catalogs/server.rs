@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::catalogs::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCatalogsRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -19,7 +19,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCatalogsRequest 
         let axum::extract::Query(QueryParams {
             max_results,
             page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListCatalogsRequest {
             max_results,
             page_token,
@@ -40,19 +43,24 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateCatalogRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetCatalogRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { include_browse }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { include_browse }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetCatalogRequest {
             name,
             include_browse,
@@ -66,8 +74,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCatalogRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(name) = parts
-            .extract::<axum::extract::Path<String>>()
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -87,19 +95,24 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCatalogRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteCatalogRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { force }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteCatalogRequest { name, force })
     }
 }

@@ -61,6 +61,17 @@ impl Error {
     pub fn invalid_predicate(msg: impl ToString) -> Self {
         Self::InvalidPredicate(msg.to_string())
     }
+
+    /// Returns a machine-readable error code matching the UC API spec.
+    pub fn error_code(&self) -> &str {
+        match self {
+            Error::InvalidArgument(_) | Error::InvalidPredicate(_) | Error::MalformedUrl { .. } => {
+                "INVALID_PARAMETER_VALUE"
+            }
+            Error::Common { source } => source.error_code(),
+            _ => "INTERNAL_ERROR",
+        }
+    }
 }
 
 #[derive(serde::Serialize)]
@@ -91,11 +102,47 @@ mod server {
 
     impl IntoResponse for Error {
         fn into_response(self) -> Response {
+            let error_code = self.error_code().to_string();
             let (status, message) = match self {
-                Error::Common { source } => return source.into_response(),
+                Error::Common { source } => {
+                    let (status, message) = match &source {
+                        unitycatalog_common::Error::NotFound => (
+                            StatusCode::NOT_FOUND,
+                            "The requested resource does not exist.",
+                        ),
+                        unitycatalog_common::Error::InvalidArgument(msg) => {
+                            error!("Invalid argument: {}", msg);
+                            INVALID_ARGUMENT
+                        }
+                        unitycatalog_common::Error::InvalidIdentifier(e) => {
+                            error!("Invalid identifier: {}", e);
+                            INVALID_ARGUMENT
+                        }
+                        unitycatalog_common::Error::InvalidTableLocation(loc) => {
+                            error!("Invalid table location: {}", loc);
+                            INVALID_ARGUMENT
+                        }
+                        unitycatalog_common::Error::InvalidUrl(e) => {
+                            error!("Invalid URL: {}", e);
+                            INVALID_ARGUMENT
+                        }
+                        _ => {
+                            error!("Common error: {}", source);
+                            INTERNAL_ERROR
+                        }
+                    };
+                    return (
+                        status,
+                        Json(ErrorResponse {
+                            error_code,
+                            message: message.to_string(),
+                        }),
+                    )
+                        .into_response();
+                }
                 Error::DeltaKernel { source } => {
-                    error!("Kernel error: {}", source);
-                    INVALID_ARGUMENT
+                    error!("Delta Kernel error: {}", source);
+                    INTERNAL_ERROR
                 }
                 Error::InvalidArgument(message) => {
                     error!("Invalid argument: {}", message);
@@ -103,19 +150,18 @@ mod server {
                 }
                 Error::ClientError { source } => {
                     error!("Client error: {}", source);
-                    INVALID_ARGUMENT
+                    INTERNAL_ERROR
                 }
                 Error::MalformedUrl { source } => {
                     error!("Malformed URL: {}", source);
-                    INVALID_ARGUMENT
+                    INTERNAL_ERROR
                 }
                 Error::MalformedResponse { source } => {
                     error!("Malformed response: {}", source);
-                    INVALID_ARGUMENT
+                    INTERNAL_ERROR
                 }
                 Error::RequestError(error) => {
-                    let message = format!("Request error: {}", error);
-                    error!("{}", message);
+                    error!("Request error: {}", error);
                     INTERNAL_ERROR
                 }
                 Error::InvalidPredicate(msg) => {
@@ -129,25 +175,20 @@ mod server {
                     error!("Generic error: {}", message);
                     INTERNAL_ERROR
                 }
-                // TODO(roeap): what codes should these have?
-                #[cfg(feature = "axum")]
                 Error::AxumPath(rejection) => {
-                    let message = format!("Axum path: {}", rejection);
-                    error!("{}", message);
-                    INTERNAL_ERROR
+                    error!("Path extraction error: {}", rejection);
+                    (StatusCode::BAD_REQUEST, "Invalid path parameter.")
                 }
-                #[cfg(feature = "axum")]
                 Error::AxumQuery(rejection) => {
-                    let message = format!("Axum query: {}", rejection);
-                    error!("{}", message);
-                    INTERNAL_ERROR
+                    error!("Query extraction error: {}", rejection);
+                    (StatusCode::BAD_REQUEST, "Invalid query parameter.")
                 }
             };
 
             (
                 status,
                 Json(ErrorResponse {
-                    error_code: status.to_string(),
+                    error_code,
                     message: message.to_string(),
                 }),
             )

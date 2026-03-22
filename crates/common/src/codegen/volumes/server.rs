@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::volumes::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListVolumesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -26,7 +26,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListVolumesRequest {
             max_results,
             page_token,
             include_browse,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListVolumesRequest {
             catalog_name,
             schema_name,
@@ -50,19 +53,24 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateVolumeRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetVolumeRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { include_browse }) =
-            parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        let axum::extract::Query(QueryParams { include_browse }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetVolumeRequest {
             name,
             include_browse,
@@ -76,8 +84,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateVolumeRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(name) = parts
-            .extract::<axum::extract::Path<String>>()
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -95,12 +103,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateVolumeRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteVolumeRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteVolumeRequest { name })
     }
 }

@@ -2,7 +2,7 @@
 #![allow(unused_mut)]
 use crate::Result;
 use crate::models::temporary_credentials::v1::*;
-use axum::{RequestExt, RequestPartsExt};
+use axum::RequestExt;
 impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryTableCredentialsRequest {
     type Rejection = axum::response::Response;
     async fn from_request(

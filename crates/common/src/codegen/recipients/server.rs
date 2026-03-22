@@ -4,7 +4,7 @@ use crate::Result;
 use crate::models::recipients::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListRecipientsRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -19,7 +19,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListRecipientsReques
         let axum::extract::Query(QueryParams {
             max_results,
             page_token,
-        }) = parts.extract::<axum::extract::Query<QueryParams>>().await?;
+        }) = parts
+            .extract::<axum::extract::Query<QueryParams>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListRecipientsRequest {
             max_results,
             page_token,
@@ -40,12 +43,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for CreateRecipientRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetRecipientRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetRecipientRequest { name })
     }
 }
@@ -56,8 +62,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateRecipientRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path(name) = parts
-            .extract::<axum::extract::Path<String>>()
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -83,12 +89,15 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateRecipientRequest {
     }
 }
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteRecipientRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path((name)) = parts
+            .extract::<axum::extract::Path<(String)>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteRecipientRequest { name })
     }
 }
