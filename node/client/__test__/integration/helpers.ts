@@ -9,8 +9,8 @@ let cachedBaseUrl: string | null = null;
 export function getBaseUrl(): string {
   if (cachedBaseUrl) return cachedBaseUrl;
   const state = JSON.parse(fs.readFileSync(STATE_FILE, "utf-8"));
-  cachedBaseUrl = state.baseUrl;
-  return cachedBaseUrl!;
+  cachedBaseUrl = state.baseUrl as string;
+  return cachedBaseUrl;
 }
 
 export function createClient(): UnityCatalogClient {

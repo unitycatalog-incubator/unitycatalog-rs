@@ -98,8 +98,8 @@ export default async function globalSetup() {
 
   // Detach so the process doesn't keep Node alive during teardown
   proc.unref();
-  (proc.stdout as any)?.unref?.();
-  (proc.stderr as any)?.unref?.();
+  (proc.stdout as NodeJS.ReadableStream & { unref?: () => void })?.unref?.();
+  (proc.stderr as NodeJS.ReadableStream & { unref?: () => void })?.unref?.();
 }
 
 function waitForServer(proc: ChildProcess): Promise<string> {
