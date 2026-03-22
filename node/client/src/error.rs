@@ -14,17 +14,23 @@ impl<T> NapiErrorExt<T> for std::result::Result<T, unitycatalog_client::Error> {
     }
 }
 
-pub fn convert_error(err: &dyn std::error::Error) -> napi::Error {
+pub fn convert_error(err: &unitycatalog_client::Error) -> napi::Error {
+    // Emit a structured prefix for typed TS errors so the generated
+    // `parseNativeError` function can match on the error code.
+    if let unitycatalog_client::Error::Api(api_err) = err {
+        return napi::Error::from_reason(format!("UC:{}:{}", api_err.error_code(), api_err));
+    }
+
     let mut message = err.to_string();
 
     // Append causes
-    let mut cause = err.source();
+    let mut cause = std::error::Error::source(err);
     let mut indent = 2;
-    while let Some(err) = cause {
-        let cause_message = format!("Caused by: {}", err);
+    while let Some(e) = cause {
+        let cause_message = format!("Caused by: {}", e);
         message.push_str(&indent_string(&cause_message, indent));
 
-        cause = err.source();
+        cause = e.source();
         indent += 2;
     }
 

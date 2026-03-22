@@ -32,6 +32,105 @@ import {
   NapiVolumeClient as NativeVolumeClient,
 } from "./native";
 
+// ── UC error hierarchy ────────────────────────────────────────────────────────
+
+/** Base class for all Unity Catalog errors. */
+export class UnityCatalogError extends Error {
+  readonly errorCode: string;
+  constructor(message: string, errorCode: string) {
+    super(message);
+    this.name = "UnityCatalogError";
+    this.errorCode = errorCode;
+  }
+}
+
+export class NotFoundError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "RESOURCE_NOT_FOUND");
+    this.name = "NotFoundError";
+  }
+}
+
+export class AlreadyExistsError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "RESOURCE_ALREADY_EXISTS");
+    this.name = "AlreadyExistsError";
+  }
+}
+
+export class PermissionDeniedError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "PERMISSION_DENIED");
+    this.name = "PermissionDeniedError";
+  }
+}
+
+export class UnauthenticatedError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "UNAUTHENTICATED");
+    this.name = "UnauthenticatedError";
+  }
+}
+
+export class InvalidParameterError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "INVALID_PARAMETER_VALUE");
+    this.name = "InvalidParameterError";
+  }
+}
+
+export class RequestLimitError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "REQUEST_LIMIT_EXCEEDED");
+    this.name = "RequestLimitError";
+  }
+}
+
+export class InternalServerError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "INTERNAL_ERROR");
+    this.name = "InternalServerError";
+  }
+}
+
+export class ServiceUnavailableError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "TEMPORARILY_UNAVAILABLE");
+    this.name = "ServiceUnavailableError";
+  }
+}
+
+type UcErrorConstructor = new (message: string) => UnityCatalogError;
+
+const UC_ERROR_MAP: Record<string, UcErrorConstructor> = {
+  RESOURCE_NOT_FOUND: NotFoundError,
+  RESOURCE_ALREADY_EXISTS: AlreadyExistsError,
+  PERMISSION_DENIED: PermissionDeniedError,
+  UNAUTHENTICATED: UnauthenticatedError,
+  INVALID_PARAMETER_VALUE: InvalidParameterError,
+  REQUEST_LIMIT_EXCEEDED: RequestLimitError,
+  INTERNAL_ERROR: InternalServerError,
+  TEMPORARILY_UNAVAILABLE: ServiceUnavailableError,
+};
+
+/**
+ * Parse a native NAPI error that may carry a `UC:<CODE>:<message>` prefix
+ * and re-throw as the appropriate typed subclass of `UnityCatalogError`.
+ */
+function parseNativeError(e: unknown): never {
+  if (e instanceof Error) {
+    const match = e.message.match(/^UC:([^:]+):([\s\S]*)$/);
+    if (match) {
+      const [, code, message] = match;
+      const Ctor = UC_ERROR_MAP[code] ?? UnityCatalogError;
+      throw new Ctor(message);
+    }
+  }
+  throw e;
+}
+
+// ── end UC error hierarchy ─────────────────────────────────────────────────────
+
 export interface ListRecipientsOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
@@ -67,74 +166,57 @@ export interface UpdateRecipientOptions {
   expirationTime?: number;
 }
 
-export interface ListSharesOptions {
+export interface ListCredentialsOptions {
+  /** Return only credentials for the specified purpose. */
+  purpose?: number;
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
 }
 
-export interface CreateShareOptions {
-  /** User-provided free-form text description. */
+export interface CreateCredentialOptions {
+  /** Comment associated with the credential. */
   comment?: string;
+  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
+  readOnly?: boolean;
+  /** Supplying true to this argument skips validation of the created set of credentials. */
+  skipValidation?: boolean;
 }
 
-export interface GetShareOptions {
-  /** Query for data to include in the share. */
-  includeSharedData?: boolean;
-}
-
-export interface UpdateShareOptions {
-  /** A new name for the share. */
+export interface UpdateCredentialOptions {
+  /** Name of credential. */
   newName?: string;
-  /** Owner of the share. */
-  owner?: string;
-  /** User-provided free-form text description. */
+  /** Comment associated with the credential. */
   comment?: string;
+  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
+  readOnly?: boolean;
+  /** Username of current owner of credential. */
+  owner?: string;
+  /** Supply true to this argument to skip validation of the updated credential. */
+  skipValidation?: boolean;
+  /** Force an update even if there are dependent services (when purpose is SERVICE)
+   *  or dependent external locations and external tables (when purpose is STORAGE). */
+  force?: boolean;
 }
 
-export interface GetPermissionsOptions {
+export interface ListSchemasOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
 }
 
-export interface UpdatePermissionsOptions {
-  /** Whether to return the latest permissions list of the share in the response. */
-  omitPermissionsList?: boolean;
-}
-
-export interface ListCatalogsOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-}
-
-export interface CreateCatalogOptions {
+export interface CreateSchemaOptions {
   /** User-provided free-form text description. */
   comment?: string;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string>;
-  /** Storage root URL for managed tables within catalog. */
-  storageRoot?: string;
-  /** The name of delta sharing provider.
-   * 
-   *  A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server. */
-  providerName?: string;
-  /** The name of the share under the share provider. */
-  shareName?: string;
 }
 
-export interface GetCatalogOptions {
-  /** Whether to include catalogs in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface UpdateCatalogOptions {
-  /** Username of new owner of catalog. */
-  owner?: string;
+export interface UpdateSchemaOptions {
   /** User-provided free-form text description. */
   comment?: string;
   /** A map of key-value properties attached to the securable.
@@ -142,43 +224,13 @@ export interface UpdateCatalogOptions {
    *  When provided in update request, the specified properties will override the existing properties.
    *  To add and remove properties, one would need to perform a read-modify-write. */
   properties?: Record<string, string>;
-  /** Name of catalog. */
+  /** Name of schema. */
   newName?: string;
 }
 
-export interface DeleteCatalogOptions {
-  /** Force deletion even if the catalog is not empty. */
+export interface DeleteSchemaOptions {
+  /** Force deletion even if the schema is not empty. */
   force?: boolean;
-}
-
-export interface ListVolumesOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface CreateVolumeOptions {
-  /** The storage location on the cloud */
-  storageLocation?: string;
-  /** The storage location on the cloud */
-  comment?: string;
-}
-
-export interface GetVolumeOptions {
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface UpdateVolumeOptions {
-  /** New name for the volume. */
-  newName?: string;
-  /** The comment attached to the volume */
-  comment?: string;
-  /** The identifier of the user who owns the volume */
-  owner?: string;
 }
 
 export interface GenerateTemporaryPathCredentialsOptions {
@@ -235,38 +287,118 @@ export interface GetTableOptions {
   includeManifestCapabilities?: boolean;
 }
 
-export interface ListCredentialsOptions {
-  /** Return only credentials for the specified purpose. */
-  purpose?: number;
+export interface ListCatalogsOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
 }
 
-export interface CreateCredentialOptions {
-  /** Comment associated with the credential. */
+export interface CreateCatalogOptions {
+  /** User-provided free-form text description. */
   comment?: string;
-  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
-  readOnly?: boolean;
-  /** Supplying true to this argument skips validation of the created set of credentials. */
-  skipValidation?: boolean;
+  /** A map of key-value properties attached to the securable. */
+  properties?: Record<string, string>;
+  /** Storage root URL for managed tables within catalog. */
+  storageRoot?: string;
+  /** The name of delta sharing provider.
+   * 
+   *  A Delta Sharing catalog is a catalog that is based on a Delta share on a remote sharing server. */
+  providerName?: string;
+  /** The name of the share under the share provider. */
+  shareName?: string;
 }
 
-export interface UpdateCredentialOptions {
-  /** Name of credential. */
-  newName?: string;
-  /** Comment associated with the credential. */
-  comment?: string;
-  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
-  readOnly?: boolean;
-  /** Username of current owner of credential. */
+export interface GetCatalogOptions {
+  /** Whether to include catalogs in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface UpdateCatalogOptions {
+  /** Username of new owner of catalog. */
   owner?: string;
-  /** Supply true to this argument to skip validation of the updated credential. */
-  skipValidation?: boolean;
-  /** Force an update even if there are dependent services (when purpose is SERVICE)
-   *  or dependent external locations and external tables (when purpose is STORAGE). */
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** A map of key-value properties attached to the securable.
+   * 
+   *  When provided in update request, the specified properties will override the existing properties.
+   *  To add and remove properties, one would need to perform a read-modify-write. */
+  properties?: Record<string, string>;
+  /** Name of catalog. */
+  newName?: string;
+}
+
+export interface DeleteCatalogOptions {
+  /** Force deletion even if the catalog is not empty. */
   force?: boolean;
+}
+
+export interface ListSharesOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface CreateShareOptions {
+  /** User-provided free-form text description. */
+  comment?: string;
+}
+
+export interface GetShareOptions {
+  /** Query for data to include in the share. */
+  includeSharedData?: boolean;
+}
+
+export interface UpdateShareOptions {
+  /** A new name for the share. */
+  newName?: string;
+  /** Owner of the share. */
+  owner?: string;
+  /** User-provided free-form text description. */
+  comment?: string;
+}
+
+export interface GetPermissionsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface UpdatePermissionsOptions {
+  /** Whether to return the latest permissions list of the share in the response. */
+  omitPermissionsList?: boolean;
+}
+
+export interface ListVolumesOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface CreateVolumeOptions {
+  /** The storage location on the cloud */
+  storageLocation?: string;
+  /** The storage location on the cloud */
+  comment?: string;
+}
+
+export interface GetVolumeOptions {
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface UpdateVolumeOptions {
+  /** New name for the volume. */
+  newName?: string;
+  /** The comment attached to the volume */
+  comment?: string;
+  /** The identifier of the user who owns the volume */
+  owner?: string;
 }
 
 export interface ListExternalLocationsOptions {
@@ -311,39 +443,6 @@ export interface DeleteExternalLocationOptions {
   force?: boolean;
 }
 
-export interface ListSchemasOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface CreateSchemaOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string>;
-}
-
-export interface UpdateSchemaOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable.
-   * 
-   *  When provided in update request, the specified properties will override the existing properties.
-   *  To add and remove properties, one would need to perform a read-modify-write. */
-  properties?: Record<string, string>;
-  /** Name of schema. */
-  newName?: string;
-}
-
-export interface DeleteSchemaOptions {
-  /** Force deletion even if the schema is not empty. */
-  force?: boolean;
-}
-
 export class RecipientClient {
   private readonly inner: NativeRecipientClient;
 
@@ -356,7 +455,9 @@ export class RecipientClient {
      * Get a recipient by name.
      */
   async get(): Promise<Recipient> {
-    return fromBinary(RecipientSchema, await this.inner.get());
+    try {
+      return fromBinary(RecipientSchema, await this.inner.get());
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -364,47 +465,121 @@ export class RecipientClient {
      */
   async update(options?: UpdateRecipientOptions): Promise<Recipient> {
     const { newName, owner, comment, properties, expirationTime } = options || {};
-    return fromBinary(RecipientSchema, await this.inner.update(newName, owner, comment, properties, expirationTime));
+    try {
+      return fromBinary(RecipientSchema, await this.inner.update(newName, owner, comment, properties, expirationTime));
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
      * Delete a recipient.
      */
   async delete(): Promise<void> {
-    await this.inner.delete();
+    try {
+      await this.inner.delete();
+    } catch (e) { parseNativeError(e); }
   }
 
 }
 
-export class ShareClient {
-  private readonly inner: NativeShareClient;
+export class CredentialClient {
+  private readonly inner: NativeCredentialClient;
 
   /** @internal */
-  constructor(inner: NativeShareClient) {
+  constructor(inner: NativeCredentialClient) {
+    this.inner = inner;
+  }
+
+  async get(): Promise<Credential> {
+    try {
+      return fromBinary(CredentialSchema, await this.inner.get());
+    } catch (e) { parseNativeError(e); }
+  }
+
+  async update(options?: UpdateCredentialOptions): Promise<Credential> {
+    const { newName, comment, readOnly, owner, skipValidation, force } = options || {};
+    try {
+      return fromBinary(CredentialSchema, await this.inner.update(newName, comment, readOnly, owner, skipValidation, force));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { parseNativeError(e); }
+  }
+
+}
+
+export class SchemaClient {
+  private readonly inner: NativeSchemaClient;
+
+  /** @internal */
+  constructor(inner: NativeSchemaClient) {
     this.inner = inner;
   }
 
   /**
-     * Get a share by name.
+     * Gets the specified schema within the metastore.
+     * The caller must be a metastore admin, the owner of the schema,
+     * or a user that has the USE_SCHEMA privilege on the schema.
      */
-  async get(options?: GetShareOptions): Promise<Share> {
-    const { includeSharedData } = options || {};
-    return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
+  async get(): Promise<Schema> {
+    try {
+      return fromBinary(SchemaSchema, await this.inner.get());
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
-     * Update a share.
+     * Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
+     * If the caller is a metastore admin, only the owner field can be changed in the update.
+     * If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
+     * privilege on the parent catalog.
      */
-  async update(options?: UpdateShareOptions): Promise<Share> {
-    const { newName, owner, comment } = options || {};
-    return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
+  async update(options?: UpdateSchemaOptions): Promise<Schema> {
+    const { comment, properties, newName } = options || {};
+    try {
+      return fromBinary(SchemaSchema, await this.inner.update(comment, properties, newName));
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
-     * Deletes a share.
+     * Deletes the specified schema from the parent catalog. The caller must be the owner
+     * of the schema or an owner of the parent catalog.
+     */
+  async delete(options?: DeleteSchemaOptions): Promise<void> {
+    const { force } = options || {};
+    try {
+      await this.inner.delete(force);
+    } catch (e) { parseNativeError(e); }
+  }
+
+}
+
+export class TableClient {
+  private readonly inner: NativeTableClient;
+
+  /** @internal */
+  constructor(inner: NativeTableClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a table
+     */
+  async get(options?: GetTableOptions): Promise<Table> {
+    const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
+    try {
+      return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Delete a table
      */
   async delete(): Promise<void> {
-    await this.inner.delete();
+    try {
+      await this.inner.delete();
+    } catch (e) { parseNativeError(e); }
   }
 
 }
@@ -425,7 +600,9 @@ export class CatalogClient {
      */
   async get(options?: GetCatalogOptions): Promise<Catalog> {
     const { includeBrowse } = options || {};
-    return fromBinary(CatalogSchema, await this.inner.get(includeBrowse));
+    try {
+      return fromBinary(CatalogSchema, await this.inner.get(includeBrowse));
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -436,7 +613,9 @@ export class CatalogClient {
      */
   async update(options?: UpdateCatalogOptions): Promise<Catalog> {
     const { owner, comment, properties, newName } = options || {};
-    return fromBinary(CatalogSchema, await this.inner.update(owner, comment, properties, newName));
+    try {
+      return fromBinary(CatalogSchema, await this.inner.update(owner, comment, properties, newName));
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -447,7 +626,48 @@ export class CatalogClient {
      */
   async delete(options?: DeleteCatalogOptions): Promise<void> {
     const { force } = options || {};
-    await this.inner.delete(force);
+    try {
+      await this.inner.delete(force);
+    } catch (e) { parseNativeError(e); }
+  }
+
+}
+
+export class ShareClient {
+  private readonly inner: NativeShareClient;
+
+  /** @internal */
+  constructor(inner: NativeShareClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a share by name.
+     */
+  async get(options?: GetShareOptions): Promise<Share> {
+    const { includeSharedData } = options || {};
+    try {
+      return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Update a share.
+     */
+  async update(options?: UpdateShareOptions): Promise<Share> {
+    const { newName, owner, comment } = options || {};
+    try {
+      return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Deletes a share.
+     */
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { parseNativeError(e); }
   }
 
 }
@@ -462,64 +682,22 @@ export class VolumeClient {
 
   async get(options?: GetVolumeOptions): Promise<Volume> {
     const { includeBrowse } = options || {};
-    return fromBinary(VolumeSchema, await this.inner.get(includeBrowse));
+    try {
+      return fromBinary(VolumeSchema, await this.inner.get(includeBrowse));
+    } catch (e) { parseNativeError(e); }
   }
 
   async update(options?: UpdateVolumeOptions): Promise<Volume> {
     const { newName, comment, owner } = options || {};
-    return fromBinary(VolumeSchema, await this.inner.update(newName, comment, owner));
+    try {
+      return fromBinary(VolumeSchema, await this.inner.update(newName, comment, owner));
+    } catch (e) { parseNativeError(e); }
   }
 
   async delete(): Promise<void> {
-    await this.inner.delete();
-  }
-
-}
-
-export class TableClient {
-  private readonly inner: NativeTableClient;
-
-  /** @internal */
-  constructor(inner: NativeTableClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Get a table
-     */
-  async get(options?: GetTableOptions): Promise<Table> {
-    const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
-    return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
-  }
-
-  /**
-     * Delete a table
-     */
-  async delete(): Promise<void> {
-    await this.inner.delete();
-  }
-
-}
-
-export class CredentialClient {
-  private readonly inner: NativeCredentialClient;
-
-  /** @internal */
-  constructor(inner: NativeCredentialClient) {
-    this.inner = inner;
-  }
-
-  async get(): Promise<Credential> {
-    return fromBinary(CredentialSchema, await this.inner.get());
-  }
-
-  async update(options?: UpdateCredentialOptions): Promise<Credential> {
-    const { newName, comment, readOnly, owner, skipValidation, force } = options || {};
-    return fromBinary(CredentialSchema, await this.inner.update(newName, comment, readOnly, owner, skipValidation, force));
-  }
-
-  async delete(): Promise<void> {
-    await this.inner.delete();
+    try {
+      await this.inner.delete();
+    } catch (e) { parseNativeError(e); }
   }
 
 }
@@ -536,7 +714,9 @@ export class ExternalLocationClient {
      * Get an external location
      */
   async get(): Promise<ExternalLocation> {
-    return fromBinary(ExternalLocationSchema, await this.inner.get());
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.get());
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -544,7 +724,9 @@ export class ExternalLocationClient {
      */
   async update(options?: UpdateExternalLocationOptions): Promise<ExternalLocation> {
     const { url, credentialName, readOnly, owner, comment, newName, force, skipValidation } = options || {};
-    return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -552,46 +734,9 @@ export class ExternalLocationClient {
      */
   async delete(options?: DeleteExternalLocationOptions): Promise<void> {
     const { force } = options || {};
-    await this.inner.delete(force);
-  }
-
-}
-
-export class SchemaClient {
-  private readonly inner: NativeSchemaClient;
-
-  /** @internal */
-  constructor(inner: NativeSchemaClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Gets the specified schema within the metastore.
-     * The caller must be a metastore admin, the owner of the schema,
-     * or a user that has the USE_SCHEMA privilege on the schema.
-     */
-  async get(): Promise<Schema> {
-    return fromBinary(SchemaSchema, await this.inner.get());
-  }
-
-  /**
-     * Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
-     * If the caller is a metastore admin, only the owner field can be changed in the update.
-     * If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
-     * privilege on the parent catalog.
-     */
-  async update(options?: UpdateSchemaOptions): Promise<Schema> {
-    const { comment, properties, newName } = options || {};
-    return fromBinary(SchemaSchema, await this.inner.update(comment, properties, newName));
-  }
-
-  /**
-     * Deletes the specified schema from the parent catalog. The caller must be the owner
-     * of the schema or an owner of the parent catalog.
-     */
-  async delete(options?: DeleteSchemaOptions): Promise<void> {
-    const { force } = options || {};
-    await this.inner.delete(force);
+    try {
+      await this.inner.delete(force);
+    } catch (e) { parseNativeError(e); }
   }
 
 }
@@ -613,9 +758,11 @@ export class UnityCatalogClient {
      */
   async listCatalogs(options?: ListCatalogsOptions): Promise<Catalog[]> {
     const { maxResults } = options || {};
-    return (await this.inner.listCatalogs(maxResults)).map((data) =>
-      fromBinary(CatalogSchema, data),
-    );
+    try {
+      return (await this.inner.listCatalogs(maxResults)).map((data) =>
+        fromBinary(CatalogSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -626,7 +773,9 @@ export class UnityCatalogClient {
      */
   async createCatalog(name: string, options?: CreateCatalogOptions): Promise<Catalog> {
     const { comment, properties, storageRoot, providerName, shareName } = options || {};
-    return fromBinary(CatalogSchema, await this.inner.createCatalog(name, comment, properties, storageRoot, providerName, shareName));
+    try {
+      return fromBinary(CatalogSchema, await this.inner.createCatalog(name, comment, properties, storageRoot, providerName, shareName));
+    } catch (e) { parseNativeError(e); }
   }
 
   catalog(name: string): CatalogClient {
@@ -635,14 +784,18 @@ export class UnityCatalogClient {
 
   async listCredentials(options?: ListCredentialsOptions): Promise<Credential[]> {
     const { purpose, maxResults } = options || {};
-    return (await this.inner.listCredentials(purpose, maxResults)).map((data) =>
-      fromBinary(CredentialSchema, data),
-    );
+    try {
+      return (await this.inner.listCredentials(purpose, maxResults)).map((data) =>
+        fromBinary(CredentialSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   async createCredential(name: string, purpose: number, options?: CreateCredentialOptions): Promise<Credential> {
     const { comment, readOnly, skipValidation } = options || {};
-    return fromBinary(CredentialSchema, await this.inner.createCredential(name, purpose, comment, readOnly, skipValidation));
+    try {
+      return fromBinary(CredentialSchema, await this.inner.createCredential(name, purpose, comment, readOnly, skipValidation));
+    } catch (e) { parseNativeError(e); }
   }
 
   credential(name: string): CredentialClient {
@@ -654,9 +807,11 @@ export class UnityCatalogClient {
      */
   async listExternalLocations(options?: ListExternalLocationsOptions): Promise<ExternalLocation[]> {
     const { maxResults, includeBrowse } = options || {};
-    return (await this.inner.listExternalLocations(maxResults, includeBrowse)).map((data) =>
-      fromBinary(ExternalLocationSchema, data),
-    );
+    try {
+      return (await this.inner.listExternalLocations(maxResults, includeBrowse)).map((data) =>
+        fromBinary(ExternalLocationSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -664,7 +819,9 @@ export class UnityCatalogClient {
      */
   async createExternalLocation(name: string, url: string, credentialName: string, options?: CreateExternalLocationOptions): Promise<ExternalLocation> {
     const { readOnly, comment, skipValidation } = options || {};
-    return fromBinary(ExternalLocationSchema, await this.inner.createExternalLocation(name, url, credentialName, readOnly, comment, skipValidation));
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.createExternalLocation(name, url, credentialName, readOnly, comment, skipValidation));
+    } catch (e) { parseNativeError(e); }
   }
 
   externalLocation(name: string): ExternalLocationClient {
@@ -676,9 +833,11 @@ export class UnityCatalogClient {
      */
   async listRecipients(options?: ListRecipientsOptions): Promise<Recipient[]> {
     const { maxResults } = options || {};
-    return (await this.inner.listRecipients(maxResults)).map((data) =>
-      fromBinary(RecipientSchema, data),
-    );
+    try {
+      return (await this.inner.listRecipients(maxResults)).map((data) =>
+        fromBinary(RecipientSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -686,7 +845,9 @@ export class UnityCatalogClient {
      */
   async createRecipient(name: string, authenticationType: number, owner: string, options?: CreateRecipientOptions): Promise<Recipient> {
     const { comment, properties, expirationTime } = options || {};
-    return fromBinary(RecipientSchema, await this.inner.createRecipient(name, authenticationType, owner, comment, properties, expirationTime));
+    try {
+      return fromBinary(RecipientSchema, await this.inner.createRecipient(name, authenticationType, owner, comment, properties, expirationTime));
+    } catch (e) { parseNativeError(e); }
   }
 
   recipient(name: string): RecipientClient {
@@ -701,9 +862,11 @@ export class UnityCatalogClient {
      */
   async listSchemas(catalogName: string, options?: ListSchemasOptions): Promise<Schema[]> {
     const { maxResults, includeBrowse } = options || {};
-    return (await this.inner.listSchemas(catalogName, maxResults, includeBrowse)).map((data) =>
-      fromBinary(SchemaSchema, data),
-    );
+    try {
+      return (await this.inner.listSchemas(catalogName, maxResults, includeBrowse)).map((data) =>
+        fromBinary(SchemaSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -712,7 +875,9 @@ export class UnityCatalogClient {
      */
   async createSchema(name: string, catalogName: string, options?: CreateSchemaOptions): Promise<Schema> {
     const { comment, properties } = options || {};
-    return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties));
+    try {
+      return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties));
+    } catch (e) { parseNativeError(e); }
   }
 
   schema(catalogName: string, schemaName: string): SchemaClient {
@@ -724,9 +889,11 @@ export class UnityCatalogClient {
      */
   async listShares(options?: ListSharesOptions): Promise<Share[]> {
     const { maxResults } = options || {};
-    return (await this.inner.listShares(maxResults)).map((data) =>
-      fromBinary(ShareSchema, data),
-    );
+    try {
+      return (await this.inner.listShares(maxResults)).map((data) =>
+        fromBinary(ShareSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -734,7 +901,9 @@ export class UnityCatalogClient {
      */
   async createShare(name: string, options?: CreateShareOptions): Promise<Share> {
     const { comment } = options || {};
-    return fromBinary(ShareSchema, await this.inner.createShare(name, comment));
+    try {
+      return fromBinary(ShareSchema, await this.inner.createShare(name, comment));
+    } catch (e) { parseNativeError(e); }
   }
 
   share(name: string): ShareClient {
@@ -751,9 +920,11 @@ export class UnityCatalogClient {
      */
   async listTables(catalogName: string, schemaName: string, options?: ListTablesOptions): Promise<Table[]> {
     const { maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities } = options || {};
-    return (await this.inner.listTables(catalogName, schemaName, maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities)).map((data) =>
-      fromBinary(TableSchema, data),
-    );
+    try {
+      return (await this.inner.listTables(catalogName, schemaName, maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities)).map((data) =>
+        fromBinary(TableSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   /**
@@ -761,7 +932,9 @@ export class UnityCatalogClient {
      */
   async createTable(name: string, schemaName: string, catalogName: string, tableType: number, dataSourceFormat: number, options?: CreateTableOptions): Promise<Table> {
     const { storageLocation, comment, properties } = options || {};
-    return fromBinary(TableSchema, await this.inner.createTable(name, schemaName, catalogName, tableType, dataSourceFormat, storageLocation, comment, properties));
+    try {
+      return fromBinary(TableSchema, await this.inner.createTable(name, schemaName, catalogName, tableType, dataSourceFormat, storageLocation, comment, properties));
+    } catch (e) { parseNativeError(e); }
   }
 
   table(name: string): TableClient {
@@ -773,14 +946,18 @@ export class UnityCatalogClient {
      */
   async listVolumes(catalogName: string, schemaName: string, options?: ListVolumesOptions): Promise<Volume[]> {
     const { maxResults, includeBrowse } = options || {};
-    return (await this.inner.listVolumes(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
-      fromBinary(VolumeSchema, data),
-    );
+    try {
+      return (await this.inner.listVolumes(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
+        fromBinary(VolumeSchema, data),
+      );
+    } catch (e) { parseNativeError(e); }
   }
 
   async createVolume(catalogName: string, schemaName: string, name: string, volumeType: number, options?: CreateVolumeOptions): Promise<Volume> {
     const { storageLocation, comment } = options || {};
-    return fromBinary(VolumeSchema, await this.inner.createVolume(catalogName, schemaName, name, volumeType, storageLocation, comment));
+    try {
+      return fromBinary(VolumeSchema, await this.inner.createVolume(catalogName, schemaName, name, volumeType, storageLocation, comment));
+    } catch (e) { parseNativeError(e); }
   }
 
   volume(catalogName: string, schemaName: string, volumeName: string): VolumeClient {

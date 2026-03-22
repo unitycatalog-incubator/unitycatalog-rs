@@ -26,6 +26,9 @@ mod runtime;
 /// A Python module implemented in Rust.
 #[pymodule]
 fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    // exception types
+    error::register_exceptions(m)?;
+
     // objects and enums
     m.add_class::<Catalog>()?;
     m.add_class::<CatalogType>()?;

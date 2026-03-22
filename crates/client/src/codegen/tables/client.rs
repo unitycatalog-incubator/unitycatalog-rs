@@ -53,7 +53,9 @@ impl TableClient {
                 .append_pair("include_manifest_capabilities", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -102,7 +104,9 @@ impl TableClient {
                 .append_pair("include_manifest_capabilities", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -110,7 +114,9 @@ impl TableClient {
     pub async fn create_table(&self, request: &CreateTableRequest) -> Result<Table> {
         let mut url = self.base_url.join("tables")?;
         let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -131,7 +137,9 @@ impl TableClient {
                 .append_pair("include_manifest_capabilities", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -143,7 +151,9 @@ impl TableClient {
         let formatted_path = format!("tables/{}/exists", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -152,7 +162,9 @@ impl TableClient {
         let formatted_path = format!("tables/{}", request.full_name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
-        response.error_for_status()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         Ok(())
     }
 }
