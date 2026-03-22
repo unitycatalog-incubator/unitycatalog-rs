@@ -103,7 +103,9 @@ pub fn client_method(method: MethodHandler<'_>) -> TokenStream {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
-                response.error_for_status_ref()?;
+                if !response.status().is_success() {
+                    return Err(crate::error::parse_error_response(response).await);
+                }
                 let result = response.bytes().await?;
                 Ok(serde_json::from_slice(&result)?)
             }
@@ -115,7 +117,9 @@ pub fn client_method(method: MethodHandler<'_>) -> TokenStream {
                 #url_formatting
                 #query_handling
                 let response = self.client.#http_method(url)#body_handling.send().await?;
-                response.error_for_status()?;
+                if !response.status().is_success() {
+                    return Err(crate::error::parse_error_response(response).await);
+                }
                 Ok(())
             }
         }

@@ -38,14 +38,18 @@ impl VolumeClient {
                 .append_pair("include_browse", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_volume(&self, request: &CreateVolumeRequest) -> Result<Volume> {
         let mut url = self.base_url.join("volumes")?;
         let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -57,7 +61,9 @@ impl VolumeClient {
                 .append_pair("include_browse", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -65,7 +71,9 @@ impl VolumeClient {
         let formatted_path = format!("volumes/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -73,7 +81,9 @@ impl VolumeClient {
         let formatted_path = format!("volumes/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
-        response.error_for_status()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         Ok(())
     }
 }

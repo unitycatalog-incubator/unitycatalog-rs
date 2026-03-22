@@ -49,12 +49,117 @@ fn is_napi_supported_type(base_type: &BaseType) -> bool {
     }
 }
 
+/// TypeScript error class definitions and `parseNativeError` helper.
+fn generate_error_classes() -> &'static str {
+    r#"// ── UC error hierarchy ────────────────────────────────────────────────────────
+
+/** Base class for all Unity Catalog errors. */
+export class UnityCatalogError extends Error {
+  readonly errorCode: string;
+  constructor(message: string, errorCode: string) {
+    super(message);
+    this.name = "UnityCatalogError";
+    this.errorCode = errorCode;
+  }
+}
+
+export class NotFoundError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "RESOURCE_NOT_FOUND");
+    this.name = "NotFoundError";
+  }
+}
+
+export class AlreadyExistsError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "RESOURCE_ALREADY_EXISTS");
+    this.name = "AlreadyExistsError";
+  }
+}
+
+export class PermissionDeniedError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "PERMISSION_DENIED");
+    this.name = "PermissionDeniedError";
+  }
+}
+
+export class UnauthenticatedError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "UNAUTHENTICATED");
+    this.name = "UnauthenticatedError";
+  }
+}
+
+export class InvalidParameterError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "INVALID_PARAMETER_VALUE");
+    this.name = "InvalidParameterError";
+  }
+}
+
+export class RequestLimitError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "REQUEST_LIMIT_EXCEEDED");
+    this.name = "RequestLimitError";
+  }
+}
+
+export class InternalServerError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "INTERNAL_ERROR");
+    this.name = "InternalServerError";
+  }
+}
+
+export class ServiceUnavailableError extends UnityCatalogError {
+  constructor(message: string) {
+    super(message, "TEMPORARILY_UNAVAILABLE");
+    this.name = "ServiceUnavailableError";
+  }
+}
+
+type UcErrorConstructor = new (message: string) => UnityCatalogError;
+
+const UC_ERROR_MAP: Record<string, UcErrorConstructor> = {
+  RESOURCE_NOT_FOUND: NotFoundError,
+  RESOURCE_ALREADY_EXISTS: AlreadyExistsError,
+  PERMISSION_DENIED: PermissionDeniedError,
+  UNAUTHENTICATED: UnauthenticatedError,
+  INVALID_PARAMETER_VALUE: InvalidParameterError,
+  REQUEST_LIMIT_EXCEEDED: RequestLimitError,
+  INTERNAL_ERROR: InternalServerError,
+  TEMPORARILY_UNAVAILABLE: ServiceUnavailableError,
+};
+
+/**
+ * Parse a native NAPI error that may carry a `UC:<CODE>:<message>` prefix
+ * and re-throw as the appropriate typed subclass of `UnityCatalogError`.
+ */
+function parseNativeError(e: unknown): never {
+  if (e instanceof Error) {
+    const match = e.message.match(/^UC:([^:]+):([\s\S]*)$/);
+    if (match) {
+      const [, code, message] = match;
+      const Ctor = UC_ERROR_MAP[code] ?? UnityCatalogError;
+      throw new Ctor(message);
+    }
+  }
+  throw e;
+}
+
+// ── end UC error hierarchy ─────────────────────────────────────────────────────
+
+"#
+}
+
 /// Generate the complete `client.ts` file for all services.
 pub(crate) fn generate_client_ts(services: &[ServiceHandler<'_>]) -> String {
     let mut out = String::new();
 
     out.push_str(&generate_imports(services));
     out.push('\n');
+    out.push_str(generate_error_classes());
 
     // Generate options interfaces for all services
     for service in services {
@@ -249,7 +354,9 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
     if optional_params.is_empty() {
         return format!(
             r#"{jsdoc}  async get(): Promise<{type_name}> {{
-    return fromBinary({schema_name}, await this.inner.get());
+    try {{
+      return fromBinary({schema_name}, await this.inner.get());
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -271,7 +378,9 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
     format!(
         r#"{jsdoc}  async get(options?: {options_type}): Promise<{type_name}> {{
     const {{ {destructure_fields} }} = options || {{}};
-    return fromBinary({schema_name}, await this.inner.get({call_args}));
+    try {{
+      return fromBinary({schema_name}, await this.inner.get({call_args}));
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -291,7 +400,9 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
     if optional_params.is_empty() {
         return format!(
             r#"{jsdoc}  async update(): Promise<{type_name}> {{
-    return fromBinary({schema_name}, await this.inner.update());
+    try {{
+      return fromBinary({schema_name}, await this.inner.update());
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -313,7 +424,9 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
     format!(
         r#"{jsdoc}  async update(options?: {options_type}): Promise<{type_name}> {{
     const {{ {destructure_fields} }} = options || {{}};
-    return fromBinary({schema_name}, await this.inner.update({call_args}));
+    try {{
+      return fromBinary({schema_name}, await this.inner.update({call_args}));
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -330,7 +443,9 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
     if optional_params.is_empty() {
         return format!(
             r#"{jsdoc}  async delete(): Promise<void> {{
-    await this.inner.delete();
+    try {{
+      await this.inner.delete();
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -354,7 +469,9 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
     format!(
         r#"{jsdoc}  async delete(options?: {options_type}): Promise<void> {{
     const {{ {destructure_fields} }} = options || {{}};
-    await this.inner.delete({call_args});
+    try {{
+      await this.inner.delete({call_args});
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -479,9 +596,11 @@ fn generate_collection_list_method(
 
     format!(
         r#"{jsdoc}  async {method_name}({full_param_list}): Promise<{item_type_name}[]> {{
-{optional_destructure}    return (await this.inner.{method_name}({all_args})).map((data) =>
-      fromBinary({schema_name}, data),
-    );
+{optional_destructure}    try {{
+      return (await this.inner.{method_name}({all_args})).map((data) =>
+        fromBinary({schema_name}, data),
+      );
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -562,7 +681,9 @@ fn generate_collection_create_method(
 
     format!(
         r#"{jsdoc}  async {method_name}({full_param_list}): Promise<{output_type}> {{
-{optional_destructure}    return fromBinary({schema_name}, await this.inner.{method_name}({all_args}));
+{optional_destructure}    try {{
+      return fromBinary({schema_name}, await this.inner.{method_name}({all_args}));
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#
@@ -634,7 +755,9 @@ fn generate_void_create_method(method: &MethodHandler<'_>) -> String {
 
     format!(
         r#"{jsdoc}  async {method_name}({full_param_list}): Promise<void> {{
-{optional_destructure}    await this.inner.{method_name}({all_args});
+{optional_destructure}    try {{
+      await this.inner.{method_name}({all_args});
+    }} catch (e) {{ parseNativeError(e); }}
   }}
 
 "#

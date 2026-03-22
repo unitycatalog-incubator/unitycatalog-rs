@@ -30,7 +30,9 @@ impl ShareClient {
                 .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -38,7 +40,9 @@ impl ShareClient {
     pub async fn create_share(&self, request: &CreateShareRequest) -> Result<Share> {
         let mut url = self.base_url.join("shares")?;
         let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -51,7 +55,9 @@ impl ShareClient {
                 .append_pair("include_shared_data", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -60,7 +66,9 @@ impl ShareClient {
         let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -69,7 +77,9 @@ impl ShareClient {
         let formatted_path = format!("shares/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
-        response.error_for_status()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         Ok(())
     }
     /// Gets the permissions for a data share from the metastore.
@@ -88,7 +98,9 @@ impl ShareClient {
                 .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -100,7 +112,9 @@ impl ShareClient {
         let formatted_path = format!("shares/{}/permissions", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }

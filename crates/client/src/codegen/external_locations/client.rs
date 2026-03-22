@@ -37,7 +37,9 @@ impl ExternalLocationClient {
                 .append_pair("include_browse", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -48,7 +50,9 @@ impl ExternalLocationClient {
     ) -> Result<ExternalLocation> {
         let mut url = self.base_url.join("external-locations")?;
         let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -60,7 +64,9 @@ impl ExternalLocationClient {
         let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -72,7 +78,9 @@ impl ExternalLocationClient {
         let formatted_path = format!("external-locations/{}", request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -88,7 +96,9 @@ impl ExternalLocationClient {
                 .append_pair("force", &value.to_string());
         }
         let response = self.client.delete(url).send().await?;
-        response.error_for_status()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         Ok(())
     }
 }

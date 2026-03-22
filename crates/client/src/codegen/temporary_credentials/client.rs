@@ -25,7 +25,9 @@ impl TemporaryCredentialClient {
     ) -> Result<TemporaryCredential> {
         let mut url = self.base_url.join("temporary-table-credentials")?;
         let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
@@ -36,7 +38,9 @@ impl TemporaryCredentialClient {
     ) -> Result<TemporaryCredential> {
         let mut url = self.base_url.join("temporary-path-credentials")?;
         let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }

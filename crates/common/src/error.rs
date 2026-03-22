@@ -24,9 +24,8 @@ pub enum Error {
     #[error("invalid url: {0}")]
     InvalidUrl(#[from] url::ParseError),
 
-    #[error("Reqwuest error: {0}")]
-    RequestError(#[from] reqwest::Error),
-
+    // TODO(follow-up): migrate AxumPath/AxumQuery to crates/server so that
+    // crates/common does not depend on axum.
     #[cfg(feature = "axum")]
     #[error("Axum path: {0}")]
     AxumPath(#[from] axum::extract::rejection::PathRejection),
@@ -54,7 +53,6 @@ impl Error {
             Error::InvalidTableLocation(_) => "INVALID_PARAMETER_VALUE",
             Error::InvalidUrl(_) => "INVALID_PARAMETER_VALUE",
             Error::SerDe(_) => "INTERNAL_ERROR",
-            Error::RequestError(_) => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
             #[cfg(feature = "axum")]
             Error::AxumPath(_) => "INVALID_PARAMETER_VALUE",
@@ -103,11 +101,6 @@ mod server {
                 }
                 Error::InvalidUrl(_) => {
                     error!("Invalid url");
-                    INTERNAL_ERROR
-                }
-                Error::RequestError(error) => {
-                    let message = format!("Request error: {}", error);
-                    error!("{}", message);
                     INTERNAL_ERROR
                 }
                 Error::InvalidIdentifier(_) => {
