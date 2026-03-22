@@ -109,16 +109,35 @@ impl IntoResponse for Error {
         let error_code = self.error_code().to_string();
         let (status, message) = match self {
             Error::Common { source } => {
-                let (status, message) = match source {
+                let (status, message) = match &source {
                     unitycatalog_common::Error::NotFound => (
                         StatusCode::NOT_FOUND,
                         "The requested resource does not exist.",
                     ),
-                    unitycatalog_common::Error::InvalidArgument(_)
-                    | unitycatalog_common::Error::InvalidIdentifier(_)
-                    | unitycatalog_common::Error::InvalidTableLocation(_)
-                    | unitycatalog_common::Error::InvalidUrl(_) => INVALID_ARGUMENT,
-                    _ => INTERNAL_ERROR,
+                    unitycatalog_common::Error::InvalidArgument(msg) => {
+                        error!("Invalid argument: {}", msg);
+                        INVALID_ARGUMENT
+                    }
+                    unitycatalog_common::Error::InvalidIdentifier(e) => {
+                        error!("Invalid identifier: {}", e);
+                        INVALID_ARGUMENT
+                    }
+                    unitycatalog_common::Error::InvalidTableLocation(loc) => {
+                        error!("Invalid table location: {}", loc);
+                        INVALID_ARGUMENT
+                    }
+                    unitycatalog_common::Error::InvalidUrl(e) => {
+                        error!("Invalid URL: {}", e);
+                        INVALID_ARGUMENT
+                    }
+                    unitycatalog_common::Error::SerDe(e) => {
+                        error!("Serialization error: {}", e);
+                        INTERNAL_ERROR
+                    }
+                    unitycatalog_common::Error::Generic(msg) => {
+                        error!("Generic common error: {}", msg);
+                        INTERNAL_ERROR
+                    }
                 };
                 return (
                     status,
@@ -130,23 +149,31 @@ impl IntoResponse for Error {
                     .into_response();
             }
             // EXTERNAL ERRORS
-            Error::DeltaKernel { .. } => {
-                error!("Failed to interact with Delta Kernel");
+            Error::DeltaKernel { source } => {
+                error!("Delta Kernel error: {}", source);
                 INTERNAL_ERROR
             }
-            Error::Sharing { .. } => {
-                error!("DELTA Sharing Error");
+            Error::Sharing { source } => {
+                error!("Delta Sharing error: {}", source);
                 INTERNAL_ERROR
             }
-            Error::ObjectStore { .. } => {
-                error!("Failed to interact with object store");
+            Error::ObjectStore { source } => match &source {
+                object_store::Error::NotFound { .. } => (
+                    StatusCode::NOT_FOUND,
+                    "The requested resource does not exist.",
+                ),
+                object_store::Error::AlreadyExists { .. } => {
+                    (StatusCode::CONFLICT, "The resource already exists.")
+                }
+                _ => {
+                    error!("Object store error: {}", source);
+                    INTERNAL_ERROR
+                }
+            },
+            Error::SerDe { source } => {
+                error!("Serialization error: {}", source);
                 INTERNAL_ERROR
             }
-            Error::SerDe { .. } => {
-                error!("Failed to serialize/deserialize data");
-                INTERNAL_ERROR
-            }
-
             Error::NotFound => (
                 StatusCode::NOT_FOUND,
                 "The requested resource does not exist.",
@@ -164,24 +191,14 @@ impl IntoResponse for Error {
                 error!("Invalid argument: {}", message);
                 INVALID_ARGUMENT
             }
-            Error::InvalidIdentifier(_) => {
-                error!("Invalid uuid identifier");
-                INTERNAL_ERROR
+            Error::InvalidIdentifier(e) => {
+                error!("Invalid identifier: {}", e);
+                INVALID_ARGUMENT
             }
             Error::Generic(message) => {
                 error!("Generic error: {}", message);
                 INTERNAL_ERROR
             }
-            // Error::DataFusion(error) => {
-            //     let message = format!("DataFusion error: {}", error);
-            //     error!("{}", message);
-            //     INTERNAL_ERROR
-            // }
-            // Error::Arrow(error) => {
-            //     let message = format!("Arrow error: {}", error);
-            //     error!("{}", message);
-            //     INTERNAL_ERROR
-            // }
             Error::MissingRecipient => {
                 error!("Failed to extract recipient from request");
                 (
@@ -206,8 +223,22 @@ impl IntoResponse for Error {
 impl From<Error> for Status {
     fn from(e: Error) -> Self {
         match e {
-            // TODO more fine granular resolution of common errors
-            Error::Common { source } => Status::internal(format!("Common Error: {}", source)),
+            Error::Common { source } => match source {
+                unitycatalog_common::Error::NotFound => {
+                    Status::not_found("The requested resource does not exist.")
+                }
+                unitycatalog_common::Error::InvalidArgument(msg) => Status::invalid_argument(msg),
+                unitycatalog_common::Error::InvalidIdentifier(e) => {
+                    Status::invalid_argument(e.to_string())
+                }
+                unitycatalog_common::Error::InvalidTableLocation(loc) => {
+                    Status::invalid_argument(format!("Invalid table location: {loc}"))
+                }
+                unitycatalog_common::Error::InvalidUrl(e) => {
+                    Status::invalid_argument(format!("Invalid URL: {e}"))
+                }
+                _ => Status::internal(format!("Common Error: {source}")),
+            },
             Error::Sharing { source } => Status::internal(format!("Sharing Error: {}", source)),
             Error::NotFound => Status::not_found("The requested resource does not exist."),
             Error::NotAllowed => {
@@ -232,7 +263,7 @@ impl From<Error> for Status {
             // Error::Arrow(error) => Status::internal(error.to_string()),
             // Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
             Error::AlreadyExists => Status::already_exists("The resource already exists."),
-            Error::InvalidIdentifier(_) => Status::internal("Invalid uuid identifier"),
+            Error::InvalidIdentifier(e) => Status::invalid_argument(e.to_string()),
             Error::InvalidArgument(message) => Status::invalid_argument(message),
             Error::Generic(message) => Status::internal(message),
             // Error::Client(error) => Status::internal(error.to_string()),
