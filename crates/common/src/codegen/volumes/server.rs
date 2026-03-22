@@ -58,8 +58,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetVolumeRequest {
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
@@ -84,8 +84,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateVolumeRequest {
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let (mut parts, body) = req.into_parts();
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         let body_req = axum::extract::Request::from_parts(parts, body);
@@ -108,8 +108,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteVolumeRequest 
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path((name)) = parts
-            .extract::<axum::extract::Path<(String)>>()
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteVolumeRequest { name })

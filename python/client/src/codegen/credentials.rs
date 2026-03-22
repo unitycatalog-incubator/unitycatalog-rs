@@ -2,7 +2,6 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
-use std::collections::HashMap;
 use unitycatalog_client::CredentialClient;
 use unitycatalog_common::models::credentials::v1::*;
 #[pyclass(name = "CredentialClient")]
@@ -12,7 +11,7 @@ pub struct PyCredentialClient {
 #[pymethods]
 impl PyCredentialClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<Credential> {
-        let mut request = self.client.get();
+        let request = self.client.get();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -62,7 +61,7 @@ impl PyCredentialClient {
         })
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
-        let mut request = self.client.delete();
+        let request = self.client.delete();
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             runtime.block_on(request.into_future())?;
