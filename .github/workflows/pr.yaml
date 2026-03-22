@@ -16,3 +16,21 @@ jobs:
 
       - name: Check spelling
         uses: crate-ci/typos@v1
+
+  node-lint:
+    name: node-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: node/client
+
+      - name: Lint
+        run: npm run lint
+        working-directory: node/client
