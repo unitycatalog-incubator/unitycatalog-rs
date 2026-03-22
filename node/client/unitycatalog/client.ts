@@ -131,159 +131,42 @@ function parseNativeError(e: unknown): never {
 
 // ── end UC error hierarchy ─────────────────────────────────────────────────────
 
-export interface ListExternalLocationsOptions {
+export interface ListSharesOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
 }
 
-export interface CreateExternalLocationOptions {
-  /** Indicates whether the external location is read-only. */
-  readOnly?: boolean;
+export interface CreateShareOptions {
   /** User-provided free-form text description. */
   comment?: string;
-  /** Skips validation of the storage credential associated with the external location. */
-  skipValidation?: boolean;
 }
 
-export interface UpdateExternalLocationOptions {
-  /** Path URL of the external location. */
-  url?: string;
-  /** Name of the storage credential used with this location. */
-  credentialName?: string;
-  /** Indicates whether the external location is read-only. */
-  readOnly?: boolean;
-  /** owner of the external location. */
+export interface GetShareOptions {
+  /** Query for data to include in the share. */
+  includeSharedData?: boolean;
+}
+
+export interface UpdateShareOptions {
+  /** A new name for the share. */
+  newName?: string;
+  /** Owner of the share. */
   owner?: string;
   /** User-provided free-form text description. */
   comment?: string;
-  /** new name of the external location. */
-  newName?: string;
-  /** force update of the external location. */
-  force?: boolean;
-  /** Skips validation of the storage credential associated with the external location. */
-  skipValidation?: boolean;
 }
 
-export interface DeleteExternalLocationOptions {
-  /** Force deletion even if the external location is not empty. */
-  force?: boolean;
-}
-
-export interface ListSchemasOptions {
+export interface GetPermissionsOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
 }
 
-export interface CreateSchemaOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string>;
-}
-
-export interface UpdateSchemaOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable.
-   * 
-   *  When provided in update request, the specified properties will override the existing properties.
-   *  To add and remove properties, one would need to perform a read-modify-write. */
-  properties?: Record<string, string>;
-  /** Name of schema. */
-  newName?: string;
-}
-
-export interface DeleteSchemaOptions {
-  /** Force deletion even if the schema is not empty. */
-  force?: boolean;
-}
-
-export interface ListTableSummariesOptions {
-  /** A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty. */
-  schemaNamePattern?: string;
-  /** A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty. */
-  tableNamePattern?: string;
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether to include a manifest containing capabilities the table has. */
-  includeManifestCapabilities?: boolean;
-}
-
-export interface ListTablesOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether delta metadata should be included in the response. */
-  includeDeltaMetadata?: boolean;
-  /** Whether to omit the columns of the table from the response or not. */
-  omitColumns?: boolean;
-  /** Whether to omit the properties of the table from the response or not. */
-  omitProperties?: boolean;
-  /** Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or not. */
-  omitUsername?: boolean;
-  /** Whether to include tables in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-  /** Whether to include a manifest containing capabilities the table has. */
-  includeManifestCapabilities?: boolean;
-}
-
-export interface CreateTableOptions {
-  /** Storage root URL for external table. */
-  storageLocation?: string;
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string>;
-}
-
-export interface GetTableOptions {
-  /** Whether delta metadata should be included in the response. */
-  includeDeltaMetadata?: boolean;
-  /** Whether to include tables in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-  /** Whether to include a manifest containing capabilities the table has. */
-  includeManifestCapabilities?: boolean;
-}
-
-export interface ListVolumesOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface CreateVolumeOptions {
-  /** The storage location on the cloud */
-  storageLocation?: string;
-  /** The storage location on the cloud */
-  comment?: string;
-}
-
-export interface GetVolumeOptions {
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface UpdateVolumeOptions {
-  /** New name for the volume. */
-  newName?: string;
-  /** The comment attached to the volume */
-  comment?: string;
-  /** The identifier of the user who owns the volume */
-  owner?: string;
+export interface UpdatePermissionsOptions {
+  /** Whether to return the latest permissions list of the share in the response. */
+  omitPermissionsList?: boolean;
 }
 
 export interface ListCredentialsOptions {
@@ -355,46 +238,54 @@ export interface UpdateRecipientOptions {
   expirationTime?: number;
 }
 
-export interface ListSharesOptions {
+export interface ListTableSummariesOptions {
+  /** A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty. */
+  schemaNamePattern?: string;
+  /** A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty. */
+  tableNamePattern?: string;
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
+  /** Whether to include a manifest containing capabilities the table has. */
+  includeManifestCapabilities?: boolean;
 }
 
-export interface CreateShareOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-}
-
-export interface GetShareOptions {
-  /** Query for data to include in the share. */
-  includeSharedData?: boolean;
-}
-
-export interface UpdateShareOptions {
-  /** A new name for the share. */
-  newName?: string;
-  /** Owner of the share. */
-  owner?: string;
-  /** User-provided free-form text description. */
-  comment?: string;
-}
-
-export interface GetPermissionsOptions {
+export interface ListTablesOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
   /** Opaque pagination token to go to next page based on previous query. */
   pageToken?: string;
+  /** Whether delta metadata should be included in the response. */
+  includeDeltaMetadata?: boolean;
+  /** Whether to omit the columns of the table from the response or not. */
+  omitColumns?: boolean;
+  /** Whether to omit the properties of the table from the response or not. */
+  omitProperties?: boolean;
+  /** Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or not. */
+  omitUsername?: boolean;
+  /** Whether to include tables in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+  /** Whether to include a manifest containing capabilities the table has. */
+  includeManifestCapabilities?: boolean;
 }
 
-export interface UpdatePermissionsOptions {
-  /** Whether to return the latest permissions list of the share in the response. */
-  omitPermissionsList?: boolean;
+export interface CreateTableOptions {
+  /** Storage root URL for external table. */
+  storageLocation?: string;
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** A map of key-value properties attached to the securable. */
+  properties?: Record<string, string>;
 }
 
-export interface GenerateTemporaryPathCredentialsOptions {
-  dryRun?: boolean;
+export interface GetTableOptions {
+  /** Whether delta metadata should be included in the response. */
+  includeDeltaMetadata?: boolean;
+  /** Whether to include tables in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+  /** Whether to include a manifest containing capabilities the table has. */
+  includeManifestCapabilities?: boolean;
 }
 
 export interface ListCatalogsOptions {
@@ -443,141 +334,146 @@ export interface DeleteCatalogOptions {
   force?: boolean;
 }
 
-export class ExternalLocationClient {
-  private readonly inner: NativeExternalLocationClient;
-
-  /** @internal */
-  constructor(inner: NativeExternalLocationClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Get an external location
-     */
-  async get(): Promise<ExternalLocation> {
-    try {
-      return fromBinary(ExternalLocationSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Update an external location
-     */
-  async update(options?: UpdateExternalLocationOptions): Promise<ExternalLocation> {
-    const { url, credentialName, readOnly, owner, comment, newName, force, skipValidation } = options || {};
-    try {
-      return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Delete an external location
-     */
-  async delete(options?: DeleteExternalLocationOptions): Promise<void> {
-    const { force } = options || {};
-    try {
-      await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
-  }
-
+export interface GenerateTemporaryPathCredentialsOptions {
+  dryRun?: boolean;
 }
 
-export class SchemaClient {
-  private readonly inner: NativeSchemaClient;
-
-  /** @internal */
-  constructor(inner: NativeSchemaClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Gets the specified schema within the metastore.
-     * The caller must be a metastore admin, the owner of the schema,
-     * or a user that has the USE_SCHEMA privilege on the schema.
-     */
-  async get(): Promise<Schema> {
-    try {
-      return fromBinary(SchemaSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
-     * If the caller is a metastore admin, only the owner field can be changed in the update.
-     * If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
-     * privilege on the parent catalog.
-     */
-  async update(options?: UpdateSchemaOptions): Promise<Schema> {
-    const { comment, properties, newName } = options || {};
-    try {
-      return fromBinary(SchemaSchema, await this.inner.update(comment, properties, newName));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Deletes the specified schema from the parent catalog. The caller must be the owner
-     * of the schema or an owner of the parent catalog.
-     */
-  async delete(options?: DeleteSchemaOptions): Promise<void> {
-    const { force } = options || {};
-    try {
-      await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
-  }
-
+export interface ListExternalLocationsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
 }
 
-export class TableClient {
-  private readonly inner: NativeTableClient;
-
-  /** @internal */
-  constructor(inner: NativeTableClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Get a table
-     */
-  async get(options?: GetTableOptions): Promise<Table> {
-    const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
-    try {
-      return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Delete a table
-     */
-  async delete(): Promise<void> {
-    try {
-      await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
-  }
-
+export interface CreateExternalLocationOptions {
+  /** Indicates whether the external location is read-only. */
+  readOnly?: boolean;
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** Skips validation of the storage credential associated with the external location. */
+  skipValidation?: boolean;
 }
 
-export class VolumeClient {
-  private readonly inner: NativeVolumeClient;
+export interface UpdateExternalLocationOptions {
+  /** Path URL of the external location. */
+  url?: string;
+  /** Name of the storage credential used with this location. */
+  credentialName?: string;
+  /** Indicates whether the external location is read-only. */
+  readOnly?: boolean;
+  /** owner of the external location. */
+  owner?: string;
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** new name of the external location. */
+  newName?: string;
+  /** force update of the external location. */
+  force?: boolean;
+  /** Skips validation of the storage credential associated with the external location. */
+  skipValidation?: boolean;
+}
+
+export interface DeleteExternalLocationOptions {
+  /** Force deletion even if the external location is not empty. */
+  force?: boolean;
+}
+
+export interface ListVolumesOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface CreateVolumeOptions {
+  /** The storage location on the cloud */
+  storageLocation?: string;
+  /** The storage location on the cloud */
+  comment?: string;
+}
+
+export interface GetVolumeOptions {
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface UpdateVolumeOptions {
+  /** New name for the volume. */
+  newName?: string;
+  /** The comment attached to the volume */
+  comment?: string;
+  /** The identifier of the user who owns the volume */
+  owner?: string;
+}
+
+export interface ListSchemasOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface CreateSchemaOptions {
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** A map of key-value properties attached to the securable. */
+  properties?: Record<string, string>;
+}
+
+export interface UpdateSchemaOptions {
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** A map of key-value properties attached to the securable.
+   * 
+   *  When provided in update request, the specified properties will override the existing properties.
+   *  To add and remove properties, one would need to perform a read-modify-write. */
+  properties?: Record<string, string>;
+  /** Name of schema. */
+  newName?: string;
+}
+
+export interface DeleteSchemaOptions {
+  /** Force deletion even if the schema is not empty. */
+  force?: boolean;
+}
+
+export class ShareClient {
+  private readonly inner: NativeShareClient;
 
   /** @internal */
-  constructor(inner: NativeVolumeClient) {
+  constructor(inner: NativeShareClient) {
     this.inner = inner;
   }
 
-  async get(options?: GetVolumeOptions): Promise<Volume> {
-    const { includeBrowse } = options || {};
+  /**
+     * Get a share by name.
+     */
+  async get(options?: GetShareOptions): Promise<Share> {
+    const { includeSharedData } = options || {};
     try {
-      return fromBinary(VolumeSchema, await this.inner.get(includeBrowse));
+      return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
     } catch (e) { parseNativeError(e); }
   }
 
-  async update(options?: UpdateVolumeOptions): Promise<Volume> {
-    const { newName, comment, owner } = options || {};
+  /**
+     * Update a share.
+     */
+  async update(options?: UpdateShareOptions): Promise<Share> {
+    const { newName, owner, comment } = options || {};
     try {
-      return fromBinary(VolumeSchema, await this.inner.update(newName, comment, owner));
+      return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
     } catch (e) { parseNativeError(e); }
   }
 
+  /**
+     * Deletes a share.
+     */
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
@@ -653,36 +549,26 @@ export class RecipientClient {
 
 }
 
-export class ShareClient {
-  private readonly inner: NativeShareClient;
+export class TableClient {
+  private readonly inner: NativeTableClient;
 
   /** @internal */
-  constructor(inner: NativeShareClient) {
+  constructor(inner: NativeTableClient) {
     this.inner = inner;
   }
 
   /**
-     * Get a share by name.
+     * Get a table
      */
-  async get(options?: GetShareOptions): Promise<Share> {
-    const { includeSharedData } = options || {};
+  async get(options?: GetTableOptions): Promise<Table> {
+    const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
     try {
-      return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
+      return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
     } catch (e) { parseNativeError(e); }
   }
 
   /**
-     * Update a share.
-     */
-  async update(options?: UpdateShareOptions): Promise<Share> {
-    const { newName, owner, comment } = options || {};
-    try {
-      return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Deletes a share.
+     * Delete a table
      */
   async delete(): Promise<void> {
     try {
@@ -733,6 +619,120 @@ export class CatalogClient {
      * be a metastore admin or the owner of the catalog.
      */
   async delete(options?: DeleteCatalogOptions): Promise<void> {
+    const { force } = options || {};
+    try {
+      await this.inner.delete(force);
+    } catch (e) { parseNativeError(e); }
+  }
+
+}
+
+export class ExternalLocationClient {
+  private readonly inner: NativeExternalLocationClient;
+
+  /** @internal */
+  constructor(inner: NativeExternalLocationClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get an external location
+     */
+  async get(): Promise<ExternalLocation> {
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.get());
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Update an external location
+     */
+  async update(options?: UpdateExternalLocationOptions): Promise<ExternalLocation> {
+    const { url, credentialName, readOnly, owner, comment, newName, force, skipValidation } = options || {};
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Delete an external location
+     */
+  async delete(options?: DeleteExternalLocationOptions): Promise<void> {
+    const { force } = options || {};
+    try {
+      await this.inner.delete(force);
+    } catch (e) { parseNativeError(e); }
+  }
+
+}
+
+export class VolumeClient {
+  private readonly inner: NativeVolumeClient;
+
+  /** @internal */
+  constructor(inner: NativeVolumeClient) {
+    this.inner = inner;
+  }
+
+  async get(options?: GetVolumeOptions): Promise<Volume> {
+    const { includeBrowse } = options || {};
+    try {
+      return fromBinary(VolumeSchema, await this.inner.get(includeBrowse));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  async update(options?: UpdateVolumeOptions): Promise<Volume> {
+    const { newName, comment, owner } = options || {};
+    try {
+      return fromBinary(VolumeSchema, await this.inner.update(newName, comment, owner));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { parseNativeError(e); }
+  }
+
+}
+
+export class SchemaClient {
+  private readonly inner: NativeSchemaClient;
+
+  /** @internal */
+  constructor(inner: NativeSchemaClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Gets the specified schema within the metastore.
+     * The caller must be a metastore admin, the owner of the schema,
+     * or a user that has the USE_SCHEMA privilege on the schema.
+     */
+  async get(): Promise<Schema> {
+    try {
+      return fromBinary(SchemaSchema, await this.inner.get());
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
+     * If the caller is a metastore admin, only the owner field can be changed in the update.
+     * If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
+     * privilege on the parent catalog.
+     */
+  async update(options?: UpdateSchemaOptions): Promise<Schema> {
+    const { comment, properties, newName } = options || {};
+    try {
+      return fromBinary(SchemaSchema, await this.inner.update(comment, properties, newName));
+    } catch (e) { parseNativeError(e); }
+  }
+
+  /**
+     * Deletes the specified schema from the parent catalog. The caller must be the owner
+     * of the schema or an owner of the parent catalog.
+     */
+  async delete(options?: DeleteSchemaOptions): Promise<void> {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
