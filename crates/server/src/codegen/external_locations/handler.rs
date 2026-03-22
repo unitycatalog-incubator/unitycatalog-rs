@@ -8,6 +8,9 @@
 //!
 //! A single struct can implement multiple handler traits to serve multiple
 //! services. Use [`axum::Router::merge`] to compose routers together.
+//!
+//! Service for managing external locations in Unity Catalog.
+//! External locations define cloud storage paths accessible via storage credentials.
 use crate::Result;
 use crate::api::RequestContext;
 use async_trait::async_trait;

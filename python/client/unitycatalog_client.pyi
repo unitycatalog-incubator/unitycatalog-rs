@@ -1161,7 +1161,7 @@ class VolumeClient:
         """
         ...
 
-class PyUnityCatalogClient:
+class UnityCatalogClient:
     def __init__(self, base_url: str, token: Optional[str] = None) -> None: ...
     def create_catalog(
         self,
