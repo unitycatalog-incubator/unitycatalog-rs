@@ -16,19 +16,8 @@
 // @generated from file google/iam/v1/iam_policy.proto (package google.iam.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenFile,
-  GenMessage,
-  GenService,
-} from "@bufbuild/protobuf/codegenv2";
-import {
-  fileDesc,
-  messageDesc,
-  serviceDesc,
-} from "@bufbuild/protobuf/codegenv2";
-import type { FieldMask } from "@bufbuild/protobuf/wkt";
-import { file_google_protobuf_field_mask } from "@bufbuild/protobuf/wkt";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_api_annotations } from "../../api/annotations_pb";
 import { file_google_api_client } from "../../api/client_pb";
 import { file_google_api_field_behavior } from "../../api/field_behavior_pb";
@@ -37,68 +26,57 @@ import type { GetPolicyOptions } from "./options_pb";
 import { file_google_iam_v1_options } from "./options_pb";
 import type { Policy, PolicySchema } from "./policy_pb";
 import { file_google_iam_v1_policy } from "./policy_pb";
+import type { FieldMask } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_field_mask } from "@bufbuild/protobuf/wkt";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/iam/v1/iam_policy.proto.
  */
-export const file_google_iam_v1_iam_policy: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Ch5nb29nbGUvaWFtL3YxL2lhbV9wb2xpY3kucHJvdG8SDWdvb2dsZS5pYW0udjEijwEKE1NldElhbVBvbGljeVJlcXVlc3QSGwoIcmVzb3VyY2UYASABKAlCCeBBAvpBAwoBKhIqCgZwb2xpY3kYAiABKAsyFS5nb29nbGUuaWFtLnYxLlBvbGljeUID4EECEi8KC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzayJkChNHZXRJYW1Qb2xpY3lSZXF1ZXN0EhsKCHJlc291cmNlGAEgASgJQgngQQL6QQMKASoSMAoHb3B0aW9ucxgCIAEoCzIfLmdvb2dsZS5pYW0udjEuR2V0UG9saWN5T3B0aW9ucyJSChlUZXN0SWFtUGVybWlzc2lvbnNSZXF1ZXN0EhsKCHJlc291cmNlGAEgASgJQgngQQL6QQMKASoSGAoLcGVybWlzc2lvbnMYAiADKAlCA+BBAiIxChpUZXN0SWFtUGVybWlzc2lvbnNSZXNwb25zZRITCgtwZXJtaXNzaW9ucxgBIAMoCTK0AwoJSUFNUG9saWN5EnQKDFNldElhbVBvbGljeRIiLmdvb2dsZS5pYW0udjEuU2V0SWFtUG9saWN5UmVxdWVzdBoVLmdvb2dsZS5pYW0udjEuUG9saWN5IimC0+STAiM6ASoiHi92MS97cmVzb3VyY2U9Kip9OnNldElhbVBvbGljeRJ0CgxHZXRJYW1Qb2xpY3kSIi5nb29nbGUuaWFtLnYxLkdldElhbVBvbGljeVJlcXVlc3QaFS5nb29nbGUuaWFtLnYxLlBvbGljeSIpgtPkkwIjOgEqIh4vdjEve3Jlc291cmNlPSoqfTpnZXRJYW1Qb2xpY3kSmgEKElRlc3RJYW1QZXJtaXNzaW9ucxIoLmdvb2dsZS5pYW0udjEuVGVzdElhbVBlcm1pc3Npb25zUmVxdWVzdBopLmdvb2dsZS5pYW0udjEuVGVzdElhbVBlcm1pc3Npb25zUmVzcG9uc2UiL4LT5JMCKToBKiIkL3YxL3tyZXNvdXJjZT0qKn06dGVzdElhbVBlcm1pc3Npb25zGh7KQRtpYW0tbWV0YS1hcGkuZ29vZ2xlYXBpcy5jb21CpAEKEWNvbS5nb29nbGUuaWFtLnYxQg5JYW1Qb2xpY3lQcm90b1ABWiljbG91ZC5nb29nbGUuY29tL2dvL2lhbS9hcGl2MS9pYW1wYjtpYW1wYqICA0dJWKoCDUdvb2dsZS5JYW0uVjHKAg1Hb29nbGVcSWFtXFYx4gIZR29vZ2xlXElhbVxWMVxHUEJNZXRhZGF0YeoCD0dvb2dsZTo6SWFtOjpWMWIGcHJvdG8z",
-    [
-      file_google_api_annotations,
-      file_google_api_client,
-      file_google_api_field_behavior,
-      file_google_api_resource,
-      file_google_iam_v1_options,
-      file_google_iam_v1_policy,
-      file_google_protobuf_field_mask,
-    ],
-  );
+export const file_google_iam_v1_iam_policy: GenFile = /*@__PURE__*/
+  fileDesc("Ch5nb29nbGUvaWFtL3YxL2lhbV9wb2xpY3kucHJvdG8SDWdvb2dsZS5pYW0udjEijwEKE1NldElhbVBvbGljeVJlcXVlc3QSGwoIcmVzb3VyY2UYASABKAlCCeBBAvpBAwoBKhIqCgZwb2xpY3kYAiABKAsyFS5nb29nbGUuaWFtLnYxLlBvbGljeUID4EECEi8KC3VwZGF0ZV9tYXNrGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFzayJkChNHZXRJYW1Qb2xpY3lSZXF1ZXN0EhsKCHJlc291cmNlGAEgASgJQgngQQL6QQMKASoSMAoHb3B0aW9ucxgCIAEoCzIfLmdvb2dsZS5pYW0udjEuR2V0UG9saWN5T3B0aW9ucyJSChlUZXN0SWFtUGVybWlzc2lvbnNSZXF1ZXN0EhsKCHJlc291cmNlGAEgASgJQgngQQL6QQMKASoSGAoLcGVybWlzc2lvbnMYAiADKAlCA+BBAiIxChpUZXN0SWFtUGVybWlzc2lvbnNSZXNwb25zZRITCgtwZXJtaXNzaW9ucxgBIAMoCTK0AwoJSUFNUG9saWN5EnQKDFNldElhbVBvbGljeRIiLmdvb2dsZS5pYW0udjEuU2V0SWFtUG9saWN5UmVxdWVzdBoVLmdvb2dsZS5pYW0udjEuUG9saWN5IimC0+STAiM6ASoiHi92MS97cmVzb3VyY2U9Kip9OnNldElhbVBvbGljeRJ0CgxHZXRJYW1Qb2xpY3kSIi5nb29nbGUuaWFtLnYxLkdldElhbVBvbGljeVJlcXVlc3QaFS5nb29nbGUuaWFtLnYxLlBvbGljeSIpgtPkkwIjOgEqIh4vdjEve3Jlc291cmNlPSoqfTpnZXRJYW1Qb2xpY3kSmgEKElRlc3RJYW1QZXJtaXNzaW9ucxIoLmdvb2dsZS5pYW0udjEuVGVzdElhbVBlcm1pc3Npb25zUmVxdWVzdBopLmdvb2dsZS5pYW0udjEuVGVzdElhbVBlcm1pc3Npb25zUmVzcG9uc2UiL4LT5JMCKToBKiIkL3YxL3tyZXNvdXJjZT0qKn06dGVzdElhbVBlcm1pc3Npb25zGh7KQRtpYW0tbWV0YS1hcGkuZ29vZ2xlYXBpcy5jb21CpAEKEWNvbS5nb29nbGUuaWFtLnYxQg5JYW1Qb2xpY3lQcm90b1ABWiljbG91ZC5nb29nbGUuY29tL2dvL2lhbS9hcGl2MS9pYW1wYjtpYW1wYqICA0dJWKoCDUdvb2dsZS5JYW0uVjHKAg1Hb29nbGVcSWFtXFYx4gIZR29vZ2xlXElhbVxWMVxHUEJNZXRhZGF0YeoCD0dvb2dsZTo6SWFtOjpWMWIGcHJvdG8z", [file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_iam_v1_options, file_google_iam_v1_policy, file_google_protobuf_field_mask]);
 
 /**
  * Request message for `SetIamPolicy` method.
  *
  * @generated from message google.iam.v1.SetIamPolicyRequest
  */
-export type SetIamPolicyRequest =
-  Message<"google.iam.v1.SetIamPolicyRequest"> & {
-    /**
-     * REQUIRED: The resource for which the policy is being specified.
-     * See the operation documentation for the appropriate value for this field.
-     *
-     * @generated from field: string resource = 1;
-     */
-    resource: string;
+export type SetIamPolicyRequest = Message<"google.iam.v1.SetIamPolicyRequest"> & {
+  /**
+   * REQUIRED: The resource for which the policy is being specified.
+   * See the operation documentation for the appropriate value for this field.
+   *
+   * @generated from field: string resource = 1;
+   */
+  resource: string;
 
-    /**
-     * REQUIRED: The complete policy to be applied to the `resource`. The size of
-     * the policy is limited to a few 10s of KB. An empty policy is a
-     * valid policy but certain Cloud Platform services (such as Projects)
-     * might reject them.
-     *
-     * @generated from field: google.iam.v1.Policy policy = 2;
-     */
-    policy?: Policy;
+  /**
+   * REQUIRED: The complete policy to be applied to the `resource`. The size of
+   * the policy is limited to a few 10s of KB. An empty policy is a
+   * valid policy but certain Cloud Platform services (such as Projects)
+   * might reject them.
+   *
+   * @generated from field: google.iam.v1.Policy policy = 2;
+   */
+  policy?: Policy;
 
-    /**
-     * OPTIONAL: A FieldMask specifying which fields of the policy to modify. Only
-     * the fields in the mask will be modified. If no mask is provided, the
-     * following default mask is used:
-     *
-     * `paths: "bindings, etag"`
-     *
-     * @generated from field: google.protobuf.FieldMask update_mask = 3;
-     */
-    updateMask?: FieldMask;
-  };
+  /**
+   * OPTIONAL: A FieldMask specifying which fields of the policy to modify. Only
+   * the fields in the mask will be modified. If no mask is provided, the
+   * following default mask is used:
+   *
+   * `paths: "bindings, etag"`
+   *
+   * @generated from field: google.protobuf.FieldMask update_mask = 3;
+   */
+  updateMask?: FieldMask;
+};
 
 /**
  * Describes the message google.iam.v1.SetIamPolicyRequest.
  * Use `create(SetIamPolicyRequestSchema)` to create a new message.
  */
-export const SetIamPolicyRequestSchema: GenMessage<SetIamPolicyRequest> =
-  /*@__PURE__*/
+export const SetIamPolicyRequestSchema: GenMessage<SetIamPolicyRequest> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_iam_policy, 0);
 
 /**
@@ -106,31 +84,29 @@ export const SetIamPolicyRequestSchema: GenMessage<SetIamPolicyRequest> =
  *
  * @generated from message google.iam.v1.GetIamPolicyRequest
  */
-export type GetIamPolicyRequest =
-  Message<"google.iam.v1.GetIamPolicyRequest"> & {
-    /**
-     * REQUIRED: The resource for which the policy is being requested.
-     * See the operation documentation for the appropriate value for this field.
-     *
-     * @generated from field: string resource = 1;
-     */
-    resource: string;
+export type GetIamPolicyRequest = Message<"google.iam.v1.GetIamPolicyRequest"> & {
+  /**
+   * REQUIRED: The resource for which the policy is being requested.
+   * See the operation documentation for the appropriate value for this field.
+   *
+   * @generated from field: string resource = 1;
+   */
+  resource: string;
 
-    /**
-     * OPTIONAL: A `GetPolicyOptions` object for specifying options to
-     * `GetIamPolicy`.
-     *
-     * @generated from field: google.iam.v1.GetPolicyOptions options = 2;
-     */
-    options?: GetPolicyOptions;
-  };
+  /**
+   * OPTIONAL: A `GetPolicyOptions` object for specifying options to
+   * `GetIamPolicy`.
+   *
+   * @generated from field: google.iam.v1.GetPolicyOptions options = 2;
+   */
+  options?: GetPolicyOptions;
+};
 
 /**
  * Describes the message google.iam.v1.GetIamPolicyRequest.
  * Use `create(GetIamPolicyRequestSchema)` to create a new message.
  */
-export const GetIamPolicyRequestSchema: GenMessage<GetIamPolicyRequest> =
-  /*@__PURE__*/
+export const GetIamPolicyRequestSchema: GenMessage<GetIamPolicyRequest> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_iam_policy, 1);
 
 /**
@@ -138,33 +114,31 @@ export const GetIamPolicyRequestSchema: GenMessage<GetIamPolicyRequest> =
  *
  * @generated from message google.iam.v1.TestIamPermissionsRequest
  */
-export type TestIamPermissionsRequest =
-  Message<"google.iam.v1.TestIamPermissionsRequest"> & {
-    /**
-     * REQUIRED: The resource for which the policy detail is being requested.
-     * See the operation documentation for the appropriate value for this field.
-     *
-     * @generated from field: string resource = 1;
-     */
-    resource: string;
+export type TestIamPermissionsRequest = Message<"google.iam.v1.TestIamPermissionsRequest"> & {
+  /**
+   * REQUIRED: The resource for which the policy detail is being requested.
+   * See the operation documentation for the appropriate value for this field.
+   *
+   * @generated from field: string resource = 1;
+   */
+  resource: string;
 
-    /**
-     * The set of permissions to check for the `resource`. Permissions with
-     * wildcards (such as '*' or 'storage.*') are not allowed. For more
-     * information see
-     * [IAM Overview](https://cloud.google.com/iam/docs/overview#permissions).
-     *
-     * @generated from field: repeated string permissions = 2;
-     */
-    permissions: string[];
-  };
+  /**
+   * The set of permissions to check for the `resource`. Permissions with
+   * wildcards (such as '*' or 'storage.*') are not allowed. For more
+   * information see
+   * [IAM Overview](https://cloud.google.com/iam/docs/overview#permissions).
+   *
+   * @generated from field: repeated string permissions = 2;
+   */
+  permissions: string[];
+};
 
 /**
  * Describes the message google.iam.v1.TestIamPermissionsRequest.
  * Use `create(TestIamPermissionsRequestSchema)` to create a new message.
  */
-export const TestIamPermissionsRequestSchema: GenMessage<TestIamPermissionsRequest> =
-  /*@__PURE__*/
+export const TestIamPermissionsRequestSchema: GenMessage<TestIamPermissionsRequest> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_iam_policy, 2);
 
 /**
@@ -172,23 +146,21 @@ export const TestIamPermissionsRequestSchema: GenMessage<TestIamPermissionsReque
  *
  * @generated from message google.iam.v1.TestIamPermissionsResponse
  */
-export type TestIamPermissionsResponse =
-  Message<"google.iam.v1.TestIamPermissionsResponse"> & {
-    /**
-     * A subset of `TestPermissionsRequest.permissions` that the caller is
-     * allowed.
-     *
-     * @generated from field: repeated string permissions = 1;
-     */
-    permissions: string[];
-  };
+export type TestIamPermissionsResponse = Message<"google.iam.v1.TestIamPermissionsResponse"> & {
+  /**
+   * A subset of `TestPermissionsRequest.permissions` that the caller is
+   * allowed.
+   *
+   * @generated from field: repeated string permissions = 1;
+   */
+  permissions: string[];
+};
 
 /**
  * Describes the message google.iam.v1.TestIamPermissionsResponse.
  * Use `create(TestIamPermissionsResponseSchema)` to create a new message.
  */
-export const TestIamPermissionsResponseSchema: GenMessage<TestIamPermissionsResponse> =
-  /*@__PURE__*/
+export const TestIamPermissionsResponseSchema: GenMessage<TestIamPermissionsResponse> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_iam_policy, 3);
 
 /**
@@ -233,7 +205,7 @@ export const IAMPolicy: GenService<{
     methodKind: "unary";
     input: typeof SetIamPolicyRequestSchema;
     output: typeof PolicySchema;
-  };
+  },
   /**
    * Gets the access control policy for a resource.
    * Returns an empty policy if the resource exists and does not have a policy
@@ -245,7 +217,7 @@ export const IAMPolicy: GenService<{
     methodKind: "unary";
     input: typeof GetIamPolicyRequestSchema;
     output: typeof PolicySchema;
-  };
+  },
   /**
    * Returns permissions that a caller has on the specified resource.
    * If the resource does not exist, this will return an empty set of
@@ -261,5 +233,7 @@ export const IAMPolicy: GenService<{
     methodKind: "unary";
     input: typeof TestIamPermissionsRequestSchema;
     output: typeof TestIamPermissionsResponseSchema;
-  };
-}> = /*@__PURE__*/ serviceDesc(file_google_iam_v1_iam_policy, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_google_iam_v1_iam_policy, 0);
+

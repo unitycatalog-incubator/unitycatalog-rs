@@ -16,18 +16,15 @@
 // @generated from file google/iam/v1/options.proto (package google.iam.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/iam/v1/options.proto.
  */
-export const file_google_iam_v1_options: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Chtnb29nbGUvaWFtL3YxL29wdGlvbnMucHJvdG8SDWdvb2dsZS5pYW0udjEiNAoQR2V0UG9saWN5T3B0aW9ucxIgChhyZXF1ZXN0ZWRfcG9saWN5X3ZlcnNpb24YASABKAVCpQEKEWNvbS5nb29nbGUuaWFtLnYxQgxPcHRpb25zUHJvdG9QAVopY2xvdWQuZ29vZ2xlLmNvbS9nby9pYW0vYXBpdjEvaWFtcGI7aWFtcGL4AQGiAgNHSViqAg1Hb29nbGUuSWFtLlYxygINR29vZ2xlXElhbVxWMeICGUdvb2dsZVxJYW1cVjFcR1BCTWV0YWRhdGHqAg9Hb29nbGU6OklhbTo6VjFiBnByb3RvMw",
-  );
+export const file_google_iam_v1_options: GenFile = /*@__PURE__*/
+  fileDesc("Chtnb29nbGUvaWFtL3YxL29wdGlvbnMucHJvdG8SDWdvb2dsZS5pYW0udjEiNAoQR2V0UG9saWN5T3B0aW9ucxIgChhyZXF1ZXN0ZWRfcG9saWN5X3ZlcnNpb24YASABKAVCpQEKEWNvbS5nb29nbGUuaWFtLnYxQgxPcHRpb25zUHJvdG9QAVopY2xvdWQuZ29vZ2xlLmNvbS9nby9pYW0vYXBpdjEvaWFtcGI7aWFtcGL4AQGiAgNHSViqAg1Hb29nbGUuSWFtLlYxygINR29vZ2xlXElhbVxWMeICGUdvb2dsZVxJYW1cVjFcR1BCTWV0YWRhdGHqAg9Hb29nbGU6OklhbTo6VjFiBnByb3RvMw");
 
 /**
  * Encapsulates settings provided to GetIamPolicy.
@@ -64,6 +61,6 @@ export type GetPolicyOptions = Message<"google.iam.v1.GetPolicyOptions"> & {
  * Describes the message google.iam.v1.GetPolicyOptions.
  * Use `create(GetPolicyOptionsSchema)` to create a new message.
  */
-export const GetPolicyOptionsSchema: GenMessage<GetPolicyOptions> =
-  /*@__PURE__*/
+export const GetPolicyOptionsSchema: GenMessage<GetPolicyOptions> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_options, 0);
+

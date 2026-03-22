@@ -16,25 +16,17 @@
 // @generated from file google/iam/v1/policy.proto (package google.iam.v1, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenEnum,
-  GenFile,
-  GenMessage,
-} from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Expr } from "../../type/expr_pb";
 import { file_google_type_expr } from "../../type/expr_pb";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/iam/v1/policy.proto.
  */
-export const file_google_iam_v1_policy: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Chpnb29nbGUvaWFtL3YxL3BvbGljeS5wcm90bxINZ29vZ2xlLmlhbS52MSKEAQoGUG9saWN5Eg8KB3ZlcnNpb24YASABKAUSKAoIYmluZGluZ3MYBCADKAsyFi5nb29nbGUuaWFtLnYxLkJpbmRpbmcSMQoNYXVkaXRfY29uZmlncxgGIAMoCzIaLmdvb2dsZS5pYW0udjEuQXVkaXRDb25maWcSDAoEZXRhZxgDIAEoDCJOCgdCaW5kaW5nEgwKBHJvbGUYASABKAkSDwoHbWVtYmVycxgCIAMoCRIkCgljb25kaXRpb24YAyABKAsyES5nb29nbGUudHlwZS5FeHByIlgKC0F1ZGl0Q29uZmlnEg8KB3NlcnZpY2UYASABKAkSOAoRYXVkaXRfbG9nX2NvbmZpZ3MYAyADKAsyHS5nb29nbGUuaWFtLnYxLkF1ZGl0TG9nQ29uZmlnIrcBCg5BdWRpdExvZ0NvbmZpZxI3Cghsb2dfdHlwZRgBIAEoDjIlLmdvb2dsZS5pYW0udjEuQXVkaXRMb2dDb25maWcuTG9nVHlwZRIYChBleGVtcHRlZF9tZW1iZXJzGAIgAygJIlIKB0xvZ1R5cGUSGAoUTE9HX1RZUEVfVU5TUEVDSUZJRUQQABIOCgpBRE1JTl9SRUFEEAESDgoKREFUQV9XUklURRACEg0KCURBVEFfUkVBRBADIoABCgtQb2xpY3lEZWx0YRIzCg5iaW5kaW5nX2RlbHRhcxgBIAMoCzIbLmdvb2dsZS5pYW0udjEuQmluZGluZ0RlbHRhEjwKE2F1ZGl0X2NvbmZpZ19kZWx0YXMYAiADKAsyHy5nb29nbGUuaWFtLnYxLkF1ZGl0Q29uZmlnRGVsdGEivQEKDEJpbmRpbmdEZWx0YRIyCgZhY3Rpb24YASABKA4yIi5nb29nbGUuaWFtLnYxLkJpbmRpbmdEZWx0YS5BY3Rpb24SDAoEcm9sZRgCIAEoCRIOCgZtZW1iZXIYAyABKAkSJAoJY29uZGl0aW9uGAQgASgLMhEuZ29vZ2xlLnR5cGUuRXhwciI1CgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASBwoDQUREEAESCgoGUkVNT1ZFEAIivQEKEEF1ZGl0Q29uZmlnRGVsdGESNgoGYWN0aW9uGAEgASgOMiYuZ29vZ2xlLmlhbS52MS5BdWRpdENvbmZpZ0RlbHRhLkFjdGlvbhIPCgdzZXJ2aWNlGAIgASgJEhcKD2V4ZW1wdGVkX21lbWJlchgDIAEoCRIQCghsb2dfdHlwZRgEIAEoCSI1CgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASBwoDQUREEAESCgoGUkVNT1ZFEAJCpAEKEWNvbS5nb29nbGUuaWFtLnYxQgtQb2xpY3lQcm90b1ABWiljbG91ZC5nb29nbGUuY29tL2dvL2lhbS9hcGl2MS9pYW1wYjtpYW1wYvgBAaICA0dJWKoCDUdvb2dsZS5JYW0uVjHKAg1Hb29nbGVcSWFtXFYx4gIZR29vZ2xlXElhbVxWMVxHUEJNZXRhZGF0YeoCD0dvb2dsZTo6SWFtOjpWMWIGcHJvdG8z",
-    [file_google_type_expr],
-  );
+export const file_google_iam_v1_policy: GenFile = /*@__PURE__*/
+  fileDesc("Chpnb29nbGUvaWFtL3YxL3BvbGljeS5wcm90bxINZ29vZ2xlLmlhbS52MSKEAQoGUG9saWN5Eg8KB3ZlcnNpb24YASABKAUSKAoIYmluZGluZ3MYBCADKAsyFi5nb29nbGUuaWFtLnYxLkJpbmRpbmcSMQoNYXVkaXRfY29uZmlncxgGIAMoCzIaLmdvb2dsZS5pYW0udjEuQXVkaXRDb25maWcSDAoEZXRhZxgDIAEoDCJOCgdCaW5kaW5nEgwKBHJvbGUYASABKAkSDwoHbWVtYmVycxgCIAMoCRIkCgljb25kaXRpb24YAyABKAsyES5nb29nbGUudHlwZS5FeHByIlgKC0F1ZGl0Q29uZmlnEg8KB3NlcnZpY2UYASABKAkSOAoRYXVkaXRfbG9nX2NvbmZpZ3MYAyADKAsyHS5nb29nbGUuaWFtLnYxLkF1ZGl0TG9nQ29uZmlnIrcBCg5BdWRpdExvZ0NvbmZpZxI3Cghsb2dfdHlwZRgBIAEoDjIlLmdvb2dsZS5pYW0udjEuQXVkaXRMb2dDb25maWcuTG9nVHlwZRIYChBleGVtcHRlZF9tZW1iZXJzGAIgAygJIlIKB0xvZ1R5cGUSGAoUTE9HX1RZUEVfVU5TUEVDSUZJRUQQABIOCgpBRE1JTl9SRUFEEAESDgoKREFUQV9XUklURRACEg0KCURBVEFfUkVBRBADIoABCgtQb2xpY3lEZWx0YRIzCg5iaW5kaW5nX2RlbHRhcxgBIAMoCzIbLmdvb2dsZS5pYW0udjEuQmluZGluZ0RlbHRhEjwKE2F1ZGl0X2NvbmZpZ19kZWx0YXMYAiADKAsyHy5nb29nbGUuaWFtLnYxLkF1ZGl0Q29uZmlnRGVsdGEivQEKDEJpbmRpbmdEZWx0YRIyCgZhY3Rpb24YASABKA4yIi5nb29nbGUuaWFtLnYxLkJpbmRpbmdEZWx0YS5BY3Rpb24SDAoEcm9sZRgCIAEoCRIOCgZtZW1iZXIYAyABKAkSJAoJY29uZGl0aW9uGAQgASgLMhEuZ29vZ2xlLnR5cGUuRXhwciI1CgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASBwoDQUREEAESCgoGUkVNT1ZFEAIivQEKEEF1ZGl0Q29uZmlnRGVsdGESNgoGYWN0aW9uGAEgASgOMiYuZ29vZ2xlLmlhbS52MS5BdWRpdENvbmZpZ0RlbHRhLkFjdGlvbhIPCgdzZXJ2aWNlGAIgASgJEhcKD2V4ZW1wdGVkX21lbWJlchgDIAEoCRIQCghsb2dfdHlwZRgEIAEoCSI1CgZBY3Rpb24SFgoSQUNUSU9OX1VOU1BFQ0lGSUVEEAASBwoDQUREEAESCgoGUkVNT1ZFEAJCpAEKEWNvbS5nb29nbGUuaWFtLnYxQgtQb2xpY3lQcm90b1ABWiljbG91ZC5nb29nbGUuY29tL2dvL2lhbS9hcGl2MS9pYW1wYjtpYW1wYvgBAaICA0dJWKoCDUdvb2dsZS5JYW0uVjHKAg1Hb29nbGVcSWFtXFYx4gIZR29vZ2xlXElhbVxWMVxHUEJNZXRhZGF0YeoCD0dvb2dsZTo6SWFtOjpWMWIGcHJvdG8z", [file_google_type_expr]);
 
 /**
  * An Identity and Access Management (IAM) policy, which specifies access
@@ -191,8 +183,7 @@ export type Policy = Message<"google.iam.v1.Policy"> & {
  * Describes the message google.iam.v1.Policy.
  * Use `create(PolicySchema)` to create a new message.
  */
-export const PolicySchema: GenMessage<Policy> =
-  /*@__PURE__*/
+export const PolicySchema: GenMessage<Policy> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 0);
 
 /**
@@ -282,8 +273,7 @@ export type Binding = Message<"google.iam.v1.Binding"> & {
  * Describes the message google.iam.v1.Binding.
  * Use `create(BindingSchema)` to create a new message.
  */
-export const BindingSchema: GenMessage<Binding> =
-  /*@__PURE__*/
+export const BindingSchema: GenMessage<Binding> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 1);
 
 /**
@@ -363,8 +353,7 @@ export type AuditConfig = Message<"google.iam.v1.AuditConfig"> & {
  * Describes the message google.iam.v1.AuditConfig.
  * Use `create(AuditConfigSchema)` to create a new message.
  */
-export const AuditConfigSchema: GenMessage<AuditConfig> =
-  /*@__PURE__*/
+export const AuditConfigSchema: GenMessage<AuditConfig> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 2);
 
 /**
@@ -413,8 +402,7 @@ export type AuditLogConfig = Message<"google.iam.v1.AuditLogConfig"> & {
  * Describes the message google.iam.v1.AuditLogConfig.
  * Use `create(AuditLogConfigSchema)` to create a new message.
  */
-export const AuditLogConfigSchema: GenMessage<AuditLogConfig> =
-  /*@__PURE__*/
+export const AuditLogConfigSchema: GenMessage<AuditLogConfig> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 3);
 
 /**
@@ -456,8 +444,7 @@ export enum AuditLogConfig_LogType {
 /**
  * Describes the enum google.iam.v1.AuditLogConfig.LogType.
  */
-export const AuditLogConfig_LogTypeSchema: GenEnum<AuditLogConfig_LogType> =
-  /*@__PURE__*/
+export const AuditLogConfig_LogTypeSchema: GenEnum<AuditLogConfig_LogType> = /*@__PURE__*/
   enumDesc(file_google_iam_v1_policy, 3, 0);
 
 /**
@@ -485,8 +472,7 @@ export type PolicyDelta = Message<"google.iam.v1.PolicyDelta"> & {
  * Describes the message google.iam.v1.PolicyDelta.
  * Use `create(PolicyDeltaSchema)` to create a new message.
  */
-export const PolicyDeltaSchema: GenMessage<PolicyDelta> =
-  /*@__PURE__*/
+export const PolicyDeltaSchema: GenMessage<PolicyDelta> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 4);
 
 /**
@@ -534,8 +520,7 @@ export type BindingDelta = Message<"google.iam.v1.BindingDelta"> & {
  * Describes the message google.iam.v1.BindingDelta.
  * Use `create(BindingDeltaSchema)` to create a new message.
  */
-export const BindingDeltaSchema: GenMessage<BindingDelta> =
-  /*@__PURE__*/
+export const BindingDeltaSchema: GenMessage<BindingDelta> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 5);
 
 /**
@@ -569,8 +554,7 @@ export enum BindingDelta_Action {
 /**
  * Describes the enum google.iam.v1.BindingDelta.Action.
  */
-export const BindingDelta_ActionSchema: GenEnum<BindingDelta_Action> =
-  /*@__PURE__*/
+export const BindingDelta_ActionSchema: GenEnum<BindingDelta_Action> = /*@__PURE__*/
   enumDesc(file_google_iam_v1_policy, 5, 0);
 
 /**
@@ -621,8 +605,7 @@ export type AuditConfigDelta = Message<"google.iam.v1.AuditConfigDelta"> & {
  * Describes the message google.iam.v1.AuditConfigDelta.
  * Use `create(AuditConfigDeltaSchema)` to create a new message.
  */
-export const AuditConfigDeltaSchema: GenMessage<AuditConfigDelta> =
-  /*@__PURE__*/
+export const AuditConfigDeltaSchema: GenMessage<AuditConfigDelta> = /*@__PURE__*/
   messageDesc(file_google_iam_v1_policy, 6);
 
 /**
@@ -656,6 +639,6 @@ export enum AuditConfigDelta_Action {
 /**
  * Describes the enum google.iam.v1.AuditConfigDelta.Action.
  */
-export const AuditConfigDelta_ActionSchema: GenEnum<AuditConfigDelta_Action> =
-  /*@__PURE__*/
+export const AuditConfigDelta_ActionSchema: GenEnum<AuditConfigDelta_Action> = /*@__PURE__*/
   enumDesc(file_google_iam_v1_policy, 6, 0);
+

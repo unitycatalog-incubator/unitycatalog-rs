@@ -16,25 +16,17 @@
 // @generated from file google/api/routing.proto (package google.api, syntax proto3)
 /* eslint-disable */
 
-import type { Message } from "@bufbuild/protobuf";
-import type {
-  GenExtension,
-  GenFile,
-  GenMessage,
-} from "@bufbuild/protobuf/codegenv2";
+import type { GenExtension, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { extDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { MethodOptions } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
+import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file google/api/routing.proto.
  */
-export const file_google_api_routing: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "Chhnb29nbGUvYXBpL3JvdXRpbmcucHJvdG8SCmdvb2dsZS5hcGkiRwoLUm91dGluZ1J1bGUSOAoScm91dGluZ19wYXJhbWV0ZXJzGAIgAygLMhwuZ29vZ2xlLmFwaS5Sb3V0aW5nUGFyYW1ldGVyIjgKEFJvdXRpbmdQYXJhbWV0ZXISDQoFZmllbGQYASABKAkSFQoNcGF0aF90ZW1wbGF0ZRgCIAEoCTpUCgdyb3V0aW5nEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYscq8IiABKAsyFy5nb29nbGUuYXBpLlJvdXRpbmdSdWxlUgdyb3V0aW5nQqoBCg5jb20uZ29vZ2xlLmFwaUIMUm91dGluZ1Byb3RvUAFaQWdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2Fubm90YXRpb25zO2Fubm90YXRpb25zogIDR0FYqgIKR29vZ2xlLkFwacoCCkdvb2dsZVxBcGniAhZHb29nbGVcQXBpXEdQQk1ldGFkYXRh6gILR29vZ2xlOjpBcGliBnByb3RvMw",
-    [file_google_protobuf_descriptor],
-  );
+export const file_google_api_routing: GenFile = /*@__PURE__*/
+  fileDesc("Chhnb29nbGUvYXBpL3JvdXRpbmcucHJvdG8SCmdvb2dsZS5hcGkiRwoLUm91dGluZ1J1bGUSOAoScm91dGluZ19wYXJhbWV0ZXJzGAIgAygLMhwuZ29vZ2xlLmFwaS5Sb3V0aW5nUGFyYW1ldGVyIjgKEFJvdXRpbmdQYXJhbWV0ZXISDQoFZmllbGQYASABKAkSFQoNcGF0aF90ZW1wbGF0ZRgCIAEoCTpUCgdyb3V0aW5nEh4uZ29vZ2xlLnByb3RvYnVmLk1ldGhvZE9wdGlvbnMYscq8IiABKAsyFy5nb29nbGUuYXBpLlJvdXRpbmdSdWxlUgdyb3V0aW5nQqoBCg5jb20uZ29vZ2xlLmFwaUIMUm91dGluZ1Byb3RvUAFaQWdvb2dsZS5nb2xhbmcub3JnL2dlbnByb3RvL2dvb2dsZWFwaXMvYXBpL2Fubm90YXRpb25zO2Fubm90YXRpb25zogIDR0FYqgIKR29vZ2xlLkFwacoCCkdvb2dsZVxBcGniAhZHb29nbGVcQXBpXEdQQk1ldGFkYXRh6gILR29vZ2xlOjpBcGliBnByb3RvMw", [file_google_protobuf_descriptor]);
 
 /**
  * Specifies the routing information that should be sent along with the request
@@ -417,8 +409,7 @@ export type RoutingRule = Message<"google.api.RoutingRule"> & {
  * Describes the message google.api.RoutingRule.
  * Use `create(RoutingRuleSchema)` to create a new message.
  */
-export const RoutingRuleSchema: GenMessage<RoutingRule> =
-  /*@__PURE__*/
+export const RoutingRuleSchema: GenMessage<RoutingRule> = /*@__PURE__*/
   messageDesc(file_google_api_routing, 0);
 
 /**
@@ -499,8 +490,7 @@ export type RoutingParameter = Message<"google.api.RoutingParameter"> & {
  * Describes the message google.api.RoutingParameter.
  * Use `create(RoutingParameterSchema)` to create a new message.
  */
-export const RoutingParameterSchema: GenMessage<RoutingParameter> =
-  /*@__PURE__*/
+export const RoutingParameterSchema: GenMessage<RoutingParameter> = /*@__PURE__*/
   messageDesc(file_google_api_routing, 1);
 
 /**
@@ -508,6 +498,6 @@ export const RoutingParameterSchema: GenMessage<RoutingParameter> =
  *
  * @generated from extension: google.api.RoutingRule routing = 72295729;
  */
-export const routing: GenExtension<MethodOptions, RoutingRule> =
-  /*@__PURE__*/
+export const routing: GenExtension<MethodOptions, RoutingRule> = /*@__PURE__*/
   extDesc(file_google_api_routing, 0);
+
