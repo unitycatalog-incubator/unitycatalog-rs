@@ -83,12 +83,15 @@ Snippet names use `snake_case` matching the Rust method name (e.g., `list_catalo
 
 **Adding a new example:**
 1. Add the tagged region to `examples/rust/src/*.rs`, `examples/python/*.py`, and `examples/typescript/examples/*.ts`
-2. Verify with `just validate-examples`
-3. Use `<CodeExample snippet="your_snippet_name" />` in any MDX doc page
+2. Add the new file imports to `docs/src/components/CodeExample.astro` and include them in `buildRegistry()`
+3. Verify with `just validate-examples`
+4. Use `<CodeExample snippet="your_snippet_name" />` in any MDX doc page (import the component first: `import CodeExample from "../../../components/CodeExample.astro"`)
 
-**The remark plugin** (`docs/plugins/remark-code-snippets.mjs`) reads snippet files at
-`astro build` / `astro dev` time and expands `<CodeExample />` to Starlight `<Tabs>` blocks.
-It throws a hard build error if a snippet name is not found — ensuring docs always stay in sync.
+**The `CodeExample` Astro component** (`docs/src/components/CodeExample.astro`) uses Vite `?raw`
+imports to load snippet files at build time and expands `<CodeExample />` to Starlight
+`<Tabs syncKey="language">` blocks — so users only need to select their language once site-wide.
+It throws a hard build error if a snippet name is not found, ensuring docs always stay in sync.
+Tabs are synced across the entire site via Starlight's built-in `localStorage` persistence.
 
 ## Coding Style & Naming Conventions
 
