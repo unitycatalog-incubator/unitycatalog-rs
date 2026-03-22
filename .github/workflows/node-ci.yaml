@@ -34,6 +34,9 @@ jobs:
         run: npm install
         working-directory: node/client
 
+      - name: Create output directories
+        run: mkdir -p node/unitycatalog
+
       - name: Build NAPI binding
         run: npm run build
         working-directory: node/client
