@@ -492,7 +492,7 @@ fn generate_main_client_class_typings(services: &[&ServiceHandler<'_>]) -> Strin
                 .join("\n")
         };
 
-    generate_class_from_template("PyUnityCatalogClient", "", None, &main_client_all_methods)
+    generate_class_from_template("UnityCatalogClient", "", None, &main_client_all_methods)
 }
 
 // --- Type collection ---

@@ -8,6 +8,9 @@
 //!
 //! A single struct can implement multiple handler traits to serve multiple
 //! services. Use [`axum::Router::merge`] to compose routers together.
+//!
+//! Service for generating temporary credentials to access tables and storage paths.
+//! Credentials are short-lived and scoped to a specific operation (read or read/write).
 use crate::Result;
 use crate::api::RequestContext;
 use async_trait::async_trait;

@@ -22,6 +22,7 @@ The project follows a multi-crate Rust workspace architecture with language bind
 - `openapi/` - Generated OpenAPI specifications
 - `dev/` - Docker Compose config, development scripts, and Marimo notebooks
 - `docs/` - Astro-based documentation site
+- `examples/` - Type-checked code examples (Rust, Python, TypeScript) injected into docs
 
 ## Build, Test, and Development Commands
 
@@ -61,11 +62,33 @@ We use [`just`](https://just.systems/) as the primary task runner. Key commands:
 
 **Documentation:**
 - `just docs` - Start the Astro documentation development server
+- `just validate-examples` - Type-check all examples and build docs (Rust/Python/TypeScript)
 
 Standard Rust commands also work:
 - `cargo test` - Run Rust unit tests
 - `cargo build` - Build Rust workspace
 - `cargo clippy` - Run Rust linter
+
+## Code Examples in Documentation
+
+Docs use a snippet injection system. The `examples/` directory contains type-checked
+source files for Rust, Python, and TypeScript. In MDX docs, use `<CodeExample snippet="name" />`
+to render a tabbed code block for all three languages automatically.
+
+**Snippet tagging convention** (tag lines are stripped from the rendered output):
+- Rust/TypeScript: `// [snippet:name]` ... `// [/snippet:name]`
+- Python: `# [snippet:name]` ... `# [/snippet:name]`
+
+Snippet names use `snake_case` matching the Rust method name (e.g., `list_catalogs`).
+
+**Adding a new example:**
+1. Add the tagged region to `examples/rust/src/*.rs`, `examples/python/*.py`, and `examples/typescript/examples/*.ts`
+2. Verify with `just validate-examples`
+3. Use `<CodeExample snippet="your_snippet_name" />` in any MDX doc page
+
+**The remark plugin** (`docs/plugins/remark-code-snippets.mjs`) reads snippet files at
+`astro build` / `astro dev` time and expands `<CodeExample />` to Starlight `<Tabs>` blocks.
+It throws a hard build error if a snippet name is not found — ensuring docs always stay in sync.
 
 ## Coding Style & Naming Conventions
 

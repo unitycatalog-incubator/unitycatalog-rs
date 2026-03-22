@@ -17,7 +17,7 @@ dependencies = [
 # unitycatalog-client = { workspace = true }
 
 [tool.uv.workspace]
-members = ["python/*"]
+members = ["python/*", "examples/python"]
 
 [tool.pyright]
 venvPath = "."

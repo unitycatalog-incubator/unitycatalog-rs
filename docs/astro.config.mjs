@@ -1,9 +1,13 @@
 // @ts-check
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import { remarkCodeSnippets } from "./plugins/remark-code-snippets.mjs";
 
 // https://astro.build/config
 export default defineConfig({
+  markdown: {
+    remarkPlugins: [remarkCodeSnippets],
+  },
   integrations: [
     starlight({
       title: "Unity Catalog Rust",

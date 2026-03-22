@@ -77,6 +77,15 @@ rest-db:
 docs:
     npm run dev -w docs
 
+# validate code examples type-check and docs build successfully
+[group('test')]
+validate-examples:
+    cargo check -p unitycatalog-examples
+    uvx ty check examples/python/
+    npm run build -w @unitycatalog/client
+    npx tsc --noEmit -p examples/typescript/tsconfig.json
+    npm run build -w docs
+
 # build python bindings
 [group('build')]
 build-py: build-py-client

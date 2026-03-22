@@ -2,7 +2,8 @@
   "name": "unitycatalog",
   "workspaces": [
     "node/client",
-    "docs"
+    "docs",
+    "examples/typescript"
   ],
   "scripts": {
     "openapi": "prettier --write openapi/openapi.yaml",

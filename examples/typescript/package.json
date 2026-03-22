@@ -1,0 +1,14 @@
+{
+  "name": "@unitycatalog/examples",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@unitycatalog/client": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

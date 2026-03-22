@@ -8,6 +8,9 @@
 //!
 //! A single struct can implement multiple handler traits to serve multiple
 //! services. Use [`axum::Router::merge`] to compose routers together.
+//!
+//! Service for managing tables in Unity Catalog.
+//! Tables represent structured data stored in a schema, supporting managed and external storage formats.
 use crate::Result;
 use crate::api::RequestContext;
 use async_trait::async_trait;
