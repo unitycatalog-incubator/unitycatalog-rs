@@ -34,11 +34,16 @@ jobs:
         run: npm install
         working-directory: node/client
 
-      - name: Create output directories
-        run: mkdir -p node/unitycatalog
-
       - name: Build NAPI binding
-        run: npm run build
+        run: npx napi build --platform --release
+        working-directory: node/client
+
+      - name: Compile TypeScript
+        run: npm run tsc
+        working-directory: node/client
+
+      - name: Copy .node artifact to dist
+        run: cp unitycatalog.linux-x64-gnu.node dist/client.linux-x64-gnu.node
         working-directory: node/client
 
       - name: Run unit tests
