@@ -8,7 +8,9 @@
       "!**/native.js",
       "!**/native.d.ts",
       "!**/npm/**/*",
-      "!./examples/*"
+      "!./examples/*",
+      "!**/models/gen/**/*",
+      "!**/unitycatalog/client.ts"
     ]
   }
 }
