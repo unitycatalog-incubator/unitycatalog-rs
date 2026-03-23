@@ -1,32 +1,30 @@
 ---
 name: commit
-description: This skill should be used when the user asks to "commit", "prepare a commit", "stage and commit", "commit my changes", or says the work is done and changes should be committed. Handles the full pre-commit pipeline (clippy → fmt → stage → commit message) for this GPG-signed repository where git commit cannot be run directly.
+description: This skill should be used when the user asks to "commit", "prepare a commit", "stage and commit", "commit my changes", or says the work is done and changes should be committed. Handles repos where git commit cannot be run directly by the agent (e.g. GPG signing, 2FA prompts) by preparing everything so the user pastes one command.
 version: 0.1.0
 ---
 
 # Commit Workflow
 
-This repository requires GPG commit signing. The GPG PIN prompt needs an interactive
-terminal — Claude cannot run `git commit` directly (it will time out). Instead, prepare
-everything so the user can paste and run a single command.
+For repos where `git commit` cannot be run directly by the agent (e.g. GPG PIN
+requires an interactive terminal), prepare everything so the user pastes one command.
 
 ## Workflow
 
 ### Step 1 — Auto-fix lint
-```bash
-cargo clippy --workspace --fix --allow-dirty
-```
-Clippy may rewrite code files. Always run this before formatting.
+Run the project's lint auto-fix command per CLAUDE.md
+(e.g. `cargo clippy --workspace --fix --allow-dirty` for Rust).
+
+Lint may rewrite code files. Always run this before formatting.
 
 ### Step 2 — Format all code
-```bash
-cargo fmt --all
-```
-Run after clippy, not before — clippy rewrites may need reformatting.
+Run the project's formatter per CLAUDE.md (e.g. `cargo fmt --all` for Rust).
 
-### Step 3 — Update documentation (if needed)
-Before staging, check whether any of these need updating:
-- `CLAUDE.md` — if commands, rules, or public APIs documented there have changed
+Always run after lint — lint rewrites may need reformatting.
+
+### Step 3 — Update project documentation (if needed)
+Before staging, check whether any project documentation files need updating
+(e.g. CLAUDE.md, README) if commands, rules, or public APIs have changed.
 
 ### Step 4 — Stage specific files
 ```bash
@@ -77,8 +75,8 @@ heredocs leaves the shell in an incomplete input state.
 
 ## Notes
 
-- Steps 1 and 2 must run in order — clippy first, then fmt
-- Do not skip clippy even for small changes; it may catch issues
-- If clippy or fmt changes files, include them in the staged set
-- Generated files (from `just generate`) should be committed separately in a
-  follow-up `chore: sync generated code` commit to keep review diffs readable
+- Steps 1 and 2 must run in order — lint first, then format
+- Do not skip lint even for small changes; it may catch issues
+- If lint or format changes files, include them in the staged set
+- If the project uses code generation, commit generated files separately per
+  CLAUDE.md conventions to keep review diffs readable
