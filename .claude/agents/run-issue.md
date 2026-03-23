@@ -72,5 +72,5 @@ pre-commit pipeline and produces a ready-to-paste command for the user.
 
 - Title: `<type>: <description> (#<issue>)`
 - Body: bullet summary, test plan checklist, `Closes #N`, follow-up issue references, `AI-assisted by Isaac`
-- Create follow-up issues *before* opening the PR
+- Create follow-up issues *before* opening the PR — include `AI-assisted by Isaac` at the bottom of each issue body
 - If the project uses code generation, commit generated files separately per CLAUDE.md conventions

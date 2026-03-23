@@ -32,6 +32,9 @@ prerequisite work (e.g. a dependency upgrade that unblocks multiple Features).
 - [ ] <testable outcome>
 ## Key files
 - `path/to/file` — purpose
+
+---
+AI-assisted by Isaac
 ```
 
 **Task/Bug body:**
@@ -43,6 +46,9 @@ prerequisite work (e.g. a dependency upgrade that unblocks multiple Features).
 <commands to run, tests to pass>
 ## Key files
 - `path/to/file` — purpose
+
+---
+AI-assisted by Isaac
 ```
 
 Never encode blocked-by or sub-issue relationships as text in the body — use the
