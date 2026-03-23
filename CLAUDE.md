@@ -136,38 +136,9 @@ Pre-commit hooks enforce formatting with Biome, Ruff, and typos checking.
 
 ## Commit & Pull Request Guidelines
 
-GPG commit signing is required on this repository. The GPG PIN prompt requires an interactive terminal, which AI agents cannot provide. **Never attempt `git commit` directly** — it will time out and fail.
+GPG commit signing is required. **Never run `git commit` directly** — the GPG PIN prompt needs an interactive terminal and will time out.
 
-### Correct workflow
-
-1. Run `cargo clippy --workspace --fix --allow-dirty` to apply automatic lint fixes (may change code)
-2. Run `cargo fmt --all` to format all code (including anything clippy rewrote)
-3. **Update documentation** — before staging, check and update any affected docs:
-   - `CLAUDE.md` — update if commands, rules, or public APIs documented here have changed
-4. Stage files with `git add <specific files>` — do this programmatically (via Bash tool)
-5. Output a ready-to-paste `git commit` command for the user to run in their terminal
-
-Steps 1 and 2 must always run in this order before staging — clippy may rewrite code that then needs formatting. Documentation updates (step 3) must happen before staging so all changes land in the same commit. Step 4 (staging) must be done by the agent so the user only needs to paste and run a single commit command.
-
-### Commit message format
-
-The agent writes the commit message to `/tmp/commit_msg.txt`, then:
-1. Prints the full commit message in a code block so the user can read it
-2. Provides the single-line command for the user to paste:
-
-```bash
-git commit -F /tmp/commit_msg.txt
-```
-
-**Do not use heredocs or `\n`-escaped strings** — on macOS/zsh, pasting multiline heredocs leaves the shell in an incomplete input state, and escaped newlines produce unreadable messages.
-
-The `Co-authored-by: Isaac` trailer must be included on every commit.
-
-### Commit message conventions
-
-- **Types**: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
-- Subject line ≤ 72 characters, imperative mood ("add", not "added")
-- Body explains *what* changed and *why*
+Use the `/commit` skill (`.claude/skills/commit/SKILL.md`) for the full pre-commit workflow: clippy → fmt → stage → commit message file → paste command.
 
 **Code Generation**: Many files are auto-generated. Run `just generate` after proto changes and commit generated code separately when possible.
 
@@ -187,3 +158,110 @@ The `Co-authored-by: Isaac` trailer must be included on every commit.
    - Body: bullet-point summary, test plan checklist, `Closes #N` line, follow-up issue references, and the `AI-assisted by Isaac` attribution line
 
 4. **Commit generated code separately** when a feature PR regenerates many files (e.g. `just generate-code` produces 70+ diffs). Stage only the hand-written changes in the feature commit, then open a follow-up PR (`chore: sync generated code`) on a branch off the feature branch to commit the generated output. This keeps review diffs readable.
+
+### GitHub Issues workflow
+
+GitHub issues serve as a machine-readable execution schedule. Issue type, sub-issue
+hierarchy, and `blocked-by` relationships together encode *what* to do, *how much* to
+do per session, and *in what order* — so an agent pointed at an issue can autonomously
+schedule and execute the work.
+
+#### Issue type taxonomy
+
+| Type | Scope | Agent execution model |
+|------|-------|----------------------|
+| **Epic** | Multi-session, multi-PR | Read direct sub-issues, build DAG, implement wave-by-wave with stacked PRs |
+| **Feature** | Single session, one PR | Read Task sub-issues, build DAG, dispatch parallel sub-agents per wave |
+| **Task** | Single agent, atomic | Read body, implement, verify, commit on parent Feature branch |
+| **Bug** | Single agent, atomic | Same as Task; may appear under Epic, Feature, or standalone |
+
+Tasks/Bugs may appear directly under an Epic (not inside a Feature) when they represent
+standalone prerequisite work — e.g. a dependency upgrade that unblocks multiple Features.
+
+#### Agent execution protocol
+
+**Given a Task or Bug:** implement the work in the body, run the verification steps, commit.
+
+**Given a Feature:**
+1. Fetch all Task sub-issues + their `blocked-by` links
+2. Group into waves: wave 1 = no blockers, wave N = blocked only by wave N-1
+3. Dispatch each wave as parallel sub-agents; wait before starting the next wave
+4. Open one PR for the Feature branch
+
+**Given an Epic:**
+1. Fetch all direct sub-issues (Features, Tasks, Bugs) + their `blocked-by` links
+2. Build a DAG across all direct children using the same wave logic
+3. Features trigger the Feature protocol above; Tasks/Bugs are atomic
+4. Sequentially dependent items get stacked branches; PRs merged in dependency order
+
+#### Issue body conventions
+
+**Feature body:**
+```markdown
+## Context
+## Acceptance criteria
+- [ ] <testable outcome>
+## Key files
+- `path/to/file` — purpose
+```
+
+**Task/Bug body:**
+```markdown
+## Context
+## Work
+<numbered steps>
+## Verification
+<commands to run, tests to pass>
+## Key files
+- `path/to/file` — purpose
+```
+
+Never encode blocked-by or sub-issue relationships as text in the body — use the GitHub APIs below.
+
+#### GitHub API operations
+
+All relationship operations require node IDs:
+```bash
+gh api repos/OWNER/REPO/issues/NUMBER --jq '.node_id'
+```
+
+**Set issue type** (on create or update):
+```bash
+# Get type IDs for this repo
+gh api graphql -f query='{
+  repository(owner: "OWNER", name: "REPO") {
+    issueTypes(first: 10) { nodes { id name } }
+  }
+}'
+
+# Set type
+gh api graphql -f query='
+  mutation($issueId: ID!, $issueTypeId: ID!) {
+    updateIssue(input: {id: $issueId, issueTypeId: $issueTypeId}) {
+      issue { number issueType { name } }
+    }
+  }' -f issueId="NODE_ID" -f issueTypeId="TYPE_ID"
+```
+
+**Add sub-issue** (`--parent` flag does not exist in the CLI):
+```bash
+gh api graphql -f query='
+  mutation($parentId: ID!, $issueId: ID!) {
+    addSubIssue(input: {issueId: $parentId, subIssueId: $issueId}) {
+      issue { number } subIssue { number }
+    }
+  }' -f parentId="PARENT_NODE_ID" -f issueId="CHILD_NODE_ID"
+```
+
+**Add blocked-by relationship:**
+```bash
+gh api graphql -f query='
+  mutation($issueId: ID!, $blockingIssueId: ID!) {
+    addBlockedBy(input: {issueId: $issueId, blockingIssueId: $blockingIssueId}) {
+      clientMutationId
+    }
+  }' -f issueId="BLOCKED_NODE_ID" -f blockingIssueId="BLOCKER_NODE_ID"
+```
+
+Sub-issue hierarchies are sufficient for planning. Do not use Milestones. GitHub Projects
+will be adopted later for richer planning views.
