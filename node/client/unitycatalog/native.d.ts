@@ -94,6 +94,11 @@ export declare class NapiExternalLocationClient {
   update(url?: string | undefined | null, credentialName?: string | undefined | null, readOnly?: boolean | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, newName?: string | undefined | null, force?: boolean | undefined | null, skipValidation?: boolean | undefined | null): Promise<Buffer>
   delete(force?: boolean | undefined | null): Promise<void>
 }
+export declare class NapiFunctionClient {
+  get(): Promise<Buffer>
+  update(owner?: string | undefined | null): Promise<Buffer>
+  delete(force?: boolean | undefined | null): Promise<void>
+}
 export declare class NapiRecipientClient {
   get(): Promise<Buffer>
   update(newName?: string | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, expirationTime?: number | undefined | null): Promise<Buffer>
@@ -127,6 +132,8 @@ export declare class NapiUnityCatalogClient {
   createCredential(name: string, purpose: number, comment?: string | undefined | null, readOnly?: boolean | undefined | null, skipValidation?: boolean | undefined | null): Promise<Buffer>
   listExternalLocations(maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
   createExternalLocation(name: string, url: string, credentialName: string, readOnly?: boolean | undefined | null, comment?: string | undefined | null, skipValidation?: boolean | undefined | null): Promise<Buffer>
+  listFunctions(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
+  createFunction(name: string, catalogName: string, schemaName: string, dataType: string, fullDataType: string, parameterStyle: number, isDeterministic: boolean, sqlDataAccess: number, isNullCall: boolean, securityType: number, routineBody: number, routineDefinition?: string | undefined | null, routineBodyLanguage?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   listRecipients(maxResults?: number | undefined | null): Promise<Array<Buffer>>
   createRecipient(name: string, authenticationType: number, owner: string, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, expirationTime?: number | undefined | null): Promise<Buffer>
   listSchemas(catalogName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
@@ -137,6 +144,7 @@ export declare class NapiUnityCatalogClient {
   createTable(name: string, schemaName: string, catalogName: string, tableType: number, dataSourceFormat: number, storageLocation?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   listVolumes(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
   createVolume(catalogName: string, schemaName: string, name: string, volumeType: number, storageLocation?: string | undefined | null, comment?: string | undefined | null): Promise<Buffer>
+  function(catalogName: string, schemaName: string, functionName: string): NapiFunctionClient
   catalog(name: string): NapiCatalogClient
   credential(name: string): NapiCredentialClient
   externalLocation(name: string): NapiExternalLocationClient
