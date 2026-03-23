@@ -19,9 +19,10 @@ Determine the issue type from its GitHub metadata, then follow the matching prot
 
 1. Read the issue body (Context, Work steps, Verification, Key files)
 2. Create or check out the appropriate branch
-3. Implement the work steps
+3. Implement the work steps — **actively look for discovered work** (see below)
 4. Run the verification commands
-5. Use the `/commit` skill to stage and prepare the commit
+5. Sync the GitHub issue to reflect actual work done (see below)
+6. Use the `/commit` skill to stage and prepare the commit
 
 ### Feature (single session, one PR)
 
@@ -31,7 +32,10 @@ Determine the issue type from its GitHub metadata, then follow the matching prot
    ```
 2. Fetch `blocked-by` links for each sub-issue
 3. Build waves: wave 1 = no blockers; wave N = blocked only by completed wave N-1
-4. Dispatch each wave as parallel sub-agents; wait for completion before the next wave
+4. For each wave:
+   a. Dispatch tasks as parallel sub-agents
+   b. Wait for all to complete
+   c. **Run the wave consolidation gate** (see below) before proceeding
 5. Open one PR for the Feature branch targeting the default branch
 
 ### Epic (multi-session, multi-PR)
@@ -39,8 +43,81 @@ Determine the issue type from its GitHub metadata, then follow the matching prot
 1. Fetch all direct sub-issues (Features, Tasks, Bugs)
 2. Fetch `blocked-by` links across all direct children
 3. Build a DAG using the same wave logic
-4. Features trigger the Feature protocol above; Tasks/Bugs are atomic
+4. For each wave:
+   a. Features trigger the Feature protocol above; Tasks/Bugs are atomic
+   b. Wait for all to complete
+   c. **Run the wave consolidation gate** (see below) before proceeding
 5. Sequentially dependent items get stacked branches; merge PRs in dependency order
+
+## Discovered work protocol
+
+During implementation, you will often uncover work not described in the original issue.
+Classify it immediately and act accordingly — do not silently expand scope or ignore it.
+
+### Blocking discovered work
+
+Work that *must* complete before the current task can finish. Examples: a missing
+abstraction the task depends on, a broken API, a required migration not yet run.
+
+1. Create a new Task/Bug issue using the `/create-issue` skill
+2. Add a `blocked-by` relationship from the current issue to the new one via GraphQL
+3. Pause the current task
+4. Execute the blocker atomically (treat it as a Task)
+5. Resume the original task
+
+### Follow-up discovered work
+
+Work that is out of scope for the current issue but should not be lost. Examples:
+tech debt noticed, a related improvement, missing test coverage, a docs gap.
+
+1. Create a new Task/Bug issue using the `/create-issue` skill
+2. Add it as a sub-issue of the current Feature/Epic (or standalone if no parent exists)
+3. **Do not implement it now** — reference it in the PR body under a "Follow-up issues" section
+
+## Wave consolidation gate
+
+Run this after every wave of parallel agents completes, before dispatching the next wave.
+
+1. **Review outputs** — did every task in the wave complete successfully?
+2. **Collect discovered work** — gather any blocking or follow-up items reported by sub-agents
+3. **Handle blocking work** — create issues, add `blocked-by` relationships, insert into the
+   next wave's task list; re-sort waves if the DAG changed
+4. **Triage failures** — for any task that failed or was only partially completed:
+   - Retry if the failure was transient
+   - Convert to a follow-up issue if it is genuinely out of scope
+   - Escalate to the user if the failure blocks the entire Feature/Epic
+5. **Sync GitHub issues** — update issue bodies for completed tasks (see below)
+6. Only then dispatch the next wave
+
+## GitHub issue sync
+
+Keep issues accurate as work is executed. Do not leave issues describing a plan that
+differs from what was actually done.
+
+**Edit the issue body** when actual work differed from what was described:
+```bash
+# Write updated body to a temp file, then:
+gh issue edit NUMBER --body-file /tmp/issue_body_NUMBER.md
+```
+
+**Add a completion comment** to summarize what was actually done:
+```bash
+gh issue comment NUMBER --body "Completed. Actual approach: <summary of what changed vs. the plan>"
+```
+
+**Close as completed** when a task was completed as a side-effect of another task:
+```bash
+gh issue close NUMBER --comment "Resolved as part of #OTHER — <explanation>"
+```
+
+**Close as not planned** when a task will not be implemented — e.g. it became a no-op,
+was superseded by a plan change, or is no longer relevant:
+```bash
+gh issue close NUMBER --reason "not planned" --comment "<explanation of why this won't be implemented>"
+```
+
+**Create new issues** for anything discovered but not originally planned — always use
+the `/create-issue` skill so type, parent, and `blocked-by` relationships are set correctly.
 
 ## GitHub API helpers
 
@@ -61,6 +138,16 @@ gh api graphql -f query='{
     issue(number: NUMBER) { issueType { name } }
   }
 }'
+```
+
+**Add blocked-by relationship:**
+```bash
+gh api graphql -f query='
+  mutation($issueId: ID!, $blockingIssueId: ID!) {
+    addBlockedBy(input: {issueId: $issueId, blockingIssueId: $blockingIssueId}) {
+      clientMutationId
+    }
+  }' -f issueId="BLOCKED_NODE_ID" -f blockingIssueId="BLOCKER_NODE_ID"
 ```
 
 ## Commit workflow
