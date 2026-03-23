@@ -25,7 +25,9 @@ pub mod temporary_credentials_service_server {
             tonic::Status,
         >;
     }
-    ///
+    /** Service for generating temporary credentials to access tables and storage paths.
+ Credentials are short-lived and scoped to a specific operation (read or read/write).
+*/
     #[derive(Debug)]
     pub struct TemporaryCredentialsServiceServer<T: TemporaryCredentialsService> {
         inner: Arc<T>,

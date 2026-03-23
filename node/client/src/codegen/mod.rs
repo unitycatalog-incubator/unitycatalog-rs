@@ -3,6 +3,7 @@
 pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
+pub mod functions;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
@@ -12,6 +13,7 @@ pub mod volumes;
 use crate::codegen::catalogs::NapiCatalogClient;
 use crate::codegen::credentials::NapiCredentialClient;
 use crate::codegen::external_locations::NapiExternalLocationClient;
+use crate::codegen::functions::NapiFunctionClient;
 use crate::codegen::recipients::NapiRecipientClient;
 use crate::codegen::schemas::NapiSchemaClient;
 use crate::codegen::shares::NapiShareClient;
@@ -28,6 +30,7 @@ use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::external_locations::v1::*;
+use unitycatalog_common::models::functions::v1::*;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
@@ -159,6 +162,75 @@ impl NapiUnityCatalogClient {
         request = request.with_read_only(read_only);
         request = request.with_comment(comment);
         request = request.with_skip_validation(skip_validation);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn list_functions(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<Vec<Buffer>> {
+        let mut request = self.client.list_functions(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        request
+            .into_stream()
+            .map_ok(|item| Buffer::from(item.encode_to_vec()))
+            .try_collect::<Vec<_>>()
+            .await
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_function(
+        &self,
+        name: String,
+        catalog_name: String,
+        schema_name: String,
+        data_type: String,
+        full_data_type: String,
+        parameter_style: i32,
+        is_deterministic: bool,
+        sql_data_access: i32,
+        is_null_call: bool,
+        security_type: i32,
+        routine_body: i32,
+        routine_definition: Option<String>,
+        routine_body_language: Option<String>,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.create_function(
+            name,
+            catalog_name,
+            schema_name,
+            data_type,
+            full_data_type,
+            parameter_style
+                .try_into()
+                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            is_deterministic,
+            sql_data_access
+                .try_into()
+                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            is_null_call,
+            security_type
+                .try_into()
+                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            routine_body
+                .try_into()
+                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+        );
+        request = request.with_routine_definition(routine_definition);
+        request = request.with_routine_body_language(routine_body_language);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         request
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))
@@ -381,6 +453,19 @@ impl NapiUnityCatalogClient {
     pub fn external_location(&self, name: String) -> NapiExternalLocationClient {
         NapiExternalLocationClient {
             client: self.client.external_location(name),
+        }
+    }
+    #[napi]
+    pub fn function(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        function_name: String,
+    ) -> NapiFunctionClient {
+        NapiFunctionClient {
+            client: self
+                .client
+                .function(catalog_name, schema_name, function_name),
         }
     }
     #[napi]

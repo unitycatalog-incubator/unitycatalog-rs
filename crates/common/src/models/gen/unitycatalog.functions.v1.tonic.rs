@@ -1,53 +1,74 @@
 // @generated
 /// Generated server implementations.
-pub mod volumes_service_server {
+pub mod functions_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with VolumesServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with FunctionsServiceServer.
     #[async_trait]
-    pub trait VolumesService: Send + Sync + 'static {
-        /** Lists volumes.
+    pub trait FunctionsService: Send + Sync + 'static {
+        /** List functions
+
+ List functions within the specified parent catalog and schema. If the caller is the metastore
+ admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
+ on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
+ owned by the caller or have SELECT on the function.
 */
-        async fn list_volumes(
+        async fn list_functions(
             &self,
-            request: tonic::Request<super::ListVolumesRequest>,
+            request: tonic::Request<super::ListFunctionsRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::ListVolumesResponse>,
+            tonic::Response<super::ListFunctionsResponse>,
             tonic::Status,
         >;
-        ///
-        async fn create_volume(
+        /** Create a function
+
+ Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
+ privilege on the parent catalog and schema.
+*/
+        async fn create_function(
             &self,
-            request: tonic::Request<super::CreateVolumeRequest>,
-        ) -> std::result::Result<tonic::Response<super::Volume>, tonic::Status>;
-        ///
-        async fn get_volume(
+            request: tonic::Request<super::CreateFunctionRequest>,
+        ) -> std::result::Result<tonic::Response<super::Function>, tonic::Status>;
+        /** Get a function
+
+ Gets a function from within a parent catalog and schema. For the fetch to succeed,
+ the caller must be a metastore admin, the owner of the function, or have SELECT on
+ the function.
+*/
+        async fn get_function(
             &self,
-            request: tonic::Request<super::GetVolumeRequest>,
-        ) -> std::result::Result<tonic::Response<super::Volume>, tonic::Status>;
-        ///
-        async fn update_volume(
+            request: tonic::Request<super::GetFunctionRequest>,
+        ) -> std::result::Result<tonic::Response<super::Function>, tonic::Status>;
+        /** Update a function
+
+ Updates the function that matches the supplied name. Only the owner of the function
+ can be updated.
+*/
+        async fn update_function(
             &self,
-            request: tonic::Request<super::UpdateVolumeRequest>,
-        ) -> std::result::Result<tonic::Response<super::Volume>, tonic::Status>;
-        ///
-        async fn delete_volume(
+            request: tonic::Request<super::UpdateFunctionRequest>,
+        ) -> std::result::Result<tonic::Response<super::Function>, tonic::Status>;
+        /** Delete a function
+
+ Deletes the function that matches the supplied name. For the deletion to succeed,
+ the caller must be the owner of the function.
+*/
+        async fn delete_function(
             &self,
-            request: tonic::Request<super::DeleteVolumeRequest>,
+            request: tonic::Request<super::DeleteFunctionRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
-    /** Service for managing volumes in Unity Catalog.
- Volumes represent logical storage locations (managed or external) within a schema.
+    /** Manage User-Defined Functions (UDFs) in the service.
 */
     #[derive(Debug)]
-    pub struct VolumesServiceServer<T: VolumesService> {
+    pub struct FunctionsServiceServer<T: FunctionsService> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: VolumesService> VolumesServiceServer<T> {
+    impl<T: FunctionsService> FunctionsServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -98,9 +119,9 @@ pub mod volumes_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for VolumesServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for FunctionsServiceServer<T>
     where
-        T: VolumesService,
+        T: FunctionsService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -115,25 +136,26 @@ pub mod volumes_service_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/unitycatalog.volumes.v1.VolumesService/ListVolumes" => {
+                "/unitycatalog.functions.v1.FunctionsService/ListFunctions" => {
                     #[allow(non_camel_case_types)]
-                    struct ListVolumesSvc<T: VolumesService>(pub Arc<T>);
+                    struct ListFunctionsSvc<T: FunctionsService>(pub Arc<T>);
                     impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::ListVolumesRequest>
-                    for ListVolumesSvc<T> {
-                        type Response = super::ListVolumesResponse;
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::ListFunctionsRequest>
+                    for ListFunctionsSvc<T> {
+                        type Response = super::ListFunctionsResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::ListVolumesRequest>,
+                            request: tonic::Request<super::ListFunctionsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as VolumesService>::list_volumes(&inner, request).await
+                                <T as FunctionsService>::list_functions(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -144,7 +166,7 @@ pub mod volumes_service_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = ListVolumesSvc(inner);
+                        let method = ListFunctionsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -160,25 +182,26 @@ pub mod volumes_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.volumes.v1.VolumesService/CreateVolume" => {
+                "/unitycatalog.functions.v1.FunctionsService/CreateFunction" => {
                     #[allow(non_camel_case_types)]
-                    struct CreateVolumeSvc<T: VolumesService>(pub Arc<T>);
+                    struct CreateFunctionSvc<T: FunctionsService>(pub Arc<T>);
                     impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::CreateVolumeRequest>
-                    for CreateVolumeSvc<T> {
-                        type Response = super::Volume;
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::CreateFunctionRequest>
+                    for CreateFunctionSvc<T> {
+                        type Response = super::Function;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::CreateVolumeRequest>,
+                            request: tonic::Request<super::CreateFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as VolumesService>::create_volume(&inner, request).await
+                                <T as FunctionsService>::create_function(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -189,7 +212,7 @@ pub mod volumes_service_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = CreateVolumeSvc(inner);
+                        let method = CreateFunctionSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -205,25 +228,25 @@ pub mod volumes_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.volumes.v1.VolumesService/GetVolume" => {
+                "/unitycatalog.functions.v1.FunctionsService/GetFunction" => {
                     #[allow(non_camel_case_types)]
-                    struct GetVolumeSvc<T: VolumesService>(pub Arc<T>);
+                    struct GetFunctionSvc<T: FunctionsService>(pub Arc<T>);
                     impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::GetVolumeRequest>
-                    for GetVolumeSvc<T> {
-                        type Response = super::Volume;
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::GetFunctionRequest>
+                    for GetFunctionSvc<T> {
+                        type Response = super::Function;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::GetVolumeRequest>,
+                            request: tonic::Request<super::GetFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as VolumesService>::get_volume(&inner, request).await
+                                <T as FunctionsService>::get_function(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -234,7 +257,7 @@ pub mod volumes_service_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = GetVolumeSvc(inner);
+                        let method = GetFunctionSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -250,25 +273,26 @@ pub mod volumes_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.volumes.v1.VolumesService/UpdateVolume" => {
+                "/unitycatalog.functions.v1.FunctionsService/UpdateFunction" => {
                     #[allow(non_camel_case_types)]
-                    struct UpdateVolumeSvc<T: VolumesService>(pub Arc<T>);
+                    struct UpdateFunctionSvc<T: FunctionsService>(pub Arc<T>);
                     impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::UpdateVolumeRequest>
-                    for UpdateVolumeSvc<T> {
-                        type Response = super::Volume;
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::UpdateFunctionRequest>
+                    for UpdateFunctionSvc<T> {
+                        type Response = super::Function;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::UpdateVolumeRequest>,
+                            request: tonic::Request<super::UpdateFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as VolumesService>::update_volume(&inner, request).await
+                                <T as FunctionsService>::update_function(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -279,7 +303,7 @@ pub mod volumes_service_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = UpdateVolumeSvc(inner);
+                        let method = UpdateFunctionSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -295,13 +319,13 @@ pub mod volumes_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/unitycatalog.volumes.v1.VolumesService/DeleteVolume" => {
+                "/unitycatalog.functions.v1.FunctionsService/DeleteFunction" => {
                     #[allow(non_camel_case_types)]
-                    struct DeleteVolumeSvc<T: VolumesService>(pub Arc<T>);
+                    struct DeleteFunctionSvc<T: FunctionsService>(pub Arc<T>);
                     impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::DeleteVolumeRequest>
-                    for DeleteVolumeSvc<T> {
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::DeleteFunctionRequest>
+                    for DeleteFunctionSvc<T> {
                         type Response = ();
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -309,11 +333,12 @@ pub mod volumes_service_server {
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::DeleteVolumeRequest>,
+                            request: tonic::Request<super::DeleteFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as VolumesService>::delete_volume(&inner, request).await
+                                <T as FunctionsService>::delete_function(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -324,7 +349,7 @@ pub mod volumes_service_server {
                     let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
-                        let method = DeleteVolumeSvc(inner);
+                        let method = DeleteFunctionSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -358,7 +383,7 @@ pub mod volumes_service_server {
             }
         }
     }
-    impl<T: VolumesService> Clone for VolumesServiceServer<T> {
+    impl<T: FunctionsService> Clone for FunctionsServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -370,7 +395,7 @@ pub mod volumes_service_server {
             }
         }
     }
-    impl<T: VolumesService> tonic::server::NamedService for VolumesServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.volumes.v1.VolumesService";
+    impl<T: FunctionsService> tonic::server::NamedService for FunctionsServiceServer<T> {
+        const NAME: &'static str = "unitycatalog.functions.v1.FunctionsService";
     }
 }

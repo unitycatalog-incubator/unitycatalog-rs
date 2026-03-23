@@ -346,6 +346,147 @@ class ExternalLocation:
         updated_by: Optional[str] = None,
     ) -> None: ...
 
+class Function:
+    """A User-Defined Function (UDF) registered under a catalog + schema hierarchy."""
+
+    catalog_name: str
+    """Name of parent catalog."""
+    comment: Optional[str]
+    """User-provided free-form text description."""
+    created_at: Optional[int]
+    """Time at which this function was created, in epoch milliseconds."""
+    created_by: Optional[str]
+    """Username of function creator."""
+    data_type: str
+    """Full data type specification of the return type of the function."""
+    full_data_type: str
+    """Full data type specification as SQL/catalogString text."""
+    full_name: str
+    """
+    The three-level (fully qualified) name of the function. Format:
+    catalog_name.schema_name.function_name
+    """
+    function_id: Optional[str]
+    """Unique identifier for the function."""
+    input_params: Optional[FunctionParameterInfos]
+    """The array of function parameter infos."""
+    is_deterministic: bool
+    """Indicates whether the function is deterministic."""
+    is_null_call: bool
+    """Indicates whether the function is null-calling."""
+    name: str
+    """Name of function, relative to parent schema."""
+    owner: Optional[str]
+    """Username of current owner of the function."""
+    parameter_style: ParameterStyle
+    """The parameter-passing style."""
+    properties: Optional[List[Dict[str, str]]]
+    """A map of key-value properties attached to the securable."""
+    return_params: Optional[str]
+    """The return type of the function in JSON format."""
+    routine_body: RoutineBody
+    """The routine body."""
+    routine_body_language: Optional[str]
+    """The language of the function routine body."""
+    routine_definition: Optional[str]
+    """Function body."""
+    routine_dependencies: Optional[str]
+    """Function dependencies (in JSON form)."""
+    schema_name: str
+    """Name of parent schema."""
+    security_type: SecurityType
+    """The security type of the function."""
+    specific_name: Optional[str]
+    """The type of the function (SCALAR or TABLE)."""
+    sql_data_access: SqlDataAccess
+    """SQL data access information."""
+    updated_at: Optional[int]
+    """Time at which this function was last updated, in epoch milliseconds."""
+    updated_by: Optional[str]
+    """Username of user who last modified the function."""
+
+    def __init__(
+        self,
+        catalog_name: str,
+        data_type: str,
+        full_data_type: str,
+        full_name: str,
+        is_deterministic: bool,
+        is_null_call: bool,
+        name: str,
+        parameter_style: ParameterStyle,
+        routine_body: RoutineBody,
+        schema_name: str,
+        security_type: SecurityType,
+        sql_data_access: SqlDataAccess,
+        comment: Optional[str] = None,
+        created_at: Optional[int] = None,
+        created_by: Optional[str] = None,
+        function_id: Optional[str] = None,
+        input_params: Optional[FunctionParameterInfos] = None,
+        owner: Optional[str] = None,
+        properties: Optional[List[Dict[str, str]]] = None,
+        return_params: Optional[str] = None,
+        routine_body_language: Optional[str] = None,
+        routine_definition: Optional[str] = None,
+        routine_dependencies: Optional[str] = None,
+        specific_name: Optional[str] = None,
+        updated_at: Optional[int] = None,
+        updated_by: Optional[str] = None,
+    ) -> None: ...
+
+class FunctionParameterInfo:
+    """Information about a single function parameter."""
+
+    comment: Optional[str]
+    """User-provided free-form text description."""
+    name: str
+    """Name of parameter."""
+    parameter_default: Optional[str]
+    """Default value of the parameter."""
+    parameter_mode: ParameterMode
+    """The mode of the function parameter."""
+    parameter_type: FunctionParameterType
+    """The type of function parameter."""
+    position: Optional[int]
+    """Ordinal position of column (starting at position 0)."""
+    type_interval_type: Optional[str]
+    """Format of IntervalType."""
+    type_json: Optional[str]
+    """Full data type specification, JSON-serialized."""
+    type_name: ColumnTypeName
+    """Data type name."""
+    type_precision: Optional[int]
+    """Digits of precision; required for DecimalTypes."""
+    type_scale: Optional[int]
+    """Digits to right of decimal; required for DecimalTypes."""
+    type_text: str
+    """Full data type specification as SQL/catalogString text."""
+
+    def __init__(
+        self,
+        name: str,
+        parameter_mode: ParameterMode,
+        parameter_type: FunctionParameterType,
+        type_name: ColumnTypeName,
+        type_text: str,
+        comment: Optional[str] = None,
+        parameter_default: Optional[str] = None,
+        position: Optional[int] = None,
+        type_interval_type: Optional[str] = None,
+        type_json: Optional[str] = None,
+        type_precision: Optional[int] = None,
+        type_scale: Optional[int] = None,
+    ) -> None: ...
+
+class FunctionParameterInfos:
+    """A collection of function parameters."""
+
+    parameters: Optional[List[FunctionParameterInfo]]
+    """The parameters of the function."""
+
+    def __init__(self, parameters: Optional[List[FunctionParameterInfo]] = None) -> None: ...
+
 class GcpOauthToken:
     oauth_token: str
     """The OAuth token used to access Google Cloud services."""
@@ -765,16 +906,66 @@ class DataSourceFormat(enum.Enum):
     TEXT = "TEXT"
     UNITY_CATALOG = "UNITY_CATALOG"
 
+class FunctionParameterType(enum.Enum):
+    """The type of the function parameter."""
+
+    COLUMN = "COLUMN"
+    """A named column parameter."""
+    FUNCTION_PARAMETER_TYPE_UNSPECIFIED = "FUNCTION_PARAMETER_TYPE_UNSPECIFIED"
+    PARAM = "PARAM"
+    """A named parameter (default)."""
+
 class HistoryStatus(enum.Enum):
     DISABLED = "DISABLED"
     """Data history sharing is disabled."""
     ENABLED = "ENABLED"
     """Data history sharing is enabled."""
 
+class ParameterMode(enum.Enum):
+    """The mode of the function parameter."""
+
+    IN = "IN"
+    """Input parameter."""
+    PARAMETER_MODE_UNSPECIFIED = "PARAMETER_MODE_UNSPECIFIED"
+
+class ParameterStyle(enum.Enum):
+    """The parameter-passing style."""
+
+    PARAMETER_STYLE_UNSPECIFIED = "PARAMETER_STYLE_UNSPECIFIED"
+    S = "S"
+    """The parameters are passed positionally (S = SQL)."""
+
 class Purpose(enum.Enum):
     PURPOSE_UNSPECIFIED = "PURPOSE_UNSPECIFIED"
     SERVICE = "SERVICE"
     STORAGE = "STORAGE"
+
+class RoutineBody(enum.Enum):
+    """Determines whether the function body is interpreted as SQL or as an external function."""
+
+    EXTERNAL = "EXTERNAL"
+    """The function is defined externally."""
+    ROUTINE_BODY_UNSPECIFIED = "ROUTINE_BODY_UNSPECIFIED"
+    SQL = "SQL"
+    """The function is defined in SQL."""
+
+class SecurityType(enum.Enum):
+    """The security type of the function."""
+
+    DEFINER = "DEFINER"
+    """The function runs as the invoking user (DEFINER = standard SQL semantics)."""
+    SECURITY_TYPE_UNSPECIFIED = "SECURITY_TYPE_UNSPECIFIED"
+
+class SqlDataAccess(enum.Enum):
+    """Information about the SQL data access capability of the function."""
+
+    CONTAINS_SQL = "CONTAINS_SQL"
+    """Function contains no SQL."""
+    NO_SQL = "NO_SQL"
+    """Function does not use SQL and does not access data."""
+    READS_SQL_DATA = "READS_SQL_DATA"
+    """Function reads from SQL tables or views."""
+    SQL_DATA_ACCESS_UNSPECIFIED = "SQL_DATA_ACCESS_UNSPECIFIED"
 
 class TableType(enum.Enum):
     """The type of the table."""
@@ -944,6 +1135,51 @@ class ExternalLocationClient:
 
         Returns:
             The requested resource
+        """
+        ...
+
+class FunctionClient:
+    def delete(self, force: Optional[bool] = None) -> None:
+        """
+        Delete a function
+
+        Deletes the function that matches the supplied name. For the deletion to succeed, the caller must be
+        the owner of the function.
+
+
+        Args:
+            force: Force deletion even if the function is not empty.
+
+
+        Returns:
+            None
+        """
+        ...
+    def get(self) -> Function:
+        """
+        Get a function
+
+        Gets a function from within a parent catalog and schema. For the fetch to succeed, the caller must
+        be a metastore admin, the owner of the function, or have SELECT on the function.
+
+
+        Returns:
+            A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
+        """
+        ...
+    def update(self, owner: Optional[str] = None) -> Function:
+        """
+        Update a function
+
+        Updates the function that matches the supplied name. Only the owner of the function can be updated.
+
+
+        Args:
+            owner: Username of new owner of the function.
+
+
+        Returns:
+            A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
         """
         ...
 
@@ -1247,6 +1483,55 @@ class UnityCatalogClient:
             The requested resource
         """
         ...
+    def create_function(
+        self,
+        name: str,
+        catalog_name: str,
+        schema_name: str,
+        data_type: str,
+        full_data_type: str,
+        parameter_style: ParameterStyle,
+        is_deterministic: bool,
+        sql_data_access: SqlDataAccess,
+        is_null_call: bool,
+        security_type: SecurityType,
+        routine_body: RoutineBody,
+        input_params: Optional[FunctionParameterInfos] = None,
+        routine_definition: Optional[str] = None,
+        routine_body_language: Optional[str] = None,
+        comment: Optional[str] = None,
+        properties: Optional[Dict[str, str]] = None,
+    ) -> Function:
+        """
+        Create a function
+
+        Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION privilege
+        on the parent catalog and schema.
+
+
+        Args:
+            name: Name of function, relative to parent schema.
+            catalog_name: Name of parent catalog.
+            schema_name: Name of parent schema.
+            data_type: Full data type specification of the return type of the function.
+            full_data_type: Full data type specification as SQL/catalogString text.
+            parameter_style: The parameter-passing style.
+            is_deterministic: Indicates whether the function is deterministic.
+            sql_data_access: SQL data access information.
+            is_null_call: Indicates whether the function is null-calling.
+            security_type: The security type of the function.
+            routine_body: The routine body.
+            input_params: The array of function parameter infos.
+            routine_definition: Function body.
+            routine_body_language: The language of the function routine body.
+            comment: User-provided free-form text description.
+            properties: A map of key-value properties attached to the securable.
+
+
+        Returns:
+            A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
+        """
+        ...
     def create_recipient(
         self,
         name: str,
@@ -1415,6 +1700,34 @@ class UnityCatalogClient:
             List of The external locations returned.
         """
         ...
+    def list_functions(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        max_results: Optional[int] = None,
+        include_browse: Optional[bool] = None,
+    ) -> List[Function]:
+        """
+        List functions
+
+        List functions within the specified parent catalog and schema. If the caller is the metastore admin,
+        all functions are returned in the response. Otherwise, the caller must have USE_CATALOG on the
+        parent catalog and USE_SCHEMA on the parent schema, and the function must either be owned by the
+        caller or have SELECT on the function.
+
+
+        Args:
+            catalog_name: Name of parent catalog for functions of interest.
+            schema_name: Parent schema of functions.
+            max_results: The maximum number of results per page that should be returned.
+            include_browse: Whether to include functions in the response for which the principal can only
+                            access selective metadata for.
+
+
+        Returns:
+            List of The functions returned.
+        """
+        ...
     def list_recipients(self, max_results: Optional[int] = None) -> List[Recipient]:
         """
         List recipients.
@@ -1531,6 +1844,9 @@ class UnityCatalogClient:
     def catalog(self, name: str) -> CatalogClient: ...
     def credential(self, name: str) -> CredentialClient: ...
     def external_location(self, name: str) -> ExternalLocationClient: ...
+    def function(
+        self, catalog_name: str, schema_name: str, function_name: str
+    ) -> FunctionClient: ...
     def recipient(self, name: str) -> RecipientClient: ...
     def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
     def share(self, name: str) -> ShareClient: ...
