@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package unitycatalog.functions.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "unitycatalog/tables/v1/models.proto";
+
+// Determines whether the function body is interpreted as SQL or as an external function.
+enum RoutineBody {
+  ROUTINE_BODY_UNSPECIFIED = 0;
+
+  // The function is defined in SQL.
+  SQL = 1;
+
+  // The function is defined externally.
+  EXTERNAL = 2;
+}
+
+// The parameter-passing style.
+enum ParameterStyle {
+  PARAMETER_STYLE_UNSPECIFIED = 0;
+
+  // The parameters are passed positionally (S = SQL).
+  S = 1;
+}
+
+// The security type of the function.
+enum SecurityType {
+  SECURITY_TYPE_UNSPECIFIED = 0;
+
+  // The function runs as the invoking user (DEFINER = standard SQL semantics).
+  DEFINER = 1;
+}
+
+// Information about the SQL data access capability of the function.
+enum SqlDataAccess {
+  SQL_DATA_ACCESS_UNSPECIFIED = 0;
+
+  // Function contains no SQL.
+  CONTAINS_SQL = 1;
+
+  // Function reads from SQL tables or views.
+  READS_SQL_DATA = 2;
+
+  // Function does not use SQL and does not access data.
+  NO_SQL = 3;
+}
+
+// The mode of the function parameter.
+enum ParameterMode {
+  PARAMETER_MODE_UNSPECIFIED = 0;
+
+  // Input parameter.
+  IN = 1;
+}
+
+// The type of the function parameter.
+enum FunctionParameterType {
+  FUNCTION_PARAMETER_TYPE_UNSPECIFIED = 0;
+
+  // A named column parameter.
+  COLUMN = 1;
+
+  // A named parameter (default).
+  PARAM = 2;
+}
+
+// Information about a single function parameter.
+message FunctionParameterInfo {
+  // Name of parameter.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Full data type specification as SQL/catalogString text.
+  string type_text = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Full data type specification, JSON-serialized.
+  optional string type_json = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Data type name.
+  unitycatalog.tables.v1.ColumnTypeName type_name = 4;
+
+  // Digits of precision; required for DecimalTypes.
+  optional int32 type_precision = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Digits to right of decimal; required for DecimalTypes.
+  optional int32 type_scale = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Format of IntervalType.
+  optional string type_interval_type = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Ordinal position of column (starting at position 0).
+  optional int32 position = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // The mode of the function parameter.
+  ParameterMode parameter_mode = 9;
+
+  // The type of function parameter.
+  FunctionParameterType parameter_type = 10;
+
+  // Default value of the parameter.
+  optional string parameter_default = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // User-provided free-form text description.
+  optional string comment = 12 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// A collection of function parameters.
+message FunctionParameterInfos {
+  // The parameters of the function.
+  repeated FunctionParameterInfo parameters = 1;
+}
+
+// A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
+message Function {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Function"
+    pattern: "functions/{function}"
+    plural: "functions"
+    singular: "function"
+  };
+
+  // Name of function, relative to parent schema.
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
+
+  // Name of parent catalog.
+  string catalog_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
+
+  // Name of parent schema.
+  string schema_name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3
+  ];
+
+  // The three-level (fully qualified) name of the function.
+  //
+  // Format: catalog_name.schema_name.function_name
+  string full_name = 4 [(buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$"];
+
+  // Full data type specification of the return type of the function.
+  string data_type = 5;
+
+  // Full data type specification as SQL/catalogString text.
+  string full_data_type = 6;
+
+  // The array of function parameter infos.
+  optional FunctionParameterInfos input_params = 7;
+
+  // The return type of the function in JSON format.
+  optional string return_params = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // The language of the function routine body.
+  optional string routine_body_language = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // Function body.
+  optional string routine_definition = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Function dependencies (in JSON form).
+  optional string routine_dependencies = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // The parameter-passing style.
+  ParameterStyle parameter_style = 12;
+
+  // Indicates whether the function is deterministic.
+  bool is_deterministic = 13;
+
+  // SQL data access information.
+  SqlDataAccess sql_data_access = 14;
+
+  // Indicates whether the function is null-calling.
+  bool is_null_call = 15;
+
+  // The security type of the function.
+  SecurityType security_type = 16;
+
+  // The type of the function (SCALAR or TABLE).
+  optional string specific_name = 17 [(google.api.field_behavior) = OPTIONAL];
+
+  // The routine body.
+  RoutineBody routine_body = 18;
+
+  // User-provided free-form text description.
+  optional string comment = 19 [(google.api.field_behavior) = OPTIONAL];
+
+  // A map of key-value properties attached to the securable.
+  map<string, string> properties = 20;
+
+  // Username of current owner of the function.
+  optional string owner = 21 [(google.api.field_behavior) = OPTIONAL];
+
+  // Unique identifier for the function.
+  optional string function_id = 22 [(google.api.field_behavior) = OPTIONAL];
+
+  // Time at which this function was created, in epoch milliseconds.
+  optional int64 created_at = 1000 [(buf.validate.field).int64.gt = 0];
+
+  // Username of function creator.
+  optional string created_by = 1001;
+
+  // Time at which this function was last updated, in epoch milliseconds.
+  optional int64 updated_at = 1002;
+
+  // Username of user who last modified the function.
+  optional string updated_by = 1003;
+}

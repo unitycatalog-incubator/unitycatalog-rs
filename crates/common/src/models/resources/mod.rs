@@ -71,6 +71,7 @@ pub enum ResourceIdent {
     Recipient(ResourceRef),
     Column(ResourceRef),
     Volume(ResourceRef),
+    Function(ResourceRef),
 }
 
 impl ResourceIdent {
@@ -117,6 +118,10 @@ impl ResourceIdent {
     pub fn volume(name: impl Into<ResourceRef>) -> Self {
         Self::Volume(name.into())
     }
+
+    pub fn function(name: impl Into<ResourceRef>) -> Self {
+        Self::Function(name.into())
+    }
 }
 
 impl std::fmt::Display for ResourceIdent {
@@ -131,6 +136,7 @@ impl std::fmt::Display for ResourceIdent {
             ResourceIdent::Recipient(r) => write!(f, "recipient:{}", r),
             ResourceIdent::Column(r) => write!(f, "column:{}", r),
             ResourceIdent::Volume(r) => write!(f, "volume:{}", r),
+            ResourceIdent::Function(r) => write!(f, "function:{}", r),
         }
     }
 }
@@ -147,6 +153,7 @@ impl AsRef<ResourceRef> for ResourceIdent {
             ResourceIdent::Recipient(r) => r,
             ResourceIdent::Column(r) => r,
             ResourceIdent::Volume(r) => r,
+            ResourceIdent::Function(r) => r,
         }
     }
 }
@@ -163,6 +170,7 @@ impl AsRef<ObjectLabel> for ResourceIdent {
             ResourceIdent::Recipient(_) => &ObjectLabel::Recipient,
             ResourceIdent::Column(_) => &ObjectLabel::Column,
             ResourceIdent::Volume(_) => &ObjectLabel::Volume,
+            ResourceIdent::Function(_) => &ObjectLabel::Function,
         }
     }
 }
@@ -179,6 +187,7 @@ impl From<ResourceIdent> for ResourceRef {
             ResourceIdent::Recipient(r) => r,
             ResourceIdent::Column(r) => r,
             ResourceIdent::Volume(r) => r,
+            ResourceIdent::Function(r) => r,
         }
     }
 }

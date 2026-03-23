@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub use catalogs::v1::Catalog;
 pub use credentials::v1::Credential;
 pub use external_locations::v1::ExternalLocation;
+pub use functions::v1::Function;
 pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
 pub use recipients::v1::Recipient;
@@ -90,6 +91,14 @@ pub mod volumes {
     }
 }
 
+pub mod functions {
+    pub mod v1 {
+        include!("./gen/unitycatalog.functions.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./gen/unitycatalog.functions.v1.tonic.rs");
+    }
+}
+
 pub(crate) mod internal {
     include!("./gen/unitycatalog.internal.rs");
 }
@@ -106,6 +115,7 @@ impl ObjectLabel {
             ObjectLabel::Recipient => ResourceIdent::recipient(id),
             ObjectLabel::Column => ResourceIdent::column(id),
             ObjectLabel::Volume => ResourceIdent::volume(id),
+            ObjectLabel::Function => ResourceIdent::function(id),
         }
     }
 }

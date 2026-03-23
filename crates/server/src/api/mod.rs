@@ -1,6 +1,7 @@
 pub use catalogs::CatalogHandler;
 pub use credentials::CredentialHandler;
 pub use external_locations::ExternalLocationHandler;
+pub use functions::FunctionHandler;
 pub use recipients::RecipientHandler;
 pub use schemas::SchemaHandler;
 pub use shares::ShareHandler;
@@ -27,6 +28,7 @@ use unitycatalog_common::models::ResourceIdent;
 pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
+pub mod functions;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;

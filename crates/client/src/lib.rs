@@ -4,6 +4,7 @@ pub use catalogs::*;
 pub use credentials::*;
 pub use error::*;
 pub use external_locations::*;
+pub use functions::*;
 use futures::stream::BoxStream;
 pub use recipients::*;
 pub use schemas::*;
@@ -26,6 +27,10 @@ use crate::codegen::external_locations::ListExternalLocationsBuilder;
 pub use crate::codegen::external_locations::builders::{
     CreateExternalLocationBuilder, UpdateExternalLocationBuilder,
 };
+pub use crate::codegen::functions::builders::{
+    CreateFunctionBuilder, DeleteFunctionBuilder, GetFunctionBuilder, ListFunctionsBuilder,
+    UpdateFunctionBuilder,
+};
 use crate::codegen::recipients::ListRecipientsBuilder;
 pub use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
 use crate::codegen::schemas::ListSchemasBuilder;
@@ -45,6 +50,7 @@ mod codegen;
 mod credentials;
 pub mod error;
 mod external_locations;
+mod functions;
 mod recipients;
 mod schemas;
 mod shares;
@@ -64,6 +70,7 @@ pub struct UnityCatalogClient {
     external_locations: ExternalLocationClientBase,
     temporary_credentials: TemporaryCredentialClientBase,
     volumes: VolumeClientBase,
+    functions: FunctionClientBase,
 }
 
 impl UnityCatalogClient {
@@ -91,6 +98,7 @@ impl UnityCatalogClient {
         let temporary_credentials =
             TemporaryCredentialClientBase::new(client.clone(), base_url.clone());
         let volumes = VolumeClientBase::new(client.clone(), base_url.clone());
+        let functions = FunctionClientBase::new(client.clone(), base_url.clone());
 
         Self {
             catalogs,
@@ -102,6 +110,7 @@ impl UnityCatalogClient {
             external_locations,
             temporary_credentials,
             volumes,
+            functions,
         }
     }
 
@@ -288,5 +297,60 @@ impl UnityCatalogClient {
 
     pub fn volume_from_full_name(&self, full_name: impl ToString) -> VolumeClient {
         VolumeClient::new_from_full_name(full_name, self.volumes.clone())
+    }
+
+    // Function methods
+    pub fn list_functions(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+    ) -> ListFunctionsBuilder {
+        ListFunctionsBuilder::new(self.functions.clone(), catalog_name, schema_name)
+    }
+
+    pub fn function(
+        &self,
+        catalog_name: impl ToString,
+        schema_name: impl ToString,
+        function_name: impl ToString,
+    ) -> FunctionClient {
+        FunctionClient::new(
+            catalog_name,
+            schema_name,
+            function_name,
+            self.functions.clone(),
+        )
+    }
+
+    pub fn function_from_full_name(&self, full_name: impl ToString) -> FunctionClient {
+        FunctionClient::new_from_full_name(full_name, self.functions.clone())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_function(
+        &self,
+        name: impl ToString,
+        catalog_name: impl ToString,
+        schema_name: impl ToString,
+        data_type: impl Into<String>,
+        full_data_type: impl Into<String>,
+        parameter_style: unitycatalog_common::models::functions::v1::ParameterStyle,
+        is_deterministic: bool,
+        sql_data_access: unitycatalog_common::models::functions::v1::SqlDataAccess,
+        is_null_call: bool,
+        security_type: unitycatalog_common::models::functions::v1::SecurityType,
+        routine_body: unitycatalog_common::models::functions::v1::RoutineBody,
+    ) -> CreateFunctionBuilder {
+        let f = FunctionClient::new(catalog_name, schema_name, name, self.functions.clone());
+        f.create(
+            data_type,
+            full_data_type,
+            parameter_style,
+            is_deterministic,
+            sql_data_access,
+            is_null_call,
+            security_type,
+            routine_body,
+        )
     }
 }
