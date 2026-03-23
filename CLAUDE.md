@@ -136,38 +136,9 @@ Pre-commit hooks enforce formatting with Biome, Ruff, and typos checking.
 
 ## Commit & Pull Request Guidelines
 
-GPG commit signing is required on this repository. The GPG PIN prompt requires an interactive terminal, which AI agents cannot provide. **Never attempt `git commit` directly** — it will time out and fail.
+GPG commit signing is required. **Never run `git commit` directly** — the GPG PIN prompt needs an interactive terminal and will time out.
 
-### Correct workflow
-
-1. Run `cargo clippy --workspace --fix --allow-dirty` to apply automatic lint fixes (may change code)
-2. Run `cargo fmt --all` to format all code (including anything clippy rewrote)
-3. **Update documentation** — before staging, check and update any affected docs:
-   - `CLAUDE.md` — update if commands, rules, or public APIs documented here have changed
-4. Stage files with `git add <specific files>` — do this programmatically (via Bash tool)
-5. Output a ready-to-paste `git commit` command for the user to run in their terminal
-
-Steps 1 and 2 must always run in this order before staging — clippy may rewrite code that then needs formatting. Documentation updates (step 3) must happen before staging so all changes land in the same commit. Step 4 (staging) must be done by the agent so the user only needs to paste and run a single commit command.
-
-### Commit message format
-
-The agent writes the commit message to `/tmp/commit_msg.txt`, then:
-1. Prints the full commit message in a code block so the user can read it
-2. Provides the single-line command for the user to paste:
-
-```bash
-git commit -F /tmp/commit_msg.txt
-```
-
-**Do not use heredocs or `\n`-escaped strings** — on macOS/zsh, pasting multiline heredocs leaves the shell in an incomplete input state, and escaped newlines produce unreadable messages.
-
-The `Co-authored-by: Isaac` trailer must be included on every commit.
-
-### Commit message conventions
-
-- **Types**: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
-- Subject line ≤ 72 characters, imperative mood ("add", not "added")
-- Body explains *what* changed and *why*
+Use the `/commit` skill (`.claude/skills/commit/SKILL.md`) for the full pre-commit workflow: clippy → fmt → stage → commit message file → paste command.
 
 **Code Generation**: Many files are auto-generated. Run `just generate` after proto changes and commit generated code separately when possible.
 
@@ -187,3 +158,9 @@ The `Co-authored-by: Isaac` trailer must be included on every commit.
    - Body: bullet-point summary, test plan checklist, `Closes #N` line, follow-up issue references, and the `AI-assisted by Isaac` attribution line
 
 4. **Commit generated code separately** when a feature PR regenerates many files (e.g. `just generate-code` produces 70+ diffs). Stage only the hand-written changes in the feature commit, then open a follow-up PR (`chore: sync generated code`) on a branch off the feature branch to commit the generated output. This keeps review diffs readable.
+
+### GitHub Issues workflow
+
+Use the `/create-issue` skill to plan and structure work as GitHub issues (taxonomy, body templates, GraphQL API operations).
+
+Use the `run-issue` agent to implement work from an existing issue (fetches the issue, determines type, orchestrates DAG/wave dispatch).
