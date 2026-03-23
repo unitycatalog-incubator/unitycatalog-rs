@@ -61,11 +61,13 @@ The `Co-authored-by: Isaac` trailer is required on every commit.
 
 ### Step 6 — Print message and provide command
 1. Print the full commit message in a code block so the user can review it
-2. Provide this command for the user to paste (substituting the actual resolved path):
+2. Print the commit command in its own code block (substituting the actual resolved path):
 
 ```bash
 git commit -F /tmp/commit_msg_<repo>_<branch>.txt && rm /tmp/commit_msg_<repo>_<branch>.txt
 ```
+
+3. Tell the user: "Run `/copy` to copy the command to your clipboard, then paste and run it."
 
 The `&& rm` cleans up the temp file automatically after a successful commit.
 If the commit fails (e.g. hook rejection), the file is preserved for inspection.
