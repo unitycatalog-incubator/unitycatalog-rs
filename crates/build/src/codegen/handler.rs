@@ -2,10 +2,11 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use super::{doc_tokens, format_tokens};
+use crate::Result;
 use crate::codegen::{MethodHandler, ServiceHandler};
 
 /// Generate handler trait for a service
-pub(super) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
+pub(super) fn generate(service: &ServiceHandler<'_>) -> Result<String> {
     let context_ident = last_segment(&service.config.context_type_path);
     let mut trait_methods = Vec::new();
     for method in service.methods() {

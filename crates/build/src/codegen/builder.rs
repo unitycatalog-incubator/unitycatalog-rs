@@ -10,7 +10,7 @@ use crate::parsing::RenderContext;
 use crate::parsing::types::{BaseType, unified_to_rust};
 
 /// Generate builder code for all request types in a service
-pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> crate::error::Result<String> {
     let builder_impls: Vec<_> = service
         .methods()
         .map(|method| generate_request_builder(method, service))
@@ -54,7 +54,7 @@ fn generate_builders_module(service: &ServiceHandler<'_>, builders: &[String]) -
 fn generate_request_builder(
     method: MethodHandler<'_>,
     service: &ServiceHandler<'_>,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> crate::error::Result<String> {
     let builder_ident = method.builder_type();
     let request_type_ident = method.input_type().unwrap();
     let output_type_ident = method.output_type();

@@ -28,6 +28,8 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::{File, Ident};
 
+use crate::error::{Error, Result};
+
 use crate::analysis::{
     BodyField, GenerationPlan, ManagedResource, MethodPlan, RequestParam, RequestType, ServicePlan,
     analyze_metadata, split_body_fields,
@@ -73,16 +75,23 @@ impl ModelsPath {
     /// Build a `ModelsPath` from a template string containing `{service}`.
     ///
     /// Performs a test substitution at construction to validate the template.
-    pub fn new(template: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(template: &str) -> Result<Self> {
         let test = template.replace("{service}", "test");
-        syn::parse_str::<syn::Path>(&test)
-            .map_err(|e| format!("Invalid models_path template `{template}`: {e}"))?;
+        syn::parse_str::<syn::Path>(&test).map_err(|e| Error::InvalidModelsPathTemplate {
+            template: template.to_string(),
+            source: e,
+        })?;
         Ok(Self {
             template: template.to_string(),
         })
     }
 
     /// Replace `{service}` with `service` and return the parsed [`syn::Path`].
+    ///
+    /// # Panics
+    ///
+    /// Cannot panic in practice: `new` already validates that every possible
+    /// `{service}` substitution produces a valid path.
     pub fn resolve(&self, service: &str) -> syn::Path {
         let path = self.template.replace("{service}", service);
         syn::parse_str(&path)
@@ -160,10 +169,11 @@ pub struct CodeGenOutput {
 /// Main entry point for code generation
 ///
 /// Takes collected metadata and a [`CodeGenConfig`] and generates all necessary code.
-pub fn generate_code(
-    metadata: &CodeGenMetadata,
-    config: &CodeGenConfig,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Result<()> {
+    // Validate templates early so callers get a clean error before any generation starts.
+    ModelsPath::new(&config.models_path_template)?;
+    ModelsPath::new(&config.models_path_crate_template)?;
+
     let plan = analyze_metadata(metadata)?;
 
     let common_code = generate_common_code(&plan, metadata, config)?;
@@ -197,7 +207,7 @@ fn generate_common_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+) -> Result<GeneratedCode> {
     let mut files = HashMap::new();
 
     for service in &plan.services {
@@ -222,7 +232,7 @@ fn generate_server_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+) -> Result<GeneratedCode> {
     let mut files = HashMap::new();
 
     for service in &plan.services {
@@ -249,7 +259,7 @@ fn generate_python_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+) -> Result<GeneratedCode> {
     let mut files = HashMap::new();
 
     let handlers = plan
@@ -283,7 +293,7 @@ fn generate_node_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+) -> Result<GeneratedCode> {
     let mut files = HashMap::new();
 
     let handlers = plan
@@ -311,7 +321,7 @@ fn generate_node_ts_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+) -> Result<GeneratedCode> {
     let handlers = plan
         .services
         .iter()
@@ -333,7 +343,7 @@ fn generate_client_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+) -> Result<GeneratedCode> {
     let mut files = HashMap::new();
 
     for service in &plan.services {
@@ -554,14 +564,16 @@ impl ServiceHandler<'_> {
     }
 
     pub(crate) fn models_path(&self) -> syn::Path {
+        // Templates are validated by `generate_code` before any `ServiceHandler` is used,
+        // so this substitution is guaranteed to succeed.
         ModelsPath::new(&self.config.models_path_template)
-            .unwrap_or_else(|e| panic!("{e}"))
+            .expect("models_path_template already validated by generate_code")
             .resolve(&self.plan.base_path)
     }
 
     pub(crate) fn models_path_crate(&self) -> syn::Path {
         ModelsPath::new(&self.config.models_path_crate_template)
-            .unwrap_or_else(|e| panic!("{e}"))
+            .expect("models_path_crate_template already validated by generate_code")
             .resolve(&self.plan.base_path)
     }
 }

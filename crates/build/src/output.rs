@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::Path;
 
+use crate::Result;
 use crate::codegen::GeneratedCode;
 
 /// Return the appropriate "do not edit" header for a given file path.
@@ -15,10 +16,7 @@ fn generated_header(path: &str) -> &'static str {
     }
 }
 
-pub fn write_generated_code(
-    generated_code: &GeneratedCode,
-    output_dir: &Path,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn write_generated_code(generated_code: &GeneratedCode, output_dir: &Path) -> Result<()> {
     fs::create_dir_all(output_dir)?;
 
     for (relative_path, content) in &generated_code.files {

@@ -41,6 +41,7 @@ use std::collections::HashSet;
 use convert_case::{Case, Casing};
 use tracing::warn;
 
+use crate::Result;
 use crate::parsing::types::BaseType;
 use crate::parsing::{
     CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo, extract_http_rule_pattern,
@@ -54,9 +55,7 @@ pub(crate) use services::*;
 mod services;
 
 /// Analyze collected metadata and create a generation plan
-pub fn analyze_metadata(
-    metadata: &CodeGenMetadata,
-) -> Result<GenerationPlan, Box<dyn std::error::Error>> {
+pub fn analyze_metadata(metadata: &CodeGenMetadata) -> Result<GenerationPlan> {
     let mut services = Vec::new();
 
     for service_info in metadata.services.values() {
@@ -68,10 +67,7 @@ pub fn analyze_metadata(
 }
 
 /// Analyze a single service and create a service plan
-fn analyze_service(
-    metadata: &CodeGenMetadata,
-    info: &ServiceInfo,
-) -> Result<ServicePlan, Box<dyn std::error::Error>> {
+fn analyze_service(metadata: &CodeGenMetadata, info: &ServiceInfo) -> Result<ServicePlan> {
     let handler_name = strings::service_to_handler_name(&info.name);
     let base_path = strings::service_to_base_path(&info.name);
 
@@ -105,7 +101,7 @@ fn analyze_service(
 pub fn analyze_method(
     metadata: &CodeGenMetadata,
     method: &MethodMetadata,
-) -> Result<Option<MethodPlan>, Box<dyn std::error::Error>> {
+) -> Result<Option<MethodPlan>> {
     let (http_method, _http_path) = match method.http_info() {
         Some(info) => info,
         None => {
@@ -151,13 +147,17 @@ pub fn analyze_method(
 fn extract_request_fields(
     method: &MethodMetadata,
     input_fields: &[MessageField],
-) -> Result<(Vec<PathParam>, Vec<QueryParam>, Vec<BodyField>), Box<dyn std::error::Error>> {
+) -> Result<(Vec<PathParam>, Vec<QueryParam>, Vec<BodyField>)> {
     let mut path_params = Vec::new();
     let mut query_params = Vec::new();
     let mut body_fields = Vec::new();
 
     // Extract path parameters from HTTP pattern in order
-    let http_pattern = extract_http_rule_pattern(&method.http_rule).unwrap();
+    let http_pattern = extract_http_rule_pattern(&method.http_rule).ok_or_else(|| {
+        crate::error::Error::MissingHttpPattern {
+            method: format!("{}.{}", method.service_name, method.method_name),
+        }
+    })?;
     let path_param_names_ordered = http_pattern.parameter_names().to_vec();
 
     // Get body field specification from HTTP rule

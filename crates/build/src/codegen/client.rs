@@ -3,12 +3,13 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use super::{doc_tokens, format_tokens};
+use crate::Result;
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::google::api::http_rule::Pattern;
 
 /// Generate client code for a service
-pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String> {
     let mut method_tokens = Vec::new();
 
     for method in service.methods() {
