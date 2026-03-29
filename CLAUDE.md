@@ -140,7 +140,7 @@ GPG commit signing is required. **Never run `git commit` directly** — the GPG 
 
 Use the `/commit` skill (`.claude/skills/commit/SKILL.md`) for the full pre-commit workflow: clippy → fmt → stage → commit message file → paste command.
 
-**Code Generation**: Many files are auto-generated. Run `just generate` after proto changes and commit generated code separately when possible.
+**Code Generation**: Many files are auto-generated. Run `just generate` after proto changes and commit generated code in the same commit as the changes that produced them — this keeps generation logic and its output traceable together.
 
 ### Pull Request workflow
 
@@ -157,7 +157,7 @@ Use the `/commit` skill (`.claude/skills/commit/SKILL.md`) for the full pre-comm
    - Title format: `<type>: <description> (#<issue>)` — reference the issue being closed
    - Body: bullet-point summary, test plan checklist, `Closes #N` line, follow-up issue references, and the `AI-assisted by Isaac` attribution line
 
-4. **Commit generated code separately** when a feature PR regenerates many files (e.g. `just generate-code` produces 70+ diffs). Stage only the hand-written changes in the feature commit, then open a follow-up PR (`chore: sync generated code`) on a branch off the feature branch to commit the generated output. This keeps review diffs readable.
+4. **Commit generated code together** with the changes that produced them. Stage hand-written changes and their generated output in the same commit so reviewers can trace generation logic to its output in one diff.
 
 ### GitHub Issues workflow
 
