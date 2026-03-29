@@ -14,34 +14,32 @@ pub use crate::sharing::SharingHandler;
 use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
-pub trait SharingQueryHandler: Send + Sync + 'static {
+pub trait SharingQueryHandler<Cx = RequestContext>: Send + Sync + 'static {
     async fn get_table_version(
         &self,
         request: GetTableVersionRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<GetTableVersionResponse>;
 
     async fn get_table_metadata(
         &self,
         request: GetTableMetadataRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<Bytes>;
 
-    async fn query_table(
-        &self,
-        request: QueryTableRequest,
-        context: RequestContext,
-    ) -> Result<Bytes>;
+    async fn query_table(&self, request: QueryTableRequest, context: Cx) -> Result<Bytes>;
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> SharingHandler
-    for T
+impl<T, Cx> SharingHandler<Cx> for T
+where
+    T: ResourceStore + Policy<Cx> + ShareHandler<Cx>,
+    Cx: Clone + Send + Sync + 'static,
 {
     async fn list_shares(
         &self,
         request: ListSharesRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListSharesResponse> {
         self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
@@ -73,11 +71,7 @@ impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> S
         })
     }
 
-    async fn get_share(
-        &self,
-        request: GetShareRequest,
-        context: RequestContext,
-    ) -> Result<SharingShare> {
+    async fn get_share(&self, request: GetShareRequest, context: Cx) -> Result<SharingShare> {
         self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
             name: request.name,
@@ -93,7 +87,7 @@ impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> S
     async fn list_sharing_schemas(
         &self,
         request: ListSchemasRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListSchemasResponse> {
         self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
@@ -125,7 +119,7 @@ impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> S
     async fn list_tables(
         &self,
         request: ListTablesRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListTablesResponse> {
         self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
@@ -164,7 +158,7 @@ impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> S
     async fn list_all_tables(
         &self,
         request: ListAllTablesRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListAllTablesResponse> {
         self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
@@ -199,21 +193,21 @@ impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> S
     async fn get_table_version(
         &self,
         _request: GetTableVersionRequest,
-        _context: RequestContext,
+        _context: Cx,
     ) -> Result<GetTableVersionResponse> {
         unimplemented!("only method on SharingQueryHandler should be used")
     }
     async fn get_table_metadata(
         &self,
         _request: GetTableMetadataRequest,
-        _context: RequestContext,
+        _context: Cx,
     ) -> Result<QueryResponse> {
         unimplemented!("only method on SharingQueryHandler should be used")
     }
     async fn query_table(
         &self,
         _request: QueryTableRequest,
-        _context: RequestContext,
+        _context: Cx,
     ) -> Result<QueryResponse> {
         unimplemented!("only method on SharingQueryHandler should be used")
     }

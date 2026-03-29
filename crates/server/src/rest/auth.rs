@@ -1,4 +1,5 @@
 //! Authentication middleware for Delta Sharing server.
+use std::marker::PhantomData;
 use std::task::{Context, Poll};
 
 use axum::extract::Request;
@@ -10,12 +11,15 @@ use unitycatalog_common::Result;
 use crate::policy::Principal;
 
 /// Authenticator for authenticating requests to a sharing server.
-pub trait Authenticator: Send + Sync + 'static {
-    /// Authenticate a request.
+///
+/// `I` is the identity type inserted into request extensions. It must be
+/// `Clone + Send + Sync + 'static` so it can be stored in axum extensions.
+pub trait Authenticator<I: Clone + Send + Sync + 'static>: Send + Sync + 'static {
+    /// Authenticate a request and return an identity value.
     ///
-    /// This method should return the recipient of the request, or an error if the request
-    /// is not authenticated or the recipient cannot be determined from the request.
-    fn authenticate(&self, request: &Request) -> Result<Principal>;
+    /// This method should return the identity of the caller, or an error if the
+    /// request is not authenticated or the identity cannot be determined.
+    fn authenticate(&self, request: &Request) -> Result<I>;
 }
 
 /// Authenticator that always marks the recipient as anonymous.
@@ -31,7 +35,7 @@ pub trait Authenticator: Send + Sync + 'static {
 #[derive(Clone)]
 pub struct AnonymousAuthenticator;
 
-impl Authenticator for AnonymousAuthenticator {
+impl Authenticator<Principal> for AnonymousAuthenticator {
     fn authenticate(&self, _: &Request) -> Result<Principal> {
         // TODO: extract from reverse proxy middleware (e.g., X-Forwarded-User header)
         Ok(Principal::anonymous())
@@ -40,34 +44,37 @@ impl Authenticator for AnonymousAuthenticator {
 
 /// Middleware that authenticates requests using the given [`Authenticator`].
 #[derive(Clone)]
-pub struct AuthenticationMiddleware<S, T> {
+pub struct AuthenticationMiddleware<S, T, I = Principal> {
     inner: S,
     authenticator: T,
+    _identity: PhantomData<I>,
 }
 
 #[allow(unused)]
-impl<S, T> AuthenticationMiddleware<S, T> {
+impl<S, T, I> AuthenticationMiddleware<S, T, I> {
     /// Create new [`AuthenticationMiddleware`].
     pub fn new(inner: S, authenticator: T) -> Self {
         Self {
             inner,
             authenticator,
+            _identity: PhantomData,
         }
     }
 
-    /// Create a new [`AuthorizationLayer`] with the given [`Authenticator`].
+    /// Create a new [`AuthenticationLayer`] with the given [`Authenticator`].
     ///
-    /// This is a convenience method that is equivalent to calling [`AuthorizationLayer::new`].
-    pub fn layer(authenticator: T) -> AuthenticationLayer<T> {
+    /// This is a convenience method that is equivalent to calling [`AuthenticationLayer::new`].
+    pub fn layer(authenticator: T) -> AuthenticationLayer<T, I> {
         AuthenticationLayer::new(authenticator)
     }
 }
 
-impl<S, T> Service<Request> for AuthenticationMiddleware<S, T>
+impl<S, T, I> Service<Request> for AuthenticationMiddleware<S, T, I>
 where
     S: Service<Request, Response = Response> + Send + 'static,
     S::Future: Send + 'static,
-    T: Authenticator,
+    T: Authenticator<I>,
+    I: Clone + Send + Sync + 'static,
 {
     type Response = S::Response;
     type Error = S::Error;
@@ -79,8 +86,8 @@ where
 
     fn call(&mut self, mut req: Request) -> Self::Future {
         match self.authenticator.authenticate(&req) {
-            Ok(recipient) => {
-                req.extensions_mut().insert(recipient);
+            Ok(identity) => {
+                req.extensions_mut().insert(identity);
                 self.inner.call(req).boxed()
             }
             Err(e) => async { Ok(crate::Error::from(e).into_response()) }.boxed(),
@@ -90,24 +97,33 @@ where
 
 /// Layer that applies the [`AuthenticationMiddleware`].
 #[derive(Clone)]
-pub struct AuthenticationLayer<T> {
+pub struct AuthenticationLayer<T, I = Principal> {
     authenticator: T,
+    _identity: PhantomData<I>,
 }
 
-impl<T> AuthenticationLayer<T> {
-    /// Create a new [`AuthorizationLayer`] with the provided [`Authenticator`].
+impl<T, I> AuthenticationLayer<T, I> {
+    /// Create a new [`AuthenticationLayer`] with the provided [`Authenticator`].
     pub fn new(authenticator: T) -> Self {
-        Self { authenticator }
+        Self {
+            authenticator,
+            _identity: PhantomData,
+        }
     }
 }
 
-impl<S, T: Clone + Send + Sync + 'static> Layer<S> for AuthenticationLayer<T> {
-    type Service = AuthenticationMiddleware<S, T>;
+impl<S, T, I> Layer<S> for AuthenticationLayer<T, I>
+where
+    T: Clone + Send + Sync + 'static,
+    I: Clone + Send + Sync + 'static,
+{
+    type Service = AuthenticationMiddleware<S, T, I>;
 
     fn layer(&self, inner: S) -> Self::Service {
         AuthenticationMiddleware {
             inner,
             authenticator: self.authenticator.clone(),
+            _identity: PhantomData,
         }
     }
 }
@@ -124,7 +140,7 @@ mod tests {
     async fn check_recipient(req: Request) -> Result<Response<Body>> {
         assert!(matches!(
             req.extensions().get::<Principal>(),
-            Some(Principal::Anonymous) | Some(Principal::Custom(_)) | Some(Principal::User(_))
+            Some(Principal::Anonymous) | Some(Principal::User(_))
         ));
         Ok(Response::new(req.into_body()))
     }

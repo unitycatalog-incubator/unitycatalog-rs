@@ -7,7 +7,6 @@
 
 use std::sync::Arc;
 
-use bytes::Bytes;
 use strum::AsRefStr;
 use unitycatalog_common::models::{ResourceExt, ResourceIdent};
 
@@ -21,7 +20,6 @@ mod constant;
 pub enum Principal {
     Anonymous,
     User(String),
-    Custom(Bytes),
 }
 
 impl Principal {
@@ -31,10 +29,6 @@ impl Principal {
 
     pub fn user(name: impl Into<String>) -> Self {
         Self::User(name.into())
-    }
-
-    pub fn custom(data: Bytes) -> Self {
-        Self::Custom(data)
     }
 }
 
