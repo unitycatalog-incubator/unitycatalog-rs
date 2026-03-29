@@ -8,7 +8,10 @@ pub mod journeys;
 pub mod reporting;
 
 // Re-export commonly used types for convenience
-pub use execution::{JourneyConfig, JourneyExecutionResult, JourneyExecutor, UserJourney};
+pub use execution::{
+    ImplementationProfile, ImplementationTag, JourneyConfig, JourneyExecutionResult,
+    JourneyExecutor, JourneyFilter, JourneyMetadata, JourneyTier, ResourceTag, UserJourney,
+};
 pub use execution::{JourneyLogger, PerformanceMetrics, ProgressTracker, cleanup_step};
 pub use reporting::{JourneyReporter, ReportingConfig, generate_journeys_summary_table};
 

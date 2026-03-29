@@ -8,7 +8,10 @@ use async_trait::async_trait;
 use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
 
-use crate::execution::{JourneyLogger, JourneyState, UserJourney, cleanup_step};
+use crate::execution::{
+    ImplementationTag, JourneyLogger, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney, cleanup_step,
+};
 use crate::init_journey;
 use crate::reporting::ReportingConfig;
 use crate::{AcceptanceError, AcceptanceResult};
@@ -85,6 +88,15 @@ impl UserJourney for CatalogHierarchyJourney {
 
     fn description(&self) -> &str {
         "Catalog hierarchy testing: create catalog, create multiple schemas, verify relationships, cleanup"
+    }
+
+    fn metadata(&self) -> JourneyMetadata {
+        JourneyMetadata {
+            resources: vec![ResourceTag::Catalogs, ResourceTag::Schemas],
+            implementations: vec![ImplementationTag::All],
+            tier: JourneyTier::Tier1Crud,
+            requires_external_storage: false,
+        }
     }
 
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
