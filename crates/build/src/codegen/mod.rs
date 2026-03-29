@@ -23,12 +23,13 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use convert_case::{Case, Casing};
+use itertools::Itertools;
 use proc_macro2::TokenStream;
-use quote::format_ident;
-use syn::Ident;
+use quote::{format_ident, quote};
+use syn::{File, Ident};
 
 use crate::analysis::{
-    BodyField, ManagedResource, MethodPlan, RequestParam, RequestType, ServicePlan,
+    BodyField, GenerationPlan, ManagedResource, MethodPlan, RequestParam, RequestType, ServicePlan,
     analyze_metadata, split_body_fields,
 };
 use crate::google::api::http_rule::Pattern;
@@ -36,7 +37,27 @@ use crate::output;
 use crate::parsing::types::{self, UnifiedType};
 use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext};
 
-pub mod generation;
+mod builder;
+mod client;
+mod handler;
+pub(crate) mod node;
+mod python;
+mod server;
+
+impl MethodPlan {
+    pub(crate) fn resource_client_method(&self) -> Ident {
+        match self.request_type {
+            RequestType::Get => format_ident!("get"),
+            RequestType::Update => format_ident!("update"),
+            RequestType::Delete => format_ident!("delete"),
+            _ => format_ident!("{}", self.handler_function_name),
+        }
+    }
+
+    pub(crate) fn base_method_ident(&self) -> Ident {
+        format_ident!("{}", self.handler_function_name)
+    }
+}
 
 /// Validated model import path derived from a `{service}` template string.
 ///
@@ -143,40 +164,337 @@ pub fn generate_code(
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // Analyze metadata and plan generation
     let plan = analyze_metadata(metadata)?;
 
-    // Generate code from plan
-    let common_code = generation::generate_common_code(&plan, metadata, config)?;
+    let common_code = generate_common_code(&plan, metadata, config)?;
     output::write_generated_code(&common_code, &config.output.common)?;
 
-    // Generate server
-    let server_code = generation::generate_server_code(&plan, metadata, config)?;
+    let server_code = generate_server_code(&plan, metadata, config)?;
     output::write_generated_code(&server_code, &config.output.server)?;
 
-    // Generate client
-    let client_code = generation::generate_client_code(&plan, metadata, config)?;
+    let client_code = generate_client_code(&plan, metadata, config)?;
     output::write_generated_code(&client_code, &config.output.client)?;
 
-    // Generate Python bindings
     if let Some(ref python_dir) = config.output.python {
-        let python_code = generation::generate_python_code(&plan, metadata, config)?;
+        let python_code = generate_python_code(&plan, metadata, config)?;
         output::write_generated_code(&python_code, python_dir)?;
     }
 
-    // Generate Node.js NAPI bindings
     if let Some(ref node_dir) = config.output.node {
-        let node_code = generation::generate_node_code(&plan, metadata, config)?;
+        let node_code = generate_node_code(&plan, metadata, config)?;
         output::write_generated_code(&node_code, node_dir)?;
     }
 
-    // Generate Node.js TypeScript client
     if let Some(ref node_ts_dir) = config.output.node_ts {
-        let node_ts_code = generation::generate_node_ts_code(&plan, metadata, config)?;
+        let node_ts_code = generate_node_ts_code(&plan, metadata, config)?;
         output::write_generated_code(&node_ts_code, node_ts_dir)?;
     }
 
     Ok(())
+}
+
+fn generate_common_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    for service in &plan.services {
+        let handler = ServiceHandler {
+            plan: service,
+            metadata,
+            config,
+        };
+        let server_code = server::generate_common(&handler);
+        files.insert(format!("{}/server.rs", service.base_path), server_code);
+        let module_code = generate_common_module();
+        files.insert(format!("{}/mod.rs", service.base_path), module_code);
+    }
+
+    let module_code = main_module(&plan.services);
+    files.insert("mod.rs".to_string(), module_code);
+
+    Ok(GeneratedCode { files })
+}
+
+fn generate_server_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    for service in &plan.services {
+        let handler = ServiceHandler {
+            plan: service,
+            metadata,
+            config,
+        };
+        let trait_code = handler::generate(&handler)?;
+        files.insert(format!("{}/handler.rs", service.base_path), trait_code);
+        let server_code = server::generate_server(&handler);
+        files.insert(format!("{}/server.rs", service.base_path), server_code);
+        let module_code = generate_server_module(service);
+        files.insert(format!("{}/mod.rs", service.base_path), module_code);
+    }
+
+    let module_code = main_module(&plan.services);
+    files.insert("mod.rs".to_string(), module_code);
+
+    Ok(GeneratedCode { files })
+}
+
+fn generate_python_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    let handlers = plan
+        .services
+        .iter()
+        .map(|service| ServiceHandler {
+            plan: service,
+            metadata,
+            config,
+        })
+        .collect_vec();
+
+    for service in &handlers {
+        let python_code = python::generate(service);
+        files.insert(format!("{}.rs", service.plan.base_path), python_code);
+    }
+
+    let module_code = python::main_module(&handlers);
+    files.insert("mod.rs".to_string(), module_code);
+
+    let python_typings_code = python::generate_typings(&handlers);
+    files.insert(
+        config.output.python_typings_filename.clone(),
+        python_typings_code,
+    );
+
+    Ok(GeneratedCode { files })
+}
+
+fn generate_node_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    let handlers = plan
+        .services
+        .iter()
+        .map(|service| ServiceHandler {
+            plan: service,
+            metadata,
+            config,
+        })
+        .collect_vec();
+
+    for service in &handlers {
+        let napi_code = node::generate(service);
+        files.insert(format!("{}.rs", service.plan.base_path), napi_code);
+    }
+
+    let module_code = node::main_module(&handlers);
+    files.insert("mod.rs".to_string(), module_code);
+
+    Ok(GeneratedCode { files })
+}
+
+fn generate_node_ts_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let handlers = plan
+        .services
+        .iter()
+        .map(|service| ServiceHandler {
+            plan: service,
+            metadata,
+            config,
+        })
+        .collect_vec();
+
+    let ts_code = node::typescript::generate_client_ts(&handlers);
+    let mut files = HashMap::new();
+    files.insert("client.ts".to_string(), ts_code);
+
+    Ok(GeneratedCode { files })
+}
+
+fn generate_client_code(
+    plan: &GenerationPlan,
+    metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
+) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
+    let mut files = HashMap::new();
+
+    for service in &plan.services {
+        let handler = ServiceHandler {
+            plan: service,
+            metadata,
+            config,
+        };
+        let client_code = client::generate(&handler)?;
+        files.insert(format!("{}/client.rs", service.base_path), client_code);
+        let builder_code = builder::generate(&handler)?;
+        files.insert(format!("{}/builders.rs", service.base_path), builder_code);
+        let module_code = generate_client_module();
+        files.insert(format!("{}/mod.rs", service.base_path), module_code);
+    }
+
+    let module_code = generate_client_main_module(&plan.services);
+    files.insert("mod.rs".to_string(), module_code);
+
+    Ok(GeneratedCode { files })
+}
+
+fn generate_common_module() -> String {
+    let tokens = quote! {
+        #[cfg(feature = "axum")]
+        pub mod server;
+    };
+    format_tokens(tokens)
+}
+
+fn generate_server_module(service: &ServicePlan) -> String {
+    let handler_ident = format_ident!("{}", service.handler_name);
+    let tokens = quote! {
+        pub use handler::#handler_ident;
+
+        mod handler;
+        #[cfg(feature = "axum")]
+        pub mod server;
+    };
+    format_tokens(tokens)
+}
+
+fn generate_client_module() -> String {
+    let tokens = quote! {
+        pub use client::*;
+        pub use builders::*;
+
+        pub mod client;
+        pub mod builders;
+    };
+    format_tokens(tokens)
+}
+
+pub fn main_module(services: &[ServicePlan]) -> String {
+    let service_modules: Vec<TokenStream> = services
+        .iter()
+        .map(|s| {
+            let module_name = format_ident!("{}", s.base_path);
+            quote! { pub mod #module_name; }
+        })
+        .collect();
+
+    let tokens = quote! {
+        #(#service_modules)*
+    };
+    format_tokens(tokens)
+}
+
+fn generate_client_main_module(services: &[ServicePlan]) -> String {
+    let service_modules: Vec<TokenStream> = services
+        .iter()
+        .map(|s| {
+            let module_name = format_ident!("{}", s.base_path);
+            quote! { pub mod #module_name; }
+        })
+        .collect();
+
+    let tokens = quote! {
+        #(#service_modules)*
+
+        use futures::Future;
+
+        pub(super) fn stream_paginated<F, Fut, S, T>(
+            state: S,
+            op: F,
+        ) -> impl futures::Stream<Item = crate::Result<T>>
+        where
+            F: Fn(S, Option<String>) -> Fut + Copy,
+            Fut: Future<Output = crate::Result<(T, S, Option<String>)>>,
+        {
+            enum PaginationState<T> {
+                Start(T),
+                HasMore(T, String),
+                Done,
+            }
+
+            futures::stream::unfold(
+                PaginationState::Start(state),
+                move |state| async move {
+                    let (s, page_token) = match state {
+                        PaginationState::Start(s) => (s, None),
+                        PaginationState::HasMore(s, page_token) if !page_token.is_empty() => {
+                            (s, Some(page_token))
+                        }
+                        _ => {
+                            return None;
+                        }
+                    };
+
+                    let (resp, s, continuation) = match op(s, page_token).await {
+                        Ok(resp) => resp,
+                        Err(e) => return Some((Err(e), PaginationState::Done)),
+                    };
+
+                    let next_state = match continuation {
+                        Some(token) => PaginationState::HasMore(s, token),
+                        None => PaginationState::Done,
+                    };
+
+                    Some((Ok(resp), next_state))
+                },
+            )
+        }
+    };
+    format_tokens(tokens)
+}
+
+/// Convert optional documentation into `#[doc = "..."]` token stream attributes.
+pub(crate) fn doc_tokens(documentation: Option<&str>) -> TokenStream {
+    let Some(doc) = documentation else {
+        return quote! {};
+    };
+    let doc = doc.trim();
+    if doc.is_empty() {
+        return quote! {};
+    }
+    let attrs: Vec<TokenStream> = doc
+        .lines()
+        .map(|line| {
+            let line = line.trim();
+            if line.is_empty() {
+                quote! { #[doc = ""] }
+            } else {
+                let spaced = format!(" {}", line);
+                quote! { #[doc = #spaced] }
+            }
+        })
+        .collect();
+    quote! { #(#attrs)* }
+}
+
+pub(crate) fn format_tokens(tokens: TokenStream) -> String {
+    let tokens_string = tokens.to_string();
+    let syntax_tree = syn::parse2::<File>(tokens).unwrap_or_else(|_| {
+        syn::parse_str::<File>(&tokens_string).unwrap_or_else(|_| {
+            syn::parse_quote! {
+                // Failed to parse generated code
+            }
+        })
+    });
+    prettyplease::unparse(&syntax_tree)
 }
 
 /// Generated code ready for output
