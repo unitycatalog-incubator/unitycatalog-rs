@@ -8,7 +8,10 @@ use async_trait::async_trait;
 use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
 
-use crate::execution::{JourneyLogger, JourneyState, UserJourney, cleanup_step};
+use crate::execution::{
+    ImplementationTag, JourneyLogger, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney, cleanup_step,
+};
 use crate::init_journey;
 use crate::reporting::ReportingConfig;
 use crate::{AcceptanceError, AcceptanceResult};
@@ -67,6 +70,15 @@ impl UserJourney for CatalogSimpleJourney {
 
     fn description(&self) -> &str {
         "Enhanced catalog lifecycle with rich reporting: create, list, inspect, delete"
+    }
+
+    fn metadata(&self) -> JourneyMetadata {
+        JourneyMetadata {
+            resources: vec![ResourceTag::Catalogs],
+            implementations: vec![ImplementationTag::All],
+            tier: JourneyTier::Tier1Crud,
+            requires_external_storage: false,
+        }
     }
 
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
