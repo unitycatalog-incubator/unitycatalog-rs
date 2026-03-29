@@ -146,14 +146,18 @@ impl CodeGenConfig {
 }
 
 /// Output directory configuration for code generation.
+///
+/// Only `common` is required. All other outputs are optional — set to `None` to skip that
+/// output entirely. For example, a server-only crate can omit `client`, and a client-only
+/// crate can omit `server`.
 #[derive(Debug, Clone)]
 pub struct CodeGenOutput {
     /// Output directory for common (shared extractor) code.
     pub common: PathBuf,
-    /// Output directory for server-side handler and route code.
-    pub server: PathBuf,
-    /// Output directory for HTTP client code.
-    pub client: PathBuf,
+    /// Output directory for server-side handler and route code. Generation is skipped when `None`.
+    pub server: Option<PathBuf>,
+    /// Output directory for HTTP client code. Generation is skipped when `None`.
+    pub client: Option<PathBuf>,
     /// Output directory for Python bindings. Generation is skipped when `None`.
     pub python: Option<PathBuf>,
     /// Output directory for Node.js NAPI bindings. Generation is skipped when `None`.
@@ -179,11 +183,15 @@ pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Resu
     let common_code = generate_common_code(&plan, metadata, config)?;
     output::write_generated_code(&common_code, &config.output.common)?;
 
-    let server_code = generate_server_code(&plan, metadata, config)?;
-    output::write_generated_code(&server_code, &config.output.server)?;
+    if let Some(ref server_dir) = config.output.server {
+        let server_code = generate_server_code(&plan, metadata, config)?;
+        output::write_generated_code(&server_code, server_dir)?;
+    }
 
-    let client_code = generate_client_code(&plan, metadata, config)?;
-    output::write_generated_code(&client_code, &config.output.client)?;
+    if let Some(ref client_dir) = config.output.client {
+        let client_code = generate_client_code(&plan, metadata, config)?;
+        output::write_generated_code(&client_code, client_dir)?;
+    }
 
     if let Some(ref python_dir) = config.output.python {
         let python_code = generate_python_code(&plan, metadata, config)?;
