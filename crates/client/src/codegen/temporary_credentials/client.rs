@@ -1,6 +1,6 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
-use crate::error::Result;
+use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 use url::Url;

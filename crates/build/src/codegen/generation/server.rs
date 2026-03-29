@@ -22,6 +22,8 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
         .map(|method| from_request_extractor(&method))
         .collect_vec();
     let mod_path = service.models_path_crate();
+    let result_path: Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     // Only import RequestPartsExt when there are FromRequestParts impls (path/query params).
     let has_parts_extractors = service.methods().any(|m| {
@@ -42,7 +44,7 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use crate::Result;
+        use #result_path;
         use #mod_path::*;
         #axum_imports
 
@@ -53,21 +55,27 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
 }
 
 pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
+    let context_ident = last_segment(&service.config.context_type_path);
     let handler_function_impls = service
         .methods()
-        .map(|method| axum_route_handler_impl(&method, &service.plan.handler_name))
+        .map(|method| axum_route_handler_impl(&method, &service.plan.handler_name, &context_ident))
         .collect_vec();
 
     let mod_path = service.models_path();
     let trait_path: Path =
         syn::parse_str(&format!("super::handler::{}", &service.plan.handler_name)).unwrap();
+    let result_path: Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
+    let context_path: Path =
+        syn::parse_str(&service.config.context_type_path).expect("valid context_type_path");
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use crate::Result;
-        use crate::api::RequestContext;
+        use #result_path;
+        use #context_path;
         use #mod_path::*;
         use #trait_path;
+        // TODO: make configurable
         use crate::policy::Principal;
         use axum::extract::{State, Extension};
 
@@ -76,6 +84,12 @@ pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
     };
 
     format_tokens(tokens)
+}
+
+/// Extract the final path segment as an `Ident`.
+fn last_segment(path_str: &str) -> syn::Ident {
+    let s = path_str.rsplit("::").next().unwrap_or(path_str);
+    format_ident!("{}", s.trim())
 }
 
 /// Generate extractor implementation for a specific method
@@ -94,7 +108,11 @@ fn from_request_extractor(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate route handler function
-fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> TokenStream {
+fn axum_route_handler_impl(
+    method: &MethodHandler<'_>,
+    handler_trait: &str,
+    context_ident: &syn::Ident,
+) -> TokenStream {
     let handler_method = format_ident!("{}", method.plan.handler_function_name);
     let input_type = method.input_type();
     let handler_trait_ident = format_ident!("{}", handler_trait);
@@ -107,7 +125,7 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
                 Extension(recipient): Extension<Principal>,
                 request: #input_type,
             ) -> Result<::axum::Json<#output_type>> {
-                let context = RequestContext { recipient };
+                let context = #context_ident { recipient };
                 let result = handler.#handler_method(request, context).await?;
                 Ok(axum::Json(result))
             }
@@ -119,7 +137,7 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
                 Extension(recipient): Extension<Principal>,
                 request: #input_type,
             ) -> Result<()> {
-                let context = RequestContext { recipient };
+                let context = #context_ident { recipient };
                 handler.#handler_method(request, context).await?;
                 Ok(())
             }

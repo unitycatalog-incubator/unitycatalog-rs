@@ -32,12 +32,15 @@ fn generate_builders_module(service: &ServiceHandler<'_>, builders: &[String]) -
         .map(|b| syn::parse_str::<TokenStream>(b).unwrap_or_else(|_| quote! {}))
         .collect();
     let mod_path: Path = service.models_path();
+    let result_path: Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     let tokens = quote! {
         #![allow(unused_mut)]
         use futures::{future::BoxFuture, stream::BoxStream, TryStreamExt, StreamExt};
         use std::future::IntoFuture;
-        use crate::{error::Result, utils::stream_paginated};
+        use #result_path;
+        use super::super::stream_paginated;
         use #mod_path::*;
         use super::client::*;
 

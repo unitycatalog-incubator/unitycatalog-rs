@@ -20,7 +20,7 @@
 //! - **Type Mappings**: Conversions between protobuf and Rust types
 
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::PathBuf;
 
 use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
@@ -37,47 +37,111 @@ use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext};
 
 pub mod generation;
 
+/// Configuration for code generation, including import paths and output directories.
+///
+/// Use [`CodeGenConfig::unitycatalog_defaults`] when generating code for the Unity Catalog
+/// workspace. To generate code for an external crate with different runtime types, construct
+/// this struct directly and override the fields you need.
+#[derive(Debug, Clone)]
+pub struct CodeGenConfig {
+    /// Fully-qualified path to the request context type used in handler methods.
+    ///
+    /// Default: `"crate::api::RequestContext"`
+    pub context_type_path: String,
+
+    /// Fully-qualified path to the `Result` alias used in generated handler and client code.
+    ///
+    /// Default: `"crate::Result"`
+    pub result_type_path: String,
+
+    /// Template for the external model import path. `{service}` is replaced with the service's
+    /// base path (e.g. `"catalogs"`).
+    ///
+    /// Default: `"unitycatalog_common::models::{service}::v1"`
+    pub models_path_template: String,
+
+    /// Template for crate-local model import path. `{service}` is replaced with the service's
+    /// base path.
+    ///
+    /// Default: `"crate::models::{service}::v1"`
+    pub models_path_crate_template: String,
+
+    /// Output directory configuration.
+    pub output: CodeGenOutput,
+}
+
+impl CodeGenConfig {
+    /// Create a config with the default Unity Catalog import paths.
+    pub fn unitycatalog_defaults(output: CodeGenOutput) -> Self {
+        Self {
+            context_type_path: "crate::api::RequestContext".to_string(),
+            result_type_path: "crate::Result".to_string(),
+            models_path_template: "unitycatalog_common::models::{service}::v1".to_string(),
+            models_path_crate_template: "crate::models::{service}::v1".to_string(),
+            output,
+        }
+    }
+}
+
+/// Output directory configuration for code generation.
+#[derive(Debug, Clone)]
+pub struct CodeGenOutput {
+    /// Output directory for common (shared extractor) code.
+    pub common: PathBuf,
+    /// Output directory for server-side handler and route code.
+    pub server: PathBuf,
+    /// Output directory for HTTP client code.
+    pub client: PathBuf,
+    /// Output directory for Python bindings. Generation is skipped when `None`.
+    pub python: Option<PathBuf>,
+    /// Output directory for Node.js NAPI bindings. Generation is skipped when `None`.
+    pub node: Option<PathBuf>,
+    /// Output directory for Node.js TypeScript client. Generation is skipped when `None`.
+    pub node_ts: Option<PathBuf>,
+    /// Filename for the generated Python typings stub.
+    ///
+    /// Default: `"unitycatalog_client.pyi"`
+    pub python_typings_filename: String,
+}
+
 /// Main entry point for code generation
 ///
-/// Takes collected metadata and generates all necessary Rust code for REST handlers.
+/// Takes collected metadata and a [`CodeGenConfig`] and generates all necessary code.
 pub fn generate_code(
     metadata: &CodeGenMetadata,
-    output_dir_common: &Path,
-    output_dir_server: &Path,
-    output_dir_client: &Path,
-    output_dir_python: &Path,
-    output_dir_node: Option<&Path>,
-    output_dir_node_ts: Option<&Path>,
+    config: &CodeGenConfig,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Analyze metadata and plan generation
     let plan = analyze_metadata(metadata)?;
 
     // Generate code from plan
-    let common_code = generation::generate_common_code(&plan, metadata)?;
-    output::write_generated_code(&common_code, output_dir_common)?;
+    let common_code = generation::generate_common_code(&plan, metadata, config)?;
+    output::write_generated_code(&common_code, &config.output.common)?;
 
     // Generate server
-    let server_code = generation::generate_server_code(&plan, metadata)?;
-    output::write_generated_code(&server_code, output_dir_server)?;
+    let server_code = generation::generate_server_code(&plan, metadata, config)?;
+    output::write_generated_code(&server_code, &config.output.server)?;
 
     // Generate client
-    let client_code = generation::generate_client_code(&plan, metadata)?;
-    output::write_generated_code(&client_code, output_dir_client)?;
+    let client_code = generation::generate_client_code(&plan, metadata, config)?;
+    output::write_generated_code(&client_code, &config.output.client)?;
 
     // Generate Python bindings
-    let python_code = generation::generate_python_code(&plan, metadata)?;
-    output::write_generated_code(&python_code, output_dir_python)?;
+    if let Some(ref python_dir) = config.output.python {
+        let python_code = generation::generate_python_code(&plan, metadata, config)?;
+        output::write_generated_code(&python_code, python_dir)?;
+    }
 
     // Generate Node.js NAPI bindings
-    if let Some(output_dir) = output_dir_node {
-        let node_code = generation::generate_node_code(&plan, metadata)?;
-        output::write_generated_code(&node_code, output_dir)?;
+    if let Some(ref node_dir) = config.output.node {
+        let node_code = generation::generate_node_code(&plan, metadata, config)?;
+        output::write_generated_code(&node_code, node_dir)?;
     }
 
     // Generate Node.js TypeScript client
-    if let Some(output_dir) = output_dir_node_ts {
-        let node_ts_code = generation::generate_node_ts_code(&plan, metadata)?;
-        output::write_generated_code(&node_ts_code, output_dir)?;
+    if let Some(ref node_ts_dir) = config.output.node_ts {
+        let node_ts_code = generation::generate_node_ts_code(&plan, metadata, config)?;
+        output::write_generated_code(&node_ts_code, node_ts_dir)?;
     }
 
     Ok(())
@@ -105,8 +169,9 @@ pub(crate) struct MessageMeta<'a> {
 }
 
 pub(crate) struct ServiceHandler<'a> {
-    plan: &'a ServicePlan,
-    metadata: &'a CodeGenMetadata,
+    pub(crate) plan: &'a ServicePlan,
+    pub(crate) metadata: &'a CodeGenMetadata,
+    pub(crate) config: &'a CodeGenConfig,
 }
 
 impl ServiceHandler<'_> {
@@ -139,15 +204,21 @@ impl ServiceHandler<'_> {
     }
 
     pub(crate) fn models_path(&self) -> syn::Path {
-        syn::parse_str(&format!(
-            "unitycatalog_common::models::{}::v1",
-            self.plan.base_path
-        ))
-        .unwrap()
+        let path = self
+            .config
+            .models_path_template
+            .replace("{service}", &self.plan.base_path);
+        syn::parse_str(&path)
+            .unwrap_or_else(|e| panic!("Invalid models_path_template `{path}`: {e}"))
     }
 
     pub(crate) fn models_path_crate(&self) -> syn::Path {
-        syn::parse_str(&format!("crate::models::{}::v1", self.plan.base_path)).unwrap()
+        let path = self
+            .config
+            .models_path_crate_template
+            .replace("{service}", &self.plan.base_path);
+        syn::parse_str(&path)
+            .unwrap_or_else(|e| panic!("Invalid models_path_crate_template `{path}`: {e}"))
     }
 }
 

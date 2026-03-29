@@ -16,7 +16,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::File;
 
-use super::GeneratedCode;
+use super::{CodeGenConfig, GeneratedCode};
 use crate::analysis::MethodPlan;
 use crate::analysis::{GenerationPlan, RequestType, ServicePlan};
 use crate::codegen::ServiceHandler;
@@ -47,6 +47,7 @@ impl MethodPlan {
 pub fn generate_common_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -55,6 +56,7 @@ pub fn generate_common_code(
         let handler = ServiceHandler {
             plan: service,
             metadata,
+            config,
         };
 
         // Generate server code (FromRequestParts/FromRequest extractor impls)
@@ -86,6 +88,7 @@ fn generate_common_module() -> String {
 pub fn generate_server_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -94,6 +97,7 @@ pub fn generate_server_code(
         let handler = ServiceHandler {
             plan: service,
             metadata,
+            config,
         };
 
         let trait_code = handler::generate(&handler)?;
@@ -117,6 +121,7 @@ pub fn generate_server_code(
 pub fn generate_python_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -127,6 +132,7 @@ pub fn generate_python_code(
         .map(|service| ServiceHandler {
             plan: service,
             metadata,
+            config,
         })
         .collect_vec();
 
@@ -143,7 +149,10 @@ pub fn generate_python_code(
 
     // Generate single unified typings (.pyi) file for all services
     let python_typings_code = python::generate_typings(&handlers);
-    files.insert("unitycatalog_client.pyi".to_string(), python_typings_code);
+    files.insert(
+        config.output.python_typings_filename.clone(),
+        python_typings_code,
+    );
 
     Ok(GeneratedCode { files })
 }
@@ -151,6 +160,7 @@ pub fn generate_python_code(
 pub fn generate_node_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -161,6 +171,7 @@ pub fn generate_node_code(
         .map(|service| ServiceHandler {
             plan: service,
             metadata,
+            config,
         })
         .collect_vec();
 
@@ -178,6 +189,7 @@ pub fn generate_node_code(
 pub fn generate_node_ts_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let services = plan.services.to_vec();
 
@@ -186,6 +198,7 @@ pub fn generate_node_ts_code(
         .map(|service| ServiceHandler {
             plan: service,
             metadata,
+            config,
         })
         .collect_vec();
 
@@ -199,6 +212,7 @@ pub fn generate_node_ts_code(
 pub fn generate_client_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
+    config: &CodeGenConfig,
 ) -> Result<GeneratedCode, Box<dyn std::error::Error>> {
     let mut files = HashMap::new();
 
@@ -207,6 +221,7 @@ pub fn generate_client_code(
         let handler = ServiceHandler {
             plan: service,
             metadata,
+            config,
         };
 
         // Generate client code
@@ -222,7 +237,7 @@ pub fn generate_client_code(
     }
 
     // Generate the main module file that ties everything together
-    let module_code = main_module(&plan.services);
+    let module_code = generate_client_main_module(&plan.services);
     files.insert("mod.rs".to_string(), module_code);
 
     Ok(GeneratedCode { files })
@@ -271,6 +286,96 @@ pub fn main_module(services: &[ServicePlan]) -> String {
     };
 
     format_tokens(tokens)
+}
+
+/// Generate main module file for client codegen, including the `stream_paginated` utility.
+///
+/// This inlines the pagination helper so generated builders have no dependency on
+/// `crate::utils::stream_paginated`.
+fn generate_client_main_module(services: &[ServicePlan]) -> String {
+    let service_modules: Vec<TokenStream> = services
+        .iter()
+        .map(|s| {
+            let module_name = format_ident!("{}", s.base_path);
+            quote! { pub mod #module_name; }
+        })
+        .collect();
+
+    let tokens = quote! {
+        #(#service_modules)*
+
+        use futures::Future;
+
+        pub(super) fn stream_paginated<F, Fut, S, T>(
+            state: S,
+            op: F,
+        ) -> impl futures::Stream<Item = crate::Result<T>>
+        where
+            F: Fn(S, Option<String>) -> Fut + Copy,
+            Fut: Future<Output = crate::Result<(T, S, Option<String>)>>,
+        {
+            enum PaginationState<T> {
+                Start(T),
+                HasMore(T, String),
+                Done,
+            }
+
+            futures::stream::unfold(
+                PaginationState::Start(state),
+                move |state| async move {
+                    let (s, page_token) = match state {
+                        PaginationState::Start(s) => (s, None),
+                        PaginationState::HasMore(s, page_token) if !page_token.is_empty() => {
+                            (s, Some(page_token))
+                        }
+                        _ => {
+                            return None;
+                        }
+                    };
+
+                    let (resp, s, continuation) = match op(s, page_token).await {
+                        Ok(resp) => resp,
+                        Err(e) => return Some((Err(e), PaginationState::Done)),
+                    };
+
+                    let next_state = match continuation {
+                        Some(token) => PaginationState::HasMore(s, token),
+                        None => PaginationState::Done,
+                    };
+
+                    Some((Ok(resp), next_state))
+                },
+            )
+        }
+    };
+
+    format_tokens(tokens)
+}
+
+/// Convert optional documentation into `#[doc = "..."]` token stream attributes.
+///
+/// `prettyplease` renders `#[doc = " text"]` as `/// text`. The leading space is required.
+pub(super) fn doc_tokens(documentation: Option<&str>) -> TokenStream {
+    let Some(doc) = documentation else {
+        return quote! {};
+    };
+    let doc = doc.trim();
+    if doc.is_empty() {
+        return quote! {};
+    }
+    let attrs: Vec<TokenStream> = doc
+        .lines()
+        .map(|line| {
+            let line = line.trim();
+            if line.is_empty() {
+                quote! { #[doc = ""] }
+            } else {
+                let spaced = format!(" {}", line);
+                quote! { #[doc = #spaced] }
+            }
+        })
+        .collect();
+    quote! { #(#attrs)* }
 }
 
 /// Helper function to format TokenStream as properly formatted Rust code

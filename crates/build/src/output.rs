@@ -38,7 +38,7 @@ pub fn write_generated_code(
         fs::write(&file_path, final_content)?;
     }
 
-    println!("Successfully wrote all generated files");
+    tracing::info!("Successfully wrote all generated files");
     Ok(())
 }
 

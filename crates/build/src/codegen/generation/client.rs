@@ -2,7 +2,7 @@ use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::format_tokens;
+use super::{doc_tokens, format_tokens};
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::google::api::http_rule::Pattern;
@@ -18,12 +18,15 @@ pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn s
 
     let client_ident = service.client_type();
     let mod_path = service.models_path();
+    let result_path: syn::Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     let tokens = quote! {
         #![allow(unused_mut)]
+        // TODO: make configurable
         use cloud_client::CloudClient;
         use url::Url;
-        use crate::error::Result;
+        use #result_path;
         use #mod_path::*;
 
         /// HTTP client for service operations
@@ -47,32 +50,6 @@ pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn s
     };
 
     Ok(format_tokens(tokens))
-}
-
-/// Convert optional documentation into `#[doc = "..."]` token stream attributes.
-///
-/// `prettyplease` renders `#[doc = " text"]` as `/// text`. The leading space is required.
-fn doc_tokens(documentation: Option<&str>) -> TokenStream {
-    let Some(doc) = documentation else {
-        return quote! {};
-    };
-    let doc = doc.trim();
-    if doc.is_empty() {
-        return quote! {};
-    }
-    let attrs: Vec<TokenStream> = doc
-        .lines()
-        .map(|line| {
-            let line = line.trim();
-            if line.is_empty() {
-                quote! { #[doc = ""] }
-            } else {
-                let spaced = format!(" {}", line);
-                quote! { #[doc = #spaced] }
-            }
-        })
-        .collect();
-    quote! { #(#attrs)* }
 }
 
 /// Generate client method implementation
