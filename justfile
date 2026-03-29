@@ -38,6 +38,7 @@ generate-code:
     mkdir -p node/client/src/codegen
     cargo run --bin unitycatalog-build -- \
       --output-common crates/common/src/codegen \
+      --output-models-gen crates/common/src/models/resources \
       --output-server crates/server/src/codegen \
       --output-client crates/client/src/codegen \
       --output-python python/client/src/codegen \

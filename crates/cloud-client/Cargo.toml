@@ -47,6 +47,7 @@ tokio = { version = "1.29.0", features = [
   "io-util",
 ] }
 http = "*"
+rust-ini = "0.21"
 
 [dev-dependencies]
 hyper = { version = "1.2", features = ["server"] }

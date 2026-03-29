@@ -165,10 +165,11 @@ Within the Unity Catalog workspace, use `just generate-code`.
 use unitycatalog_build::{CodeGenConfig, CodeGenOutput};
 use unitycatalog_build::codegen::generate_code;
 
+// Server-only example — omit `client` (and python/node) to skip those outputs entirely.
 let output = CodeGenOutput {
     common:  "path/to/common".into(),
-    server:  "path/to/server".into(),
-    client:  "path/to/client".into(),
+    server:  Some("path/to/server".into()),
+    client:  None,
     python:  None,
     node:    None,
     node_ts: None,

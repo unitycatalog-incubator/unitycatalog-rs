@@ -76,6 +76,13 @@ enum ColumnTypeName {
 }
 
 message Column {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Column"
+    pattern: "tables/{table}/columns/{column}"
+    plural: "columns"
+    singular: "column"
+  };
+
   // Name of the column
   string name = 1;
 

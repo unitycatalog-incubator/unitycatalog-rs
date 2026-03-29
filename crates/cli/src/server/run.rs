@@ -31,15 +31,15 @@ where
     T: CatalogHandler<Cx>
         + CredentialHandler<Cx>
         + FunctionHandler<Cx>
-        + SharingHandler
-        + SharingQueryHandler
+        + SharingHandler<Cx>
+        + SharingQueryHandler<Cx>
         + ShareHandler<Cx>
         + SchemaHandler<Cx>
         + TableHandler<Cx>
         + ExternalLocationHandler<Cx>
         + RecipientHandler<Cx>
         + Clone,
-    A: Authenticator + Clone,
+    A: Authenticator<unitycatalog_server::policy::Principal> + Clone,
     Cx: axum::extract::FromRequestParts<T> + Send + 'static,
 {
     let api_def = ApiDefinition {
