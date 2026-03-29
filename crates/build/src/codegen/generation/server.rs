@@ -55,10 +55,9 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
 }
 
 pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
-    let context_ident = last_segment(&service.config.context_type_path);
     let handler_function_impls = service
         .methods()
-        .map(|method| axum_route_handler_impl(&method, &service.plan.handler_name, &context_ident))
+        .map(|method| axum_route_handler_impl(&method, &service.plan.handler_name))
         .collect_vec();
 
     let mod_path = service.models_path();
@@ -66,30 +65,19 @@ pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
         syn::parse_str(&format!("super::handler::{}", &service.plan.handler_name)).unwrap();
     let result_path: Path =
         syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
-    let context_path: Path =
-        syn::parse_str(&service.config.context_type_path).expect("valid context_type_path");
 
     let tokens = quote! {
         #![allow(unused_mut)]
         use #result_path;
-        use #context_path;
         use #mod_path::*;
         use #trait_path;
-        // TODO: make configurable
-        use crate::policy::Principal;
-        use axum::extract::{State, Extension};
+        use axum::extract::State;
 
         #(#handler_function_impls)*
 
     };
 
     format_tokens(tokens)
-}
-
-/// Extract the final path segment as an `Ident`.
-fn last_segment(path_str: &str) -> syn::Ident {
-    let s = path_str.rsplit("::").next().unwrap_or(path_str);
-    format_ident!("{}", s.trim())
 }
 
 /// Generate extractor implementation for a specific method
@@ -108,11 +96,7 @@ fn from_request_extractor(method: &MethodHandler<'_>) -> TokenStream {
 }
 
 /// Generate route handler function
-fn axum_route_handler_impl(
-    method: &MethodHandler<'_>,
-    handler_trait: &str,
-    context_ident: &syn::Ident,
-) -> TokenStream {
+fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> TokenStream {
     let handler_method = format_ident!("{}", method.plan.handler_function_name);
     let input_type = method.input_type();
     let handler_trait_ident = format_ident!("{}", handler_trait);
@@ -120,24 +104,30 @@ fn axum_route_handler_impl(
     if method.plan.has_response {
         let output_type = method.output_type();
         quote! {
-            pub async fn #handler_method<T: #handler_trait_ident>(
+            pub async fn #handler_method<T, Cx>(
                 State(handler): State<T>,
-                Extension(recipient): Extension<Principal>,
+                context: Cx,
                 request: #input_type,
-            ) -> Result<::axum::Json<#output_type>> {
-                let context = #context_ident { recipient };
+            ) -> Result<::axum::Json<#output_type>>
+            where
+                T: #handler_trait_ident<Cx> + Clone + Send + Sync + 'static,
+                Cx: axum::extract::FromRequestParts<T> + Send,
+            {
                 let result = handler.#handler_method(request, context).await?;
                 Ok(axum::Json(result))
             }
         }
     } else {
         quote! {
-            pub async fn #handler_method<T: #handler_trait_ident>(
+            pub async fn #handler_method<T, Cx>(
                 State(handler): State<T>,
-                Extension(recipient): Extension<Principal>,
+                context: Cx,
                 request: #input_type,
-            ) -> Result<()> {
-                let context = #context_ident { recipient };
+            ) -> Result<()>
+            where
+                T: #handler_trait_ident<Cx> + Clone + Send + Sync + 'static,
+                Cx: axum::extract::FromRequestParts<T> + Send,
+            {
                 handler.#handler_method(request, context).await?;
                 Ok(())
             }

@@ -10,7 +10,7 @@ use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> CatalogHandler for T {
+impl<T: ResourceStore + Policy<RequestContext>> CatalogHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_catalog(
         &self,
@@ -18,7 +18,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         context: RequestContext,
     ) -> Result<Catalog> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let catalog_type = if request.provider_name.is_some() {
             CatalogType::DeltasharingCatalog
         } else {
@@ -50,7 +50,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
@@ -61,7 +61,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         context: RequestContext,
     ) -> Result<Catalog> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
@@ -71,7 +71,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         request: ListCatalogsRequest,
         context: RequestContext,
     ) -> Result<ListCatalogsResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Catalog,
@@ -80,7 +80,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListCatalogsResponse {
             catalogs: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -94,7 +94,7 @@ impl<T: ResourceStore + Policy> CatalogHandler for T {
         context: RequestContext,
     ) -> Result<Catalog> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let ident = request.resource();
         let resource = Catalog {
             name: request.new_name.unwrap_or(request.name),

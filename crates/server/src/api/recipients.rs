@@ -11,7 +11,7 @@ use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> RecipientHandler for T {
+impl<T: ResourceStore + Policy<RequestContext>> RecipientHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_recipient(
         &self,
@@ -19,7 +19,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         context: RequestContext,
     ) -> Result<Recipient> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let resource = Recipient {
             name: request.name,
             authentication_type: request.authentication_type,
@@ -47,7 +47,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
@@ -58,7 +58,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         context: RequestContext,
     ) -> Result<Recipient> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
@@ -68,7 +68,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         request: ListRecipientsRequest,
         context: RequestContext,
     ) -> Result<ListRecipientsResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Recipient,
@@ -77,7 +77,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListRecipientsResponse {
             recipients: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -91,7 +91,7 @@ impl<T: ResourceStore + Policy> RecipientHandler for T {
         context: RequestContext,
     ) -> Result<Recipient> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let ident = request.resource();
         let current: Recipient = self.get(&ident).await?.0.try_into()?;
 

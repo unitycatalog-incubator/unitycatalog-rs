@@ -1,6 +1,6 @@
 use unitycatalog_common::models::ResourceIdent;
 
-use super::{Decision, Permission, Policy, Principal};
+use super::{Decision, Permission, Policy};
 use crate::Result;
 
 /// Policy that always returns a constant decision.
@@ -28,13 +28,8 @@ impl ConstantPolicy {
 }
 
 #[async_trait::async_trait]
-impl Policy for ConstantPolicy {
-    async fn authorize(
-        &self,
-        _: &ResourceIdent,
-        _: &Permission,
-        _: &Principal,
-    ) -> Result<Decision> {
+impl<Cx: Send + Sync + 'static> Policy<Cx> for ConstantPolicy {
+    async fn authorize(&self, _: &ResourceIdent, _: &Permission, _: &Cx) -> Result<Decision> {
         Ok(self.decision)
     }
 }
@@ -56,12 +51,8 @@ mod test {
 
         let resource = ResourceIdent::share(resource_name!("test_share"));
         let permission = Permission::Read;
-        let recipient = &Principal::anonymous();
 
-        let decision = policy
-            .authorize(&resource, &permission, recipient)
-            .await
-            .unwrap();
+        let decision = policy.authorize(&resource, &permission, &()).await.unwrap();
         assert_eq!(decision, Decision::Allow);
     }
 
@@ -71,12 +62,8 @@ mod test {
 
         let resource = ResourceIdent::share(resource_name!("test_share"));
         let permission = Permission::Read;
-        let recipient = &Principal::anonymous();
 
-        let decision = policy
-            .authorize(&resource, &permission, recipient)
-            .await
-            .unwrap();
+        let decision = policy.authorize(&resource, &permission, &()).await.unwrap();
         assert_eq!(decision, Decision::Allow);
     }
 
@@ -86,12 +73,8 @@ mod test {
 
         let resource = ResourceIdent::share(resource_name!("test_share"));
         let permission = Permission::Read;
-        let recipient = &Principal::anonymous();
 
-        let decision = policy
-            .authorize(&resource, &permission, recipient)
-            .await
-            .unwrap();
+        let decision = policy.authorize(&resource, &permission, &()).await.unwrap();
         assert_eq!(decision, Decision::Deny);
     }
 }

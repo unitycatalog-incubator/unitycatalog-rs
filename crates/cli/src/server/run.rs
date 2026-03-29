@@ -21,25 +21,26 @@ use unitycatalog_server::rest::{
     create_schemas_router, create_shares_router, create_sharing_router, create_tables_router,
 };
 
-pub async fn run_server_rest<T, A>(
+pub async fn run_server_rest<T, A, Cx>(
     host: impl AsRef<str>,
     port: u16,
     handler: T,
     authenticator: A,
 ) -> Result<()>
 where
-    T: CatalogHandler
-        + CredentialHandler
-        + FunctionHandler
+    T: CatalogHandler<Cx>
+        + CredentialHandler<Cx>
+        + FunctionHandler<Cx>
         + SharingHandler
         + SharingQueryHandler
-        + ShareHandler
-        + SchemaHandler
-        + TableHandler
-        + ExternalLocationHandler
-        + RecipientHandler
+        + ShareHandler<Cx>
+        + SchemaHandler<Cx>
+        + TableHandler<Cx>
+        + ExternalLocationHandler<Cx>
+        + RecipientHandler<Cx>
         + Clone,
     A: Authenticator + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
 {
     let api_def = ApiDefinition {
         uri_prefix: "/api/2.1/unity-catalog",

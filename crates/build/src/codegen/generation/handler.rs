@@ -61,20 +61,19 @@ pub fn handler_trait(
 ) -> String {
     let trait_ident = format_ident!("{}", trait_name);
     let mod_path = service.models_path();
-    let context_path: syn::Path =
-        syn::parse_str(&service.config.context_type_path).expect("valid context_type_path");
     let result_path: syn::Path =
         syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
+    let default_cx: syn::Path =
+        syn::parse_str(&service.config.context_type_path).expect("valid context_type_path");
 
     let tokens = quote! {
         use async_trait::async_trait;
 
         use #result_path;
-        use #context_path;
         use #mod_path::*;
 
         #[async_trait]
-        pub trait #trait_ident: Send + Sync + 'static {
+        pub trait #trait_ident<Cx = #default_cx>: Send + Sync + 'static {
             #(#methods)*
         }
     };
@@ -83,10 +82,14 @@ pub fn handler_trait(
 }
 
 /// Generate a single handler trait method
-pub fn handler_trait_method(method: &MethodHandler<'_>, context_ident: &syn::Ident) -> TokenStream {
+pub fn handler_trait_method(
+    method: &MethodHandler<'_>,
+    _context_ident: &syn::Ident,
+) -> TokenStream {
     let doc_attrs = doc_tokens(method.plan.metadata.documentation.as_deref());
     let input_type = method.input_type();
     let method_name = method.plan.base_method_ident();
+    let cx_ident = format_ident!("Cx");
 
     if method.plan.has_response {
         let output_type = method.output_type();
@@ -95,7 +98,7 @@ pub fn handler_trait_method(method: &MethodHandler<'_>, context_ident: &syn::Ide
             async fn #method_name(
                 &self,
                 request: #input_type,
-                context: #context_ident,
+                context: #cx_ident,
             ) -> Result<#output_type>;
         }
     } else {
@@ -104,7 +107,7 @@ pub fn handler_trait_method(method: &MethodHandler<'_>, context_ident: &syn::Ide
             async fn #method_name(
                 &self,
                 request: #input_type,
-                context: #context_ident,
+                context: #cx_ident,
             ) -> Result<()>;
         }
     }

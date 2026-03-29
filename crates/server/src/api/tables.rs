@@ -96,14 +96,14 @@ pub trait TableManager: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
+impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context))]
     async fn list_table_summaries(
         &self,
         request: ListTableSummariesRequest,
         context: RequestContext,
     ) -> Result<ListTableSummariesResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         // TODO: handle like operators for schema and table name
         let (mut resources, next_page_token) = self
             .list(
@@ -113,7 +113,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         let infos: Vec<Table> = resources.into_iter().map(|r| r.try_into()).try_collect()?;
         Ok(ListTableSummariesResponse {
             tables: infos.into_iter().map(|r| r.into()).collect(),
@@ -128,7 +128,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         context: RequestContext,
     ) -> Result<ListTablesResponse> {
         // TODO: assert max_results is within bounds <= 50
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         // TODO: handle like operators for schema and table name
         let (mut resources, next_page_token) = self
             .list(
@@ -143,7 +143,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListTablesResponse {
             tables: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -157,7 +157,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         context: RequestContext,
     ) -> Result<Table> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let info = if request.table_type == TableType::External as i32 {
             let Some(location) = request.storage_location.as_ref() else {
                 return Err(Error::invalid_argument("missing storage location"));
@@ -203,7 +203,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_table(&self, request: GetTableRequest, context: RequestContext) -> Result<Table> {
         tracing::Span::current().record("resource_name", &request.full_name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         // TODO: get columns etc ...
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
@@ -215,7 +215,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         context: RequestContext,
     ) -> Result<GetTableExistsResponse> {
         tracing::Span::current().record("resource_name", &request.full_name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         match self.get(&request.resource()).await {
             Ok(_) => Ok(GetTableExistsResponse { table_exists: true }),
             Err(Error::NotFound) => Ok(GetTableExistsResponse {
@@ -232,7 +232,7 @@ impl<T: ResourceStore + Policy + TableManager> TableHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.full_name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 }

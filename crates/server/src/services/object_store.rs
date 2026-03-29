@@ -22,13 +22,16 @@ use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 pub(crate) trait RegistryHandler:
-    ResourceStore + CredentialHandler + CredentialHandlerExt
+    ResourceStore + CredentialHandler<crate::api::RequestContext> + CredentialHandlerExt
 {
 }
-impl<T: ResourceStore + CredentialHandler + CredentialHandlerExt> RegistryHandler for T {}
+impl<T: ResourceStore + CredentialHandler<crate::api::RequestContext> + CredentialHandlerExt>
+    RegistryHandler for T
+{
+}
 
 #[async_trait::async_trait]
-impl ObjectStoreFactory for ServerHandlerInner {
+impl ObjectStoreFactory for ServerHandlerInner<crate::api::RequestContext> {
     async fn create_object_store(&self, location: &Url) -> DFResult<Arc<DynObjectStore>> {
         tracing::debug!("create_object_store: {:?}", location);
         let location = StorageLocationUrl::try_new(location.clone())

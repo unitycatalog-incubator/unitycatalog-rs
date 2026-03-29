@@ -2,6 +2,7 @@ use std::sync::{Arc, LazyLock};
 
 use clap::Parser;
 use unitycatalog_postgres::GraphStore;
+use unitycatalog_server::api::RequestContext;
 use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::ConstantPolicy;
 use unitycatalog_server::{rest::AnonymousAuthenticator, services::ServerHandler};
@@ -90,7 +91,7 @@ async fn handle_grpc(_args: &ServerArgs) -> Result<()> {
 async fn get_db_handler(
     pg: &PostgresBackendConfig,
     secret_backend: &Option<SecretBackend>,
-) -> Result<ServerHandler> {
+) -> Result<ServerHandler<RequestContext>> {
     let db_url = pg
         .connection_string()
         .ok_or_else(|| Error::Generic("incomplete postgres backend configuration".into()))?;
@@ -114,7 +115,7 @@ async fn get_db_handler(
     Ok(handler)
 }
 
-async fn get_memory_handler() -> Result<ServerHandler> {
+async fn get_memory_handler() -> Result<ServerHandler<RequestContext>> {
     let store = Arc::new(InMemoryResourceStore::new());
     let policy = Arc::new(ConstantPolicy::default());
     let handler = ServerHandler::try_new_tokio(policy, store.clone(), store)?;
