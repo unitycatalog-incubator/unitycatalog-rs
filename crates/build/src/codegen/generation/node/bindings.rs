@@ -353,7 +353,7 @@ fn generate_builder_pattern(method: &MethodHandler<'_>, is_list: bool) -> Vec<To
     }
 
     for body_field in method.plan.body_fields() {
-        if body_field.optional && is_napi_supported_type(&body_field.field_type.base_type) {
+        if body_field.is_optional() && is_napi_supported_type(&body_field.field_type.base_type) {
             let param_name =
                 format_ident!("{}", strings::operation_to_method_name(&body_field.name));
             let with_method = format_ident!("with_{}", body_field.name);

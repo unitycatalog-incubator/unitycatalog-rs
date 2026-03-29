@@ -28,7 +28,8 @@ use quote::format_ident;
 use syn::Ident;
 
 use crate::analysis::{
-    ManagedResource, MethodPlan, RequestParam, RequestType, ServicePlan, analyze_metadata,
+    BodyField, ManagedResource, MethodPlan, RequestParam, RequestType, ServicePlan,
+    analyze_metadata, split_body_fields,
 };
 use crate::google::api::http_rule::Pattern;
 use crate::output;
@@ -36,6 +37,37 @@ use crate::parsing::types::{self, UnifiedType};
 use crate::parsing::{CodeGenMetadata, MessageField, MessageInfo, RenderContext};
 
 pub mod generation;
+
+/// Validated model import path derived from a `{service}` template string.
+///
+/// Constructed once from [`CodeGenConfig`] template fields. `resolve` performs the
+/// `{service}` substitution and parses the result as a [`syn::Path`], catching
+/// malformed templates at construction time rather than at code-generation time.
+#[derive(Debug, Clone)]
+pub struct ModelsPath {
+    template: String,
+}
+
+impl ModelsPath {
+    /// Build a `ModelsPath` from a template string containing `{service}`.
+    ///
+    /// Performs a test substitution at construction to validate the template.
+    pub fn new(template: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let test = template.replace("{service}", "test");
+        syn::parse_str::<syn::Path>(&test)
+            .map_err(|e| format!("Invalid models_path template `{template}`: {e}"))?;
+        Ok(Self {
+            template: template.to_string(),
+        })
+    }
+
+    /// Replace `{service}` with `service` and return the parsed [`syn::Path`].
+    pub fn resolve(&self, service: &str) -> syn::Path {
+        let path = self.template.replace("{service}", service);
+        syn::parse_str(&path)
+            .unwrap_or_else(|e| panic!("Invalid models path `{path}` after substitution: {e}"))
+    }
+}
 
 /// Configuration for code generation, including import paths and output directories.
 ///
@@ -204,21 +236,15 @@ impl ServiceHandler<'_> {
     }
 
     pub(crate) fn models_path(&self) -> syn::Path {
-        let path = self
-            .config
-            .models_path_template
-            .replace("{service}", &self.plan.base_path);
-        syn::parse_str(&path)
-            .unwrap_or_else(|e| panic!("Invalid models_path_template `{path}`: {e}"))
+        ModelsPath::new(&self.config.models_path_template)
+            .unwrap_or_else(|e| panic!("{e}"))
+            .resolve(&self.plan.base_path)
     }
 
     pub(crate) fn models_path_crate(&self) -> syn::Path {
-        let path = self
-            .config
-            .models_path_crate_template
-            .replace("{service}", &self.plan.base_path);
-        syn::parse_str(&path)
-            .unwrap_or_else(|e| panic!("Invalid models_path_crate_template `{path}`: {e}"))
+        ModelsPath::new(&self.config.models_path_crate_template)
+            .unwrap_or_else(|e| panic!("{e}"))
+            .resolve(&self.plan.base_path)
     }
 }
 
@@ -310,28 +336,9 @@ impl MethodHandler<'_> {
             .filter(|param| param.is_optional())
     }
 
-    /// Analyze request fields to separate required from optional
-    pub(crate) fn analyze_request_fields(&self) -> (Vec<&MessageField>, Vec<&MessageField>) {
-        let fields = &self.plan.metadata.input_fields;
-        let mut required = Vec::new();
-        let mut optional = Vec::new();
-
-        for field in fields {
-            use crate::parsing::types::BaseType;
-            if field.optional
-                || field.repeated
-                || matches!(
-                    field.unified_type.base_type,
-                    BaseType::Map(_, _) | BaseType::Message(_) | BaseType::OneOf(_)
-                )
-            {
-                optional.push(field);
-            } else {
-                required.push(field);
-            }
-        }
-
-        (required, optional)
+    /// Split body fields into required and optional subsets.
+    pub(crate) fn split_body_fields(&self) -> (Vec<&BodyField>, Vec<&BodyField>) {
+        split_body_fields(self.plan)
     }
 }
 

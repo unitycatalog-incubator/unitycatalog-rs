@@ -21,6 +21,46 @@ impl CodeGenMetadata {
             .map(|msg| msg.fields.clone())
             .unwrap_or_default()
     }
+
+    /// Find a resource descriptor whose `singular` field matches `name`.
+    pub(crate) fn resource_from_singular(&self, name: &str) -> Option<&ResourceDescriptor> {
+        self.messages.values().find_map(|info| {
+            info.resource_descriptor
+                .as_ref()
+                .filter(|r| r.singular == name)
+        })
+    }
+
+    /// Find a resource descriptor whose `plural` field matches `name`.
+    pub(crate) fn resource_from_plural(&self, name: &str) -> Option<&ResourceDescriptor> {
+        self.messages.values().find_map(|info| {
+            info.resource_descriptor
+                .as_ref()
+                .filter(|r| r.plural == name)
+        })
+    }
+
+    /// Get resource descriptor by message type name (simple or fully-qualified).
+    pub(crate) fn get_resource_descriptor(&self, type_name: &str) -> Option<&ResourceDescriptor> {
+        // Try direct lookup first (fully-qualified name)
+        if let Some(descriptor) = self
+            .messages
+            .get(type_name)
+            .and_then(|info| info.resource_descriptor.as_ref())
+        {
+            return Some(descriptor);
+        }
+
+        // Fall back to simple-name suffix match
+        self.messages.iter().find_map(|(key, info)| {
+            let simple = key.rfind('.').map(|i| &key[i + 1..]).unwrap_or(key);
+            if simple == type_name {
+                info.resource_descriptor.as_ref()
+            } else {
+                None
+            }
+        })
+    }
 }
 
 /// Information about a protobuf message
