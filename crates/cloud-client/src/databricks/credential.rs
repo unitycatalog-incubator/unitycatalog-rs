@@ -1,7 +1,8 @@
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use async_trait::async_trait;
+use base64::Engine as _;
 use reqwest::{Client, Method};
 use serde::Deserialize;
 
@@ -136,6 +137,92 @@ impl TokenProvider for DatabricksGcpTokenExchangeProvider {
     }
 }
 
+/// Decode the `exp` claim from a JWT payload and return an `Instant` representing the expiry.
+///
+/// Does not verify the signature — we are the intended recipient.
+pub(crate) fn jwt_exp(token: &str) -> Option<Instant> {
+    let payload = token.split('.').nth(1)?;
+    let decoded = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .decode(payload)
+        .ok()?;
+    let v: serde_json::Value = serde_json::from_slice(&decoded).ok()?;
+    let exp = v["exp"].as_u64()?;
+    let now_secs = SystemTime::now().duration_since(UNIX_EPOCH).ok()?.as_secs();
+    let secs_remaining = exp.checked_sub(now_secs)?;
+    Some(Instant::now() + Duration::from_secs(secs_remaining))
+}
+
+/// OIDC token provider that reads a token from an environment variable on each fetch.
+///
+/// The env var value is re-read on every call so rotated tokens are picked up automatically.
+/// The JWT `exp` claim is parsed to set the credential expiry.
+#[derive(Debug)]
+pub(crate) struct OidcEnvTokenProvider {
+    /// Name of the environment variable holding the OIDC JWT.
+    pub env_var: String,
+}
+
+#[async_trait]
+impl TokenProvider for OidcEnvTokenProvider {
+    type Credential = DatabricksCredential;
+
+    async fn fetch_token(
+        &self,
+        _client: &Client,
+        _service: &Arc<dyn HttpService>,
+        _retry: &RetryConfig,
+    ) -> crate::Result<TemporaryToken<Arc<DatabricksCredential>>> {
+        let token = std::env::var(&self.env_var).map_err(|_| crate::Error::Generic {
+            source: format!(
+                "env-oidc: environment variable {:?} is not set",
+                self.env_var
+            )
+            .into(),
+        })?;
+        let expiry = jwt_exp(&token);
+        Ok(TemporaryToken {
+            token: Arc::new(DatabricksCredential { bearer: token }),
+            expiry,
+        })
+    }
+}
+
+/// OIDC token provider that reads a token from a file on each fetch.
+///
+/// The file is re-read on every call so kubelet-rotated tokens are picked up automatically.
+/// The JWT `exp` claim is parsed to set the credential expiry.
+#[derive(Debug)]
+pub(crate) struct OidcFileTokenProvider {
+    /// Path to the file containing the OIDC JWT.
+    pub filepath: String,
+}
+
+#[async_trait]
+impl TokenProvider for OidcFileTokenProvider {
+    type Credential = DatabricksCredential;
+
+    async fn fetch_token(
+        &self,
+        _client: &Client,
+        _service: &Arc<dyn HttpService>,
+        _retry: &RetryConfig,
+    ) -> crate::Result<TemporaryToken<Arc<DatabricksCredential>>> {
+        let token = std::fs::read_to_string(&self.filepath).map_err(|e| crate::Error::Generic {
+            source: format!(
+                "file-oidc: failed to read token from {:?}: {e}",
+                self.filepath
+            )
+            .into(),
+        })?;
+        let token = token.trim().to_owned();
+        let expiry = jwt_exp(&token);
+        Ok(TemporaryToken {
+            token: Arc::new(DatabricksCredential { bearer: token }),
+            expiry,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -173,6 +260,100 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(token.token.bearer, "DBTOKEN");
+        assert!(token.expiry.is_some());
+    }
+
+    /// Build a minimal JWT with a given `exp` Unix timestamp (no signature).
+    fn make_jwt(exp: u64) -> String {
+        let header = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .encode(r#"{"alg":"none","typ":"JWT"}"#);
+        let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .encode(format!(r#"{{"sub":"test","exp":{exp}}}"#));
+        format!("{header}.{payload}.sig")
+    }
+
+    #[test]
+    fn test_jwt_exp_future() {
+        let future_exp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 3600;
+        let token = make_jwt(future_exp);
+        let expiry = jwt_exp(&token);
+        assert!(expiry.is_some());
+        // Should expire roughly 1 hour from now (allow ±5s).
+        let remaining = expiry.unwrap().duration_since(Instant::now());
+        assert!(remaining.as_secs() > 3590 && remaining.as_secs() <= 3600);
+    }
+
+    #[test]
+    fn test_jwt_exp_already_expired() {
+        // exp in the past → checked_sub underflows → None
+        let past_exp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            .saturating_sub(60);
+        let token = make_jwt(past_exp);
+        assert!(jwt_exp(&token).is_none());
+    }
+
+    #[tokio::test]
+    async fn test_env_oidc_provider() {
+        let future_exp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 3600;
+        let jwt = make_jwt(future_exp);
+        let env_var = "TEST_OIDC_TOKEN_UNIQUE_KEY_12345";
+        // SAFETY: single-threaded test, no concurrent env access.
+        unsafe { std::env::set_var(env_var, &jwt) };
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = OidcEnvTokenProvider {
+            env_var: env_var.to_owned(),
+        };
+        let token = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+        assert_eq!(token.token.bearer, jwt);
+        assert!(token.expiry.is_some());
+
+        // SAFETY: single-threaded test, no concurrent env access.
+        unsafe { std::env::remove_var(env_var) };
+    }
+
+    #[tokio::test]
+    async fn test_file_oidc_provider() {
+        use std::io::Write as _;
+        let future_exp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 3600;
+        let jwt = make_jwt(future_exp);
+
+        let mut tmp = tempfile::NamedTempFile::new().unwrap();
+        write!(tmp, "{jwt}").unwrap();
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = OidcFileTokenProvider {
+            filepath: tmp.path().to_str().unwrap().to_owned(),
+        };
+        let token = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+        assert_eq!(token.token.bearer, jwt);
         assert!(token.expiry.is_some());
     }
 }
