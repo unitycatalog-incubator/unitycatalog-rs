@@ -9,6 +9,7 @@ use unitycatalog_common::{Error, Result};
 use unitycatalog_server::api::catalogs::CatalogHandler;
 use unitycatalog_server::api::credentials::CredentialHandler;
 use unitycatalog_server::api::external_locations::ExternalLocationHandler;
+use unitycatalog_server::api::functions::FunctionHandler;
 use unitycatalog_server::api::recipients::RecipientHandler;
 use unitycatalog_server::api::schemas::SchemaHandler;
 use unitycatalog_server::api::shares::ShareHandler;
@@ -16,8 +17,8 @@ use unitycatalog_server::api::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
-    create_external_locations_router, create_recipients_router, create_schemas_router,
-    create_shares_router, create_sharing_router, create_tables_router,
+    create_external_locations_router, create_functions_router, create_recipients_router,
+    create_schemas_router, create_shares_router, create_sharing_router, create_tables_router,
 };
 
 pub async fn run_server_rest<T, A>(
@@ -29,6 +30,7 @@ pub async fn run_server_rest<T, A>(
 where
     T: CatalogHandler
         + CredentialHandler
+        + FunctionHandler
         + SharingHandler
         + SharingQueryHandler
         + ShareHandler
@@ -55,6 +57,7 @@ where
         .merge(create_tables_router(handler.clone()))
         .merge(create_credentials_router(handler.clone()))
         .merge(create_external_locations_router(handler.clone()))
+        .merge(create_functions_router(handler.clone()))
         .merge(create_recipients_router(handler.clone()))
         .merge(create_shares_router(handler.clone()));
 

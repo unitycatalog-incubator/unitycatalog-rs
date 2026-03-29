@@ -63,7 +63,9 @@ pub mod tables_service_server {
             request: tonic::Request<super::DeleteTableRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
-    ///
+    /** Service for managing tables in Unity Catalog.
+ Tables represent structured data stored in a schema, supporting managed and external storage formats.
+*/
     #[derive(Debug)]
     pub struct TablesServiceServer<T: TablesService> {
         inner: Arc<T>,

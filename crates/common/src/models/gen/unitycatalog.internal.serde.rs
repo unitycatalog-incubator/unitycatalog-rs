@@ -40,6 +40,9 @@ impl serde::Serialize for Resource {
                 resource::Resource::Volume(v) => {
                     struct_ser.serialize_field("volume", v)?;
                 }
+                resource::Resource::Function(v) => {
+                    struct_ser.serialize_field("function", v)?;
+                }
             }
         }
         struct_ser.end()
@@ -62,6 +65,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
             "externalLocation",
             "recipient",
             "volume",
+            "function",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -75,6 +79,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
             ExternalLocation,
             Recipient,
             Volume,
+            Function,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -106,6 +111,7 @@ impl<'de> serde::Deserialize<'de> for Resource {
                             "externalLocation" | "external_location" => Ok(GeneratedField::ExternalLocation),
                             "recipient" => Ok(GeneratedField::Recipient),
                             "volume" => Ok(GeneratedField::Volume),
+                            "function" => Ok(GeneratedField::Function),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -189,6 +195,13 @@ impl<'de> serde::Deserialize<'de> for Resource {
                                 return Err(serde::de::Error::duplicate_field("volume"));
                             }
                             resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Volume)
+;
+                        }
+                        GeneratedField::Function => {
+                            if resource__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("function"));
+                            }
+                            resource__ = map_.next_value::<::std::option::Option<_>>()?.map(resource::Resource::Function)
 ;
                         }
                         GeneratedField::__SkipField__ => {

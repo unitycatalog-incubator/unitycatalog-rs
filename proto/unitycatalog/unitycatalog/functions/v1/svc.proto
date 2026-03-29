@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+package unitycatalog.functions.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "unitycatalog/functions/v1/models.proto";
+
+// List functions in a schema
+message ListFunctionsRequest {
+  // Name of parent catalog for functions of interest.
+  string catalog_name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Parent schema of functions.
+  string schema_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The maximum number of results per page that should be returned.
+  optional int32 max_results = 3 [
+    (buf.validate.field).int32 = {
+      gt: 0
+      lte: 1000
+    },
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether to include functions in the response for which the principal can only access selective metadata for.
+  optional bool include_browse = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// List functions response.
+message ListFunctionsResponse {
+  // The functions returned.
+  repeated Function functions = 1;
+
+  // The next_page_token value to include in the next List request.
+  optional string next_page_token = 2;
+}
+
+// Create a new function
+message CreateFunctionRequest {
+  // Name of function, relative to parent schema.
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Name of parent catalog.
+  string catalog_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Name of parent schema.
+  string schema_name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Full data type specification of the return type of the function.
+  string data_type = 4 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Full data type specification as SQL/catalogString text.
+  string full_data_type = 5 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The array of function parameter infos.
+  optional FunctionParameterInfos input_params = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // The parameter-passing style.
+  ParameterStyle parameter_style = 7;
+
+  // Indicates whether the function is deterministic.
+  bool is_deterministic = 8;
+
+  // SQL data access information.
+  SqlDataAccess sql_data_access = 9;
+
+  // Indicates whether the function is null-calling.
+  bool is_null_call = 10;
+
+  // The security type of the function.
+  SecurityType security_type = 11;
+
+  // The routine body.
+  RoutineBody routine_body = 12;
+
+  // Function body.
+  optional string routine_definition = 13 [(google.api.field_behavior) = OPTIONAL];
+
+  // The language of the function routine body.
+  optional string routine_body_language = 14 [(google.api.field_behavior) = OPTIONAL];
+
+  // User-provided free-form text description.
+  optional string comment = 15 [(google.api.field_behavior) = OPTIONAL];
+
+  // A map of key-value properties attached to the securable.
+  map<string, string> properties = 16 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Get a function
+message GetFunctionRequest {
+  // The fully-qualified name of the function (three-level name: catalog.schema.function).
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Update a function
+message UpdateFunctionRequest {
+  // The fully-qualified name of the function (three-level name: catalog.schema.function).
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Username of new owner of the function.
+  optional string owner = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Delete a function
+message DeleteFunctionRequest {
+  // The fully-qualified name of the function (three-level name: catalog.schema.function).
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Force deletion even if the function is not empty.
+  optional bool force = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Manage User-Defined Functions (UDFs) in the service.
+service FunctionsService {
+  // List functions
+  //
+  // List functions within the specified parent catalog and schema. If the caller is the metastore
+  // admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
+  // on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
+  // owned by the caller or have SELECT on the function.
+  rpc ListFunctions(ListFunctionsRequest) returns (ListFunctionsResponse) {
+    option (google.api.http) = {get: "/functions"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListFunctions"};
+  }
+
+  // Create a function
+  //
+  // Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
+  // privilege on the parent catalog and schema.
+  rpc CreateFunction(CreateFunctionRequest) returns (Function) {
+    option (google.api.http) = {
+      post: "/functions"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "CreateFunction"};
+  }
+
+  // Get a function
+  //
+  // Gets a function from within a parent catalog and schema. For the fetch to succeed,
+  // the caller must be a metastore admin, the owner of the function, or have SELECT on
+  // the function.
+  rpc GetFunction(GetFunctionRequest) returns (Function) {
+    option (google.api.http) = {get: "/functions/{name}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "GetFunction"};
+  }
+
+  // Update a function
+  //
+  // Updates the function that matches the supplied name. Only the owner of the function
+  // can be updated.
+  rpc UpdateFunction(UpdateFunctionRequest) returns (Function) {
+    option (google.api.http) = {
+      patch: "/functions/{name}"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "UpdateFunction"};
+  }
+
+  // Delete a function
+  //
+  // Deletes the function that matches the supplied name. For the deletion to succeed,
+  // the caller must be the owner of the function.
+  rpc DeleteFunction(DeleteFunctionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/functions/{name}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "DeleteFunction"};
+  }
+}

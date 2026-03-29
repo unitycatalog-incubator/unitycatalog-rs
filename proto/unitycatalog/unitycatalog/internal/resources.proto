@@ -9,6 +9,7 @@ package unitycatalog.internal;
 import "unitycatalog/catalogs/v1/models.proto";
 import "unitycatalog/credentials/v1/models.proto";
 import "unitycatalog/external_locations/v1/models.proto";
+import "unitycatalog/functions/v1/models.proto";
 import "unitycatalog/recipients/v1/models.proto";
 import "unitycatalog/schemas/v1/models.proto";
 import "unitycatalog/shares/v1/models.proto";
@@ -27,5 +28,6 @@ message Resource {
     unitycatalog.external_locations.v1.ExternalLocation external_location = 10;
     unitycatalog.recipients.v1.Recipient recipient = 11;
     unitycatalog.volumes.v1.Volume volume = 12;
+    unitycatalog.functions.v1.Function function = 13;
   }
 }

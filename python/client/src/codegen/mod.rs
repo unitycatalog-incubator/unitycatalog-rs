@@ -2,6 +2,7 @@
 pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
+pub mod functions;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
@@ -11,6 +12,7 @@ pub mod volumes;
 use crate::codegen::catalogs::PyCatalogClient;
 use crate::codegen::credentials::PyCredentialClient;
 use crate::codegen::external_locations::PyExternalLocationClient;
+use crate::codegen::functions::PyFunctionClient;
 use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
@@ -25,6 +27,7 @@ use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::external_locations::v1::*;
+use unitycatalog_common::models::functions::v1::*;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
@@ -195,6 +198,98 @@ impl PyUnityCatalogClient {
         request = request.with_read_only(read_only);
         request = request.with_comment(comment);
         request = request.with_skip_validation(skip_validation);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            catalog_name,
+            schema_name,
+            max_results = None,
+            include_browse = None
+        )
+    )]
+    pub fn list_functions(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<Vec<Function>> {
+        let mut request = self.client.list_functions(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            name,
+            catalog_name,
+            schema_name,
+            data_type,
+            full_data_type,
+            parameter_style,
+            is_deterministic,
+            sql_data_access,
+            is_null_call,
+            security_type,
+            routine_body,
+            input_params = None,
+            routine_definition = None,
+            routine_body_language = None,
+            comment = None,
+            properties = None
+        )
+    )]
+    pub fn create_function(
+        &self,
+        py: Python,
+        name: String,
+        catalog_name: String,
+        schema_name: String,
+        data_type: String,
+        full_data_type: String,
+        parameter_style: ParameterStyle,
+        is_deterministic: bool,
+        sql_data_access: SqlDataAccess,
+        is_null_call: bool,
+        security_type: SecurityType,
+        routine_body: RoutineBody,
+        input_params: Option<FunctionParameterInfos>,
+        routine_definition: Option<String>,
+        routine_body_language: Option<String>,
+        comment: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> PyUnityCatalogResult<Function> {
+        let mut request = self.client.create_function(
+            name,
+            catalog_name,
+            schema_name,
+            data_type,
+            full_data_type,
+            parameter_style,
+            is_deterministic,
+            sql_data_access,
+            is_null_call,
+            security_type,
+            routine_body,
+        );
+        request = request.with_input_params(input_params);
+        request = request.with_routine_definition(routine_definition);
+        request = request.with_routine_body_language(routine_body_language);
+        request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -476,6 +571,18 @@ impl PyUnityCatalogClient {
     pub fn external_location(&self, name: String) -> PyExternalLocationClient {
         PyExternalLocationClient {
             client: self.client.external_location(name),
+        }
+    }
+    pub fn function(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        function_name: String,
+    ) -> PyFunctionClient {
+        PyFunctionClient {
+            client: self
+                .client
+                .function(catalog_name, schema_name, function_name),
         }
     }
     pub fn recipient(&self, name: String) -> PyRecipientClient {

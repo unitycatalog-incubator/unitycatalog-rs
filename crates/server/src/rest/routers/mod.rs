@@ -1,6 +1,6 @@
 use crate::api::{
-    CatalogHandler, CredentialHandler, ExternalLocationHandler, RecipientHandler, SchemaHandler,
-    ShareHandler, TableHandler, TemporaryCredentialHandler, VolumeHandler,
+    CatalogHandler, CredentialHandler, ExternalLocationHandler, FunctionHandler, RecipientHandler,
+    SchemaHandler, ShareHandler, TableHandler, TemporaryCredentialHandler, VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -132,5 +132,17 @@ pub fn create_volumes_router<T: VolumeHandler + Clone>(handler: T) -> axum::Rout
         .route("/volumes/{name}", get(get_volume::<T>))
         .route("/volumes/{name}", patch(update_volume::<T>))
         .route("/volumes/{name}", delete(delete_volume::<T>))
+        .with_state(handler)
+}
+
+pub fn create_functions_router<T: FunctionHandler + Clone>(handler: T) -> axum::Router {
+    use crate::codegen::functions::server::*;
+
+    axum::Router::new()
+        .route("/functions", get(list_functions::<T>))
+        .route("/functions", post(create_function::<T>))
+        .route("/functions/{name}", get(get_function::<T>))
+        .route("/functions/{name}", patch(update_function::<T>))
+        .route("/functions/{name}", delete(delete_function::<T>))
         .with_state(handler)
 }

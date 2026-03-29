@@ -9,6 +9,7 @@ resolution-markers = [
 [manifest]
 members = [
     "unitycatalog-client",
+    "unitycatalog-examples",
     "unitycatalog-py",
 ]
 
@@ -1396,6 +1397,17 @@ wheels = [
 [[package]]
 name = "unitycatalog-client"
 source = { editable = "python/client" }
+
+[[package]]
+name = "unitycatalog-examples"
+version = "0.0.1"
+source = { virtual = "examples/python" }
+dependencies = [
+    { name = "unitycatalog-client" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "unitycatalog-client", editable = "python/client" }]
 
 [[package]]
 name = "unitycatalog-py"

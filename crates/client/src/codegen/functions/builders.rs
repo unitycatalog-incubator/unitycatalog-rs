@@ -1,0 +1,240 @@
+// @generated — do not edit by hand.
+#![allow(unused_mut)]
+use super::client::*;
+use crate::{error::Result, utils::stream_paginated};
+use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
+use std::future::IntoFuture;
+use unitycatalog_common::models::functions::v1::*;
+/// Builder for creating requests
+pub struct ListFunctionsBuilder {
+    client: FunctionClient,
+    request: ListFunctionsRequest,
+}
+impl ListFunctionsBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(
+        client: FunctionClient,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+    ) -> Self {
+        let request = ListFunctionsRequest {
+            catalog_name: catalog_name.into(),
+            schema_name: schema_name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    /// The maximum number of results per page that should be returned.
+    pub fn with_max_results(mut self, max_results: impl Into<Option<i32>>) -> Self {
+        self.request.max_results = max_results.into();
+        self
+    }
+    /// Opaque pagination token to go to next page based on previous query.
+    pub fn with_page_token(mut self, page_token: impl Into<Option<String>>) -> Self {
+        self.request.page_token = page_token.into();
+        self
+    }
+    /// Whether to include functions in the response for which the principal can only access selective metadata for.
+    pub fn with_include_browse(mut self, include_browse: impl Into<Option<bool>>) -> Self {
+        self.request.include_browse = include_browse.into();
+        self
+    }
+    /// Convert paginated request into stream of results
+    pub fn into_stream(self) -> BoxStream<'static, Result<Function>> {
+        stream_paginated(self, move |mut builder, page_token| async move {
+            builder.request.page_token = page_token;
+            let res = builder.client.list_functions(&builder.request).await?;
+            if let Some(ref mut remaining) = builder.request.max_results {
+                *remaining -= res.functions.len() as i32;
+                if *remaining <= 0 {
+                    builder.request.max_results = Some(0);
+                }
+            }
+            let next_page_token = res.next_page_token.clone();
+            Ok((res, builder, next_page_token))
+        })
+        .map_ok(|resp| futures::stream::iter(resp.functions.into_iter().map(Ok)))
+        .try_flatten()
+        .boxed()
+    }
+}
+impl IntoFuture for ListFunctionsBuilder {
+    type Output = Result<ListFunctionsResponse>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.list_functions(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct CreateFunctionBuilder {
+    client: FunctionClient,
+    request: CreateFunctionRequest,
+}
+impl CreateFunctionBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(
+        client: FunctionClient,
+        name: impl Into<String>,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        data_type: impl Into<String>,
+        full_data_type: impl Into<String>,
+        parameter_style: ParameterStyle,
+        is_deterministic: bool,
+        sql_data_access: SqlDataAccess,
+        is_null_call: bool,
+        security_type: SecurityType,
+        routine_body: RoutineBody,
+    ) -> Self {
+        let request = CreateFunctionRequest {
+            name: name.into(),
+            catalog_name: catalog_name.into(),
+            schema_name: schema_name.into(),
+            data_type: data_type.into(),
+            full_data_type: full_data_type.into(),
+            parameter_style: parameter_style as i32,
+            is_deterministic,
+            sql_data_access: sql_data_access as i32,
+            is_null_call,
+            security_type: security_type as i32,
+            routine_body: routine_body as i32,
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    /// The array of function parameter infos.
+    pub fn with_input_params(
+        mut self,
+        input_params: impl Into<Option<FunctionParameterInfos>>,
+    ) -> Self {
+        self.request.input_params = input_params.into();
+        self
+    }
+    /// Function body.
+    pub fn with_routine_definition(
+        mut self,
+        routine_definition: impl Into<Option<String>>,
+    ) -> Self {
+        self.request.routine_definition = routine_definition.into();
+        self
+    }
+    /// The language of the function routine body.
+    pub fn with_routine_body_language(
+        mut self,
+        routine_body_language: impl Into<Option<String>>,
+    ) -> Self {
+        self.request.routine_body_language = routine_body_language.into();
+        self
+    }
+    /// User-provided free-form text description.
+    pub fn with_comment(mut self, comment: impl Into<Option<String>>) -> Self {
+        self.request.comment = comment.into();
+        self
+    }
+    /// A map of key-value properties attached to the securable.
+    pub fn with_properties<I, K, V>(mut self, properties: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
+        self.request.properties = properties
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
+        self
+    }
+}
+impl IntoFuture for CreateFunctionBuilder {
+    type Output = Result<Function>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.create_function(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct GetFunctionBuilder {
+    client: FunctionClient,
+    request: GetFunctionRequest,
+}
+impl GetFunctionBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: FunctionClient, name: impl Into<String>) -> Self {
+        let request = GetFunctionRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for GetFunctionBuilder {
+    type Output = Result<Function>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.get_function(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct UpdateFunctionBuilder {
+    client: FunctionClient,
+    request: UpdateFunctionRequest,
+}
+impl UpdateFunctionBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: FunctionClient, name: impl Into<String>) -> Self {
+        let request = UpdateFunctionRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    /// Username of new owner of the function.
+    pub fn with_owner(mut self, owner: impl Into<Option<String>>) -> Self {
+        self.request.owner = owner.into();
+        self
+    }
+}
+impl IntoFuture for UpdateFunctionBuilder {
+    type Output = Result<Function>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.update_function(&request).await })
+    }
+}
+/// Builder for creating requests
+pub struct DeleteFunctionBuilder {
+    client: FunctionClient,
+    request: DeleteFunctionRequest,
+}
+impl DeleteFunctionBuilder {
+    /// Create a new builder instance
+    pub(crate) fn new(client: FunctionClient, name: impl Into<String>) -> Self {
+        let request = DeleteFunctionRequest {
+            name: name.into(),
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+    /// Force deletion even if the function is not empty.
+    pub fn with_force(mut self, force: impl Into<Option<bool>>) -> Self {
+        self.request.force = force.into();
+        self
+    }
+}
+impl IntoFuture for DeleteFunctionBuilder {
+    type Output = Result<()>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.delete_function(&request).await })
+    }
+}

@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
-  title: ""
+  title: Unity Catalog API
   version: 0.0.1
+  description:
+    REST API for managing Unity Catalog resources including catalogs, schemas, tables, volumes, external locations,
+    and temporary credentials.
 tags:
   - name: CatalogsService
     description: Manage catalogs and schemas in the service.
@@ -10,6 +13,11 @@ tags:
       "Manage credentials to access external data sources and services\n as well as generate signed urls for the\
       \ Delta Sharing service."
   - name: ExternalLocationsService
+    description:
+      "Service for managing external locations in Unity Catalog.\n External locations define cloud storage paths\
+      \ accessible via storage credentials."
+  - name: FunctionsService
+    description: Manage User-Defined Functions (UDFs) in the service.
   - name: RecipientsService
     description:
       "Recipients\n\n A recipient is an object you create using recipients/create to represent an organization which\n\
@@ -25,8 +33,17 @@ tags:
   - name: SharesService
     description: Service for managing shares
   - name: TablesService
+    description:
+      "Service for managing tables in Unity Catalog.\n Tables represent structured data stored in a schema, supporting\
+      \ managed and external storage formats."
   - name: TemporaryCredentialsService
+    description:
+      "Service for generating temporary credentials to access tables and storage paths.\n Credentials are short-lived\
+      \ and scoped to a specific operation (read or read/write)."
   - name: VolumesService
+    description:
+      "Service for managing volumes in Unity Catalog.\n Volumes represent logical storage locations (managed or external)\
+      \ within a schema."
 paths:
   /catalogs:
     get:
@@ -461,6 +478,174 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExternalLocation"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /functions:
+    get:
+      tags:
+        - FunctionsService
+      description:
+        "List functions\n\n List functions within the specified parent catalog and schema. If the caller is the\
+        \ metastore\n admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG\n on\
+        \ the parent catalog and USE_SCHEMA on the parent schema, and the function must either be\n owned by the caller or\
+        \ have SELECT on the function."
+      operationId: ListFunctions
+      parameters:
+        - name: catalogName
+          in: query
+          description: Name of parent catalog for functions of interest.
+          schema:
+            type: string
+        - name: schemaName
+          in: query
+          description: Parent schema of functions.
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Opaque pagination token to go to next page based on previous query.
+          schema:
+            type: string
+        - name: includeBrowse
+          in: query
+          description:
+            Whether to include functions in the response for which the principal can only access selective metadata
+            for.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListFunctionsResponse"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    post:
+      tags:
+        - FunctionsService
+      description:
+        "Create a function\n\n Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION\n\
+        \ privilege on the parent catalog and schema."
+      operationId: CreateFunction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFunctionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Function"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /functions/{name}:
+    get:
+      tags:
+        - FunctionsService
+      description:
+        "Get a function\n\n Gets a function from within a parent catalog and schema. For the fetch to succeed,\n\
+        \ the caller must be a metastore admin, the owner of the function, or have SELECT on\n the function."
+      operationId: GetFunction
+      parameters:
+        - name: name
+          in: path
+          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Function"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    delete:
+      tags:
+        - FunctionsService
+      description:
+        "Delete a function\n\n Deletes the function that matches the supplied name. For the deletion to succeed,\n\
+        \ the caller must be the owner of the function."
+      operationId: DeleteFunction
+      parameters:
+        - name: name
+          in: path
+          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
+          required: true
+          schema:
+            type: string
+        - name: force
+          in: query
+          description: Force deletion even if the function is not empty.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content: {}
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    patch:
+      tags:
+        - FunctionsService
+      description:
+        "Update a function\n\n Updates the function that matches the supplied name. Only the owner of the function\n\
+        \ can be updated."
+      operationId: UpdateFunction
+      parameters:
+        - name: name
+          in: path
+          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFunctionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Function"
         default:
           description: Default error response
           content:
@@ -1763,6 +1948,101 @@ components:
         - credential_name
       title: Create External Location Request
       type: object
+    CreateFunctionRequest:
+      additionalProperties: false
+      description: Create a new function
+      properties:
+        catalog_name:
+          description: Name of parent catalog.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        comment:
+          description: User-provided free-form text description.
+          type: string
+        data_type:
+          description: Full data type specification of the return type of the function.
+          type: string
+        full_data_type:
+          description: Full data type specification as SQL/catalogString text.
+          type: string
+        input_params:
+          $ref: "#/$defs/unitycatalog.functions.v1.FunctionParameterInfos.schema.strict.json"
+          description: The array of function parameter infos.
+        is_deterministic:
+          description: Indicates whether the function is deterministic.
+          type: boolean
+        is_null_call:
+          description: Indicates whether the function is null-calling.
+          type: boolean
+        name:
+          description: Name of function, relative to parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        parameter_style:
+          description: The parameter-passing style.
+          enum:
+            - PARAMETER_STYLE_UNSPECIFIED
+            - S
+          title: Parameter Style
+          type: string
+        properties:
+          additionalProperties:
+            type: string
+          description: A map of key-value properties attached to the securable.
+          propertyNames:
+            type: string
+          type: object
+        routine_body:
+          description: The routine body.
+          enum:
+            - ROUTINE_BODY_UNSPECIFIED
+            - SQL
+            - EXTERNAL
+          title: Routine Body
+          type: string
+        routine_body_language:
+          description: The language of the function routine body.
+          type: string
+        routine_definition:
+          description: Function body.
+          type: string
+        schema_name:
+          description: Name of parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        security_type:
+          description: The security type of the function.
+          enum:
+            - SECURITY_TYPE_UNSPECIFIED
+            - DEFINER
+          title: Security Type
+          type: string
+        sql_data_access:
+          description: SQL data access information.
+          enum:
+            - SQL_DATA_ACCESS_UNSPECIFIED
+            - CONTAINS_SQL
+            - READS_SQL_DATA
+            - NO_SQL
+          title: Sql Data Access
+          type: string
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - data_type
+        - full_data_type
+        - parameter_style
+        - is_deterministic
+        - sql_data_access
+        - is_null_call
+        - security_type
+        - routine_body
+      title: Create Function Request
+      type: object
     CreateRecipientRequest:
       additionalProperties: false
       description: Creates a new recipient
@@ -2194,6 +2474,312 @@ components:
         - credential_id
       title: External Location
       type: object
+    Function:
+      additionalProperties: false
+      description: A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
+      properties:
+        catalog_name:
+          description: Name of parent catalog.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        comment:
+          description: User-provided free-form text description.
+          type: string
+        created_at:
+          description: Time at which this function was created, in epoch milliseconds.
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+        created_by:
+          description: Username of function creator.
+          type: string
+        data_type:
+          description: Full data type specification of the return type of the function.
+          type: string
+        full_data_type:
+          description: Full data type specification as SQL/catalogString text.
+          type: string
+        full_name:
+          description: "Format: catalog_name.schema_name.function_name"
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
+          title: The three-level (fully qualified) name of the function.
+          type: string
+        function_id:
+          description: Unique identifier for the function.
+          type: string
+        input_params:
+          $ref: "#/$defs/unitycatalog.functions.v1.FunctionParameterInfos.schema.strict.json"
+          description: The array of function parameter infos.
+        is_deterministic:
+          description: Indicates whether the function is deterministic.
+          type: boolean
+        is_null_call:
+          description: Indicates whether the function is null-calling.
+          type: boolean
+        name:
+          description: Name of function, relative to parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        owner:
+          description: Username of current owner of the function.
+          type: string
+        parameter_style:
+          description: The parameter-passing style.
+          enum:
+            - PARAMETER_STYLE_UNSPECIFIED
+            - S
+          title: Parameter Style
+          type: string
+        properties:
+          additionalProperties:
+            type: string
+          description: A map of key-value properties attached to the securable.
+          propertyNames:
+            type: string
+          type: object
+        return_params:
+          description: The return type of the function in JSON format.
+          type: string
+        routine_body:
+          description: The routine body.
+          enum:
+            - ROUTINE_BODY_UNSPECIFIED
+            - SQL
+            - EXTERNAL
+          title: Routine Body
+          type: string
+        routine_body_language:
+          description: The language of the function routine body.
+          type: string
+        routine_definition:
+          description: Function body.
+          type: string
+        routine_dependencies:
+          description: Function dependencies (in JSON form).
+          type: string
+        schema_name:
+          description: Name of parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        security_type:
+          description: The security type of the function.
+          enum:
+            - SECURITY_TYPE_UNSPECIFIED
+            - DEFINER
+          title: Security Type
+          type: string
+        specific_name:
+          description: The type of the function (SCALAR or TABLE).
+          type: string
+        sql_data_access:
+          description: SQL data access information.
+          enum:
+            - SQL_DATA_ACCESS_UNSPECIFIED
+            - CONTAINS_SQL
+            - READS_SQL_DATA
+            - NO_SQL
+          title: Sql Data Access
+          type: string
+        updated_at:
+          description: Time at which this function was last updated, in epoch milliseconds.
+          type: integer
+        updated_by:
+          description: Username of user who last modified the function.
+          type: string
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - full_name
+        - data_type
+        - full_data_type
+        - parameter_style
+        - is_deterministic
+        - sql_data_access
+        - is_null_call
+        - security_type
+        - routine_body
+      title: Function
+      type: object
+    FunctionParameterInfo:
+      additionalProperties: false
+      description: Information about a single function parameter.
+      properties:
+        comment:
+          description: User-provided free-form text description.
+          type: string
+        name:
+          description: Name of parameter.
+          type: string
+        parameter_default:
+          description: Default value of the parameter.
+          type: string
+        parameter_mode:
+          description: The mode of the function parameter.
+          enum:
+            - PARAMETER_MODE_UNSPECIFIED
+            - IN
+          title: Parameter Mode
+          type: string
+        parameter_type:
+          description: The type of function parameter.
+          enum:
+            - FUNCTION_PARAMETER_TYPE_UNSPECIFIED
+            - COLUMN
+            - PARAM
+          title: Function Parameter Type
+          type: string
+        position:
+          description: Ordinal position of column (starting at position 0).
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        type_interval_type:
+          description: Format of IntervalType.
+          type: string
+        type_json:
+          description: Full data type specification, JSON-serialized.
+          type: string
+        type_name:
+          description: Data type name.
+          enum:
+            - COLUMN_TYPE_NAME_UNSPECIFIED
+            - BOOLEAN
+            - BYTE
+            - SHORT
+            - INT
+            - LONG
+            - FLOAT
+            - DOUBLE
+            - DATE
+            - TIMESTAMP
+            - STRING
+            - BINARY
+            - DECIMAL
+            - INTERVAL
+            - ARRAY
+            - STRUCT
+            - MAP
+            - CHAR
+            - "NULL"
+            - USER_DEFINED_TYPE
+            - TIMESTAMP_NTZ
+            - VARIANT
+            - TABLE_TYPE
+          title: Column Type Name
+          type: string
+        type_precision:
+          description: Digits of precision; required for DecimalTypes.
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        type_scale:
+          description: Digits to right of decimal; required for DecimalTypes.
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        type_text:
+          description: Full data type specification as SQL/catalogString text.
+          type: string
+      required:
+        - name
+        - type_text
+        - type_name
+        - parameter_mode
+        - parameter_type
+      title: Function Parameter Info
+      type: object
+    FunctionParameterInfos:
+      additionalProperties: false
+      description: Information about a single function parameter.
+      properties:
+        comment:
+          description: User-provided free-form text description.
+          type: string
+        name:
+          description: Name of parameter.
+          type: string
+        parameter_default:
+          description: Default value of the parameter.
+          type: string
+        parameter_mode:
+          description: The mode of the function parameter.
+          enum:
+            - PARAMETER_MODE_UNSPECIFIED
+            - IN
+          title: Parameter Mode
+          type: string
+        parameter_type:
+          description: The type of function parameter.
+          enum:
+            - FUNCTION_PARAMETER_TYPE_UNSPECIFIED
+            - COLUMN
+            - PARAM
+          title: Function Parameter Type
+          type: string
+        position:
+          description: Ordinal position of column (starting at position 0).
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        type_interval_type:
+          description: Format of IntervalType.
+          type: string
+        type_json:
+          description: Full data type specification, JSON-serialized.
+          type: string
+        type_name:
+          description: Data type name.
+          enum:
+            - COLUMN_TYPE_NAME_UNSPECIFIED
+            - BOOLEAN
+            - BYTE
+            - SHORT
+            - INT
+            - LONG
+            - FLOAT
+            - DOUBLE
+            - DATE
+            - TIMESTAMP
+            - STRING
+            - BINARY
+            - DECIMAL
+            - INTERVAL
+            - ARRAY
+            - STRUCT
+            - MAP
+            - CHAR
+            - "NULL"
+            - USER_DEFINED_TYPE
+            - TIMESTAMP_NTZ
+            - VARIANT
+            - TABLE_TYPE
+          title: Column Type Name
+          type: string
+        type_precision:
+          description: Digits of precision; required for DecimalTypes.
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        type_scale:
+          description: Digits to right of decimal; required for DecimalTypes.
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        type_text:
+          description: Full data type specification as SQL/catalogString text.
+          type: string
+      required:
+        - name
+        - type_text
+        - type_name
+        - parameter_mode
+        - parameter_type
+      title: Function Parameter Info
+      type: object
     GcpOauthToken:
       additionalProperties: false
       properties:
@@ -2415,6 +3001,136 @@ components:
         - read_only
         - credential_id
       title: External Location
+      type: object
+    ListFunctionsResponse:
+      additionalProperties: false
+      description: A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
+      properties:
+        catalog_name:
+          description: Name of parent catalog.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        comment:
+          description: User-provided free-form text description.
+          type: string
+        created_at:
+          description: Time at which this function was created, in epoch milliseconds.
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+        created_by:
+          description: Username of function creator.
+          type: string
+        data_type:
+          description: Full data type specification of the return type of the function.
+          type: string
+        full_data_type:
+          description: Full data type specification as SQL/catalogString text.
+          type: string
+        full_name:
+          description: "Format: catalog_name.schema_name.function_name"
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
+          title: The three-level (fully qualified) name of the function.
+          type: string
+        function_id:
+          description: Unique identifier for the function.
+          type: string
+        input_params:
+          $ref: "#/$defs/unitycatalog.functions.v1.FunctionParameterInfos.schema.strict.json"
+          description: The array of function parameter infos.
+        is_deterministic:
+          description: Indicates whether the function is deterministic.
+          type: boolean
+        is_null_call:
+          description: Indicates whether the function is null-calling.
+          type: boolean
+        name:
+          description: Name of function, relative to parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        owner:
+          description: Username of current owner of the function.
+          type: string
+        parameter_style:
+          description: The parameter-passing style.
+          enum:
+            - PARAMETER_STYLE_UNSPECIFIED
+            - S
+          title: Parameter Style
+          type: string
+        properties:
+          additionalProperties:
+            type: string
+          description: A map of key-value properties attached to the securable.
+          propertyNames:
+            type: string
+          type: object
+        return_params:
+          description: The return type of the function in JSON format.
+          type: string
+        routine_body:
+          description: The routine body.
+          enum:
+            - ROUTINE_BODY_UNSPECIFIED
+            - SQL
+            - EXTERNAL
+          title: Routine Body
+          type: string
+        routine_body_language:
+          description: The language of the function routine body.
+          type: string
+        routine_definition:
+          description: Function body.
+          type: string
+        routine_dependencies:
+          description: Function dependencies (in JSON form).
+          type: string
+        schema_name:
+          description: Name of parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        security_type:
+          description: The security type of the function.
+          enum:
+            - SECURITY_TYPE_UNSPECIFIED
+            - DEFINER
+          title: Security Type
+          type: string
+        specific_name:
+          description: The type of the function (SCALAR or TABLE).
+          type: string
+        sql_data_access:
+          description: SQL data access information.
+          enum:
+            - SQL_DATA_ACCESS_UNSPECIFIED
+            - CONTAINS_SQL
+            - READS_SQL_DATA
+            - NO_SQL
+          title: Sql Data Access
+          type: string
+        updated_at:
+          description: Time at which this function was last updated, in epoch milliseconds.
+          type: integer
+        updated_by:
+          description: Username of user who last modified the function.
+          type: string
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - full_name
+        - data_type
+        - full_data_type
+        - parameter_style
+        - is_deterministic
+        - sql_data_access
+        - is_null_call
+        - security_type
+        - routine_body
+      title: Function
       type: object
     ListRecipientsResponse:
       additionalProperties: false
@@ -3159,6 +3875,22 @@ components:
         - name
       title: Update External Location Request
       type: object
+    UpdateFunctionRequest:
+      additionalProperties: false
+      description: Update a function
+      properties:
+        name:
+          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
+          minLength: 1
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        owner:
+          description: Username of new owner of the function.
+          type: string
+      required:
+        - name
+      title: Update Function Request
+      type: object
     UpdatePermissionsRequest:
       additionalProperties: false
       properties:
@@ -3351,6 +4083,8 @@ components:
           type: boolean
         catalog_name:
           description: Name of parent catalog.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
           type: string
         comment:
           description: User-provided free-form text description.
@@ -3365,21 +4099,27 @@ components:
           type: string
         full_name:
           description: The three-level (fully qualified) name of the volume
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
           type: string
         metastore_id:
           description: The unique identifier of the metastore
           type: string
         name:
           description: Name of volume, relative to parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
           type: string
         owner:
           description: Username of current owner of table.
           type: string
         schema_name:
           description: Name of parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
           type: string
         storage_location:
           description: The storage location on the cloud
+          pattern: ^(?:(?:[a-zA-Z][a-zA-Z\d+\-.]*):)?(?://(?:[A-Za-z0-9\-\.]+(?::\d+)?))?(/[^\?#]*)?(?:\?([^\#]*))?(?:\#(.*))?$
           type: string
         updated_at:
           description: Time at which this catalog was last updated, in epoch milliseconds.
@@ -3645,6 +4385,52 @@ components:
           type: string
       title: List Catalogs Request
       type: object
+    GetFunctionRequest:
+      additionalProperties: false
+      description: Get a function
+      properties:
+        name:
+          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
+          minLength: 1
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+      required:
+        - name
+      title: Get Function Request
+      type: object
+    ListFunctionsRequest:
+      additionalProperties: false
+      description: List functions in a schema
+      properties:
+        catalog_name:
+          description: Name of parent catalog for functions of interest.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+        include_browse:
+          description:
+            Whether to include functions in the response for which the principal can only access selective metadata
+            for.
+          type: boolean
+        max_results:
+          description: The maximum number of results per page that should be returned.
+          maximum: 1000
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+        page_token:
+          description: Opaque pagination token to go to next page based on previous query.
+          type: string
+        schema_name:
+          description: Parent schema of functions.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+      required:
+        - catalog_name
+        - schema_name
+      title: List Functions Request
+      type: object
     GetRecipientRequest:
       additionalProperties: false
       description: Get a recipient by name.
@@ -3656,6 +4442,22 @@ components:
       required:
         - name
       title: Get Recipient Request
+      type: object
+    DeleteFunctionRequest:
+      additionalProperties: false
+      description: Delete a function
+      properties:
+        force:
+          description: Force deletion even if the function is not empty.
+          type: boolean
+        name:
+          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
+          minLength: 1
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
+          type: string
+      required:
+        - name
+      title: Delete Function Request
       type: object
     ListExternalLocationsRequest:
       additionalProperties: false

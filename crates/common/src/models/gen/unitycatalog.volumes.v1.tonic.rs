@@ -36,7 +36,9 @@ pub mod volumes_service_server {
             request: tonic::Request<super::DeleteVolumeRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
-    ///
+    /** Service for managing volumes in Unity Catalog.
+ Volumes represent logical storage locations (managed or external) within a schema.
+*/
     #[derive(Debug)]
     pub struct VolumesServiceServer<T: VolumesService> {
         inner: Arc<T>,

@@ -49,7 +49,9 @@ pub mod external_locations_service_server {
             request: tonic::Request<super::DeleteExternalLocationRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
-    ///
+    /** Service for managing external locations in Unity Catalog.
+ External locations define cloud storage paths accessible via storage credentials.
+*/
     #[derive(Debug)]
     pub struct ExternalLocationsServiceServer<T: ExternalLocationsService> {
         inner: Arc<T>,
