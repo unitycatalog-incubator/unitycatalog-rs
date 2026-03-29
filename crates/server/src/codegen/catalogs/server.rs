@@ -2,52 +2,65 @@
 #![allow(unused_mut)]
 use super::handler::CatalogHandler;
 use crate::Result;
-use crate::api::RequestContext;
-use crate::policy::Principal;
-use axum::extract::{Extension, State};
+use axum::extract::State;
 use unitycatalog_common::models::catalogs::v1::*;
-pub async fn list_catalogs<T: CatalogHandler>(
+pub async fn list_catalogs<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: ListCatalogsRequest,
-) -> Result<::axum::Json<ListCatalogsResponse>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ListCatalogsResponse>>
+where
+    T: CatalogHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.list_catalogs(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_catalog<T: CatalogHandler>(
+pub async fn create_catalog<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: CreateCatalogRequest,
-) -> Result<::axum::Json<Catalog>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Catalog>>
+where
+    T: CatalogHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.create_catalog(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_catalog<T: CatalogHandler>(
+pub async fn get_catalog<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: GetCatalogRequest,
-) -> Result<::axum::Json<Catalog>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Catalog>>
+where
+    T: CatalogHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.get_catalog(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_catalog<T: CatalogHandler>(
+pub async fn update_catalog<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: UpdateCatalogRequest,
-) -> Result<::axum::Json<Catalog>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Catalog>>
+where
+    T: CatalogHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.update_catalog(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_catalog<T: CatalogHandler>(
+pub async fn delete_catalog<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: DeleteCatalogRequest,
-) -> Result<()> {
-    let context = RequestContext { recipient };
+) -> Result<()>
+where
+    T: CatalogHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     handler.delete_catalog(request, context).await?;
     Ok(())
 }

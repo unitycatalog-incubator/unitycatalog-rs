@@ -2,52 +2,65 @@
 #![allow(unused_mut)]
 use super::handler::VolumeHandler;
 use crate::Result;
-use crate::api::RequestContext;
-use crate::policy::Principal;
-use axum::extract::{Extension, State};
+use axum::extract::State;
 use unitycatalog_common::models::volumes::v1::*;
-pub async fn list_volumes<T: VolumeHandler>(
+pub async fn list_volumes<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: ListVolumesRequest,
-) -> Result<::axum::Json<ListVolumesResponse>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ListVolumesResponse>>
+where
+    T: VolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.list_volumes(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_volume<T: VolumeHandler>(
+pub async fn create_volume<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: CreateVolumeRequest,
-) -> Result<::axum::Json<Volume>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Volume>>
+where
+    T: VolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.create_volume(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_volume<T: VolumeHandler>(
+pub async fn get_volume<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: GetVolumeRequest,
-) -> Result<::axum::Json<Volume>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Volume>>
+where
+    T: VolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.get_volume(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_volume<T: VolumeHandler>(
+pub async fn update_volume<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: UpdateVolumeRequest,
-) -> Result<::axum::Json<Volume>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Volume>>
+where
+    T: VolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.update_volume(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_volume<T: VolumeHandler>(
+pub async fn delete_volume<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: DeleteVolumeRequest,
-) -> Result<()> {
-    let context = RequestContext { recipient };
+) -> Result<()>
+where
+    T: VolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     handler.delete_volume(request, context).await?;
     Ok(())
 }

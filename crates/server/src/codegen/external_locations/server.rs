@@ -2,52 +2,65 @@
 #![allow(unused_mut)]
 use super::handler::ExternalLocationHandler;
 use crate::Result;
-use crate::api::RequestContext;
-use crate::policy::Principal;
-use axum::extract::{Extension, State};
+use axum::extract::State;
 use unitycatalog_common::models::external_locations::v1::*;
-pub async fn list_external_locations<T: ExternalLocationHandler>(
+pub async fn list_external_locations<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: ListExternalLocationsRequest,
-) -> Result<::axum::Json<ListExternalLocationsResponse>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ListExternalLocationsResponse>>
+where
+    T: ExternalLocationHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.list_external_locations(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_external_location<T: ExternalLocationHandler>(
+pub async fn create_external_location<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: CreateExternalLocationRequest,
-) -> Result<::axum::Json<ExternalLocation>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ExternalLocation>>
+where
+    T: ExternalLocationHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.create_external_location(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_external_location<T: ExternalLocationHandler>(
+pub async fn get_external_location<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: GetExternalLocationRequest,
-) -> Result<::axum::Json<ExternalLocation>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ExternalLocation>>
+where
+    T: ExternalLocationHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.get_external_location(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_external_location<T: ExternalLocationHandler>(
+pub async fn update_external_location<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: UpdateExternalLocationRequest,
-) -> Result<::axum::Json<ExternalLocation>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ExternalLocation>>
+where
+    T: ExternalLocationHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.update_external_location(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_external_location<T: ExternalLocationHandler>(
+pub async fn delete_external_location<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: DeleteExternalLocationRequest,
-) -> Result<()> {
-    let context = RequestContext { recipient };
+) -> Result<()>
+where
+    T: ExternalLocationHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     handler.delete_external_location(request, context).await?;
     Ok(())
 }

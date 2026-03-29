@@ -2,52 +2,65 @@
 #![allow(unused_mut)]
 use super::handler::CredentialHandler;
 use crate::Result;
-use crate::api::RequestContext;
-use crate::policy::Principal;
-use axum::extract::{Extension, State};
+use axum::extract::State;
 use unitycatalog_common::models::credentials::v1::*;
-pub async fn list_credentials<T: CredentialHandler>(
+pub async fn list_credentials<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: ListCredentialsRequest,
-) -> Result<::axum::Json<ListCredentialsResponse>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<ListCredentialsResponse>>
+where
+    T: CredentialHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.list_credentials(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn create_credential<T: CredentialHandler>(
+pub async fn create_credential<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: CreateCredentialRequest,
-) -> Result<::axum::Json<Credential>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Credential>>
+where
+    T: CredentialHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.create_credential(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn get_credential<T: CredentialHandler>(
+pub async fn get_credential<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: GetCredentialRequest,
-) -> Result<::axum::Json<Credential>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Credential>>
+where
+    T: CredentialHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.get_credential(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn update_credential<T: CredentialHandler>(
+pub async fn update_credential<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: UpdateCredentialRequest,
-) -> Result<::axum::Json<Credential>> {
-    let context = RequestContext { recipient };
+) -> Result<::axum::Json<Credential>>
+where
+    T: CredentialHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     let result = handler.update_credential(request, context).await?;
     Ok(axum::Json(result))
 }
-pub async fn delete_credential<T: CredentialHandler>(
+pub async fn delete_credential<T, Cx>(
     State(handler): State<T>,
-    Extension(recipient): Extension<Principal>,
+    context: Cx,
     request: DeleteCredentialRequest,
-) -> Result<()> {
-    let context = RequestContext { recipient };
+) -> Result<()>
+where
+    T: CredentialHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
     handler.delete_credential(request, context).await?;
     Ok(())
 }

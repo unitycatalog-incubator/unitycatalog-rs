@@ -11,11 +11,10 @@
 //!
 //! Manage User-Defined Functions (UDFs) in the service.
 use crate::Result;
-use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::models::functions::v1::*;
 #[async_trait]
-pub trait FunctionHandler: Send + Sync + 'static {
+pub trait FunctionHandler<Cx = crate::api::RequestContext>: Send + Sync + 'static {
     /// List functions
     ///
     /// List functions within the specified parent catalog and schema. If the caller is the metastore
@@ -25,7 +24,7 @@ pub trait FunctionHandler: Send + Sync + 'static {
     async fn list_functions(
         &self,
         request: ListFunctionsRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListFunctionsResponse>;
     /// Create a function
     ///
@@ -34,18 +33,14 @@ pub trait FunctionHandler: Send + Sync + 'static {
     async fn create_function(
         &self,
         request: CreateFunctionRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<Function>;
     /// Get a function
     ///
     /// Gets a function from within a parent catalog and schema. For the fetch to succeed,
     /// the caller must be a metastore admin, the owner of the function, or have SELECT on
     /// the function.
-    async fn get_function(
-        &self,
-        request: GetFunctionRequest,
-        context: RequestContext,
-    ) -> Result<Function>;
+    async fn get_function(&self, request: GetFunctionRequest, context: Cx) -> Result<Function>;
     /// Update a function
     ///
     /// Updates the function that matches the supplied name. Only the owner of the function
@@ -53,15 +48,11 @@ pub trait FunctionHandler: Send + Sync + 'static {
     async fn update_function(
         &self,
         request: UpdateFunctionRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<Function>;
     /// Delete a function
     ///
     /// Deletes the function that matches the supplied name. For the deletion to succeed,
     /// the caller must be the owner of the function.
-    async fn delete_function(
-        &self,
-        request: DeleteFunctionRequest,
-        context: RequestContext,
-    ) -> Result<()>;
+    async fn delete_function(&self, request: DeleteFunctionRequest, context: Cx) -> Result<()>;
 }
