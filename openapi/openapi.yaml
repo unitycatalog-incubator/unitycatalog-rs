@@ -2,58 +2,61 @@ openapi: 3.0.3
 info:
   title: Unity Catalog API
   version: 0.0.1
-  description:
-    REST API for managing Unity Catalog resources including catalogs, schemas, tables, volumes, external locations,
-    and temporary credentials.
+  description: REST API for managing Unity Catalog resources including catalogs, schemas, tables, volumes, external locations, and temporary credentials.
 tags:
   - name: CatalogsService
     description: Manage catalogs and schemas in the service.
   - name: CredentialsService
-    description:
-      "Manage credentials to access external data sources and services\n as well as generate signed urls for the\
-      \ Delta Sharing service."
+    description: |-
+      Manage credentials to access external data sources and services
+       as well as generate signed urls for the Delta Sharing service.
   - name: ExternalLocationsService
-    description:
-      "Service for managing external locations in Unity Catalog.\n External locations define cloud storage paths\
-      \ accessible via storage credentials."
+    description: |-
+      Service for managing external locations in Unity Catalog.
+       External locations define cloud storage paths accessible via storage credentials.
   - name: FunctionsService
     description: Manage User-Defined Functions (UDFs) in the service.
   - name: RecipientsService
-    description:
-      "Recipients\n\n A recipient is an object you create using recipients/create to represent an organization which\n\
-      \ you want to allow access shares. when you create a recipient object, Unity Catalog generates an\n activation link you\
-      \ can send to the recipient. The recipient follows the activation link to download\n the credential file, and then uses\
-      \ the credential file to establish a secure connection to receive\n the shared data. This sharing mode is called open\
-      \ sharing."
+    description: |-
+      Recipients
+
+       A recipient is an object you create using recipients/create to represent an organization which
+       you want to allow access shares. when you create a recipient object, Unity Catalog generates an
+       activation link you can send to the recipient. The recipient follows the activation link to download
+       the credential file, and then uses the credential file to establish a secure connection to receive
+       the shared data. This sharing mode is called open sharing.
   - name: SchemasService
-    description:
-      "A schema (also called a database) is the second layer of Unity Catalog’s three-level namespace.\n A schema\
-      \ organizes tables, views and functions. To access (or list) a table or view in a schema,\n users must have the USE_SCHEMA\
-      \ data permission on the schema and its parent catalog, and they must\n have the SELECT permission on the table or view."
+    description: |-
+      A schema (also called a database) is the second layer of Unity Catalog’s three-level namespace.
+       A schema organizes tables, views and functions. To access (or list) a table or view in a schema,
+       users must have the USE_SCHEMA data permission on the schema and its parent catalog, and they must
+       have the SELECT permission on the table or view.
   - name: SharesService
     description: Service for managing shares
   - name: TablesService
-    description:
-      "Service for managing tables in Unity Catalog.\n Tables represent structured data stored in a schema, supporting\
-      \ managed and external storage formats."
+    description: |-
+      Service for managing tables in Unity Catalog.
+       Tables represent structured data stored in a schema, supporting managed and external storage formats.
   - name: TemporaryCredentialsService
-    description:
-      "Service for generating temporary credentials to access tables and storage paths.\n Credentials are short-lived\
-      \ and scoped to a specific operation (read or read/write)."
+    description: |-
+      Service for generating temporary credentials to access tables and storage paths.
+       Credentials are short-lived and scoped to a specific operation (read or read/write).
   - name: VolumesService
-    description:
-      "Service for managing volumes in Unity Catalog.\n Volumes represent logical storage locations (managed or external)\
-      \ within a schema."
+    description: |-
+      Service for managing volumes in Unity Catalog.
+       Volumes represent logical storage locations (managed or external) within a schema.
 paths:
   /catalogs:
     get:
       tags:
         - CatalogsService
-      description:
-        "List catalogs\n\n Gets an array of catalogs in the metastore. If the caller is the metastore admin,\n\
-        \ all catalogs will be retrieved. Otherwise, only catalogs owned by the caller\n (or for which the caller has the\
-        \ USE_CATALOG privilege) will be retrieved.\n There is no guarantee of a specific ordering of the elements in the\
-        \ array."
+      description: |-
+        List catalogs
+
+         Gets an array of catalogs in the metastore. If the caller is the metastore admin,
+         all catalogs will be retrieved. Otherwise, only catalogs owned by the caller
+         (or for which the caller has the USE_CATALOG privilege) will be retrieved.
+         There is no guarantee of a specific ordering of the elements in the array.
       operationId: ListCatalogs
       parameters:
         - name: maxResults
@@ -83,9 +86,11 @@ paths:
     post:
       tags:
         - CatalogsService
-      description:
-        "Create a new catalog\n\n Creates a new catalog instance in the parent metastore if the caller\n is a metastore\
-        \ admin or has the CREATE_CATALOG privilege."
+      description: |-
+        Create a new catalog
+
+         Creates a new catalog instance in the parent metastore if the caller
+         is a metastore admin or has the CREATE_CATALOG privilege.
       operationId: CreateCatalog
       requestBody:
         content:
@@ -110,9 +115,11 @@ paths:
     get:
       tags:
         - CatalogsService
-      description:
-        "Get a catalog\n\n Gets the specified catalog in a metastore. The caller must be a metastore admin,\n the\
-        \ owner of the catalog, or a user that has the USE_CATALOG privilege set for their account."
+      description: |-
+        Get a catalog
+
+         Gets the specified catalog in a metastore. The caller must be a metastore admin,
+         the owner of the catalog, or a user that has the USE_CATALOG privilege set for their account.
       operationId: GetCatalog
       parameters:
         - name: name
@@ -123,9 +130,7 @@ paths:
             type: string
         - name: includeBrowse
           in: query
-          description:
-            Whether to include catalogs in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include catalogs in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
       responses:
@@ -144,9 +149,11 @@ paths:
     delete:
       tags:
         - CatalogsService
-      description:
-        "Delete a catalog\n\n Deletes the catalog that matches the supplied name. The caller must\n be a metastore\
-        \ admin or the owner of the catalog."
+      description: |-
+        Delete a catalog
+
+         Deletes the catalog that matches the supplied name. The caller must
+         be a metastore admin or the owner of the catalog.
       operationId: DeleteCatalog
       parameters:
         - name: name
@@ -173,9 +180,11 @@ paths:
     patch:
       tags:
         - CatalogsService
-      description:
-        "Update a catalog\n\n Updates the catalog that matches the supplied name. The caller must be either\n the\
-        \ owner of the catalog, or a metastore admin (when changing the owner field of the catalog)."
+      description: |-
+        Update a catalog
+
+         Updates the catalog that matches the supplied name. The caller must be either
+         the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
       operationId: UpdateCatalog
       parameters:
         - name: name
@@ -358,9 +367,7 @@ paths:
             type: string
         - name: includeBrowse
           in: query
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include schemas in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
       responses:
@@ -488,11 +495,13 @@ paths:
     get:
       tags:
         - FunctionsService
-      description:
-        "List functions\n\n List functions within the specified parent catalog and schema. If the caller is the\
-        \ metastore\n admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG\n on\
-        \ the parent catalog and USE_SCHEMA on the parent schema, and the function must either be\n owned by the caller or\
-        \ have SELECT on the function."
+      description: |-
+        List functions
+
+         List functions within the specified parent catalog and schema. If the caller is the metastore
+         admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
+         on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
+         owned by the caller or have SELECT on the function.
       operationId: ListFunctions
       parameters:
         - name: catalogName
@@ -518,9 +527,7 @@ paths:
             type: string
         - name: includeBrowse
           in: query
-          description:
-            Whether to include functions in the response for which the principal can only access selective metadata
-            for.
+          description: Whether to include functions in the response for which the principal can only access selective metadata for.
           schema:
             type: boolean
       responses:
@@ -539,9 +546,11 @@ paths:
     post:
       tags:
         - FunctionsService
-      description:
-        "Create a function\n\n Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION\n\
-        \ privilege on the parent catalog and schema."
+      description: |-
+        Create a function
+
+         Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
+         privilege on the parent catalog and schema.
       operationId: CreateFunction
       requestBody:
         content:
@@ -566,9 +575,12 @@ paths:
     get:
       tags:
         - FunctionsService
-      description:
-        "Get a function\n\n Gets a function from within a parent catalog and schema. For the fetch to succeed,\n\
-        \ the caller must be a metastore admin, the owner of the function, or have SELECT on\n the function."
+      description: |-
+        Get a function
+
+         Gets a function from within a parent catalog and schema. For the fetch to succeed,
+         the caller must be a metastore admin, the owner of the function, or have SELECT on
+         the function.
       operationId: GetFunction
       parameters:
         - name: name
@@ -593,9 +605,11 @@ paths:
     delete:
       tags:
         - FunctionsService
-      description:
-        "Delete a function\n\n Deletes the function that matches the supplied name. For the deletion to succeed,\n\
-        \ the caller must be the owner of the function."
+      description: |-
+        Delete a function
+
+         Deletes the function that matches the supplied name. For the deletion to succeed,
+         the caller must be the owner of the function.
       operationId: DeleteFunction
       parameters:
         - name: name
@@ -622,9 +636,11 @@ paths:
     patch:
       tags:
         - FunctionsService
-      description:
-        "Update a function\n\n Updates the function that matches the supplied name. Only the owner of the function\n\
-        \ can be updated."
+      description: |-
+        Update a function
+
+         Updates the function that matches the supplied name. Only the owner of the function
+         can be updated.
       operationId: UpdateFunction
       parameters:
         - name: name
@@ -790,11 +806,11 @@ paths:
     get:
       tags:
         - SchemasService
-      description:
-        "Gets an array of schemas for a catalog in the metastore. If the caller is the metastore\n admin or the\
-        \ owner of the parent catalog, all schemas for the catalog will be retrieved.\n Otherwise, only schemas owned by the\
-        \ caller (or for which the caller has the USE_SCHEMA privilege)\n will be retrieved. There is no guarantee of a specific\
-        \ ordering of the elements in the array."
+      description: |-
+        Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
+         admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
+         Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
+         will be retrieved. There is no guarantee of a specific ordering of the elements in the array.
       operationId: ListSchemas
       parameters:
         - name: catalogName
@@ -815,9 +831,7 @@ paths:
             type: string
         - name: includeBrowse
           in: query
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include schemas in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
       responses:
@@ -836,9 +850,9 @@ paths:
     post:
       tags:
         - SchemasService
-      description:
-        "Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,\n or have the\
-        \ CREATE_SCHEMA privilege in the parent catalog."
+      description: |-
+        Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
+         or have the CREATE_SCHEMA privilege in the parent catalog.
       operationId: CreateSchema
       requestBody:
         content:
@@ -863,14 +877,18 @@ paths:
     get:
       tags:
         - SchemasService
-      description:
-        "Gets the specified schema within the metastore.\n The caller must be a metastore admin, the owner of the\
-        \ schema,\n or a user that has the USE_SCHEMA privilege on the schema."
+      description: |-
+        Gets the specified schema within the metastore.
+         The caller must be a metastore admin, the owner of the schema,
+         or a user that has the USE_SCHEMA privilege on the schema.
       operationId: GetSchema
       parameters:
         - name: fullName
           in: path
-          description: "Full name of schema.\n\n Format: catalog_name.schema_name"
+          description: |-
+            Full name of schema.
+
+             Format: catalog_name.schema_name
           required: true
           schema:
             type: string
@@ -890,14 +908,17 @@ paths:
     delete:
       tags:
         - SchemasService
-      description:
-        "Deletes the specified schema from the parent catalog. The caller must be the owner\n of the schema or\
-        \ an owner of the parent catalog."
+      description: |-
+        Deletes the specified schema from the parent catalog. The caller must be the owner
+         of the schema or an owner of the parent catalog.
       operationId: DeleteSchema
       parameters:
         - name: fullName
           in: path
-          description: "Full name of schema to delete.\n\n Format: catalog_name.schema_name"
+          description: |-
+            Full name of schema to delete.
+
+             Format: catalog_name.schema_name
           required: true
           schema:
             type: string
@@ -919,10 +940,11 @@ paths:
     patch:
       tags:
         - SchemasService
-      description:
-        "Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.\n If\
-        \ the caller is a metastore admin, only the owner field can be changed in the update.\n If the name field must be\
-        \ updated, the caller must be a metastore admin or have the CREATE_SCHEMA\n privilege on the parent catalog."
+      description: |-
+        Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
+         If the caller is a metastore admin, only the owner field can be changed in the update.
+         If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
+         privilege on the parent catalog.
       operationId: UpdateSchema
       parameters:
         - name: fullName
@@ -1161,13 +1183,14 @@ paths:
     get:
       tags:
         - TablesService
-      description:
-        "Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries\
-        \ returned are either:\n - summaries for tables (within the current metastore and parent catalog and schema), when\
-        \ the user is a metastore admin, or:\n - summaries for tables and schemas (within the current metastore and parent\
-        \ catalog) for which the user has ownership or the\n   SELECT privilege on the table and ownership or USE_SCHEMA privilege\
-        \ on the schema, provided that the user also has ownership\n   or the USE_CATALOG privilege on the parent catalog.\n\
-        \n There is no guarantee of a specific ordering of the elements in the array."
+      description: |-
+        Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
+         - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
+         - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
+           SELECT privilege on the table and ownership or USE_SCHEMA privilege on the schema, provided that the user also has ownership
+           or the USE_CATALOG privilege on the parent catalog.
+
+         There is no guarantee of a specific ordering of the elements in the array.
       operationId: ListTableSummaries
       parameters:
         - name: catalogName
@@ -1218,11 +1241,13 @@ paths:
     get:
       tags:
         - TablesService
-      description:
-        "Gets an array of all tables for the current metastore under the parent catalog and schema.\n\n The caller\
-        \ must be a metastore admin or an owner of (or have the SELECT privilege on) the table.\n For the latter case, the\
-        \ caller must also be the owner or have the USE_CATALOG privilege on the\n parent catalog and the USE_SCHEMA privilege\
-        \ on the parent schema. There is no guarantee of a\n specific ordering of the elements in the array."
+      description: |-
+        Gets an array of all tables for the current metastore under the parent catalog and schema.
+
+         The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
+         For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
+         parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
+         specific ordering of the elements in the array.
       operationId: ListTables
       parameters:
         - name: catalogName
@@ -1268,9 +1293,7 @@ paths:
             type: boolean
         - name: includeBrowse
           in: query
-          description:
-            Whether to include tables in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include tables in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
         - name: includeManifestCapabilities
@@ -1335,9 +1358,7 @@ paths:
             type: boolean
         - name: includeBrowse
           in: query
-          description:
-            Whether to include tables in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include tables in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
         - name: includeManifestCapabilities
@@ -1486,9 +1507,7 @@ paths:
             type: string
         - name: includeBrowse
           in: query
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include schemas in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
       responses:
@@ -1541,9 +1560,7 @@ paths:
             type: string
         - name: includeBrowse
           in: query
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
+          description: Whether to include schemas in the response for which the principal can only access selective metadata for
           schema:
             type: boolean
       responses:
@@ -1612,121 +1629,15 @@ paths:
                 $ref: "#/components/schemas/Status"
 components:
   schemas:
-    AdditionalPropertiesItem:
-      type: object
-      properties:
-        schemaOrReference:
-          $ref: "#/components/schemas/SchemaOrReference"
-        boolean:
-          type: boolean
-    Any:
-      type: object
-      properties:
-        value:
-          $ref: "#/components/schemas/GoogleProtobufAny"
-        yaml:
-          type: string
-    AwsTemporaryCredentials:
-      additionalProperties: false
-      properties:
-        access_key_id:
-          description: The access key ID that identifies the temporary credentials.
-          type: string
-        access_point:
-          description:
-            The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external
-            location.
-          type: string
-        secret_access_key:
-          description: The secret access key that can be used to sign AWS API requests.
-          type: string
-        session_token:
-          description: The token that users must pass to AWS API to use the temporary credentials.
-          type: string
-      required:
-        - access_key_id
-        - access_point
-        - secret_access_key
-        - session_token
-      title: Aws Temporary Credentials
-      type: object
-    AzureAad:
-      additionalProperties: false
-      properties:
-        aad_token:
-          description: Opaque token that contains claims that you can use in Azure Active Directory to access cloud services.
-          type: string
-      required:
-        - aad_token
-      title: Azure Aad
-      type: object
-    AzureManagedIdentity:
-      additionalProperties: false
-      properties:
-        application_id:
-          description: The application ID of the application registration within the referenced AAD tenant.
-          type: string
-        msi_resource_id:
-          description: Msi resource id for use with managed identity authentication
-          type: string
-        object_id:
-          description: Object id for use with managed identity authentication
-          type: string
-      title: Azure Managed Identity
-      type: object
-    AzureServicePrincipal:
-      additionalProperties: false
-      properties:
-        application_id:
-          description: The application ID of the application registration within the referenced AAD tenant.
-          type: string
-        client_secret:
-          description: The client secret generated for the above app ID in AAD.
-          type: string
-        directory_id:
-          description: The directory ID corresponding to the Azure Active Directory (AAD) tenant of the application.
-          type: string
-        federated_token_file:
-          description: Specifically useful for workload identity federation.
-          title: Location of the file containing a federated token.
-          type: string
-      required:
-        - directory_id
-        - application_id
-      title: Azure Service Principal
-      type: object
-    AzureStorageKey:
-      additionalProperties: false
-      properties:
-        account_key:
-          description: The account key of the storage account.
-          type: string
-        account_name:
-          description: The name of the storage account.
-          type: string
-      required:
-        - account_name
-        - account_key
-      title: Azure Storage Key
-      type: object
-    AzureUserDelegationSas:
-      additionalProperties: false
-      properties:
-        sas_token:
-          description: The signed URI (SAS Token) used to access blob services for a given path
-          type: string
-      required:
-        - sas_token
-      title: Azure User Delegation Sas
-      type: object
     Catalog:
       additionalProperties: false
       description: A catalog is a root-level namespace that contains schemas.
       properties:
         browse_only:
-          description:
-            "Indicates whether the principal is limited to retrieving metadata\n for the associated object through\
-            \ the BROWSE privilege when include_browse\n is enabled in the request."
+          description: |-
+            Indicates whether the principal is limited to retrieving metadata
+             for the associated object through the BROWSE privilege when include_browse
+             is enabled in the request.
           type: boolean
         catalog_type:
           description: The type of the catalog.
@@ -1783,85 +1694,6 @@ components:
       required:
         - name
       title: Catalog
-      type: object
-    Column:
-      additionalProperties: false
-      properties:
-        column_id:
-          description: a unique id for the column
-          type: string
-        comment:
-          description: User-provided free-form text description.
-          type: string
-        name:
-          description: Name of the column
-          type: string
-        nullable:
-          description: Whether field may be Null.
-          type: boolean
-        partition_index:
-          description: Partition index for column.
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        position:
-          description: Ordinal position of column (starting at position 0).
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        type_interval_type:
-          description: Format of IntervalType.
-          type: string
-        type_json:
-          description: Full data type specification, JSON-serialized.
-          type: string
-        type_name:
-          description: Data type name.
-          enum:
-            - COLUMN_TYPE_NAME_UNSPECIFIED
-            - BOOLEAN
-            - BYTE
-            - SHORT
-            - INT
-            - LONG
-            - FLOAT
-            - DOUBLE
-            - DATE
-            - TIMESTAMP
-            - STRING
-            - BINARY
-            - DECIMAL
-            - INTERVAL
-            - ARRAY
-            - STRUCT
-            - MAP
-            - CHAR
-            - "NULL"
-            - USER_DEFINED_TYPE
-            - TIMESTAMP_NTZ
-            - VARIANT
-            - TABLE_TYPE
-          title: Column Type Name
-          type: string
-        type_precision:
-          description: Digits of precision; required for DecimalTypes.
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        type_scale:
-          description: Digits to right of decimal; Required for DecimalTypes.
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        type_text:
-          description: Full data type specification as SQL/catalogString text.
-          type: string
-      required:
-        - name
-        - type_text
-        - type_json
-        - type_name
-      title: Column
       type: object
     CreateCatalogRequest:
       additionalProperties: false
@@ -1967,7 +1799,7 @@ components:
           description: Full data type specification as SQL/catalogString text.
           type: string
         input_params:
-          $ref: "#/$defs/unitycatalog.functions.v1.FunctionParameterInfos.schema.strict.json"
+          $ref: "#/components/schemas/FunctionParameterInfos"
           description: The array of function parameter infos.
         is_deterministic:
           description: Indicates whether the function is deterministic.
@@ -2072,9 +1904,9 @@ components:
         properties:
           additionalProperties:
             type: string
-          description:
-            "When provided in update request, the specified properties will override the existing properties.\n\
-            \ To add and remove properties, one would need to perform a read-modify-write."
+          description: |-
+            When provided in update request, the specified properties will override the existing properties.
+             To add and remove properties, one would need to perform a read-modify-write.
           propertyNames:
             type: string
           title: Recipient properties as map of string key-value pairs.
@@ -2116,9 +1948,9 @@ components:
       type: object
     CreateShareRequest:
       additionalProperties: false
-      description:
-        "Data objects can be added after creation with update.\n The caller must be a metastore admin or have the\
-        \ CREATE_SHARE privilege on the metastore."
+      description: |-
+        Data objects can be added after creation with update.
+         The caller must be a metastore admin or have the CREATE_SHARE privilege on the metastore.
       properties:
         comment:
           description: User-provided free-form text description.
@@ -2239,9 +2071,10 @@ components:
           description: The storage location on the cloud
           type: string
         volume_type:
-          description:
-            "An external volume is located in the specified external location.\n A managed volume is located in\
-            \ the default location which is specified\n by the parent schema, or the parent catalog, or the Metastore."
+          description: |-
+            An external volume is located in the specified external location.
+             A managed volume is located in the default location which is specified
+             by the parent schema, or the parent catalog, or the Metastore.
           enum:
             - VOLUME_TYPE_UNSPECIFIED
             - VOLUME_TYPE_EXTERNAL
@@ -2269,167 +2102,13 @@ components:
           type: string
       title: Azure Managed Identity
       type: object
-    DataObject:
-      additionalProperties: false
-      properties:
-        added_at:
-          description: The time when this data object is added to the share, in epoch milliseconds.
-          type: integer
-        added_by:
-          description: Username of the sharer.
-          type: string
-        comment:
-          description: A user-provided comment when adding the data object to the share.
-          type: string
-        data_object_type:
-          description: Type of the data object.
-          enum:
-            - DATA_OBJECT_TYPE_UNSPECIFIED
-            - TABLE
-            - SCHEMA
-          title: Data Object Type
-          type: string
-        enable_cdf:
-          description: Whether to enable cdf or indicate if cdf is enabled on the shared object.
-          type: boolean
-        history_data_sharing_status:
-          description: Whether to enable or disable sharing of data history. If not specified, the default is DISABLED.
-          enum:
-            - DISABLED
-            - ENABLED
-          title: History Status
-          type: string
-        name:
-          description: For example, a table's fully qualified name is in the format of <catalog>.<schema>.<table>,
-          title: A fully qualified name that uniquely identifies a data object.
-          type: string
-        partitions:
-          description: Array of partitions for the shared data.
-          items:
-            type: string
-          type: array
-        shared_as:
-          description:
-            "If this new name is not provided, the object's original name will be used as the shared_as name.\n\
-            \ The shared_as name must be unique within a share.\n For tables, the new name must follow the format of <schema>.<table>."
-          title: A user-provided new name for the data object within the share.
-          type: string
-        start_version:
-          description:
-            "This allows data providers to control the lowest object version that is accessible by clients.\n If\
-            \ specified, clients can query snapshots or changes for versions >= start_version.\n If not specified, clients\
-            \ can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The\
-            \ start_version should be <= the current version of the object."
-          title: The start version associated with the object.
-          type: integer
-      required:
-        - name
-        - data_object_type
-      title: Data Object
-      type: object
-    DataObjectUpdate:
-      additionalProperties: false
-      properties:
-        added_at:
-          description: The time when this data object is added to the share, in epoch milliseconds.
-          type: integer
-        added_by:
-          description: Username of the sharer.
-          type: string
-        comment:
-          description: A user-provided comment when adding the data object to the share.
-          type: string
-        data_object_type:
-          description: Type of the data object.
-          enum:
-            - DATA_OBJECT_TYPE_UNSPECIFIED
-            - TABLE
-            - SCHEMA
-          title: Data Object Type
-          type: string
-        enable_cdf:
-          description: Whether to enable cdf or indicate if cdf is enabled on the shared object.
-          type: boolean
-        history_data_sharing_status:
-          description: Whether to enable or disable sharing of data history. If not specified, the default is DISABLED.
-          enum:
-            - DISABLED
-            - ENABLED
-          title: History Status
-          type: string
-        name:
-          description: For example, a table's fully qualified name is in the format of <catalog>.<schema>.<table>,
-          title: A fully qualified name that uniquely identifies a data object.
-          type: string
-        partitions:
-          description: Array of partitions for the shared data.
-          items:
-            type: string
-          type: array
-        shared_as:
-          description:
-            "If this new name is not provided, the object's original name will be used as the shared_as name.\n\
-            \ The shared_as name must be unique within a share.\n For tables, the new name must follow the format of <schema>.<table>."
-          title: A user-provided new name for the data object within the share.
-          type: string
-        start_version:
-          description:
-            "This allows data providers to control the lowest object version that is accessible by clients.\n If\
-            \ specified, clients can query snapshots or changes for versions >= start_version.\n If not specified, clients\
-            \ can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The\
-            \ start_version should be <= the current version of the object."
-          title: The start version associated with the object.
-          type: integer
-      required:
-        - name
-        - data_object_type
-      title: Data Object
-      type: object
-    DefaultType:
-      type: object
-      properties:
-        number:
-          type: number
-          format: double
-        boolean:
-          type: boolean
-        string:
-          type: string
-    Discriminator:
-      type: object
-      properties:
-        propertyName:
-          type: string
-        mapping:
-          $ref: "#/components/schemas/Strings"
-        specificationExtension:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamedAny"
-      description:
-        When request bodies or response payloads may be one of a number of different schemas, a `discriminator`
-        object can be used to aid in serialization, deserialization, and validation.  The discriminator is a specific object
-        in a schema which is used to inform the consumer of the specification of an alternative schema based on the value
-        associated with it.  When using the discriminator, _inline_ schemas will not be considered.
-    ExternalDocs:
-      type: object
-      properties:
-        description:
-          type: string
-        url:
-          type: string
-        specificationExtension:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamedAny"
-      description: Allows referencing an external resource for extended documentation.
     ExternalLocation:
       additionalProperties: false
       properties:
         browse_only:
-          description:
-            "Indicates whether the principal is limited to retrieving metadata\n for the associated object through\
-            \ the BROWSE privilege when include_browse is enabled in the request."
+          description: |-
+            Indicates whether the principal is limited to retrieving metadata
+             for the associated object through the BROWSE privilege when include_browse is enabled in the request.
           type: boolean
         comment:
           description: User-provided free-form text description.
@@ -2509,7 +2188,7 @@ components:
           description: Unique identifier for the function.
           type: string
         input_params:
-          $ref: "#/$defs/unitycatalog.functions.v1.FunctionParameterInfos.schema.strict.json"
+          $ref: "#/components/schemas/FunctionParameterInfos"
           description: The array of function parameter infos.
         is_deterministic:
           description: Indicates whether the function is deterministic.
@@ -2604,94 +2283,6 @@ components:
         - routine_body
       title: Function
       type: object
-    FunctionParameterInfo:
-      additionalProperties: false
-      description: Information about a single function parameter.
-      properties:
-        comment:
-          description: User-provided free-form text description.
-          type: string
-        name:
-          description: Name of parameter.
-          type: string
-        parameter_default:
-          description: Default value of the parameter.
-          type: string
-        parameter_mode:
-          description: The mode of the function parameter.
-          enum:
-            - PARAMETER_MODE_UNSPECIFIED
-            - IN
-          title: Parameter Mode
-          type: string
-        parameter_type:
-          description: The type of function parameter.
-          enum:
-            - FUNCTION_PARAMETER_TYPE_UNSPECIFIED
-            - COLUMN
-            - PARAM
-          title: Function Parameter Type
-          type: string
-        position:
-          description: Ordinal position of column (starting at position 0).
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        type_interval_type:
-          description: Format of IntervalType.
-          type: string
-        type_json:
-          description: Full data type specification, JSON-serialized.
-          type: string
-        type_name:
-          description: Data type name.
-          enum:
-            - COLUMN_TYPE_NAME_UNSPECIFIED
-            - BOOLEAN
-            - BYTE
-            - SHORT
-            - INT
-            - LONG
-            - FLOAT
-            - DOUBLE
-            - DATE
-            - TIMESTAMP
-            - STRING
-            - BINARY
-            - DECIMAL
-            - INTERVAL
-            - ARRAY
-            - STRUCT
-            - MAP
-            - CHAR
-            - "NULL"
-            - USER_DEFINED_TYPE
-            - TIMESTAMP_NTZ
-            - VARIANT
-            - TABLE_TYPE
-          title: Column Type Name
-          type: string
-        type_precision:
-          description: Digits of precision; required for DecimalTypes.
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        type_scale:
-          description: Digits to right of decimal; required for DecimalTypes.
-          maximum: 2147483647
-          minimum: -2147483648
-          type: integer
-        type_text:
-          description: Full data type specification as SQL/catalogString text.
-          type: string
-      required:
-        - name
-        - type_text
-        - type_name
-        - parameter_mode
-        - parameter_type
-      title: Function Parameter Info
-      type: object
     FunctionParameterInfos:
       additionalProperties: false
       description: Information about a single function parameter.
@@ -2780,16 +2371,6 @@ components:
         - parameter_type
       title: Function Parameter Info
       type: object
-    GcpOauthToken:
-      additionalProperties: false
-      properties:
-        oauth_token:
-          description: The OAuth token used to access Google Cloud services.
-          type: string
-      required:
-        - oauth_token
-      title: Gcp Oauth Token
-      type: object
     GenerateTemporaryPathCredentialsRequest:
       additionalProperties: false
       description: Generate a new set of credentials for a volume.
@@ -2843,7 +2424,7 @@ components:
         privilege_assignments:
           description: The privileges assigned to each principal
           items:
-            $ref: "#/$defs/unitycatalog.shares.v1.PrivilegeAssignment.schema.strict.json"
+            $ref: "#/components/schemas/PrivilegeAssignment"
           type: array
       title: Get Permissions Response
       type: object
@@ -2865,21 +2446,15 @@ components:
           description: The type of the serialized message.
       additionalProperties: true
       description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-    ItemsItem:
-      type: object
-      properties:
-        schemaOrReference:
-          type: array
-          items:
-            $ref: "#/components/schemas/SchemaOrReference"
     ListCatalogsResponse:
       additionalProperties: false
       description: A catalog is a root-level namespace that contains schemas.
       properties:
         browse_only:
-          description:
-            "Indicates whether the principal is limited to retrieving metadata\n for the associated object through\
-            \ the BROWSE privilege when include_browse\n is enabled in the request."
+          description: |-
+            Indicates whether the principal is limited to retrieving metadata
+             for the associated object through the BROWSE privilege when include_browse
+             is enabled in the request.
           type: boolean
         catalog_type:
           description: The type of the catalog.
@@ -2955,9 +2530,9 @@ components:
       additionalProperties: false
       properties:
         browse_only:
-          description:
-            "Indicates whether the principal is limited to retrieving metadata\n for the associated object through\
-            \ the BROWSE privilege when include_browse is enabled in the request."
+          description: |-
+            Indicates whether the principal is limited to retrieving metadata
+             for the associated object through the BROWSE privilege when include_browse is enabled in the request.
           type: boolean
         comment:
           description: User-provided free-form text description.
@@ -3037,7 +2612,7 @@ components:
           description: Unique identifier for the function.
           type: string
         input_params:
-          $ref: "#/$defs/unitycatalog.functions.v1.FunctionParameterInfos.schema.strict.json"
+          $ref: "#/components/schemas/FunctionParameterInfos"
           description: The array of function parameter infos.
         is_deterministic:
           description: Indicates whether the function is deterministic.
@@ -3142,7 +2717,7 @@ components:
         recipients:
           description: List of recipients.
           items:
-            $ref: "#/$defs/unitycatalog.recipients.v1.Recipient.schema.strict.json"
+            $ref: "#/components/schemas/Recipient"
           type: array
       title: List Recipients Response
       type: object
@@ -3156,7 +2731,7 @@ components:
         schemas:
           description: The schemas returned.
           items:
-            $ref: "#/$defs/unitycatalog.schemas.v1.Schema.schema.strict.json"
+            $ref: "#/components/schemas/Schema"
           type: array
       title: List Schemas Response
       type: object
@@ -3200,17 +2775,19 @@ components:
             type: string
           type: array
         shared_as:
-          description:
-            "If this new name is not provided, the object's original name will be used as the shared_as name.\n\
-            \ The shared_as name must be unique within a share.\n For tables, the new name must follow the format of <schema>.<table>."
+          description: |-
+            If this new name is not provided, the object's original name will be used as the shared_as name.
+             The shared_as name must be unique within a share.
+             For tables, the new name must follow the format of <schema>.<table>.
           title: A user-provided new name for the data object within the share.
           type: string
         start_version:
-          description:
-            "This allows data providers to control the lowest object version that is accessible by clients.\n If\
-            \ specified, clients can query snapshots or changes for versions >= start_version.\n If not specified, clients\
-            \ can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The\
-            \ start_version should be <= the current version of the object."
+          description: |-
+            This allows data providers to control the lowest object version that is accessible by clients.
+             If specified, clients can query snapshots or changes for versions >= start_version.
+             If not specified, clients can only query starting from the version of the object at the time it was added to the share.
+
+             NOTE: The start_version should be <= the current version of the object.
           title: The start version associated with the object.
           type: integer
       required:
@@ -3227,7 +2804,7 @@ components:
         tables:
           description: The table summaries returned.
           items:
-            $ref: "#/$defs/unitycatalog.tables.v1.TableSummary.schema.strict.json"
+            $ref: "#/components/schemas/TableSummary"
           type: array
       title: List Table Summaries Response
       type: object
@@ -3315,69 +2892,17 @@ components:
       description: List Schemas response.
       properties:
         next_page_token:
-          description:
-            "Absent if there are no more pages. page_token should be set to\n this value for the next request to\
-            \ retrieve the next page of results."
+          description: |-
+            Absent if there are no more pages. page_token should be set to
+             this value for the next request to retrieve the next page of results.
           title: Opaque token to retrieve the next page of results.
           type: string
         volumes:
           description: The volumes returned.
           items:
-            $ref: "#/$defs/unitycatalog.volumes.v1.Volume.schema.strict.json"
+            $ref: "#/components/schemas/Volume"
           type: array
       title: List Volumes Response
-      type: object
-    NamedAny:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Map key
-        value:
-          allOf:
-            - $ref: "#/components/schemas/Any"
-          description: Mapped value
-      description: Automatically-generated message used to represent maps of Any as ordered (name,value) pairs.
-    NamedSchemaOrReference:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Map key
-        value:
-          allOf:
-            - $ref: "#/components/schemas/SchemaOrReference"
-          description: Mapped value
-      description: Automatically-generated message used to represent maps of SchemaOrReference as ordered (name,value) pairs.
-    NamedString:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Map key
-        value:
-          type: string
-          description: Mapped value
-      description: Automatically-generated message used to represent maps of string as ordered (name,value) pairs.
-    PermissionsChange:
-      additionalProperties: false
-      properties:
-        add:
-          description: The set of privileges to add.
-          items:
-            type: string
-          type: array
-        principal:
-          description: The principal (user email address or group name).
-          type: string
-        remove:
-          description: The set of privileges to remove.
-          items:
-            type: string
-          type: array
-      required:
-        - principal
-      title: Permissions Change
       type: object
     PrivilegeAssignment:
       additionalProperties: false
@@ -3394,31 +2919,6 @@ components:
       required:
         - principal
       title: Privilege Assignment
-      type: object
-    Properties:
-      type: object
-      properties:
-        additionalProperties:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamedSchemaOrReference"
-    R2TemporaryCredentials:
-      additionalProperties: false
-      properties:
-        access_key_id:
-          description: The access key ID that identifies the temporary credentials.
-          type: string
-        secret_access_key:
-          description: The secret access key associated with the access key.
-          type: string
-        session_token:
-          description: The generated JWT that users must pass to use the temporary credentials.
-          type: string
-      required:
-        - access_key_id
-        - secret_access_key
-        - session_token
-      title: R2 Temporary Credentials
       type: object
     Recipient:
       additionalProperties: false
@@ -3459,7 +2959,7 @@ components:
         tokens:
           description: This field is only present when the authentication_type is TOKEN.
           items:
-            $ref: "#/$defs/unitycatalog.recipients.v1.RecipientToken.schema.strict.json"
+            $ref: "#/components/schemas/RecipientToken"
           type: array
         updated_at:
           description: Time at which this share was updated, in epoch milliseconds.
@@ -3507,19 +3007,6 @@ components:
         - updated_by
       title: Recipient Token
       type: object
-    Reference:
-      type: object
-      properties:
-        Ref:
-          type: string
-        summary:
-          type: string
-        description:
-          type: string
-      description:
-        A simple object to allow referencing other components in the specification, internally and externally.  The
-        Reference Object is defined by JSON Reference and follows the same structure, behavior and rules.   For this specification,
-        reference resolution is accomplished as defined by the JSON Reference specification and not by the JSON Schema specification.
     Schema:
       additionalProperties: false
       description: A schema is a namespace within a catalog that contains tables.
@@ -3567,13 +3054,6 @@ components:
         - full_name
       title: Schema
       type: object
-    SchemaOrReference:
-      type: object
-      properties:
-        schema:
-          $ref: "#/components/schemas/Schema"
-        reference:
-          $ref: "#/components/schemas/Reference"
     Share:
       additionalProperties: false
       properties:
@@ -3614,17 +3094,19 @@ components:
             type: string
           type: array
         shared_as:
-          description:
-            "If this new name is not provided, the object's original name will be used as the shared_as name.\n\
-            \ The shared_as name must be unique within a share.\n For tables, the new name must follow the format of <schema>.<table>."
+          description: |-
+            If this new name is not provided, the object's original name will be used as the shared_as name.
+             The shared_as name must be unique within a share.
+             For tables, the new name must follow the format of <schema>.<table>.
           title: A user-provided new name for the data object within the share.
           type: string
         start_version:
-          description:
-            "This allows data providers to control the lowest object version that is accessible by clients.\n If\
-            \ specified, clients can query snapshots or changes for versions >= start_version.\n If not specified, clients\
-            \ can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The\
-            \ start_version should be <= the current version of the object."
+          description: |-
+            This allows data providers to control the lowest object version that is accessible by clients.
+             If specified, clients can query snapshots or changes for versions >= start_version.
+             If not specified, clients can only query starting from the version of the object at the time it was added to the share.
+
+             NOTE: The start_version should be <= the current version of the object.
           title: The start version associated with the object.
           type: integer
       required:
@@ -3641,29 +3123,13 @@ components:
           format: int32
         message:
           type: string
-          description:
-            A developer-facing error message, which should be in English. Any user-facing error message should
-            be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the
-            client.
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
         details:
           type: array
           items:
             $ref: "#/components/schemas/GoogleProtobufAny"
-          description:
-            A list of messages that carry the error details.  There is a common set of message types for APIs to
-            use.
-      description:
-        "The `Status` type defines a logical error model that is suitable for different programming environments,
-        including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three
-        pieces of data: error code, error message, and error details. You can find out more about this error model and how
-        to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."
-    Strings:
-      type: object
-      properties:
-        additionalProperties:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamedString"
+          description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+      description: "The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."
     Table:
       additionalProperties: false
       properties:
@@ -3768,9 +3234,7 @@ components:
           description: The access key ID that identifies the temporary credentials.
           type: string
         access_point:
-          description:
-            The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external
-            location.
+          description: The Amazon Resource Name (ARN) of the S3 access point for temporary credentials related the external location.
           type: string
         secret_access_key:
           description: The secret access key that can be used to sign AWS API requests.
@@ -3809,9 +3273,9 @@ components:
         properties:
           additionalProperties:
             type: string
-          description:
-            "When provided in update request, the specified properties will override the existing properties.\n\
-            \ To add and remove properties, one would need to perform a read-modify-write."
+          description: |-
+            When provided in update request, the specified properties will override the existing properties.
+             To add and remove properties, one would need to perform a read-modify-write.
           propertyNames:
             type: string
           title: A map of key-value properties attached to the securable.
@@ -3951,9 +3415,9 @@ components:
         properties:
           additionalProperties:
             type: string
-          description:
-            "When provided in update request, the specified properties will override the existing properties.\n\
-            \ To add and remove properties, one would need to perform a read-modify-write."
+          description: |-
+            When provided in update request, the specified properties will override the existing properties.
+             To add and remove properties, one would need to perform a read-modify-write.
           propertyNames:
             type: string
           title: Recipient properties as map of string key-value pairs.
@@ -3981,9 +3445,9 @@ components:
         properties:
           additionalProperties:
             type: string
-          description:
-            "When provided in update request, the specified properties will override the existing properties.\n\
-            \ To add and remove properties, one would need to perform a read-modify-write."
+          description: |-
+            When provided in update request, the specified properties will override the existing properties.
+             To add and remove properties, one would need to perform a read-modify-write.
           propertyNames:
             type: string
           title: A map of key-value properties attached to the securable.
@@ -4032,17 +3496,19 @@ components:
             type: string
           type: array
         shared_as:
-          description:
-            "If this new name is not provided, the object's original name will be used as the shared_as name.\n\
-            \ The shared_as name must be unique within a share.\n For tables, the new name must follow the format of <schema>.<table>."
+          description: |-
+            If this new name is not provided, the object's original name will be used as the shared_as name.
+             The shared_as name must be unique within a share.
+             For tables, the new name must follow the format of <schema>.<table>.
           title: A user-provided new name for the data object within the share.
           type: string
         start_version:
-          description:
-            "This allows data providers to control the lowest object version that is accessible by clients.\n If\
-            \ specified, clients can query snapshots or changes for versions >= start_version.\n If not specified, clients\
-            \ can only query starting from the version of the object at the time it was added to the share.\n\n NOTE: The\
-            \ start_version should be <= the current version of the object."
+          description: |-
+            This allows data providers to control the lowest object version that is accessible by clients.
+             If specified, clients can query snapshots or changes for versions >= start_version.
+             If not specified, clients can only query starting from the version of the object at the time it was added to the share.
+
+             NOTE: The start_version should be <= the current version of the object.
           title: The start version associated with the object.
           type: integer
       required:
@@ -4077,9 +3543,10 @@ components:
       additionalProperties: false
       properties:
         browse_only:
-          description:
-            "Indicates whether the principal is limited to retrieving metadata\n for the associated object through\
-            \ the BROWSE privilege when include_browse\n is enabled in the request."
+          description: |-
+            Indicates whether the principal is limited to retrieving metadata
+             for the associated object through the BROWSE privilege when include_browse
+             is enabled in the request.
           type: boolean
         catalog_name:
           description: Name of parent catalog.
@@ -4131,9 +3598,10 @@ components:
           description: The unique identifier of the volume
           type: string
         volume_type:
-          description:
-            "An external volume is located in the specified external location.\n A managed volume is located in\
-            \ the default location which is specified\n by the parent schema, or the parent catalog, or the Metastore."
+          description: |-
+            An external volume is located in the specified external location.
+             A managed volume is located in the default location which is specified
+             by the parent schema, or the parent catalog, or the Metastore.
           enum:
             - VOLUME_TYPE_UNSPECIFIED
             - VOLUME_TYPE_EXTERNAL
@@ -4149,614 +3617,4 @@ components:
         - volume_id
         - volume_type
       title: Volume
-      type: object
-    Xml:
-      type: object
-      properties:
-        name:
-          type: string
-        namespace:
-          type: string
-        prefix:
-          type: string
-        attribute:
-          type: boolean
-        wrapped:
-          type: boolean
-        specificationExtension:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamedAny"
-      description:
-        A metadata object that allows for more fine-tuned XML model definitions.  When using arrays, XML element
-        names are *not* inferred (for singular/plural forms) and the `name` property SHOULD be used to add that information.
-        See examples for expected behavior.
-    GetSchemaRequest:
-      additionalProperties: false
-      description: Get a Schema
-      properties:
-        full_name:
-          description: "Format: catalog_name.schema_name"
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          title: Full name of schema.
-          type: string
-      required:
-        - full_name
-      title: Get Schema Request
-      type: object
-    GetShareRequest:
-      additionalProperties: false
-      description: Get a share by name.
-      properties:
-        include_shared_data:
-          description: Query for data to include in the share.
-          type: boolean
-        name:
-          description: Name of the share.
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Get Share Request
-      type: object
-    GetPermissionsRequest:
-      additionalProperties: false
-      description: Get permissions for a data share.
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        name:
-          description: Name of the share.
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-      required:
-        - name
-      title: Get Permissions Request
-      type: object
-    DeleteRecipientRequest:
-      additionalProperties: false
-      description: Delete a recipient
-      properties:
-        name:
-          description: Name of the recipient.
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Delete Recipient Request
-      type: object
-    GetVolumeRequest:
-      additionalProperties: false
-      properties:
-        include_browse:
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        name:
-          description: The three-level (fully qualified) name of the volume
-          minLength: 3
-          type: string
-      required:
-        - name
-      title: Get Volume Request
-      type: object
-    GetExternalLocationRequest:
-      additionalProperties: false
-      description: Get an external location
-      properties:
-        name:
-          description: Name of external location.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Get External Location Request
-      type: object
-    DeleteTableRequest:
-      additionalProperties: false
-      description: Delete a table
-      properties:
-        full_name:
-          description: Full name of the table.
-          type: string
-      required:
-        - full_name
-      title: Delete Table Request
-      type: object
-    DeleteExternalLocationRequest:
-      additionalProperties: false
-      description: Delete an external location
-      properties:
-        force:
-          description: Force deletion even if the external location is not empty.
-          type: boolean
-        name:
-          description: Name of external location.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Delete External Location Request
-      type: object
-    AwsIamRole:
-      additionalProperties: false
-      description: The AWS IAM role configuration.
-      properties:
-        external_id:
-          description: The external ID used in role assumption to prevent the confused deputy problem.
-          type: string
-        role_arn:
-          description: The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
-          type: string
-        unity_catalog_iam_arn:
-          description:
-            "The Amazon Resource Name (ARN) of the AWS IAM user managed by Databricks.\n This is the identity that\
-            \ is going to assume the AWS IAM role."
-          type: string
-      required:
-        - external_id
-        - role_arn
-        - unity_catalog_iam_arn
-      title: Aws Iam Role
-      type: object
-    DeleteVolumeRequest:
-      additionalProperties: false
-      properties:
-        name:
-          description: The three-level (fully qualified) name of the volume
-          minLength: 3
-          type: string
-      required:
-        - name
-      title: Delete Volume Request
-      type: object
-    DeleteShareRequest:
-      additionalProperties: false
-      description: The caller must be a metastore admin or have the DELETE_SHARE privilege on the metastore.
-      properties:
-        name:
-          description: Name of the share.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Delete a share.
-      type: object
-    ListCredentialsRequest:
-      additionalProperties: false
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-        purpose:
-          description: Return only credentials for the specified purpose.
-          enum:
-            - PURPOSE_UNSPECIFIED
-            - STORAGE
-            - SERVICE
-          title: Purpose
-          type: string
-      title: List Credentials Request
-      type: object
-    GetCredentialRequest:
-      additionalProperties: false
-      description: Get a credential
-      properties:
-        name:
-          description: Name of credential.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Get Credential Request
-      type: object
-    ListCatalogsRequest:
-      additionalProperties: false
-      description: List catalogs
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          maximum: 1000
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-      title: List Catalogs Request
-      type: object
-    GetFunctionRequest:
-      additionalProperties: false
-      description: Get a function
-      properties:
-        name:
-          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
-          minLength: 1
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Get Function Request
-      type: object
-    ListFunctionsRequest:
-      additionalProperties: false
-      description: List functions in a schema
-      properties:
-        catalog_name:
-          description: Name of parent catalog for functions of interest.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        include_browse:
-          description:
-            Whether to include functions in the response for which the principal can only access selective metadata
-            for.
-          type: boolean
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          maximum: 1000
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-        schema_name:
-          description: Parent schema of functions.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - catalog_name
-        - schema_name
-      title: List Functions Request
-      type: object
-    GetRecipientRequest:
-      additionalProperties: false
-      description: Get a recipient by name.
-      properties:
-        name:
-          description: Name of the recipient.
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Get Recipient Request
-      type: object
-    DeleteFunctionRequest:
-      additionalProperties: false
-      description: Delete a function
-      properties:
-        force:
-          description: Force deletion even if the function is not empty.
-          type: boolean
-        name:
-          description: "The fully-qualified name of the function (three-level name: catalog.schema.function)."
-          minLength: 1
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]\.[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Delete Function Request
-      type: object
-    ListExternalLocationsRequest:
-      additionalProperties: false
-      description: List external locations
-      properties:
-        include_browse:
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-      title: List External Locations Request
-      type: object
-    ListRecipientsRequest:
-      additionalProperties: false
-      description: Request to list recipients.
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-      title: List Recipients Request
-      type: object
-    ListSharesRequest:
-      additionalProperties: false
-      description: Request to list shares.
-      properties:
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-      title: List Shares Request
-      type: object
-    DeleteCredentialRequest:
-      additionalProperties: false
-      description: Delete a credential
-      properties:
-        name:
-          description: Name of credential.
-          minLength: 1
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Delete Credential Request
-      type: object
-    ListVolumesRequest:
-      additionalProperties: false
-      description: List volumes
-      properties:
-        catalog_name:
-          description: The identifier of the catalog
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        include_browse:
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-        schema_name:
-          description: The identifier of the schema
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - catalog_name
-        - schema_name
-      title: List Volumes Request
-      type: object
-    GetCatalogRequest:
-      additionalProperties: false
-      description: Get a catalog
-      properties:
-        include_browse:
-          description:
-            Whether to include catalogs in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        name:
-          description: Name of catalog.
-          minLength: 1
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Get Catalog Request
-      type: object
-    ListTablesRequest:
-      additionalProperties: false
-      properties:
-        catalog_name:
-          description: Name of parent catalog for tables of interest.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        include_browse:
-          description:
-            Whether to include tables in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        include_delta_metadata:
-          description: Whether delta metadata should be included in the response.
-          type: boolean
-        include_manifest_capabilities:
-          description: Whether to include a manifest containing capabilities the table has.
-          type: boolean
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          maximum: 50
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-        omit_columns:
-          description: Whether to omit the columns of the table from the response or not.
-          type: boolean
-        omit_properties:
-          description: Whether to omit the properties of the table from the response or not.
-          type: boolean
-        omit_username:
-          description:
-            Whether to omit the username of the table (e.g. owner, updated_by, created_by) from the response or
-            not.
-          type: boolean
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-        schema_name:
-          description: Name of parent schema for tables of interest.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - catalog_name
-        - schema_name
-      title: List Tables Request
-      type: object
-    AwsIamRoleConfig:
-      additionalProperties: false
-      description: The AWS IAM role configuration.
-      properties:
-        role_arn:
-          description: The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
-          type: string
-      required:
-        - role_arn
-      title: Aws Iam Role Config
-      type: object
-    ListSchemasRequest:
-      additionalProperties: false
-      description: List Schemas in a catalog
-      properties:
-        catalog_name:
-          description: Name of parent catalog.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        include_browse:
-          description:
-            Whether to include schemas in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-          maximum: 1000
-          exclusiveMaximum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-      required:
-        - catalog_name
-      title: List Schemas Request
-      type: object
-    DeleteCatalogRequest:
-      additionalProperties: false
-      description: Delete a catalog
-      properties:
-        force:
-          description: Force deletion even if the catalog is not empty.
-          type: boolean
-        name:
-          description: Name of catalog.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-      required:
-        - name
-      title: Delete Catalog Request
-      type: object
-    GetTableExistsRequest:
-      additionalProperties: false
-      description: Get boolean reflecting if table exists
-      properties:
-        full_name:
-          description: Full name of the table.
-          type: string
-      required:
-        - full_name
-      title: Get Table Exists Request
-      type: object
-    DeleteSchemaRequest:
-      additionalProperties: false
-      description: Delete a Schema
-      properties:
-        force:
-          description: Force deletion even if the schema is not empty.
-          type: boolean
-        full_name:
-          description: "Format: catalog_name.schema_name"
-          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
-          title: Full name of schema to delete.
-          type: string
-      required:
-        - full_name
-      title: Delete Schema Request
-      type: object
-    ListTableSummariesRequest:
-      additionalProperties: false
-      properties:
-        catalog_name:
-          description: Name of parent catalog for tables of interest.
-          minLength: 3
-          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
-          type: string
-        include_manifest_capabilities:
-          description: Whether to include a manifest containing capabilities the table has.
-          type: boolean
-        max_results:
-          description: The maximum number of results per page that should be returned.
-          maximum: 10000
-          type: integer
-          minimum: 0
-          exclusiveMinimum: true
-        page_token:
-          description: Opaque pagination token to go to next page based on previous query.
-          type: string
-        schema_name_pattern:
-          description: A sql LIKE pattern (% and _) for schema names. All schemas will be returned if not set or empty.
-          type: string
-        table_name_pattern:
-          description: A sql LIKE pattern (% and _) for table names. All tables will be returned if not set or empty.
-          type: string
-      required:
-        - catalog_name
-      title: List Table Summaries Request
-      type: object
-    GetTableRequest:
-      additionalProperties: false
-      description: Get a table
-      properties:
-        full_name:
-          description: Full name of the table.
-          type: string
-        include_browse:
-          description:
-            Whether to include tables in the response for which the principal can only access selective metadata
-            for
-          type: boolean
-        include_delta_metadata:
-          description: Whether delta metadata should be included in the response.
-          type: boolean
-        include_manifest_capabilities:
-          description: Whether to include a manifest containing capabilities the table has.
-          type: boolean
-      required:
-        - full_name
-      title: Get Table Request
       type: object

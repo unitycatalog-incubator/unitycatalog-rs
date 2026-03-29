@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 use protobuf::Message;
 use protobuf::descriptor::FileDescriptorSet;
 
@@ -12,6 +12,20 @@ use unitycatalog_build::{CodeGenConfig, CodeGenOutput};
 
 #[derive(Parser)]
 struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Generate Rust/Python/Node.js code from proto descriptor
+    Generate(GenerateArgs),
+    /// Enrich openapi.yaml with validation rules from buf JSON Schema files
+    EnrichOpenapi(EnrichOpenApiArgs),
+}
+
+#[derive(Args)]
+struct GenerateArgs {
     #[clap(long, env = "UC_BUILD_OUTPUT_COMMON")]
     output_common: String,
 
@@ -57,9 +71,40 @@ struct Cli {
     python_typings_filename: Option<String>,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = Cli::parse();
+#[derive(Args)]
+struct EnrichOpenApiArgs {
+    /// Path to openapi.yaml
+    #[arg(long, default_value = "openapi/openapi.yaml")]
+    spec: PathBuf,
+    /// Directory containing *.schema.strict.bundle.json files
+    #[arg(long, default_value = "openapi/jsonschema")]
+    jsonschema_dir: PathBuf,
+    /// Proto descriptor binary for path/body deduplication (Pass 2); omit to skip
+    #[arg(long)]
+    descriptors: Option<PathBuf>,
+    /// Translate snake_case JSON Schema property names to camelCase in OpenAPI
+    #[arg(long, default_value_t = false)]
+    camel_case: bool,
+}
 
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+
+    match cli.command {
+        Commands::Generate(args) => run_generate(args),
+        Commands::EnrichOpenapi(args) => {
+            unitycatalog_build::openapi_enrich::run(
+                &args.spec,
+                &args.jsonschema_dir,
+                args.camel_case,
+                args.descriptors.as_deref(),
+            )?;
+            Ok(())
+        }
+    }
+}
+
+fn run_generate(args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
     // Load and parse file descriptors
     let descriptor_path = fs::canonicalize(PathBuf::from(args.descriptors))?;
     let descriptor_bytes = fs::read(&descriptor_path)?;

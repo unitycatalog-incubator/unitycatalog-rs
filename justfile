@@ -24,11 +24,15 @@ generate-proto:
 # Update the generated openapi spec with validation extracted from generated jsonschema.
 [group('codegen')]
 generate-openapi:
+    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
+    buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
+    cargo run --bin unitycatalog-build -- enrich-openapi \
+      --jsonschema-dir openapi/jsonschema \
+      --descriptors {{ justfile_directory() }}/descriptors.bin
+    rm -f {{ justfile_directory() }}/descriptors.bin
+    rm -rf openapi/jsonschema
     npx -y @redocly/cli bundle --remove-unused-components openapi/openapi.yaml > tmp.yaml
     mv tmp.yaml openapi/openapi.yaml
-    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
-    uv run dev/scripts/update_openapi_schemas.py
-    rm -rf openapi/jsonschema
     npm run openapi
 
 # generate rest server and client code with build crate.
@@ -36,7 +40,7 @@ generate-openapi:
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
     mkdir -p node/client/src/codegen
-    cargo run --bin unitycatalog-build -- \
+    cargo run --bin unitycatalog-build -- generate \
       --output-common crates/common/src/codegen \
       --output-models-gen crates/common/src/models/resources \
       --output-server crates/server/src/codegen \

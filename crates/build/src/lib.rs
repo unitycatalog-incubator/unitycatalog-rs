@@ -3,6 +3,7 @@ pub use error::*;
 mod analysis;
 pub mod codegen;
 pub mod error;
+pub mod openapi_enrich;
 pub mod output;
 pub mod parsing;
 mod utils;
