@@ -12,7 +12,7 @@ use crate::policy::{Permission, Policy, process_resources};
 use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
+impl<T: ResourceStore + Policy<RequestContext>> ExternalLocationHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_external_location(
         &self,
@@ -20,7 +20,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         context: RequestContext,
     ) -> Result<ExternalLocation> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let mut resource = ExternalLocation {
             name: request.name,
             url: request.url,
@@ -50,7 +50,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         // TODO: check if the location is used by any resources
         Ok(self.delete(&request.resource()).await?)
     }
@@ -62,7 +62,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         context: RequestContext,
     ) -> Result<ExternalLocation> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
 
         // TODO: populate relation fields (updated_* etc.)
 
@@ -75,7 +75,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         request: ListExternalLocationsRequest,
         context: RequestContext,
     ) -> Result<ListExternalLocationsResponse> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::ExternalLocation,
@@ -84,7 +84,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListExternalLocationsResponse {
             external_locations: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -98,7 +98,7 @@ impl<T: ResourceStore + Policy> ExternalLocationHandler for T {
         context: RequestContext,
     ) -> Result<ExternalLocation> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
 
         let (current, _) = self.get(&request.resource()).await?;
         let curr_ident = current.resource_ident();

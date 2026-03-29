@@ -12,35 +12,18 @@
 //! Service for managing volumes in Unity Catalog.
 //! Volumes represent logical storage locations (managed or external) within a schema.
 use crate::Result;
-use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::models::volumes::v1::*;
 #[async_trait]
-pub trait VolumeHandler: Send + Sync + 'static {
+pub trait VolumeHandler<Cx = crate::api::RequestContext>: Send + Sync + 'static {
     /// Lists volumes.
     async fn list_volumes(
         &self,
         request: ListVolumesRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListVolumesResponse>;
-    async fn create_volume(
-        &self,
-        request: CreateVolumeRequest,
-        context: RequestContext,
-    ) -> Result<Volume>;
-    async fn get_volume(
-        &self,
-        request: GetVolumeRequest,
-        context: RequestContext,
-    ) -> Result<Volume>;
-    async fn update_volume(
-        &self,
-        request: UpdateVolumeRequest,
-        context: RequestContext,
-    ) -> Result<Volume>;
-    async fn delete_volume(
-        &self,
-        request: DeleteVolumeRequest,
-        context: RequestContext,
-    ) -> Result<()>;
+    async fn create_volume(&self, request: CreateVolumeRequest, context: Cx) -> Result<Volume>;
+    async fn get_volume(&self, request: GetVolumeRequest, context: Cx) -> Result<Volume>;
+    async fn update_volume(&self, request: UpdateVolumeRequest, context: Cx) -> Result<Volume>;
+    async fn delete_volume(&self, request: DeleteVolumeRequest, context: Cx) -> Result<()>;
 }

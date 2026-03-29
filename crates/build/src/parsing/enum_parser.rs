@@ -1,6 +1,7 @@
 use protobuf::descriptor::{EnumDescriptorProto, SourceCodeInfo};
 
 use super::{CodeGenMetadata, EnumInfo, EnumValue};
+use crate::Result;
 
 /// Process a protobuf enum definition
 pub(super) fn process_enum(
@@ -9,7 +10,7 @@ pub(super) fn process_enum(
     type_prefix: &str,
     source_code_info: Option<&SourceCodeInfo>,
     path_prefix: &[i32],
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let enum_name = enum_desc.name();
     let full_type_name = if type_prefix.is_empty() {
         format!(".{}", enum_name)

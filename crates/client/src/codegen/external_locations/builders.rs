@@ -1,7 +1,8 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+use super::super::stream_paginated;
 use super::client::*;
-use crate::{error::Result, utils::stream_paginated};
+use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::external_locations::v1::*;

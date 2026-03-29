@@ -41,7 +41,7 @@ use std::collections::HashSet;
 use convert_case::{Case, Casing};
 use tracing::warn;
 
-use crate::analysis::messages::MessageRegistry;
+use crate::Result;
 use crate::parsing::types::BaseType;
 use crate::parsing::{
     CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo, extract_http_rule_pattern,
@@ -52,19 +52,14 @@ use crate::utils::strings;
 use services::extract_managed_resources;
 pub(crate) use services::*;
 
-mod messages;
 mod services;
 
 /// Analyze collected metadata and create a generation plan
-pub fn analyze_metadata(
-    metadata: &CodeGenMetadata,
-) -> Result<GenerationPlan, Box<dyn std::error::Error>> {
+pub fn analyze_metadata(metadata: &CodeGenMetadata) -> Result<GenerationPlan> {
     let mut services = Vec::new();
 
-    let registry = MessageRegistry::new(&metadata.messages);
-
     for service_info in metadata.services.values() {
-        let service_plan = analyze_service(&registry, service_info)?;
+        let service_plan = analyze_service(metadata, service_info)?;
         services.push(service_plan);
     }
 
@@ -72,17 +67,14 @@ pub fn analyze_metadata(
 }
 
 /// Analyze a single service and create a service plan
-fn analyze_service(
-    registry: &MessageRegistry<'_>,
-    info: &ServiceInfo,
-) -> Result<ServicePlan, Box<dyn std::error::Error>> {
+fn analyze_service(metadata: &CodeGenMetadata, info: &ServiceInfo) -> Result<ServicePlan> {
     let handler_name = strings::service_to_handler_name(&info.name);
     let base_path = strings::service_to_base_path(&info.name);
 
     let mut method_plans = Vec::new();
 
     for method in &info.methods {
-        if let Some(method_plan) = analyze_method(registry, method)? {
+        if let Some(method_plan) = analyze_method(metadata, method)? {
             method_plans.push(method_plan);
         } else {
             warn!(
@@ -93,7 +85,7 @@ fn analyze_service(
     }
 
     // Extract managed resources from method return types
-    let managed_resources = extract_managed_resources(registry, &method_plans);
+    let managed_resources = extract_managed_resources(metadata, &method_plans);
 
     Ok(ServicePlan {
         service_name: info.name.clone(),
@@ -107,9 +99,9 @@ fn analyze_service(
 
 /// Analyze a single method and create a method plan
 pub fn analyze_method(
-    registry: &MessageRegistry<'_>,
+    metadata: &CodeGenMetadata,
     method: &MethodMetadata,
-) -> Result<Option<MethodPlan>, Box<dyn std::error::Error>> {
+) -> Result<Option<MethodPlan>> {
     let (http_method, _http_path) = match method.http_info() {
         Some(info) => info,
         None => {
@@ -121,7 +113,7 @@ pub fn analyze_method(
         }
     };
 
-    let planner = MethodPlanner::try_new(method, registry)?;
+    let planner = MethodPlanner::try_new(method, metadata)?;
 
     let request_type = planner.request_type();
 
@@ -155,13 +147,17 @@ pub fn analyze_method(
 fn extract_request_fields(
     method: &MethodMetadata,
     input_fields: &[MessageField],
-) -> Result<(Vec<PathParam>, Vec<QueryParam>, Vec<BodyField>), Box<dyn std::error::Error>> {
+) -> Result<(Vec<PathParam>, Vec<QueryParam>, Vec<BodyField>)> {
     let mut path_params = Vec::new();
     let mut query_params = Vec::new();
     let mut body_fields = Vec::new();
 
     // Extract path parameters from HTTP pattern in order
-    let http_pattern = extract_http_rule_pattern(&method.http_rule).unwrap();
+    let http_pattern = extract_http_rule_pattern(&method.http_rule).ok_or_else(|| {
+        crate::error::Error::MissingHttpPattern {
+            method: format!("{}.{}", method.service_name, method.method_name),
+        }
+    })?;
     let path_param_names_ordered = http_pattern.parameter_names().to_vec();
 
     // Get body field specification from HTTP rule
@@ -196,8 +192,9 @@ fn extract_request_fields(
             // Oneof fields are always body fields and always optional
             body_fields.push(BodyField {
                 name: field_name.clone(),
-                optional: true, // oneof fields are always optional
-                field_type: field.unified_type.clone(),
+                field_type: field.unified_type.clone().optional(),
+                repeated: false,
+                oneof_variants: field.oneof_variants.clone(),
                 documentation: field.documentation.clone(),
             });
             processed_fields.insert(field_name.clone());
@@ -207,8 +204,9 @@ fn extract_request_fields(
         if should_be_body_field(field_name, body_spec) {
             body_fields.push(BodyField {
                 name: field_name.clone(),
-                optional: field.optional,
                 field_type: field.unified_type.clone(),
+                repeated: field.repeated,
+                oneof_variants: None,
                 documentation: field.documentation.clone(),
             });
         } else {
@@ -228,13 +226,10 @@ fn extract_request_fields(
 mod tests {
     use super::*;
     use crate::google::api::{HttpRule, ResourceDescriptor, http_rule::Pattern};
-    use crate::parsing::{MessageInfo, MethodMetadata, ServiceInfo};
+    use crate::parsing::{CodeGenMetadata, MessageInfo, MethodMetadata, ServiceInfo};
     use std::collections::HashMap;
 
-    #[test]
-    fn test_managed_resources_extraction() {
-        // Create a mock message with resource descriptor
-        let mut messages = HashMap::new();
+    fn make_metadata_with_catalog() -> CodeGenMetadata {
         let catalog_resource = ResourceDescriptor {
             r#type: "unitycatalog.io/Catalog".to_string(),
             pattern: vec!["catalogs/{catalog}".to_string()],
@@ -244,16 +239,23 @@ mod tests {
             singular: "catalog".to_string(),
             style: vec![],
         };
-
         let catalog_info = MessageInfo {
             name: "Catalog".to_string(),
             fields: vec![],
-            resource_descriptor: Some(catalog_resource.clone()),
+            resource_descriptor: Some(catalog_resource),
             documentation: None,
         };
+        let mut messages = HashMap::new();
         messages.insert("Catalog".to_string(), catalog_info);
+        CodeGenMetadata {
+            messages,
+            ..Default::default()
+        }
+    }
 
-        let registry = MessageRegistry::new(&messages);
+    #[test]
+    fn test_managed_resources_extraction() {
+        let metadata = make_metadata_with_catalog();
 
         // Create a mock service with methods that return resources
         let get_method = MethodMetadata {
@@ -280,7 +282,7 @@ mod tests {
         };
 
         // Analyze the service
-        let service_plan = analyze_service(&registry, &service_info).unwrap();
+        let service_plan = analyze_service(&metadata, &service_info).unwrap();
 
         // Verify that managed resources were extracted
         assert_eq!(service_plan.managed_resources.len(), 1);
@@ -301,27 +303,7 @@ mod tests {
 
     #[test]
     fn test_no_duplicate_managed_resources() {
-        // Create a mock message with resource descriptor
-        let mut messages = HashMap::new();
-        let catalog_resource = ResourceDescriptor {
-            r#type: "unitycatalog.io/Catalog".to_string(),
-            pattern: vec!["catalogs/{catalog}".to_string()],
-            name_field: "name".to_string(),
-            history: 0,
-            plural: "catalogs".to_string(),
-            singular: "catalog".to_string(),
-            style: vec![],
-        };
-
-        let catalog_info = MessageInfo {
-            name: "Catalog".to_string(),
-            fields: vec![],
-            resource_descriptor: Some(catalog_resource.clone()),
-            documentation: None,
-        };
-        messages.insert("Catalog".to_string(), catalog_info);
-
-        let registry = MessageRegistry::new(&messages);
+        let metadata = make_metadata_with_catalog();
 
         // Create multiple methods that return the same resource type
         let get_method = MethodMetadata {
@@ -365,7 +347,7 @@ mod tests {
         };
 
         // Analyze the service
-        let service_plan = analyze_service(&registry, &service_info).unwrap();
+        let service_plan = analyze_service(&metadata, &service_info).unwrap();
 
         // Verify that we only have one managed resource despite multiple methods returning it
         assert_eq!(service_plan.managed_resources.len(), 1);

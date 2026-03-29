@@ -22,6 +22,8 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
         .map(|method| from_request_extractor(&method))
         .collect_vec();
     let mod_path = service.models_path_crate();
+    let result_path: Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     // Only import RequestPartsExt when there are FromRequestParts impls (path/query params).
     let has_parts_extractors = service.methods().any(|m| {
@@ -42,7 +44,7 @@ pub(super) fn generate_common(service: &ServiceHandler<'_>) -> String {
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use crate::Result;
+        use #result_path;
         use #mod_path::*;
         #axum_imports
 
@@ -61,15 +63,15 @@ pub(super) fn generate_server(service: &ServiceHandler<'_>) -> String {
     let mod_path = service.models_path();
     let trait_path: Path =
         syn::parse_str(&format!("super::handler::{}", &service.plan.handler_name)).unwrap();
+    let result_path: Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     let tokens = quote! {
         #![allow(unused_mut)]
-        use crate::Result;
-        use crate::api::RequestContext;
+        use #result_path;
         use #mod_path::*;
         use #trait_path;
-        use crate::policy::Principal;
-        use axum::extract::{State, Extension};
+        use axum::extract::State;
 
         #(#handler_function_impls)*
 
@@ -102,24 +104,30 @@ fn axum_route_handler_impl(method: &MethodHandler<'_>, handler_trait: &str) -> T
     if method.plan.has_response {
         let output_type = method.output_type();
         quote! {
-            pub async fn #handler_method<T: #handler_trait_ident>(
+            pub async fn #handler_method<T, Cx>(
                 State(handler): State<T>,
-                Extension(recipient): Extension<Principal>,
+                context: Cx,
                 request: #input_type,
-            ) -> Result<::axum::Json<#output_type>> {
-                let context = RequestContext { recipient };
+            ) -> Result<::axum::Json<#output_type>>
+            where
+                T: #handler_trait_ident<Cx> + Clone + Send + Sync + 'static,
+                Cx: axum::extract::FromRequestParts<T> + Send,
+            {
                 let result = handler.#handler_method(request, context).await?;
                 Ok(axum::Json(result))
             }
         }
     } else {
         quote! {
-            pub async fn #handler_method<T: #handler_trait_ident>(
+            pub async fn #handler_method<T, Cx>(
                 State(handler): State<T>,
-                Extension(recipient): Extension<Principal>,
+                context: Cx,
                 request: #input_type,
-            ) -> Result<()> {
-                let context = RequestContext { recipient };
+            ) -> Result<()>
+            where
+                T: #handler_trait_ident<Cx> + Clone + Send + Sync + 'static,
+                Cx: axum::extract::FromRequestParts<T> + Send,
+            {
                 handler.#handler_method(request, context).await?;
                 Ok(())
             }

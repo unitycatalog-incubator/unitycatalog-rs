@@ -12,7 +12,7 @@ use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> ShareHandler for T {
+impl<T: ResourceStore + Policy<RequestContext>> ShareHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_share(
         &self,
@@ -20,7 +20,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<Share> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let resource = Share {
             name: request.name,
             comment: request.comment,
@@ -39,7 +39,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
@@ -49,7 +49,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         request: ListSharesRequest,
         context: RequestContext,
     ) -> Result<ListSharesResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Share,
@@ -58,7 +58,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListSharesResponse {
             shares: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -68,7 +68,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn get_share(&self, request: GetShareRequest, context: RequestContext) -> Result<Share> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
@@ -79,7 +79,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<Share> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let ident = request.resource();
         let current: Share = self.get(&ident).await?.0.try_into()?;
 
@@ -138,7 +138,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<GetPermissionsResponse> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         // Permissions for a share are modelled as associations between the share and
         // principal-named resources.  The `AssociationLabel` enum currently does not
         // include a dedicated `SharedWith` / `GrantedTo` variant, so we cannot store
@@ -166,7 +166,7 @@ impl<T: ResourceStore + Policy> ShareHandler for T {
         context: RequestContext,
     ) -> Result<UpdatePermissionsResponse> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         // See the note in `get_permissions`: a dedicated `AssociationLabel` variant is
         // needed before per-principal privilege changes can be persisted in the graph.
         //

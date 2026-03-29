@@ -46,14 +46,16 @@ impl CredentialContainer {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
+impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandler<RequestContext>
+    for T
+{
     #[tracing::instrument(skip(self, context))]
     async fn list_credentials(
         &self,
         request: ListCredentialsRequest,
         context: RequestContext,
     ) -> Result<ListCredentialsResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Credential,
@@ -62,7 +64,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListCredentialsResponse {
             credentials: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -75,7 +77,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         context: RequestContext,
     ) -> Result<Credential> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let credential = CredentialContainer {
             azure_msi: request.azure_managed_identity,
             azure_sp: request.azure_service_principal,
@@ -111,7 +113,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         context: RequestContext,
     ) -> Result<Credential> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         self.get_credential_internal(request).await
     }
 
@@ -122,7 +124,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         context: RequestContext,
     ) -> Result<Credential> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let credential = CredentialContainer {
             azure_msi: request.azure_managed_identity,
             azure_sp: request.azure_service_principal,
@@ -172,7 +174,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         match self.delete_secret(&request.name).await {
             // Delete the resource even if the secret is not found to allow cleanup
             // when the secret is deleted manually.
@@ -183,7 +185,7 @@ impl<T: ResourceStore + Policy + SecretManager> CredentialHandler for T {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + SecretManager> CredentialHandlerExt for T {
+impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandlerExt for T {
     async fn get_credential_internal(&self, request: GetCredentialRequest) -> Result<Credential> {
         let mut cred: Credential = self.get(&request.resource()).await?.0.try_into()?;
         let (_, secret_data) = self.get_secret(&cred.name).await?;

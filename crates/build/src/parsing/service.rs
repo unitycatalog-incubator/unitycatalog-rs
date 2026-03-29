@@ -13,7 +13,7 @@ pub(super) fn process_service(
     codegen_metadata: &mut CodeGenMetadata,
     source_code_info: Option<&SourceCodeInfo>,
     service_index: usize,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let service_name = service.name();
 
     // Extract service-level documentation

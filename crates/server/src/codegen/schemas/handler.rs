@@ -14,11 +14,10 @@
 //! users must have the USE_SCHEMA data permission on the schema and its parent catalog, and they must
 //! have the SELECT permission on the table or view.
 use crate::Result;
-use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::models::schemas::v1::*;
 #[async_trait]
-pub trait SchemaHandler: Send + Sync + 'static {
+pub trait SchemaHandler<Cx = crate::api::RequestContext>: Send + Sync + 'static {
     /// Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
     /// admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
     /// Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
@@ -26,37 +25,21 @@ pub trait SchemaHandler: Send + Sync + 'static {
     async fn list_schemas(
         &self,
         request: ListSchemasRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListSchemasResponse>;
     /// Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
     /// or have the CREATE_SCHEMA privilege in the parent catalog.
-    async fn create_schema(
-        &self,
-        request: CreateSchemaRequest,
-        context: RequestContext,
-    ) -> Result<Schema>;
+    async fn create_schema(&self, request: CreateSchemaRequest, context: Cx) -> Result<Schema>;
     /// Gets the specified schema within the metastore.
     /// The caller must be a metastore admin, the owner of the schema,
     /// or a user that has the USE_SCHEMA privilege on the schema.
-    async fn get_schema(
-        &self,
-        request: GetSchemaRequest,
-        context: RequestContext,
-    ) -> Result<Schema>;
+    async fn get_schema(&self, request: GetSchemaRequest, context: Cx) -> Result<Schema>;
     /// Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
     /// If the caller is a metastore admin, only the owner field can be changed in the update.
     /// If the name field must be updated, the caller must be a metastore admin or have the CREATE_SCHEMA
     /// privilege on the parent catalog.
-    async fn update_schema(
-        &self,
-        request: UpdateSchemaRequest,
-        context: RequestContext,
-    ) -> Result<Schema>;
+    async fn update_schema(&self, request: UpdateSchemaRequest, context: Cx) -> Result<Schema>;
     /// Deletes the specified schema from the parent catalog. The caller must be the owner
     /// of the schema or an owner of the parent catalog.
-    async fn delete_schema(
-        &self,
-        request: DeleteSchemaRequest,
-        context: RequestContext,
-    ) -> Result<()>;
+    async fn delete_schema(&self, request: DeleteSchemaRequest, context: Cx) -> Result<()>;
 }

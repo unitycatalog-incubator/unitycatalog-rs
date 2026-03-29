@@ -10,4 +10,20 @@ pub enum Error {
 
     #[error("Invalid annotation for {object}: {message}")]
     InvalidAnnotation { object: String, message: String },
+
+    #[error("Invalid models_path template `{template}`: {source}")]
+    InvalidModelsPathTemplate {
+        template: String,
+        #[source]
+        source: syn::Error,
+    },
+
+    #[error("Missing HTTP rule pattern for method `{method}`")]
+    MissingHttpPattern { method: String },
+
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error(transparent)]
+    Other(#[from] Box<dyn std::error::Error + Send + Sync>),
 }

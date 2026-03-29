@@ -11,7 +11,7 @@ use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> VolumeHandler for T {
+impl<T: ResourceStore + Policy<RequestContext>> VolumeHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_volume(
         &self,
@@ -19,7 +19,7 @@ impl<T: ResourceStore + Policy> VolumeHandler for T {
         context: RequestContext,
     ) -> Result<Volume> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
 
         let volume_type =
             VolumeType::try_from(request.volume_type).unwrap_or(VolumeType::Unspecified);
@@ -75,7 +75,7 @@ impl<T: ResourceStore + Policy> VolumeHandler for T {
         request: ListVolumesRequest,
         context: RequestContext,
     ) -> Result<ListVolumesResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Volume,
@@ -87,7 +87,7 @@ impl<T: ResourceStore + Policy> VolumeHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListVolumesResponse {
             volumes: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -101,7 +101,7 @@ impl<T: ResourceStore + Policy> VolumeHandler for T {
         context: RequestContext,
     ) -> Result<Volume> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
@@ -112,7 +112,7 @@ impl<T: ResourceStore + Policy> VolumeHandler for T {
         context: RequestContext,
     ) -> Result<Volume> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let ident = request.resource();
         let name = ResourceName::from_naive_str_split(request.name.as_str());
         let [catalog_name, schema_name, volume_name] = name.as_ref() else {
@@ -140,7 +140,7 @@ impl<T: ResourceStore + Policy> VolumeHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 }

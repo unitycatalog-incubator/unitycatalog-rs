@@ -7,6 +7,8 @@ pub mod output;
 pub mod parsing;
 mod utils;
 
+pub use codegen::{CodeGenConfig, CodeGenOutput};
+
 mod google {
     #[allow(unused)]
     pub mod api {

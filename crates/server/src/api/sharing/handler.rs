@@ -35,13 +35,15 @@ pub trait SharingQueryHandler: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
+impl<T: ResourceStore + Policy<RequestContext> + ShareHandler<RequestContext>> SharingHandler
+    for T
+{
     async fn list_shares(
         &self,
         request: ListSharesRequest,
         context: RequestContext,
     ) -> Result<ListSharesResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Share,
@@ -50,7 +52,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
                 request.page_token.clone(),
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
 
         // if all resources gor filtered, but there are more pages, try again
         if resources.is_empty() && next_page_token.is_some() {
@@ -76,7 +78,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         request: GetShareRequest,
         context: RequestContext,
     ) -> Result<SharingShare> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
             name: request.name,
             include_shared_data: Some(false),
@@ -93,7 +95,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         request: ListSchemasRequest,
         context: RequestContext,
     ) -> Result<ListSchemasResponse> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
             name: request.share,
             include_shared_data: Some(true),
@@ -125,7 +127,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         request: ListTablesRequest,
         context: RequestContext,
     ) -> Result<ListTablesResponse> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
             name: request.share,
             include_shared_data: Some(true),
@@ -164,7 +166,7 @@ impl<T: ResourceStore + Policy + ShareHandler> SharingHandler for T {
         request: ListAllTablesRequest,
         context: RequestContext,
     ) -> Result<ListAllTablesResponse> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let shares_request = SharesGetShareRequest {
             name: request.name,
             include_shared_data: Some(true),

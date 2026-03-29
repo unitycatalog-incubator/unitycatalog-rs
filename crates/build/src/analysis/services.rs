@@ -4,11 +4,10 @@ use convert_case::{Case, Casing};
 use quote::format_ident;
 use syn::Ident;
 
-use crate::analysis::messages::MessageRegistry;
 use crate::error::{Error, Result};
 use crate::google::api::{ResourceDescriptor, http_rule::Pattern};
 use crate::parsing::types::UnifiedType;
-use crate::parsing::{HttpPattern, MethodMetadata};
+use crate::parsing::{CodeGenMetadata, HttpPattern, MethodMetadata, OneofVariant};
 
 /// The Operation a method is performing
 ///
@@ -197,18 +196,30 @@ impl From<QueryParam> for RequestParam {
 pub struct BodyField {
     /// Field name
     pub name: String,
-    /// Whether this field is optional
-    pub optional: bool,
-    /// Parsed type of the query parameter
+    /// Parsed type of the body parameter
     pub field_type: UnifiedType,
+    /// Whether this field is a repeated (Vec) type
+    pub repeated: bool,
+    /// For oneof fields, the variants with their names and types
+    pub oneof_variants: Option<Vec<OneofVariant>>,
     /// Documentation from protobuf field comments
     pub documentation: Option<String>,
 }
 
 impl BodyField {
-    /// denotes if the parameter is optional
+    /// Denotes whether this field should be treated as optional in builder APIs.
+    ///
+    /// A field is optional when its `UnifiedType.is_optional` flag is set, when it is
+    /// repeated, or when its base type is `Map`, `Message`, or `OneOf` (complex types
+    /// always have a valid default and are therefore optional constructor parameters).
     pub fn is_optional(&self) -> bool {
-        self.optional
+        use crate::parsing::types::BaseType;
+        self.field_type.is_optional
+            || self.repeated
+            || matches!(
+                self.field_type.base_type,
+                BaseType::Map(_, _) | BaseType::Message(_) | BaseType::OneOf(_)
+            )
     }
 }
 
@@ -231,11 +242,11 @@ pub(super) struct MethodPlanner<'a> {
     method: &'a MethodMetadata,
     pattern: Pattern,
     pub(super) path: HttpPattern,
-    registry: &'a MessageRegistry<'a>,
+    metadata: &'a CodeGenMetadata,
 }
 
 impl<'a> MethodPlanner<'a> {
-    pub fn try_new(method: &'a MethodMetadata, registry: &'a MessageRegistry<'a>) -> Result<Self> {
+    pub fn try_new(method: &'a MethodMetadata, metadata: &'a CodeGenMetadata) -> Result<Self> {
         let Some(pattern) = &method.http_rule.pattern else {
             return Err(Error::MissingAnnotation {
                 object: method.method_name.clone(),
@@ -255,7 +266,7 @@ impl<'a> MethodPlanner<'a> {
             method,
             path,
             pattern: pattern.clone(),
-            registry,
+            metadata,
         })
     }
 
@@ -325,9 +336,9 @@ impl<'a> MethodPlanner<'a> {
                     continue;
                 }
                 let found = if use_plural {
-                    self.registry.resource_from_plural(resource).is_some()
+                    self.metadata.resource_from_plural(resource).is_some()
                 } else {
-                    self.registry.resource_from_singular(resource).is_some()
+                    self.metadata.resource_from_singular(resource).is_some()
                 };
                 if found {
                     return result_type.clone();
@@ -358,9 +369,26 @@ impl<'a> MethodPlanner<'a> {
     }
 }
 
+/// Split body fields from a `MethodPlan` into required and optional subsets.
+///
+/// Delegates to [`BodyField::is_optional`] for the classification. Optional fields
+/// become `with_*` setter methods; required fields become constructor parameters.
+pub fn split_body_fields(plan: &MethodPlan) -> (Vec<&BodyField>, Vec<&BodyField>) {
+    let mut required = Vec::new();
+    let mut optional = Vec::new();
+    for field in plan.body_fields() {
+        if field.is_optional() {
+            optional.push(field);
+        } else {
+            required.push(field);
+        }
+    }
+    (required, optional)
+}
+
 /// Extract managed resources from service methods
 pub fn extract_managed_resources(
-    registry: &MessageRegistry<'_>,
+    metadata: &CodeGenMetadata,
     methods: &[MethodPlan],
 ) -> Vec<ManagedResource> {
     let mut resources = Vec::new();
@@ -374,7 +402,7 @@ pub fn extract_managed_resources(
             }
 
             // Look up the resource descriptor for this type
-            if let Some(descriptor) = registry.get_resource_descriptor(resource_type) {
+            if let Some(descriptor) = metadata.get_resource_descriptor(resource_type) {
                 resources.push(ManagedResource {
                     type_name: resource_type.clone(),
                     descriptor: descriptor.clone(),

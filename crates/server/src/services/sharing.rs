@@ -54,13 +54,13 @@ impl<T: ResourceStore> SharingExt for T {
 }
 
 #[async_trait::async_trait]
-impl SharingQueryHandler for ServerHandler {
+impl SharingQueryHandler for ServerHandler<RequestContext> {
     async fn get_table_version(
         &self,
         request: GetTableVersionRequest,
         context: RequestContext,
     ) -> Result<GetTableVersionResponse> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let table_ref = SharingTableReference {
             share: request.share,
             schema: request.schema,
@@ -80,7 +80,7 @@ impl SharingQueryHandler for ServerHandler {
         request: GetTableMetadataRequest,
         context: RequestContext,
     ) -> Result<Bytes> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let table_ref = SharingTableReference {
             share: request.share,
             schema: request.schema,
@@ -107,7 +107,7 @@ impl SharingQueryHandler for ServerHandler {
         request: QueryTableRequest,
         context: RequestContext,
     ) -> Result<Bytes> {
-        self.check_required(&request, context.recipient()).await?;
+        self.check_required(&request, &context).await?;
         let table_ref = SharingTableReference {
             share: request.share,
             schema: request.schema,

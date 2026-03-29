@@ -1,7 +1,7 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
 use super::client::*;
-use crate::error::Result;
+use crate::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::temporary_credentials::v1::*;

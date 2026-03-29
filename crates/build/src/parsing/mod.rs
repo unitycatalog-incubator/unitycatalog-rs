@@ -6,6 +6,7 @@ pub(crate) use types::RenderContext;
 pub(crate) use self::http::*;
 pub(crate) use self::models::*;
 pub mod types;
+use crate::Result;
 
 mod enum_parser;
 mod http;
@@ -21,7 +22,7 @@ const GOOGLE_API_FIELD_BEHAVIOR_EXTENSION: u32 = 1052; // google.api.field_behav
 
 pub fn parse_file_descriptor_set(
     file_descriptor_set: &FileDescriptorSet,
-) -> Result<CodeGenMetadata, Box<dyn std::error::Error>> {
+) -> Result<CodeGenMetadata> {
     let mut codegen_metadata = CodeGenMetadata {
         messages: HashMap::new(),
         enums: HashMap::new(),
@@ -43,7 +44,7 @@ pub fn parse_file_descriptor_set(
 pub fn process_file_descriptor(
     file_desc: &FileDescriptorProto,
     codegen_metadata: &mut CodeGenMetadata,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let file_name = file_desc.name();
 
     // Extract source code info for documentation

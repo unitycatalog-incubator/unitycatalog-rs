@@ -4,13 +4,13 @@ use quote::{format_ident, quote};
 use syn::Path;
 
 use super::format_tokens;
-use crate::analysis::RequestType;
+use crate::analysis::{BodyField, RequestParam, RequestType};
 use crate::codegen::{MethodHandler, ServiceHandler};
+use crate::parsing::RenderContext;
 use crate::parsing::types::{BaseType, unified_to_rust};
-use crate::parsing::{MessageField, RenderContext};
 
 /// Generate builder code for all request types in a service
-pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String, Box<dyn std::error::Error>> {
+pub(crate) fn generate(service: &ServiceHandler<'_>) -> crate::error::Result<String> {
     let builder_impls: Vec<_> = service
         .methods()
         .map(|method| generate_request_builder(method, service))
@@ -32,12 +32,15 @@ fn generate_builders_module(service: &ServiceHandler<'_>, builders: &[String]) -
         .map(|b| syn::parse_str::<TokenStream>(b).unwrap_or_else(|_| quote! {}))
         .collect();
     let mod_path: Path = service.models_path();
+    let result_path: Path =
+        syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     let tokens = quote! {
         #![allow(unused_mut)]
         use futures::{future::BoxFuture, stream::BoxStream, TryStreamExt, StreamExt};
         use std::future::IntoFuture;
-        use crate::{error::Result, utils::stream_paginated};
+        use #result_path;
+        use super::super::stream_paginated;
         use #mod_path::*;
         use super::client::*;
 
@@ -51,26 +54,40 @@ fn generate_builders_module(service: &ServiceHandler<'_>, builders: &[String]) -
 fn generate_request_builder(
     method: MethodHandler<'_>,
     service: &ServiceHandler<'_>,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> crate::error::Result<String> {
     let builder_ident = method.builder_type();
     let request_type_ident = method.input_type().unwrap();
     let output_type_ident = method.output_type();
     let client_type_ident = service.client_type();
     let method_name = format_ident!("{}", method.plan.handler_function_name);
 
-    // Analyze fields to determine required vs optional
-    let (required_fields, optional_fields) = method.analyze_request_fields();
+    // Constructor params: all required parameters (path + required body fields)
+    let required_params: Vec<&RequestParam> = method.required_parameters().collect();
+    // Optional body fields get with_* setter methods (handles oneof variant expansion)
+    let (_, optional_body) = method.split_body_fields();
+    // Optional query params also get simple with_* setter methods
+    let optional_query: Vec<&RequestParam> = method
+        .optional_parameters()
+        .filter(|p| matches!(p, RequestParam::Query(_)))
+        .collect();
 
     // Generate constructor
     let constructor = generate_constructor(
         &method,
         &request_type_ident,
         &client_type_ident,
-        &required_fields,
+        &required_params,
     );
 
-    // Generate with_* methods for optional fields
-    let with_methods = generate_with_methods(&method, &optional_fields);
+    // Generate with_* methods: body fields first (handles oneof variants), then query params
+    let with_methods_body = generate_with_methods(&method, &optional_body);
+    let with_methods_query = optional_query
+        .iter()
+        .map(|param| generate_simple_with_method(&method, param));
+    let with_methods: Vec<_> = with_methods_body
+        .into_iter()
+        .chain(with_methods_query)
+        .collect();
 
     let into_stream_impl = if matches!(method.plan.request_type, RequestType::List) {
         Some(generate_into_stream_impl(method, &method_name))
@@ -112,18 +129,18 @@ fn generate_constructor(
     method: &MethodHandler<'_>,
     request_type_ident: &proc_macro2::Ident,
     client_type_ident: &proc_macro2::Ident,
-    required_fields: &[&MessageField],
+    required_params: &[&RequestParam],
 ) -> TokenStream {
-    let param_list = required_fields.iter().map(|field| {
-        let field_ident = format_ident!("{}", field.name);
-        let param_type = method.field_type(&field.unified_type, RenderContext::Constructor);
+    let param_list = required_params.iter().map(|param| {
+        let field_ident = param.field_ident();
+        let param_type = method.field_type(param.field_type(), RenderContext::Constructor);
         quote! { #field_ident: #param_type }
     });
 
-    let field_assignments = required_fields.iter().map(|field| {
-        let field_ident = format_ident!("{}", field.name);
+    let field_assignments = required_params.iter().map(|param| {
+        let field_ident = param.field_ident();
         let assignment = method.field_assignment(
-            &field.unified_type,
+            param.field_type(),
             &field_ident,
             &RenderContext::Constructor,
         );
@@ -145,13 +162,13 @@ fn generate_constructor(
 /// Generate with_* methods for optional fields
 fn generate_with_methods(
     method: &MethodHandler<'_>,
-    optional_fields: &[&MessageField],
+    optional_fields: &[&BodyField],
 ) -> Vec<TokenStream> {
     let mut methods = Vec::new();
 
     // First, generate individual methods for oneof variants
     for field in optional_fields {
-        if matches!(field.unified_type.base_type, BaseType::OneOf(_))
+        if matches!(field.field_type.base_type, BaseType::OneOf(_))
             && field.oneof_variants.is_some()
         {
             methods.extend(generate_oneof_variant_methods(method, field));
@@ -161,7 +178,7 @@ fn generate_with_methods(
     // Then generate regular methods for non-oneof fields
     let regular_methods: Vec<TokenStream> = optional_fields
         .iter()
-        .filter(|field| !matches!(field.unified_type.base_type, BaseType::OneOf(_)))
+        .filter(|field| !matches!(field.field_type.base_type, BaseType::OneOf(_)))
         .map(|field| builder_with_impl(method, field))
         .collect();
 
@@ -169,7 +186,7 @@ fn generate_with_methods(
     methods
 }
 
-fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenStream {
+fn builder_with_impl(method: &MethodHandler<'_>, field: &BodyField) -> TokenStream {
     let field_ident = format_ident!("{}", field.name);
     let method_name = format_ident!("with_{}", field.name);
     let field_name = &field.name;
@@ -183,7 +200,7 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
         quote! { #[doc = #set_msg] }
     };
 
-    if matches!(field.unified_type.base_type, BaseType::Map(_, _)) {
+    if matches!(field.field_type.base_type, BaseType::Map(_, _)) {
         quote! {
             #doc_attr
             pub fn #method_name<I, K, V>(mut self, #field_ident: I) -> Self
@@ -199,10 +216,10 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
                 self
             }
         }
-    } else if matches!(field.unified_type.base_type, BaseType::Enum(_)) {
-        let enum_ident = method.field_type(&field.unified_type, RenderContext::BuilderMethod);
+    } else if matches!(field.field_type.base_type, BaseType::Enum(_)) {
+        let enum_ident = method.field_type(&field.field_type, RenderContext::BuilderMethod);
         let assignment = method.field_assignment(
-            &field.unified_type,
+            &field.field_type,
             &field_ident,
             &RenderContext::BuilderMethod,
         );
@@ -214,7 +231,7 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
             }
         }
     } else {
-        let field_type = method.field_type(&field.unified_type, RenderContext::BuilderMethod);
+        let field_type = method.field_type(&field.field_type, RenderContext::BuilderMethod);
         if field.repeated {
             let assignment = quote! { #field_ident.into_iter().collect() };
             quote! {
@@ -227,19 +244,11 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
                     self
                 }
             }
-        } else if field.optional {
+        } else {
             quote! {
                 #doc_attr
                 pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
                     self.request.#field_ident = #field_ident.into();
-                    self
-                }
-            }
-        } else {
-            quote! {
-                #doc_attr
-                pub fn #method_name(mut self, #field_ident: #field_type) -> Self {
-                    self.request.#field_ident = #field_ident;
                     self
                 }
             }
@@ -250,12 +259,12 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &MessageField) -> TokenS
 /// Generate individual methods for each variant of a oneof field
 fn generate_oneof_variant_methods(
     method: &MethodHandler<'_>,
-    field: &MessageField,
+    field: &BodyField,
 ) -> Vec<TokenStream> {
     let variants = field.oneof_variants.as_ref().unwrap();
     let oneof_field_ident = format_ident!("{}", field.name);
 
-    let enum_type_tokens = method.field_type(&field.unified_type, RenderContext::BuilderMethod);
+    let enum_type_tokens = method.field_type(&field.field_type, RenderContext::BuilderMethod);
 
     variants
         .iter()
@@ -320,6 +329,47 @@ fn generate_into_future_impl(
                     let request = self.request;
                     Box::pin(async move { client.#method_name(&request).await })
                 }
+            }
+        }
+    }
+}
+
+/// Generate a simple `with_*` setter for a single optional query parameter.
+fn generate_simple_with_method(method: &MethodHandler<'_>, param: &RequestParam) -> TokenStream {
+    let field_ident = param.field_ident();
+    let method_name = format_ident!("with_{}", param.name());
+    let field_name = param.name();
+
+    let doc_attr = if let Some(doc) = param.documentation() {
+        let doc_spaced = format!(" {}", doc.trim_start());
+        quote! { #[doc = #doc_spaced] }
+    } else {
+        let set_msg = format!(" Set {}", field_name);
+        quote! { #[doc = #set_msg] }
+    };
+
+    let field_type = method.field_type(param.field_type(), RenderContext::BuilderMethod);
+
+    // Enum fields must be cast to i32 at the FFI boundary
+    if matches!(param.field_type().base_type, BaseType::Enum(_)) {
+        let assignment = method.field_assignment(
+            param.field_type(),
+            &field_ident,
+            &RenderContext::BuilderMethod,
+        );
+        quote! {
+            #doc_attr
+            pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
+                self.request.#field_ident = #assignment;
+                self
+            }
+        }
+    } else {
+        quote! {
+            #doc_attr
+            pub fn #method_name(mut self, #field_ident: impl Into<Option<#field_type>>) -> Self {
+                self.request.#field_ident = #field_ident.into();
+                self
             }
         }
     }

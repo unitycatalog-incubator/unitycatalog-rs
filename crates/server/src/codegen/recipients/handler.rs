@@ -17,39 +17,30 @@
 //! the credential file, and then uses the credential file to establish a secure connection to receive
 //! the shared data. This sharing mode is called open sharing.
 use crate::Result;
-use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::models::recipients::v1::*;
 #[async_trait]
-pub trait RecipientHandler: Send + Sync + 'static {
+pub trait RecipientHandler<Cx = crate::api::RequestContext>: Send + Sync + 'static {
     /// List recipients.
     async fn list_recipients(
         &self,
         request: ListRecipientsRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListRecipientsResponse>;
     /// Create a new recipient.
     async fn create_recipient(
         &self,
         request: CreateRecipientRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<Recipient>;
     /// Get a recipient by name.
-    async fn get_recipient(
-        &self,
-        request: GetRecipientRequest,
-        context: RequestContext,
-    ) -> Result<Recipient>;
+    async fn get_recipient(&self, request: GetRecipientRequest, context: Cx) -> Result<Recipient>;
     /// Update a recipient.
     async fn update_recipient(
         &self,
         request: UpdateRecipientRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<Recipient>;
     /// Delete a recipient.
-    async fn delete_recipient(
-        &self,
-        request: DeleteRecipientRequest,
-        context: RequestContext,
-    ) -> Result<()>;
+    async fn delete_recipient(&self, request: DeleteRecipientRequest, context: Cx) -> Result<()>;
 }

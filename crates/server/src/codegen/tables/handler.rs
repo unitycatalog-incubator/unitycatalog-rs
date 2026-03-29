@@ -12,11 +12,10 @@
 //! Service for managing tables in Unity Catalog.
 //! Tables represent structured data stored in a schema, supporting managed and external storage formats.
 use crate::Result;
-use crate::api::RequestContext;
 use async_trait::async_trait;
 use unitycatalog_common::models::tables::v1::*;
 #[async_trait]
-pub trait TableHandler: Send + Sync + 'static {
+pub trait TableHandler<Cx = crate::api::RequestContext>: Send + Sync + 'static {
     /// Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
     /// - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
     /// - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
@@ -27,7 +26,7 @@ pub trait TableHandler: Send + Sync + 'static {
     async fn list_table_summaries(
         &self,
         request: ListTableSummariesRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListTableSummariesResponse>;
     /// Gets an array of all tables for the current metastore under the parent catalog and schema.
     ///
@@ -38,26 +37,18 @@ pub trait TableHandler: Send + Sync + 'static {
     async fn list_tables(
         &self,
         request: ListTablesRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<ListTablesResponse>;
     /// Create a table
-    async fn create_table(
-        &self,
-        request: CreateTableRequest,
-        context: RequestContext,
-    ) -> Result<Table>;
+    async fn create_table(&self, request: CreateTableRequest, context: Cx) -> Result<Table>;
     /// Get a table
-    async fn get_table(&self, request: GetTableRequest, context: RequestContext) -> Result<Table>;
+    async fn get_table(&self, request: GetTableRequest, context: Cx) -> Result<Table>;
     /// Get boolean reflecting if table exists
     async fn get_table_exists(
         &self,
         request: GetTableExistsRequest,
-        context: RequestContext,
+        context: Cx,
     ) -> Result<GetTableExistsResponse>;
     /// Delete a table
-    async fn delete_table(
-        &self,
-        request: DeleteTableRequest,
-        context: RequestContext,
-    ) -> Result<()>;
+    async fn delete_table(&self, request: DeleteTableRequest, context: Cx) -> Result<()>;
 }

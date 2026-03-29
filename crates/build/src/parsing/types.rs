@@ -28,6 +28,51 @@ pub enum RenderContext {
     NapiParameter,
 }
 
+/// Trait for rendering a [`UnifiedType`] into a language-specific string.
+///
+/// Each language backend provides a concrete impl. The four existing free functions
+/// (`unified_to_rust`, `unified_to_python_type`, `unified_to_napi`, `unified_to_typescript`)
+/// are kept as thin wrappers so call-sites don't change.
+pub trait TypeRenderer {
+    fn render(&self, ty: &UnifiedType) -> String;
+}
+
+/// Rust type renderer — handles optional `impl Into<>` / `Option<>` wrapping.
+pub struct RustRenderer(pub RenderContext);
+
+impl TypeRenderer for RustRenderer {
+    fn render(&self, ty: &UnifiedType) -> String {
+        unified_to_rust(ty, self.0)
+    }
+}
+
+/// Python type annotation renderer.
+pub struct PythonRenderer;
+
+impl TypeRenderer for PythonRenderer {
+    fn render(&self, ty: &UnifiedType) -> String {
+        unified_to_python_type(ty)
+    }
+}
+
+/// Rust NAPI parameter type renderer.
+pub struct NapiRenderer;
+
+impl TypeRenderer for NapiRenderer {
+    fn render(&self, ty: &UnifiedType) -> String {
+        unified_to_napi(ty)
+    }
+}
+
+/// TypeScript type annotation renderer.
+pub struct TypeScriptRenderer;
+
+impl TypeRenderer for TypeScriptRenderer {
+    fn render(&self, ty: &UnifiedType) -> String {
+        unified_to_typescript(ty)
+    }
+}
+
 /// Convert a unified type to a Rust type string
 pub fn unified_to_rust(unified_type: &UnifiedType, context: RenderContext) -> String {
     let base_type_str = match &unified_type.base_type {

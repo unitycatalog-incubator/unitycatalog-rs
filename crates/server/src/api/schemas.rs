@@ -11,7 +11,7 @@ use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy> SchemaHandler for T {
+impl<T: ResourceStore + Policy<RequestContext>> SchemaHandler<RequestContext> for T {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_schema(
         &self,
@@ -19,7 +19,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         context: RequestContext,
     ) -> Result<Schema> {
         tracing::Span::current().record("resource_name", &request.name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let resource = Schema {
             full_name: format!("{}.{}", request.catalog_name, request.name),
             name: request.name,
@@ -41,7 +41,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         context: RequestContext,
     ) -> Result<()> {
         tracing::Span::current().record("resource_name", &request.full_name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.delete(&request.resource()).await?)
     }
 
@@ -51,7 +51,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         request: ListSchemasRequest,
         context: RequestContext,
     ) -> Result<ListSchemasResponse> {
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let (mut resources, next_page_token) = self
             .list(
                 &ObjectLabel::Schema,
@@ -60,7 +60,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
                 request.page_token,
             )
             .await?;
-        process_resources(self, context.as_ref(), &Permission::Read, &mut resources).await?;
+        process_resources(self, &context, &Permission::Read, &mut resources).await?;
         Ok(ListSchemasResponse {
             schemas: resources.into_iter().map(|r| r.try_into()).try_collect()?,
             next_page_token,
@@ -74,7 +74,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         context: RequestContext,
     ) -> Result<Schema> {
         tracing::Span::current().record("resource_name", &request.full_name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         Ok(self.get(&request.resource()).await?.0.try_into()?)
     }
 
@@ -85,7 +85,7 @@ impl<T: ResourceStore + Policy> SchemaHandler for T {
         context: RequestContext,
     ) -> Result<Schema> {
         tracing::Span::current().record("resource_name", &request.full_name);
-        self.check_required(&request, context.as_ref()).await?;
+        self.check_required(&request, &context).await?;
         let ident = request.resource();
         let name = ResourceName::from_naive_str_split(request.full_name);
         let [catalog_name, schema_name] = name.as_ref() else {

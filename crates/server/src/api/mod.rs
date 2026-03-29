@@ -12,6 +12,22 @@ pub use volumes::VolumeHandler;
 use crate::policy::{Permission, Principal};
 use unitycatalog_common::models::ResourceIdent;
 
+impl<S: Send + Sync> axum::extract::FromRequestParts<S> for RequestContext {
+    type Rejection = std::convert::Infallible;
+
+    async fn from_request_parts(
+        parts: &mut axum::http::request::Parts,
+        _state: &S,
+    ) -> Result<Self, Self::Rejection> {
+        let recipient = parts
+            .extensions
+            .get::<Principal>()
+            .cloned()
+            .unwrap_or_else(Principal::anonymous);
+        Ok(RequestContext { recipient })
+    }
+}
+
 // TODO: implement once AssociationLabel::CreatedBy and AssociationLabel::UpdatedBy variants are
 // added to unitycatalog_common (they are currently absent from the AssociationLabel enum in
 // crates/common/src/models/mod.rs). Once those variants exist, this function should be called
