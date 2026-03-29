@@ -44,6 +44,7 @@ mod client;
 mod handler;
 pub(crate) mod node;
 mod python;
+mod resources;
 mod server;
 
 impl MethodPlan {
@@ -154,6 +155,9 @@ impl CodeGenConfig {
 pub struct CodeGenOutput {
     /// Output directory for common (shared extractor) code.
     pub common: PathBuf,
+    /// Output directory for generated model files (e.g. `unitycatalog.internal.rs`).
+    /// When `None`, these files are written alongside `common` output.
+    pub models_gen: Option<PathBuf>,
     /// Output directory for server-side handler and route code. Generation is skipped when `None`.
     pub server: Option<PathBuf>,
     /// Output directory for HTTP client code. Generation is skipped when `None`.
@@ -180,8 +184,14 @@ pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Resu
 
     let plan = analyze_metadata(metadata)?;
 
-    let common_code = generate_common_code(&plan, metadata, config)?;
+    let (common_code, models_code) = generate_common_code(&plan, metadata, config)?;
     output::write_generated_code(&common_code, &config.output.common)?;
+    let models_dir = config
+        .output
+        .models_gen
+        .as_ref()
+        .unwrap_or(&config.output.common);
+    output::write_generated_code(&models_code, models_dir)?;
 
     if let Some(ref server_dir) = config.output.server {
         let server_code = generate_server_code(&plan, metadata, config)?;
@@ -215,7 +225,7 @@ fn generate_common_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<GeneratedCode> {
+) -> Result<(GeneratedCode, GeneratedCode)> {
     let mut files = HashMap::new();
 
     for service in &plan.services {
@@ -233,7 +243,16 @@ fn generate_common_code(
     let module_code = main_module(&plan.services);
     files.insert("mod.rs".to_string(), module_code);
 
-    Ok(GeneratedCode { files })
+    let resource_enum = resources::generate_resource_enum(metadata);
+    let mut models_files = HashMap::new();
+    models_files.insert("labels.rs".to_string(), resource_enum);
+
+    Ok((
+        GeneratedCode { files },
+        GeneratedCode {
+            files: models_files,
+        },
+    ))
 }
 
 fn generate_server_code(

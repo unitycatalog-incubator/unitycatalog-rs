@@ -15,6 +15,9 @@ struct Cli {
     #[clap(long, env = "UC_BUILD_OUTPUT_COMMON")]
     output_common: String,
 
+    #[clap(long, env = "UC_BUILD_OUTPUT_MODELS_GEN")]
+    output_models_gen: Option<String>,
+
     #[clap(long, env = "UC_BUILD_OUTPUT_SERVER")]
     output_server: Option<String>,
 
@@ -66,6 +69,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Resolve output directories
     let output_common = fs::canonicalize(PathBuf::from(&args.output_common))?;
+    let output_models_gen = args
+        .output_models_gen
+        .as_ref()
+        .map(|p| fs::canonicalize(PathBuf::from(p)))
+        .transpose()?;
     let output_server = args
         .output_server
         .as_ref()
@@ -94,6 +102,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let output = CodeGenOutput {
         common: output_common,
+        models_gen: output_models_gen,
         server: output_server,
         client: output_client,
         python: output_python,

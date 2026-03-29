@@ -5,7 +5,6 @@ pub use catalogs::v1::Catalog;
 pub use credentials::v1::Credential;
 pub use external_locations::v1::ExternalLocation;
 pub use functions::v1::Function;
-pub use internal::resource::{ObjectLabel, Resource};
 pub use object::Object;
 pub use recipients::v1::Recipient;
 pub use resources::*;
@@ -97,10 +96,6 @@ pub mod functions {
         #[cfg(feature = "grpc")]
         include!("./gen/unitycatalog.functions.v1.tonic.rs");
     }
-}
-
-pub(crate) mod internal {
-    include!("./gen/unitycatalog.internal.rs");
 }
 
 impl ObjectLabel {

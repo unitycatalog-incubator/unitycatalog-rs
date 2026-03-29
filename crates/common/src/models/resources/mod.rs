@@ -1,9 +1,9 @@
 use uuid::Uuid;
 
-use crate::models::ObjectLabel;
-
+pub use labels::{ObjectLabel, Resource};
 pub use name::*;
 
+pub(super) mod labels;
 mod name;
 
 /// Unique identifier for a resource.
