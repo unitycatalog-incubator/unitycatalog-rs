@@ -151,7 +151,13 @@ pub fn field_assignment(
     }
     match &unified_type.base_type {
         BaseType::String if !unified_type.is_optional => quote! { #field_ident.into() },
-        BaseType::Enum(_) => quote! { #field_ident as i32 },
+        BaseType::Enum(_) => {
+            if unified_type.is_repeated {
+                quote! { #field_ident.into_iter().map(|v| v as i32).collect() }
+            } else {
+                quote! { #field_ident as i32 }
+            }
+        }
         BaseType::Map(_, _) => quote! {
             #field_ident.into_iter().map(|(k, v)| (k.into(), v.into())).collect()
         },
