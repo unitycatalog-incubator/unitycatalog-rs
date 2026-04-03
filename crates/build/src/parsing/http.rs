@@ -41,6 +41,7 @@ pub enum UrlSegment {
 /// assert_eq!(method, "GET");
 /// ```
 #[derive(Debug, Clone)]
+#[allow(unused)]
 pub(crate) struct HttpPattern {
     /// The original template string
     pub template: String,

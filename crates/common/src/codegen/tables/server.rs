@@ -23,7 +23,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTableSummariesRe
             #[serde(default)]
             include_manifest_capabilities: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             catalog_name,
             schema_name_pattern,
             table_name_pattern,
@@ -31,7 +31,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTableSummariesRe
             page_token,
             include_manifest_capabilities,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListTableSummariesRequest {
@@ -71,7 +71,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             #[serde(default)]
             include_manifest_capabilities: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             catalog_name,
             schema_name,
             max_results,
@@ -83,7 +83,7 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             include_browse,
             include_manifest_capabilities,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListTablesRequest {
@@ -133,12 +133,12 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableRequest {
             #[serde(default)]
             include_manifest_capabilities: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             include_delta_metadata,
             include_browse,
             include_manifest_capabilities,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetTableRequest {

@@ -16,11 +16,11 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListRecipientsReques
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             max_results,
             page_token,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListRecipientsRequest {

@@ -13,7 +13,11 @@ pub enum RenderContext {
     /// A constructor (new method) in Rust
     Constructor,
     /// when extracting from a request inside implementations of FromRequest or FromRequestParts
+    /// (path params: renders enum as i32 for direct axum::extract::Path deserialization)
     Extractor,
+    /// when building the QueryParams serde struct for query string deserialization
+    /// (renders enum as its actual Rust type so serde can deserialize from string variant names)
+    QueryExtractor,
     /// Regular parameter type
     Parameter,
     /// Return type

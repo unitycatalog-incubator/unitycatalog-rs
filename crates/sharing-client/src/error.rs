@@ -50,7 +50,7 @@ pub enum Error {
 
     #[cfg(feature = "server")]
     #[error("Axum query: {0}")]
-    AxumQuery(#[from] axum::extract::rejection::QueryRejection),
+    AxumQuery(#[from] axum_extra::extract::QueryRejection),
 }
 
 impl Error {

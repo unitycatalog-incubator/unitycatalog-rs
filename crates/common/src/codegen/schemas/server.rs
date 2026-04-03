@@ -19,13 +19,13 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             catalog_name,
             max_results,
             page_token,
             include_browse,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListSchemasRequest {
@@ -105,8 +105,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteSchemaRequest 
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+        let axum_extra::extract::Query(QueryParams { force }) = parts
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteSchemaRequest { full_name, force })

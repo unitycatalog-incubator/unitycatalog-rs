@@ -16,11 +16,11 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCatalogsRequest 
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             max_results,
             page_token,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListCatalogsRequest {
@@ -57,8 +57,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetCatalogRequest {
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { include_browse }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+        let axum_extra::extract::Query(QueryParams { include_browse }) = parts
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetCatalogRequest {
@@ -109,8 +109,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteCatalogRequest
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+        let axum_extra::extract::Query(QueryParams { force }) = parts
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteCatalogRequest { name, force })

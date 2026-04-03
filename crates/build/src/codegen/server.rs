@@ -8,7 +8,7 @@ use crate::{
     analysis::{MethodPlan, RequestParam, RequestType},
     codegen::{MethodHandler, ServiceHandler},
     google::api::http_rule::Pattern,
-    parsing::RenderContext,
+    parsing::{RenderContext, types::BaseType},
 };
 
 /// Generate server side code for axum servers
@@ -263,8 +263,12 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
     } else {
         let query_fields = params.iter().map(|p| {
             let name = format_ident!("{}", p.name);
-            let type_tokens = method.field_type(&p.field_type, RenderContext::Extractor);
-            if p.is_optional() {
+            // Use QueryExtractor so enums render as their actual type (not i32):
+            // query strings carry variant names as strings, not integers.
+            let type_tokens = method.field_type(&p.field_type, RenderContext::QueryExtractor);
+            // Repeated fields need #[serde(default)] so an absent key deserializes as an
+            // empty Vec rather than a deserialization error.
+            if p.is_optional() || p.field_type.is_repeated {
                 quote! { #[serde(default)] #name: #type_tokens }
             } else {
                 quote! { #name: #type_tokens }
@@ -278,8 +282,10 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
             struct QueryParams {
                 #(#query_fields,)*
             }
-            let axum::extract::Query(QueryParams { #(#param_names),* }) = parts
-                .extract::<axum::extract::Query<QueryParams>>()
+            // axum_extra::extract::Query uses serde_html_form which supports repeated query
+            // parameters (?foo=a&foo=b → Vec<T>), unlike axum::extract::Query (serde_urlencoded).
+            let axum_extra::extract::Query(QueryParams { #(#param_names),* }) = parts
+                .extract::<axum_extra::extract::Query<QueryParams>>()
                 .await
                 .map_err(axum::response::IntoResponse::into_response)?;
         }
@@ -290,9 +296,130 @@ fn query_extractions(method: &MethodHandler<'_>) -> TokenStream {
 fn field_assignments(method: &MethodPlan) -> TokenStream {
     let assignments = method.parameters.iter().map(|param| {
         let ident = param.field_ident();
-        quote! { #ident }
+        // Enum query params are extracted as their actual Rust type (via QueryExtractor context)
+        // but prost struct fields store enums as i32, so we cast here.
+        match param {
+            RequestParam::Query(q) if matches!(q.field_type.base_type, BaseType::Enum(_)) => {
+                if q.field_type.is_repeated {
+                    quote! { #ident: #ident.into_iter().map(|v| v as i32).collect() }
+                } else if q.is_optional() {
+                    quote! { #ident: #ident.map(|v| v as i32) }
+                } else {
+                    quote! { #ident: #ident as i32 }
+                }
+            }
+            _ => quote! { #ident },
+        }
     });
     quote! { #(#assignments,)* }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::analysis::{QueryParam, RequestParam};
+    use crate::parsing::types::{BaseType, UnifiedType};
+
+    fn make_query_plan(params: Vec<RequestParam>) -> MethodPlan {
+        use crate::analysis::RequestType;
+        use crate::google::api::{HttpRule, http_rule::Pattern};
+        use crate::parsing::{CodeGenMetadata, HttpPattern, MethodMetadata};
+        MethodPlan {
+            metadata: MethodMetadata {
+                service_name: "TestService".to_string(),
+                method_name: "ListThings".to_string(),
+                input_type: "ListThingsRequest".to_string(),
+                output_type: "ListThingsResponse".to_string(),
+                operation: None,
+                http_rule: HttpRule {
+                    selector: "".to_string(),
+                    pattern: Some(Pattern::Get("/things".to_string())),
+                    body: "".to_string(),
+                    response_body: "".to_string(),
+                    additional_bindings: vec![],
+                },
+                input_fields: vec![],
+                documentation: None,
+            },
+            handler_function_name: "list_things".to_string(),
+            http_pattern: HttpPattern::parse("/things"),
+            http_method: "GET".to_string(),
+            parameters: params,
+            has_response: true,
+            request_type: RequestType::List,
+            output_resource_type: None,
+        }
+    }
+
+    fn repeated_string_param(name: &str) -> RequestParam {
+        RequestParam::Query(QueryParam {
+            name: name.to_string(),
+            field_type: UnifiedType {
+                base_type: BaseType::String,
+                is_optional: false,
+                is_repeated: true,
+            },
+            documentation: None,
+        })
+    }
+
+    fn optional_enum_param(name: &str) -> RequestParam {
+        RequestParam::Query(QueryParam {
+            name: name.to_string(),
+            field_type: UnifiedType {
+                base_type: BaseType::Enum("unitycatalog.tables.v1.TableType".to_string()),
+                is_optional: true,
+                is_repeated: false,
+            },
+            documentation: None,
+        })
+    }
+
+    fn repeated_enum_param(name: &str) -> RequestParam {
+        RequestParam::Query(QueryParam {
+            name: name.to_string(),
+            field_type: UnifiedType {
+                base_type: BaseType::Enum("unitycatalog.tables.v1.TableType".to_string()),
+                is_optional: false,
+                is_repeated: true,
+            },
+            documentation: None,
+        })
+    }
+
+    #[test]
+    fn test_field_assignments_repeated_string_uses_shorthand() {
+        let plan = make_query_plan(vec![repeated_string_param("tags")]);
+        let tokens = field_assignments(&plan).to_string();
+        // Repeated strings use struct shorthand (no cast needed)
+        assert!(tokens.contains("tags"), "should emit 'tags'");
+        assert!(!tokens.contains("as i32"), "should not cast string to i32");
+    }
+
+    #[test]
+    fn test_field_assignments_optional_enum_casts_to_i32() {
+        let plan = make_query_plan(vec![optional_enum_param("table_type")]);
+        let tokens = field_assignments(&plan).to_string();
+        assert!(
+            tokens.contains("map"),
+            "optional enum should use .map(|v| v as i32)"
+        );
+        assert!(tokens.contains("as i32"), "should cast enum to i32");
+    }
+
+    #[test]
+    fn test_field_assignments_repeated_enum_collects_as_i32() {
+        let plan = make_query_plan(vec![repeated_enum_param("table_types")]);
+        let tokens = field_assignments(&plan).to_string();
+        assert!(
+            tokens.contains("into_iter"),
+            "repeated enum should use into_iter().map(|v| v as i32).collect()"
+        );
+        assert!(
+            tokens.contains("as i32"),
+            "should cast enum variants to i32"
+        );
+    }
 }
 
 /// Generate body parameter extractions as TokenStream

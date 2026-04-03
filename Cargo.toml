@@ -31,6 +31,7 @@ deltalake-datafusion = { git = "https://github.com/delta-incubator/deltalake-dat
 
 async-trait = "0.1.83"
 axum = { version = "0.8" }
+axum-extra = { version = "0.10", features = ["query"] }
 bytes = { version = "1.1" }
 chrono = { version = "0.4.41", features = ["serde"] }
 env_logger = "0.11"

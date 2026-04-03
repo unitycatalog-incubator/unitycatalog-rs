@@ -20,14 +20,14 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListFunctionsRequest
             #[serde(default)]
             include_browse: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             catalog_name,
             schema_name,
             max_results,
             page_token,
             include_browse,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListFunctionsRequest {
@@ -100,8 +100,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for DeleteFunctionReques
             #[serde(default)]
             force: Option<bool>,
         }
-        let axum::extract::Query(QueryParams { force }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+        let axum_extra::extract::Query(QueryParams { force }) = parts
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(DeleteFunctionRequest { name, force })

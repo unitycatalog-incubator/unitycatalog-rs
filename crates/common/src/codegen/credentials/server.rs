@@ -12,22 +12,22 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListCredentialsReque
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
-            purpose: Option<i32>,
+            purpose: Option<Purpose>,
             #[serde(default)]
             max_results: Option<i32>,
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             purpose,
             max_results,
             page_token,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListCredentialsRequest {
-            purpose,
+            purpose: purpose.map(|v| v as i32),
             max_results,
             page_token,
         })
