@@ -3,6 +3,19 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Path;
 
+/// Generate a `#[doc = "..."]` attribute for a field or method.
+///
+/// Uses `doc` if present; otherwise generates a default `"Set <field_name>"` message.
+fn field_doc_attr(doc: Option<&str>, field_name: &str) -> TokenStream {
+    if let Some(doc) = doc {
+        let doc_spaced = format!(" {}", doc.trim_start());
+        quote! { #[doc = #doc_spaced] }
+    } else {
+        let set_msg = format!(" Set {}", field_name);
+        quote! { #[doc = #set_msg] }
+    }
+}
+
 use super::format_tokens;
 use crate::analysis::{BodyField, RequestParam, RequestType};
 use crate::codegen::{MethodHandler, ServiceHandler};
@@ -190,14 +203,7 @@ fn builder_with_impl(method: &MethodHandler<'_>, field: &BodyField) -> TokenStre
     let method_name = format_ident!("with_{}", field.name);
     let field_name = &field.name;
 
-    // Generate appropriate documentation for the method
-    let doc_attr = if let Some(ref doc) = field.documentation {
-        let doc_spaced = format!(" {}", doc.trim_start());
-        quote! { #[doc = #doc_spaced] }
-    } else {
-        let set_msg = format!(" Set {}", field_name);
-        quote! { #[doc = #set_msg] }
-    };
+    let doc_attr = field_doc_attr(field.documentation.as_deref(), field_name);
 
     if matches!(field.field_type.base_type, BaseType::Map(_, _)) {
         quote! {
@@ -277,14 +283,7 @@ fn generate_oneof_variant_methods(
             let param_type: syn::Type = syn::parse_str(&rust_type_str)
                 .unwrap_or_else(|_| syn::parse_str("String").unwrap());
 
-            // Generate documentation
-            let doc_attr = if let Some(ref doc) = variant.documentation {
-                let doc_spaced = format!(" {}", doc.trim_start());
-                quote! { #[doc = #doc_spaced] }
-            } else {
-                let set_msg = format!(" Set {}", variant.field_name);
-                quote! { #[doc = #set_msg] }
-            };
+            let doc_attr = field_doc_attr(variant.documentation.as_deref(), &variant.field_name);
 
             quote! {
                 #doc_attr
@@ -339,13 +338,7 @@ fn generate_simple_with_method(method: &MethodHandler<'_>, param: &RequestParam)
     let method_name = format_ident!("with_{}", param.name());
     let field_name = param.name();
 
-    let doc_attr = if let Some(doc) = param.documentation() {
-        let doc_spaced = format!(" {}", doc.trim_start());
-        quote! { #[doc = #doc_spaced] }
-    } else {
-        let set_msg = format!(" Set {}", field_name);
-        quote! { #[doc = #set_msg] }
-    };
+    let doc_attr = field_doc_attr(param.documentation(), field_name);
 
     let field_type = method.field_type(param.field_type(), RenderContext::BuilderMethod);
 

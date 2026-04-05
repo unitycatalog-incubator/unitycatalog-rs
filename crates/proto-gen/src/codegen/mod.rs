@@ -110,7 +110,16 @@ pub struct ResourceEnumConfig {
     pub package_prefix: String,
     /// Number of `super::` hops from the generated file back to the models root.
     ///
-    /// For example, `2` produces `"super::super::"`.
+    /// This controls how many `super::` prefixes are prepended to model type paths in
+    /// the generated resource enum. Derive it by counting directory levels between the
+    /// generated file and the crate root:
+    ///
+    /// - `0` — the generated file lives at the models root (same directory, no hops needed)
+    /// - `1` — one level deep (e.g. `src/codegen/labels.rs` → `super::` to reach `src/codegen/`)
+    /// - `2` — two levels deep (e.g. `src/codegen/inner/labels.rs` → `super::super::`)
+    ///
+    /// For the Unity Catalog workspace, the value is typically `2` because generated label
+    /// files live two directories below the crate root.
     pub super_levels: u32,
 }
 
@@ -180,6 +189,30 @@ pub struct CodeGenConfig {
     pub bindings: Option<BindingsConfig>,
 }
 
+impl CodeGenConfig {
+    /// Validate this config without running code generation.
+    ///
+    /// Checks that:
+    /// - `models_path_template` and `models_path_crate_template` produce valid Rust paths after
+    ///   `{service}` substitution.
+    /// - `bindings` is `Some` whenever `output.python`, `output.node`, or `output.node_ts` is
+    ///   `Some`.
+    ///
+    /// Call this at construction time to surface misconfiguration early, before generation runs.
+    pub fn validate(&self) -> Result<()> {
+        ModelsPath::new(&self.models_path_template)?;
+        ModelsPath::new(&self.models_path_crate_template)?;
+        if (self.output.python.is_some()
+            || self.output.node.is_some()
+            || self.output.node_ts.is_some())
+            && self.bindings.is_none()
+        {
+            return Err(Error::MissingBindingsConfig);
+        }
+        Ok(())
+    }
+}
+
 /// Output directory configuration for code generation.
 ///
 /// Only `common` is required. All other outputs are optional — set to `None` to skip that
@@ -208,9 +241,35 @@ pub struct CodeGenOutput {
     pub python_typings_filename: String,
 }
 
-/// Main entry point for code generation
+/// Generate all code described by `config` from `metadata`.
 ///
-/// Takes collected metadata and a [`CodeGenConfig`] and generates all necessary code.
+/// Writes the following outputs, depending on which [`CodeGenOutput`] fields are `Some`:
+///
+/// | Field | Contents |
+/// |-------|----------|
+/// | `output.common` | Axum extractor code, per-service `mod.rs` (always written) |
+/// | `output.models_gen` | `labels.rs` resource-enum file (falls back to `common` if `None`) |
+/// | `output.server` | Handler trait + Axum route wiring per service |
+/// | `output.client` | HTTP client structs and request builders per service |
+/// | `output.python` | PyO3 binding wrappers + `.pyi` typings stub |
+/// | `output.node` | NAPI binding wrappers |
+/// | `output.node_ts` | TypeScript client (`client.ts`) |
+///
+/// # Required fields
+///
+/// - `output.common` is always required.
+/// - `bindings` must be `Some` when any of `output.python`, `output.node`, or `output.node_ts`
+///   is `Some`; otherwise returns [`Error::MissingBindingsConfig`].
+/// - `models_path_template` and `models_path_crate_template` must be valid Rust path templates
+///   (containing `{service}`); invalid templates return [`Error::InvalidModelsPathTemplate`].
+///
+/// # Optional fields
+///
+/// Setting `resource_enum` to `None` generates an empty `labels.rs`.
+/// Setting `bindings` to `None` skips all language-binding output.
+///
+/// Call [`CodeGenConfig::validate`] before this function to surface config errors at
+/// construction time rather than mid-generation.
 pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Result<()> {
     // Validate templates early so callers get a clean error before any generation starts.
     ModelsPath::new(&config.models_path_template)?;
@@ -222,9 +281,7 @@ pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Resu
         || config.output.node_ts.is_some())
         && config.bindings.is_none()
     {
-        return Err(Error::Build(
-            "bindings config required for python/node output".to_string(),
-        ));
+        return Err(Error::MissingBindingsConfig);
     }
 
     let plan = analyze_metadata(metadata)?;

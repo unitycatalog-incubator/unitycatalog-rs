@@ -13,6 +13,7 @@ pub(crate) use typings::generate_typings;
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::parsing::types::{BaseType, UnifiedType};
+use crate::utils::extract_simple_type_name;
 
 static DOCS_TARGET_WIDTH: usize = 100;
 
@@ -115,14 +116,6 @@ fn python_type_annotation_from_ident(ident: &syn::Ident) -> String {
             }
         }
     }
-}
-
-fn extract_simple_type_name(full_type: &str) -> String {
-    full_type
-        .split('.')
-        .next_back()
-        .unwrap_or(full_type)
-        .to_string()
 }
 
 fn sanitize_python_field_name(field_name: &str) -> String {

@@ -5,7 +5,12 @@ edition.workspace = true
 rust-version.workspace = true
 publish = false
 
+[[bin]]
+name = "proto-gen"
+path = "src/bin/proto-gen.rs"
+
 [dependencies]
+clap = { version = "4", features = ["derive", "env"] }
 prost = { workspace = true }
 prost-types = { workspace = true }
 serde = { workspace = true }

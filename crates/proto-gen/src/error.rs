@@ -5,6 +5,9 @@ pub enum Error {
     #[error("Build error: {0}")]
     Build(String),
 
+    #[error("bindings config is required when python, node, or node_ts output is enabled")]
+    MissingBindingsConfig,
+
     #[error("Missing annotation for {object}: {message}")]
     MissingAnnotation { object: String, message: String },
 

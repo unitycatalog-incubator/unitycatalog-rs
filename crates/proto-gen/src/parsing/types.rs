@@ -7,6 +7,8 @@ use convert_case::{Case, Casing};
 use proc_macro2::TokenStream;
 use quote::quote;
 
+use crate::utils::extract_simple_type_name;
+
 /// Context for rendering types in different situations
 #[derive(Debug, Clone, Copy)]
 pub enum RenderContext {
@@ -124,20 +126,31 @@ pub fn unified_to_rust(unified_type: &UnifiedType, context: RenderContext) -> St
         result = format!("Vec<{}>", result);
     }
 
-    // In builder methods we wrap in impl Into<Option<T>> so we just need the inner type.
-    // In python parameter signatures we wrap repeated fields in Option<Vec<T>>
-    // to distinguish an empty array from a missing field.
-    if (unified_type.is_optional && !matches!(context, RenderContext::BuilderMethod))
-        || (matches!(
-            context,
-            RenderContext::PythonParameter | RenderContext::NapiParameter
-        ) && (matches!(unified_type.base_type, BaseType::Map(_, _))
-            || unified_type.is_repeated))
-    {
+    if should_wrap_in_option(context, unified_type) {
         result = format!("Option<{}>", result);
     }
 
     result
+}
+
+/// Return `true` when the Rust representation of `ty` in `ctx` should be wrapped in `Option<T>`.
+///
+/// Two independent conditions trigger wrapping:
+///
+/// 1. **Optional field outside a builder method** — builder methods use `impl Into<Option<T>>`
+///    for their parameter type and leave the inner `Option<T>` implicit, so wrapping is skipped
+///    in that context.
+///
+/// 2. **FFI boundaries (Python / NAPI) with maps or repeated fields** — at FFI boundaries we
+///    distinguish "field absent" from "field is an empty collection" by wrapping maps and
+///    repeated fields in `Option<T>`, even when the field is not marked optional in proto.
+fn should_wrap_in_option(ctx: RenderContext, ty: &UnifiedType) -> bool {
+    let is_optional_non_builder = ty.is_optional && !matches!(ctx, RenderContext::BuilderMethod);
+    let is_ffi_collection = matches!(
+        ctx,
+        RenderContext::PythonParameter | RenderContext::NapiParameter
+    ) && (matches!(ty.base_type, BaseType::Map(_, _)) || ty.is_repeated);
+    is_optional_non_builder || is_ffi_collection
 }
 
 /// Generate field assignment code
@@ -295,14 +308,6 @@ fn flexible_optional_field_assignment(
             }
             _ => quote! { #field_ident.into().map(|s| s.to_string()) },
         }
-    }
-}
-
-fn extract_simple_type_name(name: &str) -> String {
-    if let Some(last_part) = name.split('.').next_back() {
-        last_part.to_string()
-    } else {
-        name.to_string()
     }
 }
 

@@ -112,15 +112,19 @@ fn parse_url_segments(template: &str) -> Vec<UrlSegment> {
 
             // Parse parameter name
             let mut param_name = String::new();
+            let mut closed = false;
             while let Some(&next_ch) = chars.peek() {
                 if next_ch == '}' {
                     chars.next(); // consume the '}'
+                    closed = true;
                     break;
                 }
                 param_name.push(chars.next().unwrap());
             }
 
-            if !param_name.is_empty() {
+            // An unclosed brace (e.g. `{name` with no `}`) is malformed — skip it rather
+            // than emitting a parameter with a truncated or empty name.
+            if !param_name.is_empty() && closed {
                 segments.push(UrlSegment::Parameter(param_name));
             }
         } else {
@@ -272,6 +276,18 @@ mod tests {
 
         let pattern = HttpPattern::parse("/shares/{share}/schemas");
         assert_eq!(pattern.base_path(), "shares");
+    }
+
+    #[test]
+    fn test_unclosed_brace_is_ignored() {
+        // A malformed template like `/catalogs/{name` (missing closing brace)
+        // should not produce a parameter — the unclosed segment is discarded.
+        let pattern = HttpPattern::parse("/catalogs/{name");
+        assert!(
+            pattern.parameters.is_empty(),
+            "unclosed brace must not produce a parameter"
+        );
+        assert_eq!(pattern.static_prefix, "/catalogs/");
     }
 
     #[test]

@@ -1,8 +1,16 @@
-//! Shared utilities for the build crate
+//! Shared utilities for the proto-gen crate
 //!
 //! This module contains common functions used across different parts of the code generation
 //! pipeline to reduce duplication and improve maintainability.
 use convert_case::{Case, Casing};
+
+/// Extract the last dot-separated segment of a fully-qualified protobuf type name.
+///
+/// For example, `".unitycatalog.catalog.v1.Catalog"` returns `"Catalog"`.
+/// If the name contains no dots, the original string is returned unchanged.
+pub fn extract_simple_type_name(name: &str) -> String {
+    name.split('.').next_back().unwrap_or(name).to_string()
+}
 
 /// String manipulation utilities
 pub mod strings {

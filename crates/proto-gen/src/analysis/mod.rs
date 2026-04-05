@@ -49,29 +49,44 @@ use crate::utils::strings;
 pub(crate) use types::MethodPlanner;
 pub use types::{
     BodyField, GenerationPlan, ManagedResource, MethodPlan, PathParam, QueryParam, RequestParam,
-    RequestType, ServicePlan, extract_managed_resources, split_body_fields,
+    RequestType, ServicePlan, SkippedMethod, extract_managed_resources, split_body_fields,
 };
 
 mod types;
 
-/// Analyze collected metadata and create a generation plan
+/// Analyze collected metadata and create a generation plan.
+///
+/// Methods with missing HTTP annotations are excluded from the plan and recorded in
+/// [`GenerationPlan::skipped_methods`] so callers can distinguish "zero methods generated"
+/// from "all methods were silently dropped".
 pub fn analyze_metadata(metadata: &CodeGenMetadata) -> Result<GenerationPlan> {
     let mut services = Vec::new();
+    let mut skipped_methods = Vec::new();
 
     for service_info in metadata.services.values() {
-        let service_plan = analyze_service(metadata, service_info)?;
+        let (service_plan, skipped) = analyze_service(metadata, service_info)?;
         services.push(service_plan);
+        skipped_methods.extend(skipped);
     }
 
-    Ok(GenerationPlan { services })
+    Ok(GenerationPlan {
+        services,
+        skipped_methods,
+    })
 }
 
-/// Analyze a single service and create a service plan
-fn analyze_service(metadata: &CodeGenMetadata, info: &ServiceInfo) -> Result<ServicePlan> {
+/// Analyze a single service and create a service plan.
+///
+/// Returns the plan and a list of methods that were skipped due to incomplete metadata.
+fn analyze_service(
+    metadata: &CodeGenMetadata,
+    info: &ServiceInfo,
+) -> Result<(ServicePlan, Vec<SkippedMethod>)> {
     let handler_name = strings::service_to_handler_name(&info.name);
     let base_path = strings::service_to_base_path(&info.name);
 
     let mut method_plans = Vec::new();
+    let mut skipped = Vec::new();
 
     for method in &info.methods {
         if let Some(method_plan) = analyze_method(metadata, method)? {
@@ -81,19 +96,27 @@ fn analyze_service(metadata: &CodeGenMetadata, info: &ServiceInfo) -> Result<Ser
                 "Skipping method {}.{} - incomplete metadata",
                 info.name, method.method_name
             );
+            skipped.push(SkippedMethod {
+                service_name: info.name.clone(),
+                method_name: method.method_name.clone(),
+                reason: "missing HTTP annotation".to_string(),
+            });
         }
     }
 
     let managed_resources = types::extract_managed_resources(metadata, &method_plans);
 
-    Ok(ServicePlan {
-        service_name: info.name.clone(),
-        handler_name,
-        base_path,
-        methods: method_plans,
-        managed_resources,
-        documentation: info.documentation.clone(),
-    })
+    Ok((
+        ServicePlan {
+            service_name: info.name.clone(),
+            handler_name,
+            base_path,
+            methods: method_plans,
+            managed_resources,
+            documentation: info.documentation.clone(),
+        },
+        skipped,
+    ))
 }
 
 /// Analyze a single method and create a method plan.
@@ -285,8 +308,9 @@ mod tests {
             documentation: None,
             methods: vec![make_get_method()],
         };
-        let service_plan = analyze_service(&metadata, &service_info).unwrap();
+        let (service_plan, skipped) = analyze_service(&metadata, &service_info).unwrap();
 
+        assert!(skipped.is_empty());
         assert_eq!(service_plan.managed_resources.len(), 1);
         assert_eq!(service_plan.managed_resources[0].type_name, "Catalog");
         assert_eq!(
@@ -327,7 +351,7 @@ mod tests {
             documentation: None,
             methods: vec![make_get_method(), update_method],
         };
-        let service_plan = analyze_service(&metadata, &service_info).unwrap();
+        let (service_plan, _skipped) = analyze_service(&metadata, &service_info).unwrap();
 
         assert_eq!(service_plan.managed_resources.len(), 1);
         assert_eq!(service_plan.managed_resources[0].type_name, "Catalog");

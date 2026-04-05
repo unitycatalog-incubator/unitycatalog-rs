@@ -5,12 +5,17 @@ use clap::{Args, Parser, Subcommand};
 use protobuf::Message;
 use protobuf::descriptor::FileDescriptorSet;
 
-use unitycatalog_build::Result;
-use unitycatalog_build::codegen::generate_code;
-use unitycatalog_build::parsing::parse_file_descriptor_set;
-use unitycatalog_build::{CodeGenConfig, CodeGenOutput};
+use proto_gen::error::Result;
+use proto_gen::{
+    BindingsConfig, CodeGenConfig, CodeGenOutput, ResourceEnumConfig, enrich_openapi,
+    generate_code, parse_file_descriptor_set,
+};
 
 #[derive(Parser)]
+#[command(
+    name = "proto-gen",
+    about = "Generate Rust/Python/Node.js code from proto descriptors"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -93,7 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
         Commands::Generate(args) => run_generate(args),
         Commands::EnrichOpenapi(args) => {
-            unitycatalog_build::openapi_enrich::run(
+            enrich_openapi(
                 &args.spec,
                 &args.jsonschema_dir,
                 args.camel_case,
@@ -104,11 +109,37 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-/// Build a [`CodeGenConfig`] from parsed CLI arguments, starting from Unity Catalog defaults.
+/// Build a [`CodeGenConfig`] with Unity Catalog defaults from parsed CLI arguments.
 ///
-/// Any CLI flag that was explicitly provided overrides the corresponding default field.
+/// Mirrors the config constructed by `crates/build/src/main.rs` so that both binaries
+/// produce identical output and can be diffed for verification.
 fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
-    let mut config = CodeGenConfig::unitycatalog_defaults(output);
+    let has_bindings_output =
+        output.python.is_some() || output.node.is_some() || output.node_ts.is_some();
+
+    let bindings = has_bindings_output.then(|| BindingsConfig {
+        aggregate_client_name: "UnityCatalogClient".to_string(),
+        py_error_type: "PyUnityCatalogError".to_string(),
+        py_result_type: "PyUnityCatalogResult".to_string(),
+        napi_error_ext_trait: "NapiErrorExt".to_string(),
+        typings_package_filter: Some("unitycatalog".to_string()),
+        ts_error_base_class: "UnityCatalogError".to_string(),
+        ts_error_code_prefix: "UC".to_string(),
+    });
+
+    let mut config = CodeGenConfig {
+        context_type_path: "crate::api::RequestContext".to_string(),
+        result_type_path: "crate::Result".to_string(),
+        models_path_template: "unitycatalog_common::models::{service}::v1".to_string(),
+        models_path_crate_template: "crate::models::{service}::v1".to_string(),
+        output,
+        resource_enum: Some(ResourceEnumConfig {
+            package_prefix: ".unitycatalog.".to_string(),
+            super_levels: 2,
+        }),
+        bindings,
+    };
+
     if let Some(ref v) = args.context_type {
         config.context_type_path = v.clone();
     }
@@ -121,48 +152,33 @@ fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
     if let Some(ref v) = args.models_path_crate_template {
         config.models_path_crate_template = v.clone();
     }
+
     config
 }
 
 fn run_generate(args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
-    // Load and parse file descriptors
     let descriptor_path = fs::canonicalize(PathBuf::from(&args.descriptors))?;
     let descriptor_bytes = fs::read(&descriptor_path)?;
     let file_descriptor_set = FileDescriptorSet::parse_from_bytes(&descriptor_bytes)?;
 
-    let codegen_metadata = parse_file_descriptor_set(&file_descriptor_set)?;
+    let metadata = parse_file_descriptor_set(&file_descriptor_set)?;
 
-    // Resolve output directories
-    let output_common = fs::canonicalize(PathBuf::from(&args.output_common))?;
+    let resolve_dir = |p: &str| fs::canonicalize(PathBuf::from(p));
+
+    let output_common = resolve_dir(&args.output_common)?;
     let output_models_gen = args
         .output_models_gen
-        .as_ref()
-        .map(|p| fs::canonicalize(PathBuf::from(p)))
+        .as_deref()
+        .map(resolve_dir)
         .transpose()?;
-    let output_server = args
-        .output_server
-        .as_ref()
-        .map(|p| fs::canonicalize(PathBuf::from(p)))
-        .transpose()?;
-    let output_client = args
-        .output_client
-        .as_ref()
-        .map(|p| fs::canonicalize(PathBuf::from(p)))
-        .transpose()?;
-    let output_python = args
-        .output_python
-        .as_ref()
-        .map(|p| fs::canonicalize(PathBuf::from(p)))
-        .transpose()?;
-    let output_node = args
-        .output_node
-        .as_ref()
-        .map(|p| fs::canonicalize(PathBuf::from(p)))
-        .transpose()?;
+    let output_server = args.output_server.as_deref().map(resolve_dir).transpose()?;
+    let output_client = args.output_client.as_deref().map(resolve_dir).transpose()?;
+    let output_python = args.output_python.as_deref().map(resolve_dir).transpose()?;
+    let output_node = args.output_node.as_deref().map(resolve_dir).transpose()?;
     let output_node_ts = args
         .output_node_ts
-        .as_ref()
-        .map(|p| fs::canonicalize(PathBuf::from(p)))
+        .as_deref()
+        .map(resolve_dir)
         .transpose()?;
 
     let python_typings_filename = args
@@ -182,8 +198,7 @@ fn run_generate(args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let config = make_uc_config(output, &args);
-
-    generate_code(&codegen_metadata, &config)?;
+    generate_code(&metadata, &config)?;
 
     Ok(())
 }
