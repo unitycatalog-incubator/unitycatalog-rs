@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use super::http::extract_path_parameters;
 use crate::gnostic::openapi::v3::Operation;
 use crate::google::api::{FieldBehavior, HttpRule, ResourceDescriptor};
+use crate::parsing::http::HttpPattern;
 use crate::parsing::types::{BaseType, UnifiedType};
 
 /// Collected metadata for code generation
@@ -76,12 +76,10 @@ pub struct MessageInfo {
 #[derive(Debug, Clone)]
 pub struct MessageField {
     pub name: String,
+    /// Language-agnostic type; carries `is_optional` and `is_repeated` flags.
     pub unified_type: UnifiedType,
-    pub optional: bool,
-    pub repeated: bool,
-    pub oneof_name: Option<String>,
     pub documentation: Option<String>,
-    /// For oneof fields, contains the variants with their field names and types
+    /// For oneof fields, contains the variants with their field names and types.
     pub oneof_variants: Option<Vec<OneofVariant>>,
     /// Field behavior annotations from google.api.field_behavior
     pub field_behavior: Vec<FieldBehavior>,
@@ -138,37 +136,23 @@ pub struct MethodMetadata {
     pub output_type: String,
     pub operation: Option<Operation>,
     pub http_rule: HttpRule,
-    pub input_fields: Vec<MessageField>,
+    /// Pre-parsed HTTP URL pattern. Analysis should use this directly instead of re-parsing.
+    pub http_pattern: HttpPattern,
     pub documentation: Option<String>,
 }
 
 impl MethodMetadata {
-    /// Extract HTTP method and path from google.api.http annotations
-    /// Get HTTP method and path from the rule if available
-    pub fn http_info(&self) -> Option<(String, String)> {
-        // Extract HTTP method and path from the rule
-        if let Some(pattern) = &self.http_rule.pattern {
-            use crate::google::api::http_rule::Pattern;
-            match pattern {
-                Pattern::Get(path) => Some(("GET".to_string(), path.clone())),
-                Pattern::Put(path) => Some(("PUT".to_string(), path.clone())),
-                Pattern::Post(path) => Some(("POST".to_string(), path.clone())),
-                Pattern::Delete(path) => Some(("DELETE".to_string(), path.clone())),
-                Pattern::Patch(path) => Some(("PATCH".to_string(), path.clone())),
-                Pattern::Custom(custom) => Some((custom.kind.clone(), custom.path.clone())),
-            }
-        } else {
-            None
-        }
-    }
-
-    /// Extract path parameters from HTTP path template
-    pub fn path_parameters(&self) -> Vec<String> {
-        if let Some((_, path)) = self.http_info() {
-            extract_path_parameters(&path)
-        } else {
-            Vec::new()
-        }
+    /// Return the HTTP method string (e.g. "GET", "POST").
+    pub fn http_method(&self) -> Option<&str> {
+        use crate::google::api::http_rule::Pattern;
+        self.http_rule.pattern.as_ref().map(|p| match p {
+            Pattern::Get(_) => "GET",
+            Pattern::Post(_) => "POST",
+            Pattern::Put(_) => "PUT",
+            Pattern::Delete(_) => "DELETE",
+            Pattern::Patch(_) => "PATCH",
+            Pattern::Custom(c) => c.kind.as_str(),
+        })
     }
 }
 
@@ -205,8 +189,8 @@ mod tests {
             input_type: ".test.TestRequest".to_string(),
             output_type: ".test.TestResponse".to_string(),
             operation: None,
-            http_rule: http_rule,
-            input_fields: Vec::new(),
+            http_pattern: crate::parsing::http::HttpPattern::parse("/test"),
+            http_rule,
             documentation: Some("Test method documentation".to_string()),
         };
         service_info.methods.push(method);

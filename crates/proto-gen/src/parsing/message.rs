@@ -6,7 +6,7 @@ use protobuf::Message;
 use protobuf::descriptor::field_descriptor_proto::{Label, Type};
 use protobuf::descriptor::{DescriptorProto, FieldDescriptorProto, MessageOptions, SourceCodeInfo};
 
-use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant};
+use super::{CodeGenMetadata, MessageField, MessageInfo, OneofVariant, extract_documentation};
 use crate::google::api::{FieldBehavior, ResourceDescriptor};
 use crate::parsing::types::{BaseType, UnifiedType};
 use crate::{Error, Result};
@@ -35,26 +35,11 @@ pub(super) fn process_message(
     let mut fields = Vec::new();
     let mut oneof_fields: HashMap<String, Vec<OneofVariant>> = HashMap::new();
 
-    let field_docs = extract_field_documentation(source_code_info, path_prefix);
-
     // First pass: collect regular fields and identify oneof groups
     for (field_index, field) in message.field.iter().enumerate() {
-        // In Proto3, fields are optional if:
-        // 1. They have the LABEL_OPTIONAL label AND proto3_optional is true, OR
-        // 2. They have LABEL_REPEATED (repeated fields are inherently optional)
-        // All other fields are required in Proto3
-        let is_optional = match field.label() {
-            Label::LABEL_REPEATED => true,
-            Label::LABEL_OPTIONAL => field.proto3_optional(),
-            Label::LABEL_REQUIRED => false,
-        };
-
-        // Check if this is a repeated field
-        let is_repeated = matches!(field.label(), Label::LABEL_REPEATED);
-
         // Get documentation for this field
         let field_path = [path_prefix, &[2, field_index as i32]].concat();
-        let documentation = field_docs.get(&field_path).cloned();
+        let documentation = extract_documentation(source_code_info, &field_path);
 
         // Check if this field belongs to a oneof group.
         // Skip proto3_optional fields - they're not true oneofs
@@ -115,11 +100,8 @@ pub(super) fn process_message(
         let field_info = MessageField {
             name: field.name().to_string(),
             unified_type,
-            optional: is_optional,
-            repeated: is_repeated,
             documentation,
             field_behavior,
-            oneof_name: None,
             oneof_variants: None,
         };
         fields.push(field_info);
@@ -137,21 +119,15 @@ pub(super) fn process_message(
         );
 
         let oneof_field = MessageField {
-            // Use the simple field name (e.g. "credential_type") so that downstream
-            // format_ident! calls produce valid Rust identifiers.  The full qualified
-            // name is preserved in `oneof_name` for callers that need it.
             name: oneof_field_name.clone(),
             unified_type: UnifiedType {
                 base_type: BaseType::OneOf(enum_type_name.clone()),
-                is_optional: true,
+                is_optional: true, // oneof fields are always Option<enum>
                 is_repeated: false,
             },
             oneof_variants: Some(variants),
-            documentation: None, // TODO: Extract oneof documentation if needed
-            optional: true,      // oneof fields are always optional (Option<enum>)
-            repeated: false,     // oneof fields are never repeated
-            oneof_name: Some(oneof_name), // The qualified name is still available here
-            field_behavior: vec![], // Oneof fields don't have field behavior
+            documentation: None,
+            field_behavior: vec![],
         };
 
         fields.push(oneof_field);
@@ -160,7 +136,7 @@ pub(super) fn process_message(
     // Extract message-level options (like google.api.resource)
     let resource_descriptor = extract_message_resource_option(message)?;
     // Extract message-level documentation
-    let documentation = extract_message_documentation(source_code_info, path_prefix);
+    let documentation = extract_documentation(source_code_info, path_prefix);
 
     // Store message information
     let message_info = MessageInfo {
@@ -341,66 +317,6 @@ fn extract_message_resource_option(
     }
 
     Ok(None)
-}
-
-/// Extract field documentation from source code info
-fn extract_field_documentation(
-    source_code_info: Option<&SourceCodeInfo>,
-    message_path: &[i32],
-) -> HashMap<Vec<i32>, String> {
-    let mut field_docs = HashMap::new();
-
-    if let Some(sci) = source_code_info {
-        for location in &sci.location {
-            if location.path.len() >= message_path.len() + 2 {
-                // Check if this path starts with our message path and has field info
-                let path_slice = &location.path[..message_path.len()];
-                if path_slice == message_path && location.path[message_path.len()] == 2 {
-                    // This is a field (type 2) in our message
-                    let mut documentation = String::new();
-
-                    // Prefer leading comments, fall back to trailing comments
-                    if location.has_leading_comments() {
-                        documentation = location.leading_comments().trim().to_string();
-                    } else if location.has_trailing_comments() {
-                        documentation = location.trailing_comments().trim().to_string();
-                    }
-
-                    if !documentation.is_empty() {
-                        field_docs.insert(location.path.clone(), documentation);
-                    }
-                }
-            }
-        }
-    }
-
-    field_docs
-}
-
-/// Extract documentation for a message at the given path
-fn extract_message_documentation(
-    source_code_info: Option<&SourceCodeInfo>,
-    message_path: &[i32],
-) -> Option<String> {
-    if let Some(sci) = source_code_info {
-        for location in &sci.location {
-            if location.path == message_path {
-                let mut documentation = String::new();
-
-                // Prefer leading comments, fall back to trailing comments
-                if location.has_leading_comments() {
-                    documentation = location.leading_comments().trim().to_string();
-                } else if location.has_trailing_comments() {
-                    documentation = location.trailing_comments().trim().to_string();
-                }
-
-                if !documentation.is_empty() {
-                    return Some(documentation);
-                }
-            }
-        }
-    }
-    None
 }
 
 /// Collect nested messages that have `option map_entry = true`.
@@ -588,7 +504,7 @@ mod tests {
         sci.location.push(location);
 
         let message_path = vec![4, 0];
-        let result = extract_message_documentation(Some(&sci), &message_path);
+        let result = extract_documentation(Some(&sci), &message_path);
 
         assert!(result.is_some());
         assert_eq!(result.unwrap(), "This is a test message for documentation.");

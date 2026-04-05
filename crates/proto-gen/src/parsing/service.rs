@@ -1,10 +1,12 @@
 use prost::Message as _;
 use protobuf::Message;
 use protobuf::descriptor::{MethodDescriptorProto, ServiceDescriptorProto, SourceCodeInfo};
+use tracing::{debug, warn};
 
-use super::{CodeGenMetadata, MethodMetadata, ServiceInfo};
+use super::{CodeGenMetadata, MethodMetadata, ServiceInfo, extract_documentation};
 use crate::gnostic::openapi::v3::Operation;
-use crate::google::api::HttpRule;
+use crate::google::api::{HttpRule, http_rule::Pattern};
+use crate::parsing::http::HttpPattern;
 use crate::{Error, Result};
 
 /// Process a protobuf service definition
@@ -18,7 +20,7 @@ pub(super) fn process_service(
 
     // Extract service-level documentation
     let service_path = vec![6, service_index as i32]; // Services are at path [6, service_index]
-    let service_documentation = extract_service_documentation(source_code_info, &service_path);
+    let service_documentation = extract_documentation(source_code_info, &service_path);
 
     // Store service information
     let service_info = ServiceInfo {
@@ -61,15 +63,25 @@ fn process_method(
     // Extract method-level documentation
     // Methods are at path [6, service_index, 2, method_index]
     let method_path = vec![6, service_index as i32, 2, method_index as i32];
-    let method_documentation = extract_method_documentation(source_code_info, &method_path);
-
-    // Get input message fields
-    let input_fields = codegen_metadata.get_message_fields(input_type);
+    let method_documentation = extract_documentation(source_code_info, &method_path);
 
     // Extract gnostic method-level annotations first to get required http_rule
     let (operation, http_rule) = extract_method_annotations(method, service_name)?;
 
-    // Initialize method metadata with required http_rule
+    // Pre-parse the HTTP URL pattern so analysis can use it directly.
+    let http_pattern = {
+        let raw_path = match &http_rule.pattern {
+            Some(Pattern::Get(p))
+            | Some(Pattern::Post(p))
+            | Some(Pattern::Put(p))
+            | Some(Pattern::Delete(p))
+            | Some(Pattern::Patch(p)) => p.as_str(),
+            Some(Pattern::Custom(c)) => c.path.as_str(),
+            None => "",
+        };
+        HttpPattern::parse(raw_path)
+    };
+
     let method_metadata = MethodMetadata {
         service_name: service_name.to_string(),
         method_name: method_name.to_string(),
@@ -77,7 +89,7 @@ fn process_method(
         output_type: output_type.to_string(),
         operation,
         http_rule,
-        input_fields,
+        http_pattern,
         documentation: method_documentation,
     };
 
@@ -116,7 +128,7 @@ fn extract_method_annotations(
         let data = match field_value {
             protobuf::UnknownValueRef::LengthDelimited(bytes) => bytes,
             _ => {
-                println!("Skipping non-length-delimited field {}", field_number);
+                debug!("Skipping non-length-delimited field {}", field_number);
                 continue;
             }
         };
@@ -148,13 +160,12 @@ fn extract_method_annotations(
                         operation = Some(op);
                     }
                     Err(e) => {
-                        println!("Failed to parse gnostic operation: {}", e);
+                        warn!("Failed to parse gnostic operation: {}", e);
                     }
                 }
             }
             _ => {
-                // Unknown extension field
-                println!(
+                debug!(
                     "Unknown extension field {} in {}.{}",
                     field_number,
                     service_name,
@@ -173,58 +184,6 @@ fn extract_method_annotations(
     Ok((operation, http_rule))
 }
 
-/// Extract documentation for a service at the given path
-fn extract_service_documentation(
-    source_code_info: Option<&SourceCodeInfo>,
-    service_path: &[i32],
-) -> Option<String> {
-    if let Some(sci) = source_code_info {
-        for location in &sci.location {
-            if location.path == service_path {
-                let mut documentation = String::new();
-
-                // Prefer leading comments, fall back to trailing comments
-                if location.has_leading_comments() {
-                    documentation = location.leading_comments().trim().to_string();
-                } else if location.has_trailing_comments() {
-                    documentation = location.trailing_comments().trim().to_string();
-                }
-
-                if !documentation.is_empty() {
-                    return Some(documentation);
-                }
-            }
-        }
-    }
-    None
-}
-
-/// Extract documentation for a method at the given path
-fn extract_method_documentation(
-    source_code_info: Option<&SourceCodeInfo>,
-    method_path: &[i32],
-) -> Option<String> {
-    if let Some(sci) = source_code_info {
-        for location in &sci.location {
-            if location.path == method_path {
-                let mut documentation = String::new();
-
-                // Prefer leading comments, fall back to trailing comments
-                if location.has_leading_comments() {
-                    documentation = location.leading_comments().trim().to_string();
-                } else if location.has_trailing_comments() {
-                    documentation = location.trailing_comments().trim().to_string();
-                }
-
-                if !documentation.is_empty() {
-                    return Some(documentation);
-                }
-            }
-        }
-    }
-    None
-}
-
 #[cfg(test)]
 mod tests {
     use protobuf::descriptor::MethodOptions;
@@ -233,34 +192,32 @@ mod tests {
 
     #[test]
     fn test_extract_service_documentation() {
-        // Create mock source code info with service documentation
         let mut sci = SourceCodeInfo::new();
         let mut location = protobuf::descriptor::source_code_info::Location::new();
-        location.path = vec![6, 0]; // Service at index 0
+        location.path = vec![6, 0];
         location.set_leading_comments("This is a test service for documentation.".to_string());
         sci.location.push(location);
 
-        let service_path = vec![6, 0];
-        let result = extract_service_documentation(Some(&sci), &service_path);
-
-        assert!(result.is_some());
-        assert_eq!(result.unwrap(), "This is a test service for documentation.");
+        let result = extract_documentation(Some(&sci), &[6, 0]);
+        assert_eq!(
+            result.as_deref(),
+            Some("This is a test service for documentation.")
+        );
     }
 
     #[test]
     fn test_extract_method_documentation() {
-        // Create mock source code info with method documentation
         let mut sci = SourceCodeInfo::new();
         let mut location = protobuf::descriptor::source_code_info::Location::new();
-        location.path = vec![6, 0, 2, 0]; // Method 0 in service 0
+        location.path = vec![6, 0, 2, 0];
         location.set_leading_comments("This method does something useful.".to_string());
         sci.location.push(location);
 
-        let method_path = vec![6, 0, 2, 0];
-        let result = extract_method_documentation(Some(&sci), &method_path);
-
-        assert!(result.is_some());
-        assert_eq!(result.unwrap(), "This method does something useful.");
+        let result = extract_documentation(Some(&sci), &[6, 0, 2, 0]);
+        assert_eq!(
+            result.as_deref(),
+            Some("This method does something useful.")
+        );
     }
 
     #[test]

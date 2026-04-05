@@ -307,6 +307,19 @@ fn extract_simple_type_name(name: &str) -> String {
 }
 
 /// Convert protobuf enum type to Rust type
+///
+/// # FIXME: Fragile heuristic for nested vs package-level enums
+///
+/// This function guesses whether an enum is nested inside a message (e.g.
+/// `example.Catalog.Status`) or defined at package level (e.g.
+/// `example.catalog.v1.CatalogType`) by inspecting the casing of the last
+/// path segment before the enum name.  The special-case for `"V1"` and the
+/// all-lowercase check are workarounds for common proto package naming
+/// conventions, not a principled solution.
+///
+/// The correct fix (Phase 3): accept a `package_prefix: &str` parameter so
+/// callers can strip the known package prefix and always identify the boundary
+/// between package segments and message/enum names deterministically.
 fn convert_protobuf_enum_to_rust_type(proto_type: &str) -> String {
     if let Some(enum_name) = proto_type.strip_prefix("TYPE_ENUM:") {
         // Remove leading dot if present

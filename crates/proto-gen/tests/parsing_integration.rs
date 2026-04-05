@@ -105,10 +105,9 @@ fn test_http_patterns() {
         .find(|m| m.method_name == "GetCatalog")
         .expect("GetCatalog method exists");
 
-    let (http_method, path) = get_method.http_info().expect("http_info present");
-    assert_eq!(http_method, "GET");
-    assert_eq!(path, "/catalogs/{name}");
-    assert_eq!(get_method.path_parameters(), vec!["name"]);
+    assert_eq!(get_method.http_method(), Some("GET"));
+    assert_eq!(get_method.http_pattern.template, "/catalogs/{name}");
+    assert_eq!(get_method.http_pattern.parameters, vec!["name"]);
 }
 
 #[test]
@@ -125,10 +124,9 @@ fn test_post_with_body() {
         .find(|m| m.method_name == "CreateCatalog")
         .expect("CreateCatalog method exists");
 
-    let (http_method, path) = create_method.http_info().expect("http_info present");
-    assert_eq!(http_method, "POST");
-    assert_eq!(path, "/catalogs");
-    assert_eq!(create_method.path_parameters(), Vec::<String>::new());
+    assert_eq!(create_method.http_method(), Some("POST"));
+    assert_eq!(create_method.http_pattern.template, "/catalogs");
+    assert!(create_method.http_pattern.parameters.is_empty());
 }
 
 #[test]
@@ -145,9 +143,8 @@ fn test_patch_method() {
         .find(|m| m.method_name == "UpdateCatalog")
         .expect("UpdateCatalog method exists");
 
-    let (http_method, path) = update_method.http_info().expect("http_info present");
-    assert_eq!(http_method, "PATCH");
-    assert_eq!(path, "/catalogs/{name}");
+    assert_eq!(update_method.http_method(), Some("PATCH"));
+    assert_eq!(update_method.http_pattern.template, "/catalogs/{name}");
 }
 
 #[test]
@@ -164,10 +161,9 @@ fn test_delete_method() {
         .find(|m| m.method_name == "DeleteCatalog")
         .expect("DeleteCatalog method exists");
 
-    let (http_method, path) = delete_method.http_info().expect("http_info present");
-    assert_eq!(http_method, "DELETE");
-    assert_eq!(path, "/catalogs/{name}");
-    assert_eq!(delete_method.path_parameters(), vec!["name"]);
+    assert_eq!(delete_method.http_method(), Some("DELETE"));
+    assert_eq!(delete_method.http_pattern.template, "/catalogs/{name}");
+    assert_eq!(delete_method.http_pattern.parameters, vec!["name"]);
 }
 
 #[test]
@@ -185,13 +181,16 @@ fn test_repeated_query_param() {
         .expect("ListByTags method exists");
 
     // tags field should be repeated
-    let tags_field = list_by_tags
-        .input_fields
+    let input_fields = meta.get_message_fields(&list_by_tags.input_type);
+    let tags_field = input_fields
         .iter()
         .find(|f| f.name == "tags")
         .expect("tags field exists");
 
-    assert!(tags_field.repeated, "tags should be a repeated field");
+    assert!(
+        tags_field.unified_type.is_repeated,
+        "tags should be a repeated field"
+    );
 }
 
 #[test]
@@ -209,8 +208,8 @@ fn test_enum_query_param() {
         .expect("ListByCatalogType method exists");
 
     // catalog_type field should be an enum
-    let ct_field = list_by_type
-        .input_fields
+    let input_fields = meta.get_message_fields(&list_by_type.input_type);
+    let ct_field = input_fields
         .iter()
         .find(|f| f.name == "catalog_type")
         .expect("catalog_type field exists");
@@ -289,25 +288,9 @@ mod http_pattern_tests {
     #[case("/items/{id}/sub", 1)]
     #[case("/a/{x}/b/{y}", 2)]
     fn test_path_parameter_count(#[case] template: &str, #[case] expected_count: usize) {
-        use proto_gen::google::api::{HttpRule, http_rule::Pattern};
-        use proto_gen::parsing::MethodMetadata;
+        use proto_gen::parsing::HttpPattern;
 
-        let http_rule = HttpRule {
-            pattern: Some(Pattern::Get(template.to_string())),
-            ..Default::default()
-        };
-
-        let method = MethodMetadata {
-            service_name: "TestService".to_string(),
-            method_name: "TestMethod".to_string(),
-            input_type: ".test.TestRequest".to_string(),
-            output_type: ".test.TestResponse".to_string(),
-            operation: None,
-            http_rule,
-            input_fields: vec![],
-            documentation: None,
-        };
-
-        assert_eq!(method.path_parameters().len(), expected_count);
+        let pattern = HttpPattern::parse(template);
+        assert_eq!(pattern.parameters.len(), expected_count);
     }
 }

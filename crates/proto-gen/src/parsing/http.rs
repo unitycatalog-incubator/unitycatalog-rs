@@ -195,15 +195,6 @@ pub fn extract_http_rule_pattern(http_rule: &crate::google::api::HttpRule) -> Op
     Some(HttpPattern::parse(template))
 }
 
-/// Determine if a field should be extracted from request body
-pub fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
-    match body_spec {
-        "*" => true, // All fields not in path go to body
-        "" => false, // No body fields
-        specific_fields => specific_fields.split(',').any(|name| name == field_name),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -314,13 +305,5 @@ mod tests {
         };
 
         assert!(extract_http_rule_pattern(&http_rule).is_none());
-    }
-
-    #[test]
-    fn test_should_be_body_field() {
-        assert!(should_be_body_field("any_field", "*"));
-        assert!(!should_be_body_field("any_field", ""));
-        assert!(should_be_body_field("specific", "specific"));
-        assert!(!should_be_body_field("other", "specific"));
     }
 }

@@ -1,11 +1,8 @@
 use std::collections::HashMap;
 
-pub use self::http::{
-    HttpPattern, UrlSegment, extract_http_rule_pattern, extract_path_parameters,
-    should_be_body_field,
-};
+pub use self::http::{HttpPattern, UrlSegment, extract_http_rule_pattern, extract_path_parameters};
 pub use self::models::*;
-use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet};
+use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet, SourceCodeInfo};
 pub mod types;
 use crate::Result;
 
@@ -14,6 +11,29 @@ pub mod http;
 mod message;
 mod models;
 mod service;
+
+/// Extract documentation text for a protobuf element at the given source path.
+///
+/// Scans `SourceCodeInfo.location` for an entry whose path matches `path`,
+/// prefers leading comments over trailing comments, and returns the trimmed text.
+pub(super) fn extract_documentation(sci: Option<&SourceCodeInfo>, path: &[i32]) -> Option<String> {
+    let sci = sci?;
+    for location in &sci.location {
+        if location.path.as_slice() == path {
+            let text = if location.has_leading_comments() {
+                location.leading_comments().trim().to_string()
+            } else if location.has_trailing_comments() {
+                location.trailing_comments().trim().to_string()
+            } else {
+                String::new()
+            };
+            if !text.is_empty() {
+                return Some(text);
+            }
+        }
+    }
+    None
+}
 
 // Known extension field numbers
 const GOOGLE_API_HTTP_EXTENSION: u32 = 72295728; // google.api.http
