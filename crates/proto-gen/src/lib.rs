@@ -1,9 +1,14 @@
 pub use error::*;
 
+pub mod analysis;
 pub mod error;
 pub mod parsing;
 pub mod utils;
 
+pub use analysis::{
+    BodyField, GenerationPlan, ManagedResource, MethodPlan, PathParam, QueryParam, RequestParam,
+    RequestType, ServicePlan, analyze_metadata, extract_managed_resources, split_body_fields,
+};
 pub use parsing::{CodeGenMetadata, parse_file_descriptor_set, process_file_descriptor};
 
 pub mod google {
