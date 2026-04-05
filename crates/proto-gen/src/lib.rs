@@ -1,9 +1,15 @@
 pub use error::*;
 
 pub mod analysis;
+pub mod codegen;
 pub mod error;
+pub mod output;
 pub mod parsing;
 pub mod utils;
+
+pub use codegen::{
+    BindingsConfig, CodeGenConfig, CodeGenOutput, GeneratedCode, ResourceEnumConfig, generate_code,
+};
 
 pub use analysis::{
     BodyField, GenerationPlan, ManagedResource, MethodPlan, PathParam, QueryParam, RequestParam,

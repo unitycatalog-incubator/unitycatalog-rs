@@ -19,6 +19,8 @@ quote = "1.0"
 proc-macro2 = "1.0"
 prettyplease = "0.2"
 regex = "1.10"
+textwrap = "0.16"
 
 [dev-dependencies]
 rstest = "0.23"
+tempfile = "3"
