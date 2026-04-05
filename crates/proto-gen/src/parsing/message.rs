@@ -14,7 +14,7 @@ use crate::{Error, Result};
 /// Process a protobuf message definition
 pub(super) fn process_message(
     message: &DescriptorProto,
-    file_name: &str,
+    _file_name: &str,
     codegen_metadata: &mut CodeGenMetadata,
     type_prefix: &str,
     source_code_info: Option<&SourceCodeInfo>,
@@ -178,7 +178,7 @@ pub(super) fn process_message(
         let nested_path = [path_prefix, &[3, nested_index as i32]].concat();
         process_message(
             nested_message,
-            file_name,
+            _file_name,
             codegen_metadata,
             &full_type_name,
             source_code_info,

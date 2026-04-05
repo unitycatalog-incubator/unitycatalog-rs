@@ -15,7 +15,7 @@ pub struct CodeGenMetadata {
 
 impl CodeGenMetadata {
     /// Get message fields for a given type name
-    pub(crate) fn get_message_fields(&self, type_name: &str) -> Vec<MessageField> {
+    pub fn get_message_fields(&self, type_name: &str) -> Vec<MessageField> {
         self.messages
             .get(type_name)
             .map(|msg| msg.fields.clone())
@@ -23,7 +23,7 @@ impl CodeGenMetadata {
     }
 
     /// Find a resource descriptor whose `singular` field matches `name`.
-    pub(crate) fn resource_from_singular(&self, name: &str) -> Option<&ResourceDescriptor> {
+    pub fn resource_from_singular(&self, name: &str) -> Option<&ResourceDescriptor> {
         self.messages.values().find_map(|info| {
             info.resource_descriptor
                 .as_ref()
@@ -32,7 +32,7 @@ impl CodeGenMetadata {
     }
 
     /// Find a resource descriptor whose `plural` field matches `name`.
-    pub(crate) fn resource_from_plural(&self, name: &str) -> Option<&ResourceDescriptor> {
+    pub fn resource_from_plural(&self, name: &str) -> Option<&ResourceDescriptor> {
         self.messages.values().find_map(|info| {
             info.resource_descriptor
                 .as_ref()
@@ -41,7 +41,7 @@ impl CodeGenMetadata {
     }
 
     /// Get resource descriptor by message type name (simple or fully-qualified).
-    pub(crate) fn get_resource_descriptor(&self, type_name: &str) -> Option<&ResourceDescriptor> {
+    pub fn get_resource_descriptor(&self, type_name: &str) -> Option<&ResourceDescriptor> {
         // Try direct lookup first (fully-qualified name)
         if let Some(descriptor) = self
             .messages

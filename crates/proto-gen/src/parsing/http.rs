@@ -9,8 +9,7 @@ pub enum UrlSegment {
 
 /// Parsed representation of an HTTP rule pattern
 #[derive(Debug, Clone)]
-#[allow(unused)]
-pub(crate) struct HttpPattern {
+pub struct HttpPattern {
     /// The original template string
     pub template: String,
     /// Parsed segments in order
@@ -175,14 +174,12 @@ fn extract_static_suffix(segments: &[UrlSegment]) -> Option<String> {
 
 /// Extract path parameter names from URL template like "/catalogs/{name}"
 /// (Kept for backward compatibility)
-pub(crate) fn extract_path_parameters(path_template: &str) -> Vec<String> {
+pub fn extract_path_parameters(path_template: &str) -> Vec<String> {
     HttpPattern::parse(path_template).parameters
 }
 
 /// Extract pattern information from an HttpRule
-pub(crate) fn extract_http_rule_pattern(
-    http_rule: &crate::google::api::HttpRule,
-) -> Option<HttpPattern> {
+pub fn extract_http_rule_pattern(http_rule: &crate::google::api::HttpRule) -> Option<HttpPattern> {
     use crate::google::api::http_rule::Pattern;
 
     let template = match &http_rule.pattern {
@@ -199,7 +196,7 @@ pub(crate) fn extract_http_rule_pattern(
 }
 
 /// Determine if a field should be extracted from request body
-pub(crate) fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
+pub fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
     match body_spec {
         "*" => true, // All fields not in path go to body
         "" => false, // No body fields

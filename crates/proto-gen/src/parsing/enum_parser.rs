@@ -108,24 +108,24 @@ fn clean_comment(comment: &str) -> String {
         .lines()
         .map(|line| line.trim())
         .map(|line| {
-            // Remove leading comment markers
-            let line = if line.starts_with("//") {
-                line[2..].trim()
-            } else if line.starts_with("/**") {
-                line[3..].trim()
-            } else if line.starts_with("/*") {
-                line[2..].trim()
-            } else if line.starts_with("*/") {
-                line[2..].trim()
-            } else if line.starts_with('*') {
-                line[1..].trim()
+            // Remove leading comment markers (longest prefix first to avoid partial matches)
+            let line = if let Some(s) = line.strip_prefix("/**") {
+                s.trim()
+            } else if let Some(s) = line.strip_prefix("//") {
+                s.trim()
+            } else if let Some(s) = line.strip_prefix("/*") {
+                s.trim()
+            } else if let Some(s) = line.strip_prefix("*/") {
+                s.trim()
+            } else if let Some(s) = line.strip_prefix('*') {
+                s.trim()
             } else {
                 line
             };
 
             // Remove trailing comment markers
-            if line.ends_with("*/") {
-                line[..line.len() - 2].trim()
+            if let Some(s) = line.strip_suffix("*/") {
+                s.trim()
             } else {
                 line
             }

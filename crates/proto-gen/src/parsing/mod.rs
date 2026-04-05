@@ -1,12 +1,16 @@
 use std::collections::HashMap;
 
+pub use self::http::{
+    HttpPattern, UrlSegment, extract_http_rule_pattern, extract_path_parameters,
+    should_be_body_field,
+};
 pub use self::models::*;
 use protobuf::descriptor::{FileDescriptorProto, FileDescriptorSet};
 pub mod types;
 use crate::Result;
 
 mod enum_parser;
-mod http;
+pub mod http;
 mod message;
 mod models;
 mod service;
