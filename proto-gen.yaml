@@ -1,0 +1,14 @@
+generate:
+  descriptors: descriptors.bin
+  output_common: crates/common/src/codegen
+  output_models_gen: crates/common/src/models/resources
+  output_server: crates/server/src/codegen
+  output_client: crates/client/src/codegen
+  output_python: python/client/src/codegen
+  output_node: node/client/src/codegen
+  output_node_ts: node/client/unitycatalog
+
+enrich_openapi:
+  spec: openapi/openapi.yaml
+  jsonschema_dir: openapi/jsonschema
+  descriptors: descriptors.bin

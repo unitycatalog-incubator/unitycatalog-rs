@@ -39,14 +39,7 @@ generate-openapi:
 [group('codegen')]
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    cargo run --bin proto-gen -- generate \
-      --output-common crates/common/src/codegen \
-      --output-models-gen crates/common/src/models/resources \
-      --output-server crates/server/src/codegen \
-      --output-client crates/client/src/codegen \
-      --output-python python/client/src/codegen \
-      --output-node node/client/src/codegen \
-      --output-node-ts node/client/unitycatalog \
+    cargo run --bin proto-gen -- generate --config proto-gen.yaml \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
     just fmt
