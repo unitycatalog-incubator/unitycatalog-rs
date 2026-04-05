@@ -13,17 +13,17 @@ use crate::parsing::{CodeGenMetadata, HttpPattern, MethodMetadata, OneofVariant}
 ///
 /// There are standard CRUD operations, as well as custom operations.
 ///
-/// standard operations on collections are:
+/// Standard operations on collections are:
 /// - List: Retrieve a list of resources
 /// - Create: Create a new resource
 ///
-/// standard operations on individual resources are:
+/// Standard operations on individual resources are:
 /// - Get: Retrieve a single resource
 /// - Update: Update an existing resource
 /// - Delete: Delete a resource
 ///
 /// Custom operations are:
-/// - Custom(String): Custom operation with a name
+/// - Custom(Pattern): custom HTTP operation
 #[derive(Debug, Clone, PartialEq)]
 pub enum RequestType {
     List,
@@ -65,10 +65,11 @@ pub struct MethodPlan {
     pub metadata: MethodMetadata,
     /// Rust function name for the handler method
     pub handler_function_name: String,
+    /// Pre-parsed HTTP URL pattern
     pub http_pattern: HttpPattern,
-    /// HTTP method and path for routing
+    /// HTTP method string for routing (e.g., "GET", "POST")
     pub http_method: String,
-    /// parameters passed to the method
+    /// Parameters passed to the method (path, query, and body)
     pub parameters: Vec<RequestParam>,
     /// Whether this method returns a response body
     pub has_response: bool,
@@ -111,7 +112,7 @@ pub enum RequestParam {
 impl RequestParam {
     pub fn name(&self) -> &str {
         match self {
-            RequestParam::Path(param) => &param.field_name,
+            RequestParam::Path(param) => &param.name,
             RequestParam::Query(param) => &param.name,
             RequestParam::Body(param) => &param.name,
         }
@@ -154,7 +155,7 @@ impl RequestParam {
 #[derive(Debug, Clone)]
 pub struct PathParam {
     /// Field name in the request struct (e.g., "full_name")
-    pub field_name: String,
+    pub name: String,
     /// Parsed type of the path parameter
     pub field_type: UnifiedType,
     /// Documentation from protobuf field comments
@@ -179,7 +180,7 @@ pub struct QueryParam {
 }
 
 impl QueryParam {
-    /// denotes if the parameter is optional
+    /// Denotes if the parameter is optional
     pub fn is_optional(&self) -> bool {
         self.field_type.is_optional
     }
@@ -191,7 +192,7 @@ impl From<QueryParam> for RequestParam {
     }
 }
 
-/// A body field that should be extracted from request body
+/// A body field that should be extracted from the request body
 #[derive(Debug, Clone)]
 pub struct BodyField {
     /// Field name
@@ -238,15 +239,23 @@ pub struct ManagedResource {
     pub descriptor: ResourceDescriptor,
 }
 
-pub struct MethodPlanner<'a> {
+/// Classifies an RPC method as a standard CRUD operation or custom operation.
+///
+/// This is an internal helper used by [`super::analyze_method`]. Construct via
+/// [`MethodPlanner::try_new`] and consume with [`MethodPlanner::request_type`] and
+/// [`MethodPlanner::http_pattern`].
+pub(crate) struct MethodPlanner<'a> {
     method: &'a MethodMetadata,
     pattern: Pattern,
-    pub(super) path: HttpPattern,
+    path: HttpPattern,
     metadata: &'a CodeGenMetadata,
 }
 
 impl<'a> MethodPlanner<'a> {
-    pub fn try_new(method: &'a MethodMetadata, metadata: &'a CodeGenMetadata) -> Result<Self> {
+    pub(crate) fn try_new(
+        method: &'a MethodMetadata,
+        metadata: &'a CodeGenMetadata,
+    ) -> Result<Self> {
         let Some(pattern) = &method.http_rule.pattern else {
             return Err(Error::MissingAnnotation {
                 object: method.method_name.clone(),
@@ -261,6 +270,11 @@ impl<'a> MethodPlanner<'a> {
         })
     }
 
+    /// Consume the planner and return the pre-parsed HTTP URL pattern.
+    pub(crate) fn into_http_pattern(self) -> HttpPattern {
+        self.path
+    }
+
     /// Classify the RPC as a standard CRUD operation per Google AIP 131-135.
     ///
     /// Each standard operation is identified by matching (verb, HTTP method, path shape,
@@ -270,7 +284,7 @@ impl<'a> MethodPlanner<'a> {
     /// - [AIP-133](https://google.aip.dev/133) Create
     /// - [AIP-134](https://google.aip.dev/134) Update
     /// - [AIP-135](https://google.aip.dev/135) Delete
-    pub fn request_type(&self) -> RequestType {
+    pub(crate) fn request_type(&self) -> RequestType {
         let snake_name = self.method.method_name.to_case(Case::Snake);
         let verb_resource = snake_name.split_once('_');
 
@@ -347,20 +361,21 @@ impl<'a> MethodPlanner<'a> {
         RequestType::Custom(self.pattern.clone())
     }
 
-    pub fn has_response(&self) -> bool {
+    pub(crate) fn has_response(&self) -> bool {
         !self.method.output_type.is_empty() && !self.method.output_type.ends_with("Empty")
     }
 
-    /// Extract the resource type name from the method's output type
-    pub fn output_resource_type(&self) -> Option<String> {
+    /// Extract the simple resource type name from the method's output type.
+    ///
+    /// Strips the package prefix (e.g., `.example.catalog.v1.Catalog` → `Catalog`).
+    pub(crate) fn output_resource_type(&self) -> Option<String> {
         if self.has_response() {
-            // Remove leading dot and package prefix to get just the type name
             let output_type = &self.method.output_type;
-            if let Some(last_dot) = output_type.rfind('.') {
-                Some(output_type[last_dot + 1..].to_string())
-            } else {
-                Some(output_type.clone())
-            }
+            let simple = output_type
+                .rfind('.')
+                .map(|i| &output_type[i + 1..])
+                .unwrap_or(output_type);
+            Some(simple.to_string())
         } else {
             None
         }
@@ -384,7 +399,7 @@ pub fn split_body_fields(plan: &MethodPlan) -> (Vec<&BodyField>, Vec<&BodyField>
     (required, optional)
 }
 
-/// Extract managed resources from service methods
+/// Extract managed resources from service methods, deduplicating by type name.
 pub fn extract_managed_resources(
     metadata: &CodeGenMetadata,
     methods: &[MethodPlan],
@@ -394,12 +409,9 @@ pub fn extract_managed_resources(
 
     for method in methods {
         if let Some(ref resource_type) = method.output_resource_type {
-            // Skip if we've already processed this resource type
             if seen_types.contains(resource_type) {
                 continue;
             }
-
-            // Look up the resource descriptor for this type
             if let Some(descriptor) = metadata.get_resource_descriptor(resource_type) {
                 resources.push(ManagedResource {
                     type_name: resource_type.clone(),

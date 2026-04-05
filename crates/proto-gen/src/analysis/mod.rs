@@ -36,7 +36,7 @@
 //! The analysis will extract that `CatalogService` manages the `Catalog` resource,
 //! making this information available for subsequent code generation phases.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use convert_case::{Case, Casing};
 use tracing::warn;
@@ -46,18 +46,13 @@ use crate::parsing::types::BaseType;
 use crate::parsing::{CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo};
 use crate::utils::strings;
 
-pub use services::*;
+pub(crate) use types::MethodPlanner;
+pub use types::{
+    BodyField, GenerationPlan, ManagedResource, MethodPlan, PathParam, QueryParam, RequestParam,
+    RequestType, ServicePlan, extract_managed_resources, split_body_fields,
+};
 
-mod services;
-
-/// Determine whether a field should be sent in the request body.
-fn should_be_body_field(field_name: &str, body_spec: &str) -> bool {
-    match body_spec {
-        "*" => true,
-        "" => false,
-        specific => specific == field_name,
-    }
-}
+mod types;
 
 /// Analyze collected metadata and create a generation plan
 pub fn analyze_metadata(metadata: &CodeGenMetadata) -> Result<GenerationPlan> {
@@ -89,8 +84,7 @@ fn analyze_service(metadata: &CodeGenMetadata, info: &ServiceInfo) -> Result<Ser
         }
     }
 
-    // Extract managed resources from method return types
-    let managed_resources = services::extract_managed_resources(metadata, &method_plans);
+    let managed_resources = types::extract_managed_resources(metadata, &method_plans);
 
     Ok(ServicePlan {
         service_name: info.name.clone(),
@@ -102,8 +96,10 @@ fn analyze_service(metadata: &CodeGenMetadata, info: &ServiceInfo) -> Result<Ser
     })
 }
 
-/// Analyze a single method and create a method plan
-pub fn analyze_method(
+/// Analyze a single method and create a method plan.
+///
+/// Returns `None` if the method has incomplete metadata (e.g., missing HTTP annotation).
+pub(crate) fn analyze_method(
     metadata: &CodeGenMetadata,
     method: &MethodMetadata,
 ) -> Result<Option<MethodPlan>> {
@@ -119,36 +115,40 @@ pub fn analyze_method(
     };
 
     let planner = MethodPlanner::try_new(method, metadata)?;
-
     let request_type = planner.request_type();
+    let has_response = planner.has_response();
+    let output_resource_type = planner.output_resource_type();
+    let http_pattern = planner.into_http_pattern();
 
-    // Extract parameters based on HTTP rule
     let input_fields = metadata.get_message_fields(&method.input_type);
     let (path_params, query_params, body_fields) = extract_request_fields(method, &input_fields)?;
 
     let parameters = path_params
-        .clone()
         .into_iter()
         .map(Into::into)
-        .chain(query_params.clone().into_iter().map(Into::into))
-        .chain(body_fields.clone().into_iter().map(Into::into))
+        .chain(query_params.into_iter().map(Into::into))
+        .chain(body_fields.into_iter().map(Into::into))
         .collect();
 
-    let method_plan = MethodPlan {
+    Ok(Some(MethodPlan {
         metadata: method.clone(),
         handler_function_name: method.method_name.to_case(Case::Snake),
         http_method,
         parameters,
-        has_response: planner.has_response(),
+        has_response,
         request_type,
-        output_resource_type: planner.output_resource_type(),
-        http_pattern: planner.path,
-    };
-
-    Ok(Some(method_plan))
+        output_resource_type,
+        http_pattern,
+    }))
 }
 
-/// Extract request fields based on HTTP rule analysis
+/// Extract and classify request fields from an input message into path, query, and body buckets.
+///
+/// - Path parameters are matched against URL template parameters and ordered accordingly.
+/// - Fields matching the `body` spec (`"*"`, `""`, or a specific field name) become body fields.
+/// - All remaining fields become query parameters. Fields not explicitly marked optional
+///   via `UnifiedType.is_optional` are treated as required query parameters.
+/// - Oneof fields are always placed in the body as optional variants.
 fn extract_request_fields(
     method: &MethodMetadata,
     input_fields: &[MessageField],
@@ -157,54 +157,57 @@ fn extract_request_fields(
     let mut query_params = Vec::new();
     let mut body_fields = Vec::new();
 
-    // Use the pre-parsed HTTP pattern directly
-    let http_pattern = method.http_pattern.clone();
-    let path_param_names_ordered = http_pattern.parameter_names().to_vec();
-
-    // Get body field specification from HTTP rule
+    let path_param_names = method.http_pattern.parameter_names();
     let body_spec = method.http_rule.body.as_str();
 
-    // Track which fields we've already processed to avoid duplicates
+    // Build an O(1) lookup map for input fields by name.
+    let fields_by_name: HashMap<&str, &MessageField> =
+        input_fields.iter().map(|f| (f.name.as_str(), f)).collect();
+
     let mut processed_fields = HashSet::new();
 
-    // First, add path parameters in URL order
-    for path_param_name in &path_param_names_ordered {
-        let field = input_fields.iter().find(|f| &f.name == path_param_name);
-        if let Some(field) = field {
+    // Add path parameters in URL template order.
+    for path_param_name in path_param_names {
+        if let Some(field) = fields_by_name.get(path_param_name.as_str()) {
             path_params.push(PathParam {
-                field_name: field.name.clone(),
+                name: field.name.clone(),
                 field_type: field.unified_type.clone(),
                 documentation: field.documentation.clone(),
             });
-            processed_fields.insert(field.name.clone());
+            processed_fields.insert(field.name.as_str());
         }
     }
 
-    // Then analyze remaining fields
+    // Classify remaining fields as body or query.
     for field in input_fields {
-        let field_name = &field.name;
+        let field_name = field.name.as_str();
 
         if processed_fields.contains(field_name) {
             continue;
         }
 
-        // Skip oneof fields that should be handled as individual enum variants in the body
+        // Oneof fields are always body fields and always optional.
         if matches!(field.unified_type.base_type, BaseType::OneOf(_)) {
-            // Oneof fields are always body fields and always optional
             body_fields.push(BodyField {
-                name: field_name.clone(),
+                name: field.name.clone(),
                 field_type: field.unified_type.clone().optional(),
                 repeated: false,
                 oneof_variants: field.oneof_variants.clone(),
                 documentation: field.documentation.clone(),
             });
-            processed_fields.insert(field_name.clone());
+            processed_fields.insert(field_name);
             continue;
         }
 
-        if should_be_body_field(field_name, body_spec) {
+        let is_body = match body_spec {
+            "*" => true,
+            "" => false,
+            specific => specific == field_name,
+        };
+
+        if is_body {
             body_fields.push(BodyField {
-                name: field_name.clone(),
+                name: field.name.clone(),
                 field_type: field.unified_type.clone(),
                 repeated: field.unified_type.is_repeated,
                 oneof_variants: None,
@@ -212,12 +215,12 @@ fn extract_request_fields(
             });
         } else {
             query_params.push(QueryParam {
-                name: field_name.clone(),
+                name: field.name.clone(),
                 field_type: field.unified_type.clone(),
                 documentation: field.documentation.clone(),
             });
         }
-        processed_fields.insert(field_name.clone());
+        processed_fields.insert(field_name);
     }
 
     Ok((path_params, query_params, body_fields))
@@ -227,6 +230,7 @@ fn extract_request_fields(
 mod tests {
     use super::*;
     use crate::google::api::{HttpRule, ResourceDescriptor, http_rule::Pattern};
+    use crate::parsing::types::UnifiedType;
     use crate::parsing::{CodeGenMetadata, HttpPattern, MessageInfo, MethodMetadata, ServiceInfo};
     use std::collections::HashMap;
 
@@ -254,11 +258,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_managed_resources_extraction() {
-        let metadata = make_metadata_with_catalog();
-
-        let get_method = MethodMetadata {
+    fn make_get_method() -> MethodMetadata {
+        MethodMetadata {
             service_name: "CatalogService".to_string(),
             method_name: "GetCatalog".to_string(),
             input_type: "GetCatalogRequest".to_string(),
@@ -273,14 +274,17 @@ mod tests {
             },
             http_pattern: HttpPattern::parse("/catalogs/{name}"),
             documentation: None,
-        };
+        }
+    }
 
+    #[test]
+    fn test_managed_resources_extraction() {
+        let metadata = make_metadata_with_catalog();
         let service_info = ServiceInfo {
             name: "CatalogService".to_string(),
             documentation: None,
-            methods: vec![get_method],
+            methods: vec![make_get_method()],
         };
-
         let service_plan = analyze_service(&metadata, &service_info).unwrap();
 
         assert_eq!(service_plan.managed_resources.len(), 1);
@@ -302,24 +306,6 @@ mod tests {
     #[test]
     fn test_no_duplicate_managed_resources() {
         let metadata = make_metadata_with_catalog();
-
-        let get_method = MethodMetadata {
-            service_name: "CatalogService".to_string(),
-            method_name: "GetCatalog".to_string(),
-            input_type: "GetCatalogRequest".to_string(),
-            output_type: "Catalog".to_string(),
-            operation: None,
-            http_rule: HttpRule {
-                selector: "".to_string(),
-                pattern: Some(Pattern::Get("/catalogs/{name}".to_string())),
-                body: "".to_string(),
-                response_body: "".to_string(),
-                additional_bindings: vec![],
-            },
-            http_pattern: HttpPattern::parse("/catalogs/{name}"),
-            documentation: None,
-        };
-
         let update_method = MethodMetadata {
             service_name: "CatalogService".to_string(),
             method_name: "UpdateCatalog".to_string(),
@@ -336,16 +322,158 @@ mod tests {
             http_pattern: HttpPattern::parse("/catalogs/{name}"),
             documentation: None,
         };
-
         let service_info = ServiceInfo {
             name: "CatalogService".to_string(),
             documentation: None,
-            methods: vec![get_method, update_method],
+            methods: vec![make_get_method(), update_method],
         };
-
         let service_plan = analyze_service(&metadata, &service_info).unwrap();
 
         assert_eq!(service_plan.managed_resources.len(), 1);
         assert_eq!(service_plan.managed_resources[0].type_name, "Catalog");
+    }
+
+    #[test]
+    fn test_analyze_method_missing_http_pattern_returns_none() {
+        let metadata = CodeGenMetadata::default();
+        let method = MethodMetadata {
+            service_name: "SomeService".to_string(),
+            method_name: "SomeMethod".to_string(),
+            input_type: "".to_string(),
+            output_type: "".to_string(),
+            operation: None,
+            http_rule: HttpRule {
+                selector: "".to_string(),
+                pattern: None,
+                body: "".to_string(),
+                response_body: "".to_string(),
+                additional_bindings: vec![],
+            },
+            http_pattern: HttpPattern::parse(""),
+            documentation: None,
+        };
+        let result = analyze_method(&metadata, &method).unwrap();
+        assert!(result.is_none());
+    }
+
+    // --- extract_request_fields unit tests ---
+
+    fn make_string_field(name: &str, optional: bool) -> MessageField {
+        use crate::parsing::types::BaseType;
+        MessageField {
+            name: name.to_string(),
+            unified_type: UnifiedType {
+                base_type: BaseType::String,
+                is_optional: optional,
+                is_repeated: false,
+            },
+            documentation: None,
+            oneof_variants: None,
+            field_behavior: vec![],
+        }
+    }
+
+    fn make_repeated_field(name: &str) -> MessageField {
+        use crate::parsing::types::BaseType;
+        MessageField {
+            name: name.to_string(),
+            unified_type: UnifiedType {
+                base_type: BaseType::String,
+                is_optional: false,
+                is_repeated: true,
+            },
+            documentation: None,
+            oneof_variants: None,
+            field_behavior: vec![],
+        }
+    }
+
+    fn make_method_with_pattern(pattern: Pattern, body: &str, path: &str) -> MethodMetadata {
+        MethodMetadata {
+            service_name: "Svc".to_string(),
+            method_name: "Method".to_string(),
+            input_type: "".to_string(),
+            output_type: "".to_string(),
+            operation: None,
+            http_rule: HttpRule {
+                selector: "".to_string(),
+                pattern: Some(pattern),
+                body: body.to_string(),
+                response_body: "".to_string(),
+                additional_bindings: vec![],
+            },
+            http_pattern: HttpPattern::parse(path),
+            documentation: None,
+        }
+    }
+
+    #[test]
+    fn test_extract_path_params_in_url_order() {
+        let method =
+            make_method_with_pattern(Pattern::Get("/a/{x}/b/{y}".to_string()), "", "/a/{x}/b/{y}");
+        let fields = vec![make_string_field("y", false), make_string_field("x", false)];
+        let (path, query, body) = extract_request_fields(&method, &fields).unwrap();
+        // Path params should be in URL order: x, y — not field declaration order
+        assert_eq!(path.len(), 2);
+        assert_eq!(path[0].name, "x");
+        assert_eq!(path[1].name, "y");
+        assert!(query.is_empty());
+        assert!(body.is_empty());
+    }
+
+    #[test]
+    fn test_extract_body_wildcard() {
+        let method = make_method_with_pattern(Pattern::Post("/items".to_string()), "*", "/items");
+        let fields = vec![
+            make_string_field("name", false),
+            make_string_field("description", true),
+        ];
+        let (path, query, body) = extract_request_fields(&method, &fields).unwrap();
+        assert!(path.is_empty());
+        assert!(query.is_empty());
+        assert_eq!(body.len(), 2);
+    }
+
+    #[test]
+    fn test_extract_specific_body_field() {
+        let method = make_method_with_pattern(
+            Pattern::Patch("/items/{name}".to_string()),
+            "payload",
+            "/items/{name}",
+        );
+        let fields = vec![
+            make_string_field("name", false),    // path
+            make_string_field("payload", false), // body (specific)
+            make_string_field("extra", true),    // query
+        ];
+        let (path, query, body) = extract_request_fields(&method, &fields).unwrap();
+        assert_eq!(path.len(), 1);
+        assert_eq!(path[0].name, "name");
+        assert_eq!(body.len(), 1);
+        assert_eq!(body[0].name, "payload");
+        assert_eq!(query.len(), 1);
+        assert_eq!(query[0].name, "extra");
+    }
+
+    #[test]
+    fn test_extract_no_body_spec_all_query() {
+        let method = make_method_with_pattern(Pattern::Get("/items".to_string()), "", "/items");
+        let fields = vec![
+            make_string_field("filter", true),
+            make_string_field("page_size", true),
+        ];
+        let (path, query, body) = extract_request_fields(&method, &fields).unwrap();
+        assert!(path.is_empty());
+        assert_eq!(query.len(), 2);
+        assert!(body.is_empty());
+    }
+
+    #[test]
+    fn test_extract_repeated_field_becomes_body_with_repeated_flag() {
+        let method = make_method_with_pattern(Pattern::Post("/items".to_string()), "*", "/items");
+        let fields = vec![make_repeated_field("tags")];
+        let (_, _, body) = extract_request_fields(&method, &fields).unwrap();
+        assert_eq!(body.len(), 1);
+        assert!(body[0].repeated);
     }
 }

@@ -9,6 +9,7 @@ pub use analysis::{
     BodyField, GenerationPlan, ManagedResource, MethodPlan, PathParam, QueryParam, RequestParam,
     RequestType, ServicePlan, analyze_metadata, extract_managed_resources, split_body_fields,
 };
+// Note: MethodPlanner is pub(crate) — it is an internal helper, not part of the public API.
 pub use parsing::{CodeGenMetadata, parse_file_descriptor_set, process_file_descriptor};
 
 pub mod google {
