@@ -164,14 +164,21 @@ pub(crate) fn generate_client_ts(services: &[ServiceHandler<'_>]) -> String {
         .and_then(|s| s.config.bindings.as_ref())
         .expect("bindings config required for node_ts output");
 
+    // Sort once up-front so all loops below produce stable output regardless of
+    // the HashMap iteration order of `CodeGenMetadata::services`.
+    let sorted: Vec<&ServiceHandler<'_>> = services
+        .iter()
+        .sorted_by_key(|s| &s.plan.service_name)
+        .collect();
+
     let mut out = String::new();
 
-    out.push_str(&generate_imports(services));
+    out.push_str(&generate_imports_sorted(&sorted));
     out.push('\n');
     out.push_str(&generate_error_classes(bindings));
 
     // Generate options interfaces for all services
-    for service in services {
+    for service in &sorted {
         for method in service.methods() {
             if let Some(iface) = generate_options_interface(&method) {
                 out.push_str(&iface);
@@ -181,7 +188,7 @@ pub(crate) fn generate_client_ts(services: &[ServiceHandler<'_>]) -> String {
     }
 
     // Generate resource client classes
-    for service in services {
+    for service in &sorted {
         if let Some(class) = generate_resource_client_class(service) {
             out.push_str(&class);
             out.push('\n');
@@ -189,12 +196,12 @@ pub(crate) fn generate_client_ts(services: &[ServiceHandler<'_>]) -> String {
     }
 
     // Generate the main aggregate client class
-    out.push_str(&generate_aggregate_client(services));
+    out.push_str(&generate_aggregate_client_sorted(&sorted, bindings));
 
     out
 }
 
-fn generate_imports(services: &[ServiceHandler<'_>]) -> String {
+fn generate_imports_sorted(services: &[&ServiceHandler<'_>]) -> String {
     let bindings = services
         .first()
         .and_then(|s| s.config.bindings.as_ref())
@@ -245,6 +252,7 @@ fn generate_imports(services: &[ServiceHandler<'_>]) -> String {
             native_classes.push(format!("{} as {}", napi_name, native_alias));
         }
     }
+    // native_classes already stable since services slice is pre-sorted; sort for safety
     native_classes.sort();
 
     let type_imports = type_names
@@ -490,19 +498,15 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
 }
 
 /// Generate the main aggregate client class (e.g. `UnityCatalogClient`).
-fn generate_aggregate_client(services: &[ServiceHandler<'_>]) -> String {
-    let bindings = services
-        .first()
-        .and_then(|s| s.config.bindings.as_ref())
-        .expect("bindings config required for node_ts output");
+fn generate_aggregate_client_sorted(
+    services: &[&ServiceHandler<'_>],
+    bindings: &BindingsConfig,
+) -> String {
     let aggregate_client_name = &bindings.aggregate_client_name;
 
     let mut methods = String::new();
 
-    // Sort services for stable output
-    let sorted_services = services.iter().sorted_by_key(|s| &s.plan.service_name);
-
-    for service in sorted_services {
+    for service in services {
         for method in service.methods() {
             if !method.is_collection_method() {
                 continue;
