@@ -1,4 +1,4 @@
-//! PyO3 binding generation for Unity Catalog services.
+//! PyO3 binding generation for protobuf-defined services.
 
 use convert_case::{Case, Casing};
 use itertools::Itertools;

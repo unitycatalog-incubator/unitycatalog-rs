@@ -1,7 +1,7 @@
-//! Code generation module for Unity Catalog REST handlers
+//! Code generation module for REST API handlers and language bindings.
 //!
 //! This module provides the core functionality for generating Rust code from
-//! protobuf metadata extracted from Unity Catalog service definitions.
+//! protobuf metadata extracted from service definitions.
 //!
 //! ## Architecture
 //!
@@ -134,6 +134,10 @@ pub struct BindingsConfig {
     /// `s` are included in the generated `.pyi` file.  When `None`, all
     /// reachable types are included.
     pub typings_package_filter: Option<String>,
+    /// Base class name for TypeScript errors (e.g. `"UnityCatalogError"`).
+    pub ts_error_base_class: String,
+    /// Prefix used in native NAPI error messages (e.g. `"UC"`).
+    pub ts_error_code_prefix: String,
 }
 
 /// Configuration for code generation, including import paths and output directories.

@@ -17,12 +17,12 @@ pub(crate) fn generate_typings(services: &[ServiceHandler<'_>]) -> String {
     let metadata = services[0].metadata;
     let bindings = services[0].config.bindings.as_ref();
 
-    let mut content = Vec::new();
-
-    content.push("from __future__ import annotations".to_string());
-    content.push("from typing import Optional, List, Dict, Any, Literal".to_string());
-    content.push("import enum".to_string());
-    content.push("".to_string());
+    let mut content = vec![
+        "from __future__ import annotations".to_string(),
+        "from typing import Optional, List, Dict, Any, Literal".to_string(),
+        "import enum".to_string(),
+        "".to_string(),
+    ];
 
     let model_classes = generate_model_classes(
         metadata,
@@ -50,8 +50,9 @@ pub(crate) fn generate_typings(services: &[ServiceHandler<'_>]) -> String {
     let main_client_class = generate_main_client_class_typings(
         &sorted_services,
         bindings
-            .map(|b| b.aggregate_client_name.as_str())
-            .unwrap_or("UnityCatalogClient"),
+            .expect("bindings required when generating python typings")
+            .aggregate_client_name
+            .as_str(),
     );
     content.push(main_client_class);
 
@@ -917,8 +918,6 @@ fn format_method_docstring_for_template(docstring: &str, indent_level: usize) ->
                 current_section.clear();
             }
             in_args_or_returns = true;
-            current_section.push(line.to_string());
-        } else if in_args_or_returns {
             current_section.push(line.to_string());
         } else {
             current_section.push(line.to_string());

@@ -8,7 +8,7 @@ use itertools::Itertools;
 
 use super::super::python::derive_resource_accessor_params;
 use crate::analysis::{RequestParam, RequestType};
-use crate::codegen::{MethodHandler, ServiceHandler};
+use crate::codegen::{BindingsConfig, MethodHandler, ServiceHandler};
 use crate::parsing::types::{BaseType, unified_to_typescript};
 
 /// Format optional documentation as a JSDoc comment block.
@@ -50,78 +50,81 @@ fn is_napi_supported_type(base_type: &BaseType) -> bool {
 }
 
 /// TypeScript error class definitions and `parseNativeError` helper.
-fn generate_error_classes() -> &'static str {
-    r#"// ── UC error hierarchy ────────────────────────────────────────────────────────
+fn generate_error_classes(bindings: &BindingsConfig) -> String {
+    let base = &bindings.ts_error_base_class;
+    let prefix = &bindings.ts_error_code_prefix;
+    format!(
+        r#"// ── {base} error hierarchy ────────────────────────────────────────────────────────
 
-/** Base class for all Unity Catalog errors. */
-export class UnityCatalogError extends Error {
+/** Base class for all {base} errors. */
+export class {base} extends Error {{
   readonly errorCode: string;
-  constructor(message: string, errorCode: string) {
+  constructor(message: string, errorCode: string) {{
     super(message);
-    this.name = "UnityCatalogError";
+    this.name = "{base}";
     this.errorCode = errorCode;
-  }
-}
+  }}
+}}
 
-export class NotFoundError extends UnityCatalogError {
-  constructor(message: string) {
+export class NotFoundError extends {base} {{
+  constructor(message: string) {{
     super(message, "RESOURCE_NOT_FOUND");
     this.name = "NotFoundError";
-  }
-}
+  }}
+}}
 
-export class AlreadyExistsError extends UnityCatalogError {
-  constructor(message: string) {
+export class AlreadyExistsError extends {base} {{
+  constructor(message: string) {{
     super(message, "RESOURCE_ALREADY_EXISTS");
     this.name = "AlreadyExistsError";
-  }
-}
+  }}
+}}
 
-export class PermissionDeniedError extends UnityCatalogError {
-  constructor(message: string) {
+export class PermissionDeniedError extends {base} {{
+  constructor(message: string) {{
     super(message, "PERMISSION_DENIED");
     this.name = "PermissionDeniedError";
-  }
-}
+  }}
+}}
 
-export class UnauthenticatedError extends UnityCatalogError {
-  constructor(message: string) {
+export class UnauthenticatedError extends {base} {{
+  constructor(message: string) {{
     super(message, "UNAUTHENTICATED");
     this.name = "UnauthenticatedError";
-  }
-}
+  }}
+}}
 
-export class InvalidParameterError extends UnityCatalogError {
-  constructor(message: string) {
+export class InvalidParameterError extends {base} {{
+  constructor(message: string) {{
     super(message, "INVALID_PARAMETER_VALUE");
     this.name = "InvalidParameterError";
-  }
-}
+  }}
+}}
 
-export class RequestLimitError extends UnityCatalogError {
-  constructor(message: string) {
+export class RequestLimitError extends {base} {{
+  constructor(message: string) {{
     super(message, "REQUEST_LIMIT_EXCEEDED");
     this.name = "RequestLimitError";
-  }
-}
+  }}
+}}
 
-export class InternalServerError extends UnityCatalogError {
-  constructor(message: string) {
+export class InternalServerError extends {base} {{
+  constructor(message: string) {{
     super(message, "INTERNAL_ERROR");
     this.name = "InternalServerError";
-  }
-}
+  }}
+}}
 
-export class ServiceUnavailableError extends UnityCatalogError {
-  constructor(message: string) {
+export class ServiceUnavailableError extends {base} {{
+  constructor(message: string) {{
     super(message, "TEMPORARILY_UNAVAILABLE");
     this.name = "ServiceUnavailableError";
-  }
-}
+  }}
+}}
 
-type UcErrorConstructor = new (message: string) => UnityCatalogError;
+type ErrorConstructor = new (message: string) => {base};
 
-const UC_ERROR_MAP: Record<string, UcErrorConstructor> = {
+const ERROR_MAP: Record<string, ErrorConstructor> = {{
   RESOURCE_NOT_FOUND: NotFoundError,
   RESOURCE_ALREADY_EXISTS: AlreadyExistsError,
   PERMISSION_DENIED: PermissionDeniedError,
@@ -130,36 +133,42 @@ const UC_ERROR_MAP: Record<string, UcErrorConstructor> = {
   REQUEST_LIMIT_EXCEEDED: RequestLimitError,
   INTERNAL_ERROR: InternalServerError,
   TEMPORARILY_UNAVAILABLE: ServiceUnavailableError,
-};
+}};
 
 /**
- * Parse a native NAPI error that may carry a `UC:<CODE>:<message>` prefix
- * and re-throw as the appropriate typed subclass of `UnityCatalogError`.
+ * Parse a native NAPI error that may carry a `{prefix}:<CODE>:<message>` prefix
+ * and re-throw as the appropriate typed subclass of `{base}`.
  */
-function parseNativeError(e: unknown): never {
-  if (e instanceof Error) {
-    const match = e.message.match(/^UC:([^:]+):([\s\S]*)$/);
-    if (match) {
+function parseNativeError(e: unknown): never {{
+  if (e instanceof Error) {{
+    const match = e.message.match(/^{prefix}:([^:]+):([\s\S]*)$/);
+    if (match) {{
       const [, code, message] = match;
-      const Ctor = UC_ERROR_MAP[code] ?? UnityCatalogError;
+      const Ctor = ERROR_MAP[code] ?? {base};
       throw new Ctor(message);
-    }
-  }
+    }}
+  }}
   throw e;
-}
+}}
 
-// ── end UC error hierarchy ─────────────────────────────────────────────────────
+// ── end {base} error hierarchy ─────────────────────────────────────────────────────
 
 "#
+    )
 }
 
 /// Generate the complete `client.ts` file for all services.
 pub(crate) fn generate_client_ts(services: &[ServiceHandler<'_>]) -> String {
+    let bindings = services
+        .first()
+        .and_then(|s| s.config.bindings.as_ref())
+        .expect("bindings config required for node_ts output");
+
     let mut out = String::new();
 
     out.push_str(&generate_imports(services));
     out.push('\n');
-    out.push_str(generate_error_classes());
+    out.push_str(&generate_error_classes(bindings));
 
     // Generate options interfaces for all services
     for service in services {
@@ -180,7 +189,7 @@ pub(crate) fn generate_client_ts(services: &[ServiceHandler<'_>]) -> String {
     }
 
     // Generate the main aggregate client class
-    out.push_str(&generate_unity_catalog_client(services));
+    out.push_str(&generate_aggregate_client(services));
 
     out
 }
@@ -481,7 +490,7 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
 }
 
 /// Generate the main aggregate client class (e.g. `UnityCatalogClient`).
-fn generate_unity_catalog_client(services: &[ServiceHandler<'_>]) -> String {
+fn generate_aggregate_client(services: &[ServiceHandler<'_>]) -> String {
     let bindings = services
         .first()
         .and_then(|s| s.config.bindings.as_ref())

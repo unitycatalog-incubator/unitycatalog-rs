@@ -1,4 +1,4 @@
-//! NAPI-RS binding generation for Unity Catalog services.
+//! NAPI-RS binding generation for protobuf-defined services.
 
 use convert_case::{Case, Casing};
 use itertools::Itertools;
