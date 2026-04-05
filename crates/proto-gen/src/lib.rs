@@ -3,6 +3,7 @@ pub use error::*;
 pub mod analysis;
 pub mod codegen;
 pub mod error;
+pub mod openapi_enrich;
 pub mod output;
 pub mod parsing;
 pub mod utils;
@@ -16,6 +17,9 @@ pub use analysis::{
     RequestType, ServicePlan, analyze_metadata, extract_managed_resources, split_body_fields,
 };
 // Note: MethodPlanner is pub(crate) — it is an internal helper, not part of the public API.
+pub use openapi_enrich::run as enrich_openapi;
+pub use parsing::http::HttpPattern;
+pub use parsing::types::{BaseType, RenderContext, UnifiedType};
 pub use parsing::{CodeGenMetadata, parse_file_descriptor_set, process_file_descriptor};
 
 pub mod google {

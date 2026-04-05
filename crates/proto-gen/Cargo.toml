@@ -20,6 +20,9 @@ proc-macro2 = "1.0"
 prettyplease = "0.2"
 regex = "1.10"
 textwrap = "0.16"
+serde_json = "1"
+serde_yaml = "0.9"
+glob = "0.3"
 
 [dev-dependencies]
 rstest = "0.23"
