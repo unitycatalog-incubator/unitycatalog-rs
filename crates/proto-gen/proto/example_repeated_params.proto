@@ -1,0 +1,29 @@
+syntax = "proto3";
+package example.catalog.v1;
+
+import "example_models.proto";
+import "google/api/annotations.proto";
+
+service SchemaService {
+  // Repeated string query param
+  rpc ListByTags(ListByTagsRequest) returns (ListByTagsResponse) {
+    option (google.api.http) = {get: "/schemas"};
+  }
+  // Enum query param
+  rpc ListByCatalogType(ListByCatalogTypeRequest) returns (ListByTagsResponse) {
+    option (google.api.http) = {get: "/catalogs/by-type"};
+  }
+}
+
+message ListByTagsRequest {
+  repeated string tags = 1; // becomes repeated query param
+  int32 max_results = 2;
+}
+
+message ListByCatalogTypeRequest {
+  CatalogType catalog_type = 1; // enum as query param
+}
+
+message ListByTagsResponse {
+  repeated string results = 1;
+}

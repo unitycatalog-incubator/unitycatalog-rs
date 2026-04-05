@@ -69,6 +69,13 @@ generate-build-ext:
 generate-node:
     just node/client/generate
 
+# Regenerate proto-gen test fixture descriptors from proto/ source files.
+[group('codegen')]
+generate-proto-gen-fixtures:
+    buf dep update crates/proto-gen/proto
+    buf build --output {{ justfile_directory() }}/crates/proto-gen/proto/example.bin \
+      crates/proto-gen/proto/
+
 [group('dev')]
 rest:
     @RUST_LOG=INFO cargo run --bin uc server --rest
