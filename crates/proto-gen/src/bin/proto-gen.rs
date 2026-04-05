@@ -119,6 +119,7 @@ fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
 
     let bindings = has_bindings_output.then(|| BindingsConfig {
         aggregate_client_name: "UnityCatalogClient".to_string(),
+        client_crate_name: "unitycatalog_client".to_string(),
         py_error_type: "PyUnityCatalogError".to_string(),
         py_result_type: "PyUnityCatalogResult".to_string(),
         napi_error_ext_trait: "NapiErrorExt".to_string(),

@@ -38,6 +38,7 @@ fn make_test_config(
         }),
         bindings: Some(BindingsConfig {
             aggregate_client_name: "ExampleClient".to_string(),
+            client_crate_name: "example_client".to_string(),
             py_error_type: "PyExampleError".to_string(),
             py_result_type: "PyExampleResult".to_string(),
             napi_error_ext_trait: "NapiErrorExt".to_string(),

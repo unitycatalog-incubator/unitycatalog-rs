@@ -39,8 +39,7 @@ generate-openapi:
 [group('codegen')]
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    mkdir -p node/client/src/codegen
-    cargo run --bin unitycatalog-build -- generate \
+    cargo run --bin proto-gen -- generate \
       --output-common crates/common/src/codegen \
       --output-models-gen crates/common/src/models/resources \
       --output-server crates/server/src/codegen \
@@ -52,26 +51,6 @@ generate-code:
     rm {{ justfile_directory() }}/descriptors.bin
     just fmt
     mv python/client/src/codegen/unitycatalog_client.pyi python/client/unitycatalog_client.pyi
-
-# Generate code via the proto-gen binary into /tmp/proto-gen-out for diffing against generate-code.
-
-# Usage: just generate-code-proto-gen && diff -r crates/common/src/codegen /tmp/proto-gen-out/common
-[group('codegen')]
-generate-code-proto-gen:
-    buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    mkdir -p ./tmp/proto-gen-out/{common,models,server,client,python,node,node-ts}
-    cargo run --bin proto-gen -- generate \
-      --output-common ./tmp/proto-gen-out/common \
-      --output-models-gen ./tmp/proto-gen-out/models \
-      --output-server ./tmp/proto-gen-out/server \
-      --output-client ./tmp/proto-gen-out/client \
-      --output-python ./tmp/proto-gen-out/python \
-      --output-node ./tmp/proto-gen-out/node \
-      --output-node-ts ./tmp/proto-gen-out/node-ts \
-      --descriptors {{ justfile_directory() }}/descriptors.bin
-    rm {{ justfile_directory() }}/descriptors.bin
-
-# generate auxiliary types in common crate. (custom google.protobuf build)
 
 # CURRENTLY not used, but we may need it again come validation ...
 [group('codegen')]

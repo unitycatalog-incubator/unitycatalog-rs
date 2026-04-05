@@ -1,6 +1,5 @@
 //! NAPI-RS binding generation for protobuf-defined services.
 
-use convert_case::{Case, Casing};
 use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -67,7 +66,7 @@ pub(crate) fn generate(service: &ServiceHandler<'_>) -> String {
     let napi_client_ident = format_ident!("Napi{}", rust_client_ident);
     let _napi_client_name = rust_client_ident.to_string();
 
-    let client_crate = format_ident!("{}", bindings.aggregate_client_name.to_case(Case::Snake));
+    let client_crate = format_ident!("{}", bindings.client_crate_name);
     let napi_error_ext_ident = format_ident!("{}", bindings.napi_error_ext_trait);
 
     let methods = service.methods().filter_map(resource_client_method);
@@ -110,7 +109,7 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
         .expect("bindings config required for node output");
 
     let aggregate_client_name = &bindings.aggregate_client_name;
-    let client_crate = format_ident!("{}", aggregate_client_name.to_case(Case::Snake));
+    let client_crate = format_ident!("{}", bindings.client_crate_name);
     let aggregate_client_ident = format_ident!("{}", aggregate_client_name);
     let napi_aggregate_client_ident = format_ident!("Napi{}", aggregate_client_name);
     let napi_error_ext_ident = format_ident!("{}", bindings.napi_error_ext_trait);

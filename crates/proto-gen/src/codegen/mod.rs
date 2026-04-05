@@ -127,10 +127,14 @@ pub struct ResourceEnumConfig {
 #[derive(Debug, Clone)]
 pub struct BindingsConfig {
     /// Name of the aggregate client struct (e.g. `"UnityCatalogClient"`).
-    ///
-    /// The snake_case form of this name is used as the crate name in generated
-    /// `use` statements (e.g. `"unity_catalog_client"`).
     pub aggregate_client_name: String,
+    /// Rust crate name used in `use` statements for the client crate
+    /// (e.g. `"unitycatalog_client"`).
+    ///
+    /// This must be set explicitly because the crate name may not match the
+    /// snake_case form of `aggregate_client_name` (e.g. `"UnityCatalogClient"`
+    /// snake_cases to `"unity_catalog_client"`, not `"unitycatalog_client"`).
+    pub client_crate_name: String,
     /// Fully-qualified Python error type (e.g. `"PyUnityCatalogError"`).
     pub py_error_type: String,
     /// Fully-qualified Python result alias (e.g. `"PyUnityCatalogResult"`).

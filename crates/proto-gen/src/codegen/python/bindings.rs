@@ -1,6 +1,5 @@
 //! PyO3 binding generation for protobuf-defined services.
 
-use convert_case::{Case, Casing};
 use itertools::Itertools;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
@@ -39,8 +38,7 @@ pub(crate) fn generate(service: &ServiceHandler<'_>) -> String {
     let client_ident = format_ident!("{}", format!("Py{}", rust_client_ident));
     let rust_client_name = rust_client_ident.to_string();
 
-    // Derive crate name from aggregate_client_name in snake_case
-    let client_crate = format_ident!("{}", bindings.aggregate_client_name.to_case(Case::Snake));
+    let client_crate = format_ident!("{}", bindings.client_crate_name);
 
     let py_error_type = format_ident!("{}", bindings.py_error_type);
     let py_result_type = format_ident!("{}", bindings.py_result_type);
@@ -86,7 +84,7 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
         .expect("bindings config required for python output");
 
     let aggregate_client_name = &bindings.aggregate_client_name;
-    let client_crate = format_ident!("{}", aggregate_client_name.to_case(Case::Snake));
+    let client_crate = format_ident!("{}", bindings.client_crate_name);
     let aggregate_client_ident = format_ident!("{}", aggregate_client_name);
     let py_aggregate_client_ident = format_ident!("Py{}", aggregate_client_name);
     let py_error_type = format_ident!("{}", bindings.py_error_type);
