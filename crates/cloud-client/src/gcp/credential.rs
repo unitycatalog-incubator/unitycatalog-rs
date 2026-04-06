@@ -15,6 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// GCP Workload Identity Federation signing infrastructure is implemented but not yet
+// wired into a provider. Suppress dead_code warnings until the GcpWorkloadIdentityProvider
+// is added (see implementation plan Phase 2.3).
+#![allow(dead_code)]
+
 use std::env;
 use std::fs::File;
 use std::io::BufReader;
@@ -307,6 +312,17 @@ where
 }
 
 /// A deserialized `service-account-********.json`-file.
+///
+/// Holds the RSA private key and associated metadata needed to generate
+/// self-signed JWTs for authenticating as a GCP service account without
+/// going through the OAuth 2.0 token endpoint.  Call [`token_provider`] to
+/// obtain a [`SelfSignedJwt`] that can be used directly as a
+/// [`TokenProvider`].
+///
+/// # References
+/// - <https://developers.google.com/identity/protocols/oauth2/service-account>
+///
+/// [`token_provider`]: ServiceAccountCredentials::token_provider
 #[derive(serde::Deserialize, Debug, Clone)]
 pub(crate) struct ServiceAccountCredentials {
     /// The private key in RSA format.
@@ -352,11 +368,15 @@ impl ServiceAccountCredentials {
     }
 }
 
-/// Returns the number of seconds since unix epoch
+/// Returns the number of seconds since unix epoch.
+///
+/// Returns 0 if the system clock is set before the Unix epoch (January 1, 1970),
+/// which would cause JWT tokens to have invalid `iat`/`exp` values and be rejected
+/// by the token endpoint.
 fn seconds_since_epoch() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::SystemTime::UNIX_EPOCH)
-        .unwrap()
+        .unwrap_or_default()
         .as_secs()
 }
 
@@ -367,7 +387,16 @@ fn b64_encode_obj<T: serde::Serialize>(obj: &T) -> Result<String> {
 
 /// A provider that uses the Google Cloud Platform metadata server to fetch a token.
 ///
-/// <https://cloud.google.com/docs/authentication/get-id-token#metadata-server>
+/// Queries the GCE/GKE metadata server at
+/// `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`
+/// (falling back to the IP `169.254.169.254`) to obtain a short-lived OAuth 2.0
+/// bearer token for the VM's attached service account.  Respects the
+/// `GCE_METADATA_HOST`, `GCE_METADATA_ROOT`, and `GCE_METADATA_IP` environment
+/// variables for custom endpoint overrides.
+///
+/// # References
+/// - <https://cloud.google.com/compute/docs/access/authenticate-workloads>
+/// - <https://cloud.google.com/docs/authentication/get-id-token#metadata-server>
 #[derive(Debug, Default)]
 pub(crate) struct InstanceCredentialProvider {}
 

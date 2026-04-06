@@ -138,7 +138,7 @@ impl From<Error> for std::io::Error {
 
 pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
 
-/// The configuration for how to respond to request errors
+/// The configuration for how to respond to request errors.
 ///
 /// The following categories of error will be retried:
 ///
@@ -148,7 +148,15 @@ pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
 /// * Timeouts for [safe] / read-only requests
 ///
 /// Requests will be retried up to some limit, using exponential
-/// backoff with jitter. See [`BackoffConfig`] for more information
+/// backoff with jitter. See [`BackoffConfig`] for more information.
+///
+/// ## Default values
+///
+/// | Field           | Default   | Guidance                                                  |
+/// |-----------------|-----------|-----------------------------------------------------------|
+/// | `max_retries`   | `10`      | Reduce to `3`–`5` for latency-sensitive interactive paths |
+/// | `retry_timeout` | `180 s`   | Keep below **5 minutes** so credentials stay valid across all retry attempts |
+/// | `backoff`       | see [`BackoffConfig`] | Exponential with jitter; tune `base` / `deadline` for your SLA |
 ///
 /// [safe]: https://datatracker.ietf.org/doc/html/rfc7231#section-4.2.1
 #[derive(Debug, Clone)]

@@ -1,5 +1,3 @@
-#![allow(unused, dead_code)]
-
 #[cfg(feature = "recording")]
 use std::collections::HashMap;
 #[cfg(feature = "recording")]
@@ -9,9 +7,6 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
-use aws::AmazonConfig;
-use azure::AzureConfig;
-use gcp::GoogleConfig;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::{Body, Client, IntoUrl, Method, RequestBuilder};
 use serde::Serialize;
@@ -80,12 +75,24 @@ struct RecordingState {
     counter: Arc<AtomicU64>,
 }
 
+/// An authenticated HTTP client for cloud provider APIs.
+///
+/// Created via the provider-specific constructors [`CloudClient::new_aws`],
+/// [`CloudClient::new_azure`], [`CloudClient::new_google`], or
+/// [`CloudClient::new_databricks`], or the simpler [`CloudClient::new_with_token`]
+/// and [`CloudClient::new_unauthenticated`].
 #[derive(Clone)]
 pub struct CloudClient {
     signer: SharedSigner,
     reqwest_client: Client,
     service: Arc<dyn HttpService>,
-    retry_config: RetryConfig,
+    /// Retry configuration stored for future use by [`CloudClient::send`].
+    ///
+    /// Currently the retry policy is applied inside credential providers (token
+    /// refresh), but is not yet applied to user-initiated requests. Stored here
+    /// so that a `with_retry_config()` builder method can expose it without a
+    /// breaking change.
+    pub retry_config: RetryConfig,
     #[cfg(feature = "recording")]
     recording: Option<RecordingState>,
 }
@@ -453,6 +460,37 @@ pub struct ResponseInfo {
     pub body: Option<String>,
 }
 
+/// Header names whose values must never appear in recording files.
+///
+/// These headers carry bearer tokens, signing secrets, or session tokens.
+/// They are replaced with `"<REDACTED>"` before any recording is written to disk.
+#[cfg(feature = "recording")]
+const SENSITIVE_HEADERS: &[&str] = &[
+    "authorization",
+    "x-amz-security-token",
+    "x-amz-content-sha256",
+    "x-databricks-authorization",
+    "x-ms-identity-principal-id",
+    "x-goog-iam-credentials-token",
+    "cookie",
+    "set-cookie",
+];
+
+#[cfg(feature = "recording")]
+fn redact_headers(headers: &HashMap<String, String>) -> HashMap<String, String> {
+    headers
+        .iter()
+        .map(|(k, v)| {
+            let v = if SENSITIVE_HEADERS.contains(&k.to_lowercase().as_str()) {
+                "<REDACTED>".to_string()
+            } else {
+                v.clone()
+            };
+            (k.clone(), v)
+        })
+        .collect()
+}
+
 #[cfg(feature = "recording")]
 async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, reqwest::Error> {
     let Some(out_dir) = builder.out_dir else {
@@ -480,7 +518,7 @@ async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, 
 
     // Record the response
     let status = response.status().as_u16();
-    let headers: HashMap<String, String> = response
+    let raw_headers: HashMap<String, String> = response
         .headers()
         .iter()
         .map(|(k, v)| (k.as_str().to_string(), v.to_str().unwrap_or("").to_string()))
@@ -494,15 +532,14 @@ async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, 
         Some(String::from_utf8_lossy(&response_bytes).to_string())
     };
 
-    let response_info = ResponseInfo {
-        status,
-        headers: headers.clone(),
-        body: response_body,
-    };
-
     let recording = RequestResponseInfo {
         request: request_info,
-        response: response_info,
+        response: ResponseInfo {
+            status,
+            // Redact sensitive headers before writing to disk
+            headers: redact_headers(&raw_headers),
+            body: response_body,
+        },
     };
 
     let counter = builder
@@ -512,15 +549,24 @@ async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, 
         .map(|r| r.counter.fetch_add(1, Ordering::SeqCst))
         .unwrap_or(0);
     let file_path = out_dir.join(format!("{:04}.json", counter));
-    let file = std::fs::File::create(file_path).unwrap();
-    serde_json::to_writer_pretty(file, &recording).unwrap();
-
-    // Return a new response built from the recorded data
-    let mut mock_response = http::Response::builder().status(status);
-    for header in headers {
-        mock_response = mock_response.header(header.0, header.1);
+    if let Err(e) = std::fs::File::create(&file_path)
+        .and_then(|f| serde_json::to_writer_pretty(f, &recording).map_err(Into::into))
+    {
+        tracing::warn!(
+            "Failed to write recording to {}: {}",
+            file_path.display(),
+            e
+        );
     }
-    let mock_response = mock_response.body(response_bytes).unwrap();
+
+    // Return a new response built from the recorded data, using the raw (unredacted) headers
+    let mut mock_response = http::Response::builder().status(status);
+    for (k, v) in &raw_headers {
+        mock_response = mock_response.header(k, v);
+    }
+    let mock_response = mock_response
+        .body(response_bytes)
+        .expect("valid status code and headers");
 
     Ok(reqwest::Response::from(mock_response))
 }
@@ -528,7 +574,6 @@ async fn send_record(builder: CloudRequestBuilder) -> Result<reqwest::Response, 
 #[cfg(all(test, feature = "recording"))]
 mod tests {
     use super::*;
-    use mockito::ServerGuard;
     use std::fs;
     use tempfile::TempDir;
 
@@ -807,5 +852,114 @@ mod tests {
         );
 
         mock.assert_async().await;
+    }
+
+    /// Verify that the bearer token injected by a signed request does not appear
+    /// in the recording file. Request headers are currently not recorded, so this
+    /// test confirms the token does not leak via any other path (e.g. echoed back
+    /// in a response header or response body).
+    #[tokio::test]
+    async fn test_recording_does_not_contain_bearer_token_value() {
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        let mut server = mockito::Server::new_async().await;
+        let mock = server
+            .mock("GET", "/secret")
+            .match_header("authorization", mockito::Matcher::Any)
+            .with_status(200)
+            // Server does NOT echo the token back — simulates a well-behaved API
+            .with_body("ok")
+            .create_async()
+            .await;
+
+        let mut client = CloudClient::new_with_token("super-secret-token-12345");
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        let url = format!("{}/secret", server.url());
+        client.get(&url).send().await.unwrap();
+
+        let recording_path = temp_path.join("0000.json");
+        let content = fs::read_to_string(&recording_path).unwrap();
+
+        // The raw token must not appear in the file at all
+        assert!(
+            !content.contains("super-secret-token-12345"),
+            "raw bearer token leaked into recording: {content}"
+        );
+
+        mock.assert_async().await;
+    }
+
+    /// Verify that sensitive headers returned by the server (e.g. a reflected
+    /// Authorization or AWS security token) are redacted before being written
+    /// to the recording file.
+    #[tokio::test]
+    async fn test_recording_redacts_sensitive_response_headers() {
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        let mut server = mockito::Server::new_async().await;
+        // Simulate a server that echoes a sensitive header back in its response
+        let mock = server
+            .mock("GET", "/s3")
+            .with_status(200)
+            .with_header("x-amz-security-token", "AQoXnyc4LLI2AJvUAMOGAR8a1234567890")
+            .with_header("authorization", "Bearer should-be-redacted")
+            .with_body("{}")
+            .create_async()
+            .await;
+
+        let mut client = CloudClient::new_unauthenticated();
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        let url = format!("{}/s3", server.url());
+        client.get(&url).send().await.unwrap();
+
+        let content = fs::read_to_string(temp_path.join("0000.json")).unwrap();
+        assert!(
+            !content.contains("AQoXnyc4LLI2AJvUAMOGAR8a1234567890"),
+            "x-amz-security-token leaked into recording: {content}"
+        );
+        assert!(
+            !content.contains("should-be-redacted"),
+            "Authorization value leaked into recording: {content}"
+        );
+        // Both headers should be replaced with the redaction sentinel
+        assert_eq!(
+            content.matches("<REDACTED>").count(),
+            2,
+            "expected 2 <REDACTED> entries in recording: {content}"
+        );
+
+        mock.assert_async().await;
+    }
+
+    /// Verify that a recording produced with redacted headers can still be parsed.
+    #[tokio::test]
+    async fn test_recording_remains_valid_json_after_redaction() {
+        let temp_dir = TempDir::new().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        let mut server = mockito::Server::new_async().await;
+        let _mock = server
+            .mock("GET", "/check")
+            .with_status(200)
+            .with_header("authorization", "Bearer should-be-redacted")
+            .with_body(r#"{"ok":true}"#)
+            .create_async()
+            .await;
+
+        let mut client = CloudClient::new_unauthenticated();
+        client.set_recording_dir(temp_path.clone()).unwrap();
+
+        let url = format!("{}/check", server.url());
+        client.get(&url).send().await.unwrap();
+
+        let content = fs::read_to_string(temp_path.join("0000.json")).unwrap();
+        // Must parse cleanly as a RequestResponseInfo
+        let parsed: RequestResponseInfo = serde_json::from_str(&content)
+            .expect("recording file must be valid JSON even after redaction");
+        assert_eq!(parsed.response.status, 200);
     }
 }

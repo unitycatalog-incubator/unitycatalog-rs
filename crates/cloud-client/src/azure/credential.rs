@@ -15,6 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// National cloud authority hosts and Databricks scope constants are not yet
+// consumed by the builder. Suppress until Azure SP two-token flow and national
+// cloud support are wired up (see implementation plan Phase 2.5).
+#![allow(dead_code)]
+
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::process::Command;
@@ -186,9 +191,16 @@ struct OAuthTokenResponse {
     expires_in: u64,
 }
 
-/// Encapsulates the logic to perform an OAuth token challenge
+/// Encapsulates the logic to perform an OAuth token challenge using a client
+/// secret (shared-secret variant of the OAuth 2.0 client-credentials flow).
 ///
-/// <https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#first-case-access-token-request-with-a-shared-secret>
+/// POSTs a `client_credentials` grant to the Azure AD token endpoint and
+/// returns a bearer token for the configured scope (defaults to
+/// `https://storage.azure.com/.default`).
+///
+/// # References
+/// - <https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow>
+/// - <https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#first-case-access-token-request-with-a-shared-secret>
 #[derive(Debug)]
 pub(crate) struct ClientSecretOAuthProvider {
     token_url: String,
@@ -294,7 +306,15 @@ struct ImdsTokenResponse {
 
 /// Attempts authentication using a managed identity that has been assigned to the deployment environment.
 ///
-/// <https://learn.microsoft.com/en-gb/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http>
+/// Calls the Azure Instance Metadata Service (IMDS) endpoint at
+/// `http://169.254.169.254/metadata/identity/oauth2/token` (or a custom
+/// endpoint when one is supplied) to obtain a bearer token for the configured
+/// Azure AD resource.  Supports user-assigned identities via `client_id`,
+/// `object_id`, or `msi_res_id` selectors.
+///
+/// # References
+/// - <https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token>
+/// - <https://learn.microsoft.com/en-gb/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http>
 #[derive(Debug)]
 pub(crate) struct ImdsManagedIdentityProvider {
     msi_endpoint: String,
@@ -394,9 +414,16 @@ impl TokenProvider for ImdsManagedIdentityProvider {
     }
 }
 
-/// Credential for using workload identity federation
+/// Credential for using workload identity federation.
 ///
-/// <https://learn.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation>
+/// Exchanges a federated OIDC token (read from a file, e.g. a Kubernetes
+/// projected service-account token) for an Azure AD bearer token using the
+/// `client_credentials` grant with a JWT client assertion.  Typically used in
+/// AKS workloads where the pod is annotated with a managed identity.
+///
+/// # References
+/// - <https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation>
+/// - <https://learn.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation>
 #[derive(Debug)]
 pub(crate) struct WorkloadIdentityOAuthProvider {
     token_url: String,

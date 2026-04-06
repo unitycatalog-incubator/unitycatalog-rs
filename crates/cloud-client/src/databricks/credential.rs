@@ -10,7 +10,7 @@ use crate::gcp::GcpCredentialProvider;
 use crate::retry::RetryExt;
 use crate::service::HttpService;
 use crate::token::TemporaryToken;
-use crate::{CredentialProvider, RetryConfig, TokenProvider};
+use crate::{RetryConfig, TokenProvider};
 
 /// Bearer token credential used by all Databricks auth paths.
 #[derive(Debug, Eq, PartialEq)]
@@ -42,11 +42,15 @@ impl From<Error> for crate::Error {
     }
 }
 
-pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
-
 /// OAuth M2M token provider for AWS/GCP Databricks-hosted services.
 ///
-/// POSTs to `{host}/oidc/v1/token` with `grant_type=client_credentials`.
+/// POSTs to `{host}/oidc/v1/token` with `grant_type=client_credentials` using
+/// a `client_id` / `client_secret` pair.  The returned bearer token is cached
+/// until it approaches expiry.  This is the recommended auth method for
+/// service-to-service calls against Databricks REST APIs.
+///
+/// # References
+/// - <https://docs.databricks.com/en/dev-tools/auth/oauth-m2m.html>
 #[derive(Debug)]
 pub(crate) struct DatabricksM2MProvider {
     pub token_url: String,
@@ -154,8 +158,12 @@ pub(crate) fn jwt_exp(token: &str) -> Option<Instant> {
 
 /// OIDC token provider that reads a token from an environment variable on each fetch.
 ///
-/// The env var value is re-read on every call so rotated tokens are picked up automatically.
-/// The JWT `exp` claim is parsed to set the credential expiry.
+/// The env var value is re-read on every call so rotated tokens are picked up
+/// automatically without restarting the process.  The JWT `exp` claim is
+/// parsed (without verifying the signature) to set the [`TemporaryToken`]
+/// expiry so the surrounding [`TokenCache`] knows when to refresh.  Useful in
+/// CI/CD pipelines or Kubernetes environments where a sidecar injects a fresh
+/// OIDC token into an environment variable.
 #[derive(Debug)]
 pub(crate) struct OidcEnvTokenProvider {
     /// Name of the environment variable holding the OIDC JWT.
@@ -189,8 +197,13 @@ impl TokenProvider for OidcEnvTokenProvider {
 
 /// OIDC token provider that reads a token from a file on each fetch.
 ///
-/// The file is re-read on every call so kubelet-rotated tokens are picked up automatically.
-/// The JWT `exp` claim is parsed to set the credential expiry.
+/// The file is re-read on every call so kubelet-rotated tokens are picked up
+/// automatically without restarting the process.  The JWT `exp` claim is
+/// parsed (without verifying the signature) to set the [`TemporaryToken`]
+/// expiry so the surrounding [`TokenCache`] knows when to refresh.  The
+/// canonical use-case is Kubernetes workload-identity federation where the
+/// kubelet writes a fresh projected service-account token to a well-known
+/// path (e.g. `/var/run/secrets/azure/tokens/azure-identity-token`).
 #[derive(Debug)]
 pub(crate) struct OidcFileTokenProvider {
     /// Path to the file containing the OIDC JWT.

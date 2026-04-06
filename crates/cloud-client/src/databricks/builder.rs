@@ -10,9 +10,10 @@ use super::credential::{
     DatabricksCredential, DatabricksGcpTokenExchangeProvider, DatabricksM2MProvider,
     OidcEnvTokenProvider, OidcFileTokenProvider,
 };
-use crate::azure::credential::{
-    AZURE_DATABRICKS_RESOURCE, AZURE_DATABRICKS_SCOPE, ImdsManagedIdentityProvider,
-};
+use crate::azure::credential::{AZURE_DATABRICKS_RESOURCE, ImdsManagedIdentityProvider};
+// AZURE_DATABRICKS_SCOPE is used by the Azure SP two-token flow (Phase 2.5)
+#[allow(unused_imports)]
+use crate::azure::credential::AZURE_DATABRICKS_SCOPE;
 use crate::service::make_service;
 use crate::{
     ClientConfigKey, ClientOptions, CredentialProvider, RequestSigner, Result, RetryConfig,

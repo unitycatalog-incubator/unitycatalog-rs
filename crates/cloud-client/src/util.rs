@@ -16,11 +16,15 @@
 // under the License.
 
 //! Common logic for interacting with remote object stores
+// RFC1123, deserialize_rfc1123, and collect_bytes are Azure/streaming utilities
+// used by planned provider implementations.
+#![allow(dead_code)]
 use bytes::Bytes;
 use futures::{Stream, stream::StreamExt};
 
 use super::Result;
 
+// Used by Azure blob storage date parsing
 pub(crate) static RFC1123_FMT: &str = "%a, %d %h %Y %T GMT";
 
 // deserialize dates according to rfc1123

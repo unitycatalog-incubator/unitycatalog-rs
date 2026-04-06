@@ -9,7 +9,13 @@ use reqwest::Client;
 use crate::service::HttpService;
 use crate::{Result, RetryConfig, TemporaryToken, TokenCache};
 
-/// Provides credentials for use when signing requests
+/// Provides credentials for use when signing requests.
+///
+/// Implementors are responsible for fetching, refreshing, and returning a
+/// credential of an associated type (e.g. an AWS SigV4 key set, an Azure bearer
+/// token, or a GCP service-account token).  The cloud-client crate ships
+/// ready-made implementations for every supported provider; see the per-cloud
+/// `credential` modules for details.
 #[async_trait]
 pub trait CredentialProvider: std::fmt::Debug + Send + Sync {
     /// The type of credential returned by this provider
@@ -97,6 +103,9 @@ impl<T: TokenProvider> CredentialProvider for TokenCredentialProvider<T> {
 ///
 /// Each cloud provider and Databricks implements this trait.
 /// `send()` in `CloudClient` calls `self.signer.sign(builder).await?`.
+///
+/// # References
+/// - <https://docs.rs/reqwest/latest/reqwest/struct.RequestBuilder.html>
 pub trait RequestSigner: Debug + Send + Sync {
     /// Sign a [`reqwest::RequestBuilder`], returning the modified builder.
     fn sign<'a>(

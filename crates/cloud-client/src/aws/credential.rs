@@ -115,19 +115,23 @@ impl<'a> AwsAuthorizer<'a> {
     /// the relevant [AWS SigV4] headers
     ///
     /// [AWS SigV4]: https://docs.aws.amazon.com/IAM/latest/UserGuide/create-signed-request.html
-    pub fn authorize(&self, request: &mut Request, pre_calculated_digest: Option<&[u8]>) {
+    pub fn authorize(
+        &self,
+        request: &mut Request,
+        pre_calculated_digest: Option<&[u8]>,
+    ) -> crate::Result<()> {
         if let Some(ref token) = self.credential.token {
-            let token_val = HeaderValue::from_str(token).unwrap();
+            let token_val = HeaderValue::from_str(token)?;
             request.headers_mut().insert(&TOKEN_HEADER, token_val);
         }
 
         let host = &request.url()[url::Position::BeforeHost..url::Position::AfterPort];
-        let host_val = HeaderValue::from_str(host).unwrap();
+        let host_val = HeaderValue::from_str(host)?;
         request.headers_mut().insert("host", host_val);
 
         let date = self.date.unwrap_or_else(Utc::now);
         let date_str = date.format("%Y%m%dT%H%M%SZ").to_string();
-        let date_val = HeaderValue::from_str(&date_str).unwrap();
+        let date_val = HeaderValue::from_str(&date_str)?;
         request.headers_mut().insert(&DATE_HEADER, date_val);
 
         let digest = match self.sign_payload {
@@ -144,7 +148,7 @@ impl<'a> AwsAuthorizer<'a> {
             },
         };
 
-        let header_digest = HeaderValue::from_str(&digest).unwrap();
+        let header_digest = HeaderValue::from_str(&digest)?;
         request.headers_mut().insert(&HASH_HEADER, header_digest);
 
         let (signed_headers, canonical_headers) = canonicalize_headers(request.headers());
@@ -170,12 +174,20 @@ impl<'a> AwsAuthorizer<'a> {
             ALGORITHM, self.credential.key_id, scope, signed_headers, signature
         );
 
-        let authorization_val = HeaderValue::from_str(&authorisation).unwrap();
+        let authorization_val = HeaderValue::from_str(&authorisation)?;
         request
             .headers_mut()
             .insert(&AUTHORIZATION, authorization_val);
+        Ok(())
     }
 
+    /// Generate presigned query-string authentication parameters for a URL.
+    ///
+    /// Used for generating S3 presigned URLs that authorize access without
+    /// sending the `Authorization` header.
+    ///
+    /// # References
+    /// - <https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html>
     pub(crate) fn sign(&self, method: Method, url: &mut Url, expires_in: Duration) {
         let date = self.date.unwrap_or_else(Utc::now);
         let scope = self.scope(date);
@@ -293,7 +305,9 @@ impl CredentialExt for RequestBuilder {
             Some(authorizer) => {
                 let (client, request) = self.build_split();
                 let mut request = request.expect("request valid");
-                authorizer.authorize(&mut request, payload_sha256);
+                authorizer
+                    .authorize(&mut request, payload_sha256)
+                    .expect("credential values must be valid header characters");
 
                 Self::from_parts(client, request)
             }
@@ -337,7 +351,9 @@ fn canonicalize_query(url: &Url) -> String {
 ///
 /// <https://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html>
 fn canonicalize_headers(header_map: &HeaderMap) -> (String, String) {
-    let mut headers = BTreeMap::<&str, Vec<&str>>::new();
+    // Use owned Strings for values since header bytes may not be valid UTF-8;
+    // we convert using lossy UTF-8 to avoid panicking on unusual header values.
+    let mut headers = BTreeMap::<&str, Vec<String>>::new();
     let mut value_count = 0;
     let mut value_bytes = 0;
     let mut key_bytes = 0;
@@ -348,7 +364,7 @@ fn canonicalize_headers(header_map: &HeaderMap) -> (String, String) {
             continue;
         }
 
-        let value = std::str::from_utf8(value.as_bytes()).unwrap();
+        let value = String::from_utf8_lossy(value.as_bytes()).into_owned();
         key_bytes += key.len();
         value_bytes += value.len();
         value_count += 1;
@@ -381,7 +397,13 @@ fn canonicalize_headers(header_map: &HeaderMap) -> (String, String) {
 
 /// Credentials sourced from the instance metadata service
 ///
-/// <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html>
+/// Fetches short-lived `AwsCredential` values from the EC2 Instance Metadata
+/// Service (IMDS).  Supports both IMDSv2 (token-protected) and IMDSv1 as a
+/// fallback when `imdsv1_fallback` is set.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>
+/// - <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html>
 #[derive(Debug)]
 pub(crate) struct InstanceCredentialProvider {
     pub imdsv1_fallback: bool,
@@ -410,9 +432,17 @@ impl TokenProvider for InstanceCredentialProvider {
     }
 }
 
-/// Credentials sourced using AssumeRoleWithWebIdentity
+/// Credentials sourced using `AssumeRoleWithWebIdentity`.
 ///
-/// <https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html>
+/// Exchanges an OIDC token (e.g. a Kubernetes projected service-account token)
+/// for temporary AWS credentials by calling the STS
+/// `AssumeRoleWithWebIdentity` API.  Commonly used in EKS pod identity
+/// scenarios where the token file path is supplied via the
+/// `AWS_WEB_IDENTITY_TOKEN_FILE` environment variable.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html>
+/// - <https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html>
 #[derive(Debug)]
 pub(crate) struct WebIdentityProvider {
     pub token_path: String,
@@ -602,9 +632,15 @@ async fn web_identity(
     })
 }
 
-/// Credentials sourced from a task IAM role
+/// Credentials sourced from a task IAM role.
 ///
-/// <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>
+/// Fetches short-lived `AwsCredential` values from the ECS task-metadata
+/// credential endpoint provided by the `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI`
+/// or `AWS_CONTAINER_CREDENTIALS_FULL_URI` environment variables.  Results are
+/// cached in the embedded [`TokenCache`] until they approach expiry.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>
 #[derive(Debug)]
 pub(crate) struct TaskCredentialProvider {
     pub url: String,
@@ -684,7 +720,7 @@ mod tests {
             sign_payload: true,
         };
 
-        signer.authorize(&mut request, None);
+        signer.authorize(&mut request, None).unwrap();
         assert_eq!(
             request.headers().get(&AUTHORIZATION).unwrap(),
             "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=a3c787a7ed37f7fdfbfd2d7056a3d7c9d85e6d52a2bfbec73793c0be6e7862d4"
@@ -719,7 +755,7 @@ mod tests {
             sign_payload: false,
         };
 
-        authorizer.authorize(&mut request, None);
+        authorizer.authorize(&mut request, None).unwrap();
         assert_eq!(
             request.headers().get(&AUTHORIZATION).unwrap(),
             "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=653c3d8ea261fd826207df58bc2bb69fbb5003e9eb3c0ef06e4a51f2a81d8699"
@@ -797,7 +833,7 @@ mod tests {
             sign_payload: true,
         };
 
-        authorizer.authorize(&mut request, None);
+        authorizer.authorize(&mut request, None).unwrap();
         assert_eq!(
             request.headers().get(&AUTHORIZATION).unwrap(),
             "AWS4-HMAC-SHA256 Credential=H20ABqCkLZID4rLe/20220809/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=9ebf2f92872066c99ac94e573b4e1b80f4dbb8a32b1e8e23178318746e7d1b4d"

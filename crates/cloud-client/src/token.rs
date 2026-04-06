@@ -29,8 +29,26 @@ pub struct TemporaryToken<T> {
     pub expiry: Option<Instant>,
 }
 
-/// Provides [`TokenCache::get_or_insert_with`] which can be used to cache a
-/// [`TemporaryToken`] based on its expiry
+/// Thread-safe cache for a [`TemporaryToken`] that proactively refreshes before
+/// the token expires.
+///
+/// ## Min-TTL strategy
+///
+/// A cached token is considered *still valid* only when its remaining lifetime
+/// exceeds `min_ttl` (default **5 minutes**).  Once the remaining lifetime
+/// drops below that threshold the next call to [`get_or_insert_with`] will
+/// trigger a synchronous re-fetch — while the lock is held — before returning
+/// the new token.  This ensures callers always receive a token with a
+/// comfortable margin before it expires, avoiding races where a token is used
+/// just as it becomes invalid.
+///
+/// An additional `fetch_backoff` guard (default **100 ms**) prevents a
+/// thundering-herd of re-fetch attempts in the window where the token is below
+/// `min_ttl` but has not yet expired: if the previous fetch happened within
+/// `fetch_backoff` and the token has not actually expired yet, the stale-but-
+/// not-yet-expired token is returned immediately.
+///
+/// [`get_or_insert_with`]: TokenCache::get_or_insert_with
 #[derive(Debug)]
 pub struct TokenCache<T> {
     cache: Mutex<Option<(TemporaryToken<T>, Instant)>>,
