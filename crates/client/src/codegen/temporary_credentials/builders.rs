@@ -5,13 +5,14 @@ use crate::Result;
 use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::temporary_credentials::v1::*;
-/// Builder for creating requests
+/// Builder for temporary table credentials
 pub struct GenerateTemporaryTableCredentialsBuilder {
     client: TemporaryCredentialClient,
     request: GenerateTemporaryTableCredentialsRequest,
 }
 impl GenerateTemporaryTableCredentialsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TemporaryCredentialClient`.
     pub(crate) fn new(
         client: TemporaryCredentialClient,
         table_id: impl Into<String>,
@@ -34,13 +35,14 @@ impl IntoFuture for GenerateTemporaryTableCredentialsBuilder {
         Box::pin(async move { client.generate_temporary_table_credentials(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for temporary path credentials
 pub struct GenerateTemporaryPathCredentialsBuilder {
     client: TemporaryCredentialClient,
     request: GenerateTemporaryPathCredentialsRequest,
 }
 impl GenerateTemporaryPathCredentialsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TemporaryCredentialClient`.
     pub(crate) fn new(
         client: TemporaryCredentialClient,
         url: impl Into<String>,

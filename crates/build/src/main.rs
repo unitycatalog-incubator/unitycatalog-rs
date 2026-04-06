@@ -104,9 +104,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
+/// Build a [`CodeGenConfig`] from parsed CLI arguments, starting from Unity Catalog defaults.
+///
+/// Any CLI flag that was explicitly provided overrides the corresponding default field.
+fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
+    let mut config = CodeGenConfig::unitycatalog_defaults(output);
+    if let Some(ref v) = args.context_type {
+        config.context_type_path = v.clone();
+    }
+    if let Some(ref v) = args.result_type {
+        config.result_type_path = v.clone();
+    }
+    if let Some(ref v) = args.models_path_template {
+        config.models_path_template = v.clone();
+    }
+    if let Some(ref v) = args.models_path_crate_template {
+        config.models_path_crate_template = v.clone();
+    }
+    config
+}
+
 fn run_generate(args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
     // Load and parse file descriptors
-    let descriptor_path = fs::canonicalize(PathBuf::from(args.descriptors))?;
+    let descriptor_path = fs::canonicalize(PathBuf::from(&args.descriptors))?;
     let descriptor_bytes = fs::read(&descriptor_path)?;
     let file_descriptor_set = FileDescriptorSet::parse_from_bytes(&descriptor_bytes)?;
 
@@ -145,6 +165,11 @@ fn run_generate(args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
         .map(|p| fs::canonicalize(PathBuf::from(p)))
         .transpose()?;
 
+    let python_typings_filename = args
+        .python_typings_filename
+        .clone()
+        .unwrap_or_else(|| "unitycatalog_client.pyi".to_string());
+
     let output = CodeGenOutput {
         common: output_common,
         models_gen: output_models_gen,
@@ -153,25 +178,10 @@ fn run_generate(args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
         python: output_python,
         node: output_node,
         node_ts: output_node_ts,
-        python_typings_filename: args
-            .python_typings_filename
-            .unwrap_or_else(|| "unitycatalog_client.pyi".to_string()),
+        python_typings_filename,
     };
 
-    let mut config = CodeGenConfig::unitycatalog_defaults(output);
-
-    if let Some(v) = args.context_type {
-        config.context_type_path = v;
-    }
-    if let Some(v) = args.result_type {
-        config.result_type_path = v;
-    }
-    if let Some(v) = args.models_path_template {
-        config.models_path_template = v;
-    }
-    if let Some(v) = args.models_path_crate_template {
-        config.models_path_crate_template = v;
-    }
+    let config = make_uc_config(output, &args);
 
     generate_code(&codegen_metadata, &config)?;
 

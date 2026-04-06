@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::functions::v1::*;
@@ -57,7 +56,7 @@ impl FunctionClient {
     /// Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
     /// privilege on the parent catalog and schema.
     pub async fn create_function(&self, request: &CreateFunctionRequest) -> Result<Function> {
-        let mut url = self.base_url.join("functions")?;
+        let url = self.base_url.join("functions")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -72,7 +71,7 @@ impl FunctionClient {
     /// the function.
     pub async fn get_function(&self, request: &GetFunctionRequest) -> Result<Function> {
         let formatted_path = format!("functions/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -86,7 +85,7 @@ impl FunctionClient {
     /// can be updated.
     pub async fn update_function(&self, request: &UpdateFunctionRequest) -> Result<Function> {
         let formatted_path = format!("functions/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

@@ -103,7 +103,7 @@ class Catalog:
     """Name of catalog."""
     owner: Optional[str]
     """Username of current owner of catalog."""
-    properties: Optional[List[Dict[str, str]]]
+    properties: Dict[str, str]
     """A map of key-value properties attached to the securable."""
     provider_name: Optional[str]
     """
@@ -122,6 +122,7 @@ class Catalog:
     def __init__(
         self,
         name: str,
+        properties: Dict[str, str],
         browse_only: Optional[bool] = None,
         catalog_type: Optional[CatalogType] = None,
         comment: Optional[str] = None,
@@ -129,7 +130,6 @@ class Catalog:
         created_by: Optional[str] = None,
         id: Optional[str] = None,
         owner: Optional[str] = None,
-        properties: Optional[List[Dict[str, str]]] = None,
         provider_name: Optional[str] = None,
         share_name: Optional[str] = None,
         storage_root: Optional[str] = None,
@@ -257,7 +257,7 @@ class DataObject:
     A fully qualified name that uniquely identifies a data object. For example, a table's
     fully qualified name is in the format of <catalog>.<schema>.<table>,
     """
-    partitions: Optional[List[str]]
+    partitions: List[str]
     """Array of partitions for the shared data."""
     shared_as: Optional[str]
     """
@@ -380,7 +380,7 @@ class Function:
     """Username of current owner of the function."""
     parameter_style: ParameterStyle
     """The parameter-passing style."""
-    properties: Optional[List[Dict[str, str]]]
+    properties: Dict[str, str]
     """A map of key-value properties attached to the securable."""
     return_params: Optional[str]
     """The return type of the function in JSON format."""
@@ -415,6 +415,7 @@ class Function:
         is_null_call: bool,
         name: str,
         parameter_style: ParameterStyle,
+        properties: Dict[str, str],
         routine_body: RoutineBody,
         schema_name: str,
         security_type: SecurityType,
@@ -425,7 +426,6 @@ class Function:
         function_id: Optional[str] = None,
         input_params: Optional[FunctionParameterInfos] = None,
         owner: Optional[str] = None,
-        properties: Optional[List[Dict[str, str]]] = None,
         return_params: Optional[str] = None,
         routine_body_language: Optional[str] = None,
         routine_definition: Optional[str] = None,
@@ -482,7 +482,7 @@ class FunctionParameterInfo:
 class FunctionParameterInfos:
     """A collection of function parameters."""
 
-    parameters: Optional[List[FunctionParameterInfo]]
+    parameters: List[FunctionParameterInfo]
     """The parameters of the function."""
 
     def __init__(self, parameters: Optional[List[FunctionParameterInfo]] = None) -> None: ...
@@ -494,11 +494,11 @@ class GcpOauthToken:
     def __init__(self, oauth_token: str) -> None: ...
 
 class PermissionsChange:
-    add: Optional[List[str]]
+    add: List[str]
     """The set of privileges to add."""
     principal: str
     """The principal (user email address or group name)."""
-    remove: Optional[List[str]]
+    remove: List[str]
     """The set of privileges to remove."""
 
     def __init__(
@@ -511,7 +511,7 @@ class PrivilegeAssignment:
     The principal (user email address or group name). For deleted principals, principal is
     empty while principal_id is populated.
     """
-    privileges: Optional[List[str]]
+    privileges: List[str]
     """The privileges assigned to the principal."""
 
     def __init__(self, principal: str, privileges: Optional[List[str]] = None) -> None: ...
@@ -541,9 +541,9 @@ class Recipient:
     """The name of the recipient."""
     owner: str
     """Username of the recipient owner."""
-    properties: Optional[List[Dict[str, str]]]
+    properties: Dict[str, str]
     """A map of key-value properties attached to the securable."""
-    tokens: Optional[List[RecipientToken]]
+    tokens: List[RecipientToken]
     """This field is only present when the authentication_type is TOKEN."""
     updated_at: Optional[int]
     """Time at which this share was updated, in epoch milliseconds."""
@@ -555,11 +555,11 @@ class Recipient:
         authentication_type: AuthenticationType,
         name: str,
         owner: str,
+        properties: Dict[str, str],
         comment: Optional[str] = None,
         created_at: Optional[int] = None,
         created_by: Optional[str] = None,
         id: Optional[str] = None,
-        properties: Optional[List[Dict[str, str]]] = None,
         tokens: Optional[List[RecipientToken]] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
@@ -612,7 +612,7 @@ class Schema:
     """Name of schema, relative to parent catalog."""
     owner: Optional[str]
     """Username of current owner of schema."""
-    properties: Optional[List[Dict[str, str]]]
+    properties: Dict[str, str]
     """A map of key-value properties attached to the securable."""
     schema_id: Optional[str]
     """Unique identifier for the schema."""
@@ -626,11 +626,11 @@ class Schema:
         catalog_name: str,
         full_name: str,
         name: str,
+        properties: Dict[str, str],
         comment: Optional[str] = None,
         created_at: Optional[int] = None,
         created_by: Optional[str] = None,
         owner: Optional[str] = None,
-        properties: Optional[List[Dict[str, str]]] = None,
         schema_id: Optional[str] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
@@ -647,7 +647,7 @@ class Share:
     """Unique ID of the recipient."""
     name: str
     """Name of the share."""
-    objects: Optional[List[DataObject]]
+    objects: List[DataObject]
     """A list of shared data objects within the share."""
     owner: Optional[str]
     """Username of current owner of share."""
@@ -678,7 +678,7 @@ class Share:
 class Table:
     catalog_name: str
     """Name of parent catalog."""
-    columns: Optional[List[Column]]
+    columns: List[Column]
     """The array of Column definitions of the table's columns."""
     comment: Optional[str]
     """User-provided free-form text description."""
@@ -699,7 +699,7 @@ class Table:
     """Name of table, relative to parent schema."""
     owner: Optional[str]
     """Username of current owner of table."""
-    properties: Optional[List[Dict[str, str]]]
+    properties: Dict[str, str]
     """A map of key-value properties attached to the securable."""
     schema_name: str
     """Name of parent schema."""
@@ -724,6 +724,7 @@ class Table:
         data_source_format: DataSourceFormat,
         full_name: str,
         name: str,
+        properties: Dict[str, str],
         schema_name: str,
         table_type: TableType,
         columns: Optional[List[Column]] = None,
@@ -732,7 +733,6 @@ class Table:
         created_by: Optional[str] = None,
         deleted_at: Optional[int] = None,
         owner: Optional[str] = None,
-        properties: Optional[List[Dict[str, str]]] = None,
         storage_credential_name: Optional[str] = None,
         storage_location: Optional[str] = None,
         table_id: Optional[str] = None,

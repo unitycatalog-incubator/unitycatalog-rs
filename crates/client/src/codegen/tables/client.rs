@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::tables::v1::*;
@@ -112,7 +111,7 @@ impl TableClient {
     }
     /// Create a table
     pub async fn create_table(&self, request: &CreateTableRequest) -> Result<Table> {
-        let mut url = self.base_url.join("tables")?;
+        let url = self.base_url.join("tables")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -149,7 +148,7 @@ impl TableClient {
         request: &GetTableExistsRequest,
     ) -> Result<GetTableExistsResponse> {
         let formatted_path = format!("tables/{}/exists", request.full_name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -160,7 +159,7 @@ impl TableClient {
     /// Delete a table
     pub async fn delete_table(&self, request: &DeleteTableRequest) -> Result<()> {
         let formatted_path = format!("tables/{}", request.full_name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

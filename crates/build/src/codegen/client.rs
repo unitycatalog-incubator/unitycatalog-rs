@@ -2,11 +2,12 @@ use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use super::{doc_tokens, format_tokens};
+use super::{doc_tokens, extract_type_ident, format_tokens};
 use crate::Result;
 use crate::analysis::RequestType;
 use crate::codegen::{MethodHandler, ServiceHandler};
 use crate::google::api::http_rule::Pattern;
+use crate::parsing::types::BaseType;
 
 /// Generate client code for a service
 pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String> {
@@ -140,8 +141,26 @@ fn generate_query_parameters(method: &MethodHandler<'_>) -> proc_macro2::TokenSt
     for param in method.plan.query_parameters() {
         let field_ident = format_ident!("{}", param.name);
         let param_name = &param.name;
+        let field_type = &param.field_type;
 
-        if param.is_optional() {
+        if field_type.is_repeated {
+            if let BaseType::Enum(enum_name) = &field_type.base_type {
+                let enum_type_ident = extract_type_ident(enum_name);
+                param_assignments.push(quote! {
+                    for &raw in &request.#field_ident {
+                        if let Some(v) = #enum_type_ident::from_i32(raw) {
+                            url.query_pairs_mut().append_pair(#param_name, v.as_str_name());
+                        }
+                    }
+                });
+            } else {
+                param_assignments.push(quote! {
+                    for value in &request.#field_ident {
+                        url.query_pairs_mut().append_pair(#param_name, &value.to_string());
+                    }
+                });
+            }
+        } else if param.is_optional() {
             param_assignments.push(quote! {
                 if let Some(ref value) = request.#field_ident {
                     url.query_pairs_mut().append_pair(#param_name, &value.to_string());

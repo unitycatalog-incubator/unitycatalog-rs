@@ -14,6 +14,7 @@ cloud-client = { path = "../cloud-client" }
 unitycatalog-common = { path = "../common" }
 
 axum = { workspace = true, optional = true }
+axum-extra = { workspace = true, optional = true }
 chrono = { workspace = true }
 delta_kernel = { workspace = true }
 futures = { workspace = true }
@@ -29,4 +30,4 @@ url = { workspace = true }
 
 [features]
 default = []
-server = ["axum"]
+server = ["axum", "axum-extra"]

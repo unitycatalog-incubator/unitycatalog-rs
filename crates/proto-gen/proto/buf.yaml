@@ -1,0 +1,4 @@
+version: v2
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/gnostic/gnostic

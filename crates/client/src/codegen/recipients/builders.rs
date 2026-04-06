@@ -6,13 +6,14 @@ use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::recipients::v1::*;
-/// Builder for creating requests
+/// Builder for listing recipients
 pub struct ListRecipientsBuilder {
     client: RecipientClient,
     request: ListRecipientsRequest,
 }
 impl ListRecipientsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `RecipientClient`.
     pub(crate) fn new(client: RecipientClient) -> Self {
         let request = ListRecipientsRequest {
             ..Default::default()
@@ -31,18 +32,23 @@ impl ListRecipientsBuilder {
     }
     /// Convert paginated request into stream of results
     pub fn into_stream(self) -> BoxStream<'static, Result<Recipient>> {
-        stream_paginated(self, move |mut builder, page_token| async move {
-            builder.request.page_token = page_token;
-            let res = builder.client.list_recipients(&builder.request).await?;
-            if let Some(ref mut remaining) = builder.request.max_results {
-                *remaining -= res.recipients.len() as i32;
-                if *remaining <= 0 {
-                    builder.request.max_results = Some(0);
+        let remaining = self.request.max_results;
+        stream_paginated(
+            (self, remaining),
+            move |(mut builder, mut remaining), page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.list_recipients(&builder.request).await?;
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.recipients.len() as i32;
                 }
-            }
-            let next_page_token = res.next_page_token.clone();
-            Ok((res, builder, next_page_token))
-        })
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
+            },
+        )
         .map_ok(|resp| futures::stream::iter(resp.recipients.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
@@ -57,13 +63,14 @@ impl IntoFuture for ListRecipientsBuilder {
         Box::pin(async move { client.list_recipients(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for creating a recipient
 pub struct CreateRecipientBuilder {
     client: RecipientClient,
     request: CreateRecipientRequest,
 }
 impl CreateRecipientBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `RecipientClient`.
     pub(crate) fn new(
         client: RecipientClient,
         name: impl Into<String>,
@@ -114,13 +121,14 @@ impl IntoFuture for CreateRecipientBuilder {
         Box::pin(async move { client.create_recipient(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for getting a recipient
 pub struct GetRecipientBuilder {
     client: RecipientClient,
     request: GetRecipientRequest,
 }
 impl GetRecipientBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `RecipientClient`.
     pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
         let request = GetRecipientRequest {
             name: name.into(),
@@ -138,13 +146,14 @@ impl IntoFuture for GetRecipientBuilder {
         Box::pin(async move { client.get_recipient(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for updating a recipient
 pub struct UpdateRecipientBuilder {
     client: RecipientClient,
     request: UpdateRecipientRequest,
 }
 impl UpdateRecipientBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `RecipientClient`.
     pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
         let request = UpdateRecipientRequest {
             name: name.into(),
@@ -198,13 +207,14 @@ impl IntoFuture for UpdateRecipientBuilder {
         Box::pin(async move { client.update_recipient(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for deleting a recipient
 pub struct DeleteRecipientBuilder {
     client: RecipientClient,
     request: DeleteRecipientRequest,
 }
 impl DeleteRecipientBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `RecipientClient`.
     pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
         let request = DeleteRecipientRequest {
             name: name.into(),

@@ -35,9 +35,9 @@ import {
   NapiVolumeClient as NativeVolumeClient,
 } from "./native";
 
-// ── UC error hierarchy ────────────────────────────────────────────────────────
+// ── UnityCatalogError error hierarchy ────────────────────────────────────────────────────────
 
-/** Base class for all Unity Catalog errors. */
+/** Base class for all UnityCatalogError errors. */
 export class UnityCatalogError extends Error {
   readonly errorCode: string;
   constructor(message: string, errorCode: string) {
@@ -103,9 +103,9 @@ export class ServiceUnavailableError extends UnityCatalogError {
   }
 }
 
-type UcErrorConstructor = new (message: string) => UnityCatalogError;
+type ErrorConstructor = new (message: string) => UnityCatalogError;
 
-const UC_ERROR_MAP: Record<string, UcErrorConstructor> = {
+const ERROR_MAP: Record<string, ErrorConstructor> = {
   RESOURCE_NOT_FOUND: NotFoundError,
   RESOURCE_ALREADY_EXISTS: AlreadyExistsError,
   PERMISSION_DENIED: PermissionDeniedError,
@@ -125,90 +125,14 @@ function parseNativeError(e: unknown): never {
     const match = e.message.match(/^UC:([^:]+):([\s\S]*)$/);
     if (match) {
       const [, code, message] = match;
-      const Ctor = UC_ERROR_MAP[code] ?? UnityCatalogError;
+      const Ctor = ERROR_MAP[code] ?? UnityCatalogError;
       throw new Ctor(message);
     }
   }
   throw e;
 }
 
-// ── end UC error hierarchy ─────────────────────────────────────────────────────
-
-export interface ListExternalLocationsOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface CreateExternalLocationOptions {
-  /** Indicates whether the external location is read-only. */
-  readOnly?: boolean;
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** Skips validation of the storage credential associated with the external location. */
-  skipValidation?: boolean;
-}
-
-export interface UpdateExternalLocationOptions {
-  /** Path URL of the external location. */
-  url?: string;
-  /** Name of the storage credential used with this location. */
-  credentialName?: string;
-  /** Indicates whether the external location is read-only. */
-  readOnly?: boolean;
-  /** owner of the external location. */
-  owner?: string;
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** new name of the external location. */
-  newName?: string;
-  /** force update of the external location. */
-  force?: boolean;
-  /** Skips validation of the storage credential associated with the external location. */
-  skipValidation?: boolean;
-}
-
-export interface DeleteExternalLocationOptions {
-  /** Force deletion even if the external location is not empty. */
-  force?: boolean;
-}
-
-export interface ListCredentialsOptions {
-  /** Return only credentials for the specified purpose. */
-  purpose?: number;
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-}
-
-export interface CreateCredentialOptions {
-  /** Comment associated with the credential. */
-  comment?: string;
-  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
-  readOnly?: boolean;
-  /** Supplying true to this argument skips validation of the created set of credentials. */
-  skipValidation?: boolean;
-}
-
-export interface UpdateCredentialOptions {
-  /** Name of credential. */
-  newName?: string;
-  /** Comment associated with the credential. */
-  comment?: string;
-  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
-  readOnly?: boolean;
-  /** Username of current owner of credential. */
-  owner?: string;
-  /** Supply true to this argument to skip validation of the updated credential. */
-  skipValidation?: boolean;
-  /** Force an update even if there are dependent services (when purpose is SERVICE)
-   *  or dependent external locations and external tables (when purpose is STORAGE). */
-  force?: boolean;
-}
+// ── end UnityCatalogError error hierarchy ─────────────────────────────────────────────────────
 
 export interface ListCatalogsOptions {
   /** The maximum number of results per page that should be returned. */
@@ -256,6 +180,82 @@ export interface DeleteCatalogOptions {
   force?: boolean;
 }
 
+export interface ListCredentialsOptions {
+  /** Return only credentials for the specified purpose. */
+  purpose?: number;
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface CreateCredentialOptions {
+  /** Comment associated with the credential. */
+  comment?: string;
+  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
+  readOnly?: boolean;
+  /** Supplying true to this argument skips validation of the created set of credentials. */
+  skipValidation?: boolean;
+}
+
+export interface UpdateCredentialOptions {
+  /** Name of credential. */
+  newName?: string;
+  /** Comment associated with the credential. */
+  comment?: string;
+  /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
+  readOnly?: boolean;
+  /** Username of current owner of credential. */
+  owner?: string;
+  /** Supply true to this argument to skip validation of the updated credential. */
+  skipValidation?: boolean;
+  /** Force an update even if there are dependent services (when purpose is SERVICE)
+   *  or dependent external locations and external tables (when purpose is STORAGE). */
+  force?: boolean;
+}
+
+export interface ListExternalLocationsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface CreateExternalLocationOptions {
+  /** Indicates whether the external location is read-only. */
+  readOnly?: boolean;
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** Skips validation of the storage credential associated with the external location. */
+  skipValidation?: boolean;
+}
+
+export interface UpdateExternalLocationOptions {
+  /** Path URL of the external location. */
+  url?: string;
+  /** Name of the storage credential used with this location. */
+  credentialName?: string;
+  /** Indicates whether the external location is read-only. */
+  readOnly?: boolean;
+  /** owner of the external location. */
+  owner?: string;
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** new name of the external location. */
+  newName?: string;
+  /** force update of the external location. */
+  force?: boolean;
+  /** Skips validation of the storage credential associated with the external location. */
+  skipValidation?: boolean;
+}
+
+export interface DeleteExternalLocationOptions {
+  /** Force deletion even if the external location is not empty. */
+  force?: boolean;
+}
+
 export interface ListFunctionsOptions {
   /** The maximum number of results per page that should be returned. */
   maxResults?: number;
@@ -284,6 +284,112 @@ export interface UpdateFunctionOptions {
 export interface DeleteFunctionOptions {
   /** Force deletion even if the function is not empty. */
   force?: boolean;
+}
+
+export interface ListRecipientsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface CreateRecipientOptions {
+  /** Description about the recipient. */
+  comment?: string;
+  /** Recipient properties as map of string key-value pairs.
+   * 
+   *  When provided in update request, the specified properties will override the existing properties.
+   *  To add and remove properties, one would need to perform a read-modify-write. */
+  properties?: Record<string, string>;
+  /** Expiration timestamp of the token, in epoch milliseconds. */
+  expirationTime?: number;
+}
+
+export interface UpdateRecipientOptions {
+  /** New name for the recipient */
+  newName?: string;
+  /** Username of the recipient owner. */
+  owner?: string;
+  /** Description about the recipient. */
+  comment?: string;
+  /** Recipient properties as map of string key-value pairs.
+   * 
+   *  When provided in update request, the specified properties will override the existing properties.
+   *  To add and remove properties, one would need to perform a read-modify-write. */
+  properties?: Record<string, string>;
+  /** Expiration timestamp of the token, in epoch milliseconds. */
+  expirationTime?: number;
+}
+
+export interface ListSchemasOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
+  includeBrowse?: boolean;
+}
+
+export interface CreateSchemaOptions {
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** A map of key-value properties attached to the securable. */
+  properties?: Record<string, string>;
+}
+
+export interface UpdateSchemaOptions {
+  /** User-provided free-form text description. */
+  comment?: string;
+  /** A map of key-value properties attached to the securable.
+   * 
+   *  When provided in update request, the specified properties will override the existing properties.
+   *  To add and remove properties, one would need to perform a read-modify-write. */
+  properties?: Record<string, string>;
+  /** Name of schema. */
+  newName?: string;
+}
+
+export interface DeleteSchemaOptions {
+  /** Force deletion even if the schema is not empty. */
+  force?: boolean;
+}
+
+export interface ListSharesOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface CreateShareOptions {
+  /** User-provided free-form text description. */
+  comment?: string;
+}
+
+export interface GetShareOptions {
+  /** Query for data to include in the share. */
+  includeSharedData?: boolean;
+}
+
+export interface UpdateShareOptions {
+  /** A new name for the share. */
+  newName?: string;
+  /** Owner of the share. */
+  owner?: string;
+  /** User-provided free-form text description. */
+  comment?: string;
+}
+
+export interface GetPermissionsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface UpdatePermissionsOptions {
+  /** Whether to return the latest permissions list of the share in the response. */
+  omitPermissionsList?: boolean;
 }
 
 export interface ListTableSummariesOptions {
@@ -336,114 +442,8 @@ export interface GetTableOptions {
   includeManifestCapabilities?: boolean;
 }
 
-export interface ListSharesOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-}
-
-export interface CreateShareOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-}
-
-export interface GetShareOptions {
-  /** Query for data to include in the share. */
-  includeSharedData?: boolean;
-}
-
-export interface UpdateShareOptions {
-  /** A new name for the share. */
-  newName?: string;
-  /** Owner of the share. */
-  owner?: string;
-  /** User-provided free-form text description. */
-  comment?: string;
-}
-
-export interface GetPermissionsOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-}
-
-export interface UpdatePermissionsOptions {
-  /** Whether to return the latest permissions list of the share in the response. */
-  omitPermissionsList?: boolean;
-}
-
-export interface ListRecipientsOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-}
-
-export interface CreateRecipientOptions {
-  /** Description about the recipient. */
-  comment?: string;
-  /** Recipient properties as map of string key-value pairs.
-   * 
-   *  When provided in update request, the specified properties will override the existing properties.
-   *  To add and remove properties, one would need to perform a read-modify-write. */
-  properties?: Record<string, string>;
-  /** Expiration timestamp of the token, in epoch milliseconds. */
-  expirationTime?: number;
-}
-
-export interface UpdateRecipientOptions {
-  /** New name for the recipient */
-  newName?: string;
-  /** Username of the recipient owner. */
-  owner?: string;
-  /** Description about the recipient. */
-  comment?: string;
-  /** Recipient properties as map of string key-value pairs.
-   * 
-   *  When provided in update request, the specified properties will override the existing properties.
-   *  To add and remove properties, one would need to perform a read-modify-write. */
-  properties?: Record<string, string>;
-  /** Expiration timestamp of the token, in epoch milliseconds. */
-  expirationTime?: number;
-}
-
 export interface GenerateTemporaryPathCredentialsOptions {
   dryRun?: boolean;
-}
-
-export interface ListSchemasOptions {
-  /** The maximum number of results per page that should be returned. */
-  maxResults?: number;
-  /** Opaque pagination token to go to next page based on previous query. */
-  pageToken?: string;
-  /** Whether to include schemas in the response for which the principal can only access selective metadata for */
-  includeBrowse?: boolean;
-}
-
-export interface CreateSchemaOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable. */
-  properties?: Record<string, string>;
-}
-
-export interface UpdateSchemaOptions {
-  /** User-provided free-form text description. */
-  comment?: string;
-  /** A map of key-value properties attached to the securable.
-   * 
-   *  When provided in update request, the specified properties will override the existing properties.
-   *  To add and remove properties, one would need to perform a read-modify-write. */
-  properties?: Record<string, string>;
-  /** Name of schema. */
-  newName?: string;
-}
-
-export interface DeleteSchemaOptions {
-  /** Force deletion even if the schema is not empty. */
-  force?: boolean;
 }
 
 export interface ListVolumesOptions {
@@ -476,74 +476,6 @@ export interface UpdateVolumeOptions {
   owner?: string;
 }
 
-export class ExternalLocationClient {
-  private readonly inner: NativeExternalLocationClient;
-
-  /** @internal */
-  constructor(inner: NativeExternalLocationClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Get an external location
-     */
-  async get(): Promise<ExternalLocation> {
-    try {
-      return fromBinary(ExternalLocationSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Update an external location
-     */
-  async update(options?: UpdateExternalLocationOptions): Promise<ExternalLocation> {
-    const { url, credentialName, readOnly, owner, comment, newName, force, skipValidation } = options || {};
-    try {
-      return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Delete an external location
-     */
-  async delete(options?: DeleteExternalLocationOptions): Promise<void> {
-    const { force } = options || {};
-    try {
-      await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
-  }
-
-}
-
-export class CredentialClient {
-  private readonly inner: NativeCredentialClient;
-
-  /** @internal */
-  constructor(inner: NativeCredentialClient) {
-    this.inner = inner;
-  }
-
-  async get(): Promise<Credential> {
-    try {
-      return fromBinary(CredentialSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
-  }
-
-  async update(options?: UpdateCredentialOptions): Promise<Credential> {
-    const { newName, comment, readOnly, owner, skipValidation, force } = options || {};
-    try {
-      return fromBinary(CredentialSchema, await this.inner.update(newName, comment, readOnly, owner, skipValidation, force));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  async delete(): Promise<void> {
-    try {
-      await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
-  }
-
-}
-
 export class CatalogClient {
   private readonly inner: NativeCatalogClient;
 
@@ -562,7 +494,7 @@ export class CatalogClient {
     const { includeBrowse } = options || {};
     try {
       return fromBinary(CatalogSchema, await this.inner.get(includeBrowse));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -575,7 +507,7 @@ export class CatalogClient {
     const { owner, comment, properties, newName } = options || {};
     try {
       return fromBinary(CatalogSchema, await this.inner.update(owner, comment, properties, newName));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -588,7 +520,75 @@ export class CatalogClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
+export class CredentialClient {
+  private readonly inner: NativeCredentialClient;
+
+  /** @internal */
+  constructor(inner: NativeCredentialClient) {
+    this.inner = inner;
+  }
+
+  async get(): Promise<Credential> {
+    try {
+      return fromBinary(CredentialSchema, await this.inner.get());
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async update(options?: UpdateCredentialOptions): Promise<Credential> {
+    const { newName, comment, readOnly, owner, skipValidation, force } = options || {};
+    try {
+      return fromBinary(CredentialSchema, await this.inner.update(newName, comment, readOnly, owner, skipValidation, force));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
+export class ExternalLocationClient {
+  private readonly inner: NativeExternalLocationClient;
+
+  /** @internal */
+  constructor(inner: NativeExternalLocationClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get an external location
+     */
+  async get(): Promise<ExternalLocation> {
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.get());
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Update an external location
+     */
+  async update(options?: UpdateExternalLocationOptions): Promise<ExternalLocation> {
+    const { url, credentialName, readOnly, owner, comment, newName, force, skipValidation } = options || {};
+    try {
+      return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Delete an external location
+     */
+  async delete(options?: DeleteExternalLocationOptions): Promise<void> {
+    const { force } = options || {};
+    try {
+      await this.inner.delete(force);
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -611,7 +611,7 @@ export class FunctionClient {
   async get(): Promise<Function> {
     try {
       return fromBinary(FunctionSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -624,7 +624,7 @@ export class FunctionClient {
     const { owner } = options || {};
     try {
       return fromBinary(FunctionSchema, await this.inner.update(owner));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -637,75 +637,7 @@ export class FunctionClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
-  }
-
-}
-
-export class TableClient {
-  private readonly inner: NativeTableClient;
-
-  /** @internal */
-  constructor(inner: NativeTableClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Get a table
-     */
-  async get(options?: GetTableOptions): Promise<Table> {
-    const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
-    try {
-      return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Delete a table
-     */
-  async delete(): Promise<void> {
-    try {
-      await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
-  }
-
-}
-
-export class ShareClient {
-  private readonly inner: NativeShareClient;
-
-  /** @internal */
-  constructor(inner: NativeShareClient) {
-    this.inner = inner;
-  }
-
-  /**
-     * Get a share by name.
-     */
-  async get(options?: GetShareOptions): Promise<Share> {
-    const { includeSharedData } = options || {};
-    try {
-      return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Update a share.
-     */
-  async update(options?: UpdateShareOptions): Promise<Share> {
-    const { newName, owner, comment } = options || {};
-    try {
-      return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
-    } catch (e) { parseNativeError(e); }
-  }
-
-  /**
-     * Deletes a share.
-     */
-  async delete(): Promise<void> {
-    try {
-      await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -724,7 +656,7 @@ export class RecipientClient {
   async get(): Promise<Recipient> {
     try {
       return fromBinary(RecipientSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -734,7 +666,7 @@ export class RecipientClient {
     const { newName, owner, comment, properties, expirationTime } = options || {};
     try {
       return fromBinary(RecipientSchema, await this.inner.update(newName, owner, comment, properties, expirationTime));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -743,7 +675,7 @@ export class RecipientClient {
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -764,7 +696,7 @@ export class SchemaClient {
   async get(): Promise<Schema> {
     try {
       return fromBinary(SchemaSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -777,7 +709,7 @@ export class SchemaClient {
     const { comment, properties, newName } = options || {};
     try {
       return fromBinary(SchemaSchema, await this.inner.update(comment, properties, newName));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -788,7 +720,75 @@ export class SchemaClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
+export class ShareClient {
+  private readonly inner: NativeShareClient;
+
+  /** @internal */
+  constructor(inner: NativeShareClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a share by name.
+     */
+  async get(options?: GetShareOptions): Promise<Share> {
+    const { includeSharedData } = options || {};
+    try {
+      return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Update a share.
+     */
+  async update(options?: UpdateShareOptions): Promise<Share> {
+    const { newName, owner, comment } = options || {};
+    try {
+      return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Deletes a share.
+     */
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
+export class TableClient {
+  private readonly inner: NativeTableClient;
+
+  /** @internal */
+  constructor(inner: NativeTableClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a table
+     */
+  async get(options?: GetTableOptions): Promise<Table> {
+    const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
+    try {
+      return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Delete a table
+     */
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -805,20 +805,20 @@ export class VolumeClient {
     const { includeBrowse } = options || {};
     try {
       return fromBinary(VolumeSchema, await this.inner.get(includeBrowse));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async update(options?: UpdateVolumeOptions): Promise<Volume> {
     const { newName, comment, owner } = options || {};
     try {
       return fromBinary(VolumeSchema, await this.inner.update(newName, comment, owner));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -844,7 +844,7 @@ export class UnityCatalogClient {
       return (await this.inner.listCatalogs(maxResults)).map((data) =>
         fromBinary(CatalogSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -857,7 +857,7 @@ export class UnityCatalogClient {
     const { comment, properties, storageRoot, providerName, shareName } = options || {};
     try {
       return fromBinary(CatalogSchema, await this.inner.createCatalog(name, comment, properties, storageRoot, providerName, shareName));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   catalog(name: string): CatalogClient {
@@ -870,14 +870,14 @@ export class UnityCatalogClient {
       return (await this.inner.listCredentials(purpose, maxResults)).map((data) =>
         fromBinary(CredentialSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async createCredential(name: string, purpose: number, options?: CreateCredentialOptions): Promise<Credential> {
     const { comment, readOnly, skipValidation } = options || {};
     try {
       return fromBinary(CredentialSchema, await this.inner.createCredential(name, purpose, comment, readOnly, skipValidation));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   credential(name: string): CredentialClient {
@@ -893,7 +893,7 @@ export class UnityCatalogClient {
       return (await this.inner.listExternalLocations(maxResults, includeBrowse)).map((data) =>
         fromBinary(ExternalLocationSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -903,7 +903,7 @@ export class UnityCatalogClient {
     const { readOnly, comment, skipValidation } = options || {};
     try {
       return fromBinary(ExternalLocationSchema, await this.inner.createExternalLocation(name, url, credentialName, readOnly, comment, skipValidation));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   externalLocation(name: string): ExternalLocationClient {
@@ -924,7 +924,7 @@ export class UnityCatalogClient {
       return (await this.inner.listFunctions(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
         fromBinary(FunctionSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -937,7 +937,7 @@ export class UnityCatalogClient {
     const { routineDefinition, routineBodyLanguage, comment, properties } = options || {};
     try {
       return fromBinary(FunctionSchema, await this.inner.createFunction(name, catalogName, schemaName, dataType, fullDataType, parameterStyle, isDeterministic, sqlDataAccess, isNullCall, securityType, routineBody, routineDefinition, routineBodyLanguage, comment, properties));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   function(catalogName: string, schemaName: string, functionName: string): FunctionClient {
@@ -953,7 +953,7 @@ export class UnityCatalogClient {
       return (await this.inner.listRecipients(maxResults)).map((data) =>
         fromBinary(RecipientSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -963,7 +963,7 @@ export class UnityCatalogClient {
     const { comment, properties, expirationTime } = options || {};
     try {
       return fromBinary(RecipientSchema, await this.inner.createRecipient(name, authenticationType, owner, comment, properties, expirationTime));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   recipient(name: string): RecipientClient {
@@ -982,7 +982,7 @@ export class UnityCatalogClient {
       return (await this.inner.listSchemas(catalogName, maxResults, includeBrowse)).map((data) =>
         fromBinary(SchemaSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -993,7 +993,7 @@ export class UnityCatalogClient {
     const { comment, properties } = options || {};
     try {
       return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   schema(catalogName: string, schemaName: string): SchemaClient {
@@ -1009,7 +1009,7 @@ export class UnityCatalogClient {
       return (await this.inner.listShares(maxResults)).map((data) =>
         fromBinary(ShareSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -1019,7 +1019,7 @@ export class UnityCatalogClient {
     const { comment } = options || {};
     try {
       return fromBinary(ShareSchema, await this.inner.createShare(name, comment));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   share(name: string): ShareClient {
@@ -1040,7 +1040,7 @@ export class UnityCatalogClient {
       return (await this.inner.listTables(catalogName, schemaName, maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities)).map((data) =>
         fromBinary(TableSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -1050,7 +1050,7 @@ export class UnityCatalogClient {
     const { storageLocation, comment, properties } = options || {};
     try {
       return fromBinary(TableSchema, await this.inner.createTable(name, schemaName, catalogName, tableType, dataSourceFormat, storageLocation, comment, properties));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   table(name: string): TableClient {
@@ -1066,14 +1066,14 @@ export class UnityCatalogClient {
       return (await this.inner.listVolumes(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
         fromBinary(VolumeSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async createVolume(catalogName: string, schemaName: string, name: string, volumeType: number, options?: CreateVolumeOptions): Promise<Volume> {
     const { storageLocation, comment } = options || {};
     try {
       return fromBinary(VolumeSchema, await this.inner.createVolume(catalogName, schemaName, name, volumeType, storageLocation, comment));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   volume(catalogName: string, schemaName: string, volumeName: string): VolumeClient {

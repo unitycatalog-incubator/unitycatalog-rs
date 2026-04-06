@@ -6,13 +6,14 @@ use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::external_locations::v1::*;
-/// Builder for creating requests
+/// Builder for listing external locations
 pub struct ListExternalLocationsBuilder {
     client: ExternalLocationClient,
     request: ListExternalLocationsRequest,
 }
 impl ListExternalLocationsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `ExternalLocationClient`.
     pub(crate) fn new(client: ExternalLocationClient) -> Self {
         let request = ListExternalLocationsRequest {
             ..Default::default()
@@ -36,21 +37,26 @@ impl ListExternalLocationsBuilder {
     }
     /// Convert paginated request into stream of results
     pub fn into_stream(self) -> BoxStream<'static, Result<ExternalLocation>> {
-        stream_paginated(self, move |mut builder, page_token| async move {
-            builder.request.page_token = page_token;
-            let res = builder
-                .client
-                .list_external_locations(&builder.request)
-                .await?;
-            if let Some(ref mut remaining) = builder.request.max_results {
-                *remaining -= res.external_locations.len() as i32;
-                if *remaining <= 0 {
-                    builder.request.max_results = Some(0);
+        let remaining = self.request.max_results;
+        stream_paginated(
+            (self, remaining),
+            move |(mut builder, mut remaining), page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder
+                    .client
+                    .list_external_locations(&builder.request)
+                    .await?;
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.external_locations.len() as i32;
                 }
-            }
-            let next_page_token = res.next_page_token.clone();
-            Ok((res, builder, next_page_token))
-        })
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
+            },
+        )
         .map_ok(|resp| futures::stream::iter(resp.external_locations.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
@@ -65,13 +71,14 @@ impl IntoFuture for ListExternalLocationsBuilder {
         Box::pin(async move { client.list_external_locations(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for creating a external location
 pub struct CreateExternalLocationBuilder {
     client: ExternalLocationClient,
     request: CreateExternalLocationRequest,
 }
 impl CreateExternalLocationBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `ExternalLocationClient`.
     pub(crate) fn new(
         client: ExternalLocationClient,
         name: impl Into<String>,
@@ -111,13 +118,14 @@ impl IntoFuture for CreateExternalLocationBuilder {
         Box::pin(async move { client.create_external_location(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for getting a external location
 pub struct GetExternalLocationBuilder {
     client: ExternalLocationClient,
     request: GetExternalLocationRequest,
 }
 impl GetExternalLocationBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `ExternalLocationClient`.
     pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
         let request = GetExternalLocationRequest {
             name: name.into(),
@@ -135,13 +143,14 @@ impl IntoFuture for GetExternalLocationBuilder {
         Box::pin(async move { client.get_external_location(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for updating a external location
 pub struct UpdateExternalLocationBuilder {
     client: ExternalLocationClient,
     request: UpdateExternalLocationRequest,
 }
 impl UpdateExternalLocationBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `ExternalLocationClient`.
     pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
         let request = UpdateExternalLocationRequest {
             name: name.into(),
@@ -199,13 +208,14 @@ impl IntoFuture for UpdateExternalLocationBuilder {
         Box::pin(async move { client.update_external_location(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for deleting a external location
 pub struct DeleteExternalLocationBuilder {
     client: ExternalLocationClient,
     request: DeleteExternalLocationRequest,
 }
 impl DeleteExternalLocationBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `ExternalLocationClient`.
     pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
         let request = DeleteExternalLocationRequest {
             name: name.into(),

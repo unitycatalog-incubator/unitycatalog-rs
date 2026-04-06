@@ -39,21 +39,12 @@ generate-openapi:
 [group('codegen')]
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    mkdir -p node/client/src/codegen
-    cargo run --bin unitycatalog-build -- generate \
-      --output-common crates/common/src/codegen \
-      --output-models-gen crates/common/src/models/resources \
-      --output-server crates/server/src/codegen \
-      --output-client crates/client/src/codegen \
-      --output-python python/client/src/codegen \
-      --output-node node/client/src/codegen \
-      --output-node-ts node/client/unitycatalog \
+    cargo run --bin proto-gen -- generate --config proto-gen.yaml \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
     just fmt
     mv python/client/src/codegen/unitycatalog_client.pyi python/client/unitycatalog_client.pyi
 
-# generate auxiliary types in common crate. (custom google.protobuf build)
 # CURRENTLY not used, but we may need it again come validation ...
 [group('codegen')]
 generate-common-ext:
@@ -68,6 +59,13 @@ generate-build-ext:
 [group('codegen')]
 generate-node:
     just node/client/generate
+
+# Regenerate proto-gen test fixture descriptors from proto/ source files.
+[group('codegen')]
+generate-proto-gen-fixtures:
+    buf dep update crates/proto-gen/proto
+    buf build --output {{ justfile_directory() }}/crates/proto-gen/proto/example.bin \
+      crates/proto-gen/proto/
 
 [group('dev')]
 rest:
@@ -171,7 +169,7 @@ lint-node:
     npm run lint -w @unitycatalog/client
 
 fix: fix-rust fix-node fix-py
-  just fmt
+    just fmt
 
 # fix nodejs bindings
 fix-node:
@@ -182,7 +180,7 @@ fix-rust:
     cargo clippy --fix --workspace --allow-dirty --all-features
 
 fix-py:
-  uvx ruff check --fix
+    uvx ruff check --fix
 
 fmt:
     cargo fmt

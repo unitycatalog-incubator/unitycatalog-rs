@@ -31,6 +31,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 url = { workspace = true }
 
 axum = { workspace = true, optional = true }
+axum-extra = { workspace = true, optional = true }
 tonic = { workspace = true, optional = true }
 datafusion = { version = "49" }
 futures-util = { version = "0.3.28" }
@@ -48,7 +49,7 @@ tokio = { version = "1", features = ["full"] }
 [features]
 default = ["axum", "memory", "grpc"]
 
-axum = ["dep:axum", "http", "tower"]
+axum = ["dep:axum", "dep:axum-extra", "http", "tower"]
 
 # in-memory handler features
 memory = ["dashmap", "uuid"]

@@ -29,6 +29,7 @@ uuid = { workspace = true }
 
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
+axum-extra = { workspace = true, optional = true }
 
 # rest client dependencies (in alphabetical order)
 cloud-client = { path = "../cloud-client", optional = true }
@@ -64,7 +65,7 @@ grpc = ["tonic"]
 
 # enable support for the axum framework. This will implement `FromRequest`
 # and `FromRequestParts` for request types.
-axum = ["dep:axum", "http"]
+axum = ["dep:axum", "dep:axum-extra", "http"]
 
 sqlx = ["dep:sqlx"]
 

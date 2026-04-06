@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::credentials::v1::*;
@@ -43,7 +42,7 @@ impl CredentialClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_credential(&self, request: &CreateCredentialRequest) -> Result<Credential> {
-        let mut url = self.base_url.join("credentials")?;
+        let url = self.base_url.join("credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -53,7 +52,7 @@ impl CredentialClient {
     }
     pub async fn get_credential(&self, request: &GetCredentialRequest) -> Result<Credential> {
         let formatted_path = format!("credentials/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -63,7 +62,7 @@ impl CredentialClient {
     }
     pub async fn update_credential(&self, request: &UpdateCredentialRequest) -> Result<Credential> {
         let formatted_path = format!("credentials/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -73,7 +72,7 @@ impl CredentialClient {
     }
     pub async fn delete_credential(&self, request: &DeleteCredentialRequest) -> Result<()> {
         let formatted_path = format!("credentials/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

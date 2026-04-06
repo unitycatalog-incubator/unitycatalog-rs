@@ -1,0 +1,66 @@
+syntax = "proto3";
+package example.catalog.v1;
+
+import "example_models.proto";
+import "google/api/annotations.proto";
+import "google/api/resource.proto";
+
+option (google.api.resource_definition) = {
+  type: "example.io/Catalog"
+  pattern: "catalogs/{catalog}"
+  plural: "catalogs"
+  singular: "catalog"
+};
+
+service CatalogService {
+  rpc CreateCatalog(CreateCatalogRequest) returns (Catalog) {
+    option (google.api.http) = {
+      post: "/catalogs"
+      body: "*"
+    };
+  }
+  rpc GetCatalog(GetCatalogRequest) returns (Catalog) {
+    option (google.api.http) = {get: "/catalogs/{name}"};
+  }
+  rpc ListCatalogs(ListCatalogsRequest) returns (ListCatalogsResponse) {
+    option (google.api.http) = {get: "/catalogs"};
+  }
+  rpc UpdateCatalog(UpdateCatalogRequest) returns (Catalog) {
+    option (google.api.http) = {
+      patch: "/catalogs/{name}"
+      body: "*"
+    };
+  }
+  rpc DeleteCatalog(DeleteCatalogRequest) returns (DeleteCatalogResponse) {
+    option (google.api.http) = {delete: "/catalogs/{name}"};
+  }
+}
+
+message CreateCatalogRequest {
+  Catalog catalog = 1;
+}
+
+message GetCatalogRequest {
+  string name = 1;
+}
+
+message ListCatalogsRequest {
+  int32 max_results = 1;
+  string page_token = 2;
+}
+
+message ListCatalogsResponse {
+  repeated Catalog catalogs = 1;
+  string next_page_token = 2;
+}
+
+message UpdateCatalogRequest {
+  string name = 1;
+  Catalog catalog = 2;
+}
+
+message DeleteCatalogRequest {
+  string name = 1;
+}
+
+message DeleteCatalogResponse {}

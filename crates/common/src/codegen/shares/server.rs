@@ -16,11 +16,11 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             max_results,
             page_token,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListSharesRequest {
@@ -57,10 +57,10 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
             #[serde(default)]
             include_shared_data: Option<bool>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             include_shared_data,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetShareRequest {
@@ -126,11 +126,11 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetPermissionsReques
             #[serde(default)]
             page_token: Option<String>,
         }
-        let axum::extract::Query(QueryParams {
+        let axum_extra::extract::Query(QueryParams {
             max_results,
             page_token,
         }) = parts
-            .extract::<axum::extract::Query<QueryParams>>()
+            .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetPermissionsRequest {

@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::temporary_credentials::v1::*;
@@ -23,7 +22,7 @@ impl TemporaryCredentialClient {
         &self,
         request: &GenerateTemporaryTableCredentialsRequest,
     ) -> Result<TemporaryCredential> {
-        let mut url = self.base_url.join("temporary-table-credentials")?;
+        let url = self.base_url.join("temporary-table-credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -36,7 +35,7 @@ impl TemporaryCredentialClient {
         &self,
         request: &GenerateTemporaryPathCredentialsRequest,
     ) -> Result<TemporaryCredential> {
-        let mut url = self.base_url.join("temporary-path-credentials")?;
+        let url = self.base_url.join("temporary-path-credentials")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

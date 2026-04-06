@@ -1,0 +1,42 @@
+syntax = "proto3";
+package example.catalog.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+
+message Catalog {
+  option (google.api.resource) = {
+    type: "example.io/Catalog"
+    pattern: "catalogs/{catalog}"
+    plural: "catalogs"
+    singular: "catalog"
+  };
+
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string comment = 2 [(google.api.field_behavior) = OPTIONAL];
+  CatalogType catalog_type = 3;
+  map<string, string> properties = 4;
+  StorageConfig storage_config = 5;
+  int64 created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+enum CatalogType {
+  CATALOG_TYPE_UNSPECIFIED = 0;
+  MANAGED_CATALOG = 1;
+  DELTASHARING_CATALOG = 2;
+}
+
+message StorageConfig {
+  oneof provider {
+    S3Config s3 = 1;
+    AzureConfig azure = 2;
+  }
+}
+
+message S3Config {
+  string bucket = 1;
+}
+
+message AzureConfig {
+  string container = 1;
+}
