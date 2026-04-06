@@ -12,6 +12,7 @@ use crate::{Error, Result};
 /// Process a protobuf service definition
 pub(super) fn process_service(
     service: &ServiceDescriptorProto,
+    package: &str,
     codegen_metadata: &mut CodeGenMetadata,
     source_code_info: Option<&SourceCodeInfo>,
     service_index: usize,
@@ -25,6 +26,7 @@ pub(super) fn process_service(
     // Store service information
     let service_info = ServiceInfo {
         name: service_name.to_string(),
+        package: package.to_string(),
         documentation: service_documentation,
         methods: Vec::new(),
     };

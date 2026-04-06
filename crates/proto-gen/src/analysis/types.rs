@@ -66,6 +66,8 @@ pub struct ServicePlan {
     pub handler_name: String,
     /// Base URL path for this service (e.g., "catalogs")
     pub base_path: String,
+    /// Proto package name (e.g., "unitycatalog.catalogs.v1")
+    pub package: String,
     /// Methods to generate for this service
     pub methods: Vec<MethodPlan>,
     /// Resources managed by this service

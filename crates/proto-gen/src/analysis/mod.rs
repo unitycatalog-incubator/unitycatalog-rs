@@ -111,6 +111,7 @@ fn analyze_service(
             service_name: info.name.clone(),
             handler_name,
             base_path,
+            package: info.package.clone(),
             methods: method_plans,
             managed_resources,
             documentation: info.documentation.clone(),
@@ -305,6 +306,7 @@ mod tests {
         let metadata = make_metadata_with_catalog();
         let service_info = ServiceInfo {
             name: "CatalogService".to_string(),
+            package: "example.catalogs.v1".to_string(),
             documentation: None,
             methods: vec![make_get_method()],
         };
@@ -348,6 +350,7 @@ mod tests {
         };
         let service_info = ServiceInfo {
             name: "CatalogService".to_string(),
+            package: "example.catalogs.v1".to_string(),
             documentation: None,
             methods: vec![make_get_method(), update_method],
         };

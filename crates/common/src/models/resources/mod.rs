@@ -1,9 +1,8 @@
 use uuid::Uuid;
 
-pub use labels::{ObjectLabel, Resource};
+pub use super::_gen::ObjectLabel;
 pub use name::*;
 
-pub(super) mod labels;
 mod name;
 
 /// Unique identifier for a resource.
@@ -234,5 +233,22 @@ pub trait ResourceExt {
 impl<T: ResourceExt> From<&T> for ResourceIdent {
     fn from(resource: &T) -> Self {
         resource.resource_ident()
+    }
+}
+
+impl ObjectLabel {
+    pub fn to_ident(&self, id: impl Into<ResourceRef>) -> ResourceIdent {
+        match self {
+            ObjectLabel::Share => ResourceIdent::share(id),
+            ObjectLabel::Credential => ResourceIdent::credential(id),
+            ObjectLabel::Catalog => ResourceIdent::catalog(id),
+            ObjectLabel::Schema => ResourceIdent::schema(id),
+            ObjectLabel::Table => ResourceIdent::table(id),
+            ObjectLabel::ExternalLocation => ResourceIdent::external_location(id),
+            ObjectLabel::Recipient => ResourceIdent::recipient(id),
+            ObjectLabel::Column => ResourceIdent::column(id),
+            ObjectLabel::Volume => ResourceIdent::volume(id),
+            ObjectLabel::Function => ResourceIdent::function(id),
+        }
     }
 }

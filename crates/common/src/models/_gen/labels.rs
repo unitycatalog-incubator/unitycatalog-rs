@@ -3,16 +3,16 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Resource {
-    Catalog(super::super::catalogs::v1::Catalog),
-    Column(super::super::tables::v1::Column),
-    Credential(super::super::credentials::v1::Credential),
-    ExternalLocation(super::super::external_locations::v1::ExternalLocation),
-    Function(super::super::functions::v1::Function),
-    Recipient(super::super::recipients::v1::Recipient),
-    Schema(super::super::schemas::v1::Schema),
-    Share(super::super::shares::v1::Share),
-    Table(super::super::tables::v1::Table),
-    Volume(super::super::volumes::v1::Volume),
+    Catalog(super::catalogs::v1::Catalog),
+    Column(super::tables::v1::Column),
+    Credential(super::credentials::v1::Credential),
+    ExternalLocation(super::external_locations::v1::ExternalLocation),
+    Function(super::functions::v1::Function),
+    Recipient(super::recipients::v1::Recipient),
+    Schema(super::schemas::v1::Schema),
+    Share(super::shares::v1::Share),
+    Table(super::tables::v1::Table),
+    Volume(super::volumes::v1::Volume),
 }
 /// Discriminant label for each resource type.
 #[derive(
