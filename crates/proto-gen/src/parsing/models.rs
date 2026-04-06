@@ -123,6 +123,8 @@ pub struct EnumValue {
 #[derive(Debug, Clone)]
 pub struct ServiceInfo {
     pub name: String,
+    /// Proto package name (e.g. `"unitycatalog.catalogs.v1"`).
+    pub package: String,
     pub documentation: Option<String>,
     pub methods: Vec<MethodMetadata>,
 }
@@ -171,6 +173,7 @@ mod tests {
         // Create a test service with methods
         let mut service_info = ServiceInfo {
             name: "TestService".to_string(),
+            package: "test.v1".to_string(),
             documentation: Some("Test service documentation".to_string()),
             methods: Vec::new(),
         };

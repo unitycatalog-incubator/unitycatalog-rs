@@ -108,8 +108,15 @@ pub fn process_file_descriptor(
     }
 
     // Process services in the file
+    let package_name = file_desc.package().to_string();
     for (service_index, service) in file_desc.service.iter().enumerate() {
-        service::process_service(service, codegen_metadata, source_code_info, service_index)?;
+        service::process_service(
+            service,
+            &package_name,
+            codegen_metadata,
+            source_code_info,
+            service_index,
+        )?;
     }
 
     Ok(())

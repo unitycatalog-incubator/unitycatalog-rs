@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use proto_gen::parsing::parse_file_descriptor_set;
-use proto_gen::{BindingsConfig, CodeGenConfig, CodeGenOutput, ResourceEnumConfig, generate_code};
+use proto_gen::{BindingsConfig, CodeGenConfig, CodeGenOutput, generate_code};
 use protobuf::Message;
 use protobuf::descriptor::FileDescriptorSet;
 use tempfile::TempDir;
@@ -24,7 +24,8 @@ fn make_test_config(
         models_path_crate_template: "crate::models::{service}::v1".to_string(),
         output: CodeGenOutput {
             common,
-            models_gen: None,
+            models: None,
+            models_subdir: "_gen".to_string(),
             server: None,
             client: None,
             python: Some(python),
@@ -32,10 +33,7 @@ fn make_test_config(
             node_ts: Some(node_ts),
             python_typings_filename: "example_client.pyi".to_string(),
         },
-        resource_enum: Some(ResourceEnumConfig {
-            package_prefix: ".example.".to_string(),
-            super_levels: 2,
-        }),
+        generate_resource_enum: false,
         bindings: Some(BindingsConfig {
             aggregate_client_name: "ExampleClient".to_string(),
             client_crate_name: "example_client".to_string(),
@@ -46,6 +44,7 @@ fn make_test_config(
             ts_error_base_class: "ExampleError".to_string(),
             ts_error_code_prefix: "EX".to_string(),
         }),
+        models_gen_dir: None,
     }
 }
 

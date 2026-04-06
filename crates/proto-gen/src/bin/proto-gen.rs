@@ -7,8 +7,8 @@ use protobuf::descriptor::FileDescriptorSet;
 
 use proto_gen::error::Result;
 use proto_gen::{
-    BindingsConfig, CodeGenConfig, CodeGenOutput, ResourceEnumConfig, enrich_openapi,
-    generate_code, parse_file_descriptor_set,
+    BindingsConfig, CodeGenConfig, CodeGenOutput, enrich_openapi, generate_code,
+    parse_file_descriptor_set,
 };
 
 #[derive(Parser)]
@@ -38,8 +38,14 @@ struct GenerateArgs {
     #[clap(long, env = "UC_BUILD_OUTPUT_COMMON")]
     output_common: Option<String>,
 
-    #[clap(long, env = "UC_BUILD_OUTPUT_MODELS_GEN")]
-    output_models_gen: Option<String>,
+    /// Parent models directory (e.g. `crates/common/src/models`).
+    /// Generated files are written into `<output_models>/<models_subdir>/`.
+    #[clap(long, env = "UC_BUILD_OUTPUT_MODELS")]
+    output_models: Option<String>,
+
+    /// Name of the generated subdirectory inside `output_models`. Defaults to `"_gen"`.
+    #[clap(long, env = "UC_BUILD_MODELS_SUBDIR")]
+    models_subdir: Option<String>,
 
     #[clap(long, env = "UC_BUILD_OUTPUT_SERVER")]
     output_server: Option<String>,
@@ -104,31 +110,122 @@ struct EnrichOpenApiArgs {
 // Config file types
 // ---------------------------------------------------------------------------
 
+/// Compute a POSIX-style relative path from `base` to `target` (both absolute).
+///
+/// e.g. `relative_path("/a/b/_gen", "/a/b/gen")` → `"../gen"`
+fn relative_path(base: &std::path::Path, target: &std::path::Path) -> String {
+    let base_components: Vec<_> = base.components().collect();
+    let target_components: Vec<_> = target.components().collect();
+
+    let common_len = base_components
+        .iter()
+        .zip(target_components.iter())
+        .take_while(|(a, b)| a == b)
+        .count();
+
+    let up_count = base_components.len() - common_len;
+    let mut parts: Vec<std::borrow::Cow<str>> = (0..up_count).map(|_| "..".into()).collect();
+    for comp in &target_components[common_len..] {
+        parts.push(comp.as_os_str().to_string_lossy());
+    }
+
+    if parts.is_empty() {
+        ".".to_string()
+    } else {
+        parts.join("/")
+    }
+}
+
 /// Top-level config file schema. Both subcommands share a single file, each
 /// with its own optional section. CLI flags always override config file values.
 #[derive(Debug, Default, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ProtoGenConfig {
+    /// Shared descriptor path used by both `generate` and `enrich_openapi`.
+    descriptors: Option<String>,
+    /// Path to buf.gen.yaml; used to auto-derive model path templates.
+    buf_gen: Option<PathBuf>,
     generate: Option<FileGenerateConfig>,
     enrich_openapi: Option<FileEnrichOpenApiConfig>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct BufGenPlugin {
+    remote: Option<String>,
+    out: String,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct BufGenConfig {
+    plugins: Vec<BufGenPlugin>,
+}
+
+/// Find the prost plugin's output path in a buf.gen.yaml file.
+fn find_prost_out(buf_gen_path: &Path) -> std::result::Result<PathBuf, Box<dyn std::error::Error>> {
+    let text = fs::read_to_string(buf_gen_path)?;
+    let cfg: BufGenConfig = serde_yaml::from_str(&text)?;
+    let prost = cfg
+        .plugins
+        .iter()
+        .find(|p| {
+            p.remote
+                .as_deref()
+                .map(|r| r.contains("prost") && !r.contains("serde") && !r.contains("tonic"))
+                .unwrap_or(false)
+        })
+        .ok_or("no prost plugin found in buf.gen.yaml")?;
+    Ok(PathBuf::from(&prost.out))
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FilePythonConfig {
+    output: Option<String>,
+    error_type: Option<String>,
+    result_type: Option<String>,
+    typings_package_filter: Option<String>,
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FileNodeConfig {
+    output: Option<String>,
+    napi_error_ext_trait: Option<String>,
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FileTsConfig {
+    output: Option<String>,
+    aggregate_client_name: Option<String>,
+    client_crate_name: Option<String>,
+    error_base_class: Option<String>,
+    error_code_prefix: Option<String>,
 }
 
 #[derive(Debug, Default, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 struct FileGenerateConfig {
     output_common: Option<String>,
-    output_models_gen: Option<String>,
+    /// Parent models directory (e.g. `crates/common/src/models`).
+    output_models: Option<String>,
+    /// Name of the generated subdirectory inside `output_models`. Defaults to `"_gen"`.
+    models_subdir: Option<String>,
     output_server: Option<String>,
     output_client: Option<String>,
-    output_python: Option<String>,
-    output_node: Option<String>,
-    output_node_ts: Option<String>,
-    descriptors: Option<String>,
     context_type: Option<String>,
     result_type: Option<String>,
     models_path_template: Option<String>,
     models_path_crate_template: Option<String>,
+    /// Crate name for the models crate; used to auto-derive `models_path_template`
+    /// when `buf_gen` is set in the top-level config.
+    models_crate_name: Option<String>,
     python_typings_filename: Option<String>,
+    /// Set to `true` to generate `labels.rs` with `Resource` / `ObjectLabel` enums.
+    generate_resource_enum: Option<bool>,
+    python: Option<FilePythonConfig>,
+    node: Option<FileNodeConfig>,
+    typescript: Option<FileTsConfig>,
 }
 
 #[derive(Debug, Default, serde::Deserialize)]
@@ -136,7 +233,6 @@ struct FileGenerateConfig {
 struct FileEnrichOpenApiConfig {
     spec: Option<PathBuf>,
     jsonschema_dir: Option<PathBuf>,
-    descriptors: Option<PathBuf>,
     camel_case: Option<bool>,
 }
 
@@ -165,37 +261,84 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 // ---------------------------------------------------------------------------
 
 fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file_cfg = FileGenerateConfig::default();
+    let mut buf_gen_path: Option<PathBuf> = None;
+
     // Merge config file values (CLI flags win — only fill in fields not already set).
     if let Some(ref config_path) = args.config.clone() {
-        let cfg = load_proto_gen_config(config_path)?
-            .generate
-            .unwrap_or_default();
+        let file = load_proto_gen_config(config_path)?;
+
+        // Top-level descriptors (shared with enrich_openapi)
+        if args.descriptors.is_none() {
+            args.descriptors = file.descriptors.clone();
+        }
+
+        buf_gen_path = file.buf_gen.clone();
+
+        let cfg = file.generate.unwrap_or_default();
 
         macro_rules! fill {
             ($field:ident) => {
                 if args.$field.is_none() {
-                    args.$field = cfg.$field;
+                    args.$field = cfg.$field.clone();
                 }
             };
         }
 
         fill!(output_common);
-        fill!(output_models_gen);
+        fill!(output_models);
+        fill!(models_subdir);
         fill!(output_server);
         fill!(output_client);
-        fill!(output_python);
-        fill!(output_node);
-        fill!(output_node_ts);
-        fill!(descriptors);
         fill!(context_type);
         fill!(result_type);
         fill!(models_path_template);
         fill!(models_path_crate_template);
         fill!(python_typings_filename);
+
+        // Fill output paths from nested language sections (CLI wins)
+        if args.output_python.is_none() {
+            args.output_python = cfg.python.as_ref().and_then(|c| c.output.clone());
+        }
+        if args.output_node.is_none() {
+            args.output_node = cfg.node.as_ref().and_then(|c| c.output.clone());
+        }
+        if args.output_node_ts.is_none() {
+            args.output_node_ts = cfg.typescript.as_ref().and_then(|c| c.output.clone());
+        }
+
+        file_cfg = cfg;
+    }
+
+    // Auto-derive path templates from buf.gen.yaml when not explicitly set.
+    let mut prost_out_abs: Option<PathBuf> = None;
+    if args.models_path_template.is_none() {
+        if let Some(ref bgp) = buf_gen_path {
+            let prost_out = find_prost_out(bgp)?;
+            prost_out_abs = Some(fs::canonicalize(&prost_out)?);
+            let crate_name = file_cfg
+                .models_crate_name
+                .as_deref()
+                .ok_or("models_crate_name is required in generate config when buf_gen is set")?;
+            args.models_path_template = Some(format!("{crate_name}::models::{{service}}::v1"));
+        }
+    }
+    if args.models_path_crate_template.is_none() && buf_gen_path.is_some() {
+        args.models_path_crate_template = Some("crate::models::{service}::v1".to_string());
+    }
+    // Lazily resolve prost_out if not yet resolved (needed for models_gen_dir even when
+    // models_path_template was already set).
+    if prost_out_abs.is_none() {
+        if let Some(ref bgp) = buf_gen_path {
+            let prost_out = find_prost_out(bgp)?;
+            if prost_out.exists() {
+                prost_out_abs = Some(fs::canonicalize(&prost_out)?);
+            }
+        }
     }
 
     let descriptors = args.descriptors.as_deref().ok_or(
-        "required argument missing: --descriptors (or set it in the config file under generate.descriptors)",
+        "required argument missing: --descriptors (or set it in the config file under generate.descriptors or top-level descriptors)",
     )?.to_owned();
     let output_common = args.output_common.as_deref().ok_or(
         "required argument missing: --output-common (or set it in the config file under generate.output_common)",
@@ -210,11 +353,11 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
     let resolve_dir = |p: &str| fs::canonicalize(PathBuf::from(p));
 
     let output_common = resolve_dir(&output_common)?;
-    let output_models_gen = args
-        .output_models_gen
-        .as_deref()
-        .map(resolve_dir)
-        .transpose()?;
+    let output_models = args.output_models.as_deref().map(resolve_dir).transpose()?;
+    let models_subdir = args
+        .models_subdir
+        .clone()
+        .unwrap_or_else(|| "_gen".to_string());
     let output_server = args.output_server.as_deref().map(resolve_dir).transpose()?;
     let output_client = args.output_client.as_deref().map(resolve_dir).transpose()?;
     let output_python = args.output_python.as_deref().map(resolve_dir).transpose()?;
@@ -230,9 +373,21 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
         .clone()
         .unwrap_or_else(|| "unitycatalog_client.pyi".to_string());
 
+    // Compute relative path from the models subdir to prost_out (for include! paths).
+    // e.g. models = ".../models", subdir = "_gen", prost_out = ".../models/gen"
+    // → relative_path(".../models/_gen", ".../models/gen") = "../gen"
+    let models_gen_dir: Option<String> = output_models
+        .as_deref()
+        .zip(prost_out_abs.as_deref())
+        .map(|(models_dir, prost_out)| {
+            let subdir_path = models_dir.join(&models_subdir);
+            relative_path(&subdir_path, prost_out)
+        });
+
     let output = CodeGenOutput {
         common: output_common,
-        models_gen: output_models_gen,
+        models: output_models,
+        models_subdir,
         server: output_server,
         client: output_client,
         python: output_python,
@@ -241,58 +396,66 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
         python_typings_filename,
     };
 
-    let config = make_uc_config(output, &args);
+    let config = build_config(output, &args, &file_cfg, models_gen_dir);
     generate_code(&metadata, &config)?;
 
     Ok(())
 }
 
-/// Build a [`CodeGenConfig`] with Unity Catalog defaults from parsed CLI arguments.
-///
-/// Mirrors the config constructed by `crates/build/src/main.rs` so that both binaries
-/// produce identical output and can be diffed for verification.
-fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
+/// Build a [`CodeGenConfig`] from parsed CLI arguments and config file settings.
+fn build_config(
+    output: CodeGenOutput,
+    args: &GenerateArgs,
+    file_cfg: &FileGenerateConfig,
+    models_gen_dir: Option<String>,
+) -> CodeGenConfig {
     let has_bindings_output =
         output.python.is_some() || output.node.is_some() || output.node_ts.is_some();
 
-    let bindings = has_bindings_output.then(|| BindingsConfig {
-        aggregate_client_name: "UnityCatalogClient".to_string(),
-        client_crate_name: "unitycatalog_client".to_string(),
-        py_error_type: "PyUnityCatalogError".to_string(),
-        py_result_type: "PyUnityCatalogResult".to_string(),
-        napi_error_ext_trait: "NapiErrorExt".to_string(),
-        typings_package_filter: Some("unitycatalog".to_string()),
-        ts_error_base_class: "UnityCatalogError".to_string(),
-        ts_error_code_prefix: "UC".to_string(),
+    let bindings = has_bindings_output.then(|| {
+        let py = file_cfg.python.as_ref();
+        let node = file_cfg.node.as_ref();
+        let ts = file_cfg.typescript.as_ref();
+        BindingsConfig {
+            aggregate_client_name: ts
+                .and_then(|c| c.aggregate_client_name.clone())
+                .unwrap_or_default(),
+            client_crate_name: ts
+                .and_then(|c| c.client_crate_name.clone())
+                .unwrap_or_default(),
+            py_error_type: py.and_then(|c| c.error_type.clone()).unwrap_or_default(),
+            py_result_type: py.and_then(|c| c.result_type.clone()).unwrap_or_default(),
+            napi_error_ext_trait: node
+                .and_then(|c| c.napi_error_ext_trait.clone())
+                .unwrap_or_default(),
+            typings_package_filter: py.and_then(|c| c.typings_package_filter.clone()),
+            ts_error_base_class: ts
+                .and_then(|c| c.error_base_class.clone())
+                .unwrap_or_default(),
+            ts_error_code_prefix: ts
+                .and_then(|c| c.error_code_prefix.clone())
+                .unwrap_or_default(),
+        }
     });
 
-    let mut config = CodeGenConfig {
-        context_type_path: "crate::api::RequestContext".to_string(),
-        result_type_path: "crate::Result".to_string(),
-        models_path_template: "unitycatalog_common::models::{service}::v1".to_string(),
-        models_path_crate_template: "crate::models::{service}::v1".to_string(),
+    let generate_resource_enum = file_cfg.generate_resource_enum.unwrap_or(false);
+
+    CodeGenConfig {
+        context_type_path: args
+            .context_type
+            .clone()
+            .unwrap_or_else(|| "crate::api::RequestContext".to_string()),
+        result_type_path: args
+            .result_type
+            .clone()
+            .unwrap_or_else(|| "crate::Result".to_string()),
+        models_path_template: args.models_path_template.clone().unwrap_or_default(),
+        models_path_crate_template: args.models_path_crate_template.clone().unwrap_or_default(),
         output,
-        resource_enum: Some(ResourceEnumConfig {
-            package_prefix: ".unitycatalog.".to_string(),
-            super_levels: 2,
-        }),
+        generate_resource_enum,
         bindings,
-    };
-
-    if let Some(ref v) = args.context_type {
-        config.context_type_path = v.clone();
+        models_gen_dir,
     }
-    if let Some(ref v) = args.result_type {
-        config.result_type_path = v.clone();
-    }
-    if let Some(ref v) = args.models_path_template {
-        config.models_path_template = v.clone();
-    }
-    if let Some(ref v) = args.models_path_crate_template {
-        config.models_path_crate_template = v.clone();
-    }
-
-    config
 }
 
 // ---------------------------------------------------------------------------
@@ -302,9 +465,14 @@ fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
 fn run_enrich_openapi(mut args: EnrichOpenApiArgs) -> Result<(), Box<dyn std::error::Error>> {
     // Merge config file values (CLI flags win).
     if let Some(ref config_path) = args.config.clone() {
-        let cfg = load_proto_gen_config(config_path)?
-            .enrich_openapi
-            .unwrap_or_default();
+        let file = load_proto_gen_config(config_path)?;
+
+        // Top-level descriptors
+        if args.descriptors.is_none() {
+            args.descriptors = file.descriptors.map(PathBuf::from);
+        }
+
+        let cfg = file.enrich_openapi.unwrap_or_default();
 
         macro_rules! fill {
             ($field:ident) => {
@@ -316,7 +484,6 @@ fn run_enrich_openapi(mut args: EnrichOpenApiArgs) -> Result<(), Box<dyn std::er
 
         fill!(spec);
         fill!(jsonschema_dir);
-        fill!(descriptors);
         fill!(camel_case);
     }
 

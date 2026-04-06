@@ -26,7 +26,7 @@
 //! ```rust,no_run
 //! use std::fs;
 //! use proto_gen::{CodeGenConfig, CodeGenOutput, generate_code, parse_file_descriptor_set};
-//! use proto_gen::{ResourceEnumConfig, BindingsConfig};
+//! use proto_gen::BindingsConfig;
 //! use protobuf::Message;
 //! use protobuf::descriptor::FileDescriptorSet;
 //!
@@ -41,6 +41,7 @@
 //! let output = CodeGenOutput {
 //!     common: "/tmp/out/common".into(),
 //!     models_gen: Some("/tmp/out/models".into()),
+//!     models_mod: None,
 //!     server: Some("/tmp/out/server".into()),
 //!     client: Some("/tmp/out/client".into()),
 //!     python: None,
@@ -55,11 +56,9 @@
 //!     models_path_template: "my_crate::models::{service}::v1".into(),
 //!     models_path_crate_template: "crate::models::{service}::v1".into(),
 //!     output,
-//!     resource_enum: Some(ResourceEnumConfig {
-//!         package_prefix: ".mypackage.".into(),
-//!         super_levels: 2,
-//!     }),
+//!     generate_resource_enum: true,
 //!     bindings: None,
+//!     models_gen_dir: None,
 //! };
 //!
 //! // 4. Optionally validate before running
@@ -80,7 +79,7 @@ pub mod parsing;
 pub mod utils;
 
 pub use codegen::{
-    BindingsConfig, CodeGenConfig, CodeGenOutput, GeneratedCode, ResourceEnumConfig, generate_code,
+    BindingsConfig, CodeGenConfig, CodeGenOutput, GeneratedCode, generate_code, generate_models_mod,
 };
 
 pub use analysis::{

@@ -100,29 +100,6 @@ impl ModelsPath {
     }
 }
 
-/// Configuration for the resource enum generator.
-///
-/// Controls which messages are included in the generated `Resource` / `ObjectLabel`
-/// enums and how their Rust type paths are constructed.
-#[derive(Debug, Clone)]
-pub struct ResourceEnumConfig {
-    /// Package prefix used to filter messages (e.g. `".unitycatalog."`).
-    pub package_prefix: String,
-    /// Number of `super::` hops from the generated file back to the models root.
-    ///
-    /// This controls how many `super::` prefixes are prepended to model type paths in
-    /// the generated resource enum. Derive it by counting directory levels between the
-    /// generated file and the crate root:
-    ///
-    /// - `0` — the generated file lives at the models root (same directory, no hops needed)
-    /// - `1` — one level deep (e.g. `src/codegen/labels.rs` → `super::` to reach `src/codegen/`)
-    /// - `2` — two levels deep (e.g. `src/codegen/inner/labels.rs` → `super::super::`)
-    ///
-    /// For the Unity Catalog workspace, the value is typically `2` because generated label
-    /// files live two directories below the crate root.
-    pub super_levels: u32,
-}
-
 /// Configuration for language-binding code generation (Python / Node.js).
 #[derive(Debug, Clone)]
 pub struct BindingsConfig {
@@ -155,9 +132,7 @@ pub struct BindingsConfig {
 
 /// Configuration for code generation, including import paths and output directories.
 ///
-/// Construct this struct directly and set the fields you need. The
-/// `resource_enum` and `bindings` fields are `Option` — set them to `Some` only
-/// when the corresponding output is enabled in [`CodeGenOutput`].
+/// Construct this struct directly and set the fields you need.
 #[derive(Debug, Clone)]
 pub struct CodeGenConfig {
     /// Fully-qualified path to the request context type used in handler methods.
@@ -185,12 +160,17 @@ pub struct CodeGenConfig {
     /// Output directory configuration.
     pub output: CodeGenOutput,
 
-    /// Configuration for the resource enum generator. Required when models output is enabled.
-    pub resource_enum: Option<ResourceEnumConfig>,
+    /// When `true`, generate `labels.rs` with `Resource` / `ObjectLabel` enums derived
+    /// from `google.api.resource` annotations. Requires `output.models` to be `Some`.
+    pub generate_resource_enum: bool,
 
     /// Configuration for language-binding generation. Required when `output.python`,
     /// `output.node`, or `output.node_ts` is `Some`.
     pub bindings: Option<BindingsConfig>,
+
+    /// Relative path of the prost-generated `gen/` dir from the models subdirectory.
+    /// Required when `output.models` is `Some`. E.g. `"../gen"`.
+    pub models_gen_dir: Option<String>,
 }
 
 impl CodeGenConfig {
@@ -226,9 +206,16 @@ impl CodeGenConfig {
 pub struct CodeGenOutput {
     /// Output directory for common (shared extractor) code.
     pub common: PathBuf,
-    /// Output directory for generated model files (e.g. `unitycatalog.internal.rs`).
-    /// When `None`, these files are written alongside `common` output.
-    pub models_gen: Option<PathBuf>,
+    /// Parent models directory (e.g. `crates/common/src/models`).
+    ///
+    /// When `Some`, the generator writes both `labels.rs` and `mod.rs` into a
+    /// subdirectory named [`models_subdir`](CodeGenOutput::models_subdir) inside this path.
+    /// The prost-generated `gen/` directory is expected to be a sibling of that subdirectory.
+    pub models: Option<PathBuf>,
+    /// Name of the generated subdirectory inside [`models`](CodeGenOutput::models).
+    ///
+    /// Defaults to `"_gen"`.
+    pub models_subdir: String,
     /// Output directory for server-side handler and route code. Generation is skipped when `None`.
     pub server: Option<PathBuf>,
     /// Output directory for HTTP client code. Generation is skipped when `None`.
@@ -243,6 +230,13 @@ pub struct CodeGenOutput {
     ///
     /// Default: `"unitycatalog_client.pyi"`
     pub python_typings_filename: String,
+}
+
+impl CodeGenOutput {
+    /// Absolute path of the generated subdirectory (`models/models_subdir`), if `models` is set.
+    pub fn models_subdir_path(&self) -> Option<PathBuf> {
+        self.models.as_ref().map(|m| m.join(&self.models_subdir))
+    }
 }
 
 /// Generate all code described by `config` from `metadata`.
@@ -269,7 +263,7 @@ pub struct CodeGenOutput {
 ///
 /// # Optional fields
 ///
-/// Setting `resource_enum` to `None` generates an empty `labels.rs`.
+/// Setting `generate_resource_enum` to `false` skips `labels.rs` generation.
 /// Setting `bindings` to `None` skips all language-binding output.
 ///
 /// Call [`CodeGenConfig::validate`] before this function to surface config errors at
@@ -290,14 +284,33 @@ pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Resu
 
     let plan = analyze_metadata(metadata)?;
 
-    let (common_code, models_code) = generate_common_code(&plan, metadata, config)?;
+    let common_code = generate_common_code(&plan, metadata, config)?;
     output::write_generated_code(&common_code, &config.output.common)?;
-    let models_dir = config
-        .output
-        .models_gen
-        .as_ref()
-        .unwrap_or(&config.output.common);
-    output::write_generated_code(&models_code, models_dir)?;
+
+    if config.output.models.is_some() {
+        let subdir = config
+            .output
+            .models_subdir_path()
+            .expect("models is Some so subdir is Some");
+        std::fs::create_dir_all(&subdir).map_err(Error::Io)?;
+
+        if config.generate_resource_enum {
+            let resource_enum = resources::generate_resource_enum(&plan, metadata, config);
+            let mut models_files = GeneratedCode {
+                files: std::collections::HashMap::new(),
+            };
+            models_files
+                .files
+                .insert("labels.rs".to_string(), resource_enum);
+            output::write_generated_code(&models_files, &subdir)?;
+        }
+
+        let gen_dir = config.models_gen_dir.as_deref().unwrap_or("../gen");
+        let include_labels = config.generate_resource_enum;
+        let mod_content = generate_models_mod(&plan.services, gen_dir, include_labels, metadata);
+        let mod_path = subdir.join("mod.rs");
+        std::fs::write(&mod_path, mod_content).map_err(Error::Io)?;
+    }
 
     if let Some(ref server_dir) = config.output.server {
         let server_code = generate_server_code(&plan, metadata, config)?;
@@ -331,7 +344,7 @@ fn generate_common_code(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
-) -> Result<(GeneratedCode, GeneratedCode)> {
+) -> Result<GeneratedCode> {
     let mut files = HashMap::new();
 
     for service in &plan.services {
@@ -349,16 +362,7 @@ fn generate_common_code(
     let module_code = main_module(&plan.services);
     files.insert("mod.rs".to_string(), module_code);
 
-    let resource_enum = resources::generate_resource_enum(metadata, config);
-    let mut models_files = HashMap::new();
-    models_files.insert("labels.rs".to_string(), resource_enum);
-
-    Ok((
-        GeneratedCode { files },
-        GeneratedCode {
-            files: models_files,
-        },
-    ))
+    Ok(GeneratedCode { files })
 }
 
 fn generate_server_code(
@@ -626,6 +630,131 @@ pub(crate) fn doc_tokens(documentation: Option<&str>) -> TokenStream {
         })
         .collect();
     quote! { #(#attrs)* }
+}
+
+/// Generate the `mod.rs` for `crates/common/src/models/`.
+///
+/// Emits `pub mod <service> { pub mod <version> { include!(...) } }` blocks for every
+/// service in the plan, plus static re-exports and module declarations.
+///
+/// `gen_dir` is the relative path (from the subdir) to the prost-generated files,
+/// e.g. `"../gen"`.
+///
+/// When `include_labels` is `true`, also emits `pub mod labels; pub use labels::{ObjectLabel, Resource};`.
+///
+/// `metadata` is used to discover all resource-annotated messages (even those not returned
+/// directly by an RPC) so they can be included in `pub use` re-exports.
+pub fn generate_models_mod(
+    services: &[ServicePlan],
+    gen_dir: &str,
+    include_labels: bool,
+    metadata: &CodeGenMetadata,
+) -> String {
+    let mut sorted_services: Vec<&ServicePlan> = services.iter().collect();
+    sorted_services.sort_by_key(|s| &s.base_path);
+
+    // Build the `pub mod` blocks
+    let service_mods: Vec<TokenStream> = sorted_services
+        .iter()
+        .map(|svc| {
+            // package = "unitycatalog.catalogs.v1"
+            // parts   = ["unitycatalog", "catalogs", "v1"]
+            let parts: Vec<&str> = svc.package.split('.').collect();
+            // service module = second-to-last segment (e.g. "catalogs")
+            // version module = last segment (e.g. "v1")
+            let (svc_seg, ver_seg) = if parts.len() >= 2 {
+                (parts[parts.len() - 2], parts[parts.len() - 1])
+            } else {
+                (svc.base_path.as_str(), "v1")
+            };
+
+            let svc_mod = format_ident!("{}", svc_seg);
+            let ver_mod = format_ident!("{}", ver_seg);
+
+            let main_include = format!("./{}/{}.rs", gen_dir, svc.package);
+            let tonic_include = format!("./{}/{}.tonic.rs", gen_dir, svc.package);
+
+            quote! {
+                pub mod #svc_mod {
+                    pub mod #ver_mod {
+                        include!(#main_include);
+                        #[cfg(feature = "grpc")]
+                        include!(#tonic_include);
+                    }
+                }
+            }
+        })
+        .collect();
+
+    // Collect `pub use` re-exports: include managed resources AND all resource-descriptor
+    // messages in the same package (catches nested types like Column that aren't direct
+    // RPC return types but still have google.api.resource annotations).
+    let mut reexports: Vec<TokenStream> = Vec::new();
+    for svc in &sorted_services {
+        let package = &svc.package;
+        let fq_prefix = format!(".{}.", package);
+
+        let parts: Vec<&str> = svc.package.split('.').collect();
+        let (svc_seg, ver_seg) = if parts.len() >= 2 {
+            (parts[parts.len() - 2], parts[parts.len() - 1])
+        } else {
+            (svc.base_path.as_str(), "v1")
+        };
+        let svc_mod = format_ident!("{}", svc_seg);
+        let ver_mod = format_ident!("{}", ver_seg);
+
+        // Gather from managed_resources first.
+        let mut type_names: std::collections::BTreeSet<String> = svc
+            .managed_resources
+            .iter()
+            .map(|r| r.type_name.clone())
+            .collect();
+
+        // Also include all resource-annotated messages in this package.
+        for (fq_name, msg_info) in &metadata.messages {
+            if msg_info.resource_descriptor.is_some()
+                && (fq_name.starts_with(&fq_prefix)
+                    || fq_name.starts_with(&format!(".{}", package)))
+            {
+                // Simple name = last component after '.'
+                let simple = fq_name
+                    .rfind('.')
+                    .map(|i| &fq_name[i + 1..])
+                    .unwrap_or(fq_name.as_str());
+                type_names.insert(simple.to_string());
+            }
+        }
+
+        for type_name in &type_names {
+            let type_ident = format_ident!("{}", type_name);
+            reexports.push(quote! {
+                pub use #svc_mod::#ver_mod::#type_ident;
+            });
+        }
+    }
+
+    let labels_decl: TokenStream = if include_labels {
+        quote! {
+            pub mod labels;
+            pub use labels::{ObjectLabel, Resource};
+        }
+    } else {
+        quote! {}
+    };
+
+    let tokens = quote! {
+        use std::collections::HashMap;
+
+        #labels_decl
+
+        #(#reexports)*
+
+        pub type PropertyMap = HashMap<String, serde_json::Value>;
+
+        #(#service_mods)*
+    };
+
+    format_tokens(tokens)
 }
 
 pub(crate) fn format_tokens(tokens: TokenStream) -> String {
