@@ -320,7 +320,7 @@ mod tests {
     fn make_query_plan(params: Vec<RequestParam>) -> MethodPlan {
         use crate::analysis::RequestType;
         use crate::google::api::{HttpRule, http_rule::Pattern};
-        use crate::parsing::{CodeGenMetadata, HttpPattern, MethodMetadata};
+        use crate::parsing::{HttpPattern, MethodMetadata};
         MethodPlan {
             metadata: MethodMetadata {
                 service_name: "TestService".to_string(),
