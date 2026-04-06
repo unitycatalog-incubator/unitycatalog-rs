@@ -1,12 +1,12 @@
 descriptors: descriptors.bin
+buf_gen: buf.gen.yaml
 
 generate:
   output_common: crates/common/src/codegen
   output_models_gen: crates/common/src/models/resources
   output_server: crates/server/src/codegen
   output_client: crates/client/src/codegen
-  models_path_template: "unitycatalog_common::models::{service}::v1"
-  models_path_crate_template: "crate::models::{service}::v1"
+  models_crate_name: unitycatalog_common
   resource_enum:
     package_prefix: ".unitycatalog."
     super_levels: 2

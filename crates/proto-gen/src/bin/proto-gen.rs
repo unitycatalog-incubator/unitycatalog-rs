@@ -111,8 +111,38 @@ struct EnrichOpenApiArgs {
 struct ProtoGenConfig {
     /// Shared descriptor path used by both `generate` and `enrich_openapi`.
     descriptors: Option<String>,
+    /// Path to buf.gen.yaml; used to auto-derive model path templates.
+    buf_gen: Option<PathBuf>,
     generate: Option<FileGenerateConfig>,
     enrich_openapi: Option<FileEnrichOpenApiConfig>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct BufGenPlugin {
+    remote: Option<String>,
+    out: String,
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct BufGenConfig {
+    plugins: Vec<BufGenPlugin>,
+}
+
+/// Find the prost plugin's output path in a buf.gen.yaml file.
+fn find_prost_out(buf_gen_path: &Path) -> std::result::Result<PathBuf, Box<dyn std::error::Error>> {
+    let text = fs::read_to_string(buf_gen_path)?;
+    let cfg: BufGenConfig = serde_yaml::from_str(&text)?;
+    let prost = cfg
+        .plugins
+        .iter()
+        .find(|p| {
+            p.remote
+                .as_deref()
+                .map(|r| r.contains("prost") && !r.contains("serde") && !r.contains("tonic"))
+                .unwrap_or(false)
+        })
+        .ok_or("no prost plugin found in buf.gen.yaml")?;
+    Ok(PathBuf::from(&prost.out))
 }
 
 #[derive(Debug, Default, serde::Deserialize)]
@@ -159,6 +189,9 @@ struct FileGenerateConfig {
     result_type: Option<String>,
     models_path_template: Option<String>,
     models_path_crate_template: Option<String>,
+    /// Crate name for the models crate; used to auto-derive `models_path_template`
+    /// when `buf_gen` is set in the top-level config.
+    models_crate_name: Option<String>,
     python_typings_filename: Option<String>,
     resource_enum: Option<FileResourceEnumConfig>,
     python: Option<FilePythonConfig>,
@@ -200,6 +233,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
     let mut file_cfg = FileGenerateConfig::default();
+    let mut buf_gen_path: Option<PathBuf> = None;
 
     // Merge config file values (CLI flags win — only fill in fields not already set).
     if let Some(ref config_path) = args.config.clone() {
@@ -209,6 +243,8 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
         if args.descriptors.is_none() {
             args.descriptors = file.descriptors.clone();
         }
+
+        buf_gen_path = file.buf_gen.clone();
 
         let cfg = file.generate.unwrap_or_default();
 
@@ -242,6 +278,21 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
         }
 
         file_cfg = cfg;
+    }
+
+    // Auto-derive path templates from buf.gen.yaml when not explicitly set.
+    if args.models_path_template.is_none() {
+        if let Some(ref bgp) = buf_gen_path {
+            let _prost_out = find_prost_out(bgp)?;
+            let crate_name = file_cfg
+                .models_crate_name
+                .as_deref()
+                .ok_or("models_crate_name is required in generate config when buf_gen is set")?;
+            args.models_path_template = Some(format!("{crate_name}::models::{{service}}::v1"));
+        }
+    }
+    if args.models_path_crate_template.is_none() && buf_gen_path.is_some() {
+        args.models_path_crate_template = Some("crate::models::{service}::v1".to_string());
     }
 
     let descriptors = args.descriptors.as_deref().ok_or(
