@@ -109,8 +109,43 @@ struct EnrichOpenApiArgs {
 #[derive(Debug, Default, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ProtoGenConfig {
+    /// Shared descriptor path used by both `generate` and `enrich_openapi`.
+    descriptors: Option<String>,
     generate: Option<FileGenerateConfig>,
     enrich_openapi: Option<FileEnrichOpenApiConfig>,
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FileResourceEnumConfig {
+    package_prefix: Option<String>,
+    super_levels: Option<u32>,
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FilePythonConfig {
+    output: Option<String>,
+    error_type: Option<String>,
+    result_type: Option<String>,
+    typings_package_filter: Option<String>,
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FileNodeConfig {
+    output: Option<String>,
+    napi_error_ext_trait: Option<String>,
+}
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FileTsConfig {
+    output: Option<String>,
+    aggregate_client_name: Option<String>,
+    client_crate_name: Option<String>,
+    error_base_class: Option<String>,
+    error_code_prefix: Option<String>,
 }
 
 #[derive(Debug, Default, serde::Deserialize)]
@@ -120,15 +155,15 @@ struct FileGenerateConfig {
     output_models_gen: Option<String>,
     output_server: Option<String>,
     output_client: Option<String>,
-    output_python: Option<String>,
-    output_node: Option<String>,
-    output_node_ts: Option<String>,
-    descriptors: Option<String>,
     context_type: Option<String>,
     result_type: Option<String>,
     models_path_template: Option<String>,
     models_path_crate_template: Option<String>,
     python_typings_filename: Option<String>,
+    resource_enum: Option<FileResourceEnumConfig>,
+    python: Option<FilePythonConfig>,
+    node: Option<FileNodeConfig>,
+    typescript: Option<FileTsConfig>,
 }
 
 #[derive(Debug, Default, serde::Deserialize)]
@@ -136,7 +171,6 @@ struct FileGenerateConfig {
 struct FileEnrichOpenApiConfig {
     spec: Option<PathBuf>,
     jsonschema_dir: Option<PathBuf>,
-    descriptors: Option<PathBuf>,
     camel_case: Option<bool>,
 }
 
@@ -165,16 +199,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 // ---------------------------------------------------------------------------
 
 fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file_cfg = FileGenerateConfig::default();
+
     // Merge config file values (CLI flags win — only fill in fields not already set).
     if let Some(ref config_path) = args.config.clone() {
-        let cfg = load_proto_gen_config(config_path)?
-            .generate
-            .unwrap_or_default();
+        let file = load_proto_gen_config(config_path)?;
+
+        // Top-level descriptors (shared with enrich_openapi)
+        if args.descriptors.is_none() {
+            args.descriptors = file.descriptors.clone();
+        }
+
+        let cfg = file.generate.unwrap_or_default();
 
         macro_rules! fill {
             ($field:ident) => {
                 if args.$field.is_none() {
-                    args.$field = cfg.$field;
+                    args.$field = cfg.$field.clone();
                 }
             };
         }
@@ -183,19 +224,28 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
         fill!(output_models_gen);
         fill!(output_server);
         fill!(output_client);
-        fill!(output_python);
-        fill!(output_node);
-        fill!(output_node_ts);
-        fill!(descriptors);
         fill!(context_type);
         fill!(result_type);
         fill!(models_path_template);
         fill!(models_path_crate_template);
         fill!(python_typings_filename);
+
+        // Fill output paths from nested language sections (CLI wins)
+        if args.output_python.is_none() {
+            args.output_python = cfg.python.as_ref().and_then(|c| c.output.clone());
+        }
+        if args.output_node.is_none() {
+            args.output_node = cfg.node.as_ref().and_then(|c| c.output.clone());
+        }
+        if args.output_node_ts.is_none() {
+            args.output_node_ts = cfg.typescript.as_ref().and_then(|c| c.output.clone());
+        }
+
+        file_cfg = cfg;
     }
 
     let descriptors = args.descriptors.as_deref().ok_or(
-        "required argument missing: --descriptors (or set it in the config file under generate.descriptors)",
+        "required argument missing: --descriptors (or set it in the config file under generate.descriptors or top-level descriptors)",
     )?.to_owned();
     let output_common = args.output_common.as_deref().ok_or(
         "required argument missing: --output-common (or set it in the config file under generate.output_common)",
@@ -241,58 +291,70 @@ fn run_generate(mut args: GenerateArgs) -> Result<(), Box<dyn std::error::Error>
         python_typings_filename,
     };
 
-    let config = make_uc_config(output, &args);
+    let config = build_config(output, &args, &file_cfg);
     generate_code(&metadata, &config)?;
 
     Ok(())
 }
 
-/// Build a [`CodeGenConfig`] with Unity Catalog defaults from parsed CLI arguments.
-///
-/// Mirrors the config constructed by `crates/build/src/main.rs` so that both binaries
-/// produce identical output and can be diffed for verification.
-fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
+/// Build a [`CodeGenConfig`] from parsed CLI arguments and config file settings.
+fn build_config(
+    output: CodeGenOutput,
+    args: &GenerateArgs,
+    file_cfg: &FileGenerateConfig,
+) -> CodeGenConfig {
     let has_bindings_output =
         output.python.is_some() || output.node.is_some() || output.node_ts.is_some();
 
-    let bindings = has_bindings_output.then(|| BindingsConfig {
-        aggregate_client_name: "UnityCatalogClient".to_string(),
-        client_crate_name: "unitycatalog_client".to_string(),
-        py_error_type: "PyUnityCatalogError".to_string(),
-        py_result_type: "PyUnityCatalogResult".to_string(),
-        napi_error_ext_trait: "NapiErrorExt".to_string(),
-        typings_package_filter: Some("unitycatalog".to_string()),
-        ts_error_base_class: "UnityCatalogError".to_string(),
-        ts_error_code_prefix: "UC".to_string(),
+    let bindings = has_bindings_output.then(|| {
+        let py = file_cfg.python.as_ref();
+        let node = file_cfg.node.as_ref();
+        let ts = file_cfg.typescript.as_ref();
+        BindingsConfig {
+            aggregate_client_name: ts
+                .and_then(|c| c.aggregate_client_name.clone())
+                .unwrap_or_default(),
+            client_crate_name: ts
+                .and_then(|c| c.client_crate_name.clone())
+                .unwrap_or_default(),
+            py_error_type: py.and_then(|c| c.error_type.clone()).unwrap_or_default(),
+            py_result_type: py.and_then(|c| c.result_type.clone()).unwrap_or_default(),
+            napi_error_ext_trait: node
+                .and_then(|c| c.napi_error_ext_trait.clone())
+                .unwrap_or_default(),
+            typings_package_filter: py.and_then(|c| c.typings_package_filter.clone()),
+            ts_error_base_class: ts
+                .and_then(|c| c.error_base_class.clone())
+                .unwrap_or_default(),
+            ts_error_code_prefix: ts
+                .and_then(|c| c.error_code_prefix.clone())
+                .unwrap_or_default(),
+        }
     });
 
-    let mut config = CodeGenConfig {
-        context_type_path: "crate::api::RequestContext".to_string(),
-        result_type_path: "crate::Result".to_string(),
-        models_path_template: "unitycatalog_common::models::{service}::v1".to_string(),
-        models_path_crate_template: "crate::models::{service}::v1".to_string(),
+    let resource_enum = file_cfg
+        .resource_enum
+        .as_ref()
+        .map(|re| ResourceEnumConfig {
+            package_prefix: re.package_prefix.clone().unwrap_or_default(),
+            super_levels: re.super_levels.unwrap_or(0),
+        });
+
+    CodeGenConfig {
+        context_type_path: args
+            .context_type
+            .clone()
+            .unwrap_or_else(|| "crate::api::RequestContext".to_string()),
+        result_type_path: args
+            .result_type
+            .clone()
+            .unwrap_or_else(|| "crate::Result".to_string()),
+        models_path_template: args.models_path_template.clone().unwrap_or_default(),
+        models_path_crate_template: args.models_path_crate_template.clone().unwrap_or_default(),
         output,
-        resource_enum: Some(ResourceEnumConfig {
-            package_prefix: ".unitycatalog.".to_string(),
-            super_levels: 2,
-        }),
+        resource_enum,
         bindings,
-    };
-
-    if let Some(ref v) = args.context_type {
-        config.context_type_path = v.clone();
     }
-    if let Some(ref v) = args.result_type {
-        config.result_type_path = v.clone();
-    }
-    if let Some(ref v) = args.models_path_template {
-        config.models_path_template = v.clone();
-    }
-    if let Some(ref v) = args.models_path_crate_template {
-        config.models_path_crate_template = v.clone();
-    }
-
-    config
 }
 
 // ---------------------------------------------------------------------------
@@ -302,9 +364,14 @@ fn make_uc_config(output: CodeGenOutput, args: &GenerateArgs) -> CodeGenConfig {
 fn run_enrich_openapi(mut args: EnrichOpenApiArgs) -> Result<(), Box<dyn std::error::Error>> {
     // Merge config file values (CLI flags win).
     if let Some(ref config_path) = args.config.clone() {
-        let cfg = load_proto_gen_config(config_path)?
-            .enrich_openapi
-            .unwrap_or_default();
+        let file = load_proto_gen_config(config_path)?;
+
+        // Top-level descriptors
+        if args.descriptors.is_none() {
+            args.descriptors = file.descriptors.map(PathBuf::from);
+        }
+
+        let cfg = file.enrich_openapi.unwrap_or_default();
 
         macro_rules! fill {
             ($field:ident) => {
@@ -316,7 +383,6 @@ fn run_enrich_openapi(mut args: EnrichOpenApiArgs) -> Result<(), Box<dyn std::er
 
         fill!(spec);
         fill!(jsonschema_dir);
-        fill!(descriptors);
         fill!(camel_case);
     }
 
