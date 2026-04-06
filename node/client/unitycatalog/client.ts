@@ -494,7 +494,7 @@ export class CatalogClient {
     const { includeBrowse } = options || {};
     try {
       return fromBinary(CatalogSchema, await this.inner.get(includeBrowse));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -507,7 +507,7 @@ export class CatalogClient {
     const { owner, comment, properties, newName } = options || {};
     try {
       return fromBinary(CatalogSchema, await this.inner.update(owner, comment, properties, newName));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -520,7 +520,7 @@ export class CatalogClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -536,20 +536,20 @@ export class CredentialClient {
   async get(): Promise<Credential> {
     try {
       return fromBinary(CredentialSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async update(options?: UpdateCredentialOptions): Promise<Credential> {
     const { newName, comment, readOnly, owner, skipValidation, force } = options || {};
     try {
       return fromBinary(CredentialSchema, await this.inner.update(newName, comment, readOnly, owner, skipValidation, force));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -568,7 +568,7 @@ export class ExternalLocationClient {
   async get(): Promise<ExternalLocation> {
     try {
       return fromBinary(ExternalLocationSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -578,7 +578,7 @@ export class ExternalLocationClient {
     const { url, credentialName, readOnly, owner, comment, newName, force, skipValidation } = options || {};
     try {
       return fromBinary(ExternalLocationSchema, await this.inner.update(url, credentialName, readOnly, owner, comment, newName, force, skipValidation));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -588,7 +588,7 @@ export class ExternalLocationClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -611,7 +611,7 @@ export class FunctionClient {
   async get(): Promise<Function> {
     try {
       return fromBinary(FunctionSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -624,7 +624,7 @@ export class FunctionClient {
     const { owner } = options || {};
     try {
       return fromBinary(FunctionSchema, await this.inner.update(owner));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -637,7 +637,7 @@ export class FunctionClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -656,7 +656,7 @@ export class RecipientClient {
   async get(): Promise<Recipient> {
     try {
       return fromBinary(RecipientSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -666,7 +666,7 @@ export class RecipientClient {
     const { newName, owner, comment, properties, expirationTime } = options || {};
     try {
       return fromBinary(RecipientSchema, await this.inner.update(newName, owner, comment, properties, expirationTime));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -675,7 +675,7 @@ export class RecipientClient {
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -696,7 +696,7 @@ export class SchemaClient {
   async get(): Promise<Schema> {
     try {
       return fromBinary(SchemaSchema, await this.inner.get());
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -709,7 +709,7 @@ export class SchemaClient {
     const { comment, properties, newName } = options || {};
     try {
       return fromBinary(SchemaSchema, await this.inner.update(comment, properties, newName));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -720,7 +720,7 @@ export class SchemaClient {
     const { force } = options || {};
     try {
       await this.inner.delete(force);
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -740,7 +740,7 @@ export class ShareClient {
     const { includeSharedData } = options || {};
     try {
       return fromBinary(ShareSchema, await this.inner.get(includeSharedData));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -750,7 +750,7 @@ export class ShareClient {
     const { newName, owner, comment } = options || {};
     try {
       return fromBinary(ShareSchema, await this.inner.update(newName, owner, comment));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -759,7 +759,7 @@ export class ShareClient {
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -779,7 +779,7 @@ export class TableClient {
     const { includeDeltaMetadata, includeBrowse, includeManifestCapabilities } = options || {};
     try {
       return fromBinary(TableSchema, await this.inner.get(includeDeltaMetadata, includeBrowse, includeManifestCapabilities));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -788,7 +788,7 @@ export class TableClient {
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -805,20 +805,20 @@ export class VolumeClient {
     const { includeBrowse } = options || {};
     try {
       return fromBinary(VolumeSchema, await this.inner.get(includeBrowse));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async update(options?: UpdateVolumeOptions): Promise<Volume> {
     const { newName, comment, owner } = options || {};
     try {
       return fromBinary(VolumeSchema, await this.inner.update(newName, comment, owner));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async delete(): Promise<void> {
     try {
       await this.inner.delete();
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
 }
@@ -844,7 +844,7 @@ export class UnityCatalogClient {
       return (await this.inner.listCatalogs(maxResults)).map((data) =>
         fromBinary(CatalogSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -857,7 +857,7 @@ export class UnityCatalogClient {
     const { comment, properties, storageRoot, providerName, shareName } = options || {};
     try {
       return fromBinary(CatalogSchema, await this.inner.createCatalog(name, comment, properties, storageRoot, providerName, shareName));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   catalog(name: string): CatalogClient {
@@ -870,14 +870,14 @@ export class UnityCatalogClient {
       return (await this.inner.listCredentials(purpose, maxResults)).map((data) =>
         fromBinary(CredentialSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async createCredential(name: string, purpose: number, options?: CreateCredentialOptions): Promise<Credential> {
     const { comment, readOnly, skipValidation } = options || {};
     try {
       return fromBinary(CredentialSchema, await this.inner.createCredential(name, purpose, comment, readOnly, skipValidation));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   credential(name: string): CredentialClient {
@@ -893,7 +893,7 @@ export class UnityCatalogClient {
       return (await this.inner.listExternalLocations(maxResults, includeBrowse)).map((data) =>
         fromBinary(ExternalLocationSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -903,7 +903,7 @@ export class UnityCatalogClient {
     const { readOnly, comment, skipValidation } = options || {};
     try {
       return fromBinary(ExternalLocationSchema, await this.inner.createExternalLocation(name, url, credentialName, readOnly, comment, skipValidation));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   externalLocation(name: string): ExternalLocationClient {
@@ -924,7 +924,7 @@ export class UnityCatalogClient {
       return (await this.inner.listFunctions(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
         fromBinary(FunctionSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -937,7 +937,7 @@ export class UnityCatalogClient {
     const { routineDefinition, routineBodyLanguage, comment, properties } = options || {};
     try {
       return fromBinary(FunctionSchema, await this.inner.createFunction(name, catalogName, schemaName, dataType, fullDataType, parameterStyle, isDeterministic, sqlDataAccess, isNullCall, securityType, routineBody, routineDefinition, routineBodyLanguage, comment, properties));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   function(catalogName: string, schemaName: string, functionName: string): FunctionClient {
@@ -953,7 +953,7 @@ export class UnityCatalogClient {
       return (await this.inner.listRecipients(maxResults)).map((data) =>
         fromBinary(RecipientSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -963,7 +963,7 @@ export class UnityCatalogClient {
     const { comment, properties, expirationTime } = options || {};
     try {
       return fromBinary(RecipientSchema, await this.inner.createRecipient(name, authenticationType, owner, comment, properties, expirationTime));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   recipient(name: string): RecipientClient {
@@ -982,7 +982,7 @@ export class UnityCatalogClient {
       return (await this.inner.listSchemas(catalogName, maxResults, includeBrowse)).map((data) =>
         fromBinary(SchemaSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -993,7 +993,7 @@ export class UnityCatalogClient {
     const { comment, properties } = options || {};
     try {
       return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   schema(catalogName: string, schemaName: string): SchemaClient {
@@ -1009,7 +1009,7 @@ export class UnityCatalogClient {
       return (await this.inner.listShares(maxResults)).map((data) =>
         fromBinary(ShareSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -1019,7 +1019,7 @@ export class UnityCatalogClient {
     const { comment } = options || {};
     try {
       return fromBinary(ShareSchema, await this.inner.createShare(name, comment));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   share(name: string): ShareClient {
@@ -1040,7 +1040,7 @@ export class UnityCatalogClient {
       return (await this.inner.listTables(catalogName, schemaName, maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities)).map((data) =>
         fromBinary(TableSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -1050,7 +1050,7 @@ export class UnityCatalogClient {
     const { storageLocation, comment, properties } = options || {};
     try {
       return fromBinary(TableSchema, await this.inner.createTable(name, schemaName, catalogName, tableType, dataSourceFormat, storageLocation, comment, properties));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   table(name: string): TableClient {
@@ -1066,14 +1066,14 @@ export class UnityCatalogClient {
       return (await this.inner.listVolumes(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
         fromBinary(VolumeSchema, data),
       );
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   async createVolume(catalogName: string, schemaName: string, name: string, volumeType: number, options?: CreateVolumeOptions): Promise<Volume> {
     const { storageLocation, comment } = options || {};
     try {
       return fromBinary(VolumeSchema, await this.inner.createVolume(catalogName, schemaName, name, volumeType, storageLocation, comment));
-    } catch (e) { parseNativeError(e); }
+    } catch (e) { throw parseNativeError(e); }
   }
 
   volume(catalogName: string, schemaName: string, volumeName: string): VolumeClient {

@@ -306,7 +306,9 @@ fn flexible_optional_field_assignment(
             BaseType::Enum(_) => {
                 quote! { #field_ident as i32 }
             }
-            _ => quote! { #field_ident.into().map(|s| s.to_string()) },
+            // Message, OneOf, and Map types are always handled by their own
+            // dedicated branches in `builder_with_impl` and never reach this path.
+            _ => quote! { #field_ident },
         }
     }
 }

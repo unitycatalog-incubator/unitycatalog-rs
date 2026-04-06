@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::schemas::v1::*;
@@ -48,7 +47,7 @@ impl SchemaClient {
     /// Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
     /// or have the CREATE_SCHEMA privilege in the parent catalog.
     pub async fn create_schema(&self, request: &CreateSchemaRequest) -> Result<Schema> {
-        let mut url = self.base_url.join("schemas")?;
+        let url = self.base_url.join("schemas")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -61,7 +60,7 @@ impl SchemaClient {
     /// or a user that has the USE_SCHEMA privilege on the schema.
     pub async fn get_schema(&self, request: &GetSchemaRequest) -> Result<Schema> {
         let formatted_path = format!("schemas/{}", request.full_name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -75,7 +74,7 @@ impl SchemaClient {
     /// privilege on the parent catalog.
     pub async fn update_schema(&self, request: &UpdateSchemaRequest) -> Result<Schema> {
         let formatted_path = format!("schemas/{}", request.full_name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

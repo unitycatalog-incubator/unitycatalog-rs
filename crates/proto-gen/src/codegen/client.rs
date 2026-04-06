@@ -24,8 +24,6 @@ pub(crate) fn generate(service: &ServiceHandler<'_>) -> Result<String> {
         syn::parse_str(&service.config.result_type_path).expect("valid result_type_path");
 
     let tokens = quote! {
-        #![allow(unused_mut)]
-        // TODO: make configurable
         use cloud_client::CloudClient;
         use url::Url;
         use #result_path;
@@ -60,7 +58,8 @@ pub fn client_method(method: MethodHandler<'_>) -> TokenStream {
     let method_name = method.plan.base_method_ident();
     let input_type_ident = method.input_type();
     let http_method = format_ident!("{}", method.plan.http_method.to_lowercase());
-    let url_formatting = generate_url_formatting(&method);
+    let has_query_params = method.plan.query_parameters().next().is_some();
+    let url_formatting = generate_url_formatting(&method, has_query_params);
     let query_handling = generate_query_parameters(&method);
 
     let body_handling = if matches!(
@@ -105,15 +104,46 @@ pub fn client_method(method: MethodHandler<'_>) -> TokenStream {
     }
 }
 
-/// Generate URL formatting code that properly substitutes path parameters
-fn generate_url_formatting(method: &MethodHandler<'_>) -> proc_macro2::TokenStream {
+/// Generate URL formatting code that properly substitutes path parameters.
+///
+/// `needs_mut` controls whether the generated `url` binding is declared `mut`.
+/// Pass `true` only when query parameters will be appended via `url.query_pairs_mut()`.
+fn generate_url_formatting(
+    method: &MethodHandler<'_>,
+    needs_mut: bool,
+) -> proc_macro2::TokenStream {
     let path = method.plan.http_pattern.base_path();
     let path = path.trim_start_matches('/');
     let params = method.plan.path_parameters().collect_vec();
 
+    if needs_mut {
+        if params.is_empty() {
+            return quote! {
+                let mut url = self.base_url.join(#path)?;
+            };
+        }
+
+        let (format_string, format_args) = method.plan.http_pattern.to_format_string();
+
+        if format_args.is_empty() {
+            return quote! {
+                let mut url = self.base_url.join(#path)?;
+            };
+        }
+
+        let field_idents: Vec<_> = format_args
+            .iter()
+            .map(|template_param| format_ident!("{}", template_param))
+            .collect();
+        return quote! {
+            let formatted_path = format!(#format_string, #(request.#field_idents),*);
+            let mut url = self.base_url.join(&formatted_path)?;
+        };
+    }
+
     if params.is_empty() {
         return quote! {
-            let mut url = self.base_url.join(#path)?;
+            let url = self.base_url.join(#path)?;
         };
     }
 
@@ -121,7 +151,7 @@ fn generate_url_formatting(method: &MethodHandler<'_>) -> proc_macro2::TokenStre
 
     if format_args.is_empty() {
         quote! {
-            let mut url = self.base_url.join(#path)?;
+            let url = self.base_url.join(#path)?;
         }
     } else {
         let field_idents: Vec<_> = format_args
@@ -130,7 +160,7 @@ fn generate_url_formatting(method: &MethodHandler<'_>) -> proc_macro2::TokenStre
             .collect();
         quote! {
             let formatted_path = format!(#format_string, #(request.#field_idents),*);
-            let mut url = self.base_url.join(&formatted_path)?;
+            let url = self.base_url.join(&formatted_path)?;
         }
     }
 }

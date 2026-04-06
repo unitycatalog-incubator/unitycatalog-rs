@@ -375,7 +375,7 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
             r#"{jsdoc}  async get(): Promise<{type_name}> {{
     try {{
       return fromBinary({schema_name}, await this.inner.get());
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -399,7 +399,7 @@ fn generate_resource_get_method(method: &MethodHandler<'_>, type_name: &str) -> 
     const {{ {destructure_fields} }} = options || {{}};
     try {{
       return fromBinary({schema_name}, await this.inner.get({call_args}));
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -421,7 +421,7 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
             r#"{jsdoc}  async update(): Promise<{type_name}> {{
     try {{
       return fromBinary({schema_name}, await this.inner.update());
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -445,7 +445,7 @@ fn generate_resource_update_method(method: &MethodHandler<'_>, type_name: &str) 
     const {{ {destructure_fields} }} = options || {{}};
     try {{
       return fromBinary({schema_name}, await this.inner.update({call_args}));
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -464,7 +464,7 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
             r#"{jsdoc}  async delete(): Promise<void> {{
     try {{
       await this.inner.delete();
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -490,7 +490,7 @@ fn generate_resource_delete_method(method: &MethodHandler<'_>) -> String {
     const {{ {destructure_fields} }} = options || {{}};
     try {{
       await this.inner.delete({call_args});
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -541,6 +541,77 @@ fn generate_aggregate_client_sorted(
     )
 }
 
+/// Computed parameters for generating a typed aggregate-client method.
+///
+/// All three collection method variants (list, create-with-return, create-void) share
+/// the same parameter-building logic. `MethodCallSpec` captures that shared state once
+/// so the rendering functions only differ in their return type and native call expression.
+struct MethodCallSpec {
+    full_param_list: String,
+    optional_destructure: String,
+    all_args: String,
+}
+
+impl MethodCallSpec {
+    fn build(
+        method: &MethodHandler<'_>,
+        required_params: &[&RequestParam],
+        optional_params: &[&RequestParam],
+    ) -> Self {
+        let options_type = format!("{}Options", method.plan.metadata.method_name);
+
+        let required_param_list = required_params
+            .iter()
+            .map(|p| {
+                format!(
+                    "{}: {}",
+                    p.name().to_case(Case::Camel),
+                    unified_to_typescript(p.field_type()).replace(" | undefined", "")
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        let has_options = !optional_params.is_empty();
+
+        let full_param_list = if has_options {
+            if required_param_list.is_empty() {
+                format!("options?: {}", options_type)
+            } else {
+                format!("{}, options?: {}", required_param_list, options_type)
+            }
+        } else {
+            required_param_list.clone()
+        };
+
+        let optional_destructure = if has_options {
+            let fields = optional_params
+                .iter()
+                .map(|p| p.name().to_case(Case::Camel))
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("    const {{ {} }} = options || {{}};\n", fields)
+        } else {
+            String::new()
+        };
+
+        let mut args: Vec<String> = required_params
+            .iter()
+            .map(|p| p.name().to_case(Case::Camel))
+            .collect();
+        for p in optional_params {
+            args.push(p.name().to_case(Case::Camel));
+        }
+        let all_args = args.join(", ");
+
+        Self {
+            full_param_list,
+            optional_destructure,
+            all_args,
+        }
+    }
+}
+
 fn generate_collection_list_method(
     _service: &ServiceHandler<'_>,
     method: &MethodHandler<'_>,
@@ -563,57 +634,12 @@ fn generate_collection_list_method(
         .filter(|p| !p.is_path_param() && p.name() != "page_token" && is_napi_supported(p))
         .collect();
 
-    let options_type = format!("{}Options", method.plan.metadata.method_name);
-
-    // Build required parameter list
-    let required_param_list = required_params
-        .iter()
-        .map(|p| {
-            format!(
-                "{}: {}",
-                p.name().to_case(Case::Camel),
-                unified_to_typescript(p.field_type()).replace(" | undefined", "")
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(", ");
-
-    let has_options = !optional_params.is_empty();
-
-    let full_param_list = if has_options {
-        if required_param_list.is_empty() {
-            format!("options?: {}", options_type)
-        } else {
-            format!("{}, options?: {}", required_param_list, options_type)
-        }
-    } else {
-        required_param_list.clone()
-    };
-
-    // Build the native call arguments
-    let required_args = required_params
-        .iter()
-        .map(|p| p.name().to_case(Case::Camel))
-        .collect::<Vec<_>>();
-
-    let optional_destructure = if has_options {
-        let fields = optional_params
-            .iter()
-            .map(|p| p.name().to_case(Case::Camel))
-            .collect::<Vec<_>>()
-            .join(", ");
-        format!("    const {{ {} }} = options || {{}};\n", fields)
-    } else {
-        String::new()
-    };
-
-    let all_args = {
-        let mut args = required_args;
-        for p in &optional_params {
-            args.push(p.name().to_case(Case::Camel));
-        }
-        args.join(", ")
-    };
+    let spec = MethodCallSpec::build(method, &required_params, &optional_params);
+    let MethodCallSpec {
+        full_param_list,
+        optional_destructure,
+        all_args,
+    } = spec;
 
     format!(
         r#"{jsdoc}  async {method_name}({full_param_list}): Promise<{item_type_name}[]> {{
@@ -621,7 +647,7 @@ fn generate_collection_list_method(
       return (await this.inner.{method_name}({all_args})).map((data) =>
         fromBinary({schema_name}, data),
       );
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -632,14 +658,14 @@ fn generate_collection_create_method(
     _service: &ServiceHandler<'_>,
     method: &MethodHandler<'_>,
 ) -> String {
-    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
-    let method_name = method.plan.handler_function_name.to_case(Case::Camel);
-
     let output_type = match method.output_type() {
         Some(t) => t.to_string(),
         None => return generate_void_create_method(method),
     };
     let schema_name = format!("{}Schema", output_type);
+
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
+    let method_name = method.plan.handler_function_name.to_case(Case::Camel);
 
     let required_params: Vec<&RequestParam> = method
         .required_parameters()
@@ -650,61 +676,18 @@ fn generate_collection_create_method(
         .filter(|p| !p.is_path_param() && is_napi_supported(p))
         .collect();
 
-    let options_type = format!("{}Options", method.plan.metadata.method_name);
-
-    let required_param_list = required_params
-        .iter()
-        .map(|p| {
-            format!(
-                "{}: {}",
-                p.name().to_case(Case::Camel),
-                unified_to_typescript(p.field_type()).replace(" | undefined", "")
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(", ");
-
-    let has_options = !optional_params.is_empty();
-
-    let full_param_list = if has_options {
-        if required_param_list.is_empty() {
-            format!("options?: {}", options_type)
-        } else {
-            format!("{}, options?: {}", required_param_list, options_type)
-        }
-    } else {
-        required_param_list.clone()
-    };
-
-    let required_args = required_params
-        .iter()
-        .map(|p| p.name().to_case(Case::Camel))
-        .collect::<Vec<_>>();
-
-    let optional_destructure = if has_options {
-        let fields = optional_params
-            .iter()
-            .map(|p| p.name().to_case(Case::Camel))
-            .collect::<Vec<_>>()
-            .join(", ");
-        format!("    const {{ {} }} = options || {{}};\n", fields)
-    } else {
-        String::new()
-    };
-
-    let all_args = {
-        let mut args = required_args;
-        for p in &optional_params {
-            args.push(p.name().to_case(Case::Camel));
-        }
-        args.join(", ")
-    };
+    let spec = MethodCallSpec::build(method, &required_params, &optional_params);
+    let MethodCallSpec {
+        full_param_list,
+        optional_destructure,
+        all_args,
+    } = spec;
 
     format!(
         r#"{jsdoc}  async {method_name}({full_param_list}): Promise<{output_type}> {{
 {optional_destructure}    try {{
       return fromBinary({schema_name}, await this.inner.{method_name}({all_args}));
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#
@@ -724,61 +707,18 @@ fn generate_void_create_method(method: &MethodHandler<'_>) -> String {
         .filter(|p| !p.is_path_param() && is_napi_supported(p))
         .collect();
 
-    let options_type = format!("{}Options", method.plan.metadata.method_name);
-
-    let required_param_list = required_params
-        .iter()
-        .map(|p| {
-            format!(
-                "{}: {}",
-                p.name().to_case(Case::Camel),
-                unified_to_typescript(p.field_type()).replace(" | undefined", "")
-            )
-        })
-        .collect::<Vec<_>>()
-        .join(", ");
-
-    let has_options = !optional_params.is_empty();
-
-    let full_param_list = if has_options {
-        if required_param_list.is_empty() {
-            format!("options?: {}", options_type)
-        } else {
-            format!("{}, options?: {}", required_param_list, options_type)
-        }
-    } else {
-        required_param_list.clone()
-    };
-
-    let required_args = required_params
-        .iter()
-        .map(|p| p.name().to_case(Case::Camel))
-        .collect::<Vec<_>>();
-
-    let optional_destructure = if has_options {
-        let fields = optional_params
-            .iter()
-            .map(|p| p.name().to_case(Case::Camel))
-            .collect::<Vec<_>>()
-            .join(", ");
-        format!("    const {{ {} }} = options || {{}};\n", fields)
-    } else {
-        String::new()
-    };
-
-    let all_args = {
-        let mut args = required_args;
-        for p in &optional_params {
-            args.push(p.name().to_case(Case::Camel));
-        }
-        args.join(", ")
-    };
+    let spec = MethodCallSpec::build(method, &required_params, &optional_params);
+    let MethodCallSpec {
+        full_param_list,
+        optional_destructure,
+        all_args,
+    } = spec;
 
     format!(
         r#"{jsdoc}  async {method_name}({full_param_list}): Promise<void> {{
 {optional_destructure}    try {{
       await this.inner.{method_name}({all_args});
-    }} catch (e) {{ parseNativeError(e); }}
+    }} catch (e) {{ throw parseNativeError(e); }}
   }}
 
 "#

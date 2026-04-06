@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::catalogs::v1::*;
@@ -49,7 +48,7 @@ impl CatalogClient {
     /// Creates a new catalog instance in the parent metastore if the caller
     /// is a metastore admin or has the CREATE_CATALOG privilege.
     pub async fn create_catalog(&self, request: &CreateCatalogRequest) -> Result<Catalog> {
-        let mut url = self.base_url.join("catalogs")?;
+        let url = self.base_url.join("catalogs")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -81,7 +80,7 @@ impl CatalogClient {
     /// the owner of the catalog, or a metastore admin (when changing the owner field of the catalog).
     pub async fn update_catalog(&self, request: &UpdateCatalogRequest) -> Result<Catalog> {
         let formatted_path = format!("catalogs/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::external_locations::v1::*;
@@ -48,7 +47,7 @@ impl ExternalLocationClient {
         &self,
         request: &CreateExternalLocationRequest,
     ) -> Result<ExternalLocation> {
-        let mut url = self.base_url.join("external-locations")?;
+        let url = self.base_url.join("external-locations")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -62,7 +61,7 @@ impl ExternalLocationClient {
         request: &GetExternalLocationRequest,
     ) -> Result<ExternalLocation> {
         let formatted_path = format!("external-locations/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -76,7 +75,7 @@ impl ExternalLocationClient {
         request: &UpdateExternalLocationRequest,
     ) -> Result<ExternalLocation> {
         let formatted_path = format!("external-locations/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

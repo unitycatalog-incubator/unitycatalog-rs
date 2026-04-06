@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::shares::v1::*;
@@ -38,7 +37,7 @@ impl ShareClient {
     }
     /// Create a new share.
     pub async fn create_share(&self, request: &CreateShareRequest) -> Result<Share> {
-        let mut url = self.base_url.join("shares")?;
+        let url = self.base_url.join("shares")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -64,7 +63,7 @@ impl ShareClient {
     /// Update a share.
     pub async fn update_share(&self, request: &UpdateShareRequest) -> Result<Share> {
         let formatted_path = format!("shares/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -75,7 +74,7 @@ impl ShareClient {
     /// Deletes a share.
     pub async fn delete_share(&self, request: &DeleteShareRequest) -> Result<()> {
         let formatted_path = format!("shares/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -110,7 +109,7 @@ impl ShareClient {
         request: &UpdatePermissionsRequest,
     ) -> Result<UpdatePermissionsResponse> {
         let formatted_path = format!("shares/{}/permissions", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);

@@ -6,13 +6,14 @@ use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::credentials::v1::*;
-/// Builder for creating requests
+/// Builder for listing credentials
 pub struct ListCredentialsBuilder {
     client: CredentialClient,
     request: ListCredentialsRequest,
 }
 impl ListCredentialsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CredentialClient`.
     pub(crate) fn new(client: CredentialClient) -> Self {
         let request = ListCredentialsRequest {
             ..Default::default()
@@ -36,18 +37,23 @@ impl ListCredentialsBuilder {
     }
     /// Convert paginated request into stream of results
     pub fn into_stream(self) -> BoxStream<'static, Result<Credential>> {
-        stream_paginated(self, move |mut builder, page_token| async move {
-            builder.request.page_token = page_token;
-            let res = builder.client.list_credentials(&builder.request).await?;
-            if let Some(ref mut remaining) = builder.request.max_results {
-                *remaining -= res.credentials.len() as i32;
-                if *remaining <= 0 {
-                    builder.request.max_results = Some(0);
+        let remaining = self.request.max_results;
+        stream_paginated(
+            (self, remaining),
+            move |(mut builder, mut remaining), page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.list_credentials(&builder.request).await?;
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.credentials.len() as i32;
                 }
-            }
-            let next_page_token = res.next_page_token.clone();
-            Ok((res, builder, next_page_token))
-        })
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
+            },
+        )
         .map_ok(|resp| futures::stream::iter(resp.credentials.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
@@ -62,13 +68,14 @@ impl IntoFuture for ListCredentialsBuilder {
         Box::pin(async move { client.list_credentials(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for creating a credential
 pub struct CreateCredentialBuilder {
     client: CredentialClient,
     request: CreateCredentialRequest,
 }
 impl CreateCredentialBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CredentialClient`.
     pub(crate) fn new(client: CredentialClient, name: impl Into<String>, purpose: Purpose) -> Self {
         let request = CreateCredentialRequest {
             name: name.into(),
@@ -126,13 +133,14 @@ impl IntoFuture for CreateCredentialBuilder {
         Box::pin(async move { client.create_credential(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for getting a credential
 pub struct GetCredentialBuilder {
     client: CredentialClient,
     request: GetCredentialRequest,
 }
 impl GetCredentialBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CredentialClient`.
     pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
         let request = GetCredentialRequest {
             name: name.into(),
@@ -150,13 +158,14 @@ impl IntoFuture for GetCredentialBuilder {
         Box::pin(async move { client.get_credential(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for updating a credential
 pub struct UpdateCredentialBuilder {
     client: CredentialClient,
     request: UpdateCredentialRequest,
 }
 impl UpdateCredentialBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CredentialClient`.
     pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
         let request = UpdateCredentialRequest {
             name: name.into(),
@@ -229,13 +238,14 @@ impl IntoFuture for UpdateCredentialBuilder {
         Box::pin(async move { client.update_credential(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for deleting a credential
 pub struct DeleteCredentialBuilder {
     client: CredentialClient,
     request: DeleteCredentialRequest,
 }
 impl DeleteCredentialBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CredentialClient`.
     pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
         let request = DeleteCredentialRequest {
             name: name.into(),

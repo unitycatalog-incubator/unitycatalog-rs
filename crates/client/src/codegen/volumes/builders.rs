@@ -6,13 +6,14 @@ use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::volumes::v1::*;
-/// Builder for creating requests
+/// Builder for listing volumes
 pub struct ListVolumesBuilder {
     client: VolumeClient,
     request: ListVolumesRequest,
 }
 impl ListVolumesBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `VolumeClient`.
     pub(crate) fn new(
         client: VolumeClient,
         catalog_name: impl Into<String>,
@@ -42,18 +43,23 @@ impl ListVolumesBuilder {
     }
     /// Convert paginated request into stream of results
     pub fn into_stream(self) -> BoxStream<'static, Result<Volume>> {
-        stream_paginated(self, move |mut builder, page_token| async move {
-            builder.request.page_token = page_token;
-            let res = builder.client.list_volumes(&builder.request).await?;
-            if let Some(ref mut remaining) = builder.request.max_results {
-                *remaining -= res.volumes.len() as i32;
-                if *remaining <= 0 {
-                    builder.request.max_results = Some(0);
+        let remaining = self.request.max_results;
+        stream_paginated(
+            (self, remaining),
+            move |(mut builder, mut remaining), page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.list_volumes(&builder.request).await?;
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.volumes.len() as i32;
                 }
-            }
-            let next_page_token = res.next_page_token.clone();
-            Ok((res, builder, next_page_token))
-        })
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
+            },
+        )
         .map_ok(|resp| futures::stream::iter(resp.volumes.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
@@ -68,13 +74,14 @@ impl IntoFuture for ListVolumesBuilder {
         Box::pin(async move { client.list_volumes(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for creating a volume
 pub struct CreateVolumeBuilder {
     client: VolumeClient,
     request: CreateVolumeRequest,
 }
 impl CreateVolumeBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `VolumeClient`.
     pub(crate) fn new(
         client: VolumeClient,
         catalog_name: impl Into<String>,
@@ -111,13 +118,14 @@ impl IntoFuture for CreateVolumeBuilder {
         Box::pin(async move { client.create_volume(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for getting a volume
 pub struct GetVolumeBuilder {
     client: VolumeClient,
     request: GetVolumeRequest,
 }
 impl GetVolumeBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `VolumeClient`.
     pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
         let request = GetVolumeRequest {
             name: name.into(),
@@ -140,13 +148,14 @@ impl IntoFuture for GetVolumeBuilder {
         Box::pin(async move { client.get_volume(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for updating a volume
 pub struct UpdateVolumeBuilder {
     client: VolumeClient,
     request: UpdateVolumeRequest,
 }
 impl UpdateVolumeBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `VolumeClient`.
     pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
         let request = UpdateVolumeRequest {
             name: name.into(),
@@ -179,13 +188,14 @@ impl IntoFuture for UpdateVolumeBuilder {
         Box::pin(async move { client.update_volume(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for deleting a volume
 pub struct DeleteVolumeBuilder {
     client: VolumeClient,
     request: DeleteVolumeRequest,
 }
 impl DeleteVolumeBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `VolumeClient`.
     pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
         let request = DeleteVolumeRequest {
             name: name.into(),

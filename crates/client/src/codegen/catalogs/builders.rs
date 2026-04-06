@@ -6,13 +6,14 @@ use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::catalogs::v1::*;
-/// Builder for creating requests
+/// Builder for listing catalogs
 pub struct ListCatalogsBuilder {
     client: CatalogClient,
     request: ListCatalogsRequest,
 }
 impl ListCatalogsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CatalogClient`.
     pub(crate) fn new(client: CatalogClient) -> Self {
         let request = ListCatalogsRequest {
             ..Default::default()
@@ -31,18 +32,23 @@ impl ListCatalogsBuilder {
     }
     /// Convert paginated request into stream of results
     pub fn into_stream(self) -> BoxStream<'static, Result<Catalog>> {
-        stream_paginated(self, move |mut builder, page_token| async move {
-            builder.request.page_token = page_token;
-            let res = builder.client.list_catalogs(&builder.request).await?;
-            if let Some(ref mut remaining) = builder.request.max_results {
-                *remaining -= res.catalogs.len() as i32;
-                if *remaining <= 0 {
-                    builder.request.max_results = Some(0);
+        let remaining = self.request.max_results;
+        stream_paginated(
+            (self, remaining),
+            move |(mut builder, mut remaining), page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.list_catalogs(&builder.request).await?;
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.catalogs.len() as i32;
                 }
-            }
-            let next_page_token = res.next_page_token.clone();
-            Ok((res, builder, next_page_token))
-        })
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
+            },
+        )
         .map_ok(|resp| futures::stream::iter(resp.catalogs.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
@@ -57,13 +63,14 @@ impl IntoFuture for ListCatalogsBuilder {
         Box::pin(async move { client.list_catalogs(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for creating a catalog
 pub struct CreateCatalogBuilder {
     client: CatalogClient,
     request: CreateCatalogRequest,
 }
 impl CreateCatalogBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CatalogClient`.
     pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = CreateCatalogRequest {
             name: name.into(),
@@ -116,13 +123,14 @@ impl IntoFuture for CreateCatalogBuilder {
         Box::pin(async move { client.create_catalog(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for getting a catalog
 pub struct GetCatalogBuilder {
     client: CatalogClient,
     request: GetCatalogRequest,
 }
 impl GetCatalogBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CatalogClient`.
     pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = GetCatalogRequest {
             name: name.into(),
@@ -145,13 +153,14 @@ impl IntoFuture for GetCatalogBuilder {
         Box::pin(async move { client.get_catalog(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for updating a catalog
 pub struct UpdateCatalogBuilder {
     client: CatalogClient,
     request: UpdateCatalogRequest,
 }
 impl UpdateCatalogBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CatalogClient`.
     pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = UpdateCatalogRequest {
             name: name.into(),
@@ -200,13 +209,14 @@ impl IntoFuture for UpdateCatalogBuilder {
         Box::pin(async move { client.update_catalog(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for deleting a catalog
 pub struct DeleteCatalogBuilder {
     client: CatalogClient,
     request: DeleteCatalogRequest,
 }
 impl DeleteCatalogBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `CatalogClient`.
     pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
         let request = DeleteCatalogRequest {
             name: name.into(),

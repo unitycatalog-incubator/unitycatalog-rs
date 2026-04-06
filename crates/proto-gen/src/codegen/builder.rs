@@ -101,6 +101,23 @@ fn generate_request_builder(
         .chain(with_methods_query)
         .collect();
 
+    // Generate an operation-specific doc string before `method` is potentially moved.
+    let resource_name = method
+        .plan
+        .handler_function_name
+        .split_once('_')
+        .map(|x| x.1)
+        .unwrap_or(&method.plan.handler_function_name)
+        .replace('_', " ");
+    let builder_doc = match method.plan.request_type {
+        RequestType::List => format!(" Builder for listing {}", resource_name),
+        RequestType::Create => format!(" Builder for creating a {}", resource_name),
+        RequestType::Get => format!(" Builder for getting a {}", resource_name),
+        RequestType::Update => format!(" Builder for updating a {}", resource_name),
+        RequestType::Delete => format!(" Builder for deleting a {}", resource_name),
+        RequestType::Custom(_) => format!(" Builder for {}", resource_name),
+    };
+
     let into_stream_impl = if matches!(method.plan.request_type, RequestType::List) {
         Some(generate_into_stream_impl(method, &method_name))
     } else {
@@ -116,7 +133,7 @@ fn generate_request_builder(
     );
 
     let tokens = quote! {
-        /// Builder for creating requests
+        #[doc = #builder_doc]
         pub struct #builder_ident {
             client: #client_type_ident,
             request: #request_type_ident,
@@ -159,8 +176,13 @@ fn generate_constructor(
         quote! { #field_ident: #assignment }
     });
 
+    let obtain_doc = format!(
+        " Obtain via the corresponding method on `{}`.",
+        client_type_ident
+    );
     quote! {
-        /// Create a new builder instance
+        #[doc = " Create a new builder instance."]
+        #[doc = #obtain_doc]
         pub(crate) fn new(client: #client_type_ident, #(#param_list),*) -> Self {
             let request = #request_type_ident {
                 #(#field_assignments,)*
@@ -378,17 +400,19 @@ fn generate_into_stream_impl(
     quote! {
         /// Convert paginated request into stream of results
         pub fn into_stream(self) -> BoxStream<'static, Result<#output_type_ident>> {
-            stream_paginated(self, move |mut builder, page_token| async move {
+            let remaining = self.request.max_results;
+            stream_paginated((self, remaining), move |(mut builder, mut remaining), page_token| async move {
                 builder.request.page_token = page_token;
                 let res = builder.client.#client_method_name(&builder.request).await?;
-                if let Some(ref mut remaining) = builder.request.max_results {
-                    *remaining -= res.#item_field_ident.len() as i32;
-                    if *remaining <= 0 {
-                        builder.request.max_results = Some(0);
-                    }
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.#item_field_ident.len() as i32;
                 }
-                let next_page_token = res.next_page_token.clone();
-                Ok((res, builder, next_page_token))
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
             })
             .map_ok(|resp| futures::stream::iter(resp.#item_field_ident.into_iter().map(Ok)))
             .try_flatten()

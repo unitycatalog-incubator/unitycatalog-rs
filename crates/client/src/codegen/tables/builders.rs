@@ -6,13 +6,14 @@ use crate::Result;
 use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
 use std::future::IntoFuture;
 use unitycatalog_common::models::tables::v1::*;
-/// Builder for creating requests
+/// Builder for table summaries
 pub struct ListTableSummariesBuilder {
     client: TableClient,
     request: ListTableSummariesRequest,
 }
 impl ListTableSummariesBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TableClient`.
     pub(crate) fn new(client: TableClient, catalog_name: impl Into<String>) -> Self {
         let request = ListTableSummariesRequest {
             catalog_name: catalog_name.into(),
@@ -64,13 +65,14 @@ impl IntoFuture for ListTableSummariesBuilder {
         Box::pin(async move { client.list_table_summaries(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for listing tables
 pub struct ListTablesBuilder {
     client: TableClient,
     request: ListTablesRequest,
 }
 impl ListTablesBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TableClient`.
     pub(crate) fn new(
         client: TableClient,
         catalog_name: impl Into<String>,
@@ -131,18 +133,23 @@ impl ListTablesBuilder {
     }
     /// Convert paginated request into stream of results
     pub fn into_stream(self) -> BoxStream<'static, Result<Table>> {
-        stream_paginated(self, move |mut builder, page_token| async move {
-            builder.request.page_token = page_token;
-            let res = builder.client.list_tables(&builder.request).await?;
-            if let Some(ref mut remaining) = builder.request.max_results {
-                *remaining -= res.tables.len() as i32;
-                if *remaining <= 0 {
-                    builder.request.max_results = Some(0);
+        let remaining = self.request.max_results;
+        stream_paginated(
+            (self, remaining),
+            move |(mut builder, mut remaining), page_token| async move {
+                builder.request.page_token = page_token;
+                let res = builder.client.list_tables(&builder.request).await?;
+                if let Some(ref mut rem) = remaining {
+                    *rem -= res.tables.len() as i32;
                 }
-            }
-            let next_page_token = res.next_page_token.clone();
-            Ok((res, builder, next_page_token))
-        })
+                let next_page_token = if remaining.is_some_and(|r| r <= 0) {
+                    None
+                } else {
+                    res.next_page_token.clone()
+                };
+                Ok((res, (builder, remaining), next_page_token))
+            },
+        )
         .map_ok(|resp| futures::stream::iter(resp.tables.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
@@ -157,13 +164,14 @@ impl IntoFuture for ListTablesBuilder {
         Box::pin(async move { client.list_tables(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for creating a table
 pub struct CreateTableBuilder {
     client: TableClient,
     request: CreateTableRequest,
 }
 impl CreateTableBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TableClient`.
     pub(crate) fn new(
         client: TableClient,
         name: impl Into<String>,
@@ -223,13 +231,14 @@ impl IntoFuture for CreateTableBuilder {
         Box::pin(async move { client.create_table(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for getting a table
 pub struct GetTableBuilder {
     client: TableClient,
     request: GetTableRequest,
 }
 impl GetTableBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TableClient`.
     pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
         let request = GetTableRequest {
             full_name: full_name.into(),
@@ -268,13 +277,14 @@ impl IntoFuture for GetTableBuilder {
         Box::pin(async move { client.get_table(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for table exists
 pub struct GetTableExistsBuilder {
     client: TableClient,
     request: GetTableExistsRequest,
 }
 impl GetTableExistsBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TableClient`.
     pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
         let request = GetTableExistsRequest {
             full_name: full_name.into(),
@@ -292,13 +302,14 @@ impl IntoFuture for GetTableExistsBuilder {
         Box::pin(async move { client.get_table_exists(&request).await })
     }
 }
-/// Builder for creating requests
+/// Builder for deleting a table
 pub struct DeleteTableBuilder {
     client: TableClient,
     request: DeleteTableRequest,
 }
 impl DeleteTableBuilder {
-    /// Create a new builder instance
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TableClient`.
     pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
         let request = DeleteTableRequest {
             full_name: full_name.into(),

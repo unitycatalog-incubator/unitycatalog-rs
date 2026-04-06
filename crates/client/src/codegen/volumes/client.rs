@@ -1,5 +1,4 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
 use crate::Result;
 use cloud_client::CloudClient;
 use unitycatalog_common::models::volumes::v1::*;
@@ -45,7 +44,7 @@ impl VolumeClient {
         Ok(serde_json::from_slice(&result)?)
     }
     pub async fn create_volume(&self, request: &CreateVolumeRequest) -> Result<Volume> {
-        let mut url = self.base_url.join("volumes")?;
+        let url = self.base_url.join("volumes")?;
         let response = self.client.post(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -69,7 +68,7 @@ impl VolumeClient {
     }
     pub async fn update_volume(&self, request: &UpdateVolumeRequest) -> Result<Volume> {
         let formatted_path = format!("volumes/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.patch(url).json(request).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
@@ -79,7 +78,7 @@ impl VolumeClient {
     }
     pub async fn delete_volume(&self, request: &DeleteVolumeRequest) -> Result<()> {
         let formatted_path = format!("volumes/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.delete(url).send().await?;
         if !response.status().is_success() {
             return Err(crate::error::parse_error_response(response).await);
