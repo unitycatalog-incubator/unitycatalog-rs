@@ -28,7 +28,9 @@ impl PyCredentialClient {
             force = None,
             azure_service_principal = None,
             azure_managed_identity = None,
-            azure_storage_key = None
+            azure_storage_key = None,
+            aws_iam_role = None,
+            databricks_gcp_service_account = None
         )
     )]
     pub fn update(
@@ -43,6 +45,8 @@ impl PyCredentialClient {
         azure_service_principal: Option<AzureServicePrincipal>,
         azure_managed_identity: Option<AzureManagedIdentity>,
         azure_storage_key: Option<AzureStorageKey>,
+        aws_iam_role: Option<AwsIamRoleConfig>,
+        databricks_gcp_service_account: Option<DatabricksGcpServiceAccount>,
     ) -> PyUnityCatalogResult<Credential> {
         let mut request = self.client.update();
         request = request.with_new_name(new_name);
@@ -54,6 +58,8 @@ impl PyCredentialClient {
         request = request.with_azure_service_principal(azure_service_principal);
         request = request.with_azure_managed_identity(azure_managed_identity);
         request = request.with_azure_storage_key(azure_storage_key);
+        request = request.with_aws_iam_role(aws_iam_role);
+        request = request.with_databricks_gcp_service_account(databricks_gcp_service_account);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

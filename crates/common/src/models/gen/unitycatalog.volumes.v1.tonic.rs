@@ -7,14 +7,11 @@ pub mod volumes_service_server {
     #[async_trait]
     pub trait VolumesService: Send + Sync + 'static {
         /** Lists volumes.
-*/
+         */
         async fn list_volumes(
             &self,
             request: tonic::Request<super::ListVolumesRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListVolumesResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListVolumesResponse>, tonic::Status>;
         ///
         async fn create_volume(
             &self,
@@ -37,8 +34,8 @@ pub mod volumes_service_server {
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     /** Service for managing volumes in Unity Catalog.
- Volumes represent logical storage locations (managed or external) within a schema.
-*/
+     Volumes represent logical storage locations (managed or external) within a schema.
+    */
     #[derive(Debug)]
     pub struct VolumesServiceServer<T: VolumesService> {
         inner: Arc<T>,
@@ -60,10 +57,7 @@ pub mod volumes_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -118,15 +112,11 @@ pub mod volumes_service_server {
                 "/unitycatalog.volumes.v1.VolumesService/ListVolumes" => {
                     #[allow(non_camel_case_types)]
                     struct ListVolumesSvc<T: VolumesService>(pub Arc<T>);
-                    impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::ListVolumesRequest>
-                    for ListVolumesSvc<T> {
+                    impl<T: VolumesService> tonic::server::UnaryService<super::ListVolumesRequest>
+                        for ListVolumesSvc<T>
+                    {
                         type Response = super::ListVolumesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListVolumesRequest>,
@@ -163,15 +153,11 @@ pub mod volumes_service_server {
                 "/unitycatalog.volumes.v1.VolumesService/CreateVolume" => {
                     #[allow(non_camel_case_types)]
                     struct CreateVolumeSvc<T: VolumesService>(pub Arc<T>);
-                    impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::CreateVolumeRequest>
-                    for CreateVolumeSvc<T> {
+                    impl<T: VolumesService> tonic::server::UnaryService<super::CreateVolumeRequest>
+                        for CreateVolumeSvc<T>
+                    {
                         type Response = super::Volume;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateVolumeRequest>,
@@ -208,15 +194,9 @@ pub mod volumes_service_server {
                 "/unitycatalog.volumes.v1.VolumesService/GetVolume" => {
                     #[allow(non_camel_case_types)]
                     struct GetVolumeSvc<T: VolumesService>(pub Arc<T>);
-                    impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::GetVolumeRequest>
-                    for GetVolumeSvc<T> {
+                    impl<T: VolumesService> tonic::server::UnaryService<super::GetVolumeRequest> for GetVolumeSvc<T> {
                         type Response = super::Volume;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetVolumeRequest>,
@@ -253,15 +233,11 @@ pub mod volumes_service_server {
                 "/unitycatalog.volumes.v1.VolumesService/UpdateVolume" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateVolumeSvc<T: VolumesService>(pub Arc<T>);
-                    impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::UpdateVolumeRequest>
-                    for UpdateVolumeSvc<T> {
+                    impl<T: VolumesService> tonic::server::UnaryService<super::UpdateVolumeRequest>
+                        for UpdateVolumeSvc<T>
+                    {
                         type Response = super::Volume;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateVolumeRequest>,
@@ -298,15 +274,11 @@ pub mod volumes_service_server {
                 "/unitycatalog.volumes.v1.VolumesService/DeleteVolume" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteVolumeSvc<T: VolumesService>(pub Arc<T>);
-                    impl<
-                        T: VolumesService,
-                    > tonic::server::UnaryService<super::DeleteVolumeRequest>
-                    for DeleteVolumeSvc<T> {
+                    impl<T: VolumesService> tonic::server::UnaryService<super::DeleteVolumeRequest>
+                        for DeleteVolumeSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteVolumeRequest>,
@@ -340,21 +312,17 @@ pub mod volumes_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

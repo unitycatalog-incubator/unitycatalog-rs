@@ -508,6 +508,9 @@ pub(crate) struct AssumeRoleProvider {
     pub endpoint: String,
     pub base_credentials: Arc<dyn CredentialProvider<Credential = AwsCredential>>,
     pub region: String,
+    /// Optional inline session policy (URL-encoded JSON).
+    /// Intersected with the role's own policy to further restrict access.
+    pub policy: Option<String>,
 }
 
 #[async_trait]
@@ -537,6 +540,7 @@ impl TokenProvider for AssumeRoleProvider {
             &self.role_arn,
             &self.session_name,
             &self.endpoint,
+            self.policy.as_deref(),
         )
         .await
         .map_err(|source| crate::Error::Generic { source })
@@ -558,20 +562,22 @@ async fn assume_role(
     role_arn: &str,
     session_name: &str,
     endpoint: &str,
+    policy: Option<&str>,
 ) -> Result<TemporaryToken<Arc<AwsCredential>>, StdError> {
+    let mut query: Vec<(&str, &str)> = vec![
+        ("Action", "AssumeRole"),
+        ("DurationSeconds", "3600"),
+        ("RoleArn", role_arn),
+        ("RoleSessionName", session_name),
+        ("Version", "2011-06-15"),
+    ];
+    if let Some(p) = policy {
+        query.push(("Policy", p));
+    }
     let bytes = client
         .request(Method::POST, endpoint)
-        .query(&[
-            ("Action", "AssumeRole"),
-            ("DurationSeconds", "3600"),
-            ("RoleArn", role_arn),
-            ("RoleSessionName", session_name),
-            ("Version", "2011-06-15"),
-        ])
-        .with_aws_sigv4(
-            Some(AwsAuthorizer::new(base_cred, "sts", region)),
-            None,
-        )
+        .query(&query)
+        .with_aws_sigv4(Some(AwsAuthorizer::new(base_cred, "sts", region)), None)
         .retryable(retry_config, service.clone())
         .idempotent(true)
         .send()
@@ -741,11 +747,7 @@ async fn task_credential(
         req = req.header(reqwest::header::AUTHORIZATION, token.trim());
     }
 
-    let creds: InstanceCredentials = req
-        .send_retry(retry, service.clone())
-        .await?
-        .json()
-        .await?;
+    let creds: InstanceCredentials = req.send_retry(retry, service.clone()).await?.json().await?;
 
     let now = Utc::now();
     let ttl = (creds.expiration - now).to_std().unwrap_or_default();
@@ -981,7 +983,10 @@ mod tests {
             .mock("POST", "/")
             .match_query(mockito::Matcher::AllOf(vec![
                 mockito::Matcher::UrlEncoded("Action".into(), "AssumeRoleWithWebIdentity".into()),
-                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/TestRole".into()),
+                mockito::Matcher::UrlEncoded(
+                    "RoleArn".into(),
+                    "arn:aws:iam::123456789012:role/TestRole".into(),
+                ),
                 mockito::Matcher::UrlEncoded("WebIdentityToken".into(), "fake-jwt-token".into()),
             ]))
             .with_status(200)
@@ -1098,7 +1103,10 @@ mod tests {
             .mock("POST", "/")
             .match_query(mockito::Matcher::AllOf(vec![
                 mockito::Matcher::UrlEncoded("Action".into(), "AssumeRole".into()),
-                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/AssumedRole".into()),
+                mockito::Matcher::UrlEncoded(
+                    "RoleArn".into(),
+                    "arn:aws:iam::123456789012:role/AssumedRole".into(),
+                ),
             ]))
             .with_status(200)
             .with_body(STS_ASSUME_ROLE_XML)
@@ -1123,6 +1131,7 @@ mod tests {
             endpoint: format!("{}/", sts_endpoint),
             base_credentials: base_provider,
             region: "us-east-1".into(),
+            policy: None,
         };
 
         let token = provider

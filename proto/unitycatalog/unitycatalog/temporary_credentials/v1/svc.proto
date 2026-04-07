@@ -21,14 +21,16 @@ message GenerateTemporaryTableCredentialsRequest {
     READ_WRITE = 2;
   }
 
-  // The name of the table for which to generate credentials.
+  // UUID of the table to read or write.
   string table_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The operation to perform with the credentials.
+  // The operation performed against the table data, either READ or READ_WRITE.
+  // If READ_WRITE is specified, the credentials returned will have write
+  // permissions, otherwise, it will be read only.
   Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
-// Generate a new set of credentials for a volume.
+// Generate a new set of credentials for a path.
 message GenerateTemporaryPathCredentialsRequest {
   enum Operation {
     // The operation is not specified.
@@ -40,15 +42,19 @@ message GenerateTemporaryPathCredentialsRequest {
     // The operation is read and write.
     PATH_READ_WRITE = 2;
 
+    // The operation creates a table at the path.
     PATH_CREATE_TABLE = 3;
   }
 
-  // The name of the volume for which to generate credentials.
+  // URL for path-based access.
   string url = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // The operation to perform with the credentials.
+  // The operation being performed on the path.
   Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
 
+  // When set to true, the service will not validate that the generated
+  // credentials can perform write operations, therefore no new paths will be
+  // created and the response will not contain valid credentials. Defaults to false.
   optional bool dry_run = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 

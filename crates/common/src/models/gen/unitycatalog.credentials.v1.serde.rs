@@ -16,7 +16,8 @@ impl serde::Serialize for AwsIamRole {
         if !self.unity_catalog_iam_arn.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRole", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRole", len)?;
         if !self.external_id.is_empty() {
             struct_ser.serialize_field("external_id", &self.external_id)?;
         }
@@ -61,7 +62,10 @@ impl<'de> serde::Deserialize<'de> for AwsIamRole {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -73,7 +77,9 @@ impl<'de> serde::Deserialize<'de> for AwsIamRole {
                         match value {
                             "externalId" | "external_id" => Ok(GeneratedField::ExternalId),
                             "roleArn" | "role_arn" => Ok(GeneratedField::RoleArn),
-                            "unityCatalogIamArn" | "unity_catalog_iam_arn" => Ok(GeneratedField::UnityCatalogIamArn),
+                            "unityCatalogIamArn" | "unity_catalog_iam_arn" => {
+                                Ok(GeneratedField::UnityCatalogIamArn)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -90,8 +96,8 @@ impl<'de> serde::Deserialize<'de> for AwsIamRole {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<AwsIamRole, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut external_id__ = None;
                 let mut role_arn__ = None;
@@ -112,7 +118,9 @@ impl<'de> serde::Deserialize<'de> for AwsIamRole {
                         }
                         GeneratedField::UnityCatalogIamArn => {
                             if unity_catalog_iam_arn__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("unityCatalogIamArn"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "unityCatalogIamArn",
+                                ));
                             }
                             unity_catalog_iam_arn__ = Some(map_.next_value()?);
                         }
@@ -128,7 +136,11 @@ impl<'de> serde::Deserialize<'de> for AwsIamRole {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.AwsIamRole", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.AwsIamRole",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for AwsIamRoleConfig {
@@ -142,9 +154,34 @@ impl serde::Serialize for AwsIamRoleConfig {
         if !self.role_arn.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", len)?;
+        if self.region.is_some() {
+            len += 1;
+        }
+        if self.access_key_id.is_some() {
+            len += 1;
+        }
+        if self.secret_access_key.is_some() {
+            len += 1;
+        }
+        if self.session_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", len)?;
         if !self.role_arn.is_empty() {
             struct_ser.serialize_field("role_arn", &self.role_arn)?;
+        }
+        if let Some(v) = self.region.as_ref() {
+            struct_ser.serialize_field("region", v)?;
+        }
+        if let Some(v) = self.access_key_id.as_ref() {
+            struct_ser.serialize_field("access_key_id", v)?;
+        }
+        if let Some(v) = self.secret_access_key.as_ref() {
+            struct_ser.serialize_field("secret_access_key", v)?;
+        }
+        if let Some(v) = self.session_token.as_ref() {
+            struct_ser.serialize_field("session_token", v)?;
         }
         struct_ser.end()
     }
@@ -158,11 +195,22 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
         const FIELDS: &[&str] = &[
             "role_arn",
             "roleArn",
+            "region",
+            "access_key_id",
+            "accessKeyId",
+            "secret_access_key",
+            "secretAccessKey",
+            "session_token",
+            "sessionToken",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             RoleArn,
+            Region,
+            AccessKeyId,
+            SecretAccessKey,
+            SessionToken,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -175,7 +223,10 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -186,6 +237,12 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                     {
                         match value {
                             "roleArn" | "role_arn" => Ok(GeneratedField::RoleArn),
+                            "region" => Ok(GeneratedField::Region),
+                            "accessKeyId" | "access_key_id" => Ok(GeneratedField::AccessKeyId),
+                            "secretAccessKey" | "secret_access_key" => {
+                                Ok(GeneratedField::SecretAccessKey)
+                            }
+                            "sessionToken" | "session_token" => Ok(GeneratedField::SessionToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -202,10 +259,14 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<AwsIamRoleConfig, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut role_arn__ = None;
+                let mut region__ = None;
+                let mut access_key_id__ = None;
+                let mut secret_access_key__ = None;
+                let mut session_token__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::RoleArn => {
@@ -214,6 +275,30 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                             }
                             role_arn__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Region => {
+                            if region__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("region"));
+                            }
+                            region__ = map_.next_value()?;
+                        }
+                        GeneratedField::AccessKeyId => {
+                            if access_key_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessKeyId"));
+                            }
+                            access_key_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::SecretAccessKey => {
+                            if secret_access_key__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("secretAccessKey"));
+                            }
+                            secret_access_key__ = map_.next_value()?;
+                        }
+                        GeneratedField::SessionToken => {
+                            if session_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sessionToken"));
+                            }
+                            session_token__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -221,10 +306,18 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                 }
                 Ok(AwsIamRoleConfig {
                     role_arn: role_arn__.unwrap_or_default(),
+                    region: region__,
+                    access_key_id: access_key_id__,
+                    secret_access_key: secret_access_key__,
+                    session_token: session_token__,
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.AwsIamRoleConfig",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for AzureManagedIdentity {
@@ -235,22 +328,25 @@ impl serde::Serialize for AzureManagedIdentity {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.identifier.is_some() {
+        if !self.access_connector_id.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AzureManagedIdentity", len)?;
-        if let Some(v) = self.identifier.as_ref() {
-            match v {
-                azure_managed_identity::Identifier::ObjectId(v) => {
-                    struct_ser.serialize_field("object_id", v)?;
-                }
-                azure_managed_identity::Identifier::ApplicationId(v) => {
-                    struct_ser.serialize_field("application_id", v)?;
-                }
-                azure_managed_identity::Identifier::MsiResourceId(v) => {
-                    struct_ser.serialize_field("msi_resource_id", v)?;
-                }
-            }
+        if self.credential_id.is_some() {
+            len += 1;
+        }
+        if self.managed_identity_id.is_some() {
+            len += 1;
+        }
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.credentials.v1.AzureManagedIdentity", len)?;
+        if !self.access_connector_id.is_empty() {
+            struct_ser.serialize_field("access_connector_id", &self.access_connector_id)?;
+        }
+        if let Some(v) = self.credential_id.as_ref() {
+            struct_ser.serialize_field("credential_id", v)?;
+        }
+        if let Some(v) = self.managed_identity_id.as_ref() {
+            struct_ser.serialize_field("managed_identity_id", v)?;
         }
         struct_ser.end()
     }
@@ -262,19 +358,19 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "object_id",
-            "objectId",
-            "application_id",
-            "applicationId",
-            "msi_resource_id",
-            "msiResourceId",
+            "access_connector_id",
+            "accessConnectorId",
+            "credential_id",
+            "credentialId",
+            "managed_identity_id",
+            "managedIdentityId",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            ObjectId,
-            ApplicationId,
-            MsiResourceId,
+            AccessConnectorId,
+            CredentialId,
+            ManagedIdentityId,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -287,7 +383,10 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -297,9 +396,13 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                         E: serde::de::Error,
                     {
                         match value {
-                            "objectId" | "object_id" => Ok(GeneratedField::ObjectId),
-                            "applicationId" | "application_id" => Ok(GeneratedField::ApplicationId),
-                            "msiResourceId" | "msi_resource_id" => Ok(GeneratedField::MsiResourceId),
+                            "accessConnectorId" | "access_connector_id" => {
+                                Ok(GeneratedField::AccessConnectorId)
+                            }
+                            "credentialId" | "credential_id" => Ok(GeneratedField::CredentialId),
+                            "managedIdentityId" | "managed_identity_id" => {
+                                Ok(GeneratedField::ManagedIdentityId)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -315,30 +418,35 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                 formatter.write_str("struct unitycatalog.credentials.v1.AzureManagedIdentity")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AzureManagedIdentity, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AzureManagedIdentity, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
-                let mut identifier__ = None;
+                let mut access_connector_id__ = None;
+                let mut credential_id__ = None;
+                let mut managed_identity_id__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::ObjectId => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("objectId"));
+                        GeneratedField::AccessConnectorId => {
+                            if access_connector_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessConnectorId"));
                             }
-                            identifier__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_managed_identity::Identifier::ObjectId);
+                            access_connector_id__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::ApplicationId => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("applicationId"));
+                        GeneratedField::CredentialId => {
+                            if credential_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("credentialId"));
                             }
-                            identifier__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_managed_identity::Identifier::ApplicationId);
+                            credential_id__ = map_.next_value()?;
                         }
-                        GeneratedField::MsiResourceId => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("msiResourceId"));
+                        GeneratedField::ManagedIdentityId => {
+                            if managed_identity_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("managedIdentityId"));
                             }
-                            identifier__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_managed_identity::Identifier::MsiResourceId);
+                            managed_identity_id__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -346,11 +454,17 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                     }
                 }
                 Ok(AzureManagedIdentity {
-                    identifier: identifier__,
+                    access_connector_id: access_connector_id__.unwrap_or_default(),
+                    credential_id: credential_id__,
+                    managed_identity_id: managed_identity_id__,
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.AzureManagedIdentity", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.AzureManagedIdentity",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for AzureServicePrincipal {
@@ -370,7 +484,8 @@ impl serde::Serialize for AzureServicePrincipal {
         if self.credential.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AzureServicePrincipal", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.credentials.v1.AzureServicePrincipal", len)?;
         if !self.directory_id.is_empty() {
             struct_ser.serialize_field("directory_id", &self.directory_id)?;
         }
@@ -425,7 +540,10 @@ impl<'de> serde::Deserialize<'de> for AzureServicePrincipal {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -438,7 +556,9 @@ impl<'de> serde::Deserialize<'de> for AzureServicePrincipal {
                             "directoryId" | "directory_id" => Ok(GeneratedField::DirectoryId),
                             "applicationId" | "application_id" => Ok(GeneratedField::ApplicationId),
                             "clientSecret" | "client_secret" => Ok(GeneratedField::ClientSecret),
-                            "federatedTokenFile" | "federated_token_file" => Ok(GeneratedField::FederatedTokenFile),
+                            "federatedTokenFile" | "federated_token_file" => {
+                                Ok(GeneratedField::FederatedTokenFile)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -454,9 +574,12 @@ impl<'de> serde::Deserialize<'de> for AzureServicePrincipal {
                 formatter.write_str("struct unitycatalog.credentials.v1.AzureServicePrincipal")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AzureServicePrincipal, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AzureServicePrincipal, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut directory_id__ = None;
                 let mut application_id__ = None;
@@ -479,13 +602,19 @@ impl<'de> serde::Deserialize<'de> for AzureServicePrincipal {
                             if credential__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("clientSecret"));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_service_principal::Credential::ClientSecret);
+                            credential__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(azure_service_principal::Credential::ClientSecret);
                         }
                         GeneratedField::FederatedTokenFile => {
                             if credential__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("federatedTokenFile"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "federatedTokenFile",
+                                ));
                             }
-                            credential__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_service_principal::Credential::FederatedTokenFile);
+                            credential__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(azure_service_principal::Credential::FederatedTokenFile);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -499,7 +628,11 @@ impl<'de> serde::Deserialize<'de> for AzureServicePrincipal {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.AzureServicePrincipal", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.AzureServicePrincipal",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for AzureStorageKey {
@@ -516,7 +649,8 @@ impl serde::Serialize for AzureStorageKey {
         if !self.account_key.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AzureStorageKey", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.credentials.v1.AzureStorageKey", len)?;
         if !self.account_name.is_empty() {
             struct_ser.serialize_field("account_name", &self.account_name)?;
         }
@@ -532,12 +666,7 @@ impl<'de> serde::Deserialize<'de> for AzureStorageKey {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "account_name",
-            "accountName",
-            "account_key",
-            "accountKey",
-        ];
+        const FIELDS: &[&str] = &["account_name", "accountName", "account_key", "accountKey"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -555,7 +684,10 @@ impl<'de> serde::Deserialize<'de> for AzureStorageKey {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -583,8 +715,8 @@ impl<'de> serde::Deserialize<'de> for AzureStorageKey {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<AzureStorageKey, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut account_name__ = None;
                 let mut account_key__ = None;
@@ -613,7 +745,11 @@ impl<'de> serde::Deserialize<'de> for AzureStorageKey {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.AzureStorageKey", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.AzureStorageKey",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for CreateCredentialRequest {
@@ -648,13 +784,21 @@ impl serde::Serialize for CreateCredentialRequest {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.CreateCredentialRequest", len)?;
+        if self.aws_iam_role.is_some() {
+            len += 1;
+        }
+        if self.databricks_gcp_service_account.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.credentials.v1.CreateCredentialRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if self.purpose != 0 {
-            let v = Purpose::try_from(self.purpose)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.purpose)))?;
+            let v = Purpose::try_from(self.purpose).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.purpose))
+            })?;
             struct_ser.serialize_field("purpose", &v)?;
         }
         if let Some(v) = self.comment.as_ref() {
@@ -674,6 +818,12 @@ impl serde::Serialize for CreateCredentialRequest {
         }
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
+        }
+        if let Some(v) = self.aws_iam_role.as_ref() {
+            struct_ser.serialize_field("aws_iam_role", v)?;
+        }
+        if let Some(v) = self.databricks_gcp_service_account.as_ref() {
+            struct_ser.serialize_field("databricks_gcp_service_account", v)?;
         }
         struct_ser.end()
     }
@@ -698,6 +848,10 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
+            "aws_iam_role",
+            "awsIamRole",
+            "databricks_gcp_service_account",
+            "databricksGcpServiceAccount",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -710,6 +864,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
+            AwsIamRole,
+            DatabricksGcpServiceAccount,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -722,7 +878,10 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -736,10 +895,22 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             "purpose" => Ok(GeneratedField::Purpose),
                             "comment" => Ok(GeneratedField::Comment),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
-                            "skipValidation" | "skip_validation" => Ok(GeneratedField::SkipValidation),
-                            "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
-                            "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
-                            "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
+                            "skipValidation" | "skip_validation" => {
+                                Ok(GeneratedField::SkipValidation)
+                            }
+                            "azureServicePrincipal" | "azure_service_principal" => {
+                                Ok(GeneratedField::AzureServicePrincipal)
+                            }
+                            "azureManagedIdentity" | "azure_managed_identity" => {
+                                Ok(GeneratedField::AzureManagedIdentity)
+                            }
+                            "azureStorageKey" | "azure_storage_key" => {
+                                Ok(GeneratedField::AzureStorageKey)
+                            }
+                            "awsIamRole" | "aws_iam_role" => Ok(GeneratedField::AwsIamRole),
+                            "databricksGcpServiceAccount" | "databricks_gcp_service_account" => {
+                                Ok(GeneratedField::DatabricksGcpServiceAccount)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -755,9 +926,12 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                 formatter.write_str("struct unitycatalog.credentials.v1.CreateCredentialRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateCredentialRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<CreateCredentialRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut purpose__ = None;
@@ -767,6 +941,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
+                let mut aws_iam_role__ = None;
+                let mut databricks_gcp_service_account__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -801,13 +977,17 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                         }
                         GeneratedField::AzureServicePrincipal => {
                             if azure_service_principal__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureServicePrincipal"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureServicePrincipal",
+                                ));
                             }
                             azure_service_principal__ = map_.next_value()?;
                         }
                         GeneratedField::AzureManagedIdentity => {
                             if azure_managed_identity__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureManagedIdentity"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureManagedIdentity",
+                                ));
                             }
                             azure_managed_identity__ = map_.next_value()?;
                         }
@@ -816,6 +996,20 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                                 return Err(serde::de::Error::duplicate_field("azureStorageKey"));
                             }
                             azure_storage_key__ = map_.next_value()?;
+                        }
+                        GeneratedField::AwsIamRole => {
+                            if aws_iam_role__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRole"));
+                            }
+                            aws_iam_role__ = map_.next_value()?;
+                        }
+                        GeneratedField::DatabricksGcpServiceAccount => {
+                            if databricks_gcp_service_account__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "databricksGcpServiceAccount",
+                                ));
+                            }
+                            databricks_gcp_service_account__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -831,10 +1025,16 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
+                    aws_iam_role: aws_iam_role__,
+                    databricks_gcp_service_account: databricks_gcp_service_account__,
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.CreateCredentialRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.CreateCredentialRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for Credential {
@@ -890,7 +1090,14 @@ impl serde::Serialize for Credential {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.Credential", len)?;
+        if self.aws_iam_role.is_some() {
+            len += 1;
+        }
+        if self.databricks_gcp_service_account.is_some() {
+            len += 1;
+        }
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.credentials.v1.Credential", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -898,8 +1105,9 @@ impl serde::Serialize for Credential {
             struct_ser.serialize_field("id", v)?;
         }
         if self.purpose != 0 {
-            let v = Purpose::try_from(self.purpose)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.purpose)))?;
+            let v = Purpose::try_from(self.purpose).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.purpose))
+            })?;
             struct_ser.serialize_field("purpose", &v)?;
         }
         if self.read_only {
@@ -928,7 +1136,8 @@ impl serde::Serialize for Credential {
             struct_ser.serialize_field("updated_by", v)?;
         }
         if self.used_for_managed_storage {
-            struct_ser.serialize_field("used_for_managed_storage", &self.used_for_managed_storage)?;
+            struct_ser
+                .serialize_field("used_for_managed_storage", &self.used_for_managed_storage)?;
         }
         if let Some(v) = self.full_name.as_ref() {
             struct_ser.serialize_field("full_name", v)?;
@@ -941,6 +1150,12 @@ impl serde::Serialize for Credential {
         }
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
+        }
+        if let Some(v) = self.aws_iam_role.as_ref() {
+            struct_ser.serialize_field("aws_iam_role", v)?;
+        }
+        if let Some(v) = self.databricks_gcp_service_account.as_ref() {
+            struct_ser.serialize_field("databricks_gcp_service_account", v)?;
         }
         struct_ser.end()
     }
@@ -977,6 +1192,10 @@ impl<'de> serde::Deserialize<'de> for Credential {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
+            "aws_iam_role",
+            "awsIamRole",
+            "databricks_gcp_service_account",
+            "databricksGcpServiceAccount",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -996,6 +1215,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
+            AwsIamRole,
+            DatabricksGcpServiceAccount,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1008,7 +1229,10 @@ impl<'de> serde::Deserialize<'de> for Credential {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1028,11 +1252,23 @@ impl<'de> serde::Deserialize<'de> for Credential {
                             "createdBy" | "created_by" => Ok(GeneratedField::CreatedBy),
                             "updatedAt" | "updated_at" => Ok(GeneratedField::UpdatedAt),
                             "updatedBy" | "updated_by" => Ok(GeneratedField::UpdatedBy),
-                            "usedForManagedStorage" | "used_for_managed_storage" => Ok(GeneratedField::UsedForManagedStorage),
+                            "usedForManagedStorage" | "used_for_managed_storage" => {
+                                Ok(GeneratedField::UsedForManagedStorage)
+                            }
                             "fullName" | "full_name" => Ok(GeneratedField::FullName),
-                            "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
-                            "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
-                            "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
+                            "azureServicePrincipal" | "azure_service_principal" => {
+                                Ok(GeneratedField::AzureServicePrincipal)
+                            }
+                            "azureManagedIdentity" | "azure_managed_identity" => {
+                                Ok(GeneratedField::AzureManagedIdentity)
+                            }
+                            "azureStorageKey" | "azure_storage_key" => {
+                                Ok(GeneratedField::AzureStorageKey)
+                            }
+                            "awsIamRole" | "aws_iam_role" => Ok(GeneratedField::AwsIamRole),
+                            "databricksGcpServiceAccount" | "databricks_gcp_service_account" => {
+                                Ok(GeneratedField::DatabricksGcpServiceAccount)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1049,8 +1285,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Credential, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut id__ = None;
@@ -1067,6 +1303,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
+                let mut aws_iam_role__ = None;
+                let mut databricks_gcp_service_account__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -1135,7 +1373,9 @@ impl<'de> serde::Deserialize<'de> for Credential {
                         }
                         GeneratedField::UsedForManagedStorage => {
                             if used_for_managed_storage__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("usedForManagedStorage"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "usedForManagedStorage",
+                                ));
                             }
                             used_for_managed_storage__ = Some(map_.next_value()?);
                         }
@@ -1147,13 +1387,17 @@ impl<'de> serde::Deserialize<'de> for Credential {
                         }
                         GeneratedField::AzureServicePrincipal => {
                             if azure_service_principal__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureServicePrincipal"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureServicePrincipal",
+                                ));
                             }
                             azure_service_principal__ = map_.next_value()?;
                         }
                         GeneratedField::AzureManagedIdentity => {
                             if azure_managed_identity__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureManagedIdentity"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureManagedIdentity",
+                                ));
                             }
                             azure_managed_identity__ = map_.next_value()?;
                         }
@@ -1162,6 +1406,20 @@ impl<'de> serde::Deserialize<'de> for Credential {
                                 return Err(serde::de::Error::duplicate_field("azureStorageKey"));
                             }
                             azure_storage_key__ = map_.next_value()?;
+                        }
+                        GeneratedField::AwsIamRole => {
+                            if aws_iam_role__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRole"));
+                            }
+                            aws_iam_role__ = map_.next_value()?;
+                        }
+                        GeneratedField::DatabricksGcpServiceAccount => {
+                            if databricks_gcp_service_account__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "databricksGcpServiceAccount",
+                                ));
+                            }
+                            databricks_gcp_service_account__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1184,10 +1442,161 @@ impl<'de> serde::Deserialize<'de> for Credential {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
+                    aws_iam_role: aws_iam_role__,
+                    databricks_gcp_service_account: databricks_gcp_service_account__,
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.Credential", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.Credential",
+            FIELDS,
+            GeneratedVisitor,
+        )
+    }
+}
+impl serde::Serialize for DatabricksGcpServiceAccount {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.credential_id.is_some() {
+            len += 1;
+        }
+        if self.email.is_some() {
+            len += 1;
+        }
+        if self.private_key_id.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.credentials.v1.DatabricksGcpServiceAccount",
+            len,
+        )?;
+        if let Some(v) = self.credential_id.as_ref() {
+            struct_ser.serialize_field("credential_id", v)?;
+        }
+        if let Some(v) = self.email.as_ref() {
+            struct_ser.serialize_field("email", v)?;
+        }
+        if let Some(v) = self.private_key_id.as_ref() {
+            struct_ser.serialize_field("private_key_id", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for DatabricksGcpServiceAccount {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "credential_id",
+            "credentialId",
+            "email",
+            "private_key_id",
+            "privateKeyId",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            CredentialId,
+            Email,
+            PrivateKeyId,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "credentialId" | "credential_id" => Ok(GeneratedField::CredentialId),
+                            "email" => Ok(GeneratedField::Email),
+                            "privateKeyId" | "private_key_id" => Ok(GeneratedField::PrivateKeyId),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = DatabricksGcpServiceAccount;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter
+                    .write_str("struct unitycatalog.credentials.v1.DatabricksGcpServiceAccount")
+            }
+
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<DatabricksGcpServiceAccount, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
+            {
+                let mut credential_id__ = None;
+                let mut email__ = None;
+                let mut private_key_id__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::CredentialId => {
+                            if credential_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("credentialId"));
+                            }
+                            credential_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Email => {
+                            if email__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("email"));
+                            }
+                            email__ = map_.next_value()?;
+                        }
+                        GeneratedField::PrivateKeyId => {
+                            if private_key_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("privateKeyId"));
+                            }
+                            private_key_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(DatabricksGcpServiceAccount {
+                    credential_id: credential_id__,
+                    email: email__,
+                    private_key_id: private_key_id__,
+                })
+            }
+        }
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.DatabricksGcpServiceAccount",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for DeleteCredentialRequest {
@@ -1201,7 +1610,8 @@ impl serde::Serialize for DeleteCredentialRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.DeleteCredentialRequest", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.credentials.v1.DeleteCredentialRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1214,9 +1624,7 @@ impl<'de> serde::Deserialize<'de> for DeleteCredentialRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-        ];
+        const FIELDS: &[&str] = &["name"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1233,7 +1641,10 @@ impl<'de> serde::Deserialize<'de> for DeleteCredentialRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1259,9 +1670,12 @@ impl<'de> serde::Deserialize<'de> for DeleteCredentialRequest {
                 formatter.write_str("struct unitycatalog.credentials.v1.DeleteCredentialRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeleteCredentialRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<DeleteCredentialRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1282,7 +1696,11 @@ impl<'de> serde::Deserialize<'de> for DeleteCredentialRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.DeleteCredentialRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.DeleteCredentialRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GetCredentialRequest {
@@ -1296,7 +1714,8 @@ impl serde::Serialize for GetCredentialRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.GetCredentialRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.credentials.v1.GetCredentialRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1309,9 +1728,7 @@ impl<'de> serde::Deserialize<'de> for GetCredentialRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-        ];
+        const FIELDS: &[&str] = &["name"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1328,7 +1745,10 @@ impl<'de> serde::Deserialize<'de> for GetCredentialRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1354,9 +1774,12 @@ impl<'de> serde::Deserialize<'de> for GetCredentialRequest {
                 formatter.write_str("struct unitycatalog.credentials.v1.GetCredentialRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetCredentialRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<GetCredentialRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1377,7 +1800,11 @@ impl<'de> serde::Deserialize<'de> for GetCredentialRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.GetCredentialRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.GetCredentialRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListCredentialsRequest {
@@ -1397,7 +1824,8 @@ impl serde::Serialize for ListCredentialsRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.ListCredentialsRequest", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.credentials.v1.ListCredentialsRequest", len)?;
         if let Some(v) = self.purpose.as_ref() {
             let v = Purpose::try_from(*v)
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", *v)))?;
@@ -1443,7 +1871,10 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1471,9 +1902,12 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                 formatter.write_str("struct unitycatalog.credentials.v1.ListCredentialsRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListCredentialsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListCredentialsRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut purpose__ = None;
                 let mut max_results__ = None;
@@ -1484,7 +1918,9 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                             if purpose__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("purpose"));
                             }
-                            purpose__ = map_.next_value::<::std::option::Option<Purpose>>()?.map(|x| x as i32);
+                            purpose__ = map_
+                                .next_value::<::std::option::Option<Purpose>>()?
+                                .map(|x| x as i32);
                         }
                         GeneratedField::MaxResults => {
                             if max_results__.is_some() {
@@ -1512,7 +1948,11 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.ListCredentialsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.ListCredentialsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListCredentialsResponse {
@@ -1529,7 +1969,8 @@ impl serde::Serialize for ListCredentialsResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.ListCredentialsResponse", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.credentials.v1.ListCredentialsResponse", len)?;
         if !self.credentials.is_empty() {
             struct_ser.serialize_field("credentials", &self.credentials)?;
         }
@@ -1545,11 +1986,7 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "credentials",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["credentials", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1567,7 +2004,10 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1578,7 +2018,9 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsResponse {
                     {
                         match value {
                             "credentials" => Ok(GeneratedField::Credentials),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1594,9 +2036,12 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsResponse {
                 formatter.write_str("struct unitycatalog.credentials.v1.ListCredentialsResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListCredentialsResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListCredentialsResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut credentials__ = None;
                 let mut next_page_token__ = None;
@@ -1625,7 +2070,11 @@ impl<'de> serde::Deserialize<'de> for ListCredentialsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.ListCredentialsResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.ListCredentialsResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for Purpose {
@@ -1648,11 +2097,7 @@ impl<'de> serde::Deserialize<'de> for Purpose {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "PURPOSE_UNSPECIFIED",
-            "STORAGE",
-            "SERVICE",
-        ];
+        const FIELDS: &[&str] = &["PURPOSE_UNSPECIFIED", "STORAGE", "SERVICE"];
 
         struct GeneratedVisitor;
 
@@ -1740,7 +2185,14 @@ impl serde::Serialize for UpdateCredentialRequest {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.UpdateCredentialRequest", len)?;
+        if self.aws_iam_role.is_some() {
+            len += 1;
+        }
+        if self.databricks_gcp_service_account.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.credentials.v1.UpdateCredentialRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1771,6 +2223,12 @@ impl serde::Serialize for UpdateCredentialRequest {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
+        if let Some(v) = self.aws_iam_role.as_ref() {
+            struct_ser.serialize_field("aws_iam_role", v)?;
+        }
+        if let Some(v) = self.databricks_gcp_service_account.as_ref() {
+            struct_ser.serialize_field("databricks_gcp_service_account", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -1797,6 +2255,10 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
+            "aws_iam_role",
+            "awsIamRole",
+            "databricks_gcp_service_account",
+            "databricksGcpServiceAccount",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1811,6 +2273,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
+            AwsIamRole,
+            DatabricksGcpServiceAccount,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1823,7 +2287,10 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1838,11 +2305,23 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                             "comment" => Ok(GeneratedField::Comment),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
                             "owner" => Ok(GeneratedField::Owner),
-                            "skipValidation" | "skip_validation" => Ok(GeneratedField::SkipValidation),
+                            "skipValidation" | "skip_validation" => {
+                                Ok(GeneratedField::SkipValidation)
+                            }
                             "force" => Ok(GeneratedField::Force),
-                            "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
-                            "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
-                            "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
+                            "azureServicePrincipal" | "azure_service_principal" => {
+                                Ok(GeneratedField::AzureServicePrincipal)
+                            }
+                            "azureManagedIdentity" | "azure_managed_identity" => {
+                                Ok(GeneratedField::AzureManagedIdentity)
+                            }
+                            "azureStorageKey" | "azure_storage_key" => {
+                                Ok(GeneratedField::AzureStorageKey)
+                            }
+                            "awsIamRole" | "aws_iam_role" => Ok(GeneratedField::AwsIamRole),
+                            "databricksGcpServiceAccount" | "databricks_gcp_service_account" => {
+                                Ok(GeneratedField::DatabricksGcpServiceAccount)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1858,9 +2337,12 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                 formatter.write_str("struct unitycatalog.credentials.v1.UpdateCredentialRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateCredentialRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<UpdateCredentialRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut new_name__ = None;
@@ -1872,6 +2354,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
+                let mut aws_iam_role__ = None;
+                let mut databricks_gcp_service_account__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -1918,13 +2402,17 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                         }
                         GeneratedField::AzureServicePrincipal => {
                             if azure_service_principal__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureServicePrincipal"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureServicePrincipal",
+                                ));
                             }
                             azure_service_principal__ = map_.next_value()?;
                         }
                         GeneratedField::AzureManagedIdentity => {
                             if azure_managed_identity__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureManagedIdentity"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureManagedIdentity",
+                                ));
                             }
                             azure_managed_identity__ = map_.next_value()?;
                         }
@@ -1933,6 +2421,20 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                                 return Err(serde::de::Error::duplicate_field("azureStorageKey"));
                             }
                             azure_storage_key__ = map_.next_value()?;
+                        }
+                        GeneratedField::AwsIamRole => {
+                            if aws_iam_role__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRole"));
+                            }
+                            aws_iam_role__ = map_.next_value()?;
+                        }
+                        GeneratedField::DatabricksGcpServiceAccount => {
+                            if databricks_gcp_service_account__.is_some() {
+                                return Err(serde::de::Error::duplicate_field(
+                                    "databricksGcpServiceAccount",
+                                ));
+                            }
+                            databricks_gcp_service_account__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1950,9 +2452,15 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
+                    aws_iam_role: aws_iam_role__,
+                    databricks_gcp_service_account: databricks_gcp_service_account__,
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.credentials.v1.UpdateCredentialRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.credentials.v1.UpdateCredentialRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }

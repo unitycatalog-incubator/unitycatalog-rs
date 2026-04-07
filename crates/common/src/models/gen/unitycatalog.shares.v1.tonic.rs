@@ -7,59 +7,50 @@ pub mod shares_service_server {
     #[async_trait]
     pub trait SharesService: Send + Sync + 'static {
         /** List shares.
-*/
+         */
         async fn list_shares(
             &self,
             request: tonic::Request<super::ListSharesRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::ListSharesResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::ListSharesResponse>, tonic::Status>;
         /** Create a new share.
-*/
+         */
         async fn create_share(
             &self,
             request: tonic::Request<super::CreateShareRequest>,
         ) -> std::result::Result<tonic::Response<super::Share>, tonic::Status>;
         /** Get a share by name.
-*/
+         */
         async fn get_share(
             &self,
             request: tonic::Request<super::GetShareRequest>,
         ) -> std::result::Result<tonic::Response<super::Share>, tonic::Status>;
         /** Update a share.
-*/
+         */
         async fn update_share(
             &self,
             request: tonic::Request<super::UpdateShareRequest>,
         ) -> std::result::Result<tonic::Response<super::Share>, tonic::Status>;
         /** Deletes a share.
-*/
+         */
         async fn delete_share(
             &self,
             request: tonic::Request<super::DeleteShareRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
         /** Gets the permissions for a data share from the metastore.
-*/
+         */
         async fn get_permissions(
             &self,
             request: tonic::Request<super::GetPermissionsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::GetPermissionsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::GetPermissionsResponse>, tonic::Status>;
         /** Updates the permissions for a data share in the metastore.
-*/
+         */
         async fn update_permissions(
             &self,
             request: tonic::Request<super::UpdatePermissionsRequest>,
-        ) -> std::result::Result<
-            tonic::Response<super::UpdatePermissionsResponse>,
-            tonic::Status,
-        >;
+        ) -> std::result::Result<tonic::Response<super::UpdatePermissionsResponse>, tonic::Status>;
     }
     /** Service for managing shares
-*/
+     */
     #[derive(Debug)]
     pub struct SharesServiceServer<T: SharesService> {
         inner: Arc<T>,
@@ -81,10 +72,7 @@ pub mod shares_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -139,15 +127,9 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/ListShares" => {
                     #[allow(non_camel_case_types)]
                     struct ListSharesSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::ListSharesRequest>
-                    for ListSharesSvc<T> {
+                    impl<T: SharesService> tonic::server::UnaryService<super::ListSharesRequest> for ListSharesSvc<T> {
                         type Response = super::ListSharesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListSharesRequest>,
@@ -184,15 +166,11 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/CreateShare" => {
                     #[allow(non_camel_case_types)]
                     struct CreateShareSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::CreateShareRequest>
-                    for CreateShareSvc<T> {
+                    impl<T: SharesService> tonic::server::UnaryService<super::CreateShareRequest>
+                        for CreateShareSvc<T>
+                    {
                         type Response = super::Share;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateShareRequest>,
@@ -229,15 +207,9 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/GetShare" => {
                     #[allow(non_camel_case_types)]
                     struct GetShareSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::GetShareRequest>
-                    for GetShareSvc<T> {
+                    impl<T: SharesService> tonic::server::UnaryService<super::GetShareRequest> for GetShareSvc<T> {
                         type Response = super::Share;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetShareRequest>,
@@ -274,15 +246,11 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/UpdateShare" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateShareSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::UpdateShareRequest>
-                    for UpdateShareSvc<T> {
+                    impl<T: SharesService> tonic::server::UnaryService<super::UpdateShareRequest>
+                        for UpdateShareSvc<T>
+                    {
                         type Response = super::Share;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateShareRequest>,
@@ -319,15 +287,11 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/DeleteShare" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteShareSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::DeleteShareRequest>
-                    for DeleteShareSvc<T> {
+                    impl<T: SharesService> tonic::server::UnaryService<super::DeleteShareRequest>
+                        for DeleteShareSvc<T>
+                    {
                         type Response = ();
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteShareRequest>,
@@ -364,15 +328,11 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/GetPermissions" => {
                     #[allow(non_camel_case_types)]
                     struct GetPermissionsSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::GetPermissionsRequest>
-                    for GetPermissionsSvc<T> {
+                    impl<T: SharesService> tonic::server::UnaryService<super::GetPermissionsRequest>
+                        for GetPermissionsSvc<T>
+                    {
                         type Response = super::GetPermissionsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetPermissionsRequest>,
@@ -409,23 +369,19 @@ pub mod shares_service_server {
                 "/unitycatalog.shares.v1.SharesService/UpdatePermissions" => {
                     #[allow(non_camel_case_types)]
                     struct UpdatePermissionsSvc<T: SharesService>(pub Arc<T>);
-                    impl<
-                        T: SharesService,
-                    > tonic::server::UnaryService<super::UpdatePermissionsRequest>
-                    for UpdatePermissionsSvc<T> {
+                    impl<T: SharesService>
+                        tonic::server::UnaryService<super::UpdatePermissionsRequest>
+                        for UpdatePermissionsSvc<T>
+                    {
                         type Response = super::UpdatePermissionsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdatePermissionsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as SharesService>::update_permissions(&inner, request)
-                                    .await
+                                <T as SharesService>::update_permissions(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -452,21 +408,17 @@ pub mod shares_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", tonic::Code::Unimplemented as i32)
+                        .header(
+                            http::header::CONTENT_TYPE,
+                            tonic::metadata::GRPC_CONTENT_TYPE,
                         )
-                    })
-                }
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

@@ -69,7 +69,7 @@ All three follow the same pattern: new crate, `SecretManager` impl, `CloudClient
 - Watch cedar-policy version (v3→v4 was breaking); pin carefully
 - Effort: 10 days | Maintenance: Medium (track crate releases)
 
-**HashiCorp Vault** — `crates/secrets-vault/`
+**HashCorp Vault** — `crates/secrets-vault/`
 - Static token mode: `CloudClient::new_with_token(VAULT_TOKEN)`
 - AppRole mode: custom `VaultAppRoleSigner` implementing `RequestSigner`, caches `client_token` via `TokenCache`, re-auths on 403
 - KV v2 API: `GET/POST /v1/secret/data/{path}`, `DELETE /v1/secret/metadata/{path}`
@@ -107,7 +107,7 @@ If implemented:
 | 3 | GCP Secret Manager | `secrets-gcp` | 4 days | Low | Yes (GCP bearer) |
 | 4 | OPA Policy Engine | `policy-opa` | 7 days | Low | Yes |
 | 5 | Azure Key Vault | `secrets-azure` | 5 days | Low-medium | Yes (Azure bearer) |
-| 6 | HashiCorp Vault | `secrets-vault` | 7 days | Medium | Partially |
+| 6 | HashCorp Vault | `secrets-vault` | 7 days | Medium | Partially |
 | 7 | Cedar Policy | `policy-cedar` | 10 days | Medium | No (in-process) |
 | 8 | OpenFGA | `policy-openfga` | 12 days | Medium-high | Yes |
 | 9 | SQLite ResourceStore | `sqlite` | 3-4 weeks | High | No |

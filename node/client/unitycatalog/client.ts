@@ -194,12 +194,12 @@ export interface CreateCredentialOptions {
   comment?: string;
   /** Whether the credential is usable only for read operations. Only applicable when purpose is STORAGE. */
   readOnly?: boolean;
-  /** Supplying true to this argument skips validation of the created set of credentials. */
+  /** Optional. Supplying true to this argument skips validation of the created set of credentials. */
   skipValidation?: boolean;
 }
 
 export interface UpdateCredentialOptions {
-  /** Name of credential. */
+  /** New name of the credential. */
   newName?: string;
   /** Comment associated with the credential. */
   comment?: string;
@@ -443,6 +443,9 @@ export interface GetTableOptions {
 }
 
 export interface GenerateTemporaryPathCredentialsOptions {
+  /** When set to true, the service will not validate that the generated
+   *  credentials can perform write operations, therefore no new paths will be
+   *  created and the response will not contain valid credentials. Defaults to false. */
   dryRun?: boolean;
 }
 

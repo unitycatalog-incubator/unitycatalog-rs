@@ -2,15 +2,18 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::{ClientOptions, RequestSigner, Result, RetryConfig};
+use crate::service::make_service;
+use crate::token::TemporaryToken;
+use crate::{ClientOptions, RequestSigner, Result, RetryConfig, TokenProvider};
 
-use self::credential::{AwsAuthorizer, AwsCredential, CredentialExt};
+use self::credential::{AssumeRoleProvider, AwsAuthorizer, CredentialExt};
 use crate::CredentialProvider;
 
 mod builder;
 pub(crate) mod credential;
 
 pub use builder::*;
+pub use credential::AwsCredential;
 
 pub type AwsCredentialProvider = Arc<dyn CredentialProvider<Credential = AwsCredential>>;
 
@@ -46,4 +49,73 @@ impl RequestSigner for AmazonConfig {
             }
         })
     }
+}
+
+/// Assume an AWS IAM role and return temporary credentials.
+///
+/// Uses the server's ambient AWS credentials (environment variables, instance
+/// profile, EKS WebIdentity, etc.) as base credentials, then calls
+/// `STS:AssumeRole` to exchange them for temporary credentials scoped to
+/// `role_arn`.
+///
+/// `region` controls which regional STS endpoint is used (defaults to
+/// `"us-east-1"`). Pass an optional `sts_endpoint` to override the endpoint
+/// URL (useful for LocalStack or other STS emulators in tests).
+///
+/// Pass an optional `policy` (JSON string) to further restrict the assumed
+/// credentials via an inline session policy. The policy is intersected with
+/// the role's own policy and can only reduce, never expand, permissions.
+///
+/// This is used by the Unity Catalog server to vend temporary AWS credentials
+/// for external locations backed by an `AwsIamRoleConfig` credential.
+/// Assume an AWS IAM role using explicit base credentials.
+///
+/// Like [`assume_role`] but accepts an explicit `base_credentials` provider
+/// instead of falling back to environment-based credential discovery.
+/// Use this when the base identity (the caller's access key + secret) is
+/// stored in the UC credential registry rather than in the server environment.
+pub async fn assume_role_with_base(
+    role_arn: &str,
+    region: &str,
+    sts_endpoint: Option<&str>,
+    policy: Option<String>,
+    base_credentials: AwsCredentialProvider,
+) -> Result<TemporaryToken<Arc<AwsCredential>>> {
+    let endpoint = sts_endpoint
+        .map(|s| s.to_owned())
+        .unwrap_or_else(|| format!("https://sts.{region}.amazonaws.com"));
+
+    let provider = AssumeRoleProvider {
+        role_arn: role_arn.to_owned(),
+        session_name: "UnityCatalogVending".to_owned(),
+        endpoint,
+        base_credentials,
+        region: region.to_owned(),
+        policy,
+    };
+
+    let client = ClientOptions::default().client()?;
+    let service = make_service(client.clone(), None);
+    provider
+        .fetch_token(&client, &service, &RetryConfig::default())
+        .await
+}
+
+/// Assume an AWS IAM role using ambient server credentials.
+///
+/// Uses the environment credential chain (`AWS_*` env vars, instance profile,
+/// ECS task role, WebIdentity, etc.) as the base identity for the STS
+/// `AssumeRole` call. Prefer [`assume_role_with_base`] when the base
+/// credentials are stored in the UC credential registry.
+pub async fn assume_role(
+    role_arn: &str,
+    region: &str,
+    sts_endpoint: Option<&str>,
+    policy: Option<String>,
+) -> Result<TemporaryToken<Arc<AwsCredential>>> {
+    let base_credentials = AmazonBuilder::from_env()
+        .with_region(region)
+        .build(None)?
+        .credentials;
+    assume_role_with_base(role_arn, region, sts_endpoint, policy, base_credentials).await
 }

@@ -55,7 +55,9 @@ impl GenerateTemporaryPathCredentialsBuilder {
         };
         Self { client, request }
     }
-    /// Set dry_run
+    /** When set to true, the service will not validate that the generated
+    credentials can perform write operations, therefore no new paths will be
+    created and the response will not contain valid credentials. Defaults to false.*/
     pub fn with_dry_run(mut self, dry_run: impl Into<Option<bool>>) -> Self {
         self.request.dry_run = dry_run.into();
         self

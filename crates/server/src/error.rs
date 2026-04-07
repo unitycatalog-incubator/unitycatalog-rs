@@ -63,6 +63,12 @@ pub enum Error {
 
     #[error("Generic error: {0}")]
     Generic(String),
+
+    #[error("Cloud credential error: {source}")]
+    CloudCredential {
+        #[from]
+        source: cloud_client::Error,
+    },
 }
 
 impl Error {
@@ -90,6 +96,7 @@ impl Error {
             Error::ObjectStore { .. } => "INTERNAL_ERROR",
             Error::SerDe { .. } => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
+            Error::CloudCredential { .. } => "INTERNAL_ERROR",
         }
     }
 }
@@ -199,6 +206,10 @@ impl IntoResponse for Error {
                 error!("Generic error: {}", message);
                 INTERNAL_ERROR
             }
+            Error::CloudCredential { source } => {
+                error!("Cloud credential error: {}", source);
+                INTERNAL_ERROR
+            }
             Error::MissingRecipient => {
                 error!("Failed to extract recipient from request");
                 (
@@ -270,6 +281,9 @@ impl From<Error> for Status {
             // Error::InvalidUrl(_) => Status::internal("Invalid url"),
             Error::ObjectStore { source } => {
                 Status::internal(format!("ObjectStore error: {}", source))
+            }
+            Error::CloudCredential { source } => {
+                Status::internal(format!("Cloud credential error: {}", source))
             } // Error::RequestError(error) => Status::internal(error.to_string()),
               // #[cfg(feature = "axum")]
               // Error::AxumPath(rejection) => Status::internal(format!("Axum path: {}", rejection)),

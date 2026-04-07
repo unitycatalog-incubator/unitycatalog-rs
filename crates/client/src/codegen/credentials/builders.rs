@@ -94,12 +94,12 @@ impl CreateCredentialBuilder {
         self.request.read_only = read_only.into();
         self
     }
-    /// Supplying true to this argument skips validation of the created set of credentials.
+    /// Optional. Supplying true to this argument skips validation of the created set of credentials.
     pub fn with_skip_validation(mut self, skip_validation: impl Into<Option<bool>>) -> Self {
         self.request.skip_validation = skip_validation.into();
         self
     }
-    /// Set azure_service_principal
+    /// The Azure service principal configuration.
     pub fn with_azure_service_principal(
         mut self,
         azure_service_principal: impl Into<Option<AzureServicePrincipal>>,
@@ -107,7 +107,7 @@ impl CreateCredentialBuilder {
         self.request.azure_service_principal = azure_service_principal.into();
         self
     }
-    /// Set azure_managed_identity
+    /// The Azure managed identity configuration.
     pub fn with_azure_managed_identity(
         mut self,
         azure_managed_identity: impl Into<Option<AzureManagedIdentity>>,
@@ -115,12 +115,25 @@ impl CreateCredentialBuilder {
         self.request.azure_managed_identity = azure_managed_identity.into();
         self
     }
-    /// Set azure_storage_key
+    /// The Azure storage key configuration.
     pub fn with_azure_storage_key(
         mut self,
         azure_storage_key: impl Into<Option<AzureStorageKey>>,
     ) -> Self {
         self.request.azure_storage_key = azure_storage_key.into();
+        self
+    }
+    /// The AWS IAM role configuration.
+    pub fn with_aws_iam_role(mut self, aws_iam_role: impl Into<Option<AwsIamRoleConfig>>) -> Self {
+        self.request.aws_iam_role = aws_iam_role.into();
+        self
+    }
+    /// The Databricks managed GCP service account configuration.
+    pub fn with_databricks_gcp_service_account(
+        mut self,
+        databricks_gcp_service_account: impl Into<Option<DatabricksGcpServiceAccount>>,
+    ) -> Self {
+        self.request.databricks_gcp_service_account = databricks_gcp_service_account.into();
         self
     }
 }
@@ -173,7 +186,7 @@ impl UpdateCredentialBuilder {
         };
         Self { client, request }
     }
-    /// Name of credential.
+    /// New name of the credential.
     pub fn with_new_name(mut self, new_name: impl Into<Option<String>>) -> Self {
         self.request.new_name = new_name.into();
         self
@@ -204,7 +217,7 @@ impl UpdateCredentialBuilder {
         self.request.force = force.into();
         self
     }
-    /// Set azure_service_principal
+    /// The Azure service principal configuration.
     pub fn with_azure_service_principal(
         mut self,
         azure_service_principal: impl Into<Option<AzureServicePrincipal>>,
@@ -212,7 +225,7 @@ impl UpdateCredentialBuilder {
         self.request.azure_service_principal = azure_service_principal.into();
         self
     }
-    /// Set azure_managed_identity
+    /// The Azure managed identity configuration.
     pub fn with_azure_managed_identity(
         mut self,
         azure_managed_identity: impl Into<Option<AzureManagedIdentity>>,
@@ -220,12 +233,25 @@ impl UpdateCredentialBuilder {
         self.request.azure_managed_identity = azure_managed_identity.into();
         self
     }
-    /// Set azure_storage_key
+    /// The Azure storage key configuration.
     pub fn with_azure_storage_key(
         mut self,
         azure_storage_key: impl Into<Option<AzureStorageKey>>,
     ) -> Self {
         self.request.azure_storage_key = azure_storage_key.into();
+        self
+    }
+    /// The AWS IAM role configuration.
+    pub fn with_aws_iam_role(mut self, aws_iam_role: impl Into<Option<AwsIamRoleConfig>>) -> Self {
+        self.request.aws_iam_role = aws_iam_role.into();
+        self
+    }
+    /// The Databricks managed GCP service account configuration.
+    pub fn with_databricks_gcp_service_account(
+        mut self,
+        databricks_gcp_service_account: impl Into<Option<DatabricksGcpServiceAccount>>,
+    ) -> Self {
+        self.request.databricks_gcp_service_account = databricks_gcp_service_account.into();
         self
     }
 }

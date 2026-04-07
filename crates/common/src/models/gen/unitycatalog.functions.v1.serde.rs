@@ -55,7 +55,8 @@ impl serde::Serialize for CreateFunctionRequest {
         if !self.properties.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.CreateFunctionRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.CreateFunctionRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -75,29 +76,33 @@ impl serde::Serialize for CreateFunctionRequest {
             struct_ser.serialize_field("input_params", v)?;
         }
         if self.parameter_style != 0 {
-            let v = ParameterStyle::try_from(self.parameter_style)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_style)))?;
+            let v = ParameterStyle::try_from(self.parameter_style).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_style))
+            })?;
             struct_ser.serialize_field("parameter_style", &v)?;
         }
         if self.is_deterministic {
             struct_ser.serialize_field("is_deterministic", &self.is_deterministic)?;
         }
         if self.sql_data_access != 0 {
-            let v = SqlDataAccess::try_from(self.sql_data_access)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.sql_data_access)))?;
+            let v = SqlDataAccess::try_from(self.sql_data_access).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.sql_data_access))
+            })?;
             struct_ser.serialize_field("sql_data_access", &v)?;
         }
         if self.is_null_call {
             struct_ser.serialize_field("is_null_call", &self.is_null_call)?;
         }
         if self.security_type != 0 {
-            let v = SecurityType::try_from(self.security_type)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.security_type)))?;
+            let v = SecurityType::try_from(self.security_type).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.security_type))
+            })?;
             struct_ser.serialize_field("security_type", &v)?;
         }
         if self.routine_body != 0 {
-            let v = RoutineBody::try_from(self.routine_body)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.routine_body)))?;
+            let v = RoutineBody::try_from(self.routine_body).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.routine_body))
+            })?;
             struct_ser.serialize_field("routine_body", &v)?;
         }
         if let Some(v) = self.routine_definition.as_ref() {
@@ -183,7 +188,10 @@ impl<'de> serde::Deserialize<'de> for CreateFunctionRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -199,14 +207,24 @@ impl<'de> serde::Deserialize<'de> for CreateFunctionRequest {
                             "dataType" | "data_type" => Ok(GeneratedField::DataType),
                             "fullDataType" | "full_data_type" => Ok(GeneratedField::FullDataType),
                             "inputParams" | "input_params" => Ok(GeneratedField::InputParams),
-                            "parameterStyle" | "parameter_style" => Ok(GeneratedField::ParameterStyle),
-                            "isDeterministic" | "is_deterministic" => Ok(GeneratedField::IsDeterministic),
-                            "sqlDataAccess" | "sql_data_access" => Ok(GeneratedField::SqlDataAccess),
+                            "parameterStyle" | "parameter_style" => {
+                                Ok(GeneratedField::ParameterStyle)
+                            }
+                            "isDeterministic" | "is_deterministic" => {
+                                Ok(GeneratedField::IsDeterministic)
+                            }
+                            "sqlDataAccess" | "sql_data_access" => {
+                                Ok(GeneratedField::SqlDataAccess)
+                            }
                             "isNullCall" | "is_null_call" => Ok(GeneratedField::IsNullCall),
                             "securityType" | "security_type" => Ok(GeneratedField::SecurityType),
                             "routineBody" | "routine_body" => Ok(GeneratedField::RoutineBody),
-                            "routineDefinition" | "routine_definition" => Ok(GeneratedField::RoutineDefinition),
-                            "routineBodyLanguage" | "routine_body_language" => Ok(GeneratedField::RoutineBodyLanguage),
+                            "routineDefinition" | "routine_definition" => {
+                                Ok(GeneratedField::RoutineDefinition)
+                            }
+                            "routineBodyLanguage" | "routine_body_language" => {
+                                Ok(GeneratedField::RoutineBodyLanguage)
+                            }
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
                             _ => Ok(GeneratedField::__SkipField__),
@@ -224,9 +242,12 @@ impl<'de> serde::Deserialize<'de> for CreateFunctionRequest {
                 formatter.write_str("struct unitycatalog.functions.v1.CreateFunctionRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateFunctionRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<CreateFunctionRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut catalog_name__ = None;
@@ -326,7 +347,9 @@ impl<'de> serde::Deserialize<'de> for CreateFunctionRequest {
                         }
                         GeneratedField::RoutineBodyLanguage => {
                             if routine_body_language__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("routineBodyLanguage"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "routineBodyLanguage",
+                                ));
                             }
                             routine_body_language__ = map_.next_value()?;
                         }
@@ -340,9 +363,8 @@ impl<'de> serde::Deserialize<'de> for CreateFunctionRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -369,7 +391,11 @@ impl<'de> serde::Deserialize<'de> for CreateFunctionRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.CreateFunctionRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.CreateFunctionRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for DeleteFunctionRequest {
@@ -386,7 +412,8 @@ impl serde::Serialize for DeleteFunctionRequest {
         if self.force.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.DeleteFunctionRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.DeleteFunctionRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -402,10 +429,7 @@ impl<'de> serde::Deserialize<'de> for DeleteFunctionRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "force",
-        ];
+        const FIELDS: &[&str] = &["name", "force"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -423,7 +447,10 @@ impl<'de> serde::Deserialize<'de> for DeleteFunctionRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -450,9 +477,12 @@ impl<'de> serde::Deserialize<'de> for DeleteFunctionRequest {
                 formatter.write_str("struct unitycatalog.functions.v1.DeleteFunctionRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeleteFunctionRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<DeleteFunctionRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut force__ = None;
@@ -481,7 +511,11 @@ impl<'de> serde::Deserialize<'de> for DeleteFunctionRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.DeleteFunctionRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.DeleteFunctionRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for Function {
@@ -570,7 +604,8 @@ impl serde::Serialize for Function {
         if self.updated_by.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.Function", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.Function", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -605,32 +640,36 @@ impl serde::Serialize for Function {
             struct_ser.serialize_field("routine_dependencies", v)?;
         }
         if self.parameter_style != 0 {
-            let v = ParameterStyle::try_from(self.parameter_style)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_style)))?;
+            let v = ParameterStyle::try_from(self.parameter_style).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_style))
+            })?;
             struct_ser.serialize_field("parameter_style", &v)?;
         }
         if self.is_deterministic {
             struct_ser.serialize_field("is_deterministic", &self.is_deterministic)?;
         }
         if self.sql_data_access != 0 {
-            let v = SqlDataAccess::try_from(self.sql_data_access)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.sql_data_access)))?;
+            let v = SqlDataAccess::try_from(self.sql_data_access).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.sql_data_access))
+            })?;
             struct_ser.serialize_field("sql_data_access", &v)?;
         }
         if self.is_null_call {
             struct_ser.serialize_field("is_null_call", &self.is_null_call)?;
         }
         if self.security_type != 0 {
-            let v = SecurityType::try_from(self.security_type)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.security_type)))?;
+            let v = SecurityType::try_from(self.security_type).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.security_type))
+            })?;
             struct_ser.serialize_field("security_type", &v)?;
         }
         if let Some(v) = self.specific_name.as_ref() {
             struct_ser.serialize_field("specific_name", v)?;
         }
         if self.routine_body != 0 {
-            let v = RoutineBody::try_from(self.routine_body)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.routine_body)))?;
+            let v = RoutineBody::try_from(self.routine_body).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.routine_body))
+            })?;
             struct_ser.serialize_field("routine_body", &v)?;
         }
         if let Some(v) = self.comment.as_ref() {
@@ -761,7 +800,10 @@ impl<'de> serde::Deserialize<'de> for Function {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -779,12 +821,24 @@ impl<'de> serde::Deserialize<'de> for Function {
                             "fullDataType" | "full_data_type" => Ok(GeneratedField::FullDataType),
                             "inputParams" | "input_params" => Ok(GeneratedField::InputParams),
                             "returnParams" | "return_params" => Ok(GeneratedField::ReturnParams),
-                            "routineBodyLanguage" | "routine_body_language" => Ok(GeneratedField::RoutineBodyLanguage),
-                            "routineDefinition" | "routine_definition" => Ok(GeneratedField::RoutineDefinition),
-                            "routineDependencies" | "routine_dependencies" => Ok(GeneratedField::RoutineDependencies),
-                            "parameterStyle" | "parameter_style" => Ok(GeneratedField::ParameterStyle),
-                            "isDeterministic" | "is_deterministic" => Ok(GeneratedField::IsDeterministic),
-                            "sqlDataAccess" | "sql_data_access" => Ok(GeneratedField::SqlDataAccess),
+                            "routineBodyLanguage" | "routine_body_language" => {
+                                Ok(GeneratedField::RoutineBodyLanguage)
+                            }
+                            "routineDefinition" | "routine_definition" => {
+                                Ok(GeneratedField::RoutineDefinition)
+                            }
+                            "routineDependencies" | "routine_dependencies" => {
+                                Ok(GeneratedField::RoutineDependencies)
+                            }
+                            "parameterStyle" | "parameter_style" => {
+                                Ok(GeneratedField::ParameterStyle)
+                            }
+                            "isDeterministic" | "is_deterministic" => {
+                                Ok(GeneratedField::IsDeterministic)
+                            }
+                            "sqlDataAccess" | "sql_data_access" => {
+                                Ok(GeneratedField::SqlDataAccess)
+                            }
                             "isNullCall" | "is_null_call" => Ok(GeneratedField::IsNullCall),
                             "securityType" | "security_type" => Ok(GeneratedField::SecurityType),
                             "specificName" | "specific_name" => Ok(GeneratedField::SpecificName),
@@ -813,8 +867,8 @@ impl<'de> serde::Deserialize<'de> for Function {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Function, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut catalog_name__ = None;
@@ -894,7 +948,9 @@ impl<'de> serde::Deserialize<'de> for Function {
                         }
                         GeneratedField::RoutineBodyLanguage => {
                             if routine_body_language__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("routineBodyLanguage"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "routineBodyLanguage",
+                                ));
                             }
                             routine_body_language__ = map_.next_value()?;
                         }
@@ -906,7 +962,9 @@ impl<'de> serde::Deserialize<'de> for Function {
                         }
                         GeneratedField::RoutineDependencies => {
                             if routine_dependencies__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("routineDependencies"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "routineDependencies",
+                                ));
                             }
                             routine_dependencies__ = map_.next_value()?;
                         }
@@ -962,9 +1020,8 @@ impl<'de> serde::Deserialize<'de> for Function {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ = Some(
-                                map_.next_value::<std::collections::HashMap<_, _>>()?
-                            );
+                            properties__ =
+                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -1041,7 +1098,11 @@ impl<'de> serde::Deserialize<'de> for Function {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.Function", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.Function",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for FunctionParameterInfo {
@@ -1088,7 +1149,8 @@ impl serde::Serialize for FunctionParameterInfo {
         if self.comment.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.FunctionParameterInfo", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.FunctionParameterInfo", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1099,8 +1161,9 @@ impl serde::Serialize for FunctionParameterInfo {
             struct_ser.serialize_field("type_json", v)?;
         }
         if self.type_name != 0 {
-            let v = super::super::tables::v1::ColumnTypeName::try_from(self.type_name)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.type_name)))?;
+            let v = super::super::tables::v1::ColumnTypeName::try_from(self.type_name).map_err(
+                |_| serde::ser::Error::custom(format!("Invalid variant {}", self.type_name)),
+            )?;
             struct_ser.serialize_field("type_name", &v)?;
         }
         if let Some(v) = self.type_precision.as_ref() {
@@ -1116,13 +1179,15 @@ impl serde::Serialize for FunctionParameterInfo {
             struct_ser.serialize_field("position", v)?;
         }
         if self.parameter_mode != 0 {
-            let v = ParameterMode::try_from(self.parameter_mode)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_mode)))?;
+            let v = ParameterMode::try_from(self.parameter_mode).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_mode))
+            })?;
             struct_ser.serialize_field("parameter_mode", &v)?;
         }
         if self.parameter_type != 0 {
-            let v = FunctionParameterType::try_from(self.parameter_type)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_type)))?;
+            let v = FunctionParameterType::try_from(self.parameter_type).map_err(|_| {
+                serde::ser::Error::custom(format!("Invalid variant {}", self.parameter_type))
+            })?;
             struct_ser.serialize_field("parameter_type", &v)?;
         }
         if let Some(v) = self.parameter_default.as_ref() {
@@ -1190,7 +1255,10 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfo {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1206,11 +1274,15 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfo {
                             "typeName" | "type_name" => Ok(GeneratedField::TypeName),
                             "typePrecision" | "type_precision" => Ok(GeneratedField::TypePrecision),
                             "typeScale" | "type_scale" => Ok(GeneratedField::TypeScale),
-                            "typeIntervalType" | "type_interval_type" => Ok(GeneratedField::TypeIntervalType),
+                            "typeIntervalType" | "type_interval_type" => {
+                                Ok(GeneratedField::TypeIntervalType)
+                            }
                             "position" => Ok(GeneratedField::Position),
                             "parameterMode" | "parameter_mode" => Ok(GeneratedField::ParameterMode),
                             "parameterType" | "parameter_type" => Ok(GeneratedField::ParameterType),
-                            "parameterDefault" | "parameter_default" => Ok(GeneratedField::ParameterDefault),
+                            "parameterDefault" | "parameter_default" => {
+                                Ok(GeneratedField::ParameterDefault)
+                            }
                             "comment" => Ok(GeneratedField::Comment),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -1227,9 +1299,12 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfo {
                 formatter.write_str("struct unitycatalog.functions.v1.FunctionParameterInfo")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<FunctionParameterInfo, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<FunctionParameterInfo, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut type_text__ = None;
@@ -1267,7 +1342,10 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfo {
                             if type_name__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("typeName"));
                             }
-                            type_name__ = Some(map_.next_value::<super::super::tables::v1::ColumnTypeName>()? as i32);
+                            type_name__ = Some(
+                                map_.next_value::<super::super::tables::v1::ColumnTypeName>()?
+                                    as i32,
+                            );
                         }
                         GeneratedField::TypePrecision => {
                             if type_precision__.is_some() {
@@ -1309,7 +1387,8 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfo {
                             if parameter_type__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("parameterType"));
                             }
-                            parameter_type__ = Some(map_.next_value::<FunctionParameterType>()? as i32);
+                            parameter_type__ =
+                                Some(map_.next_value::<FunctionParameterType>()? as i32);
                         }
                         GeneratedField::ParameterDefault => {
                             if parameter_default__.is_some() {
@@ -1344,7 +1423,11 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfo {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.FunctionParameterInfo", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.FunctionParameterInfo",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for FunctionParameterInfos {
@@ -1358,7 +1441,8 @@ impl serde::Serialize for FunctionParameterInfos {
         if !self.parameters.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.FunctionParameterInfos", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.FunctionParameterInfos", len)?;
         if !self.parameters.is_empty() {
             struct_ser.serialize_field("parameters", &self.parameters)?;
         }
@@ -1371,9 +1455,7 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfos {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "parameters",
-        ];
+        const FIELDS: &[&str] = &["parameters"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1390,7 +1472,10 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfos {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1416,9 +1501,12 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfos {
                 formatter.write_str("struct unitycatalog.functions.v1.FunctionParameterInfos")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<FunctionParameterInfos, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<FunctionParameterInfos, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut parameters__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1439,7 +1527,11 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterInfos {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.FunctionParameterInfos", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.FunctionParameterInfos",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for FunctionParameterType {
@@ -1462,11 +1554,7 @@ impl<'de> serde::Deserialize<'de> for FunctionParameterType {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "FUNCTION_PARAMETER_TYPE_UNSPECIFIED",
-            "COLUMN",
-            "PARAM",
-        ];
+        const FIELDS: &[&str] = &["FUNCTION_PARAMETER_TYPE_UNSPECIFIED", "COLUMN", "PARAM"];
 
         struct GeneratedVisitor;
 
@@ -1527,7 +1615,8 @@ impl serde::Serialize for GetFunctionRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.GetFunctionRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.GetFunctionRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1540,9 +1629,7 @@ impl<'de> serde::Deserialize<'de> for GetFunctionRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-        ];
+        const FIELDS: &[&str] = &["name"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1559,7 +1646,10 @@ impl<'de> serde::Deserialize<'de> for GetFunctionRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1586,8 +1676,8 @@ impl<'de> serde::Deserialize<'de> for GetFunctionRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetFunctionRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1608,7 +1698,11 @@ impl<'de> serde::Deserialize<'de> for GetFunctionRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.GetFunctionRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.GetFunctionRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListFunctionsRequest {
@@ -1634,7 +1728,8 @@ impl serde::Serialize for ListFunctionsRequest {
         if self.include_browse.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.ListFunctionsRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.ListFunctionsRequest", len)?;
         if !self.catalog_name.is_empty() {
             struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
@@ -1691,7 +1786,10 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1721,9 +1819,12 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsRequest {
                 formatter.write_str("struct unitycatalog.functions.v1.ListFunctionsRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListFunctionsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListFunctionsRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut catalog_name__ = None;
                 let mut schema_name__ = None;
@@ -1778,7 +1879,11 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.ListFunctionsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.ListFunctionsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ListFunctionsResponse {
@@ -1795,7 +1900,8 @@ impl serde::Serialize for ListFunctionsResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.ListFunctionsResponse", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.ListFunctionsResponse", len)?;
         if !self.functions.is_empty() {
             struct_ser.serialize_field("functions", &self.functions)?;
         }
@@ -1811,11 +1917,7 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "functions",
-            "next_page_token",
-            "nextPageToken",
-        ];
+        const FIELDS: &[&str] = &["functions", "next_page_token", "nextPageToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1833,7 +1935,10 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1844,7 +1949,9 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsResponse {
                     {
                         match value {
                             "functions" => Ok(GeneratedField::Functions),
-                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            "nextPageToken" | "next_page_token" => {
+                                Ok(GeneratedField::NextPageToken)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1860,9 +1967,12 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsResponse {
                 formatter.write_str("struct unitycatalog.functions.v1.ListFunctionsResponse")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListFunctionsResponse, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<ListFunctionsResponse, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut functions__ = None;
                 let mut next_page_token__ = None;
@@ -1891,7 +2001,11 @@ impl<'de> serde::Deserialize<'de> for ListFunctionsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.ListFunctionsResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.ListFunctionsResponse",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for ParameterMode {
@@ -1913,10 +2027,7 @@ impl<'de> serde::Deserialize<'de> for ParameterMode {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "PARAMETER_MODE_UNSPECIFIED",
-            "IN",
-        ];
+        const FIELDS: &[&str] = &["PARAMETER_MODE_UNSPECIFIED", "IN"];
 
         struct GeneratedVisitor;
 
@@ -1984,10 +2095,7 @@ impl<'de> serde::Deserialize<'de> for ParameterStyle {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "PARAMETER_STYLE_UNSPECIFIED",
-            "S",
-        ];
+        const FIELDS: &[&str] = &["PARAMETER_STYLE_UNSPECIFIED", "S"];
 
         struct GeneratedVisitor;
 
@@ -2056,11 +2164,7 @@ impl<'de> serde::Deserialize<'de> for RoutineBody {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "ROUTINE_BODY_UNSPECIFIED",
-            "SQL",
-            "EXTERNAL",
-        ];
+        const FIELDS: &[&str] = &["ROUTINE_BODY_UNSPECIFIED", "SQL", "EXTERNAL"];
 
         struct GeneratedVisitor;
 
@@ -2129,10 +2233,7 @@ impl<'de> serde::Deserialize<'de> for SecurityType {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "SECURITY_TYPE_UNSPECIFIED",
-            "DEFINER",
-        ];
+        const FIELDS: &[&str] = &["SECURITY_TYPE_UNSPECIFIED", "DEFINER"];
 
         struct GeneratedVisitor;
 
@@ -2272,7 +2373,8 @@ impl serde::Serialize for UpdateFunctionRequest {
         if self.owner.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.functions.v1.UpdateFunctionRequest", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.functions.v1.UpdateFunctionRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -2288,10 +2390,7 @@ impl<'de> serde::Deserialize<'de> for UpdateFunctionRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "name",
-            "owner",
-        ];
+        const FIELDS: &[&str] = &["name", "owner"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -2309,7 +2408,10 @@ impl<'de> serde::Deserialize<'de> for UpdateFunctionRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2336,9 +2438,12 @@ impl<'de> serde::Deserialize<'de> for UpdateFunctionRequest {
                 formatter.write_str("struct unitycatalog.functions.v1.UpdateFunctionRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateFunctionRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<UpdateFunctionRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut owner__ = None;
@@ -2367,6 +2472,10 @@ impl<'de> serde::Deserialize<'de> for UpdateFunctionRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.functions.v1.UpdateFunctionRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.functions.v1.UpdateFunctionRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }

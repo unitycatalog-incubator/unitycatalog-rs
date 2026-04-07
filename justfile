@@ -26,7 +26,7 @@ generate-proto:
 generate-openapi:
     buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    cargo run --bin unitycatalog-build -- enrich-openapi \
+    cargo run --bin proto-gen -- enrich-openapi \
       --jsonschema-dir openapi/jsonschema \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm -f {{ justfile_directory() }}/descriptors.bin

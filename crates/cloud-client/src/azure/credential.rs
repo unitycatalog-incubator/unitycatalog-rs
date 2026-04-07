@@ -724,7 +724,9 @@ mod tests {
         let _mock = server
             .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
             .with_status(400)
-            .with_body(r#"{"error":"invalid_client","error_description":"Client authentication failed"}"#)
+            .with_body(
+                r#"{"error":"invalid_client","error_description":"Client authentication failed"}"#,
+            )
             .create_async()
             .await;
 
@@ -740,9 +742,7 @@ mod tests {
             AZURE_STORAGE_SCOPE,
         );
 
-        let result = provider
-            .fetch_token(&client, &service, &retry_config)
-            .await;
+        let result = provider.fetch_token(&client, &service, &retry_config).await;
 
         assert!(result.is_err(), "Expected error for 400 response");
 

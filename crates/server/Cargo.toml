@@ -14,9 +14,12 @@ unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }
+cloud-client = { path = "../cloud-client" }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }
+chrono = { workspace = true }
+percent-encoding = "2.1"
 delta_kernel = { workspace = true }
 deltalake-datafusion = { workspace = true }
 futures = { workspace = true }

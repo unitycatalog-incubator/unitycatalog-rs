@@ -1,7 +1,11 @@
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use unitycatalog_common::models::credentials::v1::*;
+use unitycatalog_common::models::credentials::v1::{
+    AwsIamRoleConfig, AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey,
+    CreateCredentialRequest, Credential, DatabricksGcpServiceAccount, DeleteCredentialRequest,
+    GetCredentialRequest, ListCredentialsRequest, ListCredentialsResponse, UpdateCredentialRequest,
+};
 use unitycatalog_common::models::{
     ObjectLabel, ResourceExt, ResourceIdent, ResourceName, ResourceRef,
 };
@@ -29,11 +33,18 @@ struct CredentialContainer {
     pub azure_sp: Option<AzureServicePrincipal>,
     pub azure_msi: Option<AzureManagedIdentity>,
     pub azure_key: Option<AzureStorageKey>,
+    pub aws_iam_role: Option<AwsIamRoleConfig>,
+    pub gcp_service_account: Option<DatabricksGcpServiceAccount>,
 }
 
 impl CredentialContainer {
     fn validate(&self) -> Result<()> {
-        if self.azure_sp.is_none() && self.azure_msi.is_none() && self.azure_key.is_none() {
+        if self.azure_sp.is_none()
+            && self.azure_msi.is_none()
+            && self.azure_key.is_none()
+            && self.aws_iam_role.is_none()
+            && self.gcp_service_account.is_none()
+        {
             Err(Error::invalid_argument("No credentials provided"))
         } else {
             Ok(())
@@ -82,6 +93,8 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             azure_msi: request.azure_managed_identity,
             azure_sp: request.azure_service_principal,
             azure_key: request.azure_storage_key,
+            aws_iam_role: request.aws_iam_role,
+            gcp_service_account: request.databricks_gcp_service_account,
         };
         credential.validate()?;
         self.create_secret(&request.name, credential.to_vec()?.into())
@@ -99,6 +112,8 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             azure_managed_identity: None,
             azure_service_principal: None,
             azure_storage_key: None,
+            aws_iam_role: None,
+            databricks_gcp_service_account: None,
             owner: None,
             created_by: None,
             updated_by: None,
@@ -129,6 +144,8 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             azure_msi: request.azure_managed_identity,
             azure_sp: request.azure_service_principal,
             azure_key: request.azure_storage_key,
+            aws_iam_role: request.aws_iam_role,
+            gcp_service_account: request.databricks_gcp_service_account,
         };
         credential.validate()?;
         if credential.validate().is_ok() {
@@ -156,6 +173,8 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             azure_managed_identity: None,
             azure_service_principal: None,
             azure_storage_key: None,
+            aws_iam_role: None,
+            databricks_gcp_service_account: None,
             owner: None,
             created_by: None,
             updated_by: None,
@@ -196,6 +215,10 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             cred.azure_service_principal = secret.azure_sp;
         } else if secret.azure_key.is_some() {
             cred.azure_storage_key = secret.azure_key;
+        } else if secret.aws_iam_role.is_some() {
+            cred.aws_iam_role = secret.aws_iam_role;
+        } else if secret.gcp_service_account.is_some() {
+            cred.databricks_gcp_service_account = secret.gcp_service_account;
         }
         Ok(cred)
     }

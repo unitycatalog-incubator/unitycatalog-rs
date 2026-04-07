@@ -12,17 +12,16 @@
  *   Rust/TypeScript:  // [snippet:name]  ...  // [/snippet:name]
  *   Python:           # [snippet:name]   ...  # [/snippet:name]
  */
-import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
-
+import { Code, TabItem, Tabs } from "@astrojs/starlight/components";
+import pyCatalogs from "../../../examples/python/catalogs.py?raw";
+import pySchemas from "../../../examples/python/schemas.py?raw";
+import pyTables from "../../../examples/python/tables.py?raw";
+import pyVolumes from "../../../examples/python/volumes.py?raw";
 // Vite ?raw imports — resolved at build time, proper HMR in dev
 import rustCatalogs from "../../../examples/rust/src/catalogs.rs?raw";
 import rustSchemas from "../../../examples/rust/src/schemas.rs?raw";
 import rustTables from "../../../examples/rust/src/tables.rs?raw";
 import rustVolumes from "../../../examples/rust/src/volumes.rs?raw";
-import pyCatalogs from "../../../examples/python/catalogs.py?raw";
-import pySchemas from "../../../examples/python/schemas.py?raw";
-import pyTables from "../../../examples/python/tables.py?raw";
-import pyVolumes from "../../../examples/python/volumes.py?raw";
 import tsCatalogs from "../../../examples/typescript/examples/catalogs.ts?raw";
 import tsSchemas from "../../../examples/typescript/examples/schemas.ts?raw";
 import tsTables from "../../../examples/typescript/examples/tables.ts?raw";
