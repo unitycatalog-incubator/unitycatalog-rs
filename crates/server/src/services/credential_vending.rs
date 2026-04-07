@@ -213,11 +213,12 @@ async fn vend_azure_storage_key(
         .ok_or_else(|| {
             Error::invalid_argument("Cannot determine Azure storage account from URL")
         })?;
-    let (container, _prefix) = storage_url.bucket_and_prefix()?;
+    let (container, prefix) = storage_url.bucket_and_prefix()?;
     let read_only = operation == VendOperation::Read;
     let sas_token = cloud_client::azure::generate_storage_key_sas(
         &account,
         &container,
+        &prefix,
         &key.account_key,
         read_only,
         DEFAULT_TTL_SECS,
@@ -235,11 +236,12 @@ async fn vend_azure_sas_from_bearer(
     let account = storage_url.azure_account().ok_or_else(|| {
         Error::invalid_argument("Cannot determine Azure storage account from URL")
     })?;
-    let (container, _prefix) = storage_url.bucket_and_prefix()?;
+    let (container, prefix) = storage_url.bucket_and_prefix()?;
     let read_only = operation == VendOperation::Read;
     let sas_token = cloud_client::azure::generate_user_delegation_sas(
         &account,
         &container,
+        &prefix,
         bearer_token,
         read_only,
         DEFAULT_TTL_SECS,

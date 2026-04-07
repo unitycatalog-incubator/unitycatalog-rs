@@ -11,11 +11,11 @@ use crate::service::{HttpService, make_service};
 use crate::util::hmac_sha256;
 use crate::{ClientOptions, Result, RetryConfig};
 
-/// SAS signed version — must be at least 2018-11-09 to support user delegation SAS.
+/// SAS signed version — must be at least 2020-02-10 to support `sdd=` directory depth.
 const SAS_VERSION: &str = "2020-12-06";
 
-/// Signed resource type: "b" = blob (covers individual blobs under the prefix).
-const SAS_SIGNED_RESOURCE: &str = "c"; // container-level so prefix matching works
+/// Signed resource type: "c" = container (prefix restriction via `sdd=` on ADLS Gen2).
+const SAS_SIGNED_RESOURCE: &str = "c";
 
 // ── User Delegation Key ──────────────────────────────────────────────────────
 
@@ -33,9 +33,6 @@ pub(crate) struct UserDelegationKey {
 }
 
 /// Fetch a User Delegation Key from Azure Storage using an AAD bearer token.
-///
-/// The key is valid for the given duration and can be used to sign SAS tokens
-/// scoped to the storage account.
 pub(crate) async fn fetch_user_delegation_key(
     account: &str,
     bearer_token: &str,
@@ -78,14 +75,37 @@ pub(crate) async fn fetch_user_delegation_key(
     })
 }
 
+// ── Directory depth helper ────────────────────────────────────────────────────
+
+/// Compute the signed directory depth for a blob prefix path.
+///
+/// Azure ADLS Gen2 SAS tokens scope access to a directory prefix via `sdd=N`
+/// where N is the number of `/`-separated, non-empty path segments in the prefix.
+///
+/// Examples:
+/// - `""` → `None` (container-level, no `sdd`)
+/// - `"data"` → `Some(1)`
+/// - `"data/2024"` → `Some(2)`
+/// - `"data/2024/"` → `Some(2)` (trailing slash ignored)
+fn signed_directory_depth(prefix: &str) -> Option<usize> {
+    let depth = prefix.split('/').filter(|s| !s.is_empty()).count();
+    if depth == 0 { None } else { Some(depth) }
+}
+
 // ── SAS construction ─────────────────────────────────────────────────────────
 
-/// Build a container-level SAS token query string signed with a User Delegation Key.
+/// Build a SAS token query string signed with a User Delegation Key.
+///
+/// When `prefix` is non-empty the SAS is scoped to that ADLS Gen2 directory
+/// path via `sdd=` (requires a Hierarchical Namespace / ADLS Gen2 account).
+/// On flat-namespace Blob Storage the `sdd=` parameter is ignored by the
+/// service and the token remains container-wide.
 ///
 /// Returns the SAS parameters as a query string (without leading `?`).
 pub(crate) fn build_user_delegation_sas(
     account: &str,
     container: &str,
+    prefix: &str,
     key: &UserDelegationKey,
     expiry: DateTime<Utc>,
     permissions: &str,
@@ -93,24 +113,45 @@ pub(crate) fn build_user_delegation_sas(
     let start = Utc::now();
     let start_str = start.to_rfc3339_opts(SecondsFormat::Secs, true);
     let expiry_str = expiry.to_rfc3339_opts(SecondsFormat::Secs, true);
+    let depth = signed_directory_depth(prefix);
 
-    // String-to-sign for User Delegation SAS (container resource).
-    // https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas#version-2020-12-06-and-later
+    // Canonicalized resource includes the prefix path for ADLS Gen2 directory SAS.
+    let canonicalized_resource = if depth.is_some() && !prefix.is_empty() {
+        let clean = prefix.trim_matches('/');
+        format!("/blob/{account}/{container}/{clean}")
+    } else {
+        format!("/blob/{account}/{container}")
+    };
+
+    // signedDirectoryDepth field — empty string when not scoping to a directory.
+    let sdd_field = depth.map(|d| d.to_string()).unwrap_or_default();
+
+    // String-to-sign for User Delegation SAS (API version 2020-12-06).
+    // https://learn.microsoft.com/en-us/rest/api/storageservices/create-user-delegation-sas
+    // Field order (each separated by \n):
+    //   signedPermissions, signedStart, signedExpiry, canonicalizedResource,
+    //   signedKeyObjectId, signedKeyTenantId, signedKeyStart, signedKeyExpiry,
+    //   signedKeyService, signedKeyVersion,
+    //   signedAuthorizedUserObjectId (empty), signedUnauthorizedUserObjectId (empty),
+    //   signedCorrelationId (empty), signedIP (empty), signedProtocol,
+    //   signedVersion, signedResource, signedSnapshotTime (empty),
+    //   signedEncryptionScope (empty), rscc (empty), rscd (empty), rsce (empty),
+    //   rscl (empty), rsct (empty), signedDirectoryDepth
     let string_to_sign = format!(
-        "{permissions}\n{start_str}\n{expiry_str}\n/blob/{account}/{container}\n{signed_oid}\n{signed_tid}\n{signed_start}\n{signed_expiry}\n{signed_service}\n{signed_version}\n\nhttps\n{version}\n{resource}\n\n\n\n\n\n",
+        "{permissions}\n{start}\n{expiry}\n{resource}\n{oid}\n{tid}\n{skt}\n{ske}\n{sks}\n{skv}\n\n\n\nhttps\n{version}\n{sr}\n\n\n\n\n\n\n\n{sdd}",
         permissions = permissions,
-        start_str = start_str,
-        expiry_str = expiry_str,
-        account = account,
-        container = container,
-        signed_oid = key.signed_oid,
-        signed_tid = key.signed_tid,
-        signed_start = key.signed_start,
-        signed_expiry = key.signed_expiry,
-        signed_service = key.signed_service,
-        signed_version = key.signed_version,
+        start = start_str,
+        expiry = expiry_str,
+        resource = canonicalized_resource,
+        oid = key.signed_oid,
+        tid = key.signed_tid,
+        skt = key.signed_start,
+        ske = key.signed_expiry,
+        sks = key.signed_service,
+        skv = key.signed_version,
         version = SAS_VERSION,
-        resource = SAS_SIGNED_RESOURCE,
+        sr = SAS_SIGNED_RESOURCE,
+        sdd = sdd_field,
     );
 
     let key_bytes = BASE64
@@ -118,7 +159,7 @@ pub(crate) fn build_user_delegation_sas(
         .map_err(|e| crate::Error::Generic { source: e.into() })?;
     let signature = BASE64.encode(hmac_sha256(&key_bytes, string_to_sign.as_bytes()).as_ref());
 
-    let sas = format!(
+    let mut sas = format!(
         "sv={version}&se={expiry}&sp={permissions}&spr=https&sr={resource}\
          &skoid={skoid}&sktid={sktid}&skt={skt}&ske={ske}&sks={sks}&skv={skv}\
          &sig={sig}",
@@ -134,16 +175,25 @@ pub(crate) fn build_user_delegation_sas(
         skv = key.signed_version,
         sig = url_encode(&signature),
     );
+
+    if let Some(d) = depth {
+        sas.push_str(&format!("&sdd={d}"));
+    }
+
     Ok(sas)
 }
 
-/// Build a container-level SAS token signed with a storage account key.
+/// Build a SAS token signed with a storage account key.
 ///
-/// Uses the Shared Key Lite signing algorithm.
+/// When `prefix` is non-empty the SAS includes `sdd=` for ADLS Gen2
+/// directory scoping. On flat-namespace accounts the parameter is ignored.
+///
+/// Uses the Service SAS signing algorithm (API version 2020-12-06).
 /// <https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas>
 pub(crate) fn build_storage_key_sas(
     account: &str,
     container: &str,
+    prefix: &str,
     account_key_b64: &str,
     expiry: DateTime<Utc>,
     permissions: &str,
@@ -151,18 +201,34 @@ pub(crate) fn build_storage_key_sas(
     let start = Utc::now();
     let start_str = start.to_rfc3339_opts(SecondsFormat::Secs, true);
     let expiry_str = expiry.to_rfc3339_opts(SecondsFormat::Secs, true);
-    let canonicalized_resource = format!("/blob/{account}/{container}");
+    let depth = signed_directory_depth(prefix);
 
-    // String-to-sign for service SAS (container), API version 2020-12-06.
-    // https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas#version-2020-12-06-and-later
+    let canonicalized_resource = if depth.is_some() && !prefix.is_empty() {
+        let clean = prefix.trim_matches('/');
+        format!("/blob/{account}/{container}/{clean}")
+    } else {
+        format!("/blob/{account}/{container}")
+    };
+
+    let sdd_field = depth.map(|d| d.to_string()).unwrap_or_default();
+
+    // String-to-sign for Service SAS (container resource, API version 2020-12-06).
+    // https://learn.microsoft.com/en-us/rest/api/storageservices/create-service-sas
+    // Field order (each separated by \n):
+    //   signedPermissions, signedStart, signedExpiry, canonicalizedResource,
+    //   signedIdentifier (empty), signedIP (empty), signedProtocol,
+    //   signedVersion, signedResource, signedSnapshotTime (empty),
+    //   signedEncryptionScope (empty), rscc (empty), rscd (empty), rsce (empty),
+    //   rscl (empty), rsct (empty), signedDirectoryDepth
     let string_to_sign = format!(
-        "{permissions}\n{start_str}\n{expiry_str}\n{resource}\n\nhttps\n{version}\n{resource_type}\n\n\n\n\n\n",
+        "{permissions}\n{start}\n{expiry}\n{resource}\n\nhttps\n{version}\n{sr}\n\n\n\n\n\n\n\n{sdd}",
         permissions = permissions,
-        start_str = start_str,
-        expiry_str = expiry_str,
+        start = start_str,
+        expiry = expiry_str,
         resource = canonicalized_resource,
         version = SAS_VERSION,
-        resource_type = SAS_SIGNED_RESOURCE,
+        sr = SAS_SIGNED_RESOURCE,
+        sdd = sdd_field,
     );
 
     let key_bytes = BASE64
@@ -170,7 +236,7 @@ pub(crate) fn build_storage_key_sas(
         .map_err(|e| crate::Error::Generic { source: e.into() })?;
     let signature = BASE64.encode(hmac_sha256(&key_bytes, string_to_sign.as_bytes()).as_ref());
 
-    let sas = format!(
+    let mut sas = format!(
         "sv={version}&se={expiry}&sp={permissions}&spr=https&sr={resource}&sig={sig}",
         version = SAS_VERSION,
         expiry = url_encode(&expiry_str),
@@ -178,6 +244,11 @@ pub(crate) fn build_storage_key_sas(
         resource = SAS_SIGNED_RESOURCE,
         sig = url_encode(&signature),
     );
+
+    if let Some(d) = depth {
+        sas.push_str(&format!("&sdd={d}"));
+    }
+
     Ok(sas)
 }
 
@@ -208,13 +279,17 @@ pub(crate) fn sas_expiry(ttl_secs: u64) -> DateTime<Utc> {
 
 // ── Public entry points used by credential_vending ──────────────────────────
 
-/// Generate a User Delegation SAS token for an Azure Blob Storage container.
+/// Generate a User Delegation SAS token scoped to an Azure Blob Storage container
+/// and optionally a directory prefix within it (ADLS Gen2 `sdd=` scoping).
 ///
-/// Uses the provided AAD bearer token to fetch a User Delegation Key, then
-/// signs a container-scoped SAS with the given permissions.
+/// Uses the provided AAD bearer token to fetch a User Delegation Key, then signs
+/// a SAS. When `prefix` is non-empty the `sdd=` parameter restricts access to
+/// that directory path on ADLS Gen2 (Hierarchical Namespace) accounts; on
+/// flat-namespace Blob Storage the parameter is silently ignored by the service.
 pub async fn generate_user_delegation_sas(
     account: &str,
     container: &str,
+    prefix: &str,
     bearer_token: &str,
     read_only: bool,
     ttl_secs: u64,
@@ -223,28 +298,50 @@ pub async fn generate_user_delegation_sas(
     let start = Utc::now();
     let key = fetch_user_delegation_key(account, bearer_token, start, expiry).await?;
     let permissions = if read_only { SAS_READ } else { SAS_READ_WRITE };
-    build_user_delegation_sas(account, container, &key, expiry, permissions)
+    build_user_delegation_sas(account, container, prefix, &key, expiry, permissions)
 }
 
-/// Generate a service SAS token for an Azure Blob Storage container using a storage account key.
+/// Generate a service SAS token scoped to an Azure Blob Storage container and
+/// optionally a directory prefix (ADLS Gen2 `sdd=` scoping) using a storage account key.
 ///
-/// This does not require an AAD token — the account key is used directly to sign the SAS.
-/// Useful for local Azurite testing where managed identity or service principals are unavailable.
+/// This does not require an AAD token — useful for local Azurite testing.
 pub fn generate_storage_key_sas(
     account: &str,
     container: &str,
+    prefix: &str,
     account_key_b64: &str,
     read_only: bool,
     ttl_secs: u64,
 ) -> Result<String> {
     let expiry = sas_expiry(ttl_secs);
     let permissions = if read_only { SAS_READ } else { SAS_READ_WRITE };
-    build_storage_key_sas(account, container, account_key_b64, expiry, permissions)
+    build_storage_key_sas(
+        account,
+        container,
+        prefix,
+        account_key_b64,
+        expiry,
+        permissions,
+    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_signed_directory_depth_empty() {
+        assert_eq!(signed_directory_depth(""), None);
+        assert_eq!(signed_directory_depth("/"), None);
+    }
+
+    #[test]
+    fn test_signed_directory_depth_segments() {
+        assert_eq!(signed_directory_depth("data"), Some(1));
+        assert_eq!(signed_directory_depth("data/2024"), Some(2));
+        assert_eq!(signed_directory_depth("data/2024/"), Some(2));
+        assert_eq!(signed_directory_depth("/data/2024/events"), Some(3));
+    }
 
     #[test]
     fn test_sas_permissions_read() {
@@ -257,22 +354,41 @@ mod tests {
     }
 
     #[test]
-    fn test_storage_key_sas_contains_required_fields() {
-        // Use the well-known Azurite storage account key (public test credential).
+    fn test_storage_key_sas_no_prefix_no_sdd() {
         let azurite_key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-        let sas = generate_storage_key_sas("devstoreaccount1", "test", azurite_key, true, 3600)
+        let sas = generate_storage_key_sas("devstoreaccount1", "test", "", azurite_key, true, 3600)
             .expect("SAS generation failed");
         assert!(sas.contains("sv="), "missing sv");
         assert!(sas.contains("se="), "missing se");
         assert!(sas.contains("sp=rl"), "expected read permissions");
         assert!(sas.contains("sig="), "missing sig");
+        assert!(
+            !sas.contains("sdd="),
+            "should not have sdd for empty prefix"
+        );
+    }
+
+    #[test]
+    fn test_storage_key_sas_with_prefix_has_sdd() {
+        let azurite_key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
+        let sas = generate_storage_key_sas(
+            "devstoreaccount1",
+            "test",
+            "data/events",
+            azurite_key,
+            true,
+            3600,
+        )
+        .expect("SAS generation failed");
+        assert!(sas.contains("sdd=2"), "expected sdd=2 for data/events");
     }
 
     #[test]
     fn test_storage_key_sas_read_write_permissions() {
         let azurite_key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-        let sas = generate_storage_key_sas("devstoreaccount1", "test", azurite_key, false, 3600)
-            .expect("SAS generation failed");
+        let sas =
+            generate_storage_key_sas("devstoreaccount1", "test", "", azurite_key, false, 3600)
+                .expect("SAS generation failed");
         assert!(sas.contains("sp=racwdl"), "expected read-write permissions");
     }
 }
