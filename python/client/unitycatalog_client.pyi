@@ -6,12 +6,33 @@ import enum
 class AwsIamRoleConfig:
     """The AWS IAM role configuration."""
 
+    access_key_id: Optional[str]
+    """
+    AWS access key ID used to authorize the STS AssumeRole call. When set together with
+    secret_access_key, these static credentials are used as the base identity to call
+    STS:AssumeRole. When omitted, the server falls back to ambient credentials (instance
+    profile, ECS task role, WebIdentity, etc.).
+    """
     region: Optional[str]
     """The AWS region where STS calls are made. Defaults to "us-east-1" if absent."""
     role_arn: str
     """The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials."""
+    secret_access_key: Optional[str]
+    """AWS secret access key paired with access_key_id."""
+    session_token: Optional[str]
+    """
+    Optional AWS session token for temporary base credentials (e.g. when the caller itself
+    holds STS- vended credentials as the base identity).
+    """
 
-    def __init__(self, role_arn: str, region: Optional[str] = None) -> None: ...
+    def __init__(
+        self,
+        role_arn: str,
+        access_key_id: Optional[str] = None,
+        region: Optional[str] = None,
+        secret_access_key: Optional[str] = None,
+        session_token: Optional[str] = None,
+    ) -> None: ...
 
 class AwsTemporaryCredentials:
     access_key_id: str

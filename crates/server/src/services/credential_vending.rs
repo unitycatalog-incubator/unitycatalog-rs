@@ -1,8 +1,9 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
+use cloud_client::StaticCredentialProvider;
 use cloud_client::TemporaryToken;
-use cloud_client::aws::AwsCredential;
+use cloud_client::aws::{AwsCredential, AwsCredentialProvider};
 use cloud_client::azure::AzureCredential;
 use unitycatalog_common::models::credentials::v1::{
     Credential, azure_managed_identity::Identifier as AzureMiIdentifier,
@@ -181,6 +182,16 @@ async fn vend_azure_service_principal(
     vend_azure_sas_from_bearer(url, &bearer_token, operation).await
 }
 
+/// Vend credentials via Azure Managed Identity (IMDS).
+///
+/// Unlike service-principal or storage-key credentials, managed identities carry
+/// no static secret — authentication relies on the Azure Instance Metadata Service
+/// (`http://169.254.169.254/metadata/identity/…`) which is only reachable from
+/// within Azure compute (VMs, AKS pods, App Service, etc.).
+///
+/// If a user registers an `AzureManagedIdentity` credential they are declaring
+/// that the Unity Catalog server itself runs on Azure compute with that identity
+/// assigned. The server cannot fall back to a stored key here.
 async fn vend_azure_managed_identity(
     msi: &unitycatalog_common::models::credentials::v1::AzureManagedIdentity,
     url: &str,
@@ -265,7 +276,32 @@ async fn vend_aws_iam_role(
     let storage_url = StorageLocationUrl::parse(url)?;
     let (bucket, prefix) = storage_url.bucket_and_prefix()?;
     let policy = build_s3_session_policy(&bucket, &prefix, operation);
-    let token = cloud_client::aws::assume_role(&role.role_arn, region, None, Some(policy)).await?;
+
+    // Build base credentials from the registered access key when present.
+    // Falls back to the server's ambient credentials (instance profile, ECS
+    // task role, WebIdentity, etc.) when no static key is registered.
+    let base_credentials: AwsCredentialProvider =
+        if let (Some(key_id), Some(secret_key)) = (&role.access_key_id, &role.secret_access_key) {
+            Arc::new(StaticCredentialProvider::new(AwsCredential {
+                key_id: key_id.clone(),
+                secret_key: secret_key.clone(),
+                token: role.session_token.clone(),
+            }))
+        } else {
+            cloud_client::aws::AmazonBuilder::from_env()
+                .with_region(region)
+                .build(None)?
+                .credentials
+        };
+
+    let token = cloud_client::aws::assume_role_with_base(
+        &role.role_arn,
+        region,
+        None,
+        Some(policy),
+        base_credentials,
+    )
+    .await?;
     Ok(aws_token_to_temporary_credential(url, token))
 }
 

@@ -145,12 +145,30 @@ impl serde::Serialize for AwsIamRoleConfig {
         if self.region.is_some() {
             len += 1;
         }
+        if self.access_key_id.is_some() {
+            len += 1;
+        }
+        if self.secret_access_key.is_some() {
+            len += 1;
+        }
+        if self.session_token.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", len)?;
         if !self.role_arn.is_empty() {
             struct_ser.serialize_field("role_arn", &self.role_arn)?;
         }
         if let Some(v) = self.region.as_ref() {
             struct_ser.serialize_field("region", v)?;
+        }
+        if let Some(v) = self.access_key_id.as_ref() {
+            struct_ser.serialize_field("access_key_id", v)?;
+        }
+        if let Some(v) = self.secret_access_key.as_ref() {
+            struct_ser.serialize_field("secret_access_key", v)?;
+        }
+        if let Some(v) = self.session_token.as_ref() {
+            struct_ser.serialize_field("session_token", v)?;
         }
         struct_ser.end()
     }
@@ -165,12 +183,21 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
             "role_arn",
             "roleArn",
             "region",
+            "access_key_id",
+            "accessKeyId",
+            "secret_access_key",
+            "secretAccessKey",
+            "session_token",
+            "sessionToken",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             RoleArn,
             Region,
+            AccessKeyId,
+            SecretAccessKey,
+            SessionToken,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -195,6 +222,9 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                         match value {
                             "roleArn" | "role_arn" => Ok(GeneratedField::RoleArn),
                             "region" => Ok(GeneratedField::Region),
+                            "accessKeyId" | "access_key_id" => Ok(GeneratedField::AccessKeyId),
+                            "secretAccessKey" | "secret_access_key" => Ok(GeneratedField::SecretAccessKey),
+                            "sessionToken" | "session_token" => Ok(GeneratedField::SessionToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -216,6 +246,9 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
             {
                 let mut role_arn__ = None;
                 let mut region__ = None;
+                let mut access_key_id__ = None;
+                let mut secret_access_key__ = None;
+                let mut session_token__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::RoleArn => {
@@ -230,6 +263,24 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                             }
                             region__ = map_.next_value()?;
                         }
+                        GeneratedField::AccessKeyId => {
+                            if access_key_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessKeyId"));
+                            }
+                            access_key_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::SecretAccessKey => {
+                            if secret_access_key__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("secretAccessKey"));
+                            }
+                            secret_access_key__ = map_.next_value()?;
+                        }
+                        GeneratedField::SessionToken => {
+                            if session_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sessionToken"));
+                            }
+                            session_token__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -238,6 +289,9 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                 Ok(AwsIamRoleConfig {
                     role_arn: role_arn__.unwrap_or_default(),
                     region: region__,
+                    access_key_id: access_key_id__,
+                    secret_access_key: secret_access_key__,
+                    session_token: session_token__,
                 })
             }
         }

@@ -1614,6 +1614,22 @@ components:
                 region:
                     type: string
                     description: The AWS region where STS calls are made. Defaults to "us-east-1" if absent.
+                accessKeyId:
+                    type: string
+                    description: |-
+                        AWS access key ID used to authorize the STS AssumeRole call.
+
+                         When set together with secret_access_key, these static credentials are used
+                         as the base identity to call STS:AssumeRole. When omitted, the server falls
+                         back to ambient credentials (instance profile, ECS task role, WebIdentity, etc.).
+                secretAccessKey:
+                    type: string
+                    description: AWS secret access key paired with access_key_id.
+                sessionToken:
+                    type: string
+                    description: |-
+                        Optional AWS session token for temporary base credentials (e.g. when the
+                         caller itself holds STS-vended credentials as the base identity).
             description: The AWS IAM role configuration.
         AwsTemporaryCredentials:
             type: object

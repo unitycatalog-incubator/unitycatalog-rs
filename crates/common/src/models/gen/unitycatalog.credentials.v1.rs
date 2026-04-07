@@ -75,6 +75,20 @@ pub struct AwsIamRoleConfig {
     /// The AWS region where STS calls are made. Defaults to "us-east-1" if absent.
     #[prost(string, optional, tag="2")]
     pub region: ::core::option::Option<::prost::alloc::string::String>,
+    /// AWS access key ID used to authorize the STS AssumeRole call.
+    ///
+    /// When set together with secret_access_key, these static credentials are used
+    /// as the base identity to call STS:AssumeRole. When omitted, the server falls
+    /// back to ambient credentials (instance profile, ECS task role, WebIdentity, etc.).
+    #[prost(string, optional, tag="3")]
+    pub access_key_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// AWS secret access key paired with access_key_id.
+    #[prost(string, optional, tag="4")]
+    pub secret_access_key: ::core::option::Option<::prost::alloc::string::String>,
+    /// Optional AWS session token for temporary base credentials (e.g. when the
+    /// caller itself holds STS-vended credentials as the base identity).
+    #[prost(string, optional, tag="5")]
+    pub session_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// The AWS IAM role configuration.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

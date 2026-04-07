@@ -68,16 +68,19 @@ impl RequestSigner for AmazonConfig {
 ///
 /// This is used by the Unity Catalog server to vend temporary AWS credentials
 /// for external locations backed by an `AwsIamRoleConfig` credential.
-pub async fn assume_role(
+/// Assume an AWS IAM role using explicit base credentials.
+///
+/// Like [`assume_role`] but accepts an explicit `base_credentials` provider
+/// instead of falling back to environment-based credential discovery.
+/// Use this when the base identity (the caller's access key + secret) is
+/// stored in the UC credential registry rather than in the server environment.
+pub async fn assume_role_with_base(
     role_arn: &str,
     region: &str,
     sts_endpoint: Option<&str>,
     policy: Option<String>,
+    base_credentials: AwsCredentialProvider,
 ) -> Result<TemporaryToken<Arc<AwsCredential>>> {
-    // Resolve base credentials from the environment (same chain as AmazonBuilder::build).
-    let base_config = AmazonBuilder::from_env().with_region(region).build(None)?;
-    let base_credentials: AwsCredentialProvider = base_config.credentials;
-
     let endpoint = sts_endpoint
         .map(|s| s.to_owned())
         .unwrap_or_else(|| format!("https://sts.{region}.amazonaws.com"));
@@ -96,4 +99,23 @@ pub async fn assume_role(
     provider
         .fetch_token(&client, &service, &RetryConfig::default())
         .await
+}
+
+/// Assume an AWS IAM role using ambient server credentials.
+///
+/// Uses the environment credential chain (`AWS_*` env vars, instance profile,
+/// ECS task role, WebIdentity, etc.) as the base identity for the STS
+/// `AssumeRole` call. Prefer [`assume_role_with_base`] when the base
+/// credentials are stored in the UC credential registry.
+pub async fn assume_role(
+    role_arn: &str,
+    region: &str,
+    sts_endpoint: Option<&str>,
+    policy: Option<String>,
+) -> Result<TemporaryToken<Arc<AwsCredential>>> {
+    let base_credentials = AmazonBuilder::from_env()
+        .with_region(region)
+        .build(None)?
+        .credentials;
+    assume_role_with_base(role_arn, region, sts_endpoint, policy, base_credentials).await
 }
