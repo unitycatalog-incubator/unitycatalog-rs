@@ -62,12 +62,17 @@ impl RequestSigner for AmazonConfig {
 /// `"us-east-1"`). Pass an optional `sts_endpoint` to override the endpoint
 /// URL (useful for LocalStack or other STS emulators in tests).
 ///
+/// Pass an optional `policy` (JSON string) to further restrict the assumed
+/// credentials via an inline session policy. The policy is intersected with
+/// the role's own policy and can only reduce, never expand, permissions.
+///
 /// This is used by the Unity Catalog server to vend temporary AWS credentials
 /// for external locations backed by an `AwsIamRoleConfig` credential.
 pub async fn assume_role(
     role_arn: &str,
     region: &str,
     sts_endpoint: Option<&str>,
+    policy: Option<String>,
 ) -> Result<TemporaryToken<Arc<AwsCredential>>> {
     // Resolve base credentials from the environment (same chain as AmazonBuilder::build).
     let base_config = AmazonBuilder::from_env().with_region(region).build(None)?;
@@ -83,6 +88,7 @@ pub async fn assume_role(
         endpoint,
         base_credentials,
         region: region.to_owned(),
+        policy,
     };
 
     let client = ClientOptions::default().client()?;

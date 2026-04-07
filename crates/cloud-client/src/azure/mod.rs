@@ -8,10 +8,12 @@ use crate::{ClientOptions, CredentialProvider, RequestSigner, Result, RetryConfi
 
 mod builder;
 pub(crate) mod credential;
+mod sas;
 
 pub(crate) use self::credential::*;
 pub use builder::*;
 pub use credential::AzureCredential;
+pub use sas::{generate_storage_key_sas, generate_user_delegation_sas};
 
 pub type AzureCredentialProvider = Arc<dyn CredentialProvider<Credential = AzureCredential>>;
 

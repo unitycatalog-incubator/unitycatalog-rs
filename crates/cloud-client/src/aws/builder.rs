@@ -563,6 +563,7 @@ impl AmazonBuilder {
                     endpoint,
                     base_credentials: credentials,
                     region: region.clone(),
+                    policy: None,
                 },
                 client,
                 service,

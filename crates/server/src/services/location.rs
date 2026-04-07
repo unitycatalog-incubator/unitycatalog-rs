@@ -87,6 +87,114 @@ impl StorageLocationUrl {
     pub fn scheme(&self) -> &StorageLocationScheme {
         &self.scheme
     }
+
+    /// Returns `(bucket_or_container, object_prefix)` extracted from the URL.
+    ///
+    /// - S3: `s3://bucket/prefix/path` → `("bucket", "prefix/path")`
+    /// - Azure HTTPS: `https://account.blob.core.windows.net/container/path` → `("container", "path")`
+    /// - Azurite HTTP: `http://localhost:10000/account/container/path` → `("container", "path")`
+    /// - Azurite custom scheme: `azurite://container/path` → `("container", "path")`
+    pub fn bucket_and_prefix(&self) -> Result<(String, String)> {
+        match &self.scheme {
+            StorageLocationScheme::ObjectStore(ObjectStoreScheme::AmazonS3) => {
+                let bucket = self
+                    .url
+                    .host_str()
+                    .ok_or_else(|| Error::invalid_argument("S3 URL missing bucket"))?
+                    .to_owned();
+                let prefix = self.url.path().trim_start_matches('/').to_owned();
+                Ok((bucket, prefix))
+            }
+            StorageLocationScheme::ObjectStore(ObjectStoreScheme::MicrosoftAzure) => {
+                // abfss://container@account.dfs.core.windows.net/path
+                // or https://account.blob.core.windows.net/container/path
+                let host = self.url.host_str().unwrap_or_default();
+                if host.contains('@') {
+                    // ABFSS: container@account.dfs.core.windows.net
+                    let container = host
+                        .split('@')
+                        .next()
+                        .ok_or_else(|| Error::invalid_argument("Invalid ABFSS URL"))?
+                        .to_owned();
+                    let prefix = self.url.path().trim_start_matches('/').to_owned();
+                    Ok((container, prefix))
+                } else {
+                    // https://account.blob.core.windows.net/container/path
+                    let mut segments = self
+                        .url
+                        .path_segments()
+                        .ok_or_else(|| Error::invalid_argument("Azure URL has no path"))?;
+                    let container = segments
+                        .next()
+                        .filter(|s| !s.is_empty())
+                        .ok_or_else(|| Error::invalid_argument("Azure URL missing container"))?
+                        .to_owned();
+                    let prefix = segments.collect::<Vec<_>>().join("/");
+                    Ok((container, prefix))
+                }
+            }
+            StorageLocationScheme::Azurite => {
+                if self.url.scheme() != "azurite" {
+                    // http://localhost:10000/account/container/path
+                    let parts: Vec<_> = self.url.path().splitn(4, '/').collect();
+                    // parts: ["", "account", "container", "path"]
+                    let container = parts
+                        .get(2)
+                        .filter(|s| !s.is_empty())
+                        .ok_or_else(|| Error::invalid_argument("Azurite URL missing container"))?
+                        .to_string();
+                    let prefix = parts.get(3).copied().unwrap_or("").to_owned();
+                    Ok((container, prefix))
+                } else {
+                    // azurite://container/path
+                    let container = self
+                        .url
+                        .host_str()
+                        .ok_or_else(|| {
+                            Error::invalid_argument("Azurite URL missing container in host")
+                        })?
+                        .to_owned();
+                    let prefix = self.url.path().trim_start_matches('/').to_owned();
+                    Ok((container, prefix))
+                }
+            }
+            _ => Err(Error::invalid_argument(
+                "bucket_and_prefix not supported for this URL scheme",
+            )),
+        }
+    }
+
+    /// Returns the Azure storage account name parsed from the URL, if present.
+    ///
+    /// - HTTPS: `https://account.blob.core.windows.net/…` → `Some("account")`
+    /// - ABFSS: `abfss://container@account.dfs.core.windows.net/…` → `Some("account")`
+    /// - Azurite HTTP: `http://localhost:10000/account/container/path` → `Some("account")`
+    /// - Azurite custom: `azurite://container/path` → `None` (no account concept)
+    pub fn azure_account(&self) -> Option<String> {
+        match &self.scheme {
+            StorageLocationScheme::ObjectStore(ObjectStoreScheme::MicrosoftAzure) => {
+                let host = self.url.host_str()?;
+                if host.contains('@') {
+                    // abfss://container@account.dfs.core.windows.net
+                    host.split('@')
+                        .nth(1)
+                        .map(|h| h.split('.').next().unwrap_or(h).to_owned())
+                } else {
+                    // https://account.blob.core.windows.net
+                    host.split('.').next().map(ToOwned::to_owned)
+                }
+            }
+            StorageLocationScheme::Azurite if self.url.scheme() != "azurite" => {
+                // http://localhost:10000/account/container/path
+                self.url
+                    .path_segments()
+                    .and_then(|mut s| s.next())
+                    .filter(|s| !s.is_empty())
+                    .map(ToOwned::to_owned)
+            }
+            _ => None,
+        }
+    }
 }
 
 fn is_azurite(url: &Url) -> bool {
