@@ -142,9 +142,15 @@ impl serde::Serialize for AwsIamRoleConfig {
         if !self.role_arn.is_empty() {
             len += 1;
         }
+        if self.region.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AwsIamRoleConfig", len)?;
         if !self.role_arn.is_empty() {
             struct_ser.serialize_field("role_arn", &self.role_arn)?;
+        }
+        if let Some(v) = self.region.as_ref() {
+            struct_ser.serialize_field("region", v)?;
         }
         struct_ser.end()
     }
@@ -158,11 +164,13 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
         const FIELDS: &[&str] = &[
             "role_arn",
             "roleArn",
+            "region",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             RoleArn,
+            Region,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -186,6 +194,7 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                     {
                         match value {
                             "roleArn" | "role_arn" => Ok(GeneratedField::RoleArn),
+                            "region" => Ok(GeneratedField::Region),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -206,6 +215,7 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                     V: serde::de::MapAccess<'de>,
             {
                 let mut role_arn__ = None;
+                let mut region__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::RoleArn => {
@@ -214,6 +224,12 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                             }
                             role_arn__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Region => {
+                            if region__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("region"));
+                            }
+                            region__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -221,6 +237,7 @@ impl<'de> serde::Deserialize<'de> for AwsIamRoleConfig {
                 }
                 Ok(AwsIamRoleConfig {
                     role_arn: role_arn__.unwrap_or_default(),
+                    region: region__,
                 })
             }
         }
@@ -648,6 +665,9 @@ impl serde::Serialize for CreateCredentialRequest {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
+        if self.aws_iam_role_config.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.CreateCredentialRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -675,6 +695,9 @@ impl serde::Serialize for CreateCredentialRequest {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
+        if let Some(v) = self.aws_iam_role_config.as_ref() {
+            struct_ser.serialize_field("aws_iam_role_config", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -698,6 +721,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
+            "aws_iam_role_config",
+            "awsIamRoleConfig",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -710,6 +735,7 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
+            AwsIamRoleConfig,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -740,6 +766,7 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
                             "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
                             "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
+                            "awsIamRoleConfig" | "aws_iam_role_config" => Ok(GeneratedField::AwsIamRoleConfig),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -767,6 +794,7 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
+                let mut aws_iam_role_config__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -817,6 +845,12 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             }
                             azure_storage_key__ = map_.next_value()?;
                         }
+                        GeneratedField::AwsIamRoleConfig => {
+                            if aws_iam_role_config__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRoleConfig"));
+                            }
+                            aws_iam_role_config__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -831,6 +865,7 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
+                    aws_iam_role_config: aws_iam_role_config__,
                 })
             }
         }
@@ -890,6 +925,9 @@ impl serde::Serialize for Credential {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
+        if self.aws_iam_role_config.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.Credential", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -942,6 +980,9 @@ impl serde::Serialize for Credential {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
+        if let Some(v) = self.aws_iam_role_config.as_ref() {
+            struct_ser.serialize_field("aws_iam_role_config", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -977,6 +1018,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
+            "aws_iam_role_config",
+            "awsIamRoleConfig",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -996,6 +1039,7 @@ impl<'de> serde::Deserialize<'de> for Credential {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
+            AwsIamRoleConfig,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1033,6 +1077,7 @@ impl<'de> serde::Deserialize<'de> for Credential {
                             "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
                             "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
                             "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
+                            "awsIamRoleConfig" | "aws_iam_role_config" => Ok(GeneratedField::AwsIamRoleConfig),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1067,6 +1112,7 @@ impl<'de> serde::Deserialize<'de> for Credential {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
+                let mut aws_iam_role_config__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -1163,6 +1209,12 @@ impl<'de> serde::Deserialize<'de> for Credential {
                             }
                             azure_storage_key__ = map_.next_value()?;
                         }
+                        GeneratedField::AwsIamRoleConfig => {
+                            if aws_iam_role_config__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRoleConfig"));
+                            }
+                            aws_iam_role_config__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -1184,6 +1236,7 @@ impl<'de> serde::Deserialize<'de> for Credential {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
+                    aws_iam_role_config: aws_iam_role_config__,
                 })
             }
         }
@@ -1740,6 +1793,9 @@ impl serde::Serialize for UpdateCredentialRequest {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
+        if self.aws_iam_role_config.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.UpdateCredentialRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -1771,6 +1827,9 @@ impl serde::Serialize for UpdateCredentialRequest {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
+        if let Some(v) = self.aws_iam_role_config.as_ref() {
+            struct_ser.serialize_field("aws_iam_role_config", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -1797,6 +1856,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
+            "aws_iam_role_config",
+            "awsIamRoleConfig",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1811,6 +1872,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
+            AwsIamRoleConfig,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1843,6 +1905,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                             "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
                             "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
                             "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
+                            "awsIamRoleConfig" | "aws_iam_role_config" => Ok(GeneratedField::AwsIamRoleConfig),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1872,6 +1935,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
+                let mut aws_iam_role_config__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -1934,6 +1998,12 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                             }
                             azure_storage_key__ = map_.next_value()?;
                         }
+                        GeneratedField::AwsIamRoleConfig => {
+                            if aws_iam_role_config__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRoleConfig"));
+                            }
+                            aws_iam_role_config__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -1950,6 +2020,7 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
+                    aws_iam_role_config: aws_iam_role_config__,
                 })
             }
         }

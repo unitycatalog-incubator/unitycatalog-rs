@@ -123,6 +123,14 @@ impl CreateCredentialBuilder {
         self.request.azure_storage_key = azure_storage_key.into();
         self
     }
+    /// Set aws_iam_role_config
+    pub fn with_aws_iam_role_config(
+        mut self,
+        aws_iam_role_config: impl Into<Option<AwsIamRoleConfig>>,
+    ) -> Self {
+        self.request.aws_iam_role_config = aws_iam_role_config.into();
+        self
+    }
 }
 impl IntoFuture for CreateCredentialBuilder {
     type Output = Result<Credential>;
@@ -226,6 +234,14 @@ impl UpdateCredentialBuilder {
         azure_storage_key: impl Into<Option<AzureStorageKey>>,
     ) -> Self {
         self.request.azure_storage_key = azure_storage_key.into();
+        self
+    }
+    /// Set aws_iam_role_config
+    pub fn with_aws_iam_role_config(
+        mut self,
+        aws_iam_role_config: impl Into<Option<AwsIamRoleConfig>>,
+    ) -> Self {
+        self.request.aws_iam_role_config = aws_iam_role_config.into();
         self
     }
 }

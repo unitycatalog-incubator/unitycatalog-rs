@@ -432,7 +432,9 @@ mod tests {
         let _token_mock = server
             .mock("POST", "/oidc/v1/token")
             .with_status(200)
-            .with_body(r#"{"access_token":"UC_BEARER_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .with_body(
+                r#"{"access_token":"UC_BEARER_TOKEN","expires_in":3600,"token_type":"Bearer"}"#,
+            )
             .create_async()
             .await;
 
@@ -440,14 +442,16 @@ mod tests {
             .mock("POST", "/api/2.1/unity-catalog/temporary-table-credentials")
             .match_header("Authorization", "Bearer UC_BEARER_TOKEN")
             .with_status(200)
-            .with_body(r#"{
+            .with_body(
+                r#"{
                 "aws_temp_credentials": {
                     "access_key_id": "ASIATESTVENDING",
                     "secret_access_key": "vendingsecret",
                     "session_token": "vendingtoken"
                 },
                 "expiration_time": "2099-01-01T00:00:00Z"
-            }"#)
+            }"#,
+            )
             .create_async()
             .await;
 
@@ -471,7 +475,10 @@ mod tests {
         let vend_resp = client
             .request(
                 Method::POST,
-                format!("{}/api/2.1/unity-catalog/temporary-table-credentials", server.url()),
+                format!(
+                    "{}/api/2.1/unity-catalog/temporary-table-credentials",
+                    server.url()
+                ),
             )
             .bearer_auth(&token.token.bearer)
             .send()

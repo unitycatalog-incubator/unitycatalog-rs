@@ -568,10 +568,7 @@ async fn assume_role(
             ("RoleSessionName", session_name),
             ("Version", "2011-06-15"),
         ])
-        .with_aws_sigv4(
-            Some(AwsAuthorizer::new(base_cred, "sts", region)),
-            None,
-        )
+        .with_aws_sigv4(Some(AwsAuthorizer::new(base_cred, "sts", region)), None)
         .retryable(retry_config, service.clone())
         .idempotent(true)
         .send()
@@ -741,11 +738,7 @@ async fn task_credential(
         req = req.header(reqwest::header::AUTHORIZATION, token.trim());
     }
 
-    let creds: InstanceCredentials = req
-        .send_retry(retry, service.clone())
-        .await?
-        .json()
-        .await?;
+    let creds: InstanceCredentials = req.send_retry(retry, service.clone()).await?.json().await?;
 
     let now = Utc::now();
     let ttl = (creds.expiration - now).to_std().unwrap_or_default();
@@ -981,7 +974,10 @@ mod tests {
             .mock("POST", "/")
             .match_query(mockito::Matcher::AllOf(vec![
                 mockito::Matcher::UrlEncoded("Action".into(), "AssumeRoleWithWebIdentity".into()),
-                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/TestRole".into()),
+                mockito::Matcher::UrlEncoded(
+                    "RoleArn".into(),
+                    "arn:aws:iam::123456789012:role/TestRole".into(),
+                ),
                 mockito::Matcher::UrlEncoded("WebIdentityToken".into(), "fake-jwt-token".into()),
             ]))
             .with_status(200)
@@ -1098,7 +1094,10 @@ mod tests {
             .mock("POST", "/")
             .match_query(mockito::Matcher::AllOf(vec![
                 mockito::Matcher::UrlEncoded("Action".into(), "AssumeRole".into()),
-                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/AssumedRole".into()),
+                mockito::Matcher::UrlEncoded(
+                    "RoleArn".into(),
+                    "arn:aws:iam::123456789012:role/AssumedRole".into(),
+                ),
             ]))
             .with_status(200)
             .with_body(STS_ASSUME_ROLE_XML)

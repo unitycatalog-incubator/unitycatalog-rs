@@ -42,11 +42,14 @@ impl ObjectStoreFactory for ServerHandlerInner<crate::api::RequestContext> {
     }
 }
 
-pub(crate) async fn get_object_store(
+/// Find the most specific external location whose URL is a prefix of `location`.
+///
+/// Returns the external location with the longest matching URL prefix, which
+/// provides the most specific credential for the requested storage path.
+pub(crate) async fn find_external_location_for_url(
     location: &StorageLocationUrl,
     handler: &dyn RegistryHandler,
-) -> Result<Arc<DynObjectStore>> {
-    tracing::debug!("get_object_store: {:?}", location.location());
+) -> Result<ExternalLocation> {
     // TODO(roeap): just listing all external locations could be very inefficient.
     // introduce an endpoint that allows us to query for specific resource properties instead
     let (locations, _) = handler
@@ -60,10 +63,12 @@ pub(crate) async fn get_object_store(
     let locations: Vec<ExternalLocation> =
         locations.into_iter().map(|l| l.try_into()).try_collect()?;
     // find the longest matching location
-    let ext_loc = locations
-        .iter()
+    locations
+        .into_iter()
         .filter(|l| {
-            let ext_loc_url = StorageLocationUrl::parse(&l.url).unwrap();
+            let Ok(ext_loc_url) = StorageLocationUrl::parse(&l.url) else {
+                return false;
+            };
             location
                 .raw()
                 .as_str()
@@ -74,7 +79,15 @@ pub(crate) async fn get_object_store(
                     .starts_with(ext_loc_url.location().as_str())
         })
         .max_by(|l, r| l.url.len().cmp(&r.url.len()))
-        .ok_or_else(|| Error::NotFound)?;
+        .ok_or(Error::NotFound)
+}
+
+pub(crate) async fn get_object_store(
+    location: &StorageLocationUrl,
+    handler: &dyn RegistryHandler,
+) -> Result<Arc<DynObjectStore>> {
+    tracing::debug!("get_object_store: {:?}", location.location());
+    let ext_loc = find_external_location_for_url(location, handler).await?;
     let credential = handler
         .get_credential_internal(GetCredentialRequest {
             name: ext_loc.credential_name.clone(),

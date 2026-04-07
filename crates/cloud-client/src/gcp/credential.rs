@@ -112,7 +112,6 @@ impl ServiceAccountKey {
     pub fn from_der(key: &[u8]) -> Result<Self> {
         Ok(Self(RsaKeyPair::from_der(key)?))
     }
-
 }
 
 /// A Google Cloud Storage Credential
@@ -623,20 +622,22 @@ impl TokenProvider for GcpWorkloadIdentityProvider {
             });
         };
 
-        let scope = self
-            .credentials
-            .scopes
-            .as_deref()
-            .unwrap_or(DEFAULT_SCOPE);
+        let scope = self.credentials.scopes.as_deref().unwrap_or(DEFAULT_SCOPE);
 
         // Step 1: STS token exchange
         let sts_resp: StsTokenResponse = client
             .request(Method::POST, &self.sts_endpoint)
             .form(&[
-                ("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange"),
+                (
+                    "grant_type",
+                    "urn:ietf:params:oauth:grant-type:token-exchange",
+                ),
                 ("audience", &self.credentials.audience),
                 ("scope", scope),
-                ("requested_token_type", &self.credentials.requested_token_type),
+                (
+                    "requested_token_type",
+                    &self.credentials.requested_token_type,
+                ),
                 ("subject_token", &subject_token),
                 ("subject_token_type", "urn:ietf:params:oauth:token-type:jwt"),
             ])
@@ -677,8 +678,7 @@ impl TokenProvider for GcpWorkloadIdentityProvider {
                             .unwrap_or_default()
                             .as_secs() as i64,
                     );
-                    std::time::Instant::now()
-                        + Duration::from_secs(secs.max(0) as u64)
+                    std::time::Instant::now() + Duration::from_secs(secs.max(0) as u64)
                 })
                 .unwrap_or_else(|| std::time::Instant::now() + Duration::from_secs(3600));
 
@@ -693,9 +693,7 @@ impl TokenProvider for GcpWorkloadIdentityProvider {
                 token: Arc::new(GcpCredential {
                     bearer: sts_resp.access_token,
                 }),
-                expiry: Some(
-                    std::time::Instant::now() + Duration::from_secs(sts_resp.expires_in),
-                ),
+                expiry: Some(std::time::Instant::now() + Duration::from_secs(sts_resp.expires_in)),
             })
         }
     }
@@ -724,11 +722,16 @@ mod tests {
         };
 
         let _mock = server
-            .mock("GET", "/computeMetadata/v1/instance/service-accounts/default/token")
+            .mock(
+                "GET",
+                "/computeMetadata/v1/instance/service-accounts/default/token",
+            )
             .match_header("Metadata-Flavor", "Google")
             .match_query(mockito::Matcher::Any)
             .with_status(200)
-            .with_body(r#"{"access_token":"GCP_META_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .with_body(
+                r#"{"access_token":"GCP_META_TOKEN","expires_in":3600,"token_type":"Bearer"}"#,
+            )
             .create_async()
             .await;
 
@@ -765,11 +768,15 @@ mod tests {
         let _sts_mock = server
             .mock("POST", "/v1/token")
             .match_body(mockito::Matcher::AllOf(vec![
-                mockito::Matcher::Regex("grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange".into()),
+                mockito::Matcher::Regex(
+                    "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange".into(),
+                ),
                 mockito::Matcher::Regex("subject_token=external-subject-jwt".into()),
             ]))
             .with_status(200)
-            .with_body(r#"{"access_token":"FEDERATED_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .with_body(
+                r#"{"access_token":"FEDERATED_TOKEN","expires_in":3600,"token_type":"Bearer"}"#,
+            )
             .create_async()
             .await;
 
@@ -819,7 +826,9 @@ mod tests {
         let _sts_mock = server
             .mock("POST", "/v1/token")
             .with_status(200)
-            .with_body(r#"{"access_token":"FEDERATED_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .with_body(
+                r#"{"access_token":"FEDERATED_TOKEN","expires_in":3600,"token_type":"Bearer"}"#,
+            )
             .create_async()
             .await;
 

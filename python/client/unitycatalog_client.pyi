@@ -3,6 +3,16 @@ from __future__ import annotations
 from typing import Optional, List, Dict, Any, Literal
 import enum
 
+class AwsIamRoleConfig:
+    """The AWS IAM role configuration."""
+
+    region: Optional[str]
+    """The AWS region where STS calls are made. Defaults to "us-east-1" if absent."""
+    role_arn: str
+    """The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials."""
+
+    def __init__(self, role_arn: str, region: Optional[str] = None) -> None: ...
+
 class AwsTemporaryCredentials:
     access_key_id: str
     """The access key ID that identifies the temporary credentials."""
@@ -180,6 +190,7 @@ class Column:
     ) -> None: ...
 
 class Credential:
+    aws_iam_role_config: Optional[AwsIamRoleConfig]
     azure_managed_identity: Optional[AzureManagedIdentity]
     azure_service_principal: Optional[AzureServicePrincipal]
     azure_storage_key: Optional[AzureStorageKey]
@@ -223,6 +234,7 @@ class Credential:
         purpose: Purpose,
         read_only: bool,
         used_for_managed_storage: bool,
+        aws_iam_role_config: Optional[AwsIamRoleConfig] = None,
         azure_managed_identity: Optional[AzureManagedIdentity] = None,
         azure_service_principal: Optional[AzureServicePrincipal] = None,
         azure_storage_key: Optional[AzureStorageKey] = None,
@@ -1065,6 +1077,7 @@ class CredentialClient:
         azure_service_principal: Optional[AzureServicePrincipal] = None,
         azure_managed_identity: Optional[AzureManagedIdentity] = None,
         azure_storage_key: Optional[AzureStorageKey] = None,
+        aws_iam_role_config: Optional[AwsIamRoleConfig] = None,
     ) -> Credential:
         """
         Args:
@@ -1439,6 +1452,7 @@ class UnityCatalogClient:
         azure_service_principal: Optional[AzureServicePrincipal] = None,
         azure_managed_identity: Optional[AzureManagedIdentity] = None,
         azure_storage_key: Optional[AzureStorageKey] = None,
+        aws_iam_role_config: Optional[AwsIamRoleConfig] = None,
     ) -> Credential:
         """
         Args:

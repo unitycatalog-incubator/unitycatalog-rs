@@ -494,13 +494,10 @@ impl AmazonBuilder {
                 service,
                 self.retry_config.clone(),
             )) as _
-        } else if let Some(full_uri) =
-            std::env::var("AWS_CONTAINER_CREDENTIALS_FULL_URI").ok()
-        {
+        } else if let Ok(full_uri) = std::env::var("AWS_CONTAINER_CREDENTIALS_FULL_URI") {
             // EKS Pod Identity and Lambda use a full absolute URI
             info!("Using Task credential provider (full URI)");
-            let auth_token_file =
-                std::env::var("AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE").ok();
+            let auth_token_file = std::env::var("AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE").ok();
             let client = self.client_options.clone().with_allow_http(true).client()?;
             let service = make_service(client.clone(), runtime);
             Arc::new(TaskCredentialProvider {
@@ -513,8 +510,7 @@ impl AmazonBuilder {
             }) as _
         } else if let Some(uri) = self.container_credentials_relative_uri {
             info!("Using Task credential provider (relative URI)");
-            let auth_token_file =
-                std::env::var("AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE").ok();
+            let auth_token_file = std::env::var("AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE").ok();
             let client = self.client_options.clone().with_allow_http(true).client()?;
             let service = make_service(client.clone(), runtime);
             Arc::new(TaskCredentialProvider {
@@ -554,7 +550,11 @@ impl AmazonBuilder {
             let endpoint = self
                 .sts_endpoint
                 .unwrap_or_else(|| format!("https://sts.{region}.amazonaws.com"));
-            let client = self.client_options.clone().with_allow_http(false).client()?;
+            let client = self
+                .client_options
+                .clone()
+                .with_allow_http(false)
+                .client()?;
             let service = make_service(client.clone(), runtime);
             Arc::new(TokenCredentialProvider::new(
                 AssumeRoleProvider {

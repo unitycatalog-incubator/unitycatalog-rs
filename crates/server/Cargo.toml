@@ -14,6 +14,7 @@ unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }
+cloud-client = { path = "../cloud-client" }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }

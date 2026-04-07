@@ -72,6 +72,9 @@ pub struct AwsIamRoleConfig {
     /// The Amazon Resource Name (ARN) of the AWS IAM role used to vend temporary credentials.
     #[prost(string, tag="1")]
     pub role_arn: ::prost::alloc::string::String,
+    /// The AWS region where STS calls are made. Defaults to "us-east-1" if absent.
+    #[prost(string, optional, tag="2")]
+    pub region: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// The AWS IAM role configuration.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -141,6 +144,8 @@ pub struct Credential {
     pub azure_managed_identity: ::core::option::Option<AzureManagedIdentity>,
     #[prost(message, optional, tag="102")]
     pub azure_storage_key: ::core::option::Option<AzureStorageKey>,
+    #[prost(message, optional, tag="103")]
+    pub aws_iam_role_config: ::core::option::Option<AwsIamRoleConfig>,
 }
 #[cfg_attr(feature = "python", ::pyo3::pyclass)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -223,6 +228,8 @@ pub struct CreateCredentialRequest {
     pub azure_managed_identity: ::core::option::Option<AzureManagedIdentity>,
     #[prost(message, optional, tag="102")]
     pub azure_storage_key: ::core::option::Option<AzureStorageKey>,
+    #[prost(message, optional, tag="103")]
+    pub aws_iam_role_config: ::core::option::Option<AwsIamRoleConfig>,
 }
 /// Get a credential
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -266,6 +273,8 @@ pub struct UpdateCredentialRequest {
     pub azure_managed_identity: ::core::option::Option<AzureManagedIdentity>,
     #[prost(message, optional, tag="102")]
     pub azure_storage_key: ::core::option::Option<AzureStorageKey>,
+    #[prost(message, optional, tag="103")]
+    pub aws_iam_role_config: ::core::option::Option<AwsIamRoleConfig>,
 }
 /// Delete a credential
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

@@ -13,8 +13,9 @@ use crate::policy::{Decision, Permission, Policy, ProvidesPolicy};
 use crate::store::{ProvidesResourceStore, ResourceStore};
 use unitycatalog_common::models::ResourceIdent;
 
+pub mod credential_vending;
 pub mod location;
-mod object_store;
+pub(crate) mod object_store;
 pub mod secrets;
 mod session;
 mod sharing;

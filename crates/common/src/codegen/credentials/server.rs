@@ -85,6 +85,7 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             azure_service_principal,
             azure_managed_identity,
             azure_storage_key,
+            aws_iam_role_config,
         ) = (
             body.new_name,
             body.comment,
@@ -95,6 +96,7 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             body.azure_service_principal,
             body.azure_managed_identity,
             body.azure_storage_key,
+            body.aws_iam_role_config,
         );
         Ok(UpdateCredentialRequest {
             name,
@@ -107,6 +109,7 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             azure_service_principal,
             azure_managed_identity,
             azure_storage_key,
+            aws_iam_role_config,
         })
     }
 }
