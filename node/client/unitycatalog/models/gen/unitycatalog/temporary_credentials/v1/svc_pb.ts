@@ -25,14 +25,16 @@ export const file_unitycatalog_temporary_credentials_v1_svc: GenFile = /*@__PURE
  */
 export type GenerateTemporaryTableCredentialsRequest = Message<"unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest"> & {
   /**
-   * The name of the table for which to generate credentials.
+   * UUID of the table to read or write.
    *
    * @generated from field: string table_id = 1;
    */
   tableId: string;
 
   /**
-   * The operation to perform with the credentials.
+   * The operation performed against the table data, either READ or READ_WRITE.
+   * If READ_WRITE is specified, the credentials returned will have write
+   * permissions, otherwise, it will be read only.
    *
    * @generated from field: unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest.Operation operation = 2;
    */
@@ -79,26 +81,30 @@ export const GenerateTemporaryTableCredentialsRequest_OperationSchema: GenEnum<G
   enumDesc(file_unitycatalog_temporary_credentials_v1_svc, 0, 0);
 
 /**
- * Generate a new set of credentials for a volume.
+ * Generate a new set of credentials for a path.
  *
  * @generated from message unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest
  */
 export type GenerateTemporaryPathCredentialsRequest = Message<"unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest"> & {
   /**
-   * The name of the volume for which to generate credentials.
+   * URL for path-based access.
    *
    * @generated from field: string url = 1;
    */
   url: string;
 
   /**
-   * The operation to perform with the credentials.
+   * The operation being performed on the path.
    *
    * @generated from field: unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest.Operation operation = 2;
    */
   operation: GenerateTemporaryPathCredentialsRequest_Operation;
 
   /**
+   * When set to true, the service will not validate that the generated
+   * credentials can perform write operations, therefore no new paths will be
+   * created and the response will not contain valid credentials. Defaults to false.
+   *
    * @generated from field: optional bool dry_run = 3;
    */
   dryRun?: boolean;
@@ -137,6 +143,8 @@ export enum GenerateTemporaryPathCredentialsRequest_Operation {
   PATH_READ_WRITE = 2,
 
   /**
+   * The operation creates a table at the path.
+   *
    * @generated from enum value: PATH_CREATE_TABLE = 3;
    */
   PATH_CREATE_TABLE = 3,

@@ -8,7 +8,6 @@ use object_store::azure::MicrosoftAzureBuilder;
 use unitycatalog_common::credentials::v1::AzureManagedIdentity;
 use unitycatalog_common::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
-    azure_managed_identity::Identifier as AzureMiIdentifier,
     azure_service_principal::Credential as AzureSpCredential,
 };
 use unitycatalog_common::models::external_locations::v1::ExternalLocation;
@@ -158,19 +157,12 @@ fn get_azure_store(
         builder = builder
             .with_account(account_name)
             .with_access_key(account_key);
-    } else if let Some(AzureManagedIdentity { identifier }) = azure_managed_identity {
-        use AzureMiIdentifier::*;
-        match identifier {
-            Some(ObjectId(_object_id)) => {
-                todo!()
-            }
-            Some(ApplicationId(application_id)) => {
-                builder = builder.with_client_id(application_id);
-            }
-            Some(MsiResourceId(_msi_resource_id)) => {
-                todo!()
-            }
-            _ => (),
+    } else if let Some(msi) = azure_managed_identity {
+        // managed_identity_id is the ARM resource ID of a user-assigned identity.
+        // Pass it as the client_id to the object store builder when present.
+        // When absent, the system-assigned identity of the Access Connector is used.
+        if let Some(managed_identity_id) = msi.managed_identity_id {
+            builder = builder.with_client_id(managed_identity_id);
         }
     } else {
         return Err(Error::invalid_argument(

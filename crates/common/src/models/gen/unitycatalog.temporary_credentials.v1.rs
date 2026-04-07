@@ -100,10 +100,12 @@ pub mod temporary_credential {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateTemporaryTableCredentialsRequest {
-    /// The name of the table for which to generate credentials.
+    /// UUID of the table to read or write.
     #[prost(string, tag="1")]
     pub table_id: ::prost::alloc::string::String,
-    /// The operation to perform with the credentials.
+    /// The operation performed against the table data, either READ or READ_WRITE.
+    /// If READ_WRITE is specified, the credentials returned will have write
+    /// permissions, otherwise, it will be read only.
     #[prost(enumeration="generate_temporary_table_credentials_request::Operation", tag="2")]
     pub operation: i32,
 }
@@ -143,17 +145,20 @@ pub mod generate_temporary_table_credentials_request {
         }
     }
 }
-/// Generate a new set of credentials for a volume.
+/// Generate a new set of credentials for a path.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GenerateTemporaryPathCredentialsRequest {
-    /// The name of the volume for which to generate credentials.
+    /// URL for path-based access.
     #[prost(string, tag="1")]
     pub url: ::prost::alloc::string::String,
-    /// The operation to perform with the credentials.
+    /// The operation being performed on the path.
     #[prost(enumeration="generate_temporary_path_credentials_request::Operation", tag="2")]
     pub operation: i32,
+    /// When set to true, the service will not validate that the generated
+    /// credentials can perform write operations, therefore no new paths will be
+    /// created and the response will not contain valid credentials. Defaults to false.
     #[prost(bool, optional, tag="3")]
     pub dry_run: ::core::option::Option<bool>,
 }
@@ -169,6 +174,7 @@ pub mod generate_temporary_path_credentials_request {
         PathRead = 1,
         /// The operation is read and write.
         PathReadWrite = 2,
+        /// The operation creates a table at the path.
         PathCreateTable = 3,
     }
     impl Operation {

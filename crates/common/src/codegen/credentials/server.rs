@@ -85,7 +85,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             azure_service_principal,
             azure_managed_identity,
             azure_storage_key,
-            aws_iam_role_config,
+            aws_iam_role,
+            databricks_gcp_service_account,
         ) = (
             body.new_name,
             body.comment,
@@ -96,7 +97,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             body.azure_service_principal,
             body.azure_managed_identity,
             body.azure_storage_key,
-            body.aws_iam_role_config,
+            body.aws_iam_role,
+            body.databricks_gcp_service_account,
         );
         Ok(UpdateCredentialRequest {
             name,
@@ -109,7 +111,8 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for UpdateCredentialRequest {
             azure_service_principal,
             azure_managed_identity,
             azure_storage_key,
-            aws_iam_role_config,
+            aws_iam_role,
+            databricks_gcp_service_account,
         })
     }
 }

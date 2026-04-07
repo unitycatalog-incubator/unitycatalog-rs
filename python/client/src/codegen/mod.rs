@@ -128,7 +128,8 @@ impl PyUnityCatalogClient {
             azure_service_principal = None,
             azure_managed_identity = None,
             azure_storage_key = None,
-            aws_iam_role_config = None
+            aws_iam_role = None,
+            databricks_gcp_service_account = None
         )
     )]
     pub fn create_credential(
@@ -142,7 +143,8 @@ impl PyUnityCatalogClient {
         azure_service_principal: Option<AzureServicePrincipal>,
         azure_managed_identity: Option<AzureManagedIdentity>,
         azure_storage_key: Option<AzureStorageKey>,
-        aws_iam_role_config: Option<AwsIamRoleConfig>,
+        aws_iam_role: Option<AwsIamRoleConfig>,
+        databricks_gcp_service_account: Option<DatabricksGcpServiceAccount>,
     ) -> PyUnityCatalogResult<Credential> {
         let mut request = self.client.create_credential(name, purpose);
         request = request.with_comment(comment);
@@ -151,7 +153,8 @@ impl PyUnityCatalogClient {
         request = request.with_azure_service_principal(azure_service_principal);
         request = request.with_azure_managed_identity(azure_managed_identity);
         request = request.with_azure_storage_key(azure_storage_key);
-        request = request.with_aws_iam_role_config(aws_iam_role_config);
+        request = request.with_aws_iam_role(aws_iam_role);
+        request = request.with_databricks_gcp_service_account(databricks_gcp_service_account);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

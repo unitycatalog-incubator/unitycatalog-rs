@@ -16,9 +16,11 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file unitycatalog/credentials/v1/models.proto.
  */
 export const file_unitycatalog_credentials_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIn0KFEF6dXJlTWFuYWdlZElkZW50aXR5EhgKCW9iamVjdF9pZBgBIAEoCUID4EEBSAASHQoOYXBwbGljYXRpb25faWQYAiABKAlCA+BBAUgAEh4KD21zaV9yZXNvdXJjZV9pZBgDIAEoCUID4EEBSABCDAoKaWRlbnRpZmllciJGCg9BenVyZVN0b3JhZ2VLZXkSGQoMYWNjb3VudF9uYW1lGAEgASgJQgPgQQISGAoLYWNjb3VudF9rZXkYAiABKAlCA+BBAiLvAQoQQXdzSWFtUm9sZUNvbmZpZxIVCghyb2xlX2FybhgBIAEoCUID4EECEhgKBnJlZ2lvbhgCIAEoCUID4EEBSACIAQESHwoNYWNjZXNzX2tleV9pZBgDIAEoCUID4EEBSAGIAQESIwoRc2VjcmV0X2FjY2Vzc19rZXkYBCABKAlCA+BBAUgCiAEBEh8KDXNlc3Npb25fdG9rZW4YBSABKAlCA+BBAUgDiAEBQgkKB19yZWdpb25CEAoOX2FjY2Vzc19rZXlfaWRCFAoSX3NlY3JldF9hY2Nlc3Nfa2V5QhAKDl9zZXNzaW9uX3Rva2VuImEKCkF3c0lhbVJvbGUSGAoLZXh0ZXJuYWxfaWQYASABKAlCA+BBAhIVCghyb2xlX2FybhgCIAEoCUID4EECEiIKFXVuaXR5X2NhdGFsb2dfaWFtX2FybhgDIAEoCUID4EECIo8ICgpDcmVkZW50aWFsEgwKBG5hbWUYASABKAkSDwoCaWQYAiABKAlIAIgBARI1CgdwdXJwb3NlGAMgASgOMiQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlB1cnBvc2USEQoJcmVhZF9vbmx5GAQgASgIEhQKB2NvbW1lbnQYBSABKAlIAYgBARISCgVvd25lchgGIAEoCUgCiAEBEhcKCmNyZWF0ZWRfYXQYByABKANIA4gBARIXCgpjcmVhdGVkX2J5GAggASgJSASIAQESFwoKdXBkYXRlZF9hdBgJIAEoA0gFiAEBEhcKCnVwZGF0ZWRfYnkYCiABKAlIBogBARIgChh1c2VkX2Zvcl9tYW5hZ2VkX3N0b3JhZ2UYCyABKAgSFgoJZnVsbF9uYW1lGAwgASgJSAeIAQESWAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAiIAQESVgoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgJiAEBEkwKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgKiAEBEk8KE2F3c19pYW1fcm9sZV9jb25maWcYZyABKAsyLS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXdzSWFtUm9sZUNvbmZpZ0gLiAEBOrIB6kFPChp1bml0eWNhdGFsb2cuaW8vQ3JlZGVudGlhbBIYY3JlZGVudGlhbHMve2NyZWRlbnRpYWx9KgtjcmVkZW50aWFsczIKY3JlZGVudGlhbLpIXSJbChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkKE2F3c19pYW1fcm9sZV9jb25maWcQAUIFCgNfaWRCCgoIX2NvbW1lbnRCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9mdWxsX25hbWVCGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleUIWChRfYXdzX2lhbV9yb2xlX2NvbmZpZyo8CgdQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABILCgdTVE9SQUdFEAESCwoHU0VSVklDRRACQpYCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQgtNb2RlbHNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
+  fileDesc("Cih1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvbW9kZWxzLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEinQEKFUF6dXJlU2VydmljZVByaW5jaXBhbBIZCgxkaXJlY3RvcnlfaWQYASABKAlCA+BBAhIbCg5hcHBsaWNhdGlvbl9pZBgCIAEoCUID4EECEhcKDWNsaWVudF9zZWNyZXQYAyABKAlIABIeChRmZWRlcmF0ZWRfdG9rZW5fZmlsZRgFIAEoCUgAQhMKCmNyZWRlbnRpYWwSBbpIAggBIqoBChRBenVyZU1hbmFnZWRJZGVudGl0eRIgChNhY2Nlc3NfY29ubmVjdG9yX2lkGAEgASgJQgPgQQISHwoNY3JlZGVudGlhbF9pZBgCIAEoCUID4EEBSACIAQESJQoTbWFuYWdlZF9pZGVudGl0eV9pZBgDIAEoCUID4EEBSAGIAQFCEAoOX2NyZWRlbnRpYWxfaWRCFgoUX21hbmFnZWRfaWRlbnRpdHlfaWQiRgoPQXp1cmVTdG9yYWdlS2V5EhkKDGFjY291bnRfbmFtZRgBIAEoCUID4EECEhgKC2FjY291bnRfa2V5GAIgASgJQgPgQQIi7wEKEEF3c0lhbVJvbGVDb25maWcSFQoIcm9sZV9hcm4YASABKAlCA+BBAhIYCgZyZWdpb24YAiABKAlCA+BBAUgAiAEBEh8KDWFjY2Vzc19rZXlfaWQYAyABKAlCA+BBAUgBiAEBEiMKEXNlY3JldF9hY2Nlc3Nfa2V5GAQgASgJQgPgQQFIAogBARIfCg1zZXNzaW9uX3Rva2VuGAUgASgJQgPgQQFIA4gBAUIJCgdfcmVnaW9uQhAKDl9hY2Nlc3Nfa2V5X2lkQhQKEl9zZWNyZXRfYWNjZXNzX2tleUIQCg5fc2Vzc2lvbl90b2tlbiJhCgpBd3NJYW1Sb2xlEhgKC2V4dGVybmFsX2lkGAEgASgJQgPgQQISFQoIcm9sZV9hcm4YAiABKAlCA+BBAhIiChV1bml0eV9jYXRhbG9nX2lhbV9hcm4YAyABKAlCA+BBAiKoAQobRGF0YWJyaWNrc0djcFNlcnZpY2VBY2NvdW50Eh8KDWNyZWRlbnRpYWxfaWQYASABKAlCA+BBAUgAiAEBEhcKBWVtYWlsGAIgASgJQgPgQQFIAYgBARIgCg5wcml2YXRlX2tleV9pZBgDIAEoCUID4EEBSAKIAQFCEAoOX2NyZWRlbnRpYWxfaWRCCAoGX2VtYWlsQhEKD19wcml2YXRlX2tleV9pZCKkCQoKQ3JlZGVudGlhbBIMCgRuYW1lGAEgASgJEg8KAmlkGAIgASgJSACIAQESNQoHcHVycG9zZRgDIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlEhEKCXJlYWRfb25seRgEIAEoCBIUCgdjb21tZW50GAUgASgJSAGIAQESEgoFb3duZXIYBiABKAlIAogBARIXCgpjcmVhdGVkX2F0GAcgASgDSAOIAQESFwoKY3JlYXRlZF9ieRgIIAEoCUgEiAEBEhcKCnVwZGF0ZWRfYXQYCSABKANIBYgBARIXCgp1cGRhdGVkX2J5GAogASgJSAaIAQESIAoYdXNlZF9mb3JfbWFuYWdlZF9zdG9yYWdlGAsgASgIEhYKCWZ1bGxfbmFtZRgMIAEoCUgHiAEBElgKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgIiAEBElYKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlICYgBARJMChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlICogBARJICgxhd3NfaWFtX3JvbGUYZyABKAsyLS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXdzSWFtUm9sZUNvbmZpZ0gLiAEBEmUKHmRhdGFicmlja3NfZ2NwX3NlcnZpY2VfYWNjb3VudBhoIAEoCzI4LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5EYXRhYnJpY2tzR2NwU2VydmljZUFjY291bnRIDIgBATrLAepBTwoadW5pdHljYXRhbG9nLmlvL0NyZWRlbnRpYWwSGGNyZWRlbnRpYWxzL3tjcmVkZW50aWFsfSoLY3JlZGVudGlhbHMyCmNyZWRlbnRpYWy6SHYidAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkKEWF6dXJlX3N0b3JhZ2Vfa2V5Cgxhd3NfaWFtX3JvbGUKHmRhdGFicmlja3NfZ2NwX3NlcnZpY2VfYWNjb3VudBABQgUKA19pZEIKCghfY29tbWVudEIICgZfb3duZXJCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDAoKX2Z1bGxfbmFtZUIaChhfYXp1cmVfc2VydmljZV9wcmluY2lwYWxCGQoXX2F6dXJlX21hbmFnZWRfaWRlbnRpdHlCFAoSX2F6dXJlX3N0b3JhZ2Vfa2V5Qg8KDV9hd3NfaWFtX3JvbGVCIQofX2RhdGFicmlja3NfZ2NwX3NlcnZpY2VfYWNjb3VudCo8CgdQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABILCgdTVE9SQUdFEAESCwoHU0VSVklDRRACQpYCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQgtNb2RlbHNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
 
 /**
+ * The Azure service principal configuration.
+ *
  * @generated from message unitycatalog.credentials.v1.AzureServicePrincipal
  */
 export type AzureServicePrincipal = Message<"unitycatalog.credentials.v1.AzureServicePrincipal"> & {
@@ -68,37 +70,39 @@ export const AzureServicePrincipalSchema: GenMessage<AzureServicePrincipal> = /*
   messageDesc(file_unitycatalog_credentials_v1_models, 0);
 
 /**
+ * The Azure managed identity configuration.
+ *
  * @generated from message unitycatalog.credentials.v1.AzureManagedIdentity
  */
 export type AzureManagedIdentity = Message<"unitycatalog.credentials.v1.AzureManagedIdentity"> & {
   /**
-   * @generated from oneof unitycatalog.credentials.v1.AzureManagedIdentity.identifier
+   * The Azure resource ID of the Azure Databricks Access Connector.
+   * Use the format /subscriptions/{guid}/resourceGroups/{rg-name}/providers/
+   * Microsoft.Databricks/accessConnectors/{connector-name}.
+   *
+   * @generated from field: string access_connector_id = 1;
    */
-  identifier: {
-    /**
-     * Object id for use with managed identity authentication
-     *
-     * @generated from field: string object_id = 1;
-     */
-    value: string;
-    case: "objectId";
-  } | {
-    /**
-     * The application ID of the application registration within the referenced AAD tenant.
-     *
-     * @generated from field: string application_id = 2;
-     */
-    value: string;
-    case: "applicationId";
-  } | {
-    /**
-     * Msi resource id for use with managed identity authentication
-     *
-     * @generated from field: string msi_resource_id = 3;
-     */
-    value: string;
-    case: "msiResourceId";
-  } | { case: undefined; value?: undefined };
+  accessConnectorId: string;
+
+  /**
+   * The Databricks internal ID that represents this managed identity.
+   *
+   * @generated from field: optional string credential_id = 2;
+   */
+  credentialId?: string;
+
+  /**
+   * The Azure resource ID of the managed identity.
+   * Use the format /subscriptions/{guid}/resourceGroups/{rg-name}/providers/
+   * Microsoft.ManagedIdentity/userAssignedIdentities/{identity-name}.
+   * This is only available for user-assigned identities. For system-assigned
+   * identities, the access_connector_id is used to identify the identity.
+   * If this field is not provided, then the system-assigned identity of the
+   * Access Connector is used.
+   *
+   * @generated from field: optional string managed_identity_id = 3;
+   */
+  managedIdentityId?: string;
 };
 
 /**
@@ -109,6 +113,8 @@ export const AzureManagedIdentitySchema: GenMessage<AzureManagedIdentity> = /*@_
   messageDesc(file_unitycatalog_credentials_v1_models, 1);
 
 /**
+ * The Azure storage key configuration.
+ *
  * @generated from message unitycatalog.credentials.v1.AzureStorageKey
  */
 export type AzureStorageKey = Message<"unitycatalog.credentials.v1.AzureStorageKey"> & {
@@ -135,7 +141,11 @@ export const AzureStorageKeySchema: GenMessage<AzureStorageKey> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 2);
 
 /**
- * The AWS IAM role configuration.
+ * The AWS IAM role configuration used server-side to call STS AssumeRole.
+ *
+ * This is an internal configuration type, not exposed in the public API response.
+ * It stores the static credentials (or ambient credential fallback) used to
+ * authorize the STS:AssumeRole call when vending temporary credentials.
  *
  * @generated from message unitycatalog.credentials.v1.AwsIamRoleConfig
  */
@@ -189,7 +199,7 @@ export const AwsIamRoleConfigSchema: GenMessage<AwsIamRoleConfig> = /*@__PURE__*
   messageDesc(file_unitycatalog_credentials_v1_models, 3);
 
 /**
- * The AWS IAM role configuration.
+ * The AWS IAM role configuration returned in credential responses.
  *
  * @generated from message unitycatalog.credentials.v1.AwsIamRole
  */
@@ -225,6 +235,43 @@ export const AwsIamRoleSchema: GenMessage<AwsIamRole> = /*@__PURE__*/
   messageDesc(file_unitycatalog_credentials_v1_models, 4);
 
 /**
+ * The Databricks managed GCP service account configuration.
+ *
+ * @generated from message unitycatalog.credentials.v1.DatabricksGcpServiceAccount
+ */
+export type DatabricksGcpServiceAccount = Message<"unitycatalog.credentials.v1.DatabricksGcpServiceAccount"> & {
+  /**
+   * The Databricks internal ID that represents this managed identity.
+   *
+   * @generated from field: optional string credential_id = 1;
+   */
+  credentialId?: string;
+
+  /**
+   * The email of the service account.
+   *
+   * @generated from field: optional string email = 2;
+   */
+  email?: string;
+
+  /**
+   * The ID that represents the private key for this Service Account.
+   *
+   * @generated from field: optional string private_key_id = 3;
+   */
+  privateKeyId?: string;
+};
+
+/**
+ * Describes the message unitycatalog.credentials.v1.DatabricksGcpServiceAccount.
+ * Use `create(DatabricksGcpServiceAccountSchema)` to create a new message.
+ */
+export const DatabricksGcpServiceAccountSchema: GenMessage<DatabricksGcpServiceAccount> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_credentials_v1_models, 5);
+
+/**
+ * A credential used to access external data sources or services.
+ *
  * @generated from message unitycatalog.credentials.v1.Credential
  */
 export type Credential = Message<"unitycatalog.credentials.v1.Credential"> & {
@@ -261,7 +308,7 @@ export type Credential = Message<"unitycatalog.credentials.v1.Credential"> & {
   readOnly: boolean;
 
   /**
-   * User-provided free-form text description.
+   * Comment associated with the credential.
    *
    * @generated from field: optional string comment = 5;
    */
@@ -289,14 +336,14 @@ export type Credential = Message<"unitycatalog.credentials.v1.Credential"> & {
   createdBy?: string;
 
   /**
-   * Time at which this credential was last updated, in epoch milliseconds.
+   * Time at which this credential was last modified, in epoch milliseconds.
    *
    * @generated from field: optional int64 updated_at = 9;
    */
   updatedAt?: bigint;
 
   /**
-   * Username of user who last modified credential.
+   * Username of user who last modified the credential.
    *
    * @generated from field: optional string updated_by = 10;
    */
@@ -319,24 +366,39 @@ export type Credential = Message<"unitycatalog.credentials.v1.Credential"> & {
   fullName?: string;
 
   /**
+   * The Azure service principal configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
    */
   azureServicePrincipal?: AzureServicePrincipal;
 
   /**
+   * The Azure managed identity configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
    */
   azureManagedIdentity?: AzureManagedIdentity;
 
   /**
+   * The Azure storage key configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
    */
   azureStorageKey?: AzureStorageKey;
 
   /**
-   * @generated from field: optional unitycatalog.credentials.v1.AwsIamRoleConfig aws_iam_role_config = 103;
+   * The AWS IAM role configuration.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.AwsIamRoleConfig aws_iam_role = 103;
    */
-  awsIamRoleConfig?: AwsIamRoleConfig;
+  awsIamRole?: AwsIamRoleConfig;
+
+  /**
+   * The Databricks managed GCP service account configuration.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.DatabricksGcpServiceAccount databricks_gcp_service_account = 104;
+   */
+  databricksGcpServiceAccount?: DatabricksGcpServiceAccount;
 };
 
 /**
@@ -344,9 +406,11 @@ export type Credential = Message<"unitycatalog.credentials.v1.Credential"> & {
  * Use `create(CredentialSchema)` to create a new message.
  */
 export const CredentialSchema: GenMessage<Credential> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_credentials_v1_models, 5);
+  messageDesc(file_unitycatalog_credentials_v1_models, 6);
 
 /**
+ * The purpose of a credential.
+ *
  * @generated from enum unitycatalog.credentials.v1.Purpose
  */
 export enum Purpose {
@@ -356,11 +420,15 @@ export enum Purpose {
   PURPOSE_UNSPECIFIED = 0,
 
   /**
+   * The credential is used to access external storage locations.
+   *
    * @generated from enum value: STORAGE = 1;
    */
   STORAGE = 1,
 
   /**
+   * The credential is used to access external services.
+   *
    * @generated from enum value: SERVICE = 2;
    */
   SERVICE = 2,

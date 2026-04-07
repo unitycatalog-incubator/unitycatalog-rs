@@ -6,8 +6,7 @@ use cloud_client::TemporaryToken;
 use cloud_client::aws::{AwsCredential, AwsCredentialProvider};
 use cloud_client::azure::AzureCredential;
 use unitycatalog_common::models::credentials::v1::{
-    Credential, azure_managed_identity::Identifier as AzureMiIdentifier,
-    azure_service_principal::Credential as AzureSpCredential,
+    Credential, azure_service_principal::Credential as AzureSpCredential,
 };
 use unitycatalog_common::models::temporary_credentials::v1::{
     AwsTemporaryCredentials, AzureUserDelegationSas, TemporaryCredential,
@@ -139,8 +138,13 @@ pub(crate) async fn vend_credential(
     if let Some(key) = &credential.azure_storage_key {
         return vend_azure_storage_key(key, url, operation).await;
     }
-    if let Some(role) = &credential.aws_iam_role_config {
+    if let Some(role) = &credential.aws_iam_role {
         return vend_aws_iam_role(role, url, operation).await;
+    }
+    if credential.databricks_gcp_service_account.is_some() {
+        return Err(Error::generic(
+            "GCP service account credential vending is not yet implemented.",
+        ));
     }
     Err(Error::invalid_argument(
         "No supported credential type found on this credential object.",
@@ -192,19 +196,17 @@ async fn vend_azure_service_principal(
 /// If a user registers an `AzureManagedIdentity` credential they are declaring
 /// that the Unity Catalog server itself runs on Azure compute with that identity
 /// assigned. The server cannot fall back to a stored key here.
+///
+/// When `managed_identity_id` is set, it is the ARM resource ID of the
+/// user-assigned identity and is passed as `msi_res_id` to IMDS. When absent,
+/// the system-assigned identity of the Access Connector is used automatically.
 async fn vend_azure_managed_identity(
     msi: &unitycatalog_common::models::credentials::v1::AzureManagedIdentity,
     url: &str,
     operation: VendOperation,
 ) -> Result<TemporaryCredential> {
-    let (client_id, object_id, msi_res_id) = match &msi.identifier {
-        Some(AzureMiIdentifier::ApplicationId(id)) => (Some(id.clone()), None, None),
-        Some(AzureMiIdentifier::ObjectId(id)) => (None, Some(id.clone()), None),
-        Some(AzureMiIdentifier::MsiResourceId(id)) => (None, None, Some(id.clone())),
-        None => (None, None, None),
-    };
-    let token =
-        cloud_client::azure::fetch_managed_identity_token(client_id, object_id, msi_res_id).await?;
+    let msi_res_id = msi.managed_identity_id.clone();
+    let token = cloud_client::azure::fetch_managed_identity_token(None, None, msi_res_id).await?;
     let bearer_token = extract_bearer_token(token.token.as_ref())?;
     vend_azure_sas_from_bearer(url, &bearer_token, operation).await
 }

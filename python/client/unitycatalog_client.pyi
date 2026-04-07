@@ -4,7 +4,11 @@ from typing import Optional, List, Dict, Any, Literal
 import enum
 
 class AwsIamRoleConfig:
-    """The AWS IAM role configuration."""
+    """The AWS IAM role configuration used server-side to call STS AssumeRole.
+
+    This is an internal configuration type, not exposed in the public API response. It stores the static
+    credentials (or ambient credential fallback) used to authorize the STS:AssumeRole call when vending
+    temporary credentials."""
 
     access_key_id: Optional[str]
     """
@@ -61,21 +65,35 @@ class AzureAad:
     def __init__(self, aad_token: str) -> None: ...
 
 class AzureManagedIdentity:
-    application_id: Optional[str]
-    """The application ID of the application registration within the referenced AAD tenant."""
-    msi_resource_id: Optional[str]
-    """Msi resource id for use with managed identity authentication"""
-    object_id: Optional[str]
-    """Object id for use with managed identity authentication"""
+    """The Azure managed identity configuration."""
+
+    access_connector_id: str
+    """
+    The Azure resource ID of the Azure Databricks Access Connector. Use the format /
+    subscriptions/ {guid}/resourceGroups/{rg-name}/providers/ Microsoft.Databricks/
+    accessConnectors/{connector-name}.
+    """
+    credential_id: Optional[str]
+    """The Databricks internal ID that represents this managed identity."""
+    managed_identity_id: Optional[str]
+    """
+    The Azure resource ID of the managed identity. Use the format /subscriptions/{guid}/
+    resourceGroups/ {rg-name}/providers/ Microsoft.ManagedIdentity/userAssignedIdentities/
+    {identity-name}. This is only available for user-assigned identities. For system-assigned
+    identities, the access_connector_id is used to identify the identity. If this field is not
+    provided, then the system-assigned identity of the Access Connector is used.
+    """
 
     def __init__(
         self,
-        application_id: Optional[str] = None,
-        msi_resource_id: Optional[str] = None,
-        object_id: Optional[str] = None,
+        access_connector_id: str,
+        credential_id: Optional[str] = None,
+        managed_identity_id: Optional[str] = None,
     ) -> None: ...
 
 class AzureServicePrincipal:
+    """The Azure service principal configuration."""
+
     application_id: str
     """The application ID of the application registration within the referenced AAD tenant."""
     directory_id: str
@@ -99,6 +117,8 @@ Specifically useful for workload identity federation."""
     ) -> None: ...
 
 class AzureStorageKey:
+    """The Azure storage key configuration."""
+
     account_key: str
     """The account key of the storage account."""
     account_name: str
@@ -211,16 +231,24 @@ class Column:
     ) -> None: ...
 
 class Credential:
-    aws_iam_role_config: Optional[AwsIamRoleConfig]
+    """A credential used to access external data sources or services."""
+
+    aws_iam_role: Optional[AwsIamRoleConfig]
+    """The AWS IAM role configuration."""
     azure_managed_identity: Optional[AzureManagedIdentity]
+    """The Azure managed identity configuration."""
     azure_service_principal: Optional[AzureServicePrincipal]
+    """The Azure service principal configuration."""
     azure_storage_key: Optional[AzureStorageKey]
+    """The Azure storage key configuration."""
     comment: Optional[str]
-    """User-provided free-form text description."""
+    """Comment associated with the credential."""
     created_at: Optional[int]
     """Time at which this credential was created, in epoch milliseconds."""
     created_by: Optional[str]
     """Username of credential creator."""
+    databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount]
+    """The Databricks managed GCP service account configuration."""
     full_name: Optional[str]
     """The full name of the credential."""
     id: Optional[str]
@@ -240,9 +268,9 @@ class Credential:
     is STORAGE.
     """
     updated_at: Optional[int]
-    """Time at which this credential was last updated, in epoch milliseconds."""
+    """Time at which this credential was last modified, in epoch milliseconds."""
     updated_by: Optional[str]
-    """Username of user who last modified credential."""
+    """Username of user who last modified the credential."""
     used_for_managed_storage: bool
     """
     Whether this credential is the current metastore's root storage credential. Only
@@ -255,13 +283,14 @@ class Credential:
         purpose: Purpose,
         read_only: bool,
         used_for_managed_storage: bool,
-        aws_iam_role_config: Optional[AwsIamRoleConfig] = None,
+        aws_iam_role: Optional[AwsIamRoleConfig] = None,
         azure_managed_identity: Optional[AzureManagedIdentity] = None,
         azure_service_principal: Optional[AzureServicePrincipal] = None,
         azure_storage_key: Optional[AzureStorageKey] = None,
         comment: Optional[str] = None,
         created_at: Optional[int] = None,
         created_by: Optional[str] = None,
+        databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
         full_name: Optional[str] = None,
         id: Optional[str] = None,
         owner: Optional[str] = None,
@@ -331,6 +360,23 @@ class DataObjectUpdate:
     """User-provided free-form text description."""
 
     def __init__(self, action: Action, data_object: DataObject) -> None: ...
+
+class DatabricksGcpServiceAccount:
+    """The Databricks managed GCP service account configuration."""
+
+    credential_id: Optional[str]
+    """The Databricks internal ID that represents this managed identity."""
+    email: Optional[str]
+    """The email of the service account."""
+    private_key_id: Optional[str]
+    """The ID that represents the private key for this Service Account."""
+
+    def __init__(
+        self,
+        credential_id: Optional[str] = None,
+        email: Optional[str] = None,
+        private_key_id: Optional[str] = None,
+    ) -> None: ...
 
 class ExternalLocation:
     browse_only: Optional[bool]
@@ -969,9 +1015,13 @@ class ParameterStyle(enum.Enum):
     """The parameters are passed positionally (S = SQL)."""
 
 class Purpose(enum.Enum):
+    """The purpose of a credential."""
+
     PURPOSE_UNSPECIFIED = "PURPOSE_UNSPECIFIED"
     SERVICE = "SERVICE"
+    """The credential is used to access external services."""
     STORAGE = "STORAGE"
+    """The credential is used to access external storage locations."""
 
 class RoutineBody(enum.Enum):
     """Determines whether the function body is interpreted as SQL or as an external function."""
@@ -1084,7 +1134,7 @@ class CredentialClient:
     def get(self) -> Credential:
         """
         Returns:
-            The requested resource
+            A credential used to access external data sources or services.
         """
         ...
     def update(
@@ -1098,11 +1148,12 @@ class CredentialClient:
         azure_service_principal: Optional[AzureServicePrincipal] = None,
         azure_managed_identity: Optional[AzureManagedIdentity] = None,
         azure_storage_key: Optional[AzureStorageKey] = None,
-        aws_iam_role_config: Optional[AwsIamRoleConfig] = None,
+        aws_iam_role: Optional[AwsIamRoleConfig] = None,
+        databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
     ) -> Credential:
         """
         Args:
-            new_name: Name of credential.
+            new_name: New name of the credential.
             comment: Comment associated with the credential.
             read_only: Whether the credential is usable only for read operations. Only applicable when
                        purpose is STORAGE.
@@ -1110,10 +1161,15 @@ class CredentialClient:
             skip_validation: Supply true to this argument to skip validation of the updated credential.
             force: Force an update even if there are dependent services (when purpose is SERVICE) or
                    dependent external locations and external tables (when purpose is STORAGE).
+            azure_service_principal: The Azure service principal configuration.
+            azure_managed_identity: The Azure managed identity configuration.
+            azure_storage_key: The Azure storage key configuration.
+            aws_iam_role: The AWS IAM role configuration.
+            databricks_gcp_service_account: The Databricks managed GCP service account configuration.
 
 
         Returns:
-            The requested resource
+            A credential used to access external data sources or services.
         """
         ...
 
@@ -1473,22 +1529,28 @@ class UnityCatalogClient:
         azure_service_principal: Optional[AzureServicePrincipal] = None,
         azure_managed_identity: Optional[AzureManagedIdentity] = None,
         azure_storage_key: Optional[AzureStorageKey] = None,
-        aws_iam_role_config: Optional[AwsIamRoleConfig] = None,
+        aws_iam_role: Optional[AwsIamRoleConfig] = None,
+        databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
     ) -> Credential:
         """
         Args:
             name: The credential name. The name must be unique among storage and service credentials within
                   the metastore.
-            purpose: The credential purpose.
+            purpose: Indicates the purpose of the credential.
             comment: Comment associated with the credential.
             read_only: Whether the credential is usable only for read operations. Only applicable when
                        purpose is STORAGE.
-            skip_validation: Supplying true to this argument skips validation of the created set of
-                             credentials.
+            skip_validation: Optional. Supplying true to this argument skips validation of the created set
+                             of credentials.
+            azure_service_principal: The Azure service principal configuration.
+            azure_managed_identity: The Azure managed identity configuration.
+            azure_storage_key: The Azure storage key configuration.
+            aws_iam_role: The AWS IAM role configuration.
+            databricks_gcp_service_account: The Databricks managed GCP service account configuration.
 
 
         Returns:
-            The requested resource
+            A credential used to access external data sources or services.
         """
         ...
     def create_external_location(

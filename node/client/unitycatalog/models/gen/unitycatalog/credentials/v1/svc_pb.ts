@@ -12,7 +12,7 @@ import { file_google_api_field_behavior } from "../../../google/api/field_behavi
 import { file_google_api_resource } from "../../../google/api/resource_pb";
 import type { EmptySchema } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_empty, file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
-import type { AwsIamRoleConfig, AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential, CredentialSchema, Purpose } from "./models_pb";
+import type { AwsIamRoleConfig, AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential, CredentialSchema, DatabricksGcpServiceAccount, Purpose } from "./models_pb";
 import { file_unitycatalog_credentials_v1_models } from "./models_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -20,7 +20,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file unitycatalog/credentials/v1/svc.proto.
  */
 export const file_unitycatalog_credentials_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("CiV1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvc3ZjLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEiywEKFkxpc3RDcmVkZW50aWFsc1JlcXVlc3QSPwoHcHVycG9zZRgBIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlQgPgQQFIAIgBARInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgBiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgCiAEBQgoKCF9wdXJwb3NlQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKJAQoXTGlzdENyZWRlbnRpYWxzUmVzcG9uc2USPAoLY3JlZGVudGlhbHMYASADKAsyJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbBIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrQGChdDcmVhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEkAKB3B1cnBvc2UYAiABKA4yJC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuUHVycG9zZUIJ4EECukgDyAEBEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgAiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAGIAQESIQoPc2tpcF92YWxpZGF0aW9uGAUgASgIQgPgQQFIAogBARJYChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbBhkIAEoCzIyLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVNlcnZpY2VQcmluY2lwYWxIA4gBARJWChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5GGUgASgLMjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlTWFuYWdlZElkZW50aXR5SASIAQESTAoRYXp1cmVfc3RvcmFnZV9rZXkYZiABKAsyLC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTdG9yYWdlS2V5SAWIAQESTwoTYXdzX2lhbV9yb2xlX2NvbmZpZxhnIAEoCzItLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5Bd3NJYW1Sb2xlQ29uZmlnSAaIAQE6YLpIXSJbChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkKE2F3c19pYW1fcm9sZV9jb25maWcQAUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QhIKEF9za2lwX3ZhbGlkYXRpb25CGgoYX2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsQhkKF19henVyZV9tYW5hZ2VkX2lkZW50aXR5QhQKEl9henVyZV9zdG9yYWdlX2tleUIWChRfYXdzX2lhbV9yb2xlX2NvbmZpZyJOChRHZXRDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kIo0HChdVcGRhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjwKCG5ld19uYW1lGAIgASgJQiXgQQG6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kSACIAQESGQoHY29tbWVudBgDIAEoCUID4EEBSAGIAQESGwoJcmVhZF9vbmx5GAQgASgIQgPgQQFIAogBARIhCgVvd25lchgFIAEoCUIN4EEBukgHyAEAcgJgAUgDiAEBEiEKD3NraXBfdmFsaWRhdGlvbhgGIAEoCEID4EEBSASIAQESFwoFZm9yY2UYByABKAhCA+BBAUgFiAEBElgKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsGGQgASgLMjIudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU2VydmljZVByaW5jaXBhbEgGiAEBElYKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkYZSABKAsyMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVNYW5hZ2VkSWRlbnRpdHlIB4gBARJMChFhenVyZV9zdG9yYWdlX2tleRhmIAEoCzIsLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVN0b3JhZ2VLZXlICIgBARJPChNhd3NfaWFtX3JvbGVfY29uZmlnGGcgASgLMi0udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF3c0lhbVJvbGVDb25maWdICYgBATpgukhdIlsKF2F6dXJlX3NlcnZpY2VfcHJpbmNpcGFsChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5ChFhenVyZV9zdG9yYWdlX2tleQoTYXdzX2lhbV9yb2xlX2NvbmZpZxABQgsKCV9uZXdfbmFtZUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QggKBl9vd25lckISChBfc2tpcF92YWxpZGF0aW9uQggKBl9mb3JjZUIaChhfYXp1cmVfc2VydmljZV9wcmluY2lwYWxCGQoXX2F6dXJlX21hbmFnZWRfaWRlbnRpdHlCFAoSX2F6dXJlX3N0b3JhZ2Vfa2V5QhYKFF9hd3NfaWFtX3JvbGVfY29uZmlnIlAKF0RlbGV0ZUNyZWRlbnRpYWxSZXF1ZXN0EjUKBG5hbWUYASABKAlCJ+BBArpIIcgBAXIcMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJDK6BgoSQ3JlZGVudGlhbHNTZXJ2aWNlEqYBCg9MaXN0Q3JlZGVudGlhbHMSMy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuTGlzdENyZWRlbnRpYWxzUmVxdWVzdBo0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5MaXN0Q3JlZGVudGlhbHNSZXNwb25zZSIoukcRKg9MaXN0Q3JlZGVudGlhbHOC0+STAg4SDC9jcmVkZW50aWFscxKfAQoQQ3JlYXRlQ3JlZGVudGlhbBI0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVhdGVDcmVkZW50aWFsUmVxdWVzdBonLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsIiy6RxIqEENyZWF0ZUNyZWRlbnRpYWyC0+STAhE6ASoiDC9jcmVkZW50aWFscxKaAQoNR2V0Q3JlZGVudGlhbBIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5HZXRDcmVkZW50aWFsUmVxdWVzdBonLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5DcmVkZW50aWFsIi26Rw8qDUdldENyZWRlbnRpYWyC0+STAhUSEy9jcmVkZW50aWFscy97bmFtZX0SpgEKEFVwZGF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuVXBkYXRlQ3JlZGVudGlhbFJlcXVlc3QaJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbCIzukcSKhBVcGRhdGVDcmVkZW50aWFsgtPkkwIYOgEqMhMvY3JlZGVudGlhbHMve25hbWV9EpIBChBEZWxldGVDcmVkZW50aWFsEjQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkRlbGV0ZUNyZWRlbnRpYWxSZXF1ZXN0GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5IjC6RxIqEERlbGV0ZUNyZWRlbnRpYWyC0+STAhUqEy9jcmVkZW50aWFscy97bmFtZX1CkwIKH2NvbS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjFCCFN2Y1Byb3RvUAFaWGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL2NyZWRlbnRpYWxzL3YxO2NyZWRlbnRpYWxzdjGiAgNVQ1iqAhtVbml0eWNhdGFsb2cuQ3JlZGVudGlhbHMuVjHKAhtVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjHiAidVbml0eWNhdGFsb2dcQ3JlZGVudGlhbHNcVjFcR1BCTWV0YWRhdGHqAh1Vbml0eWNhdGFsb2c6OkNyZWRlbnRpYWxzOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_credentials_v1_models]);
+  fileDesc("CiV1bml0eWNhdGFsb2cvY3JlZGVudGlhbHMvdjEvc3ZjLnByb3RvEht1bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEiywEKFkxpc3RDcmVkZW50aWFsc1JlcXVlc3QSPwoHcHVycG9zZRgBIAEoDjIkLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5QdXJwb3NlQgPgQQFIAIgBARInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgBiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgCiAEBQgoKCF9wdXJwb3NlQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiKJAQoXTGlzdENyZWRlbnRpYWxzUmVzcG9uc2USPAoLY3JlZGVudGlhbHMYASADKAsyJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbBIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIskHChdDcmVhdGVDcmVkZW50aWFsUmVxdWVzdBI2CgRuYW1lGAEgASgJQijgQQK6SCLIAQFyHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEkAKB3B1cnBvc2UYAiABKA4yJC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuUHVycG9zZUIJ4EECukgDyAEBEhkKB2NvbW1lbnQYAyABKAlCA+BBAUgAiAEBEhsKCXJlYWRfb25seRgEIAEoCEID4EEBSAGIAQESIQoPc2tpcF92YWxpZGF0aW9uGAUgASgIQgPgQQFIAogBARJYChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbBhkIAEoCzIyLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZVNlcnZpY2VQcmluY2lwYWxIA4gBARJWChZhenVyZV9tYW5hZ2VkX2lkZW50aXR5GGUgASgLMjEudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlTWFuYWdlZElkZW50aXR5SASIAQESTAoRYXp1cmVfc3RvcmFnZV9rZXkYZiABKAsyLC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTdG9yYWdlS2V5SAWIAQESSAoMYXdzX2lhbV9yb2xlGGcgASgLMi0udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF3c0lhbVJvbGVDb25maWdIBogBARJlCh5kYXRhYnJpY2tzX2djcF9zZXJ2aWNlX2FjY291bnQYaCABKAsyOC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuRGF0YWJyaWNrc0djcFNlcnZpY2VBY2NvdW50SAeIAQE6ebpIdiJ0ChdhenVyZV9zZXJ2aWNlX3ByaW5jaXBhbAoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eQoRYXp1cmVfc3RvcmFnZV9rZXkKDGF3c19pYW1fcm9sZQoeZGF0YWJyaWNrc19nY3Bfc2VydmljZV9hY2NvdW50EAFCCgoIX2NvbW1lbnRCDAoKX3JlYWRfb25seUISChBfc2tpcF92YWxpZGF0aW9uQhoKGF9henVyZV9zZXJ2aWNlX3ByaW5jaXBhbEIZChdfYXp1cmVfbWFuYWdlZF9pZGVudGl0eUIUChJfYXp1cmVfc3RvcmFnZV9rZXlCDwoNX2F3c19pYW1fcm9sZUIhCh9fZGF0YWJyaWNrc19nY3Bfc2VydmljZV9hY2NvdW50Ik4KFEdldENyZWRlbnRpYWxSZXF1ZXN0EjYKBG5hbWUYASABKAlCKOBBArpIIsgBAXIdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQioggKF1VwZGF0ZUNyZWRlbnRpYWxSZXF1ZXN0EjYKBG5hbWUYASABKAlCKOBBArpIIsgBAXIdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSPAoIbmV3X25hbWUYAiABKAlCJeBBAbpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSRIAIgBARIZCgdjb21tZW50GAMgASgJQgPgQQFIAYgBARIbCglyZWFkX29ubHkYBCABKAhCA+BBAUgCiAEBEiEKBW93bmVyGAUgASgJQg3gQQG6SAfIAQByAmABSAOIAQESIQoPc2tpcF92YWxpZGF0aW9uGAYgASgIQgPgQQFIBIgBARIXCgVmb3JjZRgHIAEoCEID4EEBSAWIAQESWAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwYZCABKAsyMi51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQXp1cmVTZXJ2aWNlUHJpbmNpcGFsSAaIAQESVgoWYXp1cmVfbWFuYWdlZF9pZGVudGl0eRhlIAEoCzIxLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5BenVyZU1hbmFnZWRJZGVudGl0eUgHiAEBEkwKEWF6dXJlX3N0b3JhZ2Vfa2V5GGYgASgLMiwudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkF6dXJlU3RvcmFnZUtleUgIiAEBEkgKDGF3c19pYW1fcm9sZRhnIAEoCzItLnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5Bd3NJYW1Sb2xlQ29uZmlnSAmIAQESZQoeZGF0YWJyaWNrc19nY3Bfc2VydmljZV9hY2NvdW50GGggASgLMjgudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkRhdGFicmlja3NHY3BTZXJ2aWNlQWNjb3VudEgKiAEBOnm6SHYidAoXYXp1cmVfc2VydmljZV9wcmluY2lwYWwKFmF6dXJlX21hbmFnZWRfaWRlbnRpdHkKEWF6dXJlX3N0b3JhZ2Vfa2V5Cgxhd3NfaWFtX3JvbGUKHmRhdGFicmlja3NfZ2NwX3NlcnZpY2VfYWNjb3VudBABQgsKCV9uZXdfbmFtZUIKCghfY29tbWVudEIMCgpfcmVhZF9vbmx5QggKBl9vd25lckISChBfc2tpcF92YWxpZGF0aW9uQggKBl9mb3JjZUIaChhfYXp1cmVfc2VydmljZV9wcmluY2lwYWxCGQoXX2F6dXJlX21hbmFnZWRfaWRlbnRpdHlCFAoSX2F6dXJlX3N0b3JhZ2Vfa2V5Qg8KDV9hd3NfaWFtX3JvbGVCIQofX2RhdGFicmlja3NfZ2NwX3NlcnZpY2VfYWNjb3VudCJQChdEZWxldGVDcmVkZW50aWFsUmVxdWVzdBI1CgRuYW1lGAEgASgJQifgQQK6SCHIAQFyHDIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQyugYKEkNyZWRlbnRpYWxzU2VydmljZRKmAQoPTGlzdENyZWRlbnRpYWxzEjMudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkxpc3RDcmVkZW50aWFsc1JlcXVlc3QaNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuTGlzdENyZWRlbnRpYWxzUmVzcG9uc2UiKLpHESoPTGlzdENyZWRlbnRpYWxzgtPkkwIOEgwvY3JlZGVudGlhbHMSnwEKEENyZWF0ZUNyZWRlbnRpYWwSNC51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlYXRlQ3JlZGVudGlhbFJlcXVlc3QaJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbCIsukcSKhBDcmVhdGVDcmVkZW50aWFsgtPkkwIROgEqIgwvY3JlZGVudGlhbHMSmgEKDUdldENyZWRlbnRpYWwSMS51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuR2V0Q3JlZGVudGlhbFJlcXVlc3QaJy51bml0eWNhdGFsb2cuY3JlZGVudGlhbHMudjEuQ3JlZGVudGlhbCItukcPKg1HZXRDcmVkZW50aWFsgtPkkwIVEhMvY3JlZGVudGlhbHMve25hbWV9EqYBChBVcGRhdGVDcmVkZW50aWFsEjQudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLlVwZGF0ZUNyZWRlbnRpYWxSZXF1ZXN0GicudW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxLkNyZWRlbnRpYWwiM7pHEioQVXBkYXRlQ3JlZGVudGlhbILT5JMCGDoBKjITL2NyZWRlbnRpYWxzL3tuYW1lfRKSAQoQRGVsZXRlQ3JlZGVudGlhbBI0LnVuaXR5Y2F0YWxvZy5jcmVkZW50aWFscy52MS5EZWxldGVDcmVkZW50aWFsUmVxdWVzdBoWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eSIwukcSKhBEZWxldGVDcmVkZW50aWFsgtPkkwIVKhMvY3JlZGVudGlhbHMve25hbWV9QpMCCh9jb20udW5pdHljYXRhbG9nLmNyZWRlbnRpYWxzLnYxQghTdmNQcm90b1ABWlhnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9jcmVkZW50aWFscy92MTtjcmVkZW50aWFsc3YxogIDVUNYqgIbVW5pdHljYXRhbG9nLkNyZWRlbnRpYWxzLlYxygIbVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYx4gInVW5pdHljYXRhbG9nXENyZWRlbnRpYWxzXFYxXEdQQk1ldGFkYXRh6gIdVW5pdHljYXRhbG9nOjpDcmVkZW50aWFsczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct, file_unitycatalog_credentials_v1_models]);
 
 /**
  * @generated from message unitycatalog.credentials.v1.ListCredentialsRequest
@@ -82,7 +82,7 @@ export const ListCredentialsResponseSchema: GenMessage<ListCredentialsResponse> 
   messageDesc(file_unitycatalog_credentials_v1_svc, 1);
 
 /**
- * Create a new credential
+ * Create a new credential.
  *
  * @generated from message unitycatalog.credentials.v1.CreateCredentialRequest
  */
@@ -95,7 +95,7 @@ export type CreateCredentialRequest = Message<"unitycatalog.credentials.v1.Creat
   name: string;
 
   /**
-   * The credential purpose.
+   * Indicates the purpose of the credential.
    *
    * @generated from field: unitycatalog.credentials.v1.Purpose purpose = 2;
    */
@@ -116,31 +116,46 @@ export type CreateCredentialRequest = Message<"unitycatalog.credentials.v1.Creat
   readOnly?: boolean;
 
   /**
-   * Supplying true to this argument skips validation of the created set of credentials.
+   * Optional. Supplying true to this argument skips validation of the created set of credentials.
    *
    * @generated from field: optional bool skip_validation = 5;
    */
   skipValidation?: boolean;
 
   /**
+   * The Azure service principal configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
    */
   azureServicePrincipal?: AzureServicePrincipal;
 
   /**
+   * The Azure managed identity configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
    */
   azureManagedIdentity?: AzureManagedIdentity;
 
   /**
+   * The Azure storage key configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
    */
   azureStorageKey?: AzureStorageKey;
 
   /**
-   * @generated from field: optional unitycatalog.credentials.v1.AwsIamRoleConfig aws_iam_role_config = 103;
+   * The AWS IAM role configuration.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.AwsIamRoleConfig aws_iam_role = 103;
    */
-  awsIamRoleConfig?: AwsIamRoleConfig;
+  awsIamRole?: AwsIamRoleConfig;
+
+  /**
+   * The Databricks managed GCP service account configuration.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.DatabricksGcpServiceAccount databricks_gcp_service_account = 104;
+   */
+  databricksGcpServiceAccount?: DatabricksGcpServiceAccount;
 };
 
 /**
@@ -151,7 +166,7 @@ export const CreateCredentialRequestSchema: GenMessage<CreateCredentialRequest> 
   messageDesc(file_unitycatalog_credentials_v1_svc, 2);
 
 /**
- * Get a credential
+ * Get a credential.
  *
  * @generated from message unitycatalog.credentials.v1.GetCredentialRequest
  */
@@ -172,7 +187,7 @@ export const GetCredentialRequestSchema: GenMessage<GetCredentialRequest> = /*@_
   messageDesc(file_unitycatalog_credentials_v1_svc, 3);
 
 /**
- * Update a credential
+ * Update a credential.
  *
  * @generated from message unitycatalog.credentials.v1.UpdateCredentialRequest
  */
@@ -185,7 +200,7 @@ export type UpdateCredentialRequest = Message<"unitycatalog.credentials.v1.Updat
   name: string;
 
   /**
-   * Name of credential.
+   * New name of the credential.
    *
    * @generated from field: optional string new_name = 2;
    */
@@ -228,24 +243,39 @@ export type UpdateCredentialRequest = Message<"unitycatalog.credentials.v1.Updat
   force?: boolean;
 
   /**
+   * The Azure service principal configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureServicePrincipal azure_service_principal = 100;
    */
   azureServicePrincipal?: AzureServicePrincipal;
 
   /**
+   * The Azure managed identity configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureManagedIdentity azure_managed_identity = 101;
    */
   azureManagedIdentity?: AzureManagedIdentity;
 
   /**
+   * The Azure storage key configuration.
+   *
    * @generated from field: optional unitycatalog.credentials.v1.AzureStorageKey azure_storage_key = 102;
    */
   azureStorageKey?: AzureStorageKey;
 
   /**
-   * @generated from field: optional unitycatalog.credentials.v1.AwsIamRoleConfig aws_iam_role_config = 103;
+   * The AWS IAM role configuration.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.AwsIamRoleConfig aws_iam_role = 103;
    */
-  awsIamRoleConfig?: AwsIamRoleConfig;
+  awsIamRole?: AwsIamRoleConfig;
+
+  /**
+   * The Databricks managed GCP service account configuration.
+   *
+   * @generated from field: optional unitycatalog.credentials.v1.DatabricksGcpServiceAccount databricks_gcp_service_account = 104;
+   */
+  databricksGcpServiceAccount?: DatabricksGcpServiceAccount;
 };
 
 /**
@@ -256,7 +286,7 @@ export const UpdateCredentialRequestSchema: GenMessage<UpdateCredentialRequest> 
   messageDesc(file_unitycatalog_credentials_v1_svc, 4);
 
 /**
- * Delete a credential
+ * Delete a credential.
  *
  * @generated from message unitycatalog.credentials.v1.DeleteCredentialRequest
  */

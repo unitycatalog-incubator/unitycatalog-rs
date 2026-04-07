@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use crate::models::catalogs::v1::Catalog;
 use crate::models::credentials::v1::{
     AzureManagedIdentity, AzureServicePrincipal, AzureStorageKey, Credential,
-    azure_managed_identity::Identifier, azure_service_principal::Credential as SpCredential,
+    DatabricksGcpServiceAccount, azure_service_principal::Credential as SpCredential,
 };
 use crate::models::external_locations::v1::ExternalLocation;
 use crate::models::recipients::v1::{Recipient, RecipientToken};
@@ -50,18 +50,34 @@ impl AzureServicePrincipal {
 #[pymethods]
 impl AzureManagedIdentity {
     #[new]
+    #[pyo3(signature = (access_connector_id, credential_id = None, managed_identity_id = None))]
     pub fn new(
-        application_id: Option<String>,
-        object_id: Option<String>,
-        msi_resource_id: Option<String>,
+        access_connector_id: String,
+        credential_id: Option<String>,
+        managed_identity_id: Option<String>,
     ) -> Self {
-        let identifier = match (application_id, object_id, msi_resource_id) {
-            (Some(application_id), _, _) => Some(Identifier::ApplicationId(application_id)),
-            (_, Some(object_id), _) => Some(Identifier::ObjectId(object_id)),
-            (_, _, Some(msi_resource_id)) => Some(Identifier::MsiResourceId(msi_resource_id)),
-            _ => None,
-        };
-        Self { identifier }
+        Self {
+            access_connector_id,
+            credential_id,
+            managed_identity_id,
+        }
+    }
+}
+
+#[pymethods]
+impl DatabricksGcpServiceAccount {
+    #[new]
+    #[pyo3(signature = (credential_id = None, email = None, private_key_id = None))]
+    pub fn new(
+        credential_id: Option<String>,
+        email: Option<String>,
+        private_key_id: Option<String>,
+    ) -> Self {
+        Self {
+            credential_id,
+            email,
+            private_key_id,
+        }
     }
 }
 

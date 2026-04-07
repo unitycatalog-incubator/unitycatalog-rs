@@ -306,22 +306,24 @@ impl serde::Serialize for AzureManagedIdentity {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.identifier.is_some() {
+        if !self.access_connector_id.is_empty() {
+            len += 1;
+        }
+        if self.credential_id.is_some() {
+            len += 1;
+        }
+        if self.managed_identity_id.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.AzureManagedIdentity", len)?;
-        if let Some(v) = self.identifier.as_ref() {
-            match v {
-                azure_managed_identity::Identifier::ObjectId(v) => {
-                    struct_ser.serialize_field("object_id", v)?;
-                }
-                azure_managed_identity::Identifier::ApplicationId(v) => {
-                    struct_ser.serialize_field("application_id", v)?;
-                }
-                azure_managed_identity::Identifier::MsiResourceId(v) => {
-                    struct_ser.serialize_field("msi_resource_id", v)?;
-                }
-            }
+        if !self.access_connector_id.is_empty() {
+            struct_ser.serialize_field("access_connector_id", &self.access_connector_id)?;
+        }
+        if let Some(v) = self.credential_id.as_ref() {
+            struct_ser.serialize_field("credential_id", v)?;
+        }
+        if let Some(v) = self.managed_identity_id.as_ref() {
+            struct_ser.serialize_field("managed_identity_id", v)?;
         }
         struct_ser.end()
     }
@@ -333,19 +335,19 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "object_id",
-            "objectId",
-            "application_id",
-            "applicationId",
-            "msi_resource_id",
-            "msiResourceId",
+            "access_connector_id",
+            "accessConnectorId",
+            "credential_id",
+            "credentialId",
+            "managed_identity_id",
+            "managedIdentityId",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            ObjectId,
-            ApplicationId,
-            MsiResourceId,
+            AccessConnectorId,
+            CredentialId,
+            ManagedIdentityId,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -368,9 +370,9 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                         E: serde::de::Error,
                     {
                         match value {
-                            "objectId" | "object_id" => Ok(GeneratedField::ObjectId),
-                            "applicationId" | "application_id" => Ok(GeneratedField::ApplicationId),
-                            "msiResourceId" | "msi_resource_id" => Ok(GeneratedField::MsiResourceId),
+                            "accessConnectorId" | "access_connector_id" => Ok(GeneratedField::AccessConnectorId),
+                            "credentialId" | "credential_id" => Ok(GeneratedField::CredentialId),
+                            "managedIdentityId" | "managed_identity_id" => Ok(GeneratedField::ManagedIdentityId),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -390,26 +392,28 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut identifier__ = None;
+                let mut access_connector_id__ = None;
+                let mut credential_id__ = None;
+                let mut managed_identity_id__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::ObjectId => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("objectId"));
+                        GeneratedField::AccessConnectorId => {
+                            if access_connector_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessConnectorId"));
                             }
-                            identifier__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_managed_identity::Identifier::ObjectId);
+                            access_connector_id__ = Some(map_.next_value()?);
                         }
-                        GeneratedField::ApplicationId => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("applicationId"));
+                        GeneratedField::CredentialId => {
+                            if credential_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("credentialId"));
                             }
-                            identifier__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_managed_identity::Identifier::ApplicationId);
+                            credential_id__ = map_.next_value()?;
                         }
-                        GeneratedField::MsiResourceId => {
-                            if identifier__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("msiResourceId"));
+                        GeneratedField::ManagedIdentityId => {
+                            if managed_identity_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("managedIdentityId"));
                             }
-                            identifier__ = map_.next_value::<::std::option::Option<_>>()?.map(azure_managed_identity::Identifier::MsiResourceId);
+                            managed_identity_id__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -417,7 +421,9 @@ impl<'de> serde::Deserialize<'de> for AzureManagedIdentity {
                     }
                 }
                 Ok(AzureManagedIdentity {
-                    identifier: identifier__,
+                    access_connector_id: access_connector_id__.unwrap_or_default(),
+                    credential_id: credential_id__,
+                    managed_identity_id: managed_identity_id__,
                 })
             }
         }
@@ -719,7 +725,10 @@ impl serde::Serialize for CreateCredentialRequest {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
-        if self.aws_iam_role_config.is_some() {
+        if self.aws_iam_role.is_some() {
+            len += 1;
+        }
+        if self.databricks_gcp_service_account.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.CreateCredentialRequest", len)?;
@@ -749,8 +758,11 @@ impl serde::Serialize for CreateCredentialRequest {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
-        if let Some(v) = self.aws_iam_role_config.as_ref() {
-            struct_ser.serialize_field("aws_iam_role_config", v)?;
+        if let Some(v) = self.aws_iam_role.as_ref() {
+            struct_ser.serialize_field("aws_iam_role", v)?;
+        }
+        if let Some(v) = self.databricks_gcp_service_account.as_ref() {
+            struct_ser.serialize_field("databricks_gcp_service_account", v)?;
         }
         struct_ser.end()
     }
@@ -775,8 +787,10 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
-            "aws_iam_role_config",
-            "awsIamRoleConfig",
+            "aws_iam_role",
+            "awsIamRole",
+            "databricks_gcp_service_account",
+            "databricksGcpServiceAccount",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -789,7 +803,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
-            AwsIamRoleConfig,
+            AwsIamRole,
+            DatabricksGcpServiceAccount,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -820,7 +835,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
                             "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
                             "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
-                            "awsIamRoleConfig" | "aws_iam_role_config" => Ok(GeneratedField::AwsIamRoleConfig),
+                            "awsIamRole" | "aws_iam_role" => Ok(GeneratedField::AwsIamRole),
+                            "databricksGcpServiceAccount" | "databricks_gcp_service_account" => Ok(GeneratedField::DatabricksGcpServiceAccount),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -848,7 +864,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
-                let mut aws_iam_role_config__ = None;
+                let mut aws_iam_role__ = None;
+                let mut databricks_gcp_service_account__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -899,11 +916,17 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                             }
                             azure_storage_key__ = map_.next_value()?;
                         }
-                        GeneratedField::AwsIamRoleConfig => {
-                            if aws_iam_role_config__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("awsIamRoleConfig"));
+                        GeneratedField::AwsIamRole => {
+                            if aws_iam_role__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRole"));
                             }
-                            aws_iam_role_config__ = map_.next_value()?;
+                            aws_iam_role__ = map_.next_value()?;
+                        }
+                        GeneratedField::DatabricksGcpServiceAccount => {
+                            if databricks_gcp_service_account__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("databricksGcpServiceAccount"));
+                            }
+                            databricks_gcp_service_account__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -919,7 +942,8 @@ impl<'de> serde::Deserialize<'de> for CreateCredentialRequest {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
-                    aws_iam_role_config: aws_iam_role_config__,
+                    aws_iam_role: aws_iam_role__,
+                    databricks_gcp_service_account: databricks_gcp_service_account__,
                 })
             }
         }
@@ -979,7 +1003,10 @@ impl serde::Serialize for Credential {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
-        if self.aws_iam_role_config.is_some() {
+        if self.aws_iam_role.is_some() {
+            len += 1;
+        }
+        if self.databricks_gcp_service_account.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.Credential", len)?;
@@ -1034,8 +1061,11 @@ impl serde::Serialize for Credential {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
-        if let Some(v) = self.aws_iam_role_config.as_ref() {
-            struct_ser.serialize_field("aws_iam_role_config", v)?;
+        if let Some(v) = self.aws_iam_role.as_ref() {
+            struct_ser.serialize_field("aws_iam_role", v)?;
+        }
+        if let Some(v) = self.databricks_gcp_service_account.as_ref() {
+            struct_ser.serialize_field("databricks_gcp_service_account", v)?;
         }
         struct_ser.end()
     }
@@ -1072,8 +1102,10 @@ impl<'de> serde::Deserialize<'de> for Credential {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
-            "aws_iam_role_config",
-            "awsIamRoleConfig",
+            "aws_iam_role",
+            "awsIamRole",
+            "databricks_gcp_service_account",
+            "databricksGcpServiceAccount",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1093,7 +1125,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
-            AwsIamRoleConfig,
+            AwsIamRole,
+            DatabricksGcpServiceAccount,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1131,7 +1164,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
                             "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
                             "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
                             "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
-                            "awsIamRoleConfig" | "aws_iam_role_config" => Ok(GeneratedField::AwsIamRoleConfig),
+                            "awsIamRole" | "aws_iam_role" => Ok(GeneratedField::AwsIamRole),
+                            "databricksGcpServiceAccount" | "databricks_gcp_service_account" => Ok(GeneratedField::DatabricksGcpServiceAccount),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1166,7 +1200,8 @@ impl<'de> serde::Deserialize<'de> for Credential {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
-                let mut aws_iam_role_config__ = None;
+                let mut aws_iam_role__ = None;
+                let mut databricks_gcp_service_account__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -1263,11 +1298,17 @@ impl<'de> serde::Deserialize<'de> for Credential {
                             }
                             azure_storage_key__ = map_.next_value()?;
                         }
-                        GeneratedField::AwsIamRoleConfig => {
-                            if aws_iam_role_config__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("awsIamRoleConfig"));
+                        GeneratedField::AwsIamRole => {
+                            if aws_iam_role__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRole"));
                             }
-                            aws_iam_role_config__ = map_.next_value()?;
+                            aws_iam_role__ = map_.next_value()?;
+                        }
+                        GeneratedField::DatabricksGcpServiceAccount => {
+                            if databricks_gcp_service_account__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("databricksGcpServiceAccount"));
+                            }
+                            databricks_gcp_service_account__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1290,11 +1331,143 @@ impl<'de> serde::Deserialize<'de> for Credential {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
-                    aws_iam_role_config: aws_iam_role_config__,
+                    aws_iam_role: aws_iam_role__,
+                    databricks_gcp_service_account: databricks_gcp_service_account__,
                 })
             }
         }
         deserializer.deserialize_struct("unitycatalog.credentials.v1.Credential", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for DatabricksGcpServiceAccount {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.credential_id.is_some() {
+            len += 1;
+        }
+        if self.email.is_some() {
+            len += 1;
+        }
+        if self.private_key_id.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.DatabricksGcpServiceAccount", len)?;
+        if let Some(v) = self.credential_id.as_ref() {
+            struct_ser.serialize_field("credential_id", v)?;
+        }
+        if let Some(v) = self.email.as_ref() {
+            struct_ser.serialize_field("email", v)?;
+        }
+        if let Some(v) = self.private_key_id.as_ref() {
+            struct_ser.serialize_field("private_key_id", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for DatabricksGcpServiceAccount {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "credential_id",
+            "credentialId",
+            "email",
+            "private_key_id",
+            "privateKeyId",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            CredentialId,
+            Email,
+            PrivateKeyId,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "credentialId" | "credential_id" => Ok(GeneratedField::CredentialId),
+                            "email" => Ok(GeneratedField::Email),
+                            "privateKeyId" | "private_key_id" => Ok(GeneratedField::PrivateKeyId),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = DatabricksGcpServiceAccount;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct unitycatalog.credentials.v1.DatabricksGcpServiceAccount")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DatabricksGcpServiceAccount, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut credential_id__ = None;
+                let mut email__ = None;
+                let mut private_key_id__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::CredentialId => {
+                            if credential_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("credentialId"));
+                            }
+                            credential_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Email => {
+                            if email__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("email"));
+                            }
+                            email__ = map_.next_value()?;
+                        }
+                        GeneratedField::PrivateKeyId => {
+                            if private_key_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("privateKeyId"));
+                            }
+                            private_key_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(DatabricksGcpServiceAccount {
+                    credential_id: credential_id__,
+                    email: email__,
+                    private_key_id: private_key_id__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("unitycatalog.credentials.v1.DatabricksGcpServiceAccount", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for DeleteCredentialRequest {
@@ -1847,7 +2020,10 @@ impl serde::Serialize for UpdateCredentialRequest {
         if self.azure_storage_key.is_some() {
             len += 1;
         }
-        if self.aws_iam_role_config.is_some() {
+        if self.aws_iam_role.is_some() {
+            len += 1;
+        }
+        if self.databricks_gcp_service_account.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.credentials.v1.UpdateCredentialRequest", len)?;
@@ -1881,8 +2057,11 @@ impl serde::Serialize for UpdateCredentialRequest {
         if let Some(v) = self.azure_storage_key.as_ref() {
             struct_ser.serialize_field("azure_storage_key", v)?;
         }
-        if let Some(v) = self.aws_iam_role_config.as_ref() {
-            struct_ser.serialize_field("aws_iam_role_config", v)?;
+        if let Some(v) = self.aws_iam_role.as_ref() {
+            struct_ser.serialize_field("aws_iam_role", v)?;
+        }
+        if let Some(v) = self.databricks_gcp_service_account.as_ref() {
+            struct_ser.serialize_field("databricks_gcp_service_account", v)?;
         }
         struct_ser.end()
     }
@@ -1910,8 +2089,10 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
             "azureManagedIdentity",
             "azure_storage_key",
             "azureStorageKey",
-            "aws_iam_role_config",
-            "awsIamRoleConfig",
+            "aws_iam_role",
+            "awsIamRole",
+            "databricks_gcp_service_account",
+            "databricksGcpServiceAccount",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1926,7 +2107,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
             AzureServicePrincipal,
             AzureManagedIdentity,
             AzureStorageKey,
-            AwsIamRoleConfig,
+            AwsIamRole,
+            DatabricksGcpServiceAccount,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1959,7 +2141,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                             "azureServicePrincipal" | "azure_service_principal" => Ok(GeneratedField::AzureServicePrincipal),
                             "azureManagedIdentity" | "azure_managed_identity" => Ok(GeneratedField::AzureManagedIdentity),
                             "azureStorageKey" | "azure_storage_key" => Ok(GeneratedField::AzureStorageKey),
-                            "awsIamRoleConfig" | "aws_iam_role_config" => Ok(GeneratedField::AwsIamRoleConfig),
+                            "awsIamRole" | "aws_iam_role" => Ok(GeneratedField::AwsIamRole),
+                            "databricksGcpServiceAccount" | "databricks_gcp_service_account" => Ok(GeneratedField::DatabricksGcpServiceAccount),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1989,7 +2172,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                 let mut azure_service_principal__ = None;
                 let mut azure_managed_identity__ = None;
                 let mut azure_storage_key__ = None;
-                let mut aws_iam_role_config__ = None;
+                let mut aws_iam_role__ = None;
+                let mut databricks_gcp_service_account__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -2052,11 +2236,17 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                             }
                             azure_storage_key__ = map_.next_value()?;
                         }
-                        GeneratedField::AwsIamRoleConfig => {
-                            if aws_iam_role_config__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("awsIamRoleConfig"));
+                        GeneratedField::AwsIamRole => {
+                            if aws_iam_role__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsIamRole"));
                             }
-                            aws_iam_role_config__ = map_.next_value()?;
+                            aws_iam_role__ = map_.next_value()?;
+                        }
+                        GeneratedField::DatabricksGcpServiceAccount => {
+                            if databricks_gcp_service_account__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("databricksGcpServiceAccount"));
+                            }
+                            databricks_gcp_service_account__ = map_.next_value()?;
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -2074,7 +2264,8 @@ impl<'de> serde::Deserialize<'de> for UpdateCredentialRequest {
                     azure_service_principal: azure_service_principal__,
                     azure_managed_identity: azure_managed_identity__,
                     azure_storage_key: azure_storage_key__,
-                    aws_iam_role_config: aws_iam_role_config__,
+                    aws_iam_role: aws_iam_role__,
+                    databricks_gcp_service_account: databricks_gcp_service_account__,
                 })
             }
         }
