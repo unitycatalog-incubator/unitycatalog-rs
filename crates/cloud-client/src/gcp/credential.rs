@@ -15,11 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// GCP signing infrastructure (GcpSigningCredential, InstanceSigningCredentialProvider,
-// AuthorizedUserSigningCredentials) is implemented for future object-store presigned URL
-// support but not yet wired to a caller. Suppress dead_code warnings until then.
-#![allow(dead_code)]
-
 use std::env;
 use std::fs::File;
 use std::io::BufReader;
@@ -39,12 +34,9 @@ use tracing::info;
 use crate::retry::RetryExt;
 use crate::service::HttpService;
 use crate::token::TemporaryToken;
-use crate::util::hex_encode;
 use crate::{RetryConfig, TokenProvider};
 
 pub(crate) const DEFAULT_SCOPE: &str = "https://www.googleapis.com/auth/cloud-platform";
-
-const DEFAULT_GCS_PLAYLOAD_STRING: &str = "UNSIGNED-PAYLOAD";
 
 const DEFAULT_METADATA_HOST: &str = "metadata.google.internal";
 const DEFAULT_METADATA_IP: &str = "169.254.169.254";
@@ -75,9 +67,6 @@ pub(crate) enum Error {
     #[error("Error encoding jwt payload: {}", source)]
     Encode { source: serde_json::Error },
 
-    #[error("Unsupported key encoding: {}", encoding)]
-    UnsupportedKey { encoding: String },
-
     #[error("Error performing token request: {}", source)]
     TokenRequest { source: crate::retry::Error },
 
@@ -91,23 +80,6 @@ impl From<Error> for crate::Error {
             source: Box::new(value),
         }
     }
-}
-
-/// A Google Cloud Storage Credential for signing
-#[derive(Debug)]
-pub struct GcpSigningCredential {
-    /// The email of the service account
-    pub email: String,
-
-    /// An optional RSA private key
-    ///
-    /// If provided this will be used to sign the URL, otherwise a call will be made to
-    /// [`iam.serviceAccounts.signBlob`]. This allows supporting credential sources
-    /// that don't expose the service account private key, e.g. [IMDS].
-    ///
-    /// [IMDS]: https://cloud.google.com/docs/authentication/get-id-token#metadata-server
-    /// [`iam.serviceAccounts.signBlob`]: https://cloud.google.com/storage/docs/authentication/creating-signatures
-    pub private_key: Option<ServiceAccountKey>,
 }
 
 /// A private RSA key for a service account
@@ -141,19 +113,6 @@ impl ServiceAccountKey {
         Ok(Self(RsaKeyPair::from_der(key)?))
     }
 
-    fn sign(&self, string_to_sign: &str) -> Result<String> {
-        let mut signature = vec![0; self.0.public().modulus_len()];
-        self.0
-            .sign(
-                &ring::signature::RSA_PKCS1_SHA256,
-                &ring::rand::SystemRandom::new(),
-                string_to_sign.as_bytes(),
-                &mut signature,
-            )
-            .map_err(|source| Error::Sign { source })?;
-
-        Ok(hex_encode(&signature))
-    }
 }
 
 /// A Google Cloud Storage Credential
@@ -466,80 +425,6 @@ impl TokenProvider for InstanceCredentialProvider {
     }
 }
 
-/// Make a request to the metadata server to fetch the client email, using a given hostname.
-async fn make_metadata_request_for_email(
-    client: &Client,
-    service: &Arc<dyn HttpService>,
-    hostname: &str,
-    retry: &RetryConfig,
-) -> crate::Result<String> {
-    let url =
-        format!("http://{hostname}/computeMetadata/v1/instance/service-accounts/default/email",);
-    let response = client
-        .request(Method::GET, url)
-        .header("Metadata-Flavor", "Google")
-        .send_retry(retry, service.clone())
-        .await
-        .map_err(|source| Error::TokenRequest { source })?
-        .text()
-        .await
-        .map_err(|source| Error::TokenResponseBody { source })?;
-    Ok(response)
-}
-
-/// A provider that uses the Google Cloud Platform metadata server to fetch a email for signing.
-///
-/// <https://cloud.google.com/appengine/docs/legacy/standard/java/accessing-instance-metadata>
-#[derive(Debug, Default)]
-pub(crate) struct InstanceSigningCredentialProvider {}
-
-#[async_trait]
-impl TokenProvider for InstanceSigningCredentialProvider {
-    type Credential = GcpSigningCredential;
-
-    /// Fetch a token from the metadata server.
-    /// Since the connection is local we need to enable http access and don't actually use the client object passed in.
-    /// Respects the `GCE_METADATA_HOST`, `GCE_METADATA_ROOT`, and `GCE_METADATA_IP`
-    /// environment variables.
-    ///
-    /// References: <https://googleapis.dev/python/google-auth/latest/reference/google.auth.environment_vars.html>
-    async fn fetch_token(
-        &self,
-        client: &Client,
-        service: &Arc<dyn HttpService>,
-        retry: &RetryConfig,
-    ) -> crate::Result<TemporaryToken<Arc<GcpSigningCredential>>> {
-        let metadata_host = if let Ok(host) = env::var("GCE_METADATA_HOST") {
-            host
-        } else if let Ok(host) = env::var("GCE_METADATA_ROOT") {
-            host
-        } else {
-            DEFAULT_METADATA_HOST.to_string()
-        };
-
-        let metadata_ip = if let Ok(ip) = env::var("GCE_METADATA_IP") {
-            ip
-        } else {
-            DEFAULT_METADATA_IP.to_string()
-        };
-
-        info!("fetching token from metadata server");
-
-        let email = make_metadata_request_for_email(client, service, &metadata_host, retry)
-            .or_else(|_| make_metadata_request_for_email(client, service, &metadata_ip, retry))
-            .await?;
-
-        let token = TemporaryToken {
-            token: Arc::new(GcpSigningCredential {
-                email,
-                private_key: None,
-            }),
-            expiry: None,
-        };
-        Ok(token)
-    }
-}
-
 /// A deserialized `application_default_credentials.json`-file.
 ///
 /// # References
@@ -606,64 +491,6 @@ pub(crate) struct AuthorizedUserCredentials {
     refresh_token: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub(crate) struct AuthorizedUserSigningCredentials {
-    credential: AuthorizedUserCredentials,
-}
-
-///<https://oauth2.googleapis.com/tokeninfo?access_token=ACCESS_TOKEN>
-#[derive(Debug, Deserialize)]
-struct EmailResponse {
-    email: String,
-}
-
-impl AuthorizedUserSigningCredentials {
-    pub(crate) fn from(credential: AuthorizedUserCredentials) -> crate::Result<Self> {
-        Ok(Self { credential })
-    }
-
-    async fn client_email(
-        &self,
-        client: &Client,
-        service: &Arc<dyn HttpService>,
-        retry: &RetryConfig,
-    ) -> crate::Result<String> {
-        let response = client
-            .request(Method::GET, "https://oauth2.googleapis.com/tokeninfo")
-            .query(&[("access_token", &self.credential.refresh_token)])
-            .send_retry(retry, service.clone())
-            .await
-            .map_err(|source| Error::TokenRequest { source })?
-            .json::<EmailResponse>()
-            .await
-            .map_err(|source| Error::TokenResponseBody { source })?;
-
-        Ok(response.email)
-    }
-}
-
-#[async_trait]
-impl TokenProvider for AuthorizedUserSigningCredentials {
-    type Credential = GcpSigningCredential;
-
-    async fn fetch_token(
-        &self,
-        client: &Client,
-        service: &Arc<dyn HttpService>,
-        retry: &RetryConfig,
-    ) -> crate::Result<TemporaryToken<Arc<GcpSigningCredential>>> {
-        let email = self.client_email(client, service, retry).await?;
-
-        Ok(TemporaryToken {
-            token: Arc::new(GcpSigningCredential {
-                email,
-                private_key: None,
-            }),
-            expiry: None,
-        })
-    }
-}
-
 #[async_trait]
 impl TokenProvider for AuthorizedUserCredentials {
     type Credential = GcpCredential;
@@ -698,14 +525,6 @@ impl TokenProvider for AuthorizedUserCredentials {
             expiry: Some(Instant::now() + Duration::from_secs(response.expires_in)),
         })
     }
-}
-
-/// Trim whitespace from header values
-#[allow(dead_code)]
-fn trim_header_value(value: &str) -> String {
-    let mut ret = value.to_string();
-    ret.retain(|c| !c.is_whitespace());
-    ret
 }
 
 /// External credentials file format used by Workload Identity Federation.
