@@ -17,7 +17,7 @@
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use async_trait::async_trait;
 use bytes::Buf;
@@ -44,8 +44,6 @@ type StdError = Box<dyn std::error::Error + Send + Sync>;
 
 /// SHA256 hash of empty string
 static EMPTY_SHA256_HASH: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-static UNSIGNED_PAYLOAD: &str = "UNSIGNED-PAYLOAD";
-static STREAMING_PAYLOAD: &str = "STREAMING-AWS4-HMAC-SHA256-PAYLOAD";
 
 /// A set of AWS security credentials
 #[derive(Debug, Eq, PartialEq)]
@@ -81,7 +79,6 @@ pub struct AwsAuthorizer<'a> {
     credential: &'a AwsCredential,
     service: &'a str,
     region: &'a str,
-    sign_payload: bool,
 }
 
 static DATE_HEADER: hyper::header::HeaderName =
@@ -100,51 +97,44 @@ impl<'a> AwsAuthorizer<'a> {
             service,
             region,
             date: None,
-            sign_payload: true,
         }
-    }
-
-    /// Controls whether this [`AwsAuthorizer`] will attempt to sign the request payload,
-    /// the default is `true`
-    pub fn with_sign_payload(mut self, signed: bool) -> Self {
-        self.sign_payload = signed;
-        self
     }
 
     /// Authorize `request` with an optional pre-calculated SHA256 digest by attaching
     /// the relevant [AWS SigV4] headers
     ///
     /// [AWS SigV4]: https://docs.aws.amazon.com/IAM/latest/UserGuide/create-signed-request.html
-    pub fn authorize(&self, request: &mut Request, pre_calculated_digest: Option<&[u8]>) {
+    pub fn authorize(
+        &self,
+        request: &mut Request,
+        pre_calculated_digest: Option<&[u8]>,
+    ) -> crate::Result<()> {
         if let Some(ref token) = self.credential.token {
-            let token_val = HeaderValue::from_str(token).unwrap();
+            let token_val = HeaderValue::from_str(token)?;
             request.headers_mut().insert(&TOKEN_HEADER, token_val);
         }
 
         let host = &request.url()[url::Position::BeforeHost..url::Position::AfterPort];
-        let host_val = HeaderValue::from_str(host).unwrap();
+        let host_val = HeaderValue::from_str(host)?;
         request.headers_mut().insert("host", host_val);
 
         let date = self.date.unwrap_or_else(Utc::now);
         let date_str = date.format("%Y%m%dT%H%M%SZ").to_string();
-        let date_val = HeaderValue::from_str(&date_str).unwrap();
+        let date_val = HeaderValue::from_str(&date_str)?;
         request.headers_mut().insert(&DATE_HEADER, date_val);
 
-        let digest = match self.sign_payload {
-            false => UNSIGNED_PAYLOAD.to_string(),
-            true => match pre_calculated_digest {
-                Some(digest) => hex_encode(digest),
-                None => match request.body() {
+        let digest = match pre_calculated_digest {
+            Some(digest) => hex_encode(digest),
+            None => match request.body() {
+                None => EMPTY_SHA256_HASH.to_string(),
+                Some(body) => match body.as_bytes() {
+                    Some(bytes) => hex_digest(bytes),
                     None => EMPTY_SHA256_HASH.to_string(),
-                    Some(body) => match body.as_bytes() {
-                        Some(bytes) => hex_digest(bytes),
-                        None => STREAMING_PAYLOAD.to_string(),
-                    },
                 },
             },
         };
 
-        let header_digest = HeaderValue::from_str(&digest).unwrap();
+        let header_digest = HeaderValue::from_str(&digest)?;
         request.headers_mut().insert(&HASH_HEADER, header_digest);
 
         let (signed_headers, canonical_headers) = canonicalize_headers(request.headers());
@@ -170,56 +160,11 @@ impl<'a> AwsAuthorizer<'a> {
             ALGORITHM, self.credential.key_id, scope, signed_headers, signature
         );
 
-        let authorization_val = HeaderValue::from_str(&authorisation).unwrap();
+        let authorization_val = HeaderValue::from_str(&authorisation)?;
         request
             .headers_mut()
             .insert(&AUTHORIZATION, authorization_val);
-    }
-
-    pub(crate) fn sign(&self, method: Method, url: &mut Url, expires_in: Duration) {
-        let date = self.date.unwrap_or_else(Utc::now);
-        let scope = self.scope(date);
-
-        url.query_pairs_mut()
-            .append_pair("X-Amz-Algorithm", ALGORITHM)
-            .append_pair(
-                "X-Amz-Credential",
-                &format!("{}/{}", self.credential.key_id, scope),
-            )
-            .append_pair("X-Amz-Date", &date.format("%Y%m%dT%H%M%SZ").to_string())
-            .append_pair("X-Amz-Expires", &expires_in.as_secs().to_string())
-            .append_pair("X-Amz-SignedHeaders", "host");
-
-        if let Some(ref token) = self.credential.token {
-            url.query_pairs_mut()
-                .append_pair("X-Amz-Security-Token", token);
-        }
-
-        let digest = UNSIGNED_PAYLOAD;
-
-        let host = &url[url::Position::BeforeHost..url::Position::AfterPort].to_string();
-        let mut headers = HeaderMap::new();
-        let host_val = HeaderValue::from_str(host).unwrap();
-        headers.insert("host", host_val);
-
-        let (signed_headers, canonical_headers) = canonicalize_headers(&headers);
-
-        let string_to_sign = self.string_to_sign(
-            date,
-            &scope,
-            &method,
-            url,
-            &canonical_headers,
-            &signed_headers,
-            digest,
-        );
-
-        let signature = self
-            .credential
-            .sign(&string_to_sign, date, self.region, self.service);
-
-        url.query_pairs_mut()
-            .append_pair("X-Amz-Signature", &signature);
+        Ok(())
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -293,7 +238,9 @@ impl CredentialExt for RequestBuilder {
             Some(authorizer) => {
                 let (client, request) = self.build_split();
                 let mut request = request.expect("request valid");
-                authorizer.authorize(&mut request, payload_sha256);
+                authorizer
+                    .authorize(&mut request, payload_sha256)
+                    .expect("credential values must be valid header characters");
 
                 Self::from_parts(client, request)
             }
@@ -337,7 +284,9 @@ fn canonicalize_query(url: &Url) -> String {
 ///
 /// <https://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html>
 fn canonicalize_headers(header_map: &HeaderMap) -> (String, String) {
-    let mut headers = BTreeMap::<&str, Vec<&str>>::new();
+    // Use owned Strings for values since header bytes may not be valid UTF-8;
+    // we convert using lossy UTF-8 to avoid panicking on unusual header values.
+    let mut headers = BTreeMap::<&str, Vec<String>>::new();
     let mut value_count = 0;
     let mut value_bytes = 0;
     let mut key_bytes = 0;
@@ -348,7 +297,7 @@ fn canonicalize_headers(header_map: &HeaderMap) -> (String, String) {
             continue;
         }
 
-        let value = std::str::from_utf8(value.as_bytes()).unwrap();
+        let value = String::from_utf8_lossy(value.as_bytes()).into_owned();
         key_bytes += key.len();
         value_bytes += value.len();
         value_count += 1;
@@ -381,7 +330,13 @@ fn canonicalize_headers(header_map: &HeaderMap) -> (String, String) {
 
 /// Credentials sourced from the instance metadata service
 ///
-/// <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html>
+/// Fetches short-lived `AwsCredential` values from the EC2 Instance Metadata
+/// Service (IMDS).  Supports both IMDSv2 (token-protected) and IMDSv1 as a
+/// fallback when `imdsv1_fallback` is set.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>
+/// - <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html>
 #[derive(Debug)]
 pub(crate) struct InstanceCredentialProvider {
     pub imdsv1_fallback: bool,
@@ -410,9 +365,17 @@ impl TokenProvider for InstanceCredentialProvider {
     }
 }
 
-/// Credentials sourced using AssumeRoleWithWebIdentity
+/// Credentials sourced using `AssumeRoleWithWebIdentity`.
 ///
-/// <https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html>
+/// Exchanges an OIDC token (e.g. a Kubernetes projected service-account token)
+/// for temporary AWS credentials by calling the STS
+/// `AssumeRoleWithWebIdentity` API.  Commonly used in EKS pod identity
+/// scenarios where the token file path is supplied via the
+/// `AWS_WEB_IDENTITY_TOKEN_FILE` environment variable.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html>
+/// - <https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html>
 #[derive(Debug)]
 pub(crate) struct WebIdentityProvider {
     pub token_path: String,
@@ -527,6 +490,115 @@ async fn instance_creds(
     })
 }
 
+/// Exchanges long-term or instance credentials for temporary credentials by
+/// calling the STS [`AssumeRole`] API.  The caller's base credentials are used
+/// to SigV4-sign the STS request.
+///
+/// Wire this provider via [`AmazonBuilder::with_role_arn`] or set the
+/// `AWS_ROLE_ARN` / `AWS_ROLE_SESSION_NAME` environment variables alongside a
+/// static or instance credential source.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html>
+/// - <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-api.html>
+#[derive(Debug)]
+pub(crate) struct AssumeRoleProvider {
+    pub role_arn: String,
+    pub session_name: String,
+    pub endpoint: String,
+    pub base_credentials: Arc<dyn CredentialProvider<Credential = AwsCredential>>,
+    pub region: String,
+}
+
+#[async_trait]
+impl TokenProvider for AssumeRoleProvider {
+    type Credential = AwsCredential;
+
+    async fn fetch_token(
+        &self,
+        client: &Client,
+        service: &Arc<dyn HttpService>,
+        retry: &RetryConfig,
+    ) -> Result<TemporaryToken<Arc<AwsCredential>>> {
+        let base_cred = self
+            .base_credentials
+            .get_credential()
+            .await
+            .map_err(|source| crate::Error::Generic {
+                source: Box::new(source),
+            })?;
+
+        assume_role(
+            client,
+            service,
+            retry,
+            &base_cred,
+            &self.region,
+            &self.role_arn,
+            &self.session_name,
+            &self.endpoint,
+        )
+        .await
+        .map_err(|source| crate::Error::Generic { source })
+    }
+}
+
+/// Calls `STS:AssumeRole` and returns temporary credentials.
+///
+/// The request is SigV4-signed using the provided `base_cred`.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html>
+async fn assume_role(
+    client: &Client,
+    service: &Arc<dyn HttpService>,
+    retry_config: &RetryConfig,
+    base_cred: &AwsCredential,
+    region: &str,
+    role_arn: &str,
+    session_name: &str,
+    endpoint: &str,
+) -> Result<TemporaryToken<Arc<AwsCredential>>, StdError> {
+    let bytes = client
+        .request(Method::POST, endpoint)
+        .query(&[
+            ("Action", "AssumeRole"),
+            ("DurationSeconds", "3600"),
+            ("RoleArn", role_arn),
+            ("RoleSessionName", session_name),
+            ("Version", "2011-06-15"),
+        ])
+        .with_aws_sigv4(
+            Some(AwsAuthorizer::new(base_cred, "sts", region)),
+            None,
+        )
+        .retryable(retry_config, service.clone())
+        .idempotent(true)
+        .send()
+        .await?
+        .bytes()
+        .await?;
+
+    let resp: AssumeRoleXmlResponse = quick_xml::de::from_reader(bytes.reader())
+        .map_err(|e| format!("Invalid AssumeRole response: {e}"))?;
+
+    let creds = resp.assume_role_result.credentials;
+    let now = Utc::now();
+    let ttl = (creds.expiration - now).to_std().unwrap_or_default();
+
+    Ok(TemporaryToken {
+        token: Arc::new(creds.into()),
+        expiry: Some(Instant::now() + ttl),
+    })
+}
+
+/// XML response for `AssumeRole`.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+struct AssumeRoleXmlResponse {
+    assume_role_result: AssumeRoleResult,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct AssumeRoleResponse {
@@ -602,12 +674,30 @@ async fn web_identity(
     })
 }
 
-/// Credentials sourced from a task IAM role
+/// Credentials sourced from a task IAM role.
 ///
-/// <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>
+/// Fetches short-lived `AwsCredential` values from the ECS task-metadata
+/// credential endpoint.  The URL is resolved from environment variables in
+/// this priority order:
+///
+/// 1. `AWS_CONTAINER_CREDENTIALS_FULL_URI` — absolute URL (used by EKS Pod
+///    Identity and Lambda)
+/// 2. `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` — path appended to
+///    `http://169.254.170.2` (classic ECS task role)
+///
+/// When `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE` is set the file contents are
+/// sent as the `Authorization` request header, enabling EKS Pod Identity.
+/// Results are cached in the embedded [`TokenCache`] until they approach expiry.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>
+/// - <https://docs.aws.amazon.com/eks/latest/userguide/pod-id-how-it-works.html>
 #[derive(Debug)]
 pub(crate) struct TaskCredentialProvider {
     pub url: String,
+    /// Optional authorization token sent as the `Authorization` header.
+    /// Used by EKS Pod Identity (`AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE`).
+    pub auth_token_file: Option<String>,
     pub retry: RetryConfig,
     pub client: Client,
     pub service: Arc<dyn HttpService>,
@@ -621,7 +711,13 @@ impl CredentialProvider for TaskCredentialProvider {
     async fn get_credential(&self) -> Result<Arc<AwsCredential>> {
         self.cache
             .get_or_insert_with(|| {
-                task_credential(&self.client, &self.service, &self.retry, &self.url)
+                task_credential(
+                    &self.client,
+                    &self.service,
+                    &self.retry,
+                    &self.url,
+                    self.auth_token_file.as_deref(),
+                )
             })
             .await
             .map_err(|source| crate::Error::Generic { source })
@@ -634,9 +730,18 @@ async fn task_credential(
     service: &Arc<dyn HttpService>,
     retry: &RetryConfig,
     url: &str,
+    auth_token_file: Option<&str>,
 ) -> Result<TemporaryToken<Arc<AwsCredential>>, StdError> {
-    let creds: InstanceCredentials = client
-        .get(url)
+    let mut req = client.get(url);
+
+    // EKS Pod Identity requires an Authorization header read from a file
+    if let Some(token_file) = auth_token_file {
+        let token = std::fs::read_to_string(token_file)
+            .map_err(|e| format!("Failed to read auth token file '{token_file}': {e}"))?;
+        req = req.header(reqwest::header::AUTHORIZATION, token.trim());
+    }
+
+    let creds: InstanceCredentials = req
         .send_retry(retry, service.clone())
         .await?
         .json()
@@ -681,87 +786,14 @@ mod tests {
             credential: &credential,
             service: "ec2",
             region: "us-east-1",
-            sign_payload: true,
         };
 
-        signer.authorize(&mut request, None);
+        signer.authorize(&mut request, None).unwrap();
         assert_eq!(
             request.headers().get(&AUTHORIZATION).unwrap(),
             "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=a3c787a7ed37f7fdfbfd2d7056a3d7c9d85e6d52a2bfbec73793c0be6e7862d4"
         )
         // gitleaks:allow
-    }
-
-    #[test]
-    fn test_sign_with_unsigned_payload() {
-        let client = Client::new();
-
-        let credential = AwsCredential {
-            key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
-            secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
-            token: None,
-        };
-
-        let date = DateTime::parse_from_rfc3339("2022-08-06T18:01:34Z")
-            .unwrap()
-            .with_timezone(&Utc);
-
-        let mut request = client
-            .request(Method::GET, "https://ec2.amazon.com/")
-            .build()
-            .unwrap();
-
-        let authorizer = AwsAuthorizer {
-            date: Some(date),
-            credential: &credential,
-            service: "ec2",
-            region: "us-east-1",
-            sign_payload: false,
-        };
-
-        authorizer.authorize(&mut request, None);
-        assert_eq!(
-            request.headers().get(&AUTHORIZATION).unwrap(),
-            "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=653c3d8ea261fd826207df58bc2bb69fbb5003e9eb3c0ef06e4a51f2a81d8699"
-        );
-    }
-
-    #[test]
-    fn signed_get_url() {
-        let credential = AwsCredential {
-            key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
-            secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
-            token: None,
-        };
-
-        let date = DateTime::parse_from_rfc3339("2013-05-24T00:00:00Z")
-            .unwrap()
-            .with_timezone(&Utc);
-
-        let authorizer = AwsAuthorizer {
-            date: Some(date),
-            credential: &credential,
-            service: "s3",
-            region: "us-east-1",
-            sign_payload: false,
-        };
-
-        let mut url = Url::parse("https://examplebucket.s3.amazonaws.com/test.txt").unwrap();
-        authorizer.sign(Method::GET, &mut url, Duration::from_secs(86400));
-
-        assert_eq!(
-            url,
-            Url::parse(
-                "https://examplebucket.s3.amazonaws.com/test.txt?\
-                X-Amz-Algorithm=AWS4-HMAC-SHA256&\
-                X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request&\
-                X-Amz-Date=20130524T000000Z&\
-                X-Amz-Expires=86400&\
-                X-Amz-SignedHeaders=host&\
-                X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"
-            )
-            .unwrap()
-        );
     }
 
     #[test]
@@ -794,10 +826,9 @@ mod tests {
             credential: &credential,
             service: "s3",
             region: "us-east-1",
-            sign_payload: true,
         };
 
-        authorizer.authorize(&mut request, None);
+        authorizer.authorize(&mut request, None).unwrap();
         assert_eq!(
             request.headers().get(&AUTHORIZATION).unwrap(),
             "AWS4-HMAC-SHA256 Credential=H20ABqCkLZID4rLe/20220809/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=9ebf2f92872066c99ac94e573b4e1b80f4dbb8a32b1e8e23178318746e7d1b4d"
@@ -929,5 +960,180 @@ mod tests {
         instance_creds(&client, &service, &retry_config, &endpoint, false)
             .await
             .unwrap_err();
+    }
+
+    const STS_WEB_IDENTITY_XML: &str = r#"<AssumeRoleWithWebIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/"><AssumeRoleWithWebIdentityResult><Credentials><AccessKeyId>AKIAIOSFODNN7EXAMPLE</AccessKeyId><SecretAccessKey>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</SecretAccessKey><SessionToken>FwoGZXIvYXdzEJr//////////wEaDHer8</SessionToken><Expiration>2099-01-01T00:00:00Z</Expiration></Credentials></AssumeRoleWithWebIdentityResult></AssumeRoleWithWebIdentityResponse>"#; // gitleaks:allow
+
+    const STS_ASSUME_ROLE_XML: &str = r#"<AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/"><AssumeRoleResult><Credentials><AccessKeyId>AKIAIOSFODNN7EXAMPLE</AccessKeyId><SecretAccessKey>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</SecretAccessKey><SessionToken>FwoGZXIvYXdzEJr//////////wEaDHer8</SessionToken><Expiration>2099-01-01T00:00:00Z</Expiration></Credentials></AssumeRoleResult></AssumeRoleResponse>"#; // gitleaks:allow
+
+    #[tokio::test]
+    async fn test_web_identity_provider() {
+        use std::io::Write as _;
+        let mut server = mockito::Server::new_async().await;
+
+        // Write a fake JWT to a temp file
+        let mut token_file = tempfile::NamedTempFile::new().unwrap();
+        write!(token_file, "fake-jwt-token").unwrap();
+
+        let sts_url = server.url();
+
+        let _mock = server
+            .mock("POST", "/")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("Action".into(), "AssumeRoleWithWebIdentity".into()),
+                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/TestRole".into()),
+                mockito::Matcher::UrlEncoded("WebIdentityToken".into(), "fake-jwt-token".into()),
+            ]))
+            .with_status(200)
+            .with_body(STS_WEB_IDENTITY_XML)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = WebIdentityProvider {
+            token_path: token_file.path().to_str().unwrap().to_owned(),
+            role_arn: "arn:aws:iam::123456789012:role/TestRole".into(),
+            session_name: "test-session".into(),
+            endpoint: sts_url,
+        };
+
+        let creds = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+
+        assert_eq!(creds.token.key_id, "AKIAIOSFODNN7EXAMPLE"); // gitleaks:allow
+        assert!(creds.token.token.is_some());
+        assert!(creds.expiry.is_some());
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_task_credential_provider() {
+        let mut server = mockito::Server::new_async().await;
+
+        let endpoint = server.url();
+
+        let _mock = server
+            .mock("GET", "/v2/credentials/test")
+            .with_status(200)
+            .with_body(r#"{"AccessKeyId":"TASKID","Code":"Success","Expiration":"2099-01-01T00:00:00Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"TASKSECRET","Token":"TASKTOKEN","Type":"AWS-HMAC"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = TaskCredentialProvider {
+            url: format!("{}/v2/credentials/test", endpoint),
+            auth_token_file: None,
+            retry: retry.clone(),
+            client: client.clone(),
+            service: service.clone(),
+            cache: Default::default(),
+        };
+
+        let creds = provider.get_credential().await.unwrap();
+
+        assert_eq!(creds.key_id, "TASKID");
+        assert_eq!(creds.secret_key, "TASKSECRET");
+        assert_eq!(creds.token.as_deref(), Some("TASKTOKEN"));
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_task_credential_with_auth_token() {
+        use std::io::Write as _;
+        let mut server = mockito::Server::new_async().await;
+
+        // Write auth token to a temp file
+        let mut auth_file = tempfile::NamedTempFile::new().unwrap();
+        write!(auth_file, "my-pod-identity-token").unwrap();
+
+        let endpoint = server.url();
+
+        let _mock = server
+            .mock("GET", "/v2/credentials/eks")
+            .match_header("Authorization", "my-pod-identity-token")
+            .with_status(200)
+            .with_body(r#"{"AccessKeyId":"EKSID","Code":"Success","Expiration":"2099-01-01T00:00:00Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"EKSSECRET","Token":"EKSTOKEN","Type":"AWS-HMAC"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = TaskCredentialProvider {
+            url: format!("{}/v2/credentials/eks", endpoint),
+            auth_token_file: Some(auth_file.path().to_str().unwrap().to_owned()),
+            retry: retry.clone(),
+            client: client.clone(),
+            service: service.clone(),
+            cache: Default::default(),
+        };
+
+        let creds = provider.get_credential().await.unwrap();
+
+        assert_eq!(creds.key_id, "EKSID");
+        assert_eq!(creds.token.as_deref(), Some("EKSTOKEN"));
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_assume_role_provider() {
+        use crate::StaticCredentialProvider;
+        let mut server = mockito::Server::new_async().await;
+
+        let sts_endpoint = server.url();
+
+        let _mock = server
+            .mock("POST", "/")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("Action".into(), "AssumeRole".into()),
+                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/AssumedRole".into()),
+            ]))
+            .with_status(200)
+            .with_body(STS_ASSUME_ROLE_XML)
+            .create_async()
+            .await;
+
+        let base_cred = AwsCredential {
+            key_id: "BASEKEYID".to_string(),
+            secret_key: "BASESECRET".to_string(),
+            token: None,
+        };
+        let base_provider: Arc<dyn CredentialProvider<Credential = AwsCredential>> =
+            Arc::new(StaticCredentialProvider::new(base_cred));
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = AssumeRoleProvider {
+            role_arn: "arn:aws:iam::123456789012:role/AssumedRole".into(),
+            session_name: "test-assume-session".into(),
+            endpoint: format!("{}/", sts_endpoint),
+            base_credentials: base_provider,
+            region: "us-east-1".into(),
+        };
+
+        let token = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+
+        assert_eq!(token.token.key_id, "AKIAIOSFODNN7EXAMPLE"); // gitleaks:allow
+        assert!(token.token.token.is_some());
+        assert!(token.expiry.is_some());
+
+        _mock.assert_async().await;
     }
 }

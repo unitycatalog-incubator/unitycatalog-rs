@@ -60,4 +60,16 @@ pub enum Error {
         /// The configuration key used
         key: String,
     },
+
+    /// Error constructing an HTTP header value from a string
+    #[error("Invalid HTTP header value: {0}")]
+    InvalidHeader(#[from] reqwest::header::InvalidHeaderValue),
+
+    /// Error when writing a recording to disk
+    #[error("Failed to write recording: {0}")]
+    RecordingIo(#[from] std::io::Error),
+
+    /// Error when the system clock is before the Unix epoch
+    #[error("System clock error: time is before Unix epoch")]
+    ClockError,
 }

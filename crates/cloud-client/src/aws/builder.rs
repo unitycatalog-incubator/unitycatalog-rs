@@ -24,7 +24,7 @@ use tracing::info;
 
 use super::AmazonConfig;
 use crate::aws::credential::{
-    InstanceCredentialProvider, TaskCredentialProvider, WebIdentityProvider,
+    AssumeRoleProvider, InstanceCredentialProvider, TaskCredentialProvider, WebIdentityProvider,
 };
 use crate::aws::{AwsCredential, AwsCredentialProvider};
 use crate::config::ConfigValue;
@@ -81,12 +81,17 @@ pub struct AmazonBuilder {
     token: Option<String>,
     retry_config: RetryConfig,
     imdsv1_fallback: ConfigValue<bool>,
-    unsigned_payload: ConfigValue<bool>,
     metadata_endpoint: Option<String>,
     container_credentials_relative_uri: Option<String>,
     client_options: ClientOptions,
     credentials: Option<AwsCredentialProvider>,
     skip_signature: ConfigValue<bool>,
+    /// IAM role ARN to assume via STS `AssumeRole`.
+    role_arn: Option<String>,
+    /// Session name for the assumed role (defaults to `"AssumeRoleSession"`).
+    role_session_name: Option<String>,
+    /// STS endpoint override for `AssumeRole` (defaults to regional STS).
+    sts_endpoint: Option<String>,
 }
 
 /// Configuration keys for [`AmazonBuilder`]
@@ -147,13 +152,6 @@ pub enum AmazonS3ConfigKey {
     /// - `imdsv1_fallback`
     ImdsV1Fallback,
 
-    /// Avoid computing payload checksum when calculating signature.
-    ///
-    /// Supported keys:
-    /// - `aws_unsigned_payload`
-    /// - `unsigned_payload`
-    UnsignedPayload,
-
     /// Set the instance metadata endpoint
     ///
     /// Supported keys:
@@ -169,6 +167,27 @@ pub enum AmazonS3ConfigKey {
     /// Skip signing request
     SkipSignature,
 
+    /// IAM role ARN to assume via STS `AssumeRole`.
+    ///
+    /// Supported keys:
+    /// - `aws_role_arn`
+    /// - `role_arn`
+    RoleArn,
+
+    /// Session name for the assumed role.
+    ///
+    /// Supported keys:
+    /// - `aws_role_session_name`
+    /// - `role_session_name`
+    RoleSessionName,
+
+    /// STS endpoint override for `AssumeRole`.
+    ///
+    /// Supported keys:
+    /// - `aws_sts_endpoint`
+    /// - `sts_endpoint`
+    StsEndpoint,
+
     /// Client options
     Client(ClientConfigKey),
 }
@@ -183,9 +202,11 @@ impl AsRef<str> for AmazonS3ConfigKey {
             Self::ImdsV1Fallback => "aws_imdsv1_fallback",
             Self::DefaultRegion => "aws_default_region",
             Self::MetadataEndpoint => "aws_metadata_endpoint",
-            Self::UnsignedPayload => "aws_unsigned_payload",
             Self::ContainerCredentialsRelativeUri => "aws_container_credentials_relative_uri",
             Self::SkipSignature => "aws_skip_signature",
+            Self::RoleArn => "aws_role_arn",
+            Self::RoleSessionName => "aws_role_session_name",
+            Self::StsEndpoint => "aws_sts_endpoint",
             Self::Client(opt) => opt.as_ref(),
         }
     }
@@ -203,9 +224,11 @@ impl FromStr for AmazonS3ConfigKey {
             "aws_session_token" | "aws_token" | "session_token" | "token" => Ok(Self::Token),
             "aws_imdsv1_fallback" | "imdsv1_fallback" => Ok(Self::ImdsV1Fallback),
             "aws_metadata_endpoint" | "metadata_endpoint" => Ok(Self::MetadataEndpoint),
-            "aws_unsigned_payload" | "unsigned_payload" => Ok(Self::UnsignedPayload),
             "aws_container_credentials_relative_uri" => Ok(Self::ContainerCredentialsRelativeUri),
             "aws_skip_signature" | "skip_signature" => Ok(Self::SkipSignature),
+            "aws_role_arn" | "role_arn" => Ok(Self::RoleArn),
+            "aws_role_session_name" | "role_session_name" => Ok(Self::RoleSessionName),
+            "aws_sts_endpoint" | "sts_endpoint" => Ok(Self::StsEndpoint),
             "aws_allow_http" => Ok(Self::Client(ClientConfigKey::AllowHttp)),
             _ => match s.strip_prefix("aws_").unwrap_or(s).parse() {
                 Ok(key) => Ok(Self::Client(key)),
@@ -258,7 +281,6 @@ impl AmazonBuilder {
                 self.region = self.region.or_else(|| Some(value.into()))
             }
             AmazonS3ConfigKey::MetadataEndpoint => self.metadata_endpoint = Some(value.into()),
-            AmazonS3ConfigKey::UnsignedPayload => self.unsigned_payload.parse(value),
             AmazonS3ConfigKey::ContainerCredentialsRelativeUri => {
                 self.container_credentials_relative_uri = Some(value.into())
             }
@@ -266,6 +288,9 @@ impl AmazonBuilder {
                 self.client_options = self.client_options.with_config(key, value)
             }
             AmazonS3ConfigKey::SkipSignature => self.skip_signature.parse(value),
+            AmazonS3ConfigKey::RoleArn => self.role_arn = Some(value.into()),
+            AmazonS3ConfigKey::RoleSessionName => self.role_session_name = Some(value.into()),
+            AmazonS3ConfigKey::StsEndpoint => self.sts_endpoint = Some(value.into()),
         };
         self
     }
@@ -279,12 +304,14 @@ impl AmazonBuilder {
             AmazonS3ConfigKey::Token => self.token.clone(),
             AmazonS3ConfigKey::ImdsV1Fallback => Some(self.imdsv1_fallback.to_string()),
             AmazonS3ConfigKey::MetadataEndpoint => self.metadata_endpoint.clone(),
-            AmazonS3ConfigKey::UnsignedPayload => Some(self.unsigned_payload.to_string()),
             AmazonS3ConfigKey::Client(key) => self.client_options.get_config_value(key),
             AmazonS3ConfigKey::ContainerCredentialsRelativeUri => {
                 self.container_credentials_relative_uri.clone()
             }
             AmazonS3ConfigKey::SkipSignature => Some(self.skip_signature.to_string()),
+            AmazonS3ConfigKey::RoleArn => self.role_arn.clone(),
+            AmazonS3ConfigKey::RoleSessionName => self.role_session_name.clone(),
+            AmazonS3ConfigKey::StsEndpoint => self.sts_endpoint.clone(),
         }
     }
 
@@ -346,15 +373,6 @@ impl AmazonBuilder {
         self
     }
 
-    /// Sets if unsigned payload option has to be used.
-    /// See [unsigned payload option](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html)
-    /// * false (default): Signed payload option is used.
-    /// * true: Unsigned payload option is used.
-    pub fn with_unsigned_payload(mut self, unsigned_payload: bool) -> Self {
-        self.unsigned_payload = unsigned_payload.into();
-        self
-    }
-
     /// If enabled, requests will not be signed.
     pub fn with_skip_signature(mut self, skip_signature: bool) -> Self {
         self.skip_signature = skip_signature.into();
@@ -368,6 +386,30 @@ impl AmazonBuilder {
     /// endpoint http://fd00:ec2::254.
     pub fn with_metadata_endpoint(mut self, endpoint: impl Into<String>) -> Self {
         self.metadata_endpoint = Some(endpoint.into());
+        self
+    }
+
+    /// Assume the given IAM role via STS `AssumeRole` after obtaining base credentials.
+    ///
+    /// When set, the builder resolves base credentials (static, IMDS, or WebIdentity)
+    /// and then exchanges them for temporary credentials scoped to `role_arn`.
+    ///
+    /// # References
+    /// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html>
+    pub fn with_role_arn(mut self, role_arn: impl Into<String>) -> Self {
+        self.role_arn = Some(role_arn.into());
+        self
+    }
+
+    /// Set the session name used in `AssumeRole` requests (defaults to `"AssumeRoleSession"`).
+    pub fn with_role_session_name(mut self, session_name: impl Into<String>) -> Self {
+        self.role_session_name = Some(session_name.into());
+        self
+    }
+
+    /// Override the STS endpoint used for `AssumeRole` (defaults to the regional endpoint).
+    pub fn with_sts_endpoint(mut self, endpoint: impl Into<String>) -> Self {
+        self.sts_endpoint = Some(endpoint.into());
         self
     }
 
@@ -452,12 +494,32 @@ impl AmazonBuilder {
                 service,
                 self.retry_config.clone(),
             )) as _
+        } else if let Some(full_uri) =
+            std::env::var("AWS_CONTAINER_CREDENTIALS_FULL_URI").ok()
+        {
+            // EKS Pod Identity and Lambda use a full absolute URI
+            info!("Using Task credential provider (full URI)");
+            let auth_token_file =
+                std::env::var("AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE").ok();
+            let client = self.client_options.clone().with_allow_http(true).client()?;
+            let service = make_service(client.clone(), runtime);
+            Arc::new(TaskCredentialProvider {
+                url: full_uri,
+                auth_token_file,
+                retry: self.retry_config.clone(),
+                client,
+                service,
+                cache: Default::default(),
+            }) as _
         } else if let Some(uri) = self.container_credentials_relative_uri {
-            info!("Using Task credential provider");
+            info!("Using Task credential provider (relative URI)");
+            let auth_token_file =
+                std::env::var("AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE").ok();
             let client = self.client_options.clone().with_allow_http(true).client()?;
             let service = make_service(client.clone(), runtime);
             Arc::new(TaskCredentialProvider {
                 url: format!("http://169.254.170.2{uri}"),
+                auth_token_file,
                 retry: self.retry_config.clone(),
                 client,
                 service,
@@ -483,12 +545,38 @@ impl AmazonBuilder {
             )) as _
         };
 
+        // Optionally wrap base credentials with AssumeRole if a role ARN is configured.
+        let credentials = if let Some(role_arn) = self.role_arn {
+            info!("Wrapping credentials with AssumeRole provider");
+            let session_name = self
+                .role_session_name
+                .unwrap_or_else(|| "AssumeRoleSession".to_string());
+            let endpoint = self
+                .sts_endpoint
+                .unwrap_or_else(|| format!("https://sts.{region}.amazonaws.com"));
+            let client = self.client_options.clone().with_allow_http(false).client()?;
+            let service = make_service(client.clone(), runtime);
+            Arc::new(TokenCredentialProvider::new(
+                AssumeRoleProvider {
+                    role_arn,
+                    session_name,
+                    endpoint,
+                    base_credentials: credentials,
+                    region: region.clone(),
+                },
+                client,
+                service,
+                self.retry_config.clone(),
+            )) as _
+        } else {
+            credentials
+        };
+
         Ok(AmazonConfig {
             region,
             credentials,
             retry_config: self.retry_config,
             client_options: self.client_options,
-            sign_payload: !self.unsigned_payload.get()?,
             skip_signature: self.skip_signature.get()?,
         })
     }
@@ -510,7 +598,6 @@ mod tests {
             ("aws_secret_access_key", aws_secret_access_key),
             ("aws_default_region", aws_default_region.clone()),
             ("aws_session_token", aws_session_token.clone()),
-            ("aws_unsigned_payload", "true".to_string()),
         ]);
 
         let builder = options
@@ -524,7 +611,6 @@ mod tests {
         assert_eq!(builder.secret_access_key.unwrap(), "new-secret-key");
         assert_eq!(builder.region.unwrap(), aws_default_region);
         assert_eq!(builder.token.unwrap(), aws_session_token);
-        assert!(builder.unsigned_payload.get().unwrap());
     }
 
     #[test]
@@ -538,8 +624,7 @@ mod tests {
             .with_config(AmazonS3ConfigKey::AccessKeyId, &aws_access_key_id)
             .with_config(AmazonS3ConfigKey::SecretAccessKey, &aws_secret_access_key)
             .with_config(AmazonS3ConfigKey::DefaultRegion, &aws_default_region)
-            .with_config(AmazonS3ConfigKey::Token, &aws_session_token)
-            .with_config(AmazonS3ConfigKey::UnsignedPayload, "true");
+            .with_config(AmazonS3ConfigKey::Token, &aws_session_token);
 
         assert_eq!(
             builder
@@ -562,12 +647,6 @@ mod tests {
         assert_eq!(
             builder.get_config_value(&AmazonS3ConfigKey::Token).unwrap(),
             aws_session_token
-        );
-        assert_eq!(
-            builder
-                .get_config_value(&AmazonS3ConfigKey::UnsignedPayload)
-                .unwrap(),
-            "true"
         );
     }
 

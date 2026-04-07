@@ -34,12 +34,9 @@ use tracing::info;
 use crate::retry::RetryExt;
 use crate::service::HttpService;
 use crate::token::TemporaryToken;
-use crate::util::hex_encode;
 use crate::{RetryConfig, TokenProvider};
 
 pub(crate) const DEFAULT_SCOPE: &str = "https://www.googleapis.com/auth/cloud-platform";
-
-const DEFAULT_GCS_PLAYLOAD_STRING: &str = "UNSIGNED-PAYLOAD";
 
 const DEFAULT_METADATA_HOST: &str = "metadata.google.internal";
 const DEFAULT_METADATA_IP: &str = "169.254.169.254";
@@ -70,9 +67,6 @@ pub(crate) enum Error {
     #[error("Error encoding jwt payload: {}", source)]
     Encode { source: serde_json::Error },
 
-    #[error("Unsupported key encoding: {}", encoding)]
-    UnsupportedKey { encoding: String },
-
     #[error("Error performing token request: {}", source)]
     TokenRequest { source: crate::retry::Error },
 
@@ -86,23 +80,6 @@ impl From<Error> for crate::Error {
             source: Box::new(value),
         }
     }
-}
-
-/// A Google Cloud Storage Credential for signing
-#[derive(Debug)]
-pub struct GcpSigningCredential {
-    /// The email of the service account
-    pub email: String,
-
-    /// An optional RSA private key
-    ///
-    /// If provided this will be used to sign the URL, otherwise a call will be made to
-    /// [`iam.serviceAccounts.signBlob`]. This allows supporting credential sources
-    /// that don't expose the service account private key, e.g. [IMDS].
-    ///
-    /// [IMDS]: https://cloud.google.com/docs/authentication/get-id-token#metadata-server
-    /// [`iam.serviceAccounts.signBlob`]: https://cloud.google.com/storage/docs/authentication/creating-signatures
-    pub private_key: Option<ServiceAccountKey>,
 }
 
 /// A private RSA key for a service account
@@ -136,19 +113,6 @@ impl ServiceAccountKey {
         Ok(Self(RsaKeyPair::from_der(key)?))
     }
 
-    fn sign(&self, string_to_sign: &str) -> Result<String> {
-        let mut signature = vec![0; self.0.public().modulus_len()];
-        self.0
-            .sign(
-                &ring::signature::RSA_PKCS1_SHA256,
-                &ring::rand::SystemRandom::new(),
-                string_to_sign.as_bytes(),
-                &mut signature,
-            )
-            .map_err(|source| Error::Sign { source })?;
-
-        Ok(hex_encode(&signature))
-    }
 }
 
 /// A Google Cloud Storage Credential
@@ -307,6 +271,17 @@ where
 }
 
 /// A deserialized `service-account-********.json`-file.
+///
+/// Holds the RSA private key and associated metadata needed to generate
+/// self-signed JWTs for authenticating as a GCP service account without
+/// going through the OAuth 2.0 token endpoint.  Call [`token_provider`] to
+/// obtain a [`SelfSignedJwt`] that can be used directly as a
+/// [`TokenProvider`].
+///
+/// # References
+/// - <https://developers.google.com/identity/protocols/oauth2/service-account>
+///
+/// [`token_provider`]: ServiceAccountCredentials::token_provider
 #[derive(serde::Deserialize, Debug, Clone)]
 pub(crate) struct ServiceAccountCredentials {
     /// The private key in RSA format.
@@ -352,11 +327,15 @@ impl ServiceAccountCredentials {
     }
 }
 
-/// Returns the number of seconds since unix epoch
+/// Returns the number of seconds since unix epoch.
+///
+/// Returns 0 if the system clock is set before the Unix epoch (January 1, 1970),
+/// which would cause JWT tokens to have invalid `iat`/`exp` values and be rejected
+/// by the token endpoint.
 fn seconds_since_epoch() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::SystemTime::UNIX_EPOCH)
-        .unwrap()
+        .unwrap_or_default()
         .as_secs()
 }
 
@@ -367,7 +346,16 @@ fn b64_encode_obj<T: serde::Serialize>(obj: &T) -> Result<String> {
 
 /// A provider that uses the Google Cloud Platform metadata server to fetch a token.
 ///
-/// <https://cloud.google.com/docs/authentication/get-id-token#metadata-server>
+/// Queries the GCE/GKE metadata server at
+/// `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`
+/// (falling back to the IP `169.254.169.254`) to obtain a short-lived OAuth 2.0
+/// bearer token for the VM's attached service account.  Respects the
+/// `GCE_METADATA_HOST`, `GCE_METADATA_ROOT`, and `GCE_METADATA_IP` environment
+/// variables for custom endpoint overrides.
+///
+/// # References
+/// - <https://cloud.google.com/compute/docs/access/authenticate-workloads>
+/// - <https://cloud.google.com/docs/authentication/get-id-token#metadata-server>
 #[derive(Debug, Default)]
 pub(crate) struct InstanceCredentialProvider {}
 
@@ -437,80 +425,6 @@ impl TokenProvider for InstanceCredentialProvider {
     }
 }
 
-/// Make a request to the metadata server to fetch the client email, using a given hostname.
-async fn make_metadata_request_for_email(
-    client: &Client,
-    service: &Arc<dyn HttpService>,
-    hostname: &str,
-    retry: &RetryConfig,
-) -> crate::Result<String> {
-    let url =
-        format!("http://{hostname}/computeMetadata/v1/instance/service-accounts/default/email",);
-    let response = client
-        .request(Method::GET, url)
-        .header("Metadata-Flavor", "Google")
-        .send_retry(retry, service.clone())
-        .await
-        .map_err(|source| Error::TokenRequest { source })?
-        .text()
-        .await
-        .map_err(|source| Error::TokenResponseBody { source })?;
-    Ok(response)
-}
-
-/// A provider that uses the Google Cloud Platform metadata server to fetch a email for signing.
-///
-/// <https://cloud.google.com/appengine/docs/legacy/standard/java/accessing-instance-metadata>
-#[derive(Debug, Default)]
-pub(crate) struct InstanceSigningCredentialProvider {}
-
-#[async_trait]
-impl TokenProvider for InstanceSigningCredentialProvider {
-    type Credential = GcpSigningCredential;
-
-    /// Fetch a token from the metadata server.
-    /// Since the connection is local we need to enable http access and don't actually use the client object passed in.
-    /// Respects the `GCE_METADATA_HOST`, `GCE_METADATA_ROOT`, and `GCE_METADATA_IP`
-    /// environment variables.
-    ///
-    /// References: <https://googleapis.dev/python/google-auth/latest/reference/google.auth.environment_vars.html>
-    async fn fetch_token(
-        &self,
-        client: &Client,
-        service: &Arc<dyn HttpService>,
-        retry: &RetryConfig,
-    ) -> crate::Result<TemporaryToken<Arc<GcpSigningCredential>>> {
-        let metadata_host = if let Ok(host) = env::var("GCE_METADATA_HOST") {
-            host
-        } else if let Ok(host) = env::var("GCE_METADATA_ROOT") {
-            host
-        } else {
-            DEFAULT_METADATA_HOST.to_string()
-        };
-
-        let metadata_ip = if let Ok(ip) = env::var("GCE_METADATA_IP") {
-            ip
-        } else {
-            DEFAULT_METADATA_IP.to_string()
-        };
-
-        info!("fetching token from metadata server");
-
-        let email = make_metadata_request_for_email(client, service, &metadata_host, retry)
-            .or_else(|_| make_metadata_request_for_email(client, service, &metadata_ip, retry))
-            .await?;
-
-        let token = TemporaryToken {
-            token: Arc::new(GcpSigningCredential {
-                email,
-                private_key: None,
-            }),
-            expiry: None,
-        };
-        Ok(token)
-    }
-}
-
 /// A deserialized `application_default_credentials.json`-file.
 ///
 /// # References
@@ -531,6 +445,12 @@ pub(crate) enum ApplicationDefaultCredentials {
     /// - <https://google.aip.dev/auth/4113>
     #[serde(rename = "authorized_user")]
     AuthorizedUser(AuthorizedUserCredentials),
+    /// External account credentials (Workload Identity Federation).
+    ///
+    /// # References
+    /// - <https://cloud.google.com/iam/docs/workload-identity-federation>
+    #[serde(rename = "external_account")]
+    ExternalAccount(ExternalAccountCredentials),
 }
 
 impl ApplicationDefaultCredentials {
@@ -571,64 +491,6 @@ pub(crate) struct AuthorizedUserCredentials {
     refresh_token: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub(crate) struct AuthorizedUserSigningCredentials {
-    credential: AuthorizedUserCredentials,
-}
-
-///<https://oauth2.googleapis.com/tokeninfo?access_token=ACCESS_TOKEN>
-#[derive(Debug, Deserialize)]
-struct EmailResponse {
-    email: String,
-}
-
-impl AuthorizedUserSigningCredentials {
-    pub(crate) fn from(credential: AuthorizedUserCredentials) -> crate::Result<Self> {
-        Ok(Self { credential })
-    }
-
-    async fn client_email(
-        &self,
-        client: &Client,
-        service: &Arc<dyn HttpService>,
-        retry: &RetryConfig,
-    ) -> crate::Result<String> {
-        let response = client
-            .request(Method::GET, "https://oauth2.googleapis.com/tokeninfo")
-            .query(&[("access_token", &self.credential.refresh_token)])
-            .send_retry(retry, service.clone())
-            .await
-            .map_err(|source| Error::TokenRequest { source })?
-            .json::<EmailResponse>()
-            .await
-            .map_err(|source| Error::TokenResponseBody { source })?;
-
-        Ok(response.email)
-    }
-}
-
-#[async_trait]
-impl TokenProvider for AuthorizedUserSigningCredentials {
-    type Credential = GcpSigningCredential;
-
-    async fn fetch_token(
-        &self,
-        client: &Client,
-        service: &Arc<dyn HttpService>,
-        retry: &RetryConfig,
-    ) -> crate::Result<TemporaryToken<Arc<GcpSigningCredential>>> {
-        let email = self.client_email(client, service, retry).await?;
-
-        Ok(TemporaryToken {
-            token: Arc::new(GcpSigningCredential {
-                email,
-                private_key: None,
-            }),
-            expiry: None,
-        })
-    }
-}
-
 #[async_trait]
 impl TokenProvider for AuthorizedUserCredentials {
     type Credential = GcpCredential;
@@ -665,9 +527,340 @@ impl TokenProvider for AuthorizedUserCredentials {
     }
 }
 
-/// Trim whitespace from header values
-fn trim_header_value(value: &str) -> String {
-    let mut ret = value.to_string();
-    ret.retain(|c| !c.is_whitespace());
-    ret
+/// External credentials file format used by Workload Identity Federation.
+///
+/// This corresponds to the JSON file generated by `gcloud iam workload-identity-pools
+/// create-cred-config` and pointed to by `GOOGLE_APPLICATION_CREDENTIALS`.
+///
+/// # References
+/// - <https://cloud.google.com/iam/docs/workload-identity-federation>
+/// - <https://google.aip.dev/auth/4117>
+#[derive(Debug, Deserialize, Clone)]
+pub(crate) struct ExternalAccountCredentials {
+    /// The STS token exchange URL (e.g. `https://sts.googleapis.com/v1/token`)
+    pub token_url: String,
+    /// The audience for the STS exchange (workload identity pool resource name)
+    pub audience: String,
+    /// The requested token type after exchange (always `urn:ietf:params:oauth:token-type:access_token`)
+    pub requested_token_type: String,
+    /// Source that provides the external subject token
+    pub credential_source: CredentialSource,
+    /// Optional service account to impersonate after STS exchange
+    pub service_account_impersonation_url: Option<String>,
+    /// Requested scopes (defaults to DEFAULT_SCOPE)
+    pub scopes: Option<String>,
+}
+
+/// Describes where to read the external credential token from.
+#[derive(Debug, Deserialize, Clone)]
+pub(crate) struct CredentialSource {
+    /// Path to a file containing the external credential token
+    pub file: Option<String>,
+    /// Environment variable containing the external credential token
+    pub environment_id: Option<String>,
+}
+
+/// STS token exchange response.
+#[derive(Debug, Deserialize)]
+struct StsTokenResponse {
+    access_token: String,
+    expires_in: u64,
+}
+
+/// SA impersonation response (`iamcredentials.googleapis.com`).
+#[derive(Debug, Deserialize)]
+struct ImpersonateTokenResponse {
+    #[serde(rename = "accessToken")]
+    access_token: String,
+    /// RFC 3339 expiry time, e.g. `"2099-01-01T00:00:00Z"`
+    #[serde(rename = "expireTime")]
+    expire_time: String,
+}
+
+/// Two-step GCP Workload Identity Federation provider.
+///
+/// # Step 1 — STS token exchange
+/// POST `https://sts.googleapis.com/v1/token` with the external subject token
+/// (read from a file or env var) to obtain a federated access token.
+///
+/// # Step 2 — Service Account impersonation (optional)
+/// If `service_account_impersonation_url` is set, POST to
+/// `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/<SA>:generateAccessToken`
+/// using the federated token to obtain a short-lived SA token.
+///
+/// # References
+/// - <https://cloud.google.com/iam/docs/workload-identity-federation>
+/// - <https://cloud.google.com/iam/docs/reference/sts/rest/v1/TopLevel/token>
+/// - <https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateAccessToken>
+#[derive(Debug)]
+pub(crate) struct GcpWorkloadIdentityProvider {
+    pub credentials: ExternalAccountCredentials,
+    pub sts_endpoint: String,
+}
+
+#[async_trait]
+impl TokenProvider for GcpWorkloadIdentityProvider {
+    type Credential = GcpCredential;
+
+    async fn fetch_token(
+        &self,
+        client: &Client,
+        service: &Arc<dyn HttpService>,
+        retry: &RetryConfig,
+    ) -> crate::Result<TemporaryToken<Arc<GcpCredential>>> {
+        // Read external subject token from file or env var
+        let subject_token = if let Some(file) = &self.credentials.credential_source.file {
+            std::fs::read_to_string(file).map_err(|e| crate::Error::Generic {
+                source: Box::new(e),
+            })?
+        } else if let Some(env_id) = &self.credentials.credential_source.environment_id {
+            std::env::var(env_id).map_err(|e| crate::Error::Generic {
+                source: Box::new(e),
+            })?
+        } else {
+            return Err(crate::Error::Generic {
+                source: "No credential source (file or environment_id) configured".into(),
+            });
+        };
+
+        let scope = self
+            .credentials
+            .scopes
+            .as_deref()
+            .unwrap_or(DEFAULT_SCOPE);
+
+        // Step 1: STS token exchange
+        let sts_resp: StsTokenResponse = client
+            .request(Method::POST, &self.sts_endpoint)
+            .form(&[
+                ("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange"),
+                ("audience", &self.credentials.audience),
+                ("scope", scope),
+                ("requested_token_type", &self.credentials.requested_token_type),
+                ("subject_token", &subject_token),
+                ("subject_token_type", "urn:ietf:params:oauth:token-type:jwt"),
+            ])
+            .retryable(retry, service.clone())
+            .idempotent(true)
+            .send()
+            .await
+            .map_err(|source| Error::TokenRequest { source })?
+            .json()
+            .await
+            .map_err(|source| Error::TokenResponseBody { source })?;
+
+        // Step 2: Optional SA impersonation
+        if let Some(imp_url) = &self.credentials.service_account_impersonation_url {
+            let imp_resp: ImpersonateTokenResponse = client
+                .request(Method::POST, imp_url)
+                .bearer_auth(&sts_resp.access_token)
+                .json(&serde_json::json!({
+                    "scope": [scope],
+                    "lifetime": "3600s"
+                }))
+                .retryable(retry, service.clone())
+                .idempotent(true)
+                .send()
+                .await
+                .map_err(|source| Error::TokenRequest { source })?
+                .json()
+                .await
+                .map_err(|source| Error::TokenResponseBody { source })?;
+
+            // Parse RFC 3339 expiry; fall back to 1 hour
+            let expiry = chrono::DateTime::parse_from_rfc3339(&imp_resp.expire_time)
+                .ok()
+                .map(|dt| {
+                    let secs = dt.timestamp().saturating_sub(
+                        std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .unwrap_or_default()
+                            .as_secs() as i64,
+                    );
+                    std::time::Instant::now()
+                        + Duration::from_secs(secs.max(0) as u64)
+                })
+                .unwrap_or_else(|| std::time::Instant::now() + Duration::from_secs(3600));
+
+            Ok(TemporaryToken {
+                token: Arc::new(GcpCredential {
+                    bearer: imp_resp.access_token,
+                }),
+                expiry: Some(expiry),
+            })
+        } else {
+            Ok(TemporaryToken {
+                token: Arc::new(GcpCredential {
+                    bearer: sts_resp.access_token,
+                }),
+                expiry: Some(
+                    std::time::Instant::now() + Duration::from_secs(sts_resp.expires_in),
+                ),
+            })
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Write as _;
+
+    use reqwest::Client;
+
+    use super::*;
+    use crate::service::ReqwestService;
+
+    #[tokio::test]
+    async fn test_metadata_server_token() {
+        let mut server = mockito::Server::new_async().await;
+        let host_port = server.host_with_port();
+
+        // GCE_METADATA_HOST accepts `host:port` (no scheme).
+        // Also set GCE_METADATA_IP so the fallback also resolves to our mock server.
+        // SAFETY: single-threaded test environment; no concurrent env mutation.
+        unsafe {
+            std::env::set_var("GCE_METADATA_HOST", &host_port);
+            std::env::set_var("GCE_METADATA_IP", &host_port);
+        };
+
+        let _mock = server
+            .mock("GET", "/computeMetadata/v1/instance/service-accounts/default/token")
+            .match_header("Metadata-Flavor", "Google")
+            .match_query(mockito::Matcher::Any)
+            .with_status(200)
+            .with_body(r#"{"access_token":"GCP_META_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = InstanceCredentialProvider::default();
+        let token = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+
+        assert_eq!(token.token.bearer, "GCP_META_TOKEN");
+        assert!(token.expiry.is_some());
+
+        unsafe {
+            std::env::remove_var("GCE_METADATA_HOST");
+            std::env::remove_var("GCE_METADATA_IP");
+        };
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_workload_identity_sts_only() {
+        let mut server = mockito::Server::new_async().await;
+
+        // Write external subject token to a temp file
+        let mut token_file = tempfile::NamedTempFile::new().unwrap();
+        write!(token_file, "external-subject-jwt").unwrap();
+
+        let sts_url = format!("{}/v1/token", server.url());
+
+        let _sts_mock = server
+            .mock("POST", "/v1/token")
+            .match_body(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::Regex("grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange".into()),
+                mockito::Matcher::Regex("subject_token=external-subject-jwt".into()),
+            ]))
+            .with_status(200)
+            .with_body(r#"{"access_token":"FEDERATED_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let credentials = ExternalAccountCredentials {
+            token_url: sts_url.clone(),
+            audience: "//iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider".into(),
+            requested_token_type: "urn:ietf:params:oauth:token-type:access_token".into(),
+            credential_source: CredentialSource {
+                file: Some(token_file.path().to_str().unwrap().to_owned()),
+                environment_id: None,
+            },
+            service_account_impersonation_url: None,
+            scopes: None,
+        };
+
+        let provider = GcpWorkloadIdentityProvider {
+            credentials,
+            sts_endpoint: sts_url,
+        };
+
+        let token = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+
+        assert_eq!(token.token.bearer, "FEDERATED_TOKEN");
+        assert!(token.expiry.is_some());
+
+        _sts_mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_workload_identity_with_impersonation() {
+        let mut server = mockito::Server::new_async().await;
+
+        // Write external subject token to a temp file
+        let mut token_file = tempfile::NamedTempFile::new().unwrap();
+        write!(token_file, "external-subject-jwt").unwrap();
+
+        let sts_url = format!("{}/v1/token", server.url());
+        let imp_url = format!("{}/v1/impersonate", server.url());
+
+        let _sts_mock = server
+            .mock("POST", "/v1/token")
+            .with_status(200)
+            .with_body(r#"{"access_token":"FEDERATED_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let _imp_mock = server
+            .mock("POST", "/v1/impersonate")
+            .match_header("Authorization", "Bearer FEDERATED_TOKEN")
+            .with_status(200)
+            .with_body(r#"{"accessToken":"SA_TOKEN","expireTime":"2099-01-01T00:00:00Z"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let credentials = ExternalAccountCredentials {
+            token_url: sts_url.clone(),
+            audience: "//iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider".into(),
+            requested_token_type: "urn:ietf:params:oauth:token-type:access_token".into(),
+            credential_source: CredentialSource {
+                file: Some(token_file.path().to_str().unwrap().to_owned()),
+                environment_id: None,
+            },
+            service_account_impersonation_url: Some(imp_url),
+            scopes: None,
+        };
+
+        let provider = GcpWorkloadIdentityProvider {
+            credentials,
+            sts_endpoint: sts_url,
+        };
+
+        let token = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+
+        assert_eq!(token.token.bearer, "SA_TOKEN");
+        assert!(token.expiry.is_some());
+
+        _sts_mock.assert_async().await;
+        _imp_mock.assert_async().await;
+    }
 }

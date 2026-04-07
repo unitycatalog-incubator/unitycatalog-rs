@@ -23,8 +23,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
-use reqwest::header::{ACCEPT, AUTHORIZATION, DATE, HeaderName, HeaderValue};
+use chrono::DateTime;
+use reqwest::header::{ACCEPT, AUTHORIZATION, HeaderValue};
 use reqwest::{Client, Method, Request, RequestBuilder};
 use serde::Deserialize;
 
@@ -33,9 +33,6 @@ use crate::service::HttpService;
 use crate::token::{TemporaryToken, TokenCache};
 use crate::{CredentialProvider, RetryConfig, TokenProvider};
 
-static AZURE_VERSION: HeaderValue = HeaderValue::from_static("2023-11-03");
-static VERSION: HeaderName = HeaderName::from_static("x-ms-version");
-pub(crate) const RFC1123_FMT: &str = "%a, %d %h %Y %T GMT";
 const CONTENT_TYPE_JSON: &str = "application/json";
 const MSI_SECRET_ENV_KEY: &str = "IDENTITY_HEADER";
 const MSI_API_VERSION: &str = "2019-08-01";
@@ -50,6 +47,8 @@ pub(crate) const AZURE_STORAGE_RESOURCE: &str = "https://storage.azure.com";
 pub(crate) const AZURE_DATABRICKS_RESOURCE: &str = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d";
 
 /// OIDC scope for Azure Databricks OAuth2 APIs
+// Used by the Azure SP two-token flow (Phase 2.5)
+#[allow(dead_code)]
 pub(crate) const AZURE_DATABRICKS_SCOPE: &str = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default";
 
 #[derive(Debug, thiserror::Error)]
@@ -71,9 +70,6 @@ pub enum Error {
 
     #[error("Failed to parse azure cli response: {source}")]
     AzureCliResponse { source: serde_json::Error },
-
-    #[error("Generating SAS keys with SAS tokens auth is not supported")]
-    SASforSASNotSupported,
 }
 
 pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
@@ -89,13 +85,12 @@ impl From<Error> for crate::Error {
 /// An Azure storage credential
 #[derive(Debug, Eq, PartialEq)]
 pub enum AzureCredential {
-    /// A shared access signature
-    SASToken(Vec<(String, String)>),
     /// An authorization token
     BearerToken(String),
 }
 
 /// A list of known Azure authority hosts
+#[allow(dead_code)]
 pub mod authority_hosts {
     /// China-based Azure Authority Host
     pub const AZURE_CHINA: &str = "https://login.chinacloudapi.cn";
@@ -105,16 +100,6 @@ pub mod authority_hosts {
     pub const AZURE_GOVERNMENT: &str = "https://login.microsoftonline.us";
     /// Public Cloud Azure Authority Host
     pub const AZURE_PUBLIC_CLOUD: &str = "https://login.microsoftonline.com";
-}
-
-fn add_date_and_version_headers(request: &mut Request) {
-    let date = Utc::now();
-    let date_str = date.format(RFC1123_FMT).to_string();
-    let date_val = HeaderValue::from_str(&date_str).unwrap();
-    request.headers_mut().insert(DATE, date_val);
-    request
-        .headers_mut()
-        .insert(&VERSION, AZURE_VERSION.clone());
 }
 
 /// Authorize a [`Request`] with an [`AzureAuthorizer`]
@@ -131,20 +116,12 @@ impl<'a> AzureAuthorizer<'a> {
 
     /// Authorize `request`
     pub fn authorize(&self, request: &mut Request) {
-        add_date_and_version_headers(request);
-
         match self.credential {
             AzureCredential::BearerToken(token) => {
                 request.headers_mut().append(
                     AUTHORIZATION,
                     HeaderValue::from_str(format!("Bearer {token}").as_str()).unwrap(),
                 );
-            }
-            AzureCredential::SASToken(query_pairs) => {
-                request
-                    .url_mut()
-                    .query_pairs_mut()
-                    .extend_pairs(query_pairs);
             }
         }
     }
@@ -163,19 +140,15 @@ impl AzureCredentialExt for RequestBuilder {
         self,
         credential: &Option<impl Deref<Target = AzureCredential>>,
     ) -> Self {
-        let (client, request) = self.build_split();
-        let mut request = request.expect("request valid");
-
         match credential.as_deref() {
             Some(credential) => {
+                let (client, request) = self.build_split();
+                let mut request = request.expect("request valid");
                 AzureAuthorizer::new(credential).authorize(&mut request);
+                Self::from_parts(client, request)
             }
-            None => {
-                add_date_and_version_headers(&mut request);
-            }
+            None => self,
         }
-
-        Self::from_parts(client, request)
     }
 }
 
@@ -186,9 +159,16 @@ struct OAuthTokenResponse {
     expires_in: u64,
 }
 
-/// Encapsulates the logic to perform an OAuth token challenge
+/// Encapsulates the logic to perform an OAuth token challenge using a client
+/// secret (shared-secret variant of the OAuth 2.0 client-credentials flow).
 ///
-/// <https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#first-case-access-token-request-with-a-shared-secret>
+/// POSTs a `client_credentials` grant to the Azure AD token endpoint and
+/// returns a bearer token for the configured scope (defaults to
+/// `https://storage.azure.com/.default`).
+///
+/// # References
+/// - <https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow>
+/// - <https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow#first-case-access-token-request-with-a-shared-secret>
 #[derive(Debug)]
 pub(crate) struct ClientSecretOAuthProvider {
     token_url: String,
@@ -198,21 +178,6 @@ pub(crate) struct ClientSecretOAuthProvider {
 }
 
 impl ClientSecretOAuthProvider {
-    pub(crate) fn new(
-        client_id: String,
-        client_secret: String,
-        tenant_id: impl AsRef<str>,
-        authority_host: Option<String>,
-    ) -> Self {
-        Self::new_with_scope(
-            client_id,
-            client_secret,
-            tenant_id,
-            authority_host,
-            AZURE_STORAGE_SCOPE,
-        )
-    }
-
     /// Create a new provider with a custom OAuth scope (e.g. for Databricks).
     pub(crate) fn new_with_scope(
         client_id: String,
@@ -294,7 +259,15 @@ struct ImdsTokenResponse {
 
 /// Attempts authentication using a managed identity that has been assigned to the deployment environment.
 ///
-/// <https://learn.microsoft.com/en-gb/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http>
+/// Calls the Azure Instance Metadata Service (IMDS) endpoint at
+/// `http://169.254.169.254/metadata/identity/oauth2/token` (or a custom
+/// endpoint when one is supplied) to obtain a bearer token for the configured
+/// Azure AD resource.  Supports user-assigned identities via `client_id`,
+/// `object_id`, or `msi_res_id` selectors.
+///
+/// # References
+/// - <https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token>
+/// - <https://learn.microsoft.com/en-gb/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token#get-a-token-using-http>
 #[derive(Debug)]
 pub(crate) struct ImdsManagedIdentityProvider {
     msi_endpoint: String,
@@ -394,9 +367,16 @@ impl TokenProvider for ImdsManagedIdentityProvider {
     }
 }
 
-/// Credential for using workload identity federation
+/// Credential for using workload identity federation.
 ///
-/// <https://learn.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation>
+/// Exchanges a federated OIDC token (read from a file, e.g. a Kubernetes
+/// projected service-account token) for an Azure AD bearer token using the
+/// `client_credentials` grant with a JWT client assertion.  Typically used in
+/// AKS workloads where the pod is annotated with a managed identity.
+///
+/// # References
+/// - <https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation>
+/// - <https://learn.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation>
 #[derive(Debug)]
 pub(crate) struct WorkloadIdentityOAuthProvider {
     token_url: String,
@@ -692,5 +672,137 @@ mod tests {
             token.token.as_ref(),
             &AzureCredential::BearerToken("TOKEN".into())
         );
+    }
+
+    #[tokio::test]
+    async fn test_client_secret_happy_path() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "my-tenant";
+
+        let _mock = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .match_body(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::Regex("client_id=myclientid".into()),
+                mockito::Matcher::Regex("grant_type=client_credentials".into()),
+            ]))
+            .with_status(200)
+            .with_body(r#"{"access_token":"AZURE_TOKEN","expires_in":3599,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = ClientSecretOAuthProvider::new_with_scope(
+            "myclientid".into(),
+            "myclientsecret".into(),
+            tenant,
+            Some(server.url()),
+            AZURE_STORAGE_SCOPE,
+        );
+
+        let token = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            token.token.as_ref(),
+            &AzureCredential::BearerToken("AZURE_TOKEN".into())
+        );
+        assert!(token.expiry.is_some());
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_client_secret_invalid_client() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "bad-tenant";
+
+        let _mock = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .with_status(400)
+            .with_body(r#"{"error":"invalid_client","error_description":"Client authentication failed"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = ClientSecretOAuthProvider::new_with_scope(
+            "badclientid".into(),
+            "badsecret".into(),
+            tenant,
+            Some(server.url()),
+            AZURE_STORAGE_SCOPE,
+        );
+
+        let result = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await;
+
+        assert!(result.is_err(), "Expected error for 400 response");
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_client_secret_token_refresh() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "refresh-tenant";
+
+        // First call returns a token with very short expiry (1 second)
+        let _mock1 = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .with_status(200)
+            .with_body(r#"{"access_token":"FIRST_TOKEN","expires_in":1,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = ClientSecretOAuthProvider::new_with_scope(
+            "myclientid".into(),
+            "myclientsecret".into(),
+            tenant,
+            Some(server.url()),
+            AZURE_STORAGE_SCOPE,
+        );
+
+        let token1 = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+        assert_eq!(
+            token1.token.as_ref(),
+            &AzureCredential::BearerToken("FIRST_TOKEN".into())
+        );
+        // Token expiry should be very soon (1 second)
+        assert!(token1.expiry.is_some());
+
+        // Second call returns a new token
+        let _mock2 = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .with_status(200)
+            .with_body(r#"{"access_token":"SECOND_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let token2 = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+        assert_eq!(
+            token2.token.as_ref(),
+            &AzureCredential::BearerToken("SECOND_TOKEN".into())
+        );
+
+        _mock1.assert_async().await;
+        _mock2.assert_async().await;
     }
 }

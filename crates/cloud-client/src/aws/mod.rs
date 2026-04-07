@@ -20,7 +20,6 @@ pub struct AmazonConfig {
     pub credentials: AwsCredentialProvider,
     pub retry_config: RetryConfig,
     pub client_options: ClientOptions,
-    pub sign_payload: bool,
     pub skip_signature: bool,
 }
 
@@ -40,8 +39,7 @@ impl RequestSigner for AmazonConfig {
     ) -> BoxFuture<'a, Result<reqwest::RequestBuilder>> {
         Box::pin(async move {
             if let Some(cred) = self.get_credential().await? {
-                let authorizer = AwsAuthorizer::new(&cred, "execute-api", &self.region)
-                    .with_sign_payload(self.sign_payload);
+                let authorizer = AwsAuthorizer::new(&cred, "execute-api", &self.region);
                 Ok(req.with_aws_sigv4(Some(authorizer), None))
             } else {
                 Ok(req)

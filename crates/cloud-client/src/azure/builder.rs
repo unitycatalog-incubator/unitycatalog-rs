@@ -18,7 +18,6 @@
 use std::str::FromStr;
 use std::sync::Arc;
 
-use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 use tokio::runtime::Handle;
 
@@ -39,11 +38,8 @@ const MSI_ENDPOINT_ENV_KEY: &str = "IDENTITY_ENDPOINT";
 
 #[derive(Debug, thiserror::Error)]
 enum Error {
-    #[error("Failed parsing an SAS key")]
-    DecodeSasKey { source: std::str::Utf8Error },
-
-    #[error("Missing component in SAS query pair")]
-    MissingSasComponent {},
+    #[error("OAuth scope must be set when using client secret authentication")]
+    MissingScope,
 
     #[error("Configuration key: '{}' is not known.", key)]
     UnknownConfigurationKey { key: String },
@@ -53,7 +49,7 @@ impl From<Error> for crate::Error {
     fn from(source: Error) -> Self {
         match source {
             Error::UnknownConfigurationKey { key } => Self::UnknownConfigurationKey { key },
-            _ => Self::Generic {
+            Error::MissingScope => Self::Generic {
                 source: Box::new(source),
             },
         }
@@ -80,8 +76,7 @@ pub struct AzureBuilder {
     client_id: Option<String>,
     client_secret: Option<String>,
     tenant_id: Option<String>,
-    sas_query_pairs: Option<Vec<(String, String)>>,
-    sas_key: Option<String>,
+    scope: Option<String>,
     authority_host: Option<String>,
     endpoint: Option<String>,
     msi_endpoint: Option<String>,
@@ -162,17 +157,12 @@ pub enum AzureConfigKey {
     /// - `authority_host`
     AuthorityHost,
 
-    /// Shared access signature.
-    ///
-    /// The signature is expected to be percent-encoded, much like they are provided
-    /// in the azure storage explorer or azure portal.
+    /// OAuth scope for client credentials flow
     ///
     /// Supported keys:
-    /// - `azure_storage_sas_key`
-    /// - `azure_storage_sas_token`
-    /// - `sas_key`
-    /// - `sas_token`
-    SasKey,
+    /// - `azure_scope`
+    /// - `scope`
+    Scope,
 
     /// Bearer token
     ///
@@ -247,7 +237,7 @@ impl AsRef<str> for AzureConfigKey {
             Self::ClientSecret => "azure_storage_client_secret",
             Self::AuthorityId => "azure_storage_tenant_id",
             Self::AuthorityHost => "azure_storage_authority_host",
-            Self::SasKey => "azure_storage_sas_key",
+            Self::Scope => "azure_scope",
             Self::Token => "azure_storage_token",
             Self::Endpoint => "azure_storage_endpoint",
             Self::MsiEndpoint => "azure_msi_endpoint",
@@ -286,9 +276,7 @@ impl FromStr for AzureConfigKey {
             "azure_storage_authority_host" | "azure_authority_host" | "authority_host" => {
                 Ok(Self::AuthorityHost)
             }
-            "azure_storage_sas_key" | "azure_storage_sas_token" | "sas_key" | "sas_token" => {
-                Ok(Self::SasKey)
-            }
+            "azure_scope" | "scope" => Ok(Self::Scope),
             "azure_storage_token" | "bearer_token" | "token" => Ok(Self::Token),
             "azure_storage_endpoint" | "azure_endpoint" | "endpoint" => Ok(Self::Endpoint),
             "azure_msi_endpoint"
@@ -358,7 +346,7 @@ impl AzureBuilder {
             AzureConfigKey::ClientSecret => self.client_secret = Some(value.into()),
             AzureConfigKey::AuthorityId => self.tenant_id = Some(value.into()),
             AzureConfigKey::AuthorityHost => self.authority_host = Some(value.into()),
-            AzureConfigKey::SasKey => self.sas_key = Some(value.into()),
+            AzureConfigKey::Scope => self.scope = Some(value.into()),
             AzureConfigKey::Token => self.bearer_token = Some(value.into()),
             AzureConfigKey::MsiEndpoint => self.msi_endpoint = Some(value.into()),
             AzureConfigKey::ObjectId => self.object_id = Some(value.into()),
@@ -383,7 +371,7 @@ impl AzureBuilder {
             AzureConfigKey::ClientSecret => self.client_secret.clone(),
             AzureConfigKey::AuthorityId => self.tenant_id.clone(),
             AzureConfigKey::AuthorityHost => self.authority_host.clone(),
-            AzureConfigKey::SasKey => self.sas_key.clone(),
+            AzureConfigKey::Scope => self.scope.clone(),
             AzureConfigKey::Token => self.bearer_token.clone(),
             AzureConfigKey::Endpoint => self.endpoint.clone(),
             AzureConfigKey::MsiEndpoint => self.msi_endpoint.clone(),
@@ -445,9 +433,9 @@ impl AzureBuilder {
         self
     }
 
-    /// Set query pairs appended to the url for shared access signature authorization
-    pub fn with_sas_authorization(mut self, query_pairs: impl Into<Vec<(String, String)>>) -> Self {
-        self.sas_query_pairs = Some(query_pairs.into());
+    /// Set the OAuth scope for client credentials flow
+    pub fn with_scope(mut self, scope: impl Into<String>) -> Self {
+        self.scope = Some(scope.into());
         self
     }
 
@@ -567,11 +555,13 @@ impl AzureBuilder {
         } else if let (Some(client_id), Some(client_secret), Some(tenant_id)) =
             (&self.client_id, self.client_secret, &self.tenant_id)
         {
-            let client_credential = ClientSecretOAuthProvider::new(
+            let scope = self.scope.ok_or(Error::MissingScope)?;
+            let client_credential = ClientSecretOAuthProvider::new_with_scope(
                 client_id.clone(),
                 client_secret,
                 tenant_id,
                 self.authority_host,
+                &scope,
             );
             let client = self.client_options.client()?;
             let service = make_service(client.clone(), runtime);
@@ -581,10 +571,6 @@ impl AzureBuilder {
                 service,
                 self.retry_config.clone(),
             )) as _
-        } else if let Some(query_pairs) = self.sas_query_pairs {
-            static_creds(AzureCredential::SASToken(query_pairs))
-        } else if let Some(sas) = self.sas_key {
-            static_creds(AzureCredential::SASToken(split_sas(&sas)?))
         } else if self.use_azure_cli.get()? {
             Arc::new(AzureCliCredential::new()) as _
         } else {
@@ -613,25 +599,6 @@ impl AzureBuilder {
     }
 }
 
-fn split_sas(sas: &str) -> Result<Vec<(String, String)>, Error> {
-    let sas = percent_decode_str(sas)
-        .decode_utf8()
-        .map_err(|source| Error::DecodeSasKey { source })?;
-    let kv_str_pairs = sas
-        .trim_start_matches('?')
-        .split('&')
-        .filter(|s| !s.chars().all(char::is_whitespace));
-    let mut pairs = Vec::new();
-    for kv_pair_str in kv_str_pairs {
-        let (k, v) = kv_pair_str
-            .trim()
-            .split_once('=')
-            .ok_or(Error::MissingSasComponent {})?;
-        pairs.push((k.into(), v.into()))
-    }
-    Ok(pairs)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -656,24 +623,6 @@ mod tests {
         assert_eq!(builder.client_id.unwrap(), azure_client_id);
         assert_eq!(builder.account_name.unwrap(), azure_storage_account_name);
         assert_eq!(builder.bearer_token.unwrap(), azure_storage_token);
-    }
-
-    #[test]
-    fn azure_test_split_sas() {
-        let raw_sas = "?sv=2021-10-04&st=2023-01-04T17%3A48%3A57Z&se=2023-01-04T18%3A15%3A00Z&sr=c&sp=rcwl&sig=C7%2BZeEOWbrxPA3R0Cw%2Fw1EZz0%2B4KBvQexeKZKe%2BB6h0%3D";
-        let expected = vec![
-            ("sv".to_string(), "2021-10-04".to_string()),
-            ("st".to_string(), "2023-01-04T17:48:57Z".to_string()),
-            ("se".to_string(), "2023-01-04T18:15:00Z".to_string()),
-            ("sr".to_string(), "c".to_string()),
-            ("sp".to_string(), "rcwl".to_string()),
-            (
-                "sig".to_string(),
-                "C7+ZeEOWbrxPA3R0Cw/w1EZz0+4KBvQexeKZKe+B6h0=".to_string(),
-            ),
-        ];
-        let pairs = split_sas(raw_sas).unwrap();
-        assert_eq!(expected, pairs);
     }
 
     #[test]

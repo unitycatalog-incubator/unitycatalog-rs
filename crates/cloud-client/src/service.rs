@@ -3,7 +3,6 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use futures::future::BoxFuture;
 use tokio::runtime::Handle;
 
 /// An abstraction over HTTP request execution.
@@ -73,10 +72,16 @@ impl HttpService for SpawnService {
         let inner = Arc::clone(&self.inner);
         let handle = self.handle.clone();
         Box::pin(async move {
-            handle
-                .spawn(async move { inner.call(request).await })
-                .await
-                .expect("I/O runtime task panicked")
+            match handle.spawn(async move { inner.call(request).await }).await {
+                Ok(result) => result,
+                Err(join_err) => {
+                    // The spawned I/O task panicked or was cancelled. This is a
+                    // programming error (e.g. tokio runtime was shut down), not a
+                    // transient network failure, so we re-panic with context rather
+                    // than silently swallowing the cause.
+                    panic!("I/O runtime task failed: {join_err}")
+                }
+            }
         })
     }
 }
