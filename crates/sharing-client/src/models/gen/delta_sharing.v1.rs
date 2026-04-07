@@ -6,10 +6,10 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Share {
     /// Name of the share.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// Unique identifier for the share.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// A schema in a delta sharing service.
@@ -20,13 +20,13 @@ pub struct Share {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Schema {
     /// The name of the schema
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The share name that the schema belongs to.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub share: ::prost::alloc::string::String,
     /// Unique identifier for the schema.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// A table is a Delta Lake table or a view on top of a Delta Lake table.
@@ -34,19 +34,19 @@ pub struct Schema {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Table {
     /// The name of the table.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The schema name that the table belongs to.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub schema: ::prost::alloc::string::String,
     /// The share name that the table belongs to.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub share: ::prost::alloc::string::String,
     /// Unique identifier for the table.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
     /// A unique identifier for the share this table belongs to.
-    #[prost(string, optional, tag="5")]
+    #[prost(string, optional, tag = "5")]
     pub share_id: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// File format for data files in a table
@@ -54,11 +54,12 @@ pub struct Table {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Format {
     /// Name of the encoding for files in this table
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub provider: ::prost::alloc::string::String,
     /// A map containing configuration options for the format
-    #[prost(map="string, string", tag="2")]
-    pub options: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "2")]
+    pub options:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Metadata for a table
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -66,47 +67,48 @@ pub struct Format {
 pub struct Metadata {
     /// Unique identifier for this table
     /// Validate GUID
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
     /// User-provided identifier for this table
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided description for this table
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub description: ::core::option::Option<::prost::alloc::string::String>,
     /// Specification of the encoding for the files stored in the table
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub format: ::core::option::Option<Format>,
     /// Schema of the table
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub schema_string: ::prost::alloc::string::String,
     /// An array containing the names of columns by which the data should be partitioned
-    #[prost(string, repeated, tag="6")]
+    #[prost(string, repeated, tag = "6")]
     pub partition_columns: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// The time when this metadata action is created, in milliseconds since the Unix epoch
-    #[prost(int64, optional, tag="7")]
+    #[prost(int64, optional, tag = "7")]
     pub created_time: ::core::option::Option<i64>,
     /// A map containing configuration options for the metadata action
-    #[prost(map="string, string", tag="8")]
-    pub options: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map = "string, string", tag = "8")]
+    pub options:
+        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Get the version of a table.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetTableVersionRequest {
     /// The table name to query. It's case-insensitive.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The schema name to query. It's case-insensitive.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub schema: ::prost::alloc::string::String,
     /// The share name to query. It's case-insensitive.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub share: ::prost::alloc::string::String,
     /// The startingTimestamp of the query, a string in the  ISO8601 format, in the UTC timezone,
     /// such as 2022-01-01T00:00:00Z. the server needs to return the earliest table version at
     /// or after the provided timestamp, can be earlier than the timestamp of table version 0.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for GetTableVersionRequest.
@@ -114,7 +116,7 @@ pub struct GetTableVersionRequest {
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct GetTableVersionResponse {
     /// The table version that was requested.
-    #[prost(int64, tag="1")]
+    #[prost(int64, tag = "1")]
     pub version: i64,
 }
 /// Get metadata of a table.
@@ -122,32 +124,32 @@ pub struct GetTableVersionResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetTableMetadataRequest {
     /// The table name to query. It's case-insensitive.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The share name to query. It's case-insensitive.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub share: ::prost::alloc::string::String,
     /// The schema name to query. It's case-insensitive.
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub schema: ::prost::alloc::string::String,
 }
 /// Response for a query against a table.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryResponse {
-    #[prost(oneof="query_response::Response", tags="1, 2")]
+    #[prost(oneof = "query_response::Response", tags = "1, 2")]
     pub response: ::core::option::Option<query_response::Response>,
 }
 /// Nested message and enum types in `QueryResponse`.
 pub mod query_response {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Response {
         /// Parquet response format
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Parquet(super::ParquetResponse),
         /// Delta response format
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         Delta(super::DeltaResponse),
     }
 }
@@ -155,24 +157,24 @@ pub mod query_response {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ParquetResponse {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub entries: ::prost::alloc::vec::Vec<ParquetLogMessage>,
 }
 /// Log message for Parquet response.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ParquetLogMessage {
-    #[prost(oneof="parquet_log_message::Entry", tags="1, 2")]
+    #[prost(oneof = "parquet_log_message::Entry", tags = "1, 2")]
     pub entry: ::core::option::Option<parquet_log_message::Entry>,
 }
 /// Nested message and enum types in `ParquetLogMessage`.
 pub mod parquet_log_message {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Entry {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Protocol(super::ProtocolParquet),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         Metadata(super::MetadataParquet),
     }
 }
@@ -182,7 +184,7 @@ pub mod parquet_log_message {
 pub struct ProtocolParquet {
     /// The minimum version of the protocol that a client must implement
     /// in order to correctly read a Delta Lake table.
-    #[prost(int32, tag="1")]
+    #[prost(int32, tag = "1")]
     pub min_reader_version: i32,
 }
 /// Metadata for Parquet response.
@@ -190,46 +192,46 @@ pub struct ProtocolParquet {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MetadataParquet {
     /// Unique identifier for this table
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
     /// User-provided identifier for this table
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided description for this table
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub description: ::core::option::Option<::prost::alloc::string::String>,
     /// Specification of the encoding for the files stored in the table
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub format: ::core::option::Option<Format>,
     /// Schema of the table
-    #[prost(string, tag="5")]
+    #[prost(string, tag = "5")]
     pub schema_string: ::prost::alloc::string::String,
     /// An array containing the names of columns by which the data should be partitioned
-    #[prost(string, repeated, tag="6")]
+    #[prost(string, repeated, tag = "6")]
     pub partition_columns: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Response for a query against a table in Delta format.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeltaResponse {
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub entries: ::prost::alloc::vec::Vec<DeltaLogMessage>,
 }
 /// Log message for Delta response.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeltaLogMessage {
-    #[prost(oneof="delta_log_message::Entry", tags="1, 2")]
+    #[prost(oneof = "delta_log_message::Entry", tags = "1, 2")]
     pub entry: ::core::option::Option<delta_log_message::Entry>,
 }
 /// Nested message and enum types in `DeltaLogMessage`.
 pub mod delta_log_message {
     #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Entry {
-        #[prost(message, tag="1")]
+        #[prost(message, tag = "1")]
         Protocol(super::ProtocolDelta),
-        #[prost(message, tag="2")]
+        #[prost(message, tag = "2")]
         Metadata(super::MetadataDelta),
     }
 }
@@ -239,9 +241,9 @@ pub mod delta_log_message {
 pub struct ProtocolDelta {
     /// The minimum version of the protocol that a client must implement
     /// in order to correctly read a Delta Lake table.
-    #[prost(int32, tag="1")]
+    #[prost(int32, tag = "1")]
     pub min_reader_version: i32,
-    #[prost(int32, tag="2")]
+    #[prost(int32, tag = "2")]
     pub min_writer_version: i32,
 }
 /// Metadata for Delta response.
@@ -249,43 +251,43 @@ pub struct ProtocolDelta {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MetadataDelta {
     /// Metadata from Delta protocol
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub delta_metadata: ::core::option::Option<Metadata>,
     /// The table version the metadata corresponds to, returned when querying
     /// table data with a version or timestamp parameter, or cdf query
     /// with includeHistoricalMetadata set to true.
-    #[prost(int64, optional, tag="2")]
+    #[prost(int64, optional, tag = "2")]
     pub version: ::core::option::Option<i64>,
     /// The size of the table in bytes, will be returned if available in the delta log.
-    #[prost(int64, optional, tag="3")]
+    #[prost(int64, optional, tag = "3")]
     pub size: ::core::option::Option<i64>,
     /// The number of files in the table, will be returned if available in the delta log.
-    #[prost(int64, optional, tag="4")]
+    #[prost(int64, optional, tag = "4")]
     pub num_files: ::core::option::Option<i64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct JsonPredicate {
     /// The operation to perform.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub op: ::prost::alloc::string::String,
     /// The inputs to the operation - if any.
-    #[prost(message, repeated, tag="2")]
+    #[prost(message, repeated, tag = "2")]
     pub children: ::prost::alloc::vec::Vec<JsonPredicate>,
     /// Specifies the name of a column.
     ///
     /// This is only applicable to column ops.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub name: ::core::option::Option<::prost::alloc::string::String>,
     /// Specifies the value of a literal.
     ///
     /// This is only applicable to literal ops.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub value: ::core::option::Option<::prost::alloc::string::String>,
     /// Specifies the value type of a column or a literal op.
     ///
     /// This is only applicate to column and literal ops.
-    #[prost(string, optional, tag="5")]
+    #[prost(string, optional, tag = "5")]
     pub value_type: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Request to list shares.
@@ -293,11 +295,11 @@ pub struct JsonPredicate {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSharesRequest {
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="1")]
+    #[prost(int32, optional, tag = "1")]
     pub max_results: ::core::option::Option<i32>,
     /// Specifies a page token to use. Set pageToken to the nextPageToken returned
     /// by a previous list request to get the next page of results.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListSharesRequest.
@@ -305,11 +307,11 @@ pub struct ListSharesRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSharesResponse {
     /// The shares that were requested.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub items: ::prost::alloc::vec::Vec<Share>,
     /// Token that can be used to retrieve the next page of shares.
     /// An empty or missing token means that no more shares are available for retrieval.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a share by name.
@@ -317,7 +319,7 @@ pub struct ListSharesResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetShareRequest {
     /// The share name to query. It's case-insensitive.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
 }
 /// List schemas in a share.
@@ -325,14 +327,14 @@ pub struct GetShareRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSchemasRequest {
     /// The share name to query. It's case-insensitive.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub share: ::prost::alloc::string::String,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="2")]
+    #[prost(int32, optional, tag = "2")]
     pub max_results: ::core::option::Option<i32>,
     /// Specifies a page token to use. Set pageToken to the nextPageToken returned
     /// by a previous list request to get the next page of results.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListSchemasRequest.
@@ -340,11 +342,11 @@ pub struct ListSchemasRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSchemasResponse {
     /// The schemas that were requested.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub items: ::prost::alloc::vec::Vec<Schema>,
     /// Token that can be used to retrieve the next page of schemas.
     /// An empty or missing token means that no more schemas are available for retrieval.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List tables in a schema.
@@ -352,17 +354,17 @@ pub struct ListSchemasResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTablesRequest {
     /// The schema name to query. It's case-insensitive.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The share name to query. It's case-insensitive.
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub share: ::prost::alloc::string::String,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="3")]
+    #[prost(int32, optional, tag = "3")]
     pub max_results: ::core::option::Option<i32>,
     /// Specifies a page token to use. Set pageToken to the nextPageToken returned
     /// by a previous list request to get the next page of results.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListTablesRequest.
@@ -370,11 +372,11 @@ pub struct ListTablesRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTablesResponse {
     /// The tables that were requested.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub items: ::prost::alloc::vec::Vec<Table>,
     /// Token that can be used to retrieve the next page of tables.
     /// An empty or missing token means that no more tables are available for retrieval.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List tables in a share.
@@ -382,43 +384,43 @@ pub struct ListTablesResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAllTablesRequest {
     /// The share name to query. It's case-insensitive.
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag="2")]
+    #[prost(int32, optional, tag = "2")]
     pub max_results: ::core::option::Option<i32>,
     /// Specifies a page token to use. Set pageToken to the nextPageToken returned
     /// by a previous list request to get the next page of results.
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Request to query a table.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryTableRequest {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub share: ::prost::alloc::string::String,
-    #[prost(string, tag="2")]
+    #[prost(string, tag = "2")]
     pub schema: ::prost::alloc::string::String,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub name: ::prost::alloc::string::String,
     /// The starting timestamp to query from.
-    #[prost(string, optional, tag="4")]
+    #[prost(string, optional, tag = "4")]
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(string, repeated, tag="5")]
+    #[prost(string, repeated, tag = "5")]
     pub predicate_hints: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// The predicate to apply to the table.
-    #[prost(message, optional, tag="6")]
+    #[prost(message, optional, tag = "6")]
     pub json_predicate_hints: ::core::option::Option<JsonPredicate>,
-    #[prost(int32, optional, tag="7")]
+    #[prost(int32, optional, tag = "7")]
     pub limit_hint: ::core::option::Option<i32>,
-    #[prost(int64, optional, tag="8")]
+    #[prost(int64, optional, tag = "8")]
     pub version: ::core::option::Option<i64>,
-    #[prost(string, optional, tag="9")]
+    #[prost(string, optional, tag = "9")]
     pub timestamp: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(int64, optional, tag="10")]
+    #[prost(int64, optional, tag = "10")]
     pub starting_version: ::core::option::Option<i64>,
-    #[prost(int64, optional, tag="11")]
+    #[prost(int64, optional, tag = "11")]
     pub ending_version: ::core::option::Option<i64>,
 }
 /// Response for ListAllTablesRequest.
@@ -426,11 +428,11 @@ pub struct QueryTableRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAllTablesResponse {
     /// The tables that were requested.
-    #[prost(message, repeated, tag="1")]
+    #[prost(message, repeated, tag = "1")]
     pub items: ::prost::alloc::vec::Vec<Table>,
     /// Token that can be used to retrieve the next page of tables.
     /// An empty or missing token means that no more tables are available for retrieval.
-    #[prost(string, optional, tag="2")]
+    #[prost(string, optional, tag = "2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 include!("delta_sharing.v1.serde.rs");

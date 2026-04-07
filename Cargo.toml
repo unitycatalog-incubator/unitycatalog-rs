@@ -87,3 +87,4 @@ files.extend-exclude = [
 [workspace.metadata.typos.default.extend-words]
 # to avoid having to name fields r#type
 typ = "typ"
+AKS = "AKS"

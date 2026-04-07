@@ -19,7 +19,10 @@ impl serde::Serialize for AwsTemporaryCredentials {
         if !self.session_token.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials", len)?;
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials",
+            len,
+        )?;
         if !self.access_key_id.is_empty() {
             struct_ser.serialize_field("access_key_id", &self.access_key_id)?;
         }
@@ -70,7 +73,10 @@ impl<'de> serde::Deserialize<'de> for AwsTemporaryCredentials {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -82,7 +88,9 @@ impl<'de> serde::Deserialize<'de> for AwsTemporaryCredentials {
                         match value {
                             "accessKeyId" | "access_key_id" => Ok(GeneratedField::AccessKeyId),
                             "accessPoint" | "access_point" => Ok(GeneratedField::AccessPoint),
-                            "secretAccessKey" | "secret_access_key" => Ok(GeneratedField::SecretAccessKey),
+                            "secretAccessKey" | "secret_access_key" => {
+                                Ok(GeneratedField::SecretAccessKey)
+                            }
                             "sessionToken" | "session_token" => Ok(GeneratedField::SessionToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -96,12 +104,17 @@ impl<'de> serde::Deserialize<'de> for AwsTemporaryCredentials {
             type Value = AwsTemporaryCredentials;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials")
+                formatter.write_str(
+                    "struct unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials",
+                )
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AwsTemporaryCredentials, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AwsTemporaryCredentials, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut access_key_id__ = None;
                 let mut access_point__ = None;
@@ -146,7 +159,11 @@ impl<'de> serde::Deserialize<'de> for AwsTemporaryCredentials {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.AwsTemporaryCredentials",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for AzureAad {
@@ -160,7 +177,8 @@ impl serde::Serialize for AzureAad {
         if !self.aad_token.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AzureAad", len)?;
+        let mut struct_ser =
+            serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AzureAad", len)?;
         if !self.aad_token.is_empty() {
             struct_ser.serialize_field("aad_token", &self.aad_token)?;
         }
@@ -173,10 +191,7 @@ impl<'de> serde::Deserialize<'de> for AzureAad {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "aad_token",
-            "aadToken",
-        ];
+        const FIELDS: &[&str] = &["aad_token", "aadToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -193,7 +208,10 @@ impl<'de> serde::Deserialize<'de> for AzureAad {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -220,8 +238,8 @@ impl<'de> serde::Deserialize<'de> for AzureAad {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<AzureAad, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut aad_token__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -242,7 +260,11 @@ impl<'de> serde::Deserialize<'de> for AzureAad {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.AzureAad", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.AzureAad",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for AzureUserDelegationSas {
@@ -256,7 +278,10 @@ impl serde::Serialize for AzureUserDelegationSas {
         if !self.sas_token.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.AzureUserDelegationSas", len)?;
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.temporary_credentials.v1.AzureUserDelegationSas",
+            len,
+        )?;
         if !self.sas_token.is_empty() {
             struct_ser.serialize_field("sas_token", &self.sas_token)?;
         }
@@ -269,10 +294,7 @@ impl<'de> serde::Deserialize<'de> for AzureUserDelegationSas {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "sas_token",
-            "sasToken",
-        ];
+        const FIELDS: &[&str] = &["sas_token", "sasToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -289,7 +311,10 @@ impl<'de> serde::Deserialize<'de> for AzureUserDelegationSas {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -312,12 +337,17 @@ impl<'de> serde::Deserialize<'de> for AzureUserDelegationSas {
             type Value = AzureUserDelegationSas;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.temporary_credentials.v1.AzureUserDelegationSas")
+                formatter.write_str(
+                    "struct unitycatalog.temporary_credentials.v1.AzureUserDelegationSas",
+                )
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AzureUserDelegationSas, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<AzureUserDelegationSas, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut sas_token__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -338,7 +368,11 @@ impl<'de> serde::Deserialize<'de> for AzureUserDelegationSas {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.AzureUserDelegationSas", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.AzureUserDelegationSas",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GcpOauthToken {
@@ -352,7 +386,8 @@ impl serde::Serialize for GcpOauthToken {
         if !self.oauth_token.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.GcpOauthToken", len)?;
+        let mut struct_ser = serializer
+            .serialize_struct("unitycatalog.temporary_credentials.v1.GcpOauthToken", len)?;
         if !self.oauth_token.is_empty() {
             struct_ser.serialize_field("oauth_token", &self.oauth_token)?;
         }
@@ -365,10 +400,7 @@ impl<'de> serde::Deserialize<'de> for GcpOauthToken {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "oauth_token",
-            "oauthToken",
-        ];
+        const FIELDS: &[&str] = &["oauth_token", "oauthToken"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -385,7 +417,10 @@ impl<'de> serde::Deserialize<'de> for GcpOauthToken {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -412,8 +447,8 @@ impl<'de> serde::Deserialize<'de> for GcpOauthToken {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GcpOauthToken, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut oauth_token__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -434,7 +469,11 @@ impl<'de> serde::Deserialize<'de> for GcpOauthToken {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.GcpOauthToken", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.GcpOauthToken",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for GenerateTemporaryPathCredentialsRequest {
@@ -454,13 +493,19 @@ impl serde::Serialize for GenerateTemporaryPathCredentialsRequest {
         if self.dry_run.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest",
+            len,
+        )?;
         if !self.url.is_empty() {
             struct_ser.serialize_field("url", &self.url)?;
         }
         if self.operation != 0 {
-            let v = generate_temporary_path_credentials_request::Operation::try_from(self.operation)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.operation)))?;
+            let v =
+                generate_temporary_path_credentials_request::Operation::try_from(self.operation)
+                    .map_err(|_| {
+                        serde::ser::Error::custom(format!("Invalid variant {}", self.operation))
+                    })?;
             struct_ser.serialize_field("operation", &v)?;
         }
         if let Some(v) = self.dry_run.as_ref() {
@@ -475,12 +520,7 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryPathCredentialsRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "url",
-            "operation",
-            "dry_run",
-            "dryRun",
-        ];
+        const FIELDS: &[&str] = &["url", "operation", "dry_run", "dryRun"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -499,7 +539,10 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryPathCredentialsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -527,9 +570,12 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryPathCredentialsRequest {
                 formatter.write_str("struct unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenerateTemporaryPathCredentialsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<GenerateTemporaryPathCredentialsRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut url__ = None;
                 let mut operation__ = None;
@@ -566,7 +612,11 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryPathCredentialsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.GenerateTemporaryPathCredentialsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for generate_temporary_path_credentials_request::Operation {
@@ -635,10 +685,18 @@ impl<'de> serde::Deserialize<'de> for generate_temporary_path_credentials_reques
                 E: serde::de::Error,
             {
                 match value {
-                    "UNSPECIFIED" => Ok(generate_temporary_path_credentials_request::Operation::Unspecified),
-                    "PATH_READ" => Ok(generate_temporary_path_credentials_request::Operation::PathRead),
-                    "PATH_READ_WRITE" => Ok(generate_temporary_path_credentials_request::Operation::PathReadWrite),
-                    "PATH_CREATE_TABLE" => Ok(generate_temporary_path_credentials_request::Operation::PathCreateTable),
+                    "UNSPECIFIED" => {
+                        Ok(generate_temporary_path_credentials_request::Operation::Unspecified)
+                    }
+                    "PATH_READ" => {
+                        Ok(generate_temporary_path_credentials_request::Operation::PathRead)
+                    }
+                    "PATH_READ_WRITE" => {
+                        Ok(generate_temporary_path_credentials_request::Operation::PathReadWrite)
+                    }
+                    "PATH_CREATE_TABLE" => {
+                        Ok(generate_temporary_path_credentials_request::Operation::PathCreateTable)
+                    }
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }
@@ -660,13 +718,19 @@ impl serde::Serialize for GenerateTemporaryTableCredentialsRequest {
         if self.operation != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest",
+            len,
+        )?;
         if !self.table_id.is_empty() {
             struct_ser.serialize_field("table_id", &self.table_id)?;
         }
         if self.operation != 0 {
-            let v = generate_temporary_table_credentials_request::Operation::try_from(self.operation)
-                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.operation)))?;
+            let v =
+                generate_temporary_table_credentials_request::Operation::try_from(self.operation)
+                    .map_err(|_| {
+                    serde::ser::Error::custom(format!("Invalid variant {}", self.operation))
+                })?;
             struct_ser.serialize_field("operation", &v)?;
         }
         struct_ser.end()
@@ -678,11 +742,7 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryTableCredentialsRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "table_id",
-            "tableId",
-            "operation",
-        ];
+        const FIELDS: &[&str] = &["table_id", "tableId", "operation"];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -700,7 +760,10 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryTableCredentialsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -727,9 +790,12 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryTableCredentialsRequest {
                 formatter.write_str("struct unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest")
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenerateTemporaryTableCredentialsRequest, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<GenerateTemporaryTableCredentialsRequest, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut table_id__ = None;
                 let mut operation__ = None;
@@ -758,7 +824,11 @@ impl<'de> serde::Deserialize<'de> for GenerateTemporaryTableCredentialsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.GenerateTemporaryTableCredentialsRequest",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for generate_temporary_table_credentials_request::Operation {
@@ -781,11 +851,7 @@ impl<'de> serde::Deserialize<'de> for generate_temporary_table_credentials_reque
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &[
-            "UNSPECIFIED",
-            "READ",
-            "READ_WRITE",
-        ];
+        const FIELDS: &[&str] = &["UNSPECIFIED", "READ", "READ_WRITE"];
 
         struct GeneratedVisitor;
 
@@ -825,9 +891,13 @@ impl<'de> serde::Deserialize<'de> for generate_temporary_table_credentials_reque
                 E: serde::de::Error,
             {
                 match value {
-                    "UNSPECIFIED" => Ok(generate_temporary_table_credentials_request::Operation::Unspecified),
+                    "UNSPECIFIED" => {
+                        Ok(generate_temporary_table_credentials_request::Operation::Unspecified)
+                    }
                     "READ" => Ok(generate_temporary_table_credentials_request::Operation::Read),
-                    "READ_WRITE" => Ok(generate_temporary_table_credentials_request::Operation::ReadWrite),
+                    "READ_WRITE" => {
+                        Ok(generate_temporary_table_credentials_request::Operation::ReadWrite)
+                    }
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }
@@ -852,7 +922,10 @@ impl serde::Serialize for R2TemporaryCredentials {
         if !self.session_token.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.R2TemporaryCredentials", len)?;
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.temporary_credentials.v1.R2TemporaryCredentials",
+            len,
+        )?;
         if !self.access_key_id.is_empty() {
             struct_ser.serialize_field("access_key_id", &self.access_key_id)?;
         }
@@ -897,7 +970,10 @@ impl<'de> serde::Deserialize<'de> for R2TemporaryCredentials {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -908,7 +984,9 @@ impl<'de> serde::Deserialize<'de> for R2TemporaryCredentials {
                     {
                         match value {
                             "accessKeyId" | "access_key_id" => Ok(GeneratedField::AccessKeyId),
-                            "secretAccessKey" | "secret_access_key" => Ok(GeneratedField::SecretAccessKey),
+                            "secretAccessKey" | "secret_access_key" => {
+                                Ok(GeneratedField::SecretAccessKey)
+                            }
                             "sessionToken" | "session_token" => Ok(GeneratedField::SessionToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -922,12 +1000,17 @@ impl<'de> serde::Deserialize<'de> for R2TemporaryCredentials {
             type Value = R2TemporaryCredentials;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.temporary_credentials.v1.R2TemporaryCredentials")
+                formatter.write_str(
+                    "struct unitycatalog.temporary_credentials.v1.R2TemporaryCredentials",
+                )
             }
 
-            fn visit_map<V>(self, mut map_: V) -> std::result::Result<R2TemporaryCredentials, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(
+                self,
+                mut map_: V,
+            ) -> std::result::Result<R2TemporaryCredentials, V::Error>
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut access_key_id__ = None;
                 let mut secret_access_key__ = None;
@@ -964,7 +1047,11 @@ impl<'de> serde::Deserialize<'de> for R2TemporaryCredentials {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.R2TemporaryCredentials", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.R2TemporaryCredentials",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
 impl serde::Serialize for TemporaryCredential {
@@ -984,11 +1071,17 @@ impl serde::Serialize for TemporaryCredential {
         if self.credentials.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("unitycatalog.temporary_credentials.v1.TemporaryCredential", len)?;
+        let mut struct_ser = serializer.serialize_struct(
+            "unitycatalog.temporary_credentials.v1.TemporaryCredential",
+            len,
+        )?;
         if self.expiration_time != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("expiration_time", ToString::to_string(&self.expiration_time).as_str())?;
+            struct_ser.serialize_field(
+                "expiration_time",
+                ToString::to_string(&self.expiration_time).as_str(),
+            )?;
         }
         if !self.url.is_empty() {
             struct_ser.serialize_field("url", &self.url)?;
@@ -1058,7 +1151,10 @@ impl<'de> serde::Deserialize<'de> for TemporaryCredential {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut std::fmt::Formatter<'_>,
+                    ) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1068,13 +1164,23 @@ impl<'de> serde::Deserialize<'de> for TemporaryCredential {
                         E: serde::de::Error,
                     {
                         match value {
-                            "expirationTime" | "expiration_time" => Ok(GeneratedField::ExpirationTime),
+                            "expirationTime" | "expiration_time" => {
+                                Ok(GeneratedField::ExpirationTime)
+                            }
                             "url" => Ok(GeneratedField::Url),
-                            "azureUserDelegationSas" | "azure_user_delegation_sas" => Ok(GeneratedField::AzureUserDelegationSas),
+                            "azureUserDelegationSas" | "azure_user_delegation_sas" => {
+                                Ok(GeneratedField::AzureUserDelegationSas)
+                            }
                             "azureAad" | "azure_aad" => Ok(GeneratedField::AzureAad),
-                            "awsTempCredentials" | "aws_temp_credentials" => Ok(GeneratedField::AwsTempCredentials),
-                            "gcpOauthToken" | "gcp_oauth_token" => Ok(GeneratedField::GcpOauthToken),
-                            "r2TempCredentials" | "r2_temp_credentials" => Ok(GeneratedField::R2TempCredentials),
+                            "awsTempCredentials" | "aws_temp_credentials" => {
+                                Ok(GeneratedField::AwsTempCredentials)
+                            }
+                            "gcpOauthToken" | "gcp_oauth_token" => {
+                                Ok(GeneratedField::GcpOauthToken)
+                            }
+                            "r2TempCredentials" | "r2_temp_credentials" => {
+                                Ok(GeneratedField::R2TempCredentials)
+                            }
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1087,12 +1193,13 @@ impl<'de> serde::Deserialize<'de> for TemporaryCredential {
             type Value = TemporaryCredential;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct unitycatalog.temporary_credentials.v1.TemporaryCredential")
+                formatter
+                    .write_str("struct unitycatalog.temporary_credentials.v1.TemporaryCredential")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<TemporaryCredential, V::Error>
-                where
-                    V: serde::de::MapAccess<'de>,
+            where
+                V: serde::de::MapAccess<'de>,
             {
                 let mut expiration_time__ = None;
                 let mut url__ = None;
@@ -1103,9 +1210,10 @@ impl<'de> serde::Deserialize<'de> for TemporaryCredential {
                             if expiration_time__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("expirationTime"));
                             }
-                            expiration_time__ = 
-                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
-                            ;
+                            expiration_time__ = Some(
+                                map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?
+                                    .0,
+                            );
                         }
                         GeneratedField::Url => {
                             if url__.is_some() {
@@ -1115,38 +1223,47 @@ impl<'de> serde::Deserialize<'de> for TemporaryCredential {
                         }
                         GeneratedField::AzureUserDelegationSas => {
                             if credentials__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("azureUserDelegationSas"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "azureUserDelegationSas",
+                                ));
                             }
-                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(temporary_credential::Credentials::AzureUserDelegationSas)
-;
+                            credentials__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(temporary_credential::Credentials::AzureUserDelegationSas);
                         }
                         GeneratedField::AzureAad => {
                             if credentials__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("azureAad"));
                             }
-                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(temporary_credential::Credentials::AzureAad)
-;
+                            credentials__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(temporary_credential::Credentials::AzureAad);
                         }
                         GeneratedField::AwsTempCredentials => {
                             if credentials__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("awsTempCredentials"));
+                                return Err(serde::de::Error::duplicate_field(
+                                    "awsTempCredentials",
+                                ));
                             }
-                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(temporary_credential::Credentials::AwsTempCredentials)
-;
+                            credentials__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(temporary_credential::Credentials::AwsTempCredentials);
                         }
                         GeneratedField::GcpOauthToken => {
                             if credentials__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("gcpOauthToken"));
                             }
-                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(temporary_credential::Credentials::GcpOauthToken)
-;
+                            credentials__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(temporary_credential::Credentials::GcpOauthToken);
                         }
                         GeneratedField::R2TempCredentials => {
                             if credentials__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("r2TempCredentials"));
                             }
-                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(temporary_credential::Credentials::R2TempCredentials)
-;
+                            credentials__ = map_
+                                .next_value::<::std::option::Option<_>>()?
+                                .map(temporary_credential::Credentials::R2TempCredentials);
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -1160,6 +1277,10 @@ impl<'de> serde::Deserialize<'de> for TemporaryCredential {
                 })
             }
         }
-        deserializer.deserialize_struct("unitycatalog.temporary_credentials.v1.TemporaryCredential", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct(
+            "unitycatalog.temporary_credentials.v1.TemporaryCredential",
+            FIELDS,
+            GeneratedVisitor,
+        )
     }
 }
