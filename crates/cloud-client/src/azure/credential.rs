@@ -15,11 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// National cloud authority hosts and Databricks scope constants are not yet
-// consumed by the builder. Suppress until Azure SP two-token flow and national
-// cloud support are wired up (see implementation plan Phase 2.5).
-#![allow(dead_code)]
-
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::process::Command;
@@ -28,8 +23,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
-use reqwest::header::{ACCEPT, AUTHORIZATION, DATE, HeaderName, HeaderValue};
+use chrono::DateTime;
+use reqwest::header::{ACCEPT, AUTHORIZATION, HeaderValue};
 use reqwest::{Client, Method, Request, RequestBuilder};
 use serde::Deserialize;
 
@@ -38,9 +33,6 @@ use crate::service::HttpService;
 use crate::token::{TemporaryToken, TokenCache};
 use crate::{CredentialProvider, RetryConfig, TokenProvider};
 
-static AZURE_VERSION: HeaderValue = HeaderValue::from_static("2023-11-03");
-static VERSION: HeaderName = HeaderName::from_static("x-ms-version");
-pub(crate) const RFC1123_FMT: &str = "%a, %d %h %Y %T GMT";
 const CONTENT_TYPE_JSON: &str = "application/json";
 const MSI_SECRET_ENV_KEY: &str = "IDENTITY_HEADER";
 const MSI_API_VERSION: &str = "2019-08-01";
@@ -55,6 +47,8 @@ pub(crate) const AZURE_STORAGE_RESOURCE: &str = "https://storage.azure.com";
 pub(crate) const AZURE_DATABRICKS_RESOURCE: &str = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d";
 
 /// OIDC scope for Azure Databricks OAuth2 APIs
+// Used by the Azure SP two-token flow (Phase 2.5)
+#[allow(dead_code)]
 pub(crate) const AZURE_DATABRICKS_SCOPE: &str = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default";
 
 #[derive(Debug, thiserror::Error)]
@@ -76,9 +70,6 @@ pub enum Error {
 
     #[error("Failed to parse azure cli response: {source}")]
     AzureCliResponse { source: serde_json::Error },
-
-    #[error("Generating SAS keys with SAS tokens auth is not supported")]
-    SASforSASNotSupported,
 }
 
 pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
@@ -94,13 +85,12 @@ impl From<Error> for crate::Error {
 /// An Azure storage credential
 #[derive(Debug, Eq, PartialEq)]
 pub enum AzureCredential {
-    /// A shared access signature
-    SASToken(Vec<(String, String)>),
     /// An authorization token
     BearerToken(String),
 }
 
 /// A list of known Azure authority hosts
+#[allow(dead_code)]
 pub mod authority_hosts {
     /// China-based Azure Authority Host
     pub const AZURE_CHINA: &str = "https://login.chinacloudapi.cn";
@@ -110,16 +100,6 @@ pub mod authority_hosts {
     pub const AZURE_GOVERNMENT: &str = "https://login.microsoftonline.us";
     /// Public Cloud Azure Authority Host
     pub const AZURE_PUBLIC_CLOUD: &str = "https://login.microsoftonline.com";
-}
-
-fn add_date_and_version_headers(request: &mut Request) {
-    let date = Utc::now();
-    let date_str = date.format(RFC1123_FMT).to_string();
-    let date_val = HeaderValue::from_str(&date_str).unwrap();
-    request.headers_mut().insert(DATE, date_val);
-    request
-        .headers_mut()
-        .insert(&VERSION, AZURE_VERSION.clone());
 }
 
 /// Authorize a [`Request`] with an [`AzureAuthorizer`]
@@ -136,20 +116,12 @@ impl<'a> AzureAuthorizer<'a> {
 
     /// Authorize `request`
     pub fn authorize(&self, request: &mut Request) {
-        add_date_and_version_headers(request);
-
         match self.credential {
             AzureCredential::BearerToken(token) => {
                 request.headers_mut().append(
                     AUTHORIZATION,
                     HeaderValue::from_str(format!("Bearer {token}").as_str()).unwrap(),
                 );
-            }
-            AzureCredential::SASToken(query_pairs) => {
-                request
-                    .url_mut()
-                    .query_pairs_mut()
-                    .extend_pairs(query_pairs);
             }
         }
     }
@@ -168,19 +140,15 @@ impl AzureCredentialExt for RequestBuilder {
         self,
         credential: &Option<impl Deref<Target = AzureCredential>>,
     ) -> Self {
-        let (client, request) = self.build_split();
-        let mut request = request.expect("request valid");
-
         match credential.as_deref() {
             Some(credential) => {
+                let (client, request) = self.build_split();
+                let mut request = request.expect("request valid");
                 AzureAuthorizer::new(credential).authorize(&mut request);
+                Self::from_parts(client, request)
             }
-            None => {
-                add_date_and_version_headers(&mut request);
-            }
+            None => self,
         }
-
-        Self::from_parts(client, request)
     }
 }
 
@@ -210,21 +178,6 @@ pub(crate) struct ClientSecretOAuthProvider {
 }
 
 impl ClientSecretOAuthProvider {
-    pub(crate) fn new(
-        client_id: String,
-        client_secret: String,
-        tenant_id: impl AsRef<str>,
-        authority_host: Option<String>,
-    ) -> Self {
-        Self::new_with_scope(
-            client_id,
-            client_secret,
-            tenant_id,
-            authority_host,
-            AZURE_STORAGE_SCOPE,
-        )
-    }
-
     /// Create a new provider with a custom OAuth scope (e.g. for Databricks).
     pub(crate) fn new_with_scope(
         client_id: String,

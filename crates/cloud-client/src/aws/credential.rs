@@ -17,7 +17,7 @@
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use async_trait::async_trait;
 use bytes::Buf;
@@ -44,8 +44,6 @@ type StdError = Box<dyn std::error::Error + Send + Sync>;
 
 /// SHA256 hash of empty string
 static EMPTY_SHA256_HASH: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-static UNSIGNED_PAYLOAD: &str = "UNSIGNED-PAYLOAD";
-static STREAMING_PAYLOAD: &str = "STREAMING-AWS4-HMAC-SHA256-PAYLOAD";
 
 /// A set of AWS security credentials
 #[derive(Debug, Eq, PartialEq)]
@@ -81,7 +79,6 @@ pub struct AwsAuthorizer<'a> {
     credential: &'a AwsCredential,
     service: &'a str,
     region: &'a str,
-    sign_payload: bool,
 }
 
 static DATE_HEADER: hyper::header::HeaderName =
@@ -100,15 +97,7 @@ impl<'a> AwsAuthorizer<'a> {
             service,
             region,
             date: None,
-            sign_payload: true,
         }
-    }
-
-    /// Controls whether this [`AwsAuthorizer`] will attempt to sign the request payload,
-    /// the default is `true`
-    pub fn with_sign_payload(mut self, signed: bool) -> Self {
-        self.sign_payload = signed;
-        self
     }
 
     /// Authorize `request` with an optional pre-calculated SHA256 digest by attaching
@@ -134,16 +123,13 @@ impl<'a> AwsAuthorizer<'a> {
         let date_val = HeaderValue::from_str(&date_str)?;
         request.headers_mut().insert(&DATE_HEADER, date_val);
 
-        let digest = match self.sign_payload {
-            false => UNSIGNED_PAYLOAD.to_string(),
-            true => match pre_calculated_digest {
-                Some(digest) => hex_encode(digest),
-                None => match request.body() {
+        let digest = match pre_calculated_digest {
+            Some(digest) => hex_encode(digest),
+            None => match request.body() {
+                None => EMPTY_SHA256_HASH.to_string(),
+                Some(body) => match body.as_bytes() {
+                    Some(bytes) => hex_digest(bytes),
                     None => EMPTY_SHA256_HASH.to_string(),
-                    Some(body) => match body.as_bytes() {
-                        Some(bytes) => hex_digest(bytes),
-                        None => STREAMING_PAYLOAD.to_string(),
-                    },
                 },
             },
         };
@@ -179,60 +165,6 @@ impl<'a> AwsAuthorizer<'a> {
             .headers_mut()
             .insert(&AUTHORIZATION, authorization_val);
         Ok(())
-    }
-
-    /// Generate presigned query-string authentication parameters for a URL.
-    ///
-    /// Used for generating S3 presigned URLs that authorize access without
-    /// sending the `Authorization` header.
-    ///
-    /// # References
-    /// - <https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html>
-    #[allow(dead_code)]
-    pub(crate) fn sign(&self, method: Method, url: &mut Url, expires_in: Duration) {
-        let date = self.date.unwrap_or_else(Utc::now);
-        let scope = self.scope(date);
-
-        url.query_pairs_mut()
-            .append_pair("X-Amz-Algorithm", ALGORITHM)
-            .append_pair(
-                "X-Amz-Credential",
-                &format!("{}/{}", self.credential.key_id, scope),
-            )
-            .append_pair("X-Amz-Date", &date.format("%Y%m%dT%H%M%SZ").to_string())
-            .append_pair("X-Amz-Expires", &expires_in.as_secs().to_string())
-            .append_pair("X-Amz-SignedHeaders", "host");
-
-        if let Some(ref token) = self.credential.token {
-            url.query_pairs_mut()
-                .append_pair("X-Amz-Security-Token", token);
-        }
-
-        let digest = UNSIGNED_PAYLOAD;
-
-        let host = &url[url::Position::BeforeHost..url::Position::AfterPort].to_string();
-        let mut headers = HeaderMap::new();
-        let host_val = HeaderValue::from_str(host).unwrap();
-        headers.insert("host", host_val);
-
-        let (signed_headers, canonical_headers) = canonicalize_headers(&headers);
-
-        let string_to_sign = self.string_to_sign(
-            date,
-            &scope,
-            &method,
-            url,
-            &canonical_headers,
-            &signed_headers,
-            digest,
-        );
-
-        let signature = self
-            .credential
-            .sign(&string_to_sign, date, self.region, self.service);
-
-        url.query_pairs_mut()
-            .append_pair("X-Amz-Signature", &signature);
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -637,7 +569,7 @@ async fn assume_role(
             ("Version", "2011-06-15"),
         ])
         .with_aws_sigv4(
-            Some(AwsAuthorizer::new(base_cred, "sts", region).with_sign_payload(false)),
+            Some(AwsAuthorizer::new(base_cred, "sts", region)),
             None,
         )
         .retryable(retry_config, service.clone())
@@ -854,7 +786,6 @@ mod tests {
             credential: &credential,
             service: "ec2",
             region: "us-east-1",
-            sign_payload: true,
         };
 
         signer.authorize(&mut request, None).unwrap();
@@ -863,78 +794,6 @@ mod tests {
             "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=a3c787a7ed37f7fdfbfd2d7056a3d7c9d85e6d52a2bfbec73793c0be6e7862d4"
         )
         // gitleaks:allow
-    }
-
-    #[test]
-    fn test_sign_with_unsigned_payload() {
-        let client = Client::new();
-
-        let credential = AwsCredential {
-            key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
-            secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
-            token: None,
-        };
-
-        let date = DateTime::parse_from_rfc3339("2022-08-06T18:01:34Z")
-            .unwrap()
-            .with_timezone(&Utc);
-
-        let mut request = client
-            .request(Method::GET, "https://ec2.amazon.com/")
-            .build()
-            .unwrap();
-
-        let authorizer = AwsAuthorizer {
-            date: Some(date),
-            credential: &credential,
-            service: "ec2",
-            region: "us-east-1",
-            sign_payload: false,
-        };
-
-        authorizer.authorize(&mut request, None).unwrap();
-        assert_eq!(
-            request.headers().get(&AUTHORIZATION).unwrap(),
-            "AWS4-HMAC-SHA256 Credential=AKIAIOSFODNN7EXAMPLE/20220806/us-east-1/ec2/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=653c3d8ea261fd826207df58bc2bb69fbb5003e9eb3c0ef06e4a51f2a81d8699"
-        );
-    }
-
-    #[test]
-    fn signed_get_url() {
-        let credential = AwsCredential {
-            key_id: "AKIAIOSFODNN7EXAMPLE".to_string(), // gitleaks:allow
-            secret_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string(),
-            token: None,
-        };
-
-        let date = DateTime::parse_from_rfc3339("2013-05-24T00:00:00Z")
-            .unwrap()
-            .with_timezone(&Utc);
-
-        let authorizer = AwsAuthorizer {
-            date: Some(date),
-            credential: &credential,
-            service: "s3",
-            region: "us-east-1",
-            sign_payload: false,
-        };
-
-        let mut url = Url::parse("https://examplebucket.s3.amazonaws.com/test.txt").unwrap();
-        authorizer.sign(Method::GET, &mut url, Duration::from_secs(86400));
-
-        assert_eq!(
-            url,
-            Url::parse(
-                "https://examplebucket.s3.amazonaws.com/test.txt?\
-                X-Amz-Algorithm=AWS4-HMAC-SHA256&\
-                X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request&\
-                X-Amz-Date=20130524T000000Z&\
-                X-Amz-Expires=86400&\
-                X-Amz-SignedHeaders=host&\
-                X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"
-            )
-            .unwrap()
-        );
     }
 
     #[test]
@@ -967,7 +826,6 @@ mod tests {
             credential: &credential,
             service: "s3",
             region: "us-east-1",
-            sign_payload: true,
         };
 
         authorizer.authorize(&mut request, None).unwrap();

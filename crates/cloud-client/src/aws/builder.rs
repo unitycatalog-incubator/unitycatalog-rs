@@ -81,7 +81,6 @@ pub struct AmazonBuilder {
     token: Option<String>,
     retry_config: RetryConfig,
     imdsv1_fallback: ConfigValue<bool>,
-    unsigned_payload: ConfigValue<bool>,
     metadata_endpoint: Option<String>,
     container_credentials_relative_uri: Option<String>,
     client_options: ClientOptions,
@@ -153,13 +152,6 @@ pub enum AmazonS3ConfigKey {
     /// - `imdsv1_fallback`
     ImdsV1Fallback,
 
-    /// Avoid computing payload checksum when calculating signature.
-    ///
-    /// Supported keys:
-    /// - `aws_unsigned_payload`
-    /// - `unsigned_payload`
-    UnsignedPayload,
-
     /// Set the instance metadata endpoint
     ///
     /// Supported keys:
@@ -210,7 +202,6 @@ impl AsRef<str> for AmazonS3ConfigKey {
             Self::ImdsV1Fallback => "aws_imdsv1_fallback",
             Self::DefaultRegion => "aws_default_region",
             Self::MetadataEndpoint => "aws_metadata_endpoint",
-            Self::UnsignedPayload => "aws_unsigned_payload",
             Self::ContainerCredentialsRelativeUri => "aws_container_credentials_relative_uri",
             Self::SkipSignature => "aws_skip_signature",
             Self::RoleArn => "aws_role_arn",
@@ -233,7 +224,6 @@ impl FromStr for AmazonS3ConfigKey {
             "aws_session_token" | "aws_token" | "session_token" | "token" => Ok(Self::Token),
             "aws_imdsv1_fallback" | "imdsv1_fallback" => Ok(Self::ImdsV1Fallback),
             "aws_metadata_endpoint" | "metadata_endpoint" => Ok(Self::MetadataEndpoint),
-            "aws_unsigned_payload" | "unsigned_payload" => Ok(Self::UnsignedPayload),
             "aws_container_credentials_relative_uri" => Ok(Self::ContainerCredentialsRelativeUri),
             "aws_skip_signature" | "skip_signature" => Ok(Self::SkipSignature),
             "aws_role_arn" | "role_arn" => Ok(Self::RoleArn),
@@ -291,7 +281,6 @@ impl AmazonBuilder {
                 self.region = self.region.or_else(|| Some(value.into()))
             }
             AmazonS3ConfigKey::MetadataEndpoint => self.metadata_endpoint = Some(value.into()),
-            AmazonS3ConfigKey::UnsignedPayload => self.unsigned_payload.parse(value),
             AmazonS3ConfigKey::ContainerCredentialsRelativeUri => {
                 self.container_credentials_relative_uri = Some(value.into())
             }
@@ -315,7 +304,6 @@ impl AmazonBuilder {
             AmazonS3ConfigKey::Token => self.token.clone(),
             AmazonS3ConfigKey::ImdsV1Fallback => Some(self.imdsv1_fallback.to_string()),
             AmazonS3ConfigKey::MetadataEndpoint => self.metadata_endpoint.clone(),
-            AmazonS3ConfigKey::UnsignedPayload => Some(self.unsigned_payload.to_string()),
             AmazonS3ConfigKey::Client(key) => self.client_options.get_config_value(key),
             AmazonS3ConfigKey::ContainerCredentialsRelativeUri => {
                 self.container_credentials_relative_uri.clone()
@@ -382,15 +370,6 @@ impl AmazonBuilder {
     /// [SSRF attack]: https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/
     pub fn with_imdsv1_fallback(mut self) -> Self {
         self.imdsv1_fallback = true.into();
-        self
-    }
-
-    /// Sets if unsigned payload option has to be used.
-    /// See [unsigned payload option](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html)
-    /// * false (default): Signed payload option is used.
-    /// * true: Unsigned payload option is used.
-    pub fn with_unsigned_payload(mut self, unsigned_payload: bool) -> Self {
-        self.unsigned_payload = unsigned_payload.into();
         self
     }
 
@@ -598,7 +577,6 @@ impl AmazonBuilder {
             credentials,
             retry_config: self.retry_config,
             client_options: self.client_options,
-            sign_payload: !self.unsigned_payload.get()?,
             skip_signature: self.skip_signature.get()?,
         })
     }
@@ -620,7 +598,6 @@ mod tests {
             ("aws_secret_access_key", aws_secret_access_key),
             ("aws_default_region", aws_default_region.clone()),
             ("aws_session_token", aws_session_token.clone()),
-            ("aws_unsigned_payload", "true".to_string()),
         ]);
 
         let builder = options
@@ -634,7 +611,6 @@ mod tests {
         assert_eq!(builder.secret_access_key.unwrap(), "new-secret-key");
         assert_eq!(builder.region.unwrap(), aws_default_region);
         assert_eq!(builder.token.unwrap(), aws_session_token);
-        assert!(builder.unsigned_payload.get().unwrap());
     }
 
     #[test]
@@ -648,8 +624,7 @@ mod tests {
             .with_config(AmazonS3ConfigKey::AccessKeyId, &aws_access_key_id)
             .with_config(AmazonS3ConfigKey::SecretAccessKey, &aws_secret_access_key)
             .with_config(AmazonS3ConfigKey::DefaultRegion, &aws_default_region)
-            .with_config(AmazonS3ConfigKey::Token, &aws_session_token)
-            .with_config(AmazonS3ConfigKey::UnsignedPayload, "true");
+            .with_config(AmazonS3ConfigKey::Token, &aws_session_token);
 
         assert_eq!(
             builder
@@ -672,12 +647,6 @@ mod tests {
         assert_eq!(
             builder.get_config_value(&AmazonS3ConfigKey::Token).unwrap(),
             aws_session_token
-        );
-        assert_eq!(
-            builder
-                .get_config_value(&AmazonS3ConfigKey::UnsignedPayload)
-                .unwrap(),
-            "true"
         );
     }
 

@@ -645,15 +645,10 @@ impl CredentialProvider for AzureToDatabricksBridge {
     async fn get_credential(&self) -> crate::Result<Arc<DatabricksCredential>> {
         use crate::azure::credential::AzureCredential;
         let cred = self.inner.get_credential().await?;
-        match cred.as_ref() {
-            AzureCredential::BearerToken(token) => Ok(Arc::new(DatabricksCredential {
-                bearer: token.clone(),
-            })),
-            AzureCredential::SASToken(_) => Err(crate::Error::Generic {
-                source: "Azure MSI returned a SAS token instead of a bearer token for Databricks"
-                    .into(),
-            }),
-        }
+        let AzureCredential::BearerToken(token) = cred.as_ref();
+        Ok(Arc::new(DatabricksCredential {
+            bearer: token.clone(),
+        }))
     }
 }
 
