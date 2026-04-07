@@ -369,4 +369,124 @@ mod tests {
         assert_eq!(token.token.bearer, jwt);
         assert!(token.expiry.is_some());
     }
+
+    #[tokio::test]
+    async fn test_m2m_token_refresh() {
+        let mut server = mockito::Server::new_async().await;
+
+        // First call
+        let _mock1 = server
+            .mock("POST", "/oidc/v1/token")
+            .match_body(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::Regex("grant_type=client_credentials".into()),
+                mockito::Matcher::Regex("client_id=refresh-client".into()),
+            ]))
+            .with_status(200)
+            .with_body(r#"{"access_token":"TOKEN_FIRST","expires_in":1,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = DatabricksM2MProvider {
+            token_url: format!("{}/oidc/v1/token", server.url()),
+            client_id: "refresh-client".into(),
+            client_secret: "refresh-secret".into(),
+            scope: "unity-catalog".into(),
+        };
+
+        let token1 = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+        assert_eq!(token1.token.bearer, "TOKEN_FIRST");
+        // expires_in = 1 second — expiry should be very soon
+        assert!(token1.expiry.is_some());
+
+        // Second call — simulate token refresh after expiry
+        let _mock2 = server
+            .mock("POST", "/oidc/v1/token")
+            .with_status(200)
+            .with_body(r#"{"access_token":"TOKEN_SECOND","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let token2 = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+        assert_eq!(token2.token.bearer, "TOKEN_SECOND");
+
+        _mock1.assert_async().await;
+        _mock2.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_uc_credential_vending_aws() {
+        // Test that DatabricksM2MProvider correctly fetches tokens which
+        // can then be used as bearer tokens for UC credential vending calls.
+        let mut server = mockito::Server::new_async().await;
+
+        let _token_mock = server
+            .mock("POST", "/oidc/v1/token")
+            .with_status(200)
+            .with_body(r#"{"access_token":"UC_BEARER_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let _creds_mock = server
+            .mock("POST", "/api/2.1/unity-catalog/temporary-table-credentials")
+            .match_header("Authorization", "Bearer UC_BEARER_TOKEN")
+            .with_status(200)
+            .with_body(r#"{
+                "aws_temp_credentials": {
+                    "access_key_id": "ASIATESTVENDING",
+                    "secret_access_key": "vendingsecret",
+                    "session_token": "vendingtoken"
+                },
+                "expiration_time": "2099-01-01T00:00:00Z"
+            }"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = DatabricksM2MProvider {
+            token_url: format!("{}/oidc/v1/token", server.url()),
+            client_id: "uc-client".into(),
+            client_secret: "uc-secret".into(),
+            scope: "unity-catalog".into(),
+        };
+
+        let token = provider
+            .fetch_token(&client, &service, &retry)
+            .await
+            .unwrap();
+
+        // Simulate using the token to call the credential vending endpoint
+        let vend_resp = client
+            .request(
+                Method::POST,
+                format!("{}/api/2.1/unity-catalog/temporary-table-credentials", server.url()),
+            )
+            .bearer_auth(&token.token.bearer)
+            .send()
+            .await
+            .unwrap();
+
+        assert!(vend_resp.status().is_success());
+
+        let body: serde_json::Value = vend_resp.json().await.unwrap();
+        assert_eq!(
+            body["aws_temp_credentials"]["access_key_id"],
+            "ASIATESTVENDING"
+        );
+
+        _token_mock.assert_async().await;
+        _creds_mock.assert_async().await;
+    }
 }

@@ -188,6 +188,7 @@ impl<'a> AwsAuthorizer<'a> {
     ///
     /// # References
     /// - <https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html>
+    #[allow(dead_code)]
     pub(crate) fn sign(&self, method: Method, url: &mut Url, expires_in: Duration) {
         let date = self.date.unwrap_or_else(Utc::now);
         let scope = self.scope(date);
@@ -557,6 +558,115 @@ async fn instance_creds(
     })
 }
 
+/// Exchanges long-term or instance credentials for temporary credentials by
+/// calling the STS [`AssumeRole`] API.  The caller's base credentials are used
+/// to SigV4-sign the STS request.
+///
+/// Wire this provider via [`AmazonBuilder::with_role_arn`] or set the
+/// `AWS_ROLE_ARN` / `AWS_ROLE_SESSION_NAME` environment variables alongside a
+/// static or instance credential source.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html>
+/// - <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-api.html>
+#[derive(Debug)]
+pub(crate) struct AssumeRoleProvider {
+    pub role_arn: String,
+    pub session_name: String,
+    pub endpoint: String,
+    pub base_credentials: Arc<dyn CredentialProvider<Credential = AwsCredential>>,
+    pub region: String,
+}
+
+#[async_trait]
+impl TokenProvider for AssumeRoleProvider {
+    type Credential = AwsCredential;
+
+    async fn fetch_token(
+        &self,
+        client: &Client,
+        service: &Arc<dyn HttpService>,
+        retry: &RetryConfig,
+    ) -> Result<TemporaryToken<Arc<AwsCredential>>> {
+        let base_cred = self
+            .base_credentials
+            .get_credential()
+            .await
+            .map_err(|source| crate::Error::Generic {
+                source: Box::new(source),
+            })?;
+
+        assume_role(
+            client,
+            service,
+            retry,
+            &base_cred,
+            &self.region,
+            &self.role_arn,
+            &self.session_name,
+            &self.endpoint,
+        )
+        .await
+        .map_err(|source| crate::Error::Generic { source })
+    }
+}
+
+/// Calls `STS:AssumeRole` and returns temporary credentials.
+///
+/// The request is SigV4-signed using the provided `base_cred`.
+///
+/// # References
+/// - <https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html>
+async fn assume_role(
+    client: &Client,
+    service: &Arc<dyn HttpService>,
+    retry_config: &RetryConfig,
+    base_cred: &AwsCredential,
+    region: &str,
+    role_arn: &str,
+    session_name: &str,
+    endpoint: &str,
+) -> Result<TemporaryToken<Arc<AwsCredential>>, StdError> {
+    let bytes = client
+        .request(Method::POST, endpoint)
+        .query(&[
+            ("Action", "AssumeRole"),
+            ("DurationSeconds", "3600"),
+            ("RoleArn", role_arn),
+            ("RoleSessionName", session_name),
+            ("Version", "2011-06-15"),
+        ])
+        .with_aws_sigv4(
+            Some(AwsAuthorizer::new(base_cred, "sts", region).with_sign_payload(false)),
+            None,
+        )
+        .retryable(retry_config, service.clone())
+        .idempotent(true)
+        .send()
+        .await?
+        .bytes()
+        .await?;
+
+    let resp: AssumeRoleXmlResponse = quick_xml::de::from_reader(bytes.reader())
+        .map_err(|e| format!("Invalid AssumeRole response: {e}"))?;
+
+    let creds = resp.assume_role_result.credentials;
+    let now = Utc::now();
+    let ttl = (creds.expiration - now).to_std().unwrap_or_default();
+
+    Ok(TemporaryToken {
+        token: Arc::new(creds.into()),
+        expiry: Some(Instant::now() + ttl),
+    })
+}
+
+/// XML response for `AssumeRole`.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+struct AssumeRoleXmlResponse {
+    assume_role_result: AssumeRoleResult,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct AssumeRoleResponse {
@@ -635,15 +745,27 @@ async fn web_identity(
 /// Credentials sourced from a task IAM role.
 ///
 /// Fetches short-lived `AwsCredential` values from the ECS task-metadata
-/// credential endpoint provided by the `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI`
-/// or `AWS_CONTAINER_CREDENTIALS_FULL_URI` environment variables.  Results are
-/// cached in the embedded [`TokenCache`] until they approach expiry.
+/// credential endpoint.  The URL is resolved from environment variables in
+/// this priority order:
+///
+/// 1. `AWS_CONTAINER_CREDENTIALS_FULL_URI` — absolute URL (used by EKS Pod
+///    Identity and Lambda)
+/// 2. `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` — path appended to
+///    `http://169.254.170.2` (classic ECS task role)
+///
+/// When `AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE` is set the file contents are
+/// sent as the `Authorization` request header, enabling EKS Pod Identity.
+/// Results are cached in the embedded [`TokenCache`] until they approach expiry.
 ///
 /// # References
 /// - <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>
+/// - <https://docs.aws.amazon.com/eks/latest/userguide/pod-id-how-it-works.html>
 #[derive(Debug)]
 pub(crate) struct TaskCredentialProvider {
     pub url: String,
+    /// Optional authorization token sent as the `Authorization` header.
+    /// Used by EKS Pod Identity (`AWS_CONTAINER_AUTHORIZATION_TOKEN_FILE`).
+    pub auth_token_file: Option<String>,
     pub retry: RetryConfig,
     pub client: Client,
     pub service: Arc<dyn HttpService>,
@@ -657,7 +779,13 @@ impl CredentialProvider for TaskCredentialProvider {
     async fn get_credential(&self) -> Result<Arc<AwsCredential>> {
         self.cache
             .get_or_insert_with(|| {
-                task_credential(&self.client, &self.service, &self.retry, &self.url)
+                task_credential(
+                    &self.client,
+                    &self.service,
+                    &self.retry,
+                    &self.url,
+                    self.auth_token_file.as_deref(),
+                )
             })
             .await
             .map_err(|source| crate::Error::Generic { source })
@@ -670,9 +798,18 @@ async fn task_credential(
     service: &Arc<dyn HttpService>,
     retry: &RetryConfig,
     url: &str,
+    auth_token_file: Option<&str>,
 ) -> Result<TemporaryToken<Arc<AwsCredential>>, StdError> {
-    let creds: InstanceCredentials = client
-        .get(url)
+    let mut req = client.get(url);
+
+    // EKS Pod Identity requires an Authorization header read from a file
+    if let Some(token_file) = auth_token_file {
+        let token = std::fs::read_to_string(token_file)
+            .map_err(|e| format!("Failed to read auth token file '{token_file}': {e}"))?;
+        req = req.header(reqwest::header::AUTHORIZATION, token.trim());
+    }
+
+    let creds: InstanceCredentials = req
         .send_retry(retry, service.clone())
         .await?
         .json()
@@ -965,5 +1102,180 @@ mod tests {
         instance_creds(&client, &service, &retry_config, &endpoint, false)
             .await
             .unwrap_err();
+    }
+
+    const STS_WEB_IDENTITY_XML: &str = r#"<AssumeRoleWithWebIdentityResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/"><AssumeRoleWithWebIdentityResult><Credentials><AccessKeyId>AKIAIOSFODNN7EXAMPLE</AccessKeyId><SecretAccessKey>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</SecretAccessKey><SessionToken>FwoGZXIvYXdzEJr//////////wEaDHer8</SessionToken><Expiration>2099-01-01T00:00:00Z</Expiration></Credentials></AssumeRoleWithWebIdentityResult></AssumeRoleWithWebIdentityResponse>"#; // gitleaks:allow
+
+    const STS_ASSUME_ROLE_XML: &str = r#"<AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/"><AssumeRoleResult><Credentials><AccessKeyId>AKIAIOSFODNN7EXAMPLE</AccessKeyId><SecretAccessKey>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</SecretAccessKey><SessionToken>FwoGZXIvYXdzEJr//////////wEaDHer8</SessionToken><Expiration>2099-01-01T00:00:00Z</Expiration></Credentials></AssumeRoleResult></AssumeRoleResponse>"#; // gitleaks:allow
+
+    #[tokio::test]
+    async fn test_web_identity_provider() {
+        use std::io::Write as _;
+        let mut server = mockito::Server::new_async().await;
+
+        // Write a fake JWT to a temp file
+        let mut token_file = tempfile::NamedTempFile::new().unwrap();
+        write!(token_file, "fake-jwt-token").unwrap();
+
+        let sts_url = server.url();
+
+        let _mock = server
+            .mock("POST", "/")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("Action".into(), "AssumeRoleWithWebIdentity".into()),
+                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/TestRole".into()),
+                mockito::Matcher::UrlEncoded("WebIdentityToken".into(), "fake-jwt-token".into()),
+            ]))
+            .with_status(200)
+            .with_body(STS_WEB_IDENTITY_XML)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = WebIdentityProvider {
+            token_path: token_file.path().to_str().unwrap().to_owned(),
+            role_arn: "arn:aws:iam::123456789012:role/TestRole".into(),
+            session_name: "test-session".into(),
+            endpoint: sts_url,
+        };
+
+        let creds = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+
+        assert_eq!(creds.token.key_id, "AKIAIOSFODNN7EXAMPLE"); // gitleaks:allow
+        assert!(creds.token.token.is_some());
+        assert!(creds.expiry.is_some());
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_task_credential_provider() {
+        let mut server = mockito::Server::new_async().await;
+
+        let endpoint = server.url();
+
+        let _mock = server
+            .mock("GET", "/v2/credentials/test")
+            .with_status(200)
+            .with_body(r#"{"AccessKeyId":"TASKID","Code":"Success","Expiration":"2099-01-01T00:00:00Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"TASKSECRET","Token":"TASKTOKEN","Type":"AWS-HMAC"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = TaskCredentialProvider {
+            url: format!("{}/v2/credentials/test", endpoint),
+            auth_token_file: None,
+            retry: retry.clone(),
+            client: client.clone(),
+            service: service.clone(),
+            cache: Default::default(),
+        };
+
+        let creds = provider.get_credential().await.unwrap();
+
+        assert_eq!(creds.key_id, "TASKID");
+        assert_eq!(creds.secret_key, "TASKSECRET");
+        assert_eq!(creds.token.as_deref(), Some("TASKTOKEN"));
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_task_credential_with_auth_token() {
+        use std::io::Write as _;
+        let mut server = mockito::Server::new_async().await;
+
+        // Write auth token to a temp file
+        let mut auth_file = tempfile::NamedTempFile::new().unwrap();
+        write!(auth_file, "my-pod-identity-token").unwrap();
+
+        let endpoint = server.url();
+
+        let _mock = server
+            .mock("GET", "/v2/credentials/eks")
+            .match_header("Authorization", "my-pod-identity-token")
+            .with_status(200)
+            .with_body(r#"{"AccessKeyId":"EKSID","Code":"Success","Expiration":"2099-01-01T00:00:00Z","LastUpdated":"2022-08-30T10:21:04Z","SecretAccessKey":"EKSSECRET","Token":"EKSTOKEN","Type":"AWS-HMAC"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry = RetryConfig::default();
+
+        let provider = TaskCredentialProvider {
+            url: format!("{}/v2/credentials/eks", endpoint),
+            auth_token_file: Some(auth_file.path().to_str().unwrap().to_owned()),
+            retry: retry.clone(),
+            client: client.clone(),
+            service: service.clone(),
+            cache: Default::default(),
+        };
+
+        let creds = provider.get_credential().await.unwrap();
+
+        assert_eq!(creds.key_id, "EKSID");
+        assert_eq!(creds.token.as_deref(), Some("EKSTOKEN"));
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_assume_role_provider() {
+        use crate::StaticCredentialProvider;
+        let mut server = mockito::Server::new_async().await;
+
+        let sts_endpoint = server.url();
+
+        let _mock = server
+            .mock("POST", "/")
+            .match_query(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::UrlEncoded("Action".into(), "AssumeRole".into()),
+                mockito::Matcher::UrlEncoded("RoleArn".into(), "arn:aws:iam::123456789012:role/AssumedRole".into()),
+            ]))
+            .with_status(200)
+            .with_body(STS_ASSUME_ROLE_XML)
+            .create_async()
+            .await;
+
+        let base_cred = AwsCredential {
+            key_id: "BASEKEYID".to_string(),
+            secret_key: "BASESECRET".to_string(),
+            token: None,
+        };
+        let base_provider: Arc<dyn CredentialProvider<Credential = AwsCredential>> =
+            Arc::new(StaticCredentialProvider::new(base_cred));
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = AssumeRoleProvider {
+            role_arn: "arn:aws:iam::123456789012:role/AssumedRole".into(),
+            session_name: "test-assume-session".into(),
+            endpoint: format!("{}/", sts_endpoint),
+            base_credentials: base_provider,
+            region: "us-east-1".into(),
+        };
+
+        let token = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+
+        assert_eq!(token.token.key_id, "AKIAIOSFODNN7EXAMPLE"); // gitleaks:allow
+        assert!(token.token.token.is_some());
+        assert!(token.expiry.is_some());
+
+        _mock.assert_async().await;
     }
 }

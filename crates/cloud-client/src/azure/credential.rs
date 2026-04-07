@@ -720,4 +720,136 @@ mod tests {
             &AzureCredential::BearerToken("TOKEN".into())
         );
     }
+
+    #[tokio::test]
+    async fn test_client_secret_happy_path() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "my-tenant";
+
+        let _mock = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .match_body(mockito::Matcher::AllOf(vec![
+                mockito::Matcher::Regex("client_id=myclientid".into()),
+                mockito::Matcher::Regex("grant_type=client_credentials".into()),
+            ]))
+            .with_status(200)
+            .with_body(r#"{"access_token":"AZURE_TOKEN","expires_in":3599,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = ClientSecretOAuthProvider::new_with_scope(
+            "myclientid".into(),
+            "myclientsecret".into(),
+            tenant,
+            Some(server.url()),
+            AZURE_STORAGE_SCOPE,
+        );
+
+        let token = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            token.token.as_ref(),
+            &AzureCredential::BearerToken("AZURE_TOKEN".into())
+        );
+        assert!(token.expiry.is_some());
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_client_secret_invalid_client() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "bad-tenant";
+
+        let _mock = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .with_status(400)
+            .with_body(r#"{"error":"invalid_client","error_description":"Client authentication failed"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = ClientSecretOAuthProvider::new_with_scope(
+            "badclientid".into(),
+            "badsecret".into(),
+            tenant,
+            Some(server.url()),
+            AZURE_STORAGE_SCOPE,
+        );
+
+        let result = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await;
+
+        assert!(result.is_err(), "Expected error for 400 response");
+
+        _mock.assert_async().await;
+    }
+
+    #[tokio::test]
+    async fn test_client_secret_token_refresh() {
+        let mut server = mockito::Server::new_async().await;
+        let tenant = "refresh-tenant";
+
+        // First call returns a token with very short expiry (1 second)
+        let _mock1 = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .with_status(200)
+            .with_body(r#"{"access_token":"FIRST_TOKEN","expires_in":1,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let client = Client::new();
+        let service: Arc<dyn HttpService> = Arc::new(ReqwestService::new(client.clone()));
+        let retry_config = RetryConfig::default();
+
+        let provider = ClientSecretOAuthProvider::new_with_scope(
+            "myclientid".into(),
+            "myclientsecret".into(),
+            tenant,
+            Some(server.url()),
+            AZURE_STORAGE_SCOPE,
+        );
+
+        let token1 = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+        assert_eq!(
+            token1.token.as_ref(),
+            &AzureCredential::BearerToken("FIRST_TOKEN".into())
+        );
+        // Token expiry should be very soon (1 second)
+        assert!(token1.expiry.is_some());
+
+        // Second call returns a new token
+        let _mock2 = server
+            .mock("POST", format!("/{tenant}/oauth2/v2.0/token").as_str())
+            .with_status(200)
+            .with_body(r#"{"access_token":"SECOND_TOKEN","expires_in":3600,"token_type":"Bearer"}"#)
+            .create_async()
+            .await;
+
+        let token2 = provider
+            .fetch_token(&client, &service, &retry_config)
+            .await
+            .unwrap();
+        assert_eq!(
+            token2.token.as_ref(),
+            &AzureCredential::BearerToken("SECOND_TOKEN".into())
+        );
+
+        _mock1.assert_async().await;
+        _mock2.assert_async().await;
+    }
 }

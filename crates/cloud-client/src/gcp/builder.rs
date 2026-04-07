@@ -25,7 +25,8 @@ use tokio::runtime::Handle;
 use crate::gcp::GoogleConfig;
 use crate::gcp::credential::GcpCredential;
 use crate::gcp::credential::{
-    ApplicationDefaultCredentials, InstanceCredentialProvider, ServiceAccountCredentials,
+    ApplicationDefaultCredentials, GcpWorkloadIdentityProvider, InstanceCredentialProvider,
+    ServiceAccountCredentials,
 };
 use crate::gcp::{GcpCredentialProvider, credential};
 use crate::service::make_service;
@@ -392,6 +393,23 @@ impl GoogleBuilder {
                         service,
                         self.retry_config.clone(),
                     )) as _
+                }
+                ApplicationDefaultCredentials::ExternalAccount(ext) => {
+                    let client = self.client_options.client()?;
+                    let service = make_service(client.clone(), runtime);
+                    let sts_endpoint = ext.token_url.clone();
+                    Arc::new(
+                        TokenCredentialProvider::new(
+                            GcpWorkloadIdentityProvider {
+                                credentials: ext,
+                                sts_endpoint,
+                            },
+                            client,
+                            service,
+                            self.retry_config.clone(),
+                        )
+                        .with_min_ttl(TOKEN_MIN_TTL),
+                    ) as _
                 }
             }
         } else {
