@@ -618,7 +618,7 @@ class Recipient:
     """Unique ID of the recipient."""
     name: str
     """The name of the recipient."""
-    owner: str
+    owner: Optional[str]
     """Username of the recipient owner."""
     properties: Dict[str, str]
     """A map of key-value properties attached to the securable."""
@@ -633,12 +633,12 @@ class Recipient:
         self,
         authentication_type: AuthenticationType,
         name: str,
-        owner: str,
         properties: Dict[str, str],
         comment: Optional[str] = None,
         created_at: Optional[int] = None,
         created_by: Optional[str] = None,
         id: Optional[str] = None,
+        owner: Optional[str] = None,
         tokens: Optional[List[RecipientToken]] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,

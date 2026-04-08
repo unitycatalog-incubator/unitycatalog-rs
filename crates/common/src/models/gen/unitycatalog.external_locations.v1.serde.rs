@@ -25,10 +25,7 @@ impl serde::Serialize for CreateExternalLocationRequest {
         if self.skip_validation.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.CreateExternalLocationRequest",
-            len,
-        )?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.CreateExternalLocationRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -88,10 +85,7 @@ impl<'de> serde::Deserialize<'de> for CreateExternalLocationRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -103,14 +97,10 @@ impl<'de> serde::Deserialize<'de> for CreateExternalLocationRequest {
                         match value {
                             "name" => Ok(GeneratedField::Name),
                             "url" => Ok(GeneratedField::Url),
-                            "credentialName" | "credential_name" => {
-                                Ok(GeneratedField::CredentialName)
-                            }
+                            "credentialName" | "credential_name" => Ok(GeneratedField::CredentialName),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
                             "comment" => Ok(GeneratedField::Comment),
-                            "skipValidation" | "skip_validation" => {
-                                Ok(GeneratedField::SkipValidation)
-                            }
+                            "skipValidation" | "skip_validation" => Ok(GeneratedField::SkipValidation),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -123,17 +113,12 @@ impl<'de> serde::Deserialize<'de> for CreateExternalLocationRequest {
             type Value = CreateExternalLocationRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(
-                    "struct unitycatalog.external_locations.v1.CreateExternalLocationRequest",
-                )
+                formatter.write_str("struct unitycatalog.external_locations.v1.CreateExternalLocationRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<CreateExternalLocationRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateExternalLocationRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut url__ = None;
@@ -194,11 +179,7 @@ impl<'de> serde::Deserialize<'de> for CreateExternalLocationRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.CreateExternalLocationRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.CreateExternalLocationRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for DeleteExternalLocationRequest {
@@ -215,10 +196,7 @@ impl serde::Serialize for DeleteExternalLocationRequest {
         if self.force.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.DeleteExternalLocationRequest",
-            len,
-        )?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.DeleteExternalLocationRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -234,7 +212,10 @@ impl<'de> serde::Deserialize<'de> for DeleteExternalLocationRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["name", "force"];
+        const FIELDS: &[&str] = &[
+            "name",
+            "force",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -252,10 +233,7 @@ impl<'de> serde::Deserialize<'de> for DeleteExternalLocationRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -279,17 +257,12 @@ impl<'de> serde::Deserialize<'de> for DeleteExternalLocationRequest {
             type Value = DeleteExternalLocationRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(
-                    "struct unitycatalog.external_locations.v1.DeleteExternalLocationRequest",
-                )
+                formatter.write_str("struct unitycatalog.external_locations.v1.DeleteExternalLocationRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<DeleteExternalLocationRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeleteExternalLocationRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut force__ = None;
@@ -318,11 +291,7 @@ impl<'de> serde::Deserialize<'de> for DeleteExternalLocationRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.DeleteExternalLocationRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.DeleteExternalLocationRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ExternalLocation {
@@ -372,8 +341,7 @@ impl serde::Serialize for ExternalLocation {
         if self.external_location_id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer
-            .serialize_struct("unitycatalog.external_locations.v1.ExternalLocation", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.ExternalLocation", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -478,10 +446,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocation {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -493,9 +458,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocation {
                         match value {
                             "name" => Ok(GeneratedField::Name),
                             "url" => Ok(GeneratedField::Url),
-                            "credentialName" | "credential_name" => {
-                                Ok(GeneratedField::CredentialName)
-                            }
+                            "credentialName" | "credential_name" => Ok(GeneratedField::CredentialName),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
                             "comment" => Ok(GeneratedField::Comment),
                             "owner" => Ok(GeneratedField::Owner),
@@ -505,9 +468,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocation {
                             "updatedAt" | "updated_at" => Ok(GeneratedField::UpdatedAt),
                             "updatedBy" | "updated_by" => Ok(GeneratedField::UpdatedBy),
                             "browseOnly" | "browse_only" => Ok(GeneratedField::BrowseOnly),
-                            "externalLocationId" | "external_location_id" => {
-                                Ok(GeneratedField::ExternalLocationId)
-                            }
+                            "externalLocationId" | "external_location_id" => Ok(GeneratedField::ExternalLocationId),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -524,8 +485,8 @@ impl<'de> serde::Deserialize<'de> for ExternalLocation {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ExternalLocation, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut url__ = None;
@@ -620,9 +581,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocation {
                         }
                         GeneratedField::ExternalLocationId => {
                             if external_location_id__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "externalLocationId",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("externalLocationId"));
                             }
                             external_location_id__ = map_.next_value()?;
                         }
@@ -648,11 +607,7 @@ impl<'de> serde::Deserialize<'de> for ExternalLocation {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.ExternalLocation",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.ExternalLocation", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetExternalLocationRequest {
@@ -666,10 +621,7 @@ impl serde::Serialize for GetExternalLocationRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.GetExternalLocationRequest",
-            len,
-        )?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.GetExternalLocationRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -682,7 +634,9 @@ impl<'de> serde::Deserialize<'de> for GetExternalLocationRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["name"];
+        const FIELDS: &[&str] = &[
+            "name",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -699,10 +653,7 @@ impl<'de> serde::Deserialize<'de> for GetExternalLocationRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -725,17 +676,12 @@ impl<'de> serde::Deserialize<'de> for GetExternalLocationRequest {
             type Value = GetExternalLocationRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(
-                    "struct unitycatalog.external_locations.v1.GetExternalLocationRequest",
-                )
+                formatter.write_str("struct unitycatalog.external_locations.v1.GetExternalLocationRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<GetExternalLocationRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetExternalLocationRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -756,11 +702,7 @@ impl<'de> serde::Deserialize<'de> for GetExternalLocationRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.GetExternalLocationRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.GetExternalLocationRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListExternalLocationsRequest {
@@ -780,10 +722,7 @@ impl serde::Serialize for ListExternalLocationsRequest {
         if self.include_browse.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.ListExternalLocationsRequest",
-            len,
-        )?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.ListExternalLocationsRequest", len)?;
         if let Some(v) = self.max_results.as_ref() {
             struct_ser.serialize_field("max_results", v)?;
         }
@@ -828,10 +767,7 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -856,17 +792,12 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsRequest {
             type Value = ListExternalLocationsRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(
-                    "struct unitycatalog.external_locations.v1.ListExternalLocationsRequest",
-                )
+                formatter.write_str("struct unitycatalog.external_locations.v1.ListExternalLocationsRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<ListExternalLocationsRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListExternalLocationsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut max_results__ = None;
                 let mut page_token__ = None;
@@ -905,11 +836,7 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.ListExternalLocationsRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.ListExternalLocationsRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListExternalLocationsResponse {
@@ -926,10 +853,7 @@ impl serde::Serialize for ListExternalLocationsResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.ListExternalLocationsResponse",
-            len,
-        )?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.ListExternalLocationsResponse", len)?;
         if !self.external_locations.is_empty() {
             struct_ser.serialize_field("external_locations", &self.external_locations)?;
         }
@@ -968,10 +892,7 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -981,12 +902,8 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsResponse {
                         E: serde::de::Error,
                     {
                         match value {
-                            "externalLocations" | "external_locations" => {
-                                Ok(GeneratedField::ExternalLocations)
-                            }
-                            "nextPageToken" | "next_page_token" => {
-                                Ok(GeneratedField::NextPageToken)
-                            }
+                            "externalLocations" | "external_locations" => Ok(GeneratedField::ExternalLocations),
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -999,17 +916,12 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsResponse {
             type Value = ListExternalLocationsResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(
-                    "struct unitycatalog.external_locations.v1.ListExternalLocationsResponse",
-                )
+                formatter.write_str("struct unitycatalog.external_locations.v1.ListExternalLocationsResponse")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<ListExternalLocationsResponse, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListExternalLocationsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut external_locations__ = None;
                 let mut next_page_token__ = None;
@@ -1038,11 +950,7 @@ impl<'de> serde::Deserialize<'de> for ListExternalLocationsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.ListExternalLocationsResponse",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.ListExternalLocationsResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for UpdateExternalLocationRequest {
@@ -1080,10 +988,7 @@ impl serde::Serialize for UpdateExternalLocationRequest {
         if self.skip_validation.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct(
-            "unitycatalog.external_locations.v1.UpdateExternalLocationRequest",
-            len,
-        )?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.external_locations.v1.UpdateExternalLocationRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1159,10 +1064,7 @@ impl<'de> serde::Deserialize<'de> for UpdateExternalLocationRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1174,17 +1076,13 @@ impl<'de> serde::Deserialize<'de> for UpdateExternalLocationRequest {
                         match value {
                             "name" => Ok(GeneratedField::Name),
                             "url" => Ok(GeneratedField::Url),
-                            "credentialName" | "credential_name" => {
-                                Ok(GeneratedField::CredentialName)
-                            }
+                            "credentialName" | "credential_name" => Ok(GeneratedField::CredentialName),
                             "readOnly" | "read_only" => Ok(GeneratedField::ReadOnly),
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "newName" | "new_name" => Ok(GeneratedField::NewName),
                             "force" => Ok(GeneratedField::Force),
-                            "skipValidation" | "skip_validation" => {
-                                Ok(GeneratedField::SkipValidation)
-                            }
+                            "skipValidation" | "skip_validation" => Ok(GeneratedField::SkipValidation),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1197,17 +1095,12 @@ impl<'de> serde::Deserialize<'de> for UpdateExternalLocationRequest {
             type Value = UpdateExternalLocationRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str(
-                    "struct unitycatalog.external_locations.v1.UpdateExternalLocationRequest",
-                )
+                formatter.write_str("struct unitycatalog.external_locations.v1.UpdateExternalLocationRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<UpdateExternalLocationRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateExternalLocationRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut url__ = None;
@@ -1292,10 +1185,6 @@ impl<'de> serde::Deserialize<'de> for UpdateExternalLocationRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.external_locations.v1.UpdateExternalLocationRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.external_locations.v1.UpdateExternalLocationRequest", FIELDS, GeneratedVisitor)
     }
 }

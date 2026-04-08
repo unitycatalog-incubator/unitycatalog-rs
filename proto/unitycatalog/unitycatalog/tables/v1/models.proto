@@ -3,6 +3,7 @@ syntax = "proto3";
 package unitycatalog.tables.v1;
 
 import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
@@ -84,40 +85,40 @@ message Column {
   };
 
   // Name of the column
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Full data type specification as SQL/catalogString text.
-  string type_text = 2;
+  string type_text = 2 [(google.api.field_behavior) = REQUIRED];
 
   // Full data type specification, JSON-serialized.
-  string type_json = 3;
+  string type_json = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Ordinal position of column (starting at position 0).
-  optional int32 position = 4;
+  optional int32 position = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Data type name.
-  ColumnTypeName type_name = 5;
+  ColumnTypeName type_name = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Digits of precision; required for DecimalTypes.
-  optional int32 type_precision = 6;
+  optional int32 type_precision = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Digits to right of decimal; Required for DecimalTypes.
-  optional int32 type_scale = 7;
+  optional int32 type_scale = 7 [(google.api.field_behavior) = OPTIONAL];
 
   // Format of IntervalType.
-  optional string type_interval_type = 8;
+  optional string type_interval_type = 8 [(google.api.field_behavior) = OPTIONAL];
 
   // User-provided free-form text description.
-  optional string comment = 9;
+  optional string comment = 9 [(google.api.field_behavior) = OPTIONAL];
 
   // Whether field may be Null.
-  optional bool nullable = 10;
+  optional bool nullable = 10 [(google.api.field_behavior) = OPTIONAL];
 
   // Partition index for column.
-  optional int32 partition_index = 11;
+  optional int32 partition_index = 11 [(google.api.field_behavior) = OPTIONAL];
 
   // a unique id for the column
-  optional string column_id = 12;
+  optional string column_id = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message Table {
@@ -131,31 +132,34 @@ message Table {
   // Name of table, relative to parent schema.
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
-    (buf.validate.field).string.min_len = 3
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
   ];
 
   // Name of parent catalog.
   string catalog_name = 2 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
-    (buf.validate.field).string.min_len = 3
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
   ];
 
   // Name of parent schema.
   string schema_name = 3 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
-    (buf.validate.field).string.min_len = 3
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
   ];
 
-  TableType table_type = 4;
+  TableType table_type = 4 [(google.api.field_behavior) = REQUIRED];
 
   // Data source format of the table.
-  DataSourceFormat data_source_format = 5;
+  DataSourceFormat data_source_format = 5 [(google.api.field_behavior) = REQUIRED];
 
   // The array of Column definitions of the table's columns.
-  repeated Column columns = 6;
+  repeated Column columns = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Storage root URL for table (for MANAGED, EXTERNAL tables)
-  optional string storage_location = 7;
+  optional string storage_location = 7 [(google.api.field_behavior) = OPTIONAL];
 
   // View definition SQL (when table_type is VIEW, MATERIALIZED_VIEW, or STREAMING_TABLE)
   // optional string view_definition = 8;
@@ -165,16 +169,16 @@ message Table {
   // optional string sql_path = 10;
 
   // Username of current owner of table.
-  optional string owner = 11;
+  optional string owner = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // User-provided free-form text description.
-  optional string comment = 12;
+  optional string comment = 12 [(google.api.field_behavior) = OPTIONAL];
 
   // A map of key-value properties attached to the securable.
   map<string, string> properties = 13;
 
   // Name of the storage credential, when a storage credential is configured for use with this table.
-  optional string storage_credential_name = 14;
+  optional string storage_credential_name = 14 [(google.api.field_behavior) = OPTIONAL];
 
   // List of table constraints. Note: this field is not set in the output of the listTables API.
   // repeated TableConstraint constraints = 15;
@@ -182,23 +186,26 @@ message Table {
   // optional string row_filter = 16;
 
   // Full name of table, in form of catalog_name.schema_name.table_name.
-  string full_name = 17 [(buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$"];
+  string full_name = 17 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   // Time at which this table was created, in epoch milliseconds.
-  optional int64 created_at = 18;
+  optional int64 created_at = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of table creator.
-  optional string created_by = 19;
+  optional string created_by = 19 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this table was last updated, in epoch milliseconds.
-  optional int64 updated_at = 20;
+  optional int64 updated_at = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of user who last modified table.
-  optional string updated_by = 21;
+  optional string updated_by = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted.
-  optional int64 deleted_at = 22;
+  optional int64 deleted_at = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Unique identifier for the table.
-  optional string table_id = 23;
+  optional string table_id = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

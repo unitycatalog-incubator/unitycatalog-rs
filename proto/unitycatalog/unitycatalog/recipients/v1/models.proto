@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package unitycatalog.recipients.v1;
 
+import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/struct.proto";
 
@@ -18,25 +19,25 @@ enum AuthenticationType {
 
 message RecipientToken {
   // Unique ID of the recipient token.
-  string id = 1;
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this recipient token was created, in epoch milliseconds.
-  int64 created_at = 2;
+  int64 created_at = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of recipient token creator.
-  string created_by = 3;
+  string created_by = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.
-  string activation_url = 4;
+  string activation_url = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Expiration timestamp of the token in epoch milliseconds.
-  int64 expiration_time = 5;
+  int64 expiration_time = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Time at which this recipient token was updated, in epoch milliseconds.
-  int64 updated_at = 6;
+  int64 updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of recipient token updater.
-  string updated_by = 7;
+  string updated_by = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message Recipient {
@@ -48,35 +49,35 @@ message Recipient {
   };
 
   // Unique ID of the recipient.
-  optional string id = 100;
+  optional string id = 100 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The name of the recipient.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // The delta sharing authentication type.
-  AuthenticationType authentication_type = 2;
+  AuthenticationType authentication_type = 2 [(google.api.field_behavior) = REQUIRED];
 
   // Username of the recipient owner.
-  string owner = 3;
+  optional string owner = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Description about the recipient.
-  optional string comment = 4;
+  optional string comment = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // A map of key-value properties attached to the securable.
   map<string, string> properties = 6;
 
   // Time at which this share was created, in epoch milliseconds.
-  optional int64 created_at = 7;
+  optional int64 created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of the creator of the share.
-  optional string created_by = 8;
+  optional string created_by = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // This field is only present when the authentication_type is TOKEN.
-  repeated RecipientToken tokens = 9;
+  repeated RecipientToken tokens = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this share was updated, in epoch milliseconds.
-  optional int64 updated_at = 10;
+  optional int64 updated_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of share updater.
-  optional string updated_by = 11;
+  optional string updated_by = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

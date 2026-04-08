@@ -1784,12 +1784,15 @@ components:
         - sas_token
       title: Azure User Delegation Sas
     Catalog:
+      required:
+        - name
       type: object
       properties:
         name:
           type: string
           description: Name of catalog.
         id:
+          readOnly: true
           type: string
           description: Unique identifier for the catalog.
         owner:
@@ -1820,18 +1823,23 @@ components:
           description: The type of the catalog.
           format: enum
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this catalog was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of catalog creator.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this catalog was last updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of user who last modified catalog.
         browseOnly:
+          readOnly: true
           type: boolean
           description: |-
             Indicates whether the principal is limited to retrieving metadata
@@ -1839,10 +1847,13 @@ components:
              is enabled in the request.
       description: A catalog is a root-level namespace that contains schemas.
       additionalProperties: false
-      required:
-        - name
       title: Catalog
     Column:
+      required:
+        - name
+        - type_text
+        - type_json
+        - type_name
       type: object
       properties:
         name:
@@ -1886,14 +1897,10 @@ components:
           description: Partition index for column.
           format: int32
         columnId:
+          readOnly: true
           type: string
           description: a unique id for the column
       additionalProperties: false
-      required:
-        - name
-        - type_text
-        - type_json
-        - type_name
       title: Column
     CreateCatalogRequest:
       required:
@@ -2255,6 +2262,11 @@ components:
       additionalProperties: false
       title: Create Volume Request
     Credential:
+      required:
+        - name
+        - purpose
+        - read_only
+        - used_for_managed_storage
       type: object
       properties:
         name:
@@ -2262,6 +2274,7 @@ components:
           description: The name must be unique among storage and service credentials within the metastore.
           title: The credential name.
         id:
+          readOnly: true
           type: string
           description: The unique identifier of the credential.
         purpose:
@@ -2286,24 +2299,30 @@ components:
           type: string
           description: Username of current owner of credential.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this credential was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of credential creator.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this credential was last modified, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of user who last modified the credential.
         usedForManagedStorage:
+          readOnly: true
           type: boolean
           description: |-
             Whether this credential is the current metastore's root storage credential.
 
              Only applicable when purpose is STORAGE.
         fullName:
+          readOnly: true
           type: string
           description: The full name of the credential.
         azureServicePrincipal:
@@ -2328,13 +2347,11 @@ components:
           description: The Databricks managed GCP service account configuration.
       description: A credential used to access external data sources or services.
       additionalProperties: false
-      required:
-        - name
-        - purpose
-        - read_only
-        - used_for_managed_storage
       title: Credential
     DataObject:
+      required:
+        - name
+        - data_object_type
       type: object
       properties:
         name:
@@ -2346,9 +2363,11 @@ components:
           description: Type of the data object.
           format: enum
         addedAt:
+          readOnly: true
           type: string
           description: The time when this data object is added to the share, in epoch milliseconds.
         addedBy:
+          readOnly: true
           type: string
           description: Username of the sharer.
         comment:
@@ -2385,9 +2404,6 @@ components:
 
              NOTE: The start_version should be <= the current version of the object.
       additionalProperties: false
-      required:
-        - name
-        - data_object_type
       title: Data Object
     DataObjectUpdate:
       required:
@@ -2461,6 +2477,12 @@ components:
             $ref: "#/components/schemas/NamedAny"
       description: Allows referencing an external resource for extended documentation.
     ExternalLocation:
+      required:
+        - name
+        - url
+        - credential_name
+        - read_only
+        - credential_id
       type: object
       properties:
         name:
@@ -2482,36 +2504,50 @@ components:
           type: string
           description: The owner of the external location.
         credentialId:
+          readOnly: true
           type: string
           description: Unique ID of the location's storage credential.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this catalog was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of catalog creator.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this catalog was last updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of user who last modified catalog.
         browseOnly:
+          readOnly: true
           type: boolean
           description: |-
             Indicates whether the principal is limited to retrieving metadata
              for the associated object through the BROWSE privilege when include_browse is enabled in the request.
         externalLocationId:
+          readOnly: true
           type: string
       additionalProperties: false
-      required:
-        - name
-        - url
-        - credential_name
-        - read_only
-        - credential_id
       title: External Location
     Function:
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - full_name
+        - data_type
+        - full_data_type
+        - parameter_style
+        - is_deterministic
+        - sql_data_access
+        - is_null_call
+        - security_type
+        - routine_body
       type: object
       properties:
         name:
@@ -2526,6 +2562,7 @@ components:
           type: string
           description: Name of parent schema.
         fullName:
+          readOnly: true
           type: string
           description: |-
             The three-level (fully qualified) name of the function.
@@ -2590,35 +2627,27 @@ components:
           type: string
           description: Username of current owner of the function.
         functionId:
+          readOnly: true
           type: string
           description: Unique identifier for the function.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this function was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of function creator.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this function was last updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of user who last modified the function.
       description: A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
       additionalProperties: false
-      required:
-        - name
-        - catalog_name
-        - schema_name
-        - full_name
-        - data_type
-        - full_data_type
-        - parameter_style
-        - is_deterministic
-        - sql_data_access
-        - is_null_call
-        - security_type
-        - routine_body
       title: Function
     FunctionParameterInfo:
       required:
@@ -2892,7 +2921,6 @@ components:
             required:
               - name
               - authentication_type
-              - owner
             title: Recipient
           description: List of recipients.
         nextPageToken:
@@ -3103,9 +3131,13 @@ components:
         - session_token
       title: R2 Temporary Credentials
     Recipient:
+      required:
+        - name
+        - authentication_type
       type: object
       properties:
         id:
+          readOnly: true
           type: string
           description: Unique ID of the recipient.
         name:
@@ -3127,12 +3159,15 @@ components:
             type: string
           description: A map of key-value properties attached to the securable.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this share was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of the creator of the share.
         tokens:
+          readOnly: true
           type: array
           items:
             $ref: "#/components/schemas/RecipientToken"
@@ -3148,42 +3183,16 @@ components:
             title: Recipient Token
           description: This field is only present when the authentication_type is TOKEN.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this share was updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of share updater.
       additionalProperties: false
-      required:
-        - name
-        - authentication_type
-        - owner
       title: Recipient
     RecipientToken:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique ID of the recipient token.
-        createdAt:
-          type: string
-          description: Time at which this recipient token was created, in epoch milliseconds.
-        createdBy:
-          type: string
-          description: Username of recipient token creator.
-        activationUrl:
-          type: string
-          description: Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.
-        expirationTime:
-          type: string
-          description: Expiration timestamp of the token in epoch milliseconds.
-        updatedAt:
-          type: string
-          description: Time at which this recipient token was updated, in epoch milliseconds.
-        updatedBy:
-          type: string
-          description: Username of recipient token updater.
-      additionalProperties: false
       required:
         - id
         - created_at
@@ -3192,6 +3201,36 @@ components:
         - expiration_time
         - updated_at
         - updated_by
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: Unique ID of the recipient token.
+        createdAt:
+          readOnly: true
+          type: string
+          description: Time at which this recipient token was created, in epoch milliseconds.
+        createdBy:
+          readOnly: true
+          type: string
+          description: Username of recipient token creator.
+        activationUrl:
+          readOnly: true
+          type: string
+          description: Full activation URL to retrieve the access token. It will be empty if the token is already retrieved.
+        expirationTime:
+          type: string
+          description: Expiration timestamp of the token in epoch milliseconds.
+        updatedAt:
+          readOnly: true
+          type: string
+          description: Time at which this recipient token was updated, in epoch milliseconds.
+        updatedBy:
+          readOnly: true
+          type: string
+          description: Username of recipient token updater.
+      additionalProperties: false
       title: Recipient Token
     Reference:
       type: object
@@ -3311,9 +3350,12 @@ components:
         reference:
           $ref: "#/components/schemas/Reference"
     Share:
+      required:
+        - name
       type: object
       properties:
         id:
+          readOnly: true
           type: string
           description: Unique ID of the recipient.
         name:
@@ -3337,26 +3379,30 @@ components:
           type: string
           description: User-provided free-form text description.
         storageLocation:
+          readOnly: true
           type: string
           description: Storage Location URL (full path) for the share.
         storageRoot:
+          readOnly: true
           type: string
           description: Storage root URL for the share.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this share was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of the creator of the share.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this share was updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of share updater.
       additionalProperties: false
-      required:
-        - name
       description: |-
         A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.
          A recipient can access all resources in a share. A share may contain multiple schemas.
@@ -3385,6 +3431,13 @@ components:
           items:
             $ref: "#/components/schemas/NamedString"
     Table:
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - table_type
+        - data_source_format
+        - full_name
       type: object
       properties:
         name:
@@ -3422,6 +3475,7 @@ components:
           type: string
           description: Storage root URL for table (for MANAGED, EXTERNAL tables)
         owner:
+          readOnly: true
           type: string
           description: Username of current owner of table.
         comment:
@@ -3436,34 +3490,34 @@ components:
           type: string
           description: Name of the storage credential, when a storage credential is configured for use with this table.
         fullName:
+          readOnly: true
           type: string
           description: Full name of table, in form of catalog_name.schema_name.table_name.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this table was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of table creator.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this table was last updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of user who last modified table.
         deletedAt:
+          readOnly: true
           type: string
           description: Time at which this table was deleted, in epoch milliseconds. Field is omitted if table is not deleted.
         tableId:
+          readOnly: true
           type: string
           description: Unique identifier for the table.
       additionalProperties: false
-      required:
-        - name
-        - catalog_name
-        - schema_name
-        - table_type
-        - data_source_format
-        - full_name
       description: A table is a Delta Lake table or a view on top of a Delta Lake table.
       title: Table
     TableSummary:
@@ -3754,6 +3808,14 @@ components:
       additionalProperties: false
       title: Update Volume Request
     Volume:
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - full_name
+        - storage_location
+        - volume_id
+        - volume_type
       type: object
       properties:
         name:
@@ -3768,12 +3830,14 @@ components:
           type: string
           description: Name of parent schema.
         fullName:
+          readOnly: true
           type: string
           description: The three-level (fully qualified) name of the volume
         storageLocation:
           type: string
           description: The storage location on the cloud
         volumeId:
+          readOnly: true
           type: string
           description: The unique identifier of the volume
         volumeType:
@@ -3786,41 +3850,40 @@ components:
              by the parent schema, or the parent catalog, or the Metastore.
           format: enum
         owner:
+          readOnly: true
           type: string
           description: Username of current owner of table.
         comment:
           type: string
           description: User-provided free-form text description.
         createdAt:
+          readOnly: true
           type: string
           description: Time at which this catalog was created, in epoch milliseconds.
         createdBy:
+          readOnly: true
           type: string
           description: Username of catalog creator.
         updatedAt:
+          readOnly: true
           type: string
           description: Time at which this catalog was last updated, in epoch milliseconds.
         updatedBy:
+          readOnly: true
           type: string
           description: Username of user who last modified catalog.
         browseOnly:
+          readOnly: true
           type: boolean
           description: |-
             Indicates whether the principal is limited to retrieving metadata
              for the associated object through the BROWSE privilege when include_browse
              is enabled in the request.
         metastoreId:
+          readOnly: true
           type: string
           description: The unique identifier of the metastore
       additionalProperties: false
-      required:
-        - name
-        - catalog_name
-        - schema_name
-        - full_name
-        - storage_location
-        - volume_id
-        - volume_type
       title: Volume
     Xml:
       type: object

@@ -104,7 +104,7 @@ impl<T: ResourceStore + Policy<RequestContext>> RecipientHandler<RequestContext>
         // a dedicated token-management service is wired into the handler context.
         let updated = Recipient {
             name: request.new_name.unwrap_or(request.name),
-            owner: request.owner.unwrap_or(current.owner),
+            owner: request.owner.or(current.owner),
             comment: request.comment.or(current.comment),
             properties: if request.properties.is_empty() {
                 current.properties

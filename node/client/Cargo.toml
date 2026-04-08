@@ -9,7 +9,7 @@ crate-type = ["cdylib"]
 [dependencies]
 cloud-client = { path = "../../crates/cloud-client" }
 unitycatalog-client = { path = "../../crates/client" }
-unitycatalog-common = { path = "../../crates/common", features = ["napi"] }
+unitycatalog-common = { path = "../../crates/common", features = ["node"] }
 
 napi = { workspace = true }
 napi-derive = { workspace = true }

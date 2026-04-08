@@ -142,22 +142,22 @@ message CreateTableRequest {
 // Get a table
 message GetTableRequest {
   // Full name of the table.
-  string full_name = 1;
+  string full_name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Whether delta metadata should be included in the response.
-  optional bool include_delta_metadata = 2;
+  optional bool include_delta_metadata = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // Whether to include tables in the response for which the principal can only access selective metadata for
-  optional bool include_browse = 3;
+  optional bool include_browse = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Whether to include a manifest containing capabilities the table has.
-  optional bool include_manifest_capabilities = 4;
+  optional bool include_manifest_capabilities = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Get boolean reflecting if table exists
 message GetTableExistsRequest {
   // Full name of the table.
-  string full_name = 1;
+  string full_name = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message GetTableExistsResponse {
@@ -168,7 +168,7 @@ message GetTableExistsResponse {
 // Delete a table
 message DeleteTableRequest {
   // Full name of the table.
-  string full_name = 1;
+  string full_name = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Service for managing tables in Unity Catalog.

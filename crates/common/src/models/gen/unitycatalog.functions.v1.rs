@@ -6,40 +6,40 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FunctionParameterInfo {
     /// Name of parameter.
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
     /// Full data type specification as SQL/catalogString text.
-    #[prost(string, tag = "2")]
+    #[prost(string, tag="2")]
     pub type_text: ::prost::alloc::string::String,
     /// Full data type specification, JSON-serialized.
-    #[prost(string, optional, tag = "3")]
+    #[prost(string, optional, tag="3")]
     pub type_json: ::core::option::Option<::prost::alloc::string::String>,
     /// Data type name.
-    #[prost(enumeration = "super::super::tables::v1::ColumnTypeName", tag = "4")]
+    #[prost(enumeration="super::super::tables::v1::ColumnTypeName", tag="4")]
     pub type_name: i32,
     /// Digits of precision; required for DecimalTypes.
-    #[prost(int32, optional, tag = "5")]
+    #[prost(int32, optional, tag="5")]
     pub type_precision: ::core::option::Option<i32>,
     /// Digits to right of decimal; required for DecimalTypes.
-    #[prost(int32, optional, tag = "6")]
+    #[prost(int32, optional, tag="6")]
     pub type_scale: ::core::option::Option<i32>,
     /// Format of IntervalType.
-    #[prost(string, optional, tag = "7")]
+    #[prost(string, optional, tag="7")]
     pub type_interval_type: ::core::option::Option<::prost::alloc::string::String>,
     /// Ordinal position of column (starting at position 0).
-    #[prost(int32, optional, tag = "8")]
+    #[prost(int32, optional, tag="8")]
     pub position: ::core::option::Option<i32>,
     /// The mode of the function parameter.
-    #[prost(enumeration = "ParameterMode", tag = "9")]
+    #[prost(enumeration="ParameterMode", tag="9")]
     pub parameter_mode: i32,
     /// The type of function parameter.
-    #[prost(enumeration = "FunctionParameterType", tag = "10")]
+    #[prost(enumeration="FunctionParameterType", tag="10")]
     pub parameter_type: i32,
     /// Default value of the parameter.
-    #[prost(string, optional, tag = "11")]
+    #[prost(string, optional, tag="11")]
     pub parameter_default: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag = "12")]
+    #[prost(string, optional, tag="12")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// A collection of function parameters.
@@ -48,7 +48,7 @@ pub struct FunctionParameterInfo {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FunctionParameterInfos {
     /// The parameters of the function.
-    #[prost(message, repeated, tag = "1")]
+    #[prost(message, repeated, tag="1")]
     pub parameters: ::prost::alloc::vec::Vec<FunctionParameterInfo>,
 }
 /// A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
@@ -57,85 +57,84 @@ pub struct FunctionParameterInfos {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Function {
     /// Name of function, relative to parent schema.
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
     /// Name of parent catalog.
-    #[prost(string, tag = "2")]
+    #[prost(string, tag="2")]
     pub catalog_name: ::prost::alloc::string::String,
     /// Name of parent schema.
-    #[prost(string, tag = "3")]
+    #[prost(string, tag="3")]
     pub schema_name: ::prost::alloc::string::String,
     /// The three-level (fully qualified) name of the function.
     ///
     /// Format: catalog_name.schema_name.function_name
-    #[prost(string, tag = "4")]
+    #[prost(string, tag="4")]
     pub full_name: ::prost::alloc::string::String,
     /// Full data type specification of the return type of the function.
-    #[prost(string, tag = "5")]
+    #[prost(string, tag="5")]
     pub data_type: ::prost::alloc::string::String,
     /// Full data type specification as SQL/catalogString text.
-    #[prost(string, tag = "6")]
+    #[prost(string, tag="6")]
     pub full_data_type: ::prost::alloc::string::String,
     /// The array of function parameter infos.
-    #[prost(message, optional, tag = "7")]
+    #[prost(message, optional, tag="7")]
     pub input_params: ::core::option::Option<FunctionParameterInfos>,
     /// The return type of the function in JSON format.
-    #[prost(string, optional, tag = "8")]
+    #[prost(string, optional, tag="8")]
     pub return_params: ::core::option::Option<::prost::alloc::string::String>,
     /// The language of the function routine body.
-    #[prost(string, optional, tag = "9")]
+    #[prost(string, optional, tag="9")]
     pub routine_body_language: ::core::option::Option<::prost::alloc::string::String>,
     /// Function body.
-    #[prost(string, optional, tag = "10")]
+    #[prost(string, optional, tag="10")]
     pub routine_definition: ::core::option::Option<::prost::alloc::string::String>,
     /// Function dependencies (in JSON form).
-    #[prost(string, optional, tag = "11")]
+    #[prost(string, optional, tag="11")]
     pub routine_dependencies: ::core::option::Option<::prost::alloc::string::String>,
     /// The parameter-passing style.
-    #[prost(enumeration = "ParameterStyle", tag = "12")]
+    #[prost(enumeration="ParameterStyle", tag="12")]
     pub parameter_style: i32,
     /// Indicates whether the function is deterministic.
-    #[prost(bool, tag = "13")]
+    #[prost(bool, tag="13")]
     pub is_deterministic: bool,
     /// SQL data access information.
-    #[prost(enumeration = "SqlDataAccess", tag = "14")]
+    #[prost(enumeration="SqlDataAccess", tag="14")]
     pub sql_data_access: i32,
     /// Indicates whether the function is null-calling.
-    #[prost(bool, tag = "15")]
+    #[prost(bool, tag="15")]
     pub is_null_call: bool,
     /// The security type of the function.
-    #[prost(enumeration = "SecurityType", tag = "16")]
+    #[prost(enumeration="SecurityType", tag="16")]
     pub security_type: i32,
     /// The type of the function (SCALAR or TABLE).
-    #[prost(string, optional, tag = "17")]
+    #[prost(string, optional, tag="17")]
     pub specific_name: ::core::option::Option<::prost::alloc::string::String>,
     /// The routine body.
-    #[prost(enumeration = "RoutineBody", tag = "18")]
+    #[prost(enumeration="RoutineBody", tag="18")]
     pub routine_body: i32,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag = "19")]
+    #[prost(string, optional, tag="19")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(map = "string, string", tag = "20")]
-    pub properties:
-        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map="string, string", tag="20")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
     /// Username of current owner of the function.
-    #[prost(string, optional, tag = "21")]
+    #[prost(string, optional, tag="21")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
     /// Unique identifier for the function.
-    #[prost(string, optional, tag = "22")]
+    #[prost(string, optional, tag="22")]
     pub function_id: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this function was created, in epoch milliseconds.
-    #[prost(int64, optional, tag = "1000")]
+    #[prost(int64, optional, tag="1000")]
     pub created_at: ::core::option::Option<i64>,
     /// Username of function creator.
-    #[prost(string, optional, tag = "1001")]
+    #[prost(string, optional, tag="1001")]
     pub created_by: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this function was last updated, in epoch milliseconds.
-    #[prost(int64, optional, tag = "1002")]
+    #[prost(int64, optional, tag="1002")]
     pub updated_at: ::core::option::Option<i64>,
     /// Username of user who last modified the function.
-    #[prost(string, optional, tag = "1003")]
+    #[prost(string, optional, tag="1003")]
     pub updated_by: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Determines whether the function body is interpreted as SQL or as an external function.
@@ -334,19 +333,19 @@ impl FunctionParameterType {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListFunctionsRequest {
     /// Name of parent catalog for functions of interest.
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub catalog_name: ::prost::alloc::string::String,
     /// Parent schema of functions.
-    #[prost(string, tag = "2")]
+    #[prost(string, tag="2")]
     pub schema_name: ::prost::alloc::string::String,
     /// The maximum number of results per page that should be returned.
-    #[prost(int32, optional, tag = "3")]
+    #[prost(int32, optional, tag="3")]
     pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
-    #[prost(string, optional, tag = "4")]
+    #[prost(string, optional, tag="4")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
     /// Whether to include functions in the response for which the principal can only access selective metadata for.
-    #[prost(bool, optional, tag = "5")]
+    #[prost(bool, optional, tag="5")]
     pub include_browse: ::core::option::Option<bool>,
 }
 /// List functions response.
@@ -355,10 +354,10 @@ pub struct ListFunctionsRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListFunctionsResponse {
     /// The functions returned.
-    #[prost(message, repeated, tag = "1")]
+    #[prost(message, repeated, tag="1")]
     pub functions: ::prost::alloc::vec::Vec<Function>,
     /// The next_page_token value to include in the next List request.
-    #[prost(string, optional, tag = "2")]
+    #[prost(string, optional, tag="2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Create a new function
@@ -367,54 +366,53 @@ pub struct ListFunctionsResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateFunctionRequest {
     /// Name of function, relative to parent schema.
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
     /// Name of parent catalog.
-    #[prost(string, tag = "2")]
+    #[prost(string, tag="2")]
     pub catalog_name: ::prost::alloc::string::String,
     /// Name of parent schema.
-    #[prost(string, tag = "3")]
+    #[prost(string, tag="3")]
     pub schema_name: ::prost::alloc::string::String,
     /// Full data type specification of the return type of the function.
-    #[prost(string, tag = "4")]
+    #[prost(string, tag="4")]
     pub data_type: ::prost::alloc::string::String,
     /// Full data type specification as SQL/catalogString text.
-    #[prost(string, tag = "5")]
+    #[prost(string, tag="5")]
     pub full_data_type: ::prost::alloc::string::String,
     /// The array of function parameter infos.
-    #[prost(message, optional, tag = "6")]
+    #[prost(message, optional, tag="6")]
     pub input_params: ::core::option::Option<FunctionParameterInfos>,
     /// The parameter-passing style.
-    #[prost(enumeration = "ParameterStyle", tag = "7")]
+    #[prost(enumeration="ParameterStyle", tag="7")]
     pub parameter_style: i32,
     /// Indicates whether the function is deterministic.
-    #[prost(bool, tag = "8")]
+    #[prost(bool, tag="8")]
     pub is_deterministic: bool,
     /// SQL data access information.
-    #[prost(enumeration = "SqlDataAccess", tag = "9")]
+    #[prost(enumeration="SqlDataAccess", tag="9")]
     pub sql_data_access: i32,
     /// Indicates whether the function is null-calling.
-    #[prost(bool, tag = "10")]
+    #[prost(bool, tag="10")]
     pub is_null_call: bool,
     /// The security type of the function.
-    #[prost(enumeration = "SecurityType", tag = "11")]
+    #[prost(enumeration="SecurityType", tag="11")]
     pub security_type: i32,
     /// The routine body.
-    #[prost(enumeration = "RoutineBody", tag = "12")]
+    #[prost(enumeration="RoutineBody", tag="12")]
     pub routine_body: i32,
     /// Function body.
-    #[prost(string, optional, tag = "13")]
+    #[prost(string, optional, tag="13")]
     pub routine_definition: ::core::option::Option<::prost::alloc::string::String>,
     /// The language of the function routine body.
-    #[prost(string, optional, tag = "14")]
+    #[prost(string, optional, tag="14")]
     pub routine_body_language: ::core::option::Option<::prost::alloc::string::String>,
     /// User-provided free-form text description.
-    #[prost(string, optional, tag = "15")]
+    #[prost(string, optional, tag="15")]
     pub comment: ::core::option::Option<::prost::alloc::string::String>,
     /// A map of key-value properties attached to the securable.
-    #[prost(map = "string, string", tag = "16")]
-    pub properties:
-        ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    #[prost(map="string, string", tag="16")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Get a function
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -422,7 +420,7 @@ pub struct CreateFunctionRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetFunctionRequest {
     /// The fully-qualified name of the function (three-level name: catalog.schema.function).
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
 }
 /// Update a function
@@ -431,10 +429,10 @@ pub struct GetFunctionRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateFunctionRequest {
     /// The fully-qualified name of the function (three-level name: catalog.schema.function).
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
     /// Username of new owner of the function.
-    #[prost(string, optional, tag = "2")]
+    #[prost(string, optional, tag="2")]
     pub owner: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Delete a function
@@ -443,10 +441,10 @@ pub struct UpdateFunctionRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteFunctionRequest {
     /// The fully-qualified name of the function (three-level name: catalog.schema.function).
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
     /// Force deletion even if the function is not empty.
-    #[prost(bool, optional, tag = "2")]
+    #[prost(bool, optional, tag="2")]
     pub force: ::core::option::Option<bool>,
 }
 include!("unitycatalog.functions.v1.serde.rs");

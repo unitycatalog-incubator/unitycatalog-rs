@@ -8,55 +8,58 @@ pub mod functions_service_server {
     pub trait FunctionsService: Send + Sync + 'static {
         /** List functions
 
-         List functions within the specified parent catalog and schema. If the caller is the metastore
-         admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
-         on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
-         owned by the caller or have SELECT on the function.
-        */
+ List functions within the specified parent catalog and schema. If the caller is the metastore
+ admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
+ on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
+ owned by the caller or have SELECT on the function.
+*/
         async fn list_functions(
             &self,
             request: tonic::Request<super::ListFunctionsRequest>,
-        ) -> std::result::Result<tonic::Response<super::ListFunctionsResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ListFunctionsResponse>,
+            tonic::Status,
+        >;
         /** Create a function
 
-         Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
-         privilege on the parent catalog and schema.
-        */
+ Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
+ privilege on the parent catalog and schema.
+*/
         async fn create_function(
             &self,
             request: tonic::Request<super::CreateFunctionRequest>,
         ) -> std::result::Result<tonic::Response<super::Function>, tonic::Status>;
         /** Get a function
 
-         Gets a function from within a parent catalog and schema. For the fetch to succeed,
-         the caller must be a metastore admin, the owner of the function, or have SELECT on
-         the function.
-        */
+ Gets a function from within a parent catalog and schema. For the fetch to succeed,
+ the caller must be a metastore admin, the owner of the function, or have SELECT on
+ the function.
+*/
         async fn get_function(
             &self,
             request: tonic::Request<super::GetFunctionRequest>,
         ) -> std::result::Result<tonic::Response<super::Function>, tonic::Status>;
         /** Update a function
 
-         Updates the function that matches the supplied name. Only the owner of the function
-         can be updated.
-        */
+ Updates the function that matches the supplied name. Only the owner of the function
+ can be updated.
+*/
         async fn update_function(
             &self,
             request: tonic::Request<super::UpdateFunctionRequest>,
         ) -> std::result::Result<tonic::Response<super::Function>, tonic::Status>;
         /** Delete a function
 
-         Deletes the function that matches the supplied name. For the deletion to succeed,
-         the caller must be the owner of the function.
-        */
+ Deletes the function that matches the supplied name. For the deletion to succeed,
+ the caller must be the owner of the function.
+*/
         async fn delete_function(
             &self,
             request: tonic::Request<super::DeleteFunctionRequest>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     /** Manage User-Defined Functions (UDFs) in the service.
-     */
+*/
     #[derive(Debug)]
     pub struct FunctionsServiceServer<T: FunctionsService> {
         inner: Arc<T>,
@@ -78,7 +81,10 @@ pub mod functions_service_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -133,19 +139,23 @@ pub mod functions_service_server {
                 "/unitycatalog.functions.v1.FunctionsService/ListFunctions" => {
                     #[allow(non_camel_case_types)]
                     struct ListFunctionsSvc<T: FunctionsService>(pub Arc<T>);
-                    impl<T: FunctionsService>
-                        tonic::server::UnaryService<super::ListFunctionsRequest>
-                        for ListFunctionsSvc<T>
-                    {
+                    impl<
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::ListFunctionsRequest>
+                    for ListFunctionsSvc<T> {
                         type Response = super::ListFunctionsResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ListFunctionsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as FunctionsService>::list_functions(&inner, request).await
+                                <T as FunctionsService>::list_functions(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -175,19 +185,23 @@ pub mod functions_service_server {
                 "/unitycatalog.functions.v1.FunctionsService/CreateFunction" => {
                     #[allow(non_camel_case_types)]
                     struct CreateFunctionSvc<T: FunctionsService>(pub Arc<T>);
-                    impl<T: FunctionsService>
-                        tonic::server::UnaryService<super::CreateFunctionRequest>
-                        for CreateFunctionSvc<T>
-                    {
+                    impl<
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::CreateFunctionRequest>
+                    for CreateFunctionSvc<T> {
                         type Response = super::Function;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::CreateFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as FunctionsService>::create_function(&inner, request).await
+                                <T as FunctionsService>::create_function(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -217,11 +231,15 @@ pub mod functions_service_server {
                 "/unitycatalog.functions.v1.FunctionsService/GetFunction" => {
                     #[allow(non_camel_case_types)]
                     struct GetFunctionSvc<T: FunctionsService>(pub Arc<T>);
-                    impl<T: FunctionsService> tonic::server::UnaryService<super::GetFunctionRequest>
-                        for GetFunctionSvc<T>
-                    {
+                    impl<
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::GetFunctionRequest>
+                    for GetFunctionSvc<T> {
                         type Response = super::Function;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetFunctionRequest>,
@@ -258,19 +276,23 @@ pub mod functions_service_server {
                 "/unitycatalog.functions.v1.FunctionsService/UpdateFunction" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateFunctionSvc<T: FunctionsService>(pub Arc<T>);
-                    impl<T: FunctionsService>
-                        tonic::server::UnaryService<super::UpdateFunctionRequest>
-                        for UpdateFunctionSvc<T>
-                    {
+                    impl<
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::UpdateFunctionRequest>
+                    for UpdateFunctionSvc<T> {
                         type Response = super::Function;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::UpdateFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as FunctionsService>::update_function(&inner, request).await
+                                <T as FunctionsService>::update_function(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -300,19 +322,23 @@ pub mod functions_service_server {
                 "/unitycatalog.functions.v1.FunctionsService/DeleteFunction" => {
                     #[allow(non_camel_case_types)]
                     struct DeleteFunctionSvc<T: FunctionsService>(pub Arc<T>);
-                    impl<T: FunctionsService>
-                        tonic::server::UnaryService<super::DeleteFunctionRequest>
-                        for DeleteFunctionSvc<T>
-                    {
+                    impl<
+                        T: FunctionsService,
+                    > tonic::server::UnaryService<super::DeleteFunctionRequest>
+                    for DeleteFunctionSvc<T> {
                         type Response = ();
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeleteFunctionRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as FunctionsService>::delete_function(&inner, request).await
+                                <T as FunctionsService>::delete_function(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -339,17 +365,21 @@ pub mod functions_service_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", tonic::Code::Unimplemented as i32)
-                        .header(
-                            http::header::CONTENT_TYPE,
-                            tonic::metadata::GRPC_CONTENT_TYPE,
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", tonic::Code::Unimplemented as i32)
+                                .header(
+                                    http::header::CONTENT_TYPE,
+                                    tonic::metadata::GRPC_CONTENT_TYPE,
+                                )
+                                .body(empty_body())
+                                .unwrap(),
                         )
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                    })
+                }
             }
         }
     }

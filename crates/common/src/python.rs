@@ -313,7 +313,7 @@ impl Recipient {
             self.id.as_ref().unwrap_or(&"None".to_owned()),
             self.name,
             self.authentication_type,
-            self.owner,
+            self.owner.as_deref().unwrap_or("None"),
             self.comment.as_ref().unwrap_or(&"None".to_owned()),
             self.created_at
                 .as_ref()

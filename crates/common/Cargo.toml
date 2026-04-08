@@ -82,4 +82,4 @@ integration = ["http-body-util", "mime", "axum"]
 python = ["pyo3"]
 
 # derives #[napi] for generated enums (used by node/client)
-napi = ["napi-derive"]
+node = ["napi-derive"]
