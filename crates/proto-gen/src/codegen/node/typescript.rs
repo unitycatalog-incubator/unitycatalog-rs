@@ -514,6 +514,7 @@ fn generate_aggregate_client_sorted(
             match &method.plan.request_type {
                 RequestType::List => {
                     methods.push_str(&generate_collection_list_method(service, &method));
+                    methods.push_str(&generate_collection_list_stream_method(service, &method));
                 }
                 RequestType::Create => {
                     methods.push_str(&generate_collection_create_method(service, &method));
@@ -647,6 +648,55 @@ fn generate_collection_list_method(
       return (await this.inner.{method_name}({all_args})).map((data) =>
         fromBinary({schema_name}, data),
       );
+    }} catch (e) {{ throw parseNativeError(e); }}
+  }}
+
+"#
+    )
+}
+
+/// Generate a streaming variant of a list method that yields items via `AsyncIterable<T>`.
+///
+/// The native Rust side returns a `ReadableStream<Buffer>` (napi-rs v3). On the TypeScript
+/// side we wrap it in an async generator so callers can use `for await...of` directly.
+/// Node.js 18+ (the minimum engine version) supports `for await...of` over `ReadableStream`.
+fn generate_collection_list_stream_method(
+    _service: &ServiceHandler<'_>,
+    method: &MethodHandler<'_>,
+) -> String {
+    let jsdoc = format_jsdoc(method.plan.metadata.documentation.as_deref(), "  ");
+    let base_method_name = method.plan.handler_function_name.to_case(Case::Camel);
+    let stream_method_name = format!("{}Stream", base_method_name);
+
+    let items_field = match method.list_output_field() {
+        Some(field) => field,
+        None => return String::new(),
+    };
+    let item_type_name = items_field.unified_type.type_ident().to_string();
+    let schema_name = format!("{}Schema", item_type_name);
+
+    let required_params: Vec<&RequestParam> = method
+        .required_parameters()
+        .filter(|p| !p.is_path_param() && is_napi_supported(p))
+        .collect();
+    let optional_params: Vec<&RequestParam> = method
+        .optional_parameters()
+        .filter(|p| !p.is_path_param() && p.name() != "page_token" && is_napi_supported(p))
+        .collect();
+
+    let spec = MethodCallSpec::build(method, &required_params, &optional_params);
+    let MethodCallSpec {
+        full_param_list,
+        optional_destructure,
+        all_args,
+    } = spec;
+
+    format!(
+        r#"{jsdoc}  async *{stream_method_name}({full_param_list}): AsyncIterable<{item_type_name}> {{
+{optional_destructure}    try {{
+      for await (const data of this.inner.{base_method_name}Stream({all_args})) {{
+        yield fromBinary({schema_name}, data);
+      }}
     }} catch (e) {{ throw parseNativeError(e); }}
   }}
 

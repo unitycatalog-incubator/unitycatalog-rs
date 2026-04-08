@@ -18,7 +18,10 @@ pub fn convert_error(err: &unitycatalog_client::Error) -> napi::Error {
     // Emit a structured prefix for typed TS errors so the generated
     // `parseNativeError` function can match on the error code.
     if let unitycatalog_client::Error::Api(api_err) = err {
-        return napi::Error::from_reason(format!("UC:{}:{}", api_err.error_code(), api_err));
+        return napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("UC:{}:{}", api_err.error_code(), api_err),
+        );
     }
 
     let mut message = err.to_string();
@@ -34,7 +37,7 @@ pub fn convert_error(err: &unitycatalog_client::Error) -> napi::Error {
         indent += 2;
     }
 
-    napi::Error::from_reason(message)
+    napi::Error::new(napi::Status::GenericFailure, message)
 }
 
 fn indent_string(s: &str, amount: usize) -> String {

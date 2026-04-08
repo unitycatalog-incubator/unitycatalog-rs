@@ -19,6 +19,7 @@ plugins:
       - file_descriptor_set=false
       - message_attribute=.unitycatalog=#[cfg_attr(feature = "python"\, ::pyo3::pyclass(get_all\, set_all))]
       - enum_attribute=.unitycatalog=#[cfg_attr(feature = "python"\, ::pyo3::pyclass)]
+      - enum_attribute=.unitycatalog=#[cfg_attr(feature = "napi"\, ::napi_derive::napi)]
   - remote: buf.build/community/neoeinstein-prost-serde:v0.3.1
     out: crates/common/src/models/gen
     opt:
