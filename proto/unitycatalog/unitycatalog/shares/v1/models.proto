@@ -40,35 +40,35 @@ message DataObject {
   // A fully qualified name that uniquely identifies a data object.
   //
   // For example, a table's fully qualified name is in the format of <catalog>.<schema>.<table>,
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Type of the data object.
-  DataObjectType data_object_type = 2;
+  DataObjectType data_object_type = 2 [(google.api.field_behavior) = REQUIRED];
 
   // The time when this data object is added to the share, in epoch milliseconds.
-  optional int64 added_at = 3;
+  optional int64 added_at = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of the sharer.
-  optional string added_by = 4;
+  optional string added_by = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // A user-provided comment when adding the data object to the share.
-  optional string comment = 5;
+  optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // A user-provided new name for the data object within the share.
   //
   // If this new name is not provided, the object's original name will be used as the shared_as name.
   // The shared_as name must be unique within a share.
   // For tables, the new name must follow the format of <schema>.<table>.
-  optional string shared_as = 6;
+  optional string shared_as = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Array of partitions for the shared data.
   repeated string partitions = 7;
 
   // Whether to enable cdf or indicate if cdf is enabled on the shared object.
-  optional bool enable_cdf = 8;
+  optional bool enable_cdf = 8 [(google.api.field_behavior) = OPTIONAL];
 
   // Whether to enable or disable sharing of data history. If not specified, the default is DISABLED.
-  optional HistoryStatus history_data_sharing_status = 9;
+  optional HistoryStatus history_data_sharing_status = 9 [(google.api.field_behavior) = OPTIONAL];
 
   // The start version associated with the object.
   //
@@ -77,7 +77,7 @@ message DataObject {
   // If not specified, clients can only query starting from the version of the object at the time it was added to the share.
   //
   // NOTE: The start_version should be <= the current version of the object.
-  optional int64 start_version = 10;
+  optional int64 start_version = 10 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message Share {
@@ -89,37 +89,40 @@ message Share {
   };
 
   // Unique ID of the recipient.
-  optional string id = 100;
+  optional string id = 100 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // Name of the share.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // A list of shared data objects within the share.
-  repeated DataObject objects = 6;
+  repeated DataObject objects = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Username of current owner of share.
-  optional string owner = 2;
+  optional string owner = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // User-provided free-form text description.
-  optional string comment = 3;
+  optional string comment = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Storage Location URL (full path) for the share.
-  optional string storage_location = 4;
+  optional string storage_location = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Storage root URL for the share.
-  optional string storage_root = 5;
+  optional string storage_root = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this share was created, in epoch milliseconds.
-  optional int64 created_at = 7;
+  optional int64 created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of the creator of the share.
-  optional string created_by = 8;
+  optional string created_by = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this share was updated, in epoch milliseconds.
-  optional int64 updated_at = 9;
+  optional int64 updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of share updater.
-  optional string updated_by = 10;
+  optional string updated_by = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message PrivilegeAssignment {

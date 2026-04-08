@@ -43,7 +43,7 @@ jobs:
         working-directory: node/client
 
       - name: Copy .node artifact to dist
-        run: cp unitycatalog.linux-x64-gnu.node dist/client.linux-x64-gnu.node
+        run: cp client.linux-x64-gnu.node dist/client.linux-x64-gnu.node
         working-directory: node/client
 
       - name: Run unit tests

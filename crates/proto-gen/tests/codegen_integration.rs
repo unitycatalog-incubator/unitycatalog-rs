@@ -34,6 +34,8 @@ fn make_test_config(
             python_typings_filename: "example_client.pyi".to_string(),
         },
         generate_resource_enum: false,
+        error_type_path: None,
+        generate_object_conversions: false,
         bindings: Some(BindingsConfig {
             aggregate_client_name: "ExampleClient".to_string(),
             client_crate_name: "example_client".to_string(),

@@ -57,9 +57,8 @@ impl serde::Serialize for Column {
             struct_ser.serialize_field("position", v)?;
         }
         if self.type_name != 0 {
-            let v = ColumnTypeName::try_from(self.type_name).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.type_name))
-            })?;
+            let v = ColumnTypeName::try_from(self.type_name)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.type_name)))?;
             struct_ser.serialize_field("type_name", &v)?;
         }
         if let Some(v) = self.type_precision.as_ref() {
@@ -141,10 +140,7 @@ impl<'de> serde::Deserialize<'de> for Column {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -161,14 +157,10 @@ impl<'de> serde::Deserialize<'de> for Column {
                             "typeName" | "type_name" => Ok(GeneratedField::TypeName),
                             "typePrecision" | "type_precision" => Ok(GeneratedField::TypePrecision),
                             "typeScale" | "type_scale" => Ok(GeneratedField::TypeScale),
-                            "typeIntervalType" | "type_interval_type" => {
-                                Ok(GeneratedField::TypeIntervalType)
-                            }
+                            "typeIntervalType" | "type_interval_type" => Ok(GeneratedField::TypeIntervalType),
                             "comment" => Ok(GeneratedField::Comment),
                             "nullable" => Ok(GeneratedField::Nullable),
-                            "partitionIndex" | "partition_index" => {
-                                Ok(GeneratedField::PartitionIndex)
-                            }
+                            "partitionIndex" | "partition_index" => Ok(GeneratedField::PartitionIndex),
                             "columnId" | "column_id" => Ok(GeneratedField::ColumnId),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -186,8 +178,8 @@ impl<'de> serde::Deserialize<'de> for Column {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Column, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut type_text__ = None;
@@ -476,8 +468,7 @@ impl serde::Serialize for CreateTableRequest {
         if !self.properties.is_empty() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.CreateTableRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.CreateTableRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -488,15 +479,13 @@ impl serde::Serialize for CreateTableRequest {
             struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
         if self.table_type != 0 {
-            let v = TableType::try_from(self.table_type).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.table_type))
-            })?;
+            let v = TableType::try_from(self.table_type)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.table_type)))?;
             struct_ser.serialize_field("table_type", &v)?;
         }
         if self.data_source_format != 0 {
-            let v = DataSourceFormat::try_from(self.data_source_format).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.data_source_format))
-            })?;
+            let v = DataSourceFormat::try_from(self.data_source_format)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.data_source_format)))?;
             struct_ser.serialize_field("data_source_format", &v)?;
         }
         if !self.columns.is_empty() {
@@ -560,10 +549,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -577,13 +563,9 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                             "schemaName" | "schema_name" => Ok(GeneratedField::SchemaName),
                             "catalogName" | "catalog_name" => Ok(GeneratedField::CatalogName),
                             "tableType" | "table_type" => Ok(GeneratedField::TableType),
-                            "dataSourceFormat" | "data_source_format" => {
-                                Ok(GeneratedField::DataSourceFormat)
-                            }
+                            "dataSourceFormat" | "data_source_format" => Ok(GeneratedField::DataSourceFormat),
                             "columns" => Ok(GeneratedField::Columns),
-                            "storageLocation" | "storage_location" => {
-                                Ok(GeneratedField::StorageLocation)
-                            }
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
                             _ => Ok(GeneratedField::__SkipField__),
@@ -602,8 +584,8 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateTableRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut schema_name__ = None;
@@ -644,8 +626,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                             if data_source_format__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("dataSourceFormat"));
                             }
-                            data_source_format__ =
-                                Some(map_.next_value::<DataSourceFormat>()? as i32);
+                            data_source_format__ = Some(map_.next_value::<DataSourceFormat>()? as i32);
                         }
                         GeneratedField::Columns => {
                             if columns__.is_some() {
@@ -669,8 +650,9 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ =
-                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
@@ -690,11 +672,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.CreateTableRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.CreateTableRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for DataSourceFormat {
@@ -809,8 +787,7 @@ impl serde::Serialize for DeleteTableRequest {
         if !self.full_name.is_empty() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.DeleteTableRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.DeleteTableRequest", len)?;
         if !self.full_name.is_empty() {
             struct_ser.serialize_field("full_name", &self.full_name)?;
         }
@@ -823,7 +800,10 @@ impl<'de> serde::Deserialize<'de> for DeleteTableRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["full_name", "fullName"];
+        const FIELDS: &[&str] = &[
+            "full_name",
+            "fullName",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -840,10 +820,7 @@ impl<'de> serde::Deserialize<'de> for DeleteTableRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -870,8 +847,8 @@ impl<'de> serde::Deserialize<'de> for DeleteTableRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeleteTableRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut full_name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -892,11 +869,7 @@ impl<'de> serde::Deserialize<'de> for DeleteTableRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.DeleteTableRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.DeleteTableRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableExistsRequest {
@@ -910,8 +883,7 @@ impl serde::Serialize for GetTableExistsRequest {
         if !self.full_name.is_empty() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.GetTableExistsRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.GetTableExistsRequest", len)?;
         if !self.full_name.is_empty() {
             struct_ser.serialize_field("full_name", &self.full_name)?;
         }
@@ -924,7 +896,10 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsRequest {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["full_name", "fullName"];
+        const FIELDS: &[&str] = &[
+            "full_name",
+            "fullName",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -941,10 +916,7 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -970,12 +942,9 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsRequest {
                 formatter.write_str("struct unitycatalog.tables.v1.GetTableExistsRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<GetTableExistsRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableExistsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut full_name__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -996,11 +965,7 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.GetTableExistsRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.GetTableExistsRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableExistsResponse {
@@ -1014,8 +979,7 @@ impl serde::Serialize for GetTableExistsResponse {
         if self.table_exists {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.GetTableExistsResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.GetTableExistsResponse", len)?;
         if self.table_exists {
             struct_ser.serialize_field("table_exists", &self.table_exists)?;
         }
@@ -1028,7 +992,10 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["table_exists", "tableExists"];
+        const FIELDS: &[&str] = &[
+            "table_exists",
+            "tableExists",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1045,10 +1012,7 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1074,12 +1038,9 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsResponse {
                 formatter.write_str("struct unitycatalog.tables.v1.GetTableExistsResponse")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<GetTableExistsResponse, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableExistsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut table_exists__ = None;
                 while let Some(k) = map_.next_key()? {
@@ -1100,11 +1061,7 @@ impl<'de> serde::Deserialize<'de> for GetTableExistsResponse {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.GetTableExistsResponse",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.GetTableExistsResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableRequest {
@@ -1127,8 +1084,7 @@ impl serde::Serialize for GetTableRequest {
         if self.include_manifest_capabilities.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.GetTableRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.GetTableRequest", len)?;
         if !self.full_name.is_empty() {
             struct_ser.serialize_field("full_name", &self.full_name)?;
         }
@@ -1179,10 +1135,7 @@ impl<'de> serde::Deserialize<'de> for GetTableRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1193,13 +1146,9 @@ impl<'de> serde::Deserialize<'de> for GetTableRequest {
                     {
                         match value {
                             "fullName" | "full_name" => Ok(GeneratedField::FullName),
-                            "includeDeltaMetadata" | "include_delta_metadata" => {
-                                Ok(GeneratedField::IncludeDeltaMetadata)
-                            }
+                            "includeDeltaMetadata" | "include_delta_metadata" => Ok(GeneratedField::IncludeDeltaMetadata),
                             "includeBrowse" | "include_browse" => Ok(GeneratedField::IncludeBrowse),
-                            "includeManifestCapabilities" | "include_manifest_capabilities" => {
-                                Ok(GeneratedField::IncludeManifestCapabilities)
-                            }
+                            "includeManifestCapabilities" | "include_manifest_capabilities" => Ok(GeneratedField::IncludeManifestCapabilities),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1216,8 +1165,8 @@ impl<'de> serde::Deserialize<'de> for GetTableRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut full_name__ = None;
                 let mut include_delta_metadata__ = None;
@@ -1233,9 +1182,7 @@ impl<'de> serde::Deserialize<'de> for GetTableRequest {
                         }
                         GeneratedField::IncludeDeltaMetadata => {
                             if include_delta_metadata__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "includeDeltaMetadata",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("includeDeltaMetadata"));
                             }
                             include_delta_metadata__ = map_.next_value()?;
                         }
@@ -1247,9 +1194,7 @@ impl<'de> serde::Deserialize<'de> for GetTableRequest {
                         }
                         GeneratedField::IncludeManifestCapabilities => {
                             if include_manifest_capabilities__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "includeManifestCapabilities",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("includeManifestCapabilities"));
                             }
                             include_manifest_capabilities__ = map_.next_value()?;
                         }
@@ -1266,11 +1211,7 @@ impl<'de> serde::Deserialize<'de> for GetTableRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.GetTableRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.GetTableRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListTableSummariesRequest {
@@ -1299,8 +1240,7 @@ impl serde::Serialize for ListTableSummariesRequest {
         if self.include_manifest_capabilities.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.ListTableSummariesRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.ListTableSummariesRequest", len)?;
         if !self.catalog_name.is_empty() {
             struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
@@ -1363,10 +1303,7 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1377,17 +1314,11 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesRequest {
                     {
                         match value {
                             "catalogName" | "catalog_name" => Ok(GeneratedField::CatalogName),
-                            "schemaNamePattern" | "schema_name_pattern" => {
-                                Ok(GeneratedField::SchemaNamePattern)
-                            }
-                            "tableNamePattern" | "table_name_pattern" => {
-                                Ok(GeneratedField::TableNamePattern)
-                            }
+                            "schemaNamePattern" | "schema_name_pattern" => Ok(GeneratedField::SchemaNamePattern),
+                            "tableNamePattern" | "table_name_pattern" => Ok(GeneratedField::TableNamePattern),
                             "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
                             "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
-                            "includeManifestCapabilities" | "include_manifest_capabilities" => {
-                                Ok(GeneratedField::IncludeManifestCapabilities)
-                            }
+                            "includeManifestCapabilities" | "include_manifest_capabilities" => Ok(GeneratedField::IncludeManifestCapabilities),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1403,12 +1334,9 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesRequest {
                 formatter.write_str("struct unitycatalog.tables.v1.ListTableSummariesRequest")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<ListTableSummariesRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListTableSummariesRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut catalog_name__ = None;
                 let mut schema_name_pattern__ = None;
@@ -1452,9 +1380,7 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesRequest {
                         }
                         GeneratedField::IncludeManifestCapabilities => {
                             if include_manifest_capabilities__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "includeManifestCapabilities",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("includeManifestCapabilities"));
                             }
                             include_manifest_capabilities__ = map_.next_value()?;
                         }
@@ -1473,11 +1399,7 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.ListTableSummariesRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.ListTableSummariesRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListTableSummariesResponse {
@@ -1494,8 +1416,7 @@ impl serde::Serialize for ListTableSummariesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer
-            .serialize_struct("unitycatalog.tables.v1.ListTableSummariesResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.ListTableSummariesResponse", len)?;
         if !self.tables.is_empty() {
             struct_ser.serialize_field("tables", &self.tables)?;
         }
@@ -1511,7 +1432,11 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["tables", "next_page_token", "nextPageToken"];
+        const FIELDS: &[&str] = &[
+            "tables",
+            "next_page_token",
+            "nextPageToken",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1529,10 +1454,7 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1543,9 +1465,7 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesResponse {
                     {
                         match value {
                             "tables" => Ok(GeneratedField::Tables),
-                            "nextPageToken" | "next_page_token" => {
-                                Ok(GeneratedField::NextPageToken)
-                            }
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1561,12 +1481,9 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesResponse {
                 formatter.write_str("struct unitycatalog.tables.v1.ListTableSummariesResponse")
             }
 
-            fn visit_map<V>(
-                self,
-                mut map_: V,
-            ) -> std::result::Result<ListTableSummariesResponse, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListTableSummariesResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut tables__ = None;
                 let mut next_page_token__ = None;
@@ -1595,11 +1512,7 @@ impl<'de> serde::Deserialize<'de> for ListTableSummariesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.ListTableSummariesResponse",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.ListTableSummariesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListTablesRequest {
@@ -1640,8 +1553,7 @@ impl serde::Serialize for ListTablesRequest {
         if self.include_manifest_capabilities.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.ListTablesRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.ListTablesRequest", len)?;
         if !self.catalog_name.is_empty() {
             struct_ser.serialize_field("catalog_name", &self.catalog_name)?;
         }
@@ -1728,10 +1640,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1745,18 +1654,12 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
                             "schemaName" | "schema_name" => Ok(GeneratedField::SchemaName),
                             "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
                             "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
-                            "includeDeltaMetadata" | "include_delta_metadata" => {
-                                Ok(GeneratedField::IncludeDeltaMetadata)
-                            }
+                            "includeDeltaMetadata" | "include_delta_metadata" => Ok(GeneratedField::IncludeDeltaMetadata),
                             "omitColumns" | "omit_columns" => Ok(GeneratedField::OmitColumns),
-                            "omitProperties" | "omit_properties" => {
-                                Ok(GeneratedField::OmitProperties)
-                            }
+                            "omitProperties" | "omit_properties" => Ok(GeneratedField::OmitProperties),
                             "omitUsername" | "omit_username" => Ok(GeneratedField::OmitUsername),
                             "includeBrowse" | "include_browse" => Ok(GeneratedField::IncludeBrowse),
-                            "includeManifestCapabilities" | "include_manifest_capabilities" => {
-                                Ok(GeneratedField::IncludeManifestCapabilities)
-                            }
+                            "includeManifestCapabilities" | "include_manifest_capabilities" => Ok(GeneratedField::IncludeManifestCapabilities),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1773,8 +1676,8 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListTablesRequest, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut catalog_name__ = None;
                 let mut schema_name__ = None;
@@ -1816,9 +1719,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
                         }
                         GeneratedField::IncludeDeltaMetadata => {
                             if include_delta_metadata__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "includeDeltaMetadata",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("includeDeltaMetadata"));
                             }
                             include_delta_metadata__ = map_.next_value()?;
                         }
@@ -1848,9 +1749,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
                         }
                         GeneratedField::IncludeManifestCapabilities => {
                             if include_manifest_capabilities__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "includeManifestCapabilities",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("includeManifestCapabilities"));
                             }
                             include_manifest_capabilities__ = map_.next_value()?;
                         }
@@ -1873,11 +1772,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.ListTablesRequest",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.ListTablesRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListTablesResponse {
@@ -1894,8 +1789,7 @@ impl serde::Serialize for ListTablesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.ListTablesResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.ListTablesResponse", len)?;
         if !self.tables.is_empty() {
             struct_ser.serialize_field("tables", &self.tables)?;
         }
@@ -1911,7 +1805,11 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["tables", "next_page_token", "nextPageToken"];
+        const FIELDS: &[&str] = &[
+            "tables",
+            "next_page_token",
+            "nextPageToken",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -1929,10 +1827,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -1943,9 +1838,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
                     {
                         match value {
                             "tables" => Ok(GeneratedField::Tables),
-                            "nextPageToken" | "next_page_token" => {
-                                Ok(GeneratedField::NextPageToken)
-                            }
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1962,8 +1855,8 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListTablesResponse, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut tables__ = None;
                 let mut next_page_token__ = None;
@@ -1992,11 +1885,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.ListTablesResponse",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.ListTablesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Table {
@@ -2072,15 +1961,13 @@ impl serde::Serialize for Table {
             struct_ser.serialize_field("schema_name", &self.schema_name)?;
         }
         if self.table_type != 0 {
-            let v = TableType::try_from(self.table_type).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.table_type))
-            })?;
+            let v = TableType::try_from(self.table_type)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.table_type)))?;
             struct_ser.serialize_field("table_type", &v)?;
         }
         if self.data_source_format != 0 {
-            let v = DataSourceFormat::try_from(self.data_source_format).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.data_source_format))
-            })?;
+            let v = DataSourceFormat::try_from(self.data_source_format)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.data_source_format)))?;
             struct_ser.serialize_field("data_source_format", &v)?;
         }
         if !self.columns.is_empty() {
@@ -2203,10 +2090,7 @@ impl<'de> serde::Deserialize<'de> for Table {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2220,19 +2104,13 @@ impl<'de> serde::Deserialize<'de> for Table {
                             "catalogName" | "catalog_name" => Ok(GeneratedField::CatalogName),
                             "schemaName" | "schema_name" => Ok(GeneratedField::SchemaName),
                             "tableType" | "table_type" => Ok(GeneratedField::TableType),
-                            "dataSourceFormat" | "data_source_format" => {
-                                Ok(GeneratedField::DataSourceFormat)
-                            }
+                            "dataSourceFormat" | "data_source_format" => Ok(GeneratedField::DataSourceFormat),
                             "columns" => Ok(GeneratedField::Columns),
-                            "storageLocation" | "storage_location" => {
-                                Ok(GeneratedField::StorageLocation)
-                            }
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
-                            "storageCredentialName" | "storage_credential_name" => {
-                                Ok(GeneratedField::StorageCredentialName)
-                            }
+                            "storageCredentialName" | "storage_credential_name" => Ok(GeneratedField::StorageCredentialName),
                             "fullName" | "full_name" => Ok(GeneratedField::FullName),
                             "createdAt" | "created_at" => Ok(GeneratedField::CreatedAt),
                             "createdBy" | "created_by" => Ok(GeneratedField::CreatedBy),
@@ -2256,8 +2134,8 @@ impl<'de> serde::Deserialize<'de> for Table {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Table, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut name__ = None;
                 let mut catalog_name__ = None;
@@ -2307,8 +2185,7 @@ impl<'de> serde::Deserialize<'de> for Table {
                             if data_source_format__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("dataSourceFormat"));
                             }
-                            data_source_format__ =
-                                Some(map_.next_value::<DataSourceFormat>()? as i32);
+                            data_source_format__ = Some(map_.next_value::<DataSourceFormat>()? as i32);
                         }
                         GeneratedField::Columns => {
                             if columns__.is_some() {
@@ -2338,14 +2215,13 @@ impl<'de> serde::Deserialize<'de> for Table {
                             if properties__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("properties"));
                             }
-                            properties__ =
-                                Some(map_.next_value::<std::collections::HashMap<_, _>>()?);
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
                         }
                         GeneratedField::StorageCredentialName => {
                             if storage_credential_name__.is_some() {
-                                return Err(serde::de::Error::duplicate_field(
-                                    "storageCredentialName",
-                                ));
+                                return Err(serde::de::Error::duplicate_field("storageCredentialName"));
                             }
                             storage_credential_name__ = map_.next_value()?;
                         }
@@ -2441,15 +2317,13 @@ impl serde::Serialize for TableSummary {
         if self.table_type != 0 {
             len += 1;
         }
-        let mut struct_ser =
-            serializer.serialize_struct("unitycatalog.tables.v1.TableSummary", len)?;
+        let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.TableSummary", len)?;
         if !self.full_name.is_empty() {
             struct_ser.serialize_field("full_name", &self.full_name)?;
         }
         if self.table_type != 0 {
-            let v = TableType::try_from(self.table_type).map_err(|_| {
-                serde::ser::Error::custom(format!("Invalid variant {}", self.table_type))
-            })?;
+            let v = TableType::try_from(self.table_type)
+                .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", self.table_type)))?;
             struct_ser.serialize_field("table_type", &v)?;
         }
         struct_ser.end()
@@ -2461,7 +2335,12 @@ impl<'de> serde::Deserialize<'de> for TableSummary {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["full_name", "fullName", "table_type", "tableType"];
+        const FIELDS: &[&str] = &[
+            "full_name",
+            "fullName",
+            "table_type",
+            "tableType",
+        ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
@@ -2479,10 +2358,7 @@ impl<'de> serde::Deserialize<'de> for TableSummary {
                 impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
                     type Value = GeneratedField;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                         write!(formatter, "expected one of: {:?}", &FIELDS)
                     }
 
@@ -2510,8 +2386,8 @@ impl<'de> serde::Deserialize<'de> for TableSummary {
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<TableSummary, V::Error>
-            where
-                V: serde::de::MapAccess<'de>,
+                where
+                    V: serde::de::MapAccess<'de>,
             {
                 let mut full_name__ = None;
                 let mut table_type__ = None;
@@ -2540,11 +2416,7 @@ impl<'de> serde::Deserialize<'de> for TableSummary {
                 })
             }
         }
-        deserializer.deserialize_struct(
-            "unitycatalog.tables.v1.TableSummary",
-            FIELDS,
-            GeneratedVisitor,
-        )
+        deserializer.deserialize_struct("unitycatalog.tables.v1.TableSummary", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for TableType {
@@ -2567,7 +2439,11 @@ impl<'de> serde::Deserialize<'de> for TableType {
     where
         D: serde::Deserializer<'de>,
     {
-        const FIELDS: &[&str] = &["TABLE_TYPE_UNSPECIFIED", "MANAGED", "EXTERNAL"];
+        const FIELDS: &[&str] = &[
+            "TABLE_TYPE_UNSPECIFIED",
+            "MANAGED",
+            "EXTERNAL",
+        ];
 
         struct GeneratedVisitor;
 

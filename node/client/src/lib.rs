@@ -79,7 +79,7 @@ pub struct ClientConfig {
     pub extra_headers: Option<HashMap<String, String>>,
 }
 
-#[napi::module_init]
+#[napi_derive::module_init]
 fn init() {
     let env = Env::new()
         .filter_or("UC_LOG", "warn")

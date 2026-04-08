@@ -42,6 +42,7 @@ use convert_case::{Case, Casing};
 use tracing::warn;
 
 use crate::Result;
+use crate::google::api::FieldBehavior;
 use crate::parsing::types::BaseType;
 use crate::parsing::{CodeGenMetadata, MessageField, MethodMetadata, ServiceInfo};
 use crate::utils::strings;
@@ -169,6 +170,8 @@ pub(crate) fn analyze_method(
 /// Extract and classify request fields from an input message into path, query, and body buckets.
 ///
 /// - Path parameters are matched against URL template parameters and ordered accordingly.
+/// - Fields annotated `OUTPUT_ONLY` are excluded entirely — they are server-generated and
+///   must not appear in request extractors or client request builders.
 /// - Fields matching the `body` spec (`"*"`, `""`, or a specific field name) become body fields.
 /// - All remaining fields become query parameters. Fields not explicitly marked optional
 ///   via `UnifiedType.is_optional` are treated as required query parameters.
@@ -193,6 +196,8 @@ fn extract_request_fields(
     // Add path parameters in URL template order.
     for path_param_name in path_param_names {
         if let Some(field) = fields_by_name.get(path_param_name.as_str()) {
+            // Path params are always included even if OUTPUT_ONLY (they appear in the URL, not
+            // the request body), but in practice OUTPUT_ONLY fields should never be path params.
             path_params.push(PathParam {
                 name: field.name.clone(),
                 field_type: field.unified_type.clone(),
@@ -207,6 +212,12 @@ fn extract_request_fields(
         let field_name = field.name.as_str();
 
         if processed_fields.contains(field_name) {
+            continue;
+        }
+
+        // Skip OUTPUT_ONLY fields — they are server-generated and never provided by clients.
+        if field.field_behavior.contains(&FieldBehavior::OutputOnly) {
+            processed_fields.insert(field_name);
             continue;
         }
 

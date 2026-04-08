@@ -8,6 +8,8 @@ generate:
   output_client: crates/client/src/codegen
   models_crate_name: unitycatalog_common
   generate_resource_enum: true
+  error_type_path: "crate::Error"
+  generate_object_conversions: true
   python:
     output: python/client/src/codegen
     error_type: PyUnityCatalogError

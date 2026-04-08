@@ -851,6 +851,23 @@ export class UnityCatalogClient {
   }
 
   /**
+     * List catalogs
+     * 
+     * Gets an array of catalogs in the metastore. If the caller is the metastore admin,
+     * all catalogs will be retrieved. Otherwise, only catalogs owned by the caller
+     * (or for which the caller has the USE_CATALOG privilege) will be retrieved.
+     * There is no guarantee of a specific ordering of the elements in the array.
+     */
+  async *listCatalogsStream(options?: ListCatalogsOptions): AsyncIterable<Catalog> {
+    const { maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listCatalogsStream(maxResults)) {
+        yield fromBinary(CatalogSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
      * Create a new catalog
      * 
      * Creates a new catalog instance in the parent metastore if the caller
@@ -876,6 +893,15 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
+  async *listCredentialsStream(options?: ListCredentialsOptions): AsyncIterable<Credential> {
+    const { purpose, maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listCredentialsStream(purpose, maxResults)) {
+        yield fromBinary(CredentialSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
   async createCredential(name: string, purpose: number, options?: CreateCredentialOptions): Promise<Credential> {
     const { comment, readOnly, skipValidation } = options || {};
     try {
@@ -896,6 +922,18 @@ export class UnityCatalogClient {
       return (await this.inner.listExternalLocations(maxResults, includeBrowse)).map((data) =>
         fromBinary(ExternalLocationSchema, data),
       );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List external locations
+     */
+  async *listExternalLocationsStream(options?: ListExternalLocationsOptions): AsyncIterable<ExternalLocation> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      for await (const data of this.inner.listExternalLocationsStream(maxResults, includeBrowse)) {
+        yield fromBinary(ExternalLocationSchema, data);
+      }
     } catch (e) { throw parseNativeError(e); }
   }
 
@@ -931,6 +969,23 @@ export class UnityCatalogClient {
   }
 
   /**
+     * List functions
+     * 
+     * List functions within the specified parent catalog and schema. If the caller is the metastore
+     * admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
+     * on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
+     * owned by the caller or have SELECT on the function.
+     */
+  async *listFunctionsStream(catalogName: string, schemaName: string, options?: ListFunctionsOptions): AsyncIterable<Function> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      for await (const data of this.inner.listFunctionsStream(catalogName, schemaName, maxResults, includeBrowse)) {
+        yield fromBinary(FunctionSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
      * Create a function
      * 
      * Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
@@ -956,6 +1011,18 @@ export class UnityCatalogClient {
       return (await this.inner.listRecipients(maxResults)).map((data) =>
         fromBinary(RecipientSchema, data),
       );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List recipients.
+     */
+  async *listRecipientsStream(options?: ListRecipientsOptions): AsyncIterable<Recipient> {
+    const { maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listRecipientsStream(maxResults)) {
+        yield fromBinary(RecipientSchema, data);
+      }
     } catch (e) { throw parseNativeError(e); }
   }
 
@@ -989,6 +1056,21 @@ export class UnityCatalogClient {
   }
 
   /**
+     * Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
+     * admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
+     * Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
+     * will be retrieved. There is no guarantee of a specific ordering of the elements in the array.
+     */
+  async *listSchemasStream(catalogName: string, options?: ListSchemasOptions): AsyncIterable<Schema> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      for await (const data of this.inner.listSchemasStream(catalogName, maxResults, includeBrowse)) {
+        yield fromBinary(SchemaSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
      * Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
      * or have the CREATE_SCHEMA privilege in the parent catalog.
      */
@@ -1012,6 +1094,18 @@ export class UnityCatalogClient {
       return (await this.inner.listShares(maxResults)).map((data) =>
         fromBinary(ShareSchema, data),
       );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List shares.
+     */
+  async *listSharesStream(options?: ListSharesOptions): AsyncIterable<Share> {
+    const { maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listSharesStream(maxResults)) {
+        yield fromBinary(ShareSchema, data);
+      }
     } catch (e) { throw parseNativeError(e); }
   }
 
@@ -1047,6 +1141,23 @@ export class UnityCatalogClient {
   }
 
   /**
+     * Gets an array of all tables for the current metastore under the parent catalog and schema.
+     * 
+     * The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
+     * For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
+     * parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
+     * specific ordering of the elements in the array.
+     */
+  async *listTablesStream(catalogName: string, schemaName: string, options?: ListTablesOptions): AsyncIterable<Table> {
+    const { maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities } = options || {};
+    try {
+      for await (const data of this.inner.listTablesStream(catalogName, schemaName, maxResults, includeDeltaMetadata, omitColumns, omitProperties, omitUsername, includeBrowse, includeManifestCapabilities)) {
+        yield fromBinary(TableSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
      * Create a table
      */
   async createTable(name: string, schemaName: string, catalogName: string, tableType: number, dataSourceFormat: number, options?: CreateTableOptions): Promise<Table> {
@@ -1069,6 +1180,18 @@ export class UnityCatalogClient {
       return (await this.inner.listVolumes(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
         fromBinary(VolumeSchema, data),
       );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Lists volumes.
+     */
+  async *listVolumesStream(catalogName: string, schemaName: string, options?: ListVolumesOptions): AsyncIterable<Volume> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      for await (const data of this.inner.listVolumesStream(catalogName, schemaName, maxResults, includeBrowse)) {
+        yield fromBinary(VolumeSchema, data);
+      }
     } catch (e) { throw parseNativeError(e); }
   }
 

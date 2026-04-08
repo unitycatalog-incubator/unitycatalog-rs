@@ -1,13 +1,10 @@
 use serde::{Deserialize, Serialize};
-use unitycatalog_derive::object_conversions;
 use uuid::Uuid;
 
-use super::ExternalLocation;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    Catalog, Column, Credential, Function, ObjectLabel, Recipient, Resource, ResourceExt,
-    ResourceName, ResourceRef, Schema, Share, Table, Volume,
+    ObjectLabel, Resource, ResourceExt, ResourceIdent, ResourceName, ResourceRef, Table,
 };
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
@@ -33,9 +30,6 @@ pub struct Object {
 }
 
 impl ResourceExt for Object {
-    fn resource_label(&self) -> &ObjectLabel {
-        &self.label
-    }
     fn resource_name(&self) -> ResourceName {
         self.name.clone()
     }
@@ -43,24 +37,13 @@ impl ResourceExt for Object {
     fn resource_ref(&self) -> ResourceRef {
         ResourceRef::Uuid(self.id)
     }
+
+    fn resource_ident(&self) -> ResourceIdent {
+        self.label.to_ident(self.id)
+    }
 }
 
 impl ResourceExt for Resource {
-    fn resource_label(&self) -> &ObjectLabel {
-        match self {
-            Resource::Share(_) => &ObjectLabel::Share,
-            Resource::Credential(_) => &ObjectLabel::Credential,
-            Resource::Catalog(_) => &ObjectLabel::Catalog,
-            Resource::Schema(_) => &ObjectLabel::Schema,
-            Resource::Table(_) => &ObjectLabel::Table,
-            Resource::ExternalLocation(_) => &ObjectLabel::ExternalLocation,
-            Resource::Recipient(_) => &ObjectLabel::Recipient,
-            Resource::Column(_) => &ObjectLabel::Column,
-            Resource::Volume(_) => &ObjectLabel::Volume,
-            Resource::Function(_) => &ObjectLabel::Function,
-        }
-    }
-
     fn resource_name(&self) -> ResourceName {
         match self {
             Resource::Share(obj) => obj.resource_name(),
@@ -88,6 +71,21 @@ impl ResourceExt for Resource {
             Resource::Column(obj) => obj.resource_ref(),
             Resource::Volume(obj) => obj.resource_ref(),
             Resource::Function(obj) => obj.resource_ref(),
+        }
+    }
+
+    fn resource_ident(&self) -> ResourceIdent {
+        match self {
+            Resource::Share(obj) => obj.resource_ident(),
+            Resource::Credential(obj) => obj.resource_ident(),
+            Resource::Catalog(obj) => obj.resource_ident(),
+            Resource::Schema(obj) => obj.resource_ident(),
+            Resource::Table(obj) => obj.resource_ident(),
+            Resource::ExternalLocation(obj) => obj.resource_ident(),
+            Resource::Recipient(obj) => obj.resource_ident(),
+            Resource::Column(obj) => obj.resource_ident(),
+            Resource::Volume(obj) => obj.resource_ident(),
+            Resource::Function(obj) => obj.resource_ident(),
         }
     }
 }
@@ -138,16 +136,3 @@ impl From<Table> for TableSummary {
         }
     }
 }
-
-object_conversions!(
-    ExternalLocation, ObjectLabel::ExternalLocation, external_location_id, [name], true;
-    Share, ObjectLabel::Share, id, [name], true;
-    Catalog, ObjectLabel::Catalog, id, [name], true;
-    Schema, ObjectLabel::Schema, schema_id, [catalog_name, name], true;
-    Table, ObjectLabel::Table, table_id, [catalog_name, schema_name, name], true;
-    Column, ObjectLabel::Column, column_id, [name], true;
-    Credential, ObjectLabel::Credential, id, [name], true;
-    Recipient, ObjectLabel::Recipient, id, [name], true;
-    Volume, ObjectLabel::Volume, volume_id, [catalog_name, schema_name, name], false;
-    Function, ObjectLabel::Function, function_id, [catalog_name, schema_name, name], true;
-);

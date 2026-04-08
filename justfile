@@ -177,7 +177,7 @@ fix-node:
 
 # fix rust code
 fix-rust:
-    cargo clippy --fix --workspace --allow-dirty --all-features
+    cargo clippy --fix --workspace --allow-dirty --allow-staged
 
 fix-py:
     uvx ruff check --fix

@@ -5,7 +5,6 @@ package unitycatalog.external_locations.v1;
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
-import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
@@ -60,7 +59,7 @@ message CreateExternalLocationRequest {
   ];
 
   // Indicates whether the external location is read-only.
-  optional bool read_only = 4 [(google.api.field_behavior) = REQUIRED];
+  optional bool read_only = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // User-provided free-form text description.
   optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];

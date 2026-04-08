@@ -79,7 +79,7 @@ message FunctionParameterInfo {
   optional string type_json = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Data type name.
-  unitycatalog.tables.v1.ColumnTypeName type_name = 4;
+  unitycatalog.tables.v1.ColumnTypeName type_name = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // Digits of precision; required for DecimalTypes.
   optional int32 type_precision = 5 [(google.api.field_behavior) = OPTIONAL];
@@ -94,10 +94,10 @@ message FunctionParameterInfo {
   optional int32 position = 8 [(google.api.field_behavior) = OPTIONAL];
 
   // The mode of the function parameter.
-  ParameterMode parameter_mode = 9;
+  ParameterMode parameter_mode = 9 [(google.api.field_behavior) = REQUIRED];
 
   // The type of function parameter.
-  FunctionParameterType parameter_type = 10;
+  FunctionParameterType parameter_type = 10 [(google.api.field_behavior) = REQUIRED];
 
   // Default value of the parameter.
   optional string parameter_default = 11 [(google.api.field_behavior) = OPTIONAL];
@@ -124,34 +124,40 @@ message Function {
   // Name of function, relative to parent schema.
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
-    (buf.validate.field).string.min_len = 3
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
   ];
 
   // Name of parent catalog.
   string catalog_name = 2 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
-    (buf.validate.field).string.min_len = 3
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
   ];
 
   // Name of parent schema.
   string schema_name = 3 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
-    (buf.validate.field).string.min_len = 3
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
   ];
 
   // The three-level (fully qualified) name of the function.
   //
   // Format: catalog_name.schema_name.function_name
-  string full_name = 4 [(buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$"];
+  string full_name = 4 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   // Full data type specification of the return type of the function.
-  string data_type = 5;
+  string data_type = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Full data type specification as SQL/catalogString text.
-  string full_data_type = 6;
+  string full_data_type = 6 [(google.api.field_behavior) = REQUIRED];
 
   // The array of function parameter infos.
-  optional FunctionParameterInfos input_params = 7;
+  optional FunctionParameterInfos input_params = 7 [(google.api.field_behavior) = OPTIONAL];
 
   // The return type of the function in JSON format.
   optional string return_params = 8 [(google.api.field_behavior) = OPTIONAL];
@@ -166,25 +172,25 @@ message Function {
   optional string routine_dependencies = 11 [(google.api.field_behavior) = OPTIONAL];
 
   // The parameter-passing style.
-  ParameterStyle parameter_style = 12;
+  ParameterStyle parameter_style = 12 [(google.api.field_behavior) = REQUIRED];
 
   // Indicates whether the function is deterministic.
-  bool is_deterministic = 13;
+  bool is_deterministic = 13 [(google.api.field_behavior) = REQUIRED];
 
   // SQL data access information.
-  SqlDataAccess sql_data_access = 14;
+  SqlDataAccess sql_data_access = 14 [(google.api.field_behavior) = REQUIRED];
 
   // Indicates whether the function is null-calling.
-  bool is_null_call = 15;
+  bool is_null_call = 15 [(google.api.field_behavior) = REQUIRED];
 
   // The security type of the function.
-  SecurityType security_type = 16;
+  SecurityType security_type = 16 [(google.api.field_behavior) = REQUIRED];
 
   // The type of the function (SCALAR or TABLE).
   optional string specific_name = 17 [(google.api.field_behavior) = OPTIONAL];
 
   // The routine body.
-  RoutineBody routine_body = 18;
+  RoutineBody routine_body = 18 [(google.api.field_behavior) = REQUIRED];
 
   // User-provided free-form text description.
   optional string comment = 19 [(google.api.field_behavior) = OPTIONAL];
@@ -196,17 +202,23 @@ message Function {
   optional string owner = 21 [(google.api.field_behavior) = OPTIONAL];
 
   // Unique identifier for the function.
-  optional string function_id = 22 [(google.api.field_behavior) = OPTIONAL];
+  optional string function_id = 22 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // Time at which this function was created, in epoch milliseconds.
-  optional int64 created_at = 1000 [(buf.validate.field).int64.gt = 0];
+  optional int64 created_at = 1000 [
+    (buf.validate.field).int64.gt = 0,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   // Username of function creator.
-  optional string created_by = 1001;
+  optional string created_by = 1001 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this function was last updated, in epoch milliseconds.
-  optional int64 updated_at = 1002;
+  optional int64 updated_at = 1002 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of user who last modified the function.
-  optional string updated_by = 1003;
+  optional string updated_by = 1003 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

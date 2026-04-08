@@ -15,44 +15,47 @@ message ExternalLocation {
   };
 
   // Name of the external location.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Path URL of the external location.
-  string url = 2;
+  string url = 2 [(google.api.field_behavior) = REQUIRED];
 
   // Name of the storage credential used with this location.
-  string credential_name = 3;
+  string credential_name = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Indicates whether the external location is read-only.
-  bool read_only = 4;
+  bool read_only = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // User-provided free-form text description.
-  optional string comment = 5;
+  optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // The owner of the external location.
-  optional string owner = 6;
+  optional string owner = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // metastore id
   // string metastore_id = 7;
 
   // Unique ID of the location's storage credential.
-  string credential_id = 8;
+  string credential_id = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this catalog was created, in epoch milliseconds.
-  optional int64 created_at = 9;
+  optional int64 created_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of catalog creator.
-  optional string created_by = 10;
+  optional string created_by = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this catalog was last updated, in epoch milliseconds.
-  optional int64 updated_at = 11;
+  optional int64 updated_at = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of user who last modified catalog.
-  optional string updated_by = 12;
+  optional string updated_by = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Indicates whether the principal is limited to retrieving metadata
   // for the associated object through the BROWSE privilege when include_browse is enabled in the request.
-  optional bool browse_only = 13;
+  optional bool browse_only = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  optional string external_location_id = 100;
+  optional string external_location_id = 100 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 }

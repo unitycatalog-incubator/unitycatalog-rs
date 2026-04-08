@@ -49,6 +49,9 @@ sqlx = { workspace = true, optional = true, features = [
 # derive pyclass for generated messages
 pyo3 = { workspace = true, optional = true }
 
+# derive #[napi] for generated enums (used by node/client)
+napi-derive = { workspace = true, optional = true }
+
 # integration test dependencies (in alphabetical order)
 http = { version = "1.2", optional = true }
 http-body-util = { version = "0.1.0", optional = true }
@@ -77,3 +80,6 @@ integration = ["http-body-util", "mime", "axum"]
 
 # derives pyclass for generated messages
 python = ["pyo3"]
+
+# derives #[napi] for generated enums (used by node/client)
+node = ["napi-derive"]

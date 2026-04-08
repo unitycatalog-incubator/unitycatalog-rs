@@ -98,6 +98,7 @@ pub(crate) fn from_object(obj: &ObjectDef) -> proc_macro2::TokenStream {
 pub(crate) fn to_object(obj: &ObjectDef) -> proc_macro2::TokenStream {
     let target_ty = &obj.ty;
     let id_field_name = &obj.name;
+    let label = &obj.label;
 
     let id_field = if obj.is_optional {
         quote! {
@@ -123,34 +124,11 @@ pub(crate) fn to_object(obj: &ObjectDef) -> proc_macro2::TokenStream {
                 Ok(Object {
                     id,
                     name: obj.resource_name(),
-                    label: obj.resource_label().clone(),
+                    label: #label,
                     properties: Some(::serde_json::to_value(obj)?),
                     updated_at: None,
                     created_at: chrono::Utc::now(),
                 })
-            }
-        }
-    }
-}
-
-pub(crate) fn to_resource(obj: &ObjectDef) -> proc_macro2::TokenStream {
-    let object_ty = &obj.ty;
-
-    quote! {
-        impl From<#object_ty> for Resource {
-            fn from(obj: #object_ty) -> Self {
-                Resource::#object_ty(obj)
-            }
-        }
-
-        impl TryFrom<Resource> for #object_ty {
-            type Error = Error;
-
-            fn try_from(resource: Resource) -> Result<Self, Self::Error> {
-                match resource {
-                    Resource::#object_ty(value) => Ok(value),
-                    _ => Err(Error::generic(concat!("Resource is not a ", stringify!(#object_ty)))),
-                }
             }
         }
     }
@@ -182,14 +160,14 @@ pub(crate) fn resource_impl(obj: &ObjectDef) -> proc_macro2::TokenStream {
 
     quote! {
         impl ResourceExt for #object_ty {
-            fn resource_label(&self) -> &ObjectLabel {
-                &#label
-            }
             fn resource_name(&self) -> ResourceName {
                 ResourceName::new([#(&self.#path_names),*])
             }
             fn resource_ref(&self) -> ResourceRef {
                 #resource_ref
+            }
+            fn resource_ident(&self) -> ResourceIdent {
+                (#label).to_ident(self.resource_ref())
             }
         }
     }

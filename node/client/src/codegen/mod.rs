@@ -21,8 +21,10 @@ use crate::codegen::tables::NapiTableClient;
 use crate::codegen::temporary_credentials::NapiTemporaryCredentialClient;
 use crate::codegen::volumes::NapiVolumeClient;
 use crate::error::NapiErrorExt;
+use futures::StreamExt;
 use futures::stream::TryStreamExt;
-use napi::bindgen_prelude::Buffer;
+use napi::Env;
+use napi::bindgen_prelude::{Buffer, ReadableStream};
 use napi_derive::napi;
 use prost::Message;
 use std::collections::HashMap;
@@ -50,9 +52,9 @@ impl NapiUnityCatalogClient {
         } else {
             cloud_client::CloudClient::new_unauthenticated()
         };
-        let base_url = base_url
-            .parse()
-            .map_err(|e: url::ParseError| napi::Error::from_reason(e.to_string()))?;
+        let base_url = base_url.parse().map_err(|e: url::ParseError| {
+            napi::Error::new(napi::Status::GenericFailure, e.to_string())
+        })?;
         Ok(Self {
             client: UnityCatalogClient::new(client, base_url),
         })
@@ -67,6 +69,22 @@ impl NapiUnityCatalogClient {
             .try_collect::<Vec<_>>()
             .await
             .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_catalogs_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_catalogs();
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
     }
     #[napi(catch_unwind)]
     pub async fn create_catalog(
@@ -108,6 +126,24 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub fn list_credentials_stream(
+        &self,
+        env: Env,
+        purpose: Option<i32>,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_credentials();
+        request = request.with_purpose(purpose.map(|v| v.try_into().ok()).flatten());
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
     pub async fn create_credential(
         &self,
         name: String,
@@ -118,9 +154,9 @@ impl NapiUnityCatalogClient {
     ) -> napi::Result<Buffer> {
         let mut request = self.client.create_credential(
             name,
-            purpose
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            purpose.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
         );
         request = request.with_comment(comment);
         request = request.with_read_only(read_only);
@@ -145,6 +181,24 @@ impl NapiUnityCatalogClient {
             .try_collect::<Vec<_>>()
             .await
             .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_external_locations_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_external_locations();
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
     }
     #[napi(catch_unwind)]
     pub async fn create_external_location(
@@ -186,6 +240,26 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub fn list_functions_stream(
+        &self,
+        env: Env,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_functions(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
     pub async fn create_function(
         &self,
         name: String,
@@ -210,20 +284,20 @@ impl NapiUnityCatalogClient {
             schema_name,
             data_type,
             full_data_type,
-            parameter_style
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            parameter_style.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
             is_deterministic,
-            sql_data_access
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            sql_data_access.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
             is_null_call,
-            security_type
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
-            routine_body
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            security_type.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+            routine_body.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
         );
         request = request.with_routine_definition(routine_definition);
         request = request.with_routine_body_language(routine_body_language);
@@ -248,6 +322,22 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub fn list_recipients_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_recipients();
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
     pub async fn create_recipient(
         &self,
         name: String,
@@ -259,9 +349,9 @@ impl NapiUnityCatalogClient {
     ) -> napi::Result<Buffer> {
         let mut request = self.client.create_recipient(
             name,
-            authentication_type
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            authentication_type.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
             owner,
         );
         request = request.with_comment(comment);
@@ -292,6 +382,25 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub fn list_schemas_stream(
+        &self,
+        env: Env,
+        catalog_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_schemas(catalog_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
     pub async fn create_schema(
         &self,
         name: String,
@@ -319,6 +428,22 @@ impl NapiUnityCatalogClient {
             .try_collect::<Vec<_>>()
             .await
             .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_shares_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_shares();
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
     }
     #[napi(catch_unwind)]
     pub async fn create_share(
@@ -362,6 +487,36 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub fn list_tables_stream(
+        &self,
+        env: Env,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_delta_metadata: Option<bool>,
+        omit_columns: Option<bool>,
+        omit_properties: Option<bool>,
+        omit_username: Option<bool>,
+        include_browse: Option<bool>,
+        include_manifest_capabilities: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_tables(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_delta_metadata(include_delta_metadata);
+        request = request.with_omit_columns(omit_columns);
+        request = request.with_omit_properties(omit_properties);
+        request = request.with_omit_username(omit_username);
+        request = request.with_include_browse(include_browse);
+        request = request.with_include_manifest_capabilities(include_manifest_capabilities);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
     pub async fn create_table(
         &self,
         name: String,
@@ -377,12 +532,12 @@ impl NapiUnityCatalogClient {
             name,
             schema_name,
             catalog_name,
-            table_type
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
-            data_source_format
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            table_type.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+            data_source_format.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
         );
         request = request.with_storage_location(storage_location);
         request = request.with_comment(comment);
@@ -413,6 +568,26 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub fn list_volumes_stream(
+        &self,
+        env: Env,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_volumes(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
     pub async fn create_volume(
         &self,
         catalog_name: String,
@@ -426,9 +601,9 @@ impl NapiUnityCatalogClient {
             catalog_name,
             schema_name,
             name,
-            volume_type
-                .try_into()
-                .map_err(|_| napi::Error::from_reason("invalid enum value"))?,
+            volume_type.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
         );
         request = request.with_storage_location(storage_location);
         request = request.with_comment(comment);

@@ -7,7 +7,7 @@
     ".": "./dist/index.js"
   },
   "napi": {
-    "binaryName": "unitycatalog",
+    "binaryName": "client",
     "targets": [
       "aarch64-apple-darwin",
       "aarch64-linux-android",
@@ -46,7 +46,7 @@
     "artifacts": "napi artifacts",
     "build": "npm run build:debug && npm run tsc && shx cp unitycatalog/*.node dist/",
     "build:release": "napi build --platform --release",
-    "build:debug": "napi build --platform --dts ../unitycatalog/native.d.ts --js ../unitycatalog/native.js",
+    "build:debug": "napi build --platform --dts unitycatalog/native.d.ts --js unitycatalog/native.js",
     "tsc": "tsc -b",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "jest --verbose",

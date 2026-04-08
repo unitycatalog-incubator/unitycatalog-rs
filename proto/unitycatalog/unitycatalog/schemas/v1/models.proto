@@ -17,35 +17,38 @@ message Schema {
   };
 
   // Name of schema, relative to parent catalog.
-  string name = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Name of parent catalog.
-  string catalog_name = 2;
+  string catalog_name = 2 [(google.api.field_behavior) = REQUIRED];
 
   // Full name of schema, in form of catalog_name.schema_name.
-  string full_name = 3;
+  string full_name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // User-provided free-form text description.
-  optional string comment = 4;
+  optional string comment = 4 [(google.api.field_behavior) = OPTIONAL];
 
   // A map of key-value properties attached to the securable.
   map<string, string> properties = 5;
 
   // Username of current owner of schema.
-  optional string owner = 6;
+  optional string owner = 6 [(google.api.field_behavior) = OPTIONAL];
 
   // Time at which this schema was created, in epoch milliseconds.
-  optional int64 created_at = 7;
+  optional int64 created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of schema creator.
-  optional string created_by = 8;
+  optional string created_by = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Time at which this schema was last updated, in epoch milliseconds.
-  optional int64 updated_at = 9;
+  optional int64 updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Username of user who last modified schema.
-  optional string updated_by = 10;
+  optional string updated_by = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Unique identifier for the schema.
-  optional string schema_id = 11;
+  optional string schema_id = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 }

@@ -16,6 +16,10 @@ use crate::utils::strings;
 /// NAPI-RS supports: primitives, String, bool, Buffer, HashMap<String, String>,
 /// Vec<T> of supported types, Option<T> of supported types.
 /// Enums are supported as i32 values. Complex messages/oneofs are not.
+///
+/// NOTE: Enums should be annotated with `#[napi]` via `buf.gen.yaml` `enum_attribute`
+/// and the `napi` feature gate on `unitycatalog-common`. When that feature is active,
+/// napi-rs v3 handles the enum type directly; when it is not, the `i32` fallback is used.
 fn is_napi_supported(param: &RequestParam) -> bool {
     is_napi_supported_type(&param.field_type().base_type)
 }
@@ -139,7 +143,9 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
     quote! {
         use std::collections::HashMap;
         use futures::stream::TryStreamExt;
-        use napi::bindgen_prelude::Buffer;
+        use futures::StreamExt;
+        use napi::bindgen_prelude::{Buffer, ReadableStream};
+        use napi::Env;
         use napi_derive::napi;
         use prost::Message;
         use #client_crate::#aggregate_client_ident;
@@ -162,7 +168,7 @@ fn collection_client_struct(services: &[ServiceHandler<'_>]) -> TokenStream {
                     cloud_client::CloudClient::new_unauthenticated()
                 };
                 let base_url = base_url.parse().map_err(|e: url::ParseError| {
-                    napi::Error::from_reason(e.to_string())
+                    napi::Error::new(napi::Status::GenericFailure, e.to_string())
                 })?;
                 Ok(Self { client: #aggregate_client_ident::new(client, base_url) })
             }
@@ -188,7 +194,11 @@ fn collection_client_method(method: MethodHandler<'_>) -> Option<TokenStream> {
         return None;
     }
     match &method.plan.request_type {
-        RequestType::List => Some(collection_list_method_impl(&method)),
+        RequestType::List => {
+            let batch = collection_list_method_impl(&method);
+            let stream = collection_list_stream_method_impl(&method);
+            Some(quote! { #batch #stream })
+        }
         RequestType::Create => Some(collection_create_method_impl(&method)),
         _ => None,
     }
@@ -215,6 +225,42 @@ fn collection_list_method_impl(method: &MethodHandler<'_>) -> TokenStream {
                 .try_collect::<Vec<_>>()
                 .await
                 .default_error()
+        }
+    }
+}
+
+/// Generate a streaming variant of a list method that returns `ReadableStream<Buffer>`.
+///
+/// In napi-rs v3, `ReadableStream::new` requires an `&Env` parameter and returns `napi::Result`.
+/// The method is non-async; the stream is driven lazily by the Node.js consumer via
+/// the Web Streams `pull` protocol. The `Env` argument is injected by napi-rs when
+/// the method signature includes `env: napi::Env`.
+fn collection_list_stream_method_impl(method: &MethodHandler<'_>) -> TokenStream {
+    let base_name = method.plan.base_method_ident();
+    let stream_method_name = format_ident!("{}_stream", base_name);
+
+    let param_defs = collection_method_parameters(method, true);
+    let client_call = inner_resource_client_call(method);
+    let builder_calls = generate_builder_pattern(method, true);
+
+    quote! {
+        #[napi(catch_unwind)]
+        pub fn #stream_method_name(
+            &self,
+            env: Env,
+            #(#param_defs,)*
+        ) -> napi::Result<ReadableStream<'_, Buffer>> {
+            let mut request = #client_call;
+            #(#builder_calls)*
+            ReadableStream::new(
+                &env,
+                request
+                    .into_stream()
+                    .map(|item| {
+                        item.map(|v| Buffer::from(v.encode_to_vec()))
+                            .map_err(|e| crate::error::convert_error(&e))
+                    }),
+            )
         }
     }
 }
@@ -335,7 +381,7 @@ fn inner_resource_client_call(method: &MethodHandler<'_>) -> TokenStream {
         .map(|param| {
             let param_name = param.field_ident();
             if matches!(param.field_type().base_type, BaseType::Enum(..)) {
-                quote! { #param_name.try_into().map_err(|_| napi::Error::from_reason("invalid enum value"))? }
+                quote! { #param_name.try_into().map_err(|_| napi::Error::new(napi::Status::GenericFailure, "invalid enum value"))? }
             } else {
                 quote! { #param_name }
             }
