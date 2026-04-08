@@ -31,6 +31,7 @@
 
 pub mod error;
 pub mod label;
+pub mod managed;
 pub mod name;
 pub mod object;
 pub mod reference;
@@ -41,6 +42,7 @@ pub mod store;
 // Re-exports for convenience.
 pub use error::{Error, Result};
 pub use label::Label;
+pub use managed::{ManagedObjectStore, NoSecrets};
 pub use name::{EMPTY_RESOURCE_NAME, ResourceName};
 pub use object::{Association, Object};
 pub use reference::ResourceRef;
