@@ -408,6 +408,7 @@ mod tests {
             documentation: None,
             oneof_variants: None,
             field_behavior: vec![],
+            is_sensitive: false,
         }
     }
 
@@ -423,6 +424,7 @@ mod tests {
             documentation: None,
             oneof_variants: None,
             field_behavior: vec![],
+            is_sensitive: false,
         }
     }
 

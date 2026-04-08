@@ -444,6 +444,7 @@ mod tests {
                 documentation: None,
                 oneof_variants: None,
                 field_behavior: vec![],
+                is_sensitive: false,
             },
             MessageField {
                 name: "comment".to_string(),
@@ -455,6 +456,7 @@ mod tests {
                 documentation: None,
                 oneof_variants: None,
                 field_behavior: vec![],
+                is_sensitive: false,
             },
             MessageField {
                 name: "properties".to_string(),
@@ -477,6 +479,7 @@ mod tests {
                 documentation: None,
                 oneof_variants: None,
                 field_behavior: vec![],
+                is_sensitive: false,
             },
         ];
 

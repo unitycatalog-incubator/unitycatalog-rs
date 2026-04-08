@@ -79,6 +79,31 @@ pub(crate) fn generate_resource_enum(
                 plan,
             );
 
+            // Compute field descriptors with roles for the resource registry.
+            let known_managed_fields: &[&str] =
+                &["created_at", "updated_at", "created_by", "updated_by"];
+            let field_descriptors: Vec<FieldDescriptorEntry> = info
+                .fields
+                .iter()
+                .map(|f| {
+                    let role = if f.field_behavior.contains(&FieldBehavior::Identifier) {
+                        FieldRoleEntry::Identifier
+                    } else if f.is_sensitive {
+                        FieldRoleEntry::Sensitive
+                    } else if f.field_behavior.contains(&FieldBehavior::OutputOnly)
+                        && known_managed_fields.contains(&f.name.as_str())
+                    {
+                        FieldRoleEntry::Managed
+                    } else {
+                        FieldRoleEntry::Data
+                    };
+                    FieldDescriptorEntry {
+                        name: f.name.clone(),
+                        role,
+                    }
+                })
+                .collect();
+
             Some(ResourceEntry {
                 variant_name,
                 rust_path,
@@ -87,6 +112,7 @@ pub(crate) fn generate_resource_enum(
                 id_is_optional,
                 path_names,
                 has_full_name: message_has_full_name,
+                field_descriptors,
             })
         })
         .collect();
@@ -267,7 +293,16 @@ pub(crate) fn generate_resource_enum(
         #object_conversions_impl
     };
 
-    format_tokens(tokens)
+    // Generate the resource descriptor registry and Label impl
+    let registry_impl = generate_resource_registry(&resources);
+
+    let all_tokens = quote! {
+        #tokens
+
+        #registry_impl
+    };
+
+    format_tokens(all_tokens)
 }
 
 struct ResourceEntry {
@@ -283,6 +318,22 @@ struct ResourceEntry {
     /// Whether the message has a `full_name` field (used for `qualified_name()` generation).
     #[allow(dead_code)]
     has_full_name: bool,
+    /// All fields with their computed roles for the resource descriptor registry.
+    field_descriptors: Vec<FieldDescriptorEntry>,
+}
+
+/// A field entry for the generated resource descriptor registry.
+struct FieldDescriptorEntry {
+    name: String,
+    role: FieldRoleEntry,
+}
+
+/// The computed role of a field, matching `unitycatalog_resource_store::FieldRole`.
+enum FieldRoleEntry {
+    Data,
+    Identifier,
+    Sensitive,
+    Managed,
 }
 
 /// Derive the ordered list of field names used to build a `ResourceName` for a resource.
@@ -424,6 +475,125 @@ fn message_name_to_rust_path(name: &str, prefix: &str, super_levels: u32) -> Opt
     }
     let super_prefix = "super::".repeat(super_levels as usize);
     Some(format!("{}{}", super_prefix, parts.join("::")))
+}
+
+/// Generate the `RESOURCE_DESCRIPTORS` static registry and `Label` impl for `ObjectLabel`.
+///
+/// This emits:
+/// 1. `impl unitycatalog_resource_store::Label for ObjectLabel` — making the generated
+///    label type compatible with the generic resource store.
+/// 2. `pub static RESOURCE_DESCRIPTORS: &[ResourceTypeDescriptor]` — a static registry
+///    of all resource types with field roles, path names, and parent relationships.
+fn generate_resource_registry(resources: &[ResourceEntry]) -> TokenStream {
+    // --- Label impl for ObjectLabel ---
+    let label_impl = quote! {
+        impl ::unitycatalog_resource_store::Label for ObjectLabel {
+            fn as_str(&self) -> &str {
+                // strum's AsRefStr gives us the snake_case string
+                self.as_ref()
+            }
+        }
+    };
+
+    // --- RESOURCE_DESCRIPTORS static ---
+    // Compute parent_label for each resource by cross-referencing path_names.
+    // A resource with path_names ["catalog_name", "schema_name", "name"] has parent
+    // equal to the resource whose path_names length is one less and whose singular
+    // name matches the second-to-last path component (minus the "_name" suffix).
+    let parent_labels: Vec<Option<String>> = resources
+        .iter()
+        .map(|r| {
+            if r.path_names.len() <= 1 {
+                return None;
+            }
+            // The second-to-last path component holds the parent's singular name + "_name"
+            let parent_path_component = &r.path_names[r.path_names.len() - 2];
+            let parent_singular = parent_path_component
+                .strip_suffix("_name")
+                .unwrap_or(parent_path_component);
+            // Find the resource with that singular name
+            resources.iter().find_map(|candidate| {
+                if candidate.singular == parent_singular {
+                    Some(candidate.variant_name.clone())
+                } else {
+                    None
+                }
+            })
+        })
+        .collect();
+
+    let descriptor_entries: Vec<TokenStream> = resources
+        .iter()
+        .zip(parent_labels.iter())
+        .map(|(r, parent)| {
+            let label_variant = format_ident!("{}", r.variant_name);
+
+            let field_entries: Vec<TokenStream> = r
+                .field_descriptors
+                .iter()
+                .map(|fd| {
+                    let name = &fd.name;
+                    let role = match fd.role {
+                        FieldRoleEntry::Data => {
+                            quote! { ::unitycatalog_resource_store::FieldRole::Data }
+                        }
+                        FieldRoleEntry::Identifier => {
+                            quote! { ::unitycatalog_resource_store::FieldRole::Identifier }
+                        }
+                        FieldRoleEntry::Sensitive => {
+                            quote! { ::unitycatalog_resource_store::FieldRole::Sensitive }
+                        }
+                        FieldRoleEntry::Managed => {
+                            quote! { ::unitycatalog_resource_store::FieldRole::Managed }
+                        }
+                    };
+                    quote! {
+                        ::unitycatalog_resource_store::ResourceFieldDescriptor {
+                            name: #name,
+                            role: #role,
+                        }
+                    }
+                })
+                .collect();
+
+            let path_name_strs: Vec<&str> = r.path_names.iter().map(|s| s.as_str()).collect();
+
+            let parent_expr = match parent {
+                Some(parent_name) => {
+                    let parent_variant = format_ident!("{}", parent_name);
+                    quote! { Some(ObjectLabel::#parent_variant) }
+                }
+                None => quote! { None },
+            };
+
+            quote! {
+                ::unitycatalog_resource_store::ResourceTypeDescriptor {
+                    label: ObjectLabel::#label_variant,
+                    fields: &[#(#field_entries),*],
+                    path_names: &[#(#path_name_strs),*],
+                    parent_label: #parent_expr,
+                }
+            }
+        })
+        .collect();
+
+    let registry = quote! {
+        /// Static resource type descriptors derived from proto annotations.
+        ///
+        /// Each entry describes a resource type's fields (with roles: data, identifier,
+        /// sensitive, managed), hierarchical name components, and parent relationship.
+        ///
+        /// Use [`::unitycatalog_resource_store::ResourceRegistry::from_static`] to build
+        /// a runtime registry from this data.
+        pub static RESOURCE_DESCRIPTORS: &[::unitycatalog_resource_store::ResourceTypeDescriptor<ObjectLabel>] = &[
+            #(#descriptor_entries),*
+        ];
+    };
+
+    quote! {
+        #label_impl
+        #registry
+    }
 }
 
 #[cfg(test)]

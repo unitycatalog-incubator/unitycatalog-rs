@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::Label;
+
 /// The role of a field within a resource type.
 ///
 /// Derived from proto annotations:
@@ -40,10 +42,12 @@ pub struct ResourceFieldDescriptor {
 /// Descriptor for a resource type, derived from proto annotations.
 ///
 /// Generated as a static constant by the code generation pipeline.
+/// Generic over `L` so the label field can be a typed enum (e.g., `ObjectLabel`)
+/// rather than a plain string.
 #[derive(Debug, Clone)]
-pub struct ResourceTypeDescriptor {
-    /// The label string for this resource type (e.g., `"catalog"`, `"credential"`).
-    pub label: &'static str,
+pub struct ResourceTypeDescriptor<L: Label> {
+    /// The label for this resource type.
+    pub label: L,
 
     /// Field descriptors for this resource type.
     pub fields: &'static [ResourceFieldDescriptor],
@@ -54,7 +58,7 @@ pub struct ResourceTypeDescriptor {
 
     /// Parent resource type label, inferred from the path_names hierarchy.
     /// `None` for top-level resources (e.g., Catalog).
-    pub parent_label: Option<&'static str>,
+    pub parent_label: Option<L>,
 }
 
 /// Runtime registry for resource type descriptors.
@@ -62,26 +66,26 @@ pub struct ResourceTypeDescriptor {
 /// Provides efficient lookup of field roles, sensitive fields, and hierarchy
 /// information by resource label.
 #[derive(Debug, Clone)]
-pub struct ResourceRegistry {
-    by_label: HashMap<&'static str, &'static ResourceTypeDescriptor>,
+pub struct ResourceRegistry<L: Label> {
+    by_label: HashMap<L, &'static ResourceTypeDescriptor<L>>,
 }
 
-impl ResourceRegistry {
+impl<L: Label> ResourceRegistry<L> {
     /// Create a registry from a static slice of descriptors.
-    pub fn from_static(descriptors: &'static [ResourceTypeDescriptor]) -> Self {
+    pub fn from_static(descriptors: &'static [ResourceTypeDescriptor<L>]) -> Self {
         let by_label = descriptors.iter().map(|d| (d.label, d)).collect();
         Self { by_label }
     }
 
     /// Get the descriptor for a resource type by label.
-    pub fn get(&self, label: &str) -> Option<&&'static ResourceTypeDescriptor> {
-        self.by_label.get(label)
+    pub fn get(&self, label: L) -> Option<&&'static ResourceTypeDescriptor<L>> {
+        self.by_label.get(&label)
     }
 
     /// Returns the names of sensitive fields for the given resource label.
-    pub fn sensitive_field_names(&self, label: &str) -> Vec<&'static str> {
+    pub fn sensitive_field_names(&self, label: L) -> Vec<&'static str> {
         self.by_label
-            .get(label)
+            .get(&label)
             .map(|d| {
                 d.fields
                     .iter()
@@ -93,16 +97,16 @@ impl ResourceRegistry {
     }
 
     /// Returns true if the resource type has any sensitive fields.
-    pub fn has_sensitive_fields(&self, label: &str) -> bool {
+    pub fn has_sensitive_fields(&self, label: L) -> bool {
         self.by_label
-            .get(label)
+            .get(&label)
             .is_some_and(|d| d.fields.iter().any(|f| f.role == FieldRole::Sensitive))
     }
 
     /// Returns the names of managed fields for the given resource label.
-    pub fn managed_field_names(&self, label: &str) -> Vec<&'static str> {
+    pub fn managed_field_names(&self, label: L) -> Vec<&'static str> {
         self.by_label
-            .get(label)
+            .get(&label)
             .map(|d| {
                 d.fields
                     .iter()
@@ -114,8 +118,8 @@ impl ResourceRegistry {
     }
 
     /// Returns the identifier field name for the given resource label, if any.
-    pub fn identifier_field_name(&self, label: &str) -> Option<&'static str> {
-        self.by_label.get(label).and_then(|d| {
+    pub fn identifier_field_name(&self, label: L) -> Option<&'static str> {
+        self.by_label.get(&label).and_then(|d| {
             d.fields
                 .iter()
                 .find(|f| f.role == FieldRole::Identifier)
@@ -124,17 +128,17 @@ impl ResourceRegistry {
     }
 
     /// Returns the parent label for a resource type, if any.
-    pub fn parent_label(&self, label: &str) -> Option<&'static str> {
-        self.by_label.get(label).and_then(|d| d.parent_label)
+    pub fn parent_label(&self, label: L) -> Option<L> {
+        self.by_label.get(&label).and_then(|d| d.parent_label)
     }
 
     /// Returns the path names for a resource type.
-    pub fn path_names(&self, label: &str) -> Option<&'static [&'static str]> {
-        self.by_label.get(label).map(|d| d.path_names)
+    pub fn path_names(&self, label: L) -> Option<&'static [&'static str]> {
+        self.by_label.get(&label).map(|d| d.path_names)
     }
 
     /// Returns all registered labels.
-    pub fn labels(&self) -> impl Iterator<Item = &&'static str> {
+    pub fn labels(&self) -> impl Iterator<Item = &L> {
         self.by_label.keys()
     }
 }

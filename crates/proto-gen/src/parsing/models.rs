@@ -83,6 +83,9 @@ pub struct MessageField {
     pub oneof_variants: Option<Vec<OneofVariant>>,
     /// Field behavior annotations from google.api.field_behavior
     pub field_behavior: Vec<FieldBehavior>,
+    /// Whether the field is marked with `debug_redact = true` in the proto definition.
+    /// Indicates the field contains sensitive data that should be routed to secret storage.
+    pub is_sensitive: bool,
 }
 
 /// Information about a variant in a oneof field

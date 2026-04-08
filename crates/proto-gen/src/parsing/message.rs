@@ -97,12 +97,16 @@ pub(super) fn process_message(
         // Extract field behavior annotations
         let field_behavior = extract_field_behavior_option(field)?;
 
+        // Extract debug_redact option (marks sensitive fields)
+        let is_sensitive = extract_debug_redact(field);
+
         let field_info = MessageField {
             name: field.name().to_string(),
             unified_type,
             documentation,
             field_behavior,
             oneof_variants: None,
+            is_sensitive,
         };
         fields.push(field_info);
     }
@@ -128,6 +132,7 @@ pub(super) fn process_message(
             oneof_variants: Some(variants),
             documentation: None,
             field_behavior: vec![],
+            is_sensitive: false,
         };
 
         fields.push(oneof_field);
@@ -228,6 +233,33 @@ fn extract_field_behavior_option(field: &FieldDescriptorProto) -> Result<Vec<Fie
     }
 
     Ok(vec![])
+}
+
+/// Field number for `debug_redact` in `google.protobuf.FieldOptions`.
+///
+/// See: <https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/descriptor.proto>
+const DEBUG_REDACT_FIELD_NUMBER: u32 = 16;
+
+/// Extract `debug_redact` option from field-level options.
+///
+/// The `debug_redact` option (field number 16 on `google.protobuf.FieldOptions`)
+/// marks fields containing sensitive data. Since the `protobuf` crate v3.x does not
+/// expose it as a named field, we read it from `unknown_fields()` as a varint — the
+/// same mechanism used for `google.api.field_behavior`.
+///
+/// See: <https://protobuf.dev/news/2024-12-04/>
+fn extract_debug_redact(field: &FieldDescriptorProto) -> bool {
+    let Some(options) = field.options.as_ref() else {
+        return false;
+    };
+    for (field_number, field_value) in options.unknown_fields().iter() {
+        if field_number == DEBUG_REDACT_FIELD_NUMBER {
+            if let protobuf::UnknownValueRef::Varint(v) = field_value {
+                return v != 0;
+            }
+        }
+    }
+    false
 }
 
 /// Decode a varint from the given cursor
