@@ -145,6 +145,27 @@ impl IntoResponse for Error {
                         error!("Generic common error: {}", msg);
                         INTERNAL_ERROR
                     }
+                    unitycatalog_common::Error::ResourceStore(e) => match e {
+                        unitycatalog_resource_store::Error::NotFound => (
+                            StatusCode::NOT_FOUND,
+                            "The requested resource does not exist.",
+                        ),
+                        unitycatalog_resource_store::Error::AlreadyExists => {
+                            (StatusCode::CONFLICT, "The resource already exists.")
+                        }
+                        unitycatalog_resource_store::Error::InvalidArgument(msg) => {
+                            error!("Invalid argument: {}", msg);
+                            INVALID_ARGUMENT
+                        }
+                        unitycatalog_resource_store::Error::InvalidIdentifier(e) => {
+                            error!("Invalid identifier: {}", e);
+                            INVALID_ARGUMENT
+                        }
+                        _ => {
+                            error!("Resource store error: {}", e);
+                            INTERNAL_ERROR
+                        }
+                    },
                 };
                 return (
                     status,

@@ -11,6 +11,7 @@ keywords.workspace = true
 
 [dependencies]
 unitycatalog-common = { path = "../common", features = ["axum"] }
+unitycatalog-resource-store = { path = "../resource-store" }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }

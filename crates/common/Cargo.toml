@@ -11,6 +11,7 @@ rust-version.workspace = true
 
 [dependencies]
 unitycatalog-derive = { path = "../derive" }
+unitycatalog-resource-store = { path = "../resource-store" }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }
@@ -70,7 +71,7 @@ grpc = ["tonic"]
 # and `FromRequestParts` for request types.
 axum = ["dep:axum", "dep:axum-extra", "http"]
 
-sqlx = ["dep:sqlx"]
+sqlx = ["dep:sqlx", "unitycatalog-resource-store/sqlx"]
 
 # enable client implementation to interact with Unity REST APIs
 rest-client = ["futures", "cloud-client"]

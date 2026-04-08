@@ -23,6 +23,9 @@ pub enum Error {
 
     #[error("invalid url: {0}")]
     InvalidUrl(#[from] url::ParseError),
+
+    #[error(transparent)]
+    ResourceStore(#[from] unitycatalog_resource_store::Error),
 }
 
 impl Error {
@@ -44,6 +47,15 @@ impl Error {
             Error::InvalidUrl(_) => "INVALID_PARAMETER_VALUE",
             Error::SerDe(_) => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
+            Error::ResourceStore(e) => match e {
+                unitycatalog_resource_store::Error::NotFound => "RESOURCE_NOT_FOUND",
+                unitycatalog_resource_store::Error::AlreadyExists => "ALREADY_EXISTS",
+                unitycatalog_resource_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+                unitycatalog_resource_store::Error::InvalidIdentifier(_) => {
+                    "INVALID_PARAMETER_VALUE"
+                }
+                _ => "INTERNAL_ERROR",
+            },
         }
     }
 }
