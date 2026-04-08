@@ -32,7 +32,10 @@ message Catalog {
   string name = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Unique identifier for the catalog.
-  optional string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // Username of current owner of catalog.
   optional string owner = 3 [(google.api.field_behavior) = OPTIONAL];

@@ -1,13 +1,10 @@
 use serde::{Deserialize, Serialize};
-use unitycatalog_derive::object_conversions;
 use uuid::Uuid;
 
-use super::ExternalLocation;
 use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
-    Catalog, Column, Credential, Function, ObjectLabel, Recipient, Resource, ResourceExt,
-    ResourceIdent, ResourceName, ResourceRef, Schema, Share, Table, Volume,
+    ObjectLabel, Resource, ResourceExt, ResourceIdent, ResourceName, ResourceRef, Table,
 };
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
@@ -139,16 +136,3 @@ impl From<Table> for TableSummary {
         }
     }
 }
-
-object_conversions!(
-    ExternalLocation, ObjectLabel::ExternalLocation, external_location_id, [name], true;
-    Share, ObjectLabel::Share, id, [name], true;
-    Catalog, ObjectLabel::Catalog, id, [name], true;
-    Schema, ObjectLabel::Schema, schema_id, [catalog_name, name], true;
-    Table, ObjectLabel::Table, table_id, [catalog_name, schema_name, name], true;
-    Column, ObjectLabel::Column, column_id, [name], true;
-    Credential, ObjectLabel::Credential, id, [name], true;
-    Recipient, ObjectLabel::Recipient, id, [name], true;
-    Volume, ObjectLabel::Volume, volume_id, [catalog_name, schema_name, name], false;
-    Function, ObjectLabel::Function, function_id, [catalog_name, schema_name, name], true;
-);

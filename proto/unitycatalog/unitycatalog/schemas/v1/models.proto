@@ -47,5 +47,8 @@ message Schema {
   optional string updated_by = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Unique identifier for the schema.
-  optional string schema_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string schema_id = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 }

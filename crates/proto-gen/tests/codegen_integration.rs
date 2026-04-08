@@ -35,6 +35,7 @@ fn make_test_config(
         },
         generate_resource_enum: false,
         error_type_path: None,
+        generate_object_conversions: false,
         bindings: Some(BindingsConfig {
             aggregate_client_name: "ExampleClient".to_string(),
             client_crate_name: "example_client".to_string(),

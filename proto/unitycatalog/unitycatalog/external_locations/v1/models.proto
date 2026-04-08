@@ -54,5 +54,8 @@ message ExternalLocation {
   // for the associated object through the BROWSE privilege when include_browse is enabled in the request.
   optional bool browse_only = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  optional string external_location_id = 100 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string external_location_id = 100 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 }

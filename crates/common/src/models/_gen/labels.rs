@@ -237,3 +237,80 @@ impl TryFrom<Resource> for super::volumes::v1::Volume {
         }
     }
 }
+use crate::Error;
+use crate::models::object::Object;
+use crate::models::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
+::unitycatalog_derive::object_conversions!(
+    super::catalogs::v1::Catalog, ObjectLabel::Catalog, id, [name], true;
+    super::tables::v1::Column, ObjectLabel::Column, column_id, [name], true;
+    super::credentials::v1::Credential, ObjectLabel::Credential, id, [name], true;
+    super::external_locations::v1::ExternalLocation, ObjectLabel::ExternalLocation,
+    external_location_id, [name], true; super::functions::v1::Function,
+    ObjectLabel::Function, function_id, [catalog_name, schema_name, name], true;
+    super::recipients::v1::Recipient, ObjectLabel::Recipient, id, [name], true;
+    super::schemas::v1::Schema, ObjectLabel::Schema, schema_id, [catalog_name, name],
+    true; super::shares::v1::Share, ObjectLabel::Share, id, [name], true;
+    super::tables::v1::Table, ObjectLabel::Table, table_id, [catalog_name, schema_name,
+    name], true; super::volumes::v1::Volume, ObjectLabel::Volume, volume_id,
+    [catalog_name, schema_name, name], false
+);
+impl super::catalogs::v1::Catalog {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::tables::v1::Column {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::credentials::v1::Credential {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::external_locations::v1::ExternalLocation {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::functions::v1::Function {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
+    }
+}
+impl super::recipients::v1::Recipient {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::schemas::v1::Schema {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        format!("{}.{}", self.catalog_name, self.name)
+    }
+}
+impl super::shares::v1::Share {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::tables::v1::Table {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
+    }
+}
+impl super::volumes::v1::Volume {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
+    }
+}

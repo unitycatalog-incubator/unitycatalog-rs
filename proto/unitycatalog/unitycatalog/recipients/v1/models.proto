@@ -49,7 +49,10 @@ message Recipient {
   };
 
   // Unique ID of the recipient.
-  optional string id = 100 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string id = 100 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // The name of the recipient.
   string name = 1 [(google.api.field_behavior) = REQUIRED];

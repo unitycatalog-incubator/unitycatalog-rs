@@ -89,7 +89,10 @@ message Share {
   };
 
   // Unique ID of the recipient.
-  optional string id = 100 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string id = 100 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // Name of the share.
   string name = 1 [(google.api.field_behavior) = REQUIRED];

@@ -58,6 +58,7 @@
 //!     output,
 //!     generate_resource_enum: true,
 //!     error_type_path: None,
+//!     generate_object_conversions: false,
 //!     bindings: None,
 //!     models_gen_dir: None,
 //! };

@@ -118,7 +118,10 @@ message Column {
   optional int32 partition_index = 11 [(google.api.field_behavior) = OPTIONAL];
 
   // a unique id for the column
-  optional string column_id = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string column_id = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 }
 
 message Table {
@@ -207,5 +210,8 @@ message Table {
   optional int64 deleted_at = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Unique identifier for the table.
-  optional string table_id = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string table_id = 23 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 }

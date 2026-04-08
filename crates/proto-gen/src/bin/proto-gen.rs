@@ -225,6 +225,8 @@ struct FileGenerateConfig {
     generate_resource_enum: Option<bool>,
     /// Path to the `Error` type for generated `TryFrom<Resource>` impls (e.g. `"crate::Error"`).
     error_type_path: Option<String>,
+    /// Set to `true` to emit `object_conversions!` and `qualified_name()` in `labels.rs`.
+    generate_object_conversions: Option<bool>,
     python: Option<FilePythonConfig>,
     node: Option<FileNodeConfig>,
     typescript: Option<FileTsConfig>,
@@ -441,6 +443,7 @@ fn build_config(
     });
 
     let generate_resource_enum = file_cfg.generate_resource_enum.unwrap_or(false);
+    let generate_object_conversions = file_cfg.generate_object_conversions.unwrap_or(false);
 
     CodeGenConfig {
         context_type_path: args
@@ -456,6 +459,7 @@ fn build_config(
         output,
         generate_resource_enum,
         error_type_path: file_cfg.error_type_path.clone(),
+        generate_object_conversions,
         bindings,
         models_gen_dir,
     }

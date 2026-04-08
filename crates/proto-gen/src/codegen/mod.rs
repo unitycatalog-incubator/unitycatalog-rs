@@ -169,6 +169,12 @@ pub struct CodeGenConfig {
     /// E.g. `"crate::Error"`. When `None`, `TryFrom` impls are not generated.
     pub error_type_path: Option<String>,
 
+    /// When `true` and `generate_resource_enum` is set, emit a
+    /// `::unitycatalog_derive::object_conversions!` invocation in `labels.rs` for all
+    /// resource types that have an `IDENTIFIER`-annotated field, plus a `qualified_name()`
+    /// inherent method on each resource type.
+    pub generate_object_conversions: bool,
+
     /// Configuration for language-binding generation. Required when `output.python`,
     /// `output.node`, or `output.node_ts` is `Some`.
     pub bindings: Option<BindingsConfig>,

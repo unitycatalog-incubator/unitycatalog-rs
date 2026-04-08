@@ -202,7 +202,10 @@ message Function {
   optional string owner = 21 [(google.api.field_behavior) = OPTIONAL];
 
   // Unique identifier for the function.
-  optional string function_id = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional string function_id = 22 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // Time at which this function was created, in epoch milliseconds.
   optional int64 created_at = 1000 [

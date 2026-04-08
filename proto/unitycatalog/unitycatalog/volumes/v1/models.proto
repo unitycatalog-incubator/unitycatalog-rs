@@ -54,7 +54,10 @@ message Volume {
   ];
 
   // The unique identifier of the volume
-  string volume_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string volume_id = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
 
   // The type of the volume.
   //
