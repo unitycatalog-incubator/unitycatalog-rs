@@ -59,6 +59,22 @@ impl From<sqlx::Error> for Error {
     }
 }
 
+impl From<Error> for unitycatalog_resource_store::Error {
+    fn from(e: Error) -> Self {
+        match e {
+            Error::EntityNotFound(_) => unitycatalog_resource_store::Error::NotFound,
+            Error::AlreadyExists(_) => unitycatalog_resource_store::Error::AlreadyExists,
+            Error::InvalidUrl(e) => {
+                unitycatalog_resource_store::Error::InvalidArgument(e.to_string())
+            }
+            Error::DecodePageToken(e) => {
+                unitycatalog_resource_store::Error::InvalidArgument(e.to_string())
+            }
+            other => unitycatalog_resource_store::Error::Generic(other.to_string()),
+        }
+    }
+}
+
 impl From<Error> for ServerError {
     fn from(e: Error) -> Self {
         match e {

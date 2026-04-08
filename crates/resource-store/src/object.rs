@@ -10,6 +10,7 @@ use crate::name::ResourceName;
 /// resource wrappers. The `label` discriminant identifies the resource type,
 /// and `properties` holds the serialized resource fields as JSON.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
 pub struct Object<L: Label> {
     /// The globally unique identifier of the object.
     pub id: Uuid,

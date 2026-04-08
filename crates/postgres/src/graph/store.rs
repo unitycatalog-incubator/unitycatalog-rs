@@ -305,6 +305,154 @@ impl Store {
     }
 }
 
+// --- ObjectStore<ObjectLabel> implementation ---
+
+use unitycatalog_resource_store::EMPTY_RESOURCE_NAME;
+use unitycatalog_resource_store::name::ResourceName;
+
+#[async_trait::async_trait]
+impl unitycatalog_resource_store::ObjectStoreReader<ObjectLabel> for Store {
+    async fn get(
+        &self,
+        id: &Uuid,
+    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+        Ok(self.get_object(id).await?)
+    }
+
+    async fn get_by_name(
+        &self,
+        label: ObjectLabel,
+        name: &ResourceName,
+    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+        Ok(self.get_object_by_name(&label, name).await?)
+    }
+
+    async fn list(
+        &self,
+        label: ObjectLabel,
+        namespace: Option<&ResourceName>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> unitycatalog_resource_store::Result<(
+        Vec<unitycatalog_resource_store::Object<ObjectLabel>>,
+        Option<String>,
+    )> {
+        let namespace = namespace.unwrap_or(&EMPTY_RESOURCE_NAME);
+        let (objects, token) = self
+            .list_objects(&label, namespace, page_token.as_deref(), max_results)
+            .await?;
+        Ok((objects, token))
+    }
+}
+
+#[async_trait::async_trait]
+impl unitycatalog_resource_store::ObjectStore<ObjectLabel> for Store {
+    async fn create(
+        &self,
+        label: ObjectLabel,
+        name: &ResourceName,
+        properties: Option<serde_json::Value>,
+    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+        Ok(self.add_object(&label, name, properties).await?)
+    }
+
+    async fn update(
+        &self,
+        id: &Uuid,
+        properties: Option<serde_json::Value>,
+    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+        Ok(self
+            .update_object(id, None::<&ObjectLabel>, None::<&[String]>, properties)
+            .await?)
+    }
+
+    async fn delete(&self, id: &Uuid) -> unitycatalog_resource_store::Result<()> {
+        Ok(self.delete_object(id).await?)
+    }
+}
+
+// --- AssociationStore<ObjectLabel> implementation ---
+
+#[async_trait::async_trait]
+impl unitycatalog_resource_store::AssociationStoreReader<ObjectLabel> for Store {
+    async fn list(
+        &self,
+        from_id: Uuid,
+        label: &str,
+        target_label: Option<ObjectLabel>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> unitycatalog_resource_store::Result<(
+        Vec<unitycatalog_resource_store::Association<ObjectLabel>>,
+        Option<String>,
+    )> {
+        let assoc_label: AssociationLabel = label.parse().map_err(|_| {
+            unitycatalog_resource_store::Error::InvalidArgument(format!(
+                "Unknown association label: {label}"
+            ))
+        })?;
+        let (associations, token) = self
+            .list_associations(
+                &from_id,
+                &assoc_label,
+                target_label.as_ref(),
+                page_token.as_deref(),
+                max_results,
+            )
+            .await?;
+        let converted: Vec<unitycatalog_resource_store::Association<ObjectLabel>> = associations
+            .into_iter()
+            .map(|a| unitycatalog_resource_store::Association {
+                id: a.id,
+                from_id: a.from_id,
+                label: a.label.to_string(),
+                to_id: a.to_id,
+                to_label: a.to_label,
+                properties: a.properties,
+                created_at: a.created_at,
+                updated_at: a.updated_at,
+            })
+            .collect();
+        Ok((converted, token))
+    }
+}
+
+#[async_trait::async_trait]
+impl unitycatalog_resource_store::AssociationStore<ObjectLabel> for Store {
+    async fn add(
+        &self,
+        from_id: Uuid,
+        to_id: Uuid,
+        label: &str,
+        properties: Option<serde_json::Value>,
+    ) -> unitycatalog_resource_store::Result<()> {
+        let assoc_label: AssociationLabel = label.parse().map_err(|_| {
+            unitycatalog_resource_store::Error::InvalidArgument(format!(
+                "Unknown association label: {label}"
+            ))
+        })?;
+        self.add_association(&from_id, &assoc_label, &to_id, properties)
+            .await?;
+        Ok(())
+    }
+
+    async fn remove(
+        &self,
+        from_id: Uuid,
+        to_id: Uuid,
+        label: &str,
+    ) -> unitycatalog_resource_store::Result<()> {
+        let assoc_label: AssociationLabel = label.parse().map_err(|_| {
+            unitycatalog_resource_store::Error::InvalidArgument(format!(
+                "Unknown association label: {label}"
+            ))
+        })?;
+        self.delete_association(&from_id, &assoc_label, &to_id)
+            .await?;
+        Ok(())
+    }
+}
+
 async fn list_associations(
     from_id: &Uuid,
     label: &AssociationLabel,

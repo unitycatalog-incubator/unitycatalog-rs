@@ -10,7 +10,8 @@ use self::secrets::{ProvidesSecretManager, SecretManager};
 use crate::Result;
 use crate::api::tables::TableManager;
 use crate::policy::{Decision, Permission, Policy, ProvidesPolicy};
-use crate::store::{ProvidesResourceStore, ResourceStore};
+use crate::store::{ProvidesObjectStore, ProvidesResourceStore, ResourceStore};
+use unitycatalog_common::ObjectLabel;
 use unitycatalog_common::models::ResourceIdent;
 
 pub mod credential_vending;
@@ -49,6 +50,7 @@ where
 pub struct ServerHandlerInner<Cx> {
     policy: Arc<dyn Policy<Cx>>,
     store: Arc<dyn ResourceStore>,
+    object_store: Option<Arc<dyn unitycatalog_resource_store::ObjectStore<ObjectLabel>>>,
     secrets: Arc<dyn SecretManager>,
 }
 
@@ -61,8 +63,21 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
         Self {
             policy,
             store,
+            object_store: None,
             secrets,
         }
+    }
+
+    /// Set the generic object store.
+    ///
+    /// When provided, the server exposes the untyped `ObjectStore<ObjectLabel>`
+    /// interface alongside the typed `ResourceStore` interface.
+    pub fn with_object_store(
+        mut self,
+        object_store: Arc<dyn unitycatalog_resource_store::ObjectStore<ObjectLabel>>,
+    ) -> Self {
+        self.object_store = Some(object_store);
+        self
     }
 }
 
@@ -137,6 +152,21 @@ impl<Cx: Send + Sync + 'static> ProvidesResourceStore for ServerHandlerInner<Cx>
 impl<Cx: Send + Sync + 'static> ProvidesResourceStore for ServerHandler<Cx> {
     fn store(&self) -> &dyn ResourceStore {
         self.handler.store.as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesObjectStore for ServerHandlerInner<Cx> {
+    fn object_store(&self) -> &dyn unitycatalog_resource_store::ObjectStore<ObjectLabel> {
+        self.object_store
+            .as_ref()
+            .expect("ObjectStore not configured on ServerHandler")
+            .as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesObjectStore for ServerHandler<Cx> {
+    fn object_store(&self) -> &dyn unitycatalog_resource_store::ObjectStore<ObjectLabel> {
+        self.handler.object_store()
     }
 }
 

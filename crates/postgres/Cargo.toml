@@ -12,6 +12,7 @@ rust-version.workspace = true
 [dependencies]
 # path dependencies (in alphabetical order)
 unitycatalog-common = { path = "../common", default-features = false }
+unitycatalog-resource-store = { path = "../resource-store" }
 unitycatalog-server = { path = "../server", default-features = false }
 unitycatalog-derive = { path = "../derive" }
 
@@ -53,4 +54,4 @@ default = ["sqlx"]
 # running integration tests requires a running PostgreSQL instance
 # and DATABASE_URL environment variable set
 integration-pg = ["unitycatalog-common/integration"]
-sqlx = ["unitycatalog-common/sqlx"]
+sqlx = ["unitycatalog-common/sqlx", "unitycatalog-resource-store/sqlx"]

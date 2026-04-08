@@ -157,6 +157,14 @@ pub trait ProvidesResourceStore: Send + Sync + 'static {
     fn store(&self) -> &dyn ResourceStore;
 }
 
+/// Provides access to the generic, untyped [`ObjectStore`] for code that wants
+/// to work at the `Object<ObjectLabel>` level rather than the typed `Resource` level.
+pub trait ProvidesObjectStore: Send + Sync + 'static {
+    fn object_store(
+        &self,
+    ) -> &dyn unitycatalog_resource_store::ObjectStore<unitycatalog_common::ObjectLabel>;
+}
+
 #[async_trait::async_trait]
 impl<T: ResourceStoreReader> ResourceStoreReader for Arc<T> {
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)> {
