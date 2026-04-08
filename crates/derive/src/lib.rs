@@ -1,7 +1,7 @@
 use quote::{quote, quote_spanned};
 use syn::{Error, parse_macro_input};
 
-use conversions::{ObjectDefs, from_object, resource_impl, to_object, to_resource};
+use conversions::{ObjectDefs, from_object, resource_impl, to_object};
 
 mod conversions;
 /// Parser for macro parameters
@@ -37,13 +37,10 @@ pub fn object_conversions(input: proc_macro::TokenStream) -> proc_macro::TokenSt
     // Generate resource impls
     let resource_impls = input.defs.iter().map(resource_impl);
 
-    let to_resource_impls = input.defs.iter().map(to_resource);
-
     let expanded = quote! {
         #(#to_object_impls)*
         #(#from_object_impls)*
         #(#resource_impls)*
-        #(#to_resource_impls)*
     };
 
     proc_macro::TokenStream::from(expanded)

@@ -164,6 +164,11 @@ pub struct CodeGenConfig {
     /// from `google.api.resource` annotations. Requires `output.models` to be `Some`.
     pub generate_resource_enum: bool,
 
+    /// Fully-qualified path to the `Error` type used in generated `TryFrom<Resource>` impls.
+    ///
+    /// E.g. `"crate::Error"`. When `None`, `TryFrom` impls are not generated.
+    pub error_type_path: Option<String>,
+
     /// Configuration for language-binding generation. Required when `output.python`,
     /// `output.node`, or `output.node_ts` is `Some`.
     pub bindings: Option<BindingsConfig>,
@@ -295,7 +300,12 @@ pub fn generate_code(metadata: &CodeGenMetadata, config: &CodeGenConfig) -> Resu
         std::fs::create_dir_all(&subdir).map_err(Error::Io)?;
 
         if config.generate_resource_enum {
-            let resource_enum = resources::generate_resource_enum(&plan, metadata, config);
+            let resource_enum = resources::generate_resource_enum(
+                &plan,
+                metadata,
+                config,
+                config.error_type_path.as_deref(),
+            );
             let mut models_files = GeneratedCode {
                 files: std::collections::HashMap::new(),
             };

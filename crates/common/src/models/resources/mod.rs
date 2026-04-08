@@ -210,9 +210,6 @@ impl From<ResourceIdent> for ObjectLabel {
 }
 
 pub trait ResourceExt {
-    /// Get the label for the resource
-    fn resource_label(&self) -> &ObjectLabel;
-
     /// Get the name of the resource
     fn resource_name(&self) -> ResourceName;
 
@@ -225,9 +222,7 @@ pub trait ResourceExt {
     fn resource_ref(&self) -> ResourceRef;
 
     /// Get the ident for the resource
-    fn resource_ident(&self) -> ResourceIdent {
-        self.resource_label().to_ident(self.resource_ref())
-    }
+    fn resource_ident(&self) -> ResourceIdent;
 }
 
 impl<T: ResourceExt> From<&T> for ResourceIdent {

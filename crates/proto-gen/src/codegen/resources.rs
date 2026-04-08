@@ -13,10 +13,15 @@ use super::{CodeGenConfig, format_tokens};
 /// common dot-delimited prefix across all services, formatted as `".<prefix>."`.
 /// The `super::` depth is always `1` since `labels.rs` is placed one level inside
 /// the models subdirectory alongside the service `pub mod` blocks.
+///
+/// When `error_type_path` is `Some`, also emits:
+/// - An inherent `Resource::resource_label()` method
+/// - `From<T> for Resource` and `TryFrom<Resource> for T` impls for each resource type
 pub(crate) fn generate_resource_enum(
     plan: &GenerationPlan,
     metadata: &CodeGenMetadata,
     config: &CodeGenConfig,
+    error_type_path: Option<&str>,
 ) -> String {
     if !config.generate_resource_enum {
         return String::new();
@@ -75,6 +80,65 @@ pub(crate) fn generate_resource_enum(
         })
         .collect();
 
+    // Inherent impl and From/TryFrom impls — only emitted when error_type_path is set
+    let extra_impls: TokenStream = if let Some(error_path) = error_type_path {
+        let error_ty: syn::Type = syn::parse_str(error_path)
+            .unwrap_or_else(|e| panic!("Invalid error_type_path `{error_path}`: {e}"));
+
+        let label_arms: Vec<TokenStream> = resources
+            .iter()
+            .map(|r| {
+                let variant = format_ident!("{}", r.variant_name);
+                quote! { Resource::#variant(_) => &ObjectLabel::#variant, }
+            })
+            .collect();
+
+        let from_impls: Vec<TokenStream> = resources
+            .iter()
+            .map(|r| {
+                let variant = format_ident!("{}", r.variant_name);
+                let path: syn::Type = syn::parse_str(&r.rust_path)
+                    .unwrap_or_else(|e| panic!("Invalid rust path `{}`: {}", r.rust_path, e));
+                quote! {
+                    impl From<#path> for Resource {
+                        fn from(v: #path) -> Self {
+                            Resource::#variant(v)
+                        }
+                    }
+
+                    impl TryFrom<Resource> for #path {
+                        type Error = #error_ty;
+
+                        fn try_from(r: Resource) -> Result<Self, Self::Error> {
+                            match r {
+                                Resource::#variant(v) => Ok(v),
+                                _ => Err(<#error_ty>::generic(concat!(
+                                    "Resource is not a ",
+                                    stringify!(#variant)
+                                ))),
+                            }
+                        }
+                    }
+                }
+            })
+            .collect();
+
+        quote! {
+            impl Resource {
+                /// Return the discriminant label for this resource.
+                pub fn resource_label(&self) -> &ObjectLabel {
+                    match self {
+                        #(#label_arms)*
+                    }
+                }
+            }
+
+            #(#from_impls)*
+        }
+    } else {
+        quote! {}
+    };
+
     let tokens = quote! {
         /// All resource types managed by Unity Catalog.
         #[allow(clippy::derive_partial_eq_without_eq)]
@@ -110,6 +174,8 @@ pub(crate) fn generate_resource_enum(
         pub enum ObjectLabel {
             #(#label_variants),*
         }
+
+        #extra_impls
     };
 
     format_tokens(tokens)

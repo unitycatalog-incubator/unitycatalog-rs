@@ -57,6 +57,7 @@
 //!     models_path_crate_template: "crate::models::{service}::v1".into(),
 //!     output,
 //!     generate_resource_enum: true,
+//!     error_type_path: None,
 //!     bindings: None,
 //!     models_gen_dir: None,
 //! };

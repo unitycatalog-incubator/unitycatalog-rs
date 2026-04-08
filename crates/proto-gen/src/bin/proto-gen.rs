@@ -223,6 +223,8 @@ struct FileGenerateConfig {
     python_typings_filename: Option<String>,
     /// Set to `true` to generate `labels.rs` with `Resource` / `ObjectLabel` enums.
     generate_resource_enum: Option<bool>,
+    /// Path to the `Error` type for generated `TryFrom<Resource>` impls (e.g. `"crate::Error"`).
+    error_type_path: Option<String>,
     python: Option<FilePythonConfig>,
     node: Option<FileNodeConfig>,
     typescript: Option<FileTsConfig>,
@@ -453,6 +455,7 @@ fn build_config(
         models_path_crate_template: args.models_path_crate_template.clone().unwrap_or_default(),
         output,
         generate_resource_enum,
+        error_type_path: file_cfg.error_type_path.clone(),
         bindings,
         models_gen_dir,
     }
