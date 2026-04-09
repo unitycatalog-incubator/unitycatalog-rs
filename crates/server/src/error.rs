@@ -69,6 +69,12 @@ pub enum Error {
         #[from]
         source: cloud_client::Error,
     },
+
+    #[error("Resource store error: {source}")]
+    ResourceStore {
+        #[from]
+        source: unitycatalog_resource_store::Error,
+    },
 }
 
 impl Error {
@@ -97,6 +103,15 @@ impl Error {
             Error::SerDe { .. } => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
             Error::CloudCredential { .. } => "INTERNAL_ERROR",
+            Error::ResourceStore { source } => match source {
+                unitycatalog_resource_store::Error::NotFound => "RESOURCE_NOT_FOUND",
+                unitycatalog_resource_store::Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
+                unitycatalog_resource_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+                unitycatalog_resource_store::Error::InvalidIdentifier(_) => {
+                    "INVALID_PARAMETER_VALUE"
+                }
+                _ => "INTERNAL_ERROR",
+            },
         }
     }
 }
@@ -238,6 +253,23 @@ impl IntoResponse for Error {
                     "Failed to extract recipient from request",
                 )
             }
+            Error::ResourceStore { source } => match source {
+                unitycatalog_resource_store::Error::NotFound => (
+                    StatusCode::NOT_FOUND,
+                    "The requested resource does not exist.",
+                ),
+                unitycatalog_resource_store::Error::AlreadyExists => {
+                    (StatusCode::CONFLICT, "The resource already exists.")
+                }
+                unitycatalog_resource_store::Error::InvalidArgument(msg) => {
+                    error!("Invalid argument: {}", msg);
+                    INVALID_ARGUMENT
+                }
+                _ => {
+                    error!("Resource store error: {}", source);
+                    INTERNAL_ERROR
+                }
+            },
         };
 
         (
@@ -305,11 +337,23 @@ impl From<Error> for Status {
             }
             Error::CloudCredential { source } => {
                 Status::internal(format!("Cloud credential error: {}", source))
-            } // Error::RequestError(error) => Status::internal(error.to_string()),
-              // #[cfg(feature = "axum")]
-              // Error::AxumPath(rejection) => Status::internal(format!("Axum path: {}", rejection)),
-              // #[cfg(feature = "axum")]
-              // Error::AxumQuery(rejection) => Status::internal(format!("Axum query: {}", rejection)),
+            }
+            Error::ResourceStore { source } => match source {
+                unitycatalog_resource_store::Error::NotFound => {
+                    Status::not_found("The requested resource does not exist.")
+                }
+                unitycatalog_resource_store::Error::AlreadyExists => {
+                    Status::already_exists("The resource already exists.")
+                }
+                unitycatalog_resource_store::Error::InvalidArgument(msg) => {
+                    Status::invalid_argument(msg)
+                }
+                _ => Status::internal(format!("Resource store error: {source}")),
+            }, // Error::RequestError(error) => Status::internal(error.to_string()),
+               // #[cfg(feature = "axum")]
+               // Error::AxumPath(rejection) => Status::internal(format!("Axum path: {}", rejection)),
+               // #[cfg(feature = "axum")]
+               // Error::AxumQuery(rejection) => Status::internal(format!("Axum query: {}", rejection)),
         }
     }
 }
