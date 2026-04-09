@@ -1,5 +1,5 @@
-use cloud_client::CloudClient;
 use reqwest::IntoUrl;
+use trestle_cloud::CloudClient;
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::{
     models::temporary_credentials::v1::{

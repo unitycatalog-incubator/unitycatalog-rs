@@ -2,11 +2,11 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use chrono::{DateTime, Utc};
-use cloud_client::{TemporaryToken, TokenCache};
 use object_store::aws::AwsCredential;
 use object_store::azure::AzureCredential;
 use object_store::gcp::GcpCredential;
 use object_store::{CredentialProvider, Result};
+use trestle_cloud::{TemporaryToken, TokenCache};
 use unitycatalog_client::{PathOperation, TableOperation, TemporaryCredentialClient};
 use unitycatalog_common::models::temporary_credentials::v1::{
     TemporaryCredential, temporary_credential::Credentials,

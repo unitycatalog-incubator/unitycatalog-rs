@@ -139,7 +139,7 @@ mod tests {
     #[test]
     fn test_function_client_construction() {
         let client = FunctionClientBase::new(
-            cloud_client::CloudClient::new_unauthenticated(),
+            trestle_cloud::CloudClient::new_unauthenticated(),
             url::Url::parse("http://localhost:8080/").unwrap(),
         );
 
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn test_function_client_from_full_name() {
         let client = FunctionClientBase::new(
-            cloud_client::CloudClient::new_unauthenticated(),
+            trestle_cloud::CloudClient::new_unauthenticated(),
             url::Url::parse("http://localhost:8080/").unwrap(),
         );
 
@@ -170,7 +170,7 @@ mod tests {
     #[should_panic(expected = "Invalid function full name format")]
     fn test_function_client_from_invalid_full_name() {
         let client = FunctionClientBase::new(
-            cloud_client::CloudClient::new_unauthenticated(),
+            trestle_cloud::CloudClient::new_unauthenticated(),
             url::Url::parse("http://localhost:8080/").unwrap(),
         );
 

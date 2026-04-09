@@ -240,7 +240,7 @@ impl TryFrom<Resource> for super::volumes::v1::Volume {
 use crate::Error;
 use crate::models::object::Object;
 use crate::models::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
-::unitycatalog_derive::object_conversions!(
+::trestle_derive::object_conversions!(
     super::catalogs::v1::Catalog, ObjectLabel::Catalog, id, [name], true;
     super::tables::v1::Column, ObjectLabel::Column, column_id, [name], true;
     super::credentials::v1::Credential, ObjectLabel::Credential, id, [name], true;
@@ -314,7 +314,7 @@ impl super::volumes::v1::Volume {
         format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
     }
 }
-impl ::unitycatalog_resource_store::Label for ObjectLabel {
+impl ::trestle_store::Label for ObjectLabel {
     fn as_str(&self) -> &str {
         self.as_ref()
     }
@@ -324,668 +324,665 @@ impl ::unitycatalog_resource_store::Label for ObjectLabel {
 /// Each entry describes a resource type's fields (with roles: data, identifier,
 /// sensitive, managed), hierarchical name components, and parent relationship.
 ///
-/// Use [`::unitycatalog_resource_store::ResourceRegistry::from_static`] to build
-/// a runtime registry from this data.
-pub static RESOURCE_DESCRIPTORS: &[::unitycatalog_resource_store::ResourceTypeDescriptor<
-    ObjectLabel,
->] = &[
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+/// Use `ResourceRegistry::from_static` to build a runtime registry from this data.
+pub static RESOURCE_DESCRIPTORS: &[::trestle_store::ResourceTypeDescriptor<ObjectLabel>] = &[
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Catalog,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "storage_root",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "provider_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "share_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "catalog_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "browse_only",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Column,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "type_text",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "type_json",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "position",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "type_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "type_precision",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "type_scale",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "type_interval_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "nullable",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "partition_index",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "column_id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Credential,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "purpose",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "read_only",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "used_for_managed_storage",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "azure_service_principal",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "azure_managed_identity",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "azure_storage_key",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "aws_iam_role",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "databricks_gcp_service_account",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::ExternalLocation,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "url",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "credential_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "read_only",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "credential_id",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "browse_only",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "external_location_id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Function,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "schema_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "data_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "full_data_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "input_params",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "return_params",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "routine_body_language",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "routine_definition",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "routine_dependencies",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "parameter_style",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "is_deterministic",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "sql_data_access",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "is_null_call",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "security_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "specific_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "routine_body",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "function_id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
         ],
         path_names: &["catalog_name", "schema_name", "name"],
         parent_label: Some(ObjectLabel::Schema),
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Recipient,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "authentication_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "tokens",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Schema,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "schema_id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
         ],
         path_names: &["catalog_name", "name"],
         parent_label: Some(ObjectLabel::Catalog),
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Share,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "objects",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "storage_location",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "storage_root",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Table,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "schema_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "table_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "data_source_format",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "columns",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "storage_location",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "storage_credential_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "deleted_at",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "table_id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
         ],
         path_names: &["catalog_name", "schema_name", "name"],
         parent_label: Some(ObjectLabel::Schema),
     },
-    ::unitycatalog_resource_store::ResourceTypeDescriptor {
+    ::trestle_store::ResourceTypeDescriptor {
         label: ObjectLabel::Volume,
         fields: &[
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "schema_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "storage_location",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "volume_id",
-                role: ::unitycatalog_resource_store::FieldRole::Identifier,
+                role: ::trestle_store::FieldRole::Identifier,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "volume_type",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::unitycatalog_resource_store::FieldRole::Managed,
+                role: ::trestle_store::FieldRole::Managed,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "browse_only",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
-            ::unitycatalog_resource_store::ResourceFieldDescriptor {
+            ::trestle_store::ResourceFieldDescriptor {
                 name: "metastore_id",
-                role: ::unitycatalog_resource_store::FieldRole::Data,
+                role: ::trestle_store::FieldRole::Data,
             },
         ],
         path_names: &["catalog_name", "schema_name", "name"],

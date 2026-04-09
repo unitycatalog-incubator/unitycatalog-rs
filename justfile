@@ -63,9 +63,9 @@ generate-node:
 # Regenerate proto-gen test fixture descriptors from proto/ source files.
 [group('codegen')]
 generate-proto-gen-fixtures:
-    buf dep update crates/proto-gen/proto
-    buf build --output {{ justfile_directory() }}/crates/proto-gen/proto/example.bin \
-      crates/proto-gen/proto/
+    buf dep update crates/trestle-codegen/proto
+    buf build --output {{ justfile_directory() }}/crates/trestle-codegen/proto/example.bin \
+      crates/trestle-codegen/proto/
 
 [group('dev')]
 rest:

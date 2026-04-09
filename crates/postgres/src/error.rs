@@ -59,18 +59,14 @@ impl From<sqlx::Error> for Error {
     }
 }
 
-impl From<Error> for unitycatalog_resource_store::Error {
+impl From<Error> for trestle_store::Error {
     fn from(e: Error) -> Self {
         match e {
-            Error::EntityNotFound(_) => unitycatalog_resource_store::Error::NotFound,
-            Error::AlreadyExists(_) => unitycatalog_resource_store::Error::AlreadyExists,
-            Error::InvalidUrl(e) => {
-                unitycatalog_resource_store::Error::InvalidArgument(e.to_string())
-            }
-            Error::DecodePageToken(e) => {
-                unitycatalog_resource_store::Error::InvalidArgument(e.to_string())
-            }
-            other => unitycatalog_resource_store::Error::Generic(other.to_string()),
+            Error::EntityNotFound(_) => trestle_store::Error::NotFound,
+            Error::AlreadyExists(_) => trestle_store::Error::AlreadyExists,
+            Error::InvalidUrl(e) => trestle_store::Error::InvalidArgument(e.to_string()),
+            Error::DecodePageToken(e) => trestle_store::Error::InvalidArgument(e.to_string()),
+            other => trestle_store::Error::Generic(other.to_string()),
         }
     }
 }

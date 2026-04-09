@@ -50,7 +50,7 @@ where
 pub struct ServerHandlerInner<Cx> {
     policy: Arc<dyn Policy<Cx>>,
     store: Arc<dyn ResourceStore>,
-    object_store: Option<Arc<dyn unitycatalog_resource_store::ObjectStore<ObjectLabel>>>,
+    object_store: Option<Arc<dyn trestle_store::ObjectStore<ObjectLabel>>>,
     secrets: Arc<dyn SecretManager>,
 }
 
@@ -74,7 +74,7 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
     /// interface alongside the typed `ResourceStore` interface.
     pub fn with_object_store(
         mut self,
-        object_store: Arc<dyn unitycatalog_resource_store::ObjectStore<ObjectLabel>>,
+        object_store: Arc<dyn trestle_store::ObjectStore<ObjectLabel>>,
     ) -> Self {
         self.object_store = Some(object_store);
         self
@@ -156,7 +156,7 @@ impl<Cx: Send + Sync + 'static> ProvidesResourceStore for ServerHandler<Cx> {
 }
 
 impl<Cx: Send + Sync + 'static> ProvidesObjectStore for ServerHandlerInner<Cx> {
-    fn object_store(&self) -> &dyn unitycatalog_resource_store::ObjectStore<ObjectLabel> {
+    fn object_store(&self) -> &dyn trestle_store::ObjectStore<ObjectLabel> {
         self.object_store
             .as_ref()
             .expect("ObjectStore not configured on ServerHandler")
@@ -165,7 +165,7 @@ impl<Cx: Send + Sync + 'static> ProvidesObjectStore for ServerHandlerInner<Cx> {
 }
 
 impl<Cx: Send + Sync + 'static> ProvidesObjectStore for ServerHandler<Cx> {
-    fn object_store(&self) -> &dyn unitycatalog_resource_store::ObjectStore<ObjectLabel> {
+    fn object_store(&self) -> &dyn trestle_store::ObjectStore<ObjectLabel> {
         self.handler.object_store()
     }
 }

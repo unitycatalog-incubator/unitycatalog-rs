@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use itertools::Itertools;
+use trestle_store::{AssociationStore, ObjectStore, ObjectStoreReader};
 use unitycatalog_common::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 use unitycatalog_common::{Object, ResourceIdent, ResourceName, ResourceRef};
-use unitycatalog_resource_store::{AssociationStore, ObjectStore, ObjectStoreReader};
 use uuid::Uuid;
 
 use crate::Result;
@@ -162,9 +162,7 @@ pub trait ProvidesResourceStore: Send + Sync + 'static {
 /// Provides access to the generic, untyped [`ObjectStore`] for code that wants
 /// to work at the `Object<ObjectLabel>` level rather than the typed `Resource` level.
 pub trait ProvidesObjectStore: Send + Sync + 'static {
-    fn object_store(
-        &self,
-    ) -> &dyn unitycatalog_resource_store::ObjectStore<unitycatalog_common::ObjectLabel>;
+    fn object_store(&self) -> &dyn trestle_store::ObjectStore<unitycatalog_common::ObjectLabel>;
 }
 
 /// Adapter that implements [`ResourceStore`] for any store implementing
@@ -319,7 +317,7 @@ where
     ) -> Result<(Vec<ResourceIdent>, Option<String>)> {
         let resource_id = self.resolve_ident(resource).await?;
         let target_obj_label = target_label.map(|r| *r.label());
-        let (associations, token) = unitycatalog_resource_store::AssociationStoreReader::list(
+        let (associations, token) = trestle_store::AssociationStoreReader::list(
             &self.store,
             resource_id,
             label.as_ref(),

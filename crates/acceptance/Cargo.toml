@@ -14,7 +14,7 @@ description = "Acceptance testing framework for Unity Catalog"
 # Core Unity Catalog dependencies
 unitycatalog-client = { path = "../client" }
 unitycatalog-common = { path = "../common" }
-cloud-client = { path = "../cloud-client", features = ["recording"] }
+trestle-cloud = { path = "../trestle-cloud", features = ["recording"] }
 
 # HTTP and async
 dotenv = "0.15.0"

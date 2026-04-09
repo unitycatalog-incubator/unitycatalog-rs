@@ -11,7 +11,7 @@ pub enum Error {
     #[error("Client Error: {source}")]
     ClientError {
         #[from]
-        source: cloud_client::Error,
+        source: trestle_cloud::Error,
     },
 
     #[error("Malformed response: {source}")]

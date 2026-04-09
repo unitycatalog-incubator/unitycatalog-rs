@@ -10,7 +10,7 @@ homepage.workspace = true
 keywords.workspace = true
 
 [dependencies]
-cloud-client = { path = "../cloud-client" }
+trestle-cloud = { path = "../trestle-cloud" }
 unitycatalog-client = { path = "../client", default-features = false }
 unitycatalog-common = { path = "../common", default-features = false }
 

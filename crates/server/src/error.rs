@@ -67,13 +67,13 @@ pub enum Error {
     #[error("Cloud credential error: {source}")]
     CloudCredential {
         #[from]
-        source: cloud_client::Error,
+        source: trestle_cloud::Error,
     },
 
     #[error("Resource store error: {source}")]
     ResourceStore {
         #[from]
-        source: unitycatalog_resource_store::Error,
+        source: trestle_store::Error,
     },
 }
 
@@ -104,12 +104,10 @@ impl Error {
             Error::Generic(_) => "INTERNAL_ERROR",
             Error::CloudCredential { .. } => "INTERNAL_ERROR",
             Error::ResourceStore { source } => match source {
-                unitycatalog_resource_store::Error::NotFound => "RESOURCE_NOT_FOUND",
-                unitycatalog_resource_store::Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
-                unitycatalog_resource_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
-                unitycatalog_resource_store::Error::InvalidIdentifier(_) => {
-                    "INVALID_PARAMETER_VALUE"
-                }
+                trestle_store::Error::NotFound => "RESOURCE_NOT_FOUND",
+                trestle_store::Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
+                trestle_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+                trestle_store::Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
                 _ => "INTERNAL_ERROR",
             },
         }
@@ -161,18 +159,18 @@ impl IntoResponse for Error {
                         INTERNAL_ERROR
                     }
                     unitycatalog_common::Error::ResourceStore(e) => match e {
-                        unitycatalog_resource_store::Error::NotFound => (
+                        trestle_store::Error::NotFound => (
                             StatusCode::NOT_FOUND,
                             "The requested resource does not exist.",
                         ),
-                        unitycatalog_resource_store::Error::AlreadyExists => {
+                        trestle_store::Error::AlreadyExists => {
                             (StatusCode::CONFLICT, "The resource already exists.")
                         }
-                        unitycatalog_resource_store::Error::InvalidArgument(msg) => {
+                        trestle_store::Error::InvalidArgument(msg) => {
                             error!("Invalid argument: {}", msg);
                             INVALID_ARGUMENT
                         }
-                        unitycatalog_resource_store::Error::InvalidIdentifier(e) => {
+                        trestle_store::Error::InvalidIdentifier(e) => {
                             error!("Invalid identifier: {}", e);
                             INVALID_ARGUMENT
                         }
@@ -254,14 +252,14 @@ impl IntoResponse for Error {
                 )
             }
             Error::ResourceStore { source } => match source {
-                unitycatalog_resource_store::Error::NotFound => (
+                trestle_store::Error::NotFound => (
                     StatusCode::NOT_FOUND,
                     "The requested resource does not exist.",
                 ),
-                unitycatalog_resource_store::Error::AlreadyExists => {
+                trestle_store::Error::AlreadyExists => {
                     (StatusCode::CONFLICT, "The resource already exists.")
                 }
-                unitycatalog_resource_store::Error::InvalidArgument(msg) => {
+                trestle_store::Error::InvalidArgument(msg) => {
                     error!("Invalid argument: {}", msg);
                     INVALID_ARGUMENT
                 }
@@ -339,15 +337,13 @@ impl From<Error> for Status {
                 Status::internal(format!("Cloud credential error: {}", source))
             }
             Error::ResourceStore { source } => match source {
-                unitycatalog_resource_store::Error::NotFound => {
+                trestle_store::Error::NotFound => {
                     Status::not_found("The requested resource does not exist.")
                 }
-                unitycatalog_resource_store::Error::AlreadyExists => {
+                trestle_store::Error::AlreadyExists => {
                     Status::already_exists("The resource already exists.")
                 }
-                unitycatalog_resource_store::Error::InvalidArgument(msg) => {
-                    Status::invalid_argument(msg)
-                }
+                trestle_store::Error::InvalidArgument(msg) => Status::invalid_argument(msg),
                 _ => Status::internal(format!("Resource store error: {source}")),
             }, // Error::RequestError(error) => Status::internal(error.to_string()),
                // #[cfg(feature = "axum")]

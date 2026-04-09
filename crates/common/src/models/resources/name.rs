@@ -36,8 +36,8 @@ pub use __resource_name as resource_name;
 #[cfg(test)]
 mod test {
     use crate::resource_name;
-    use unitycatalog_derive::parse_column_name;
-    use unitycatalog_resource_store::ResourceName;
+    use trestle_derive::parse_column_name;
+    use trestle_store::ResourceName;
 
     #[test]
     fn test_parse_column_name_macros() {

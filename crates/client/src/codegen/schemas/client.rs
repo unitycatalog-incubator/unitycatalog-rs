@@ -1,6 +1,6 @@
 // @generated — do not edit by hand.
 use crate::Result;
-use cloud_client::CloudClient;
+use trestle_cloud::CloudClient;
 use unitycatalog_common::models::schemas::v1::*;
 use url::Url;
 /// HTTP client for service operations

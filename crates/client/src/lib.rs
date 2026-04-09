@@ -1,4 +1,4 @@
-use cloud_client::CloudClient;
+use trestle_cloud::CloudClient;
 
 pub use catalogs::*;
 pub use credentials::*;

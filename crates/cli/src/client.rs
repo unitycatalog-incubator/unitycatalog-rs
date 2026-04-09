@@ -88,7 +88,7 @@ pub async fn handle_client(
     cmd: &ClientCommand,
     opts: GlobalOpts,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let client = cloud_client::CloudClient::new_unauthenticated();
+    let client = trestle_cloud::CloudClient::new_unauthenticated();
     let client = UnityCatalogClient::new(client, url::Url::parse(&opts.server).unwrap());
     match &cmd.command {
         Some(ClientCommands::Catalogs(args)) => match &args.command {

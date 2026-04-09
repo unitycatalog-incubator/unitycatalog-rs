@@ -8,12 +8,12 @@
 //! - Focuses on user journeys rather than low-level HTTP details
 
 use async_trait::async_trait;
-use cloud_client::{CloudClient, RequestResponseInfo};
 use mockito::ServerGuard;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use trestle_cloud::{CloudClient, RequestResponseInfo};
 use unitycatalog_client::UnityCatalogClient;
 use url::Url;
 
@@ -624,8 +624,8 @@ impl JourneyExecutor {
             AcceptanceError::JourneyValidation(format!("Invalid mock server URL: {}", e))
         })?;
 
-        let cloud_client = CloudClient::new_unauthenticated();
-        let client = UnityCatalogClient::new(cloud_client, base_url);
+        let trestle_cloud = CloudClient::new_unauthenticated();
+        let client = UnityCatalogClient::new(trestle_cloud, base_url);
 
         println!("🚀 Mock server ready at: {}", server.url());
 
@@ -908,12 +908,12 @@ mod tests {
 
         // Create a mock recording file
         let recording = RequestResponseInfo {
-            request: cloud_client::RequestInfo {
+            request: trestle_cloud::RequestInfo {
                 method: "GET".to_string(),
                 url_path: "/api/2.1/unity-catalog/catalogs".to_string(),
                 body: None,
             },
-            response: cloud_client::ResponseInfo {
+            response: trestle_cloud::ResponseInfo {
                 status: 200,
                 headers: {
                     let mut headers = std::collections::HashMap::new();

@@ -12,9 +12,9 @@ rust-version.workspace = true
 [dependencies]
 # path dependencies (in alphabetical order)
 unitycatalog-common = { path = "../common", default-features = false }
-unitycatalog-resource-store = { path = "../resource-store" }
+trestle-store = { path = "../trestle-store" }
 unitycatalog-server = { path = "../server", default-features = false }
-unitycatalog-derive = { path = "../derive" }
+trestle-derive = { path = "../trestle-derive" }
 
 # workspace dependencies (in alphabetical order)
 async-trait = { workspace = true }
@@ -54,4 +54,4 @@ default = ["sqlx"]
 # running integration tests requires a running PostgreSQL instance
 # and DATABASE_URL environment variable set
 integration-pg = ["unitycatalog-common/integration"]
-sqlx = ["unitycatalog-common/sqlx", "unitycatalog-resource-store/sqlx"]
+sqlx = ["unitycatalog-common/sqlx", "trestle-store/sqlx"]

@@ -10,8 +10,8 @@ version.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-unitycatalog-derive = { path = "../derive" }
-unitycatalog-resource-store = { path = "../resource-store" }
+trestle-derive = { path = "../trestle-derive" }
+trestle-store = { path = "../trestle-store" }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }
@@ -33,7 +33,7 @@ axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
 
 # rest client dependencies (in alphabetical order)
-cloud-client = { path = "../cloud-client", optional = true }
+trestle-cloud = { path = "../trestle-cloud", optional = true }
 futures = { version = "0.3", optional = true }
 
 # grpc server specific dependencies (in alphabetical order)
@@ -71,10 +71,10 @@ grpc = ["tonic"]
 # and `FromRequestParts` for request types.
 axum = ["dep:axum", "dep:axum-extra", "http"]
 
-sqlx = ["dep:sqlx", "unitycatalog-resource-store/sqlx"]
+sqlx = ["dep:sqlx", "trestle-store/sqlx"]
 
 # enable client implementation to interact with Unity REST APIs
-rest-client = ["futures", "cloud-client"]
+rest-client = ["futures", "trestle-cloud"]
 
 # exposes functionality that help testing cutom handler / router implementations.
 integration = ["http-body-util", "mime", "axum"]

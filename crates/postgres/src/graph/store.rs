@@ -307,15 +307,12 @@ impl Store {
 
 // --- ObjectStore<ObjectLabel> implementation ---
 
-use unitycatalog_resource_store::EMPTY_RESOURCE_NAME;
-use unitycatalog_resource_store::name::ResourceName;
+use trestle_store::EMPTY_RESOURCE_NAME;
+use trestle_store::name::ResourceName;
 
 #[async_trait::async_trait]
-impl unitycatalog_resource_store::ObjectStoreReader<ObjectLabel> for Store {
-    async fn get(
-        &self,
-        id: &Uuid,
-    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+impl trestle_store::ObjectStoreReader<ObjectLabel> for Store {
+    async fn get(&self, id: &Uuid) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
         Ok(self.get_object(id).await?)
     }
 
@@ -323,7 +320,7 @@ impl unitycatalog_resource_store::ObjectStoreReader<ObjectLabel> for Store {
         &self,
         label: ObjectLabel,
         name: &ResourceName,
-    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+    ) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
         Ok(self.get_object_by_name(&label, name).await?)
     }
 
@@ -333,10 +330,7 @@ impl unitycatalog_resource_store::ObjectStoreReader<ObjectLabel> for Store {
         namespace: Option<&ResourceName>,
         max_results: Option<usize>,
         page_token: Option<String>,
-    ) -> unitycatalog_resource_store::Result<(
-        Vec<unitycatalog_resource_store::Object<ObjectLabel>>,
-        Option<String>,
-    )> {
+    ) -> trestle_store::Result<(Vec<trestle_store::Object<ObjectLabel>>, Option<String>)> {
         let namespace = namespace.unwrap_or(&EMPTY_RESOURCE_NAME);
         let (objects, token) = self
             .list_objects(&label, namespace, page_token.as_deref(), max_results)
@@ -346,13 +340,13 @@ impl unitycatalog_resource_store::ObjectStoreReader<ObjectLabel> for Store {
 }
 
 #[async_trait::async_trait]
-impl unitycatalog_resource_store::ObjectStore<ObjectLabel> for Store {
+impl trestle_store::ObjectStore<ObjectLabel> for Store {
     async fn create(
         &self,
         label: ObjectLabel,
         name: &ResourceName,
         properties: Option<serde_json::Value>,
-    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+    ) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
         Ok(self.add_object(&label, name, properties).await?)
     }
 
@@ -360,13 +354,13 @@ impl unitycatalog_resource_store::ObjectStore<ObjectLabel> for Store {
         &self,
         id: &Uuid,
         properties: Option<serde_json::Value>,
-    ) -> unitycatalog_resource_store::Result<unitycatalog_resource_store::Object<ObjectLabel>> {
+    ) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
         Ok(self
             .update_object(id, None::<&ObjectLabel>, None::<&[String]>, properties)
             .await?)
     }
 
-    async fn delete(&self, id: &Uuid) -> unitycatalog_resource_store::Result<()> {
+    async fn delete(&self, id: &Uuid) -> trestle_store::Result<()> {
         Ok(self.delete_object(id).await?)
     }
 }
@@ -374,7 +368,7 @@ impl unitycatalog_resource_store::ObjectStore<ObjectLabel> for Store {
 // --- AssociationStore<ObjectLabel> implementation ---
 
 #[async_trait::async_trait]
-impl unitycatalog_resource_store::AssociationStoreReader<ObjectLabel> for Store {
+impl trestle_store::AssociationStoreReader<ObjectLabel> for Store {
     async fn list(
         &self,
         from_id: Uuid,
@@ -382,14 +376,9 @@ impl unitycatalog_resource_store::AssociationStoreReader<ObjectLabel> for Store 
         target_label: Option<ObjectLabel>,
         max_results: Option<usize>,
         page_token: Option<String>,
-    ) -> unitycatalog_resource_store::Result<(
-        Vec<unitycatalog_resource_store::Association<ObjectLabel>>,
-        Option<String>,
-    )> {
+    ) -> trestle_store::Result<(Vec<trestle_store::Association<ObjectLabel>>, Option<String>)> {
         let assoc_label: AssociationLabel = label.parse().map_err(|_| {
-            unitycatalog_resource_store::Error::InvalidArgument(format!(
-                "Unknown association label: {label}"
-            ))
+            trestle_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
         })?;
         let (associations, token) = self
             .list_associations(
@@ -400,9 +389,9 @@ impl unitycatalog_resource_store::AssociationStoreReader<ObjectLabel> for Store 
                 max_results,
             )
             .await?;
-        let converted: Vec<unitycatalog_resource_store::Association<ObjectLabel>> = associations
+        let converted: Vec<trestle_store::Association<ObjectLabel>> = associations
             .into_iter()
-            .map(|a| unitycatalog_resource_store::Association {
+            .map(|a| trestle_store::Association {
                 id: a.id,
                 from_id: a.from_id,
                 label: a.label.to_string(),
@@ -418,34 +407,25 @@ impl unitycatalog_resource_store::AssociationStoreReader<ObjectLabel> for Store 
 }
 
 #[async_trait::async_trait]
-impl unitycatalog_resource_store::AssociationStore<ObjectLabel> for Store {
+impl trestle_store::AssociationStore<ObjectLabel> for Store {
     async fn add(
         &self,
         from_id: Uuid,
         to_id: Uuid,
         label: &str,
         properties: Option<serde_json::Value>,
-    ) -> unitycatalog_resource_store::Result<()> {
+    ) -> trestle_store::Result<()> {
         let assoc_label: AssociationLabel = label.parse().map_err(|_| {
-            unitycatalog_resource_store::Error::InvalidArgument(format!(
-                "Unknown association label: {label}"
-            ))
+            trestle_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
         })?;
         self.add_association(&from_id, &assoc_label, &to_id, properties)
             .await?;
         Ok(())
     }
 
-    async fn remove(
-        &self,
-        from_id: Uuid,
-        to_id: Uuid,
-        label: &str,
-    ) -> unitycatalog_resource_store::Result<()> {
+    async fn remove(&self, from_id: Uuid, to_id: Uuid, label: &str) -> trestle_store::Result<()> {
         let assoc_label: AssociationLabel = label.parse().map_err(|_| {
-            unitycatalog_resource_store::Error::InvalidArgument(format!(
-                "Unknown association label: {label}"
-            ))
+            trestle_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
         })?;
         self.delete_association(&from_id, &assoc_label, &to_id)
             .await?;
