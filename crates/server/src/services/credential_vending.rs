@@ -1,10 +1,10 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use trestle_cloud::StaticCredentialProvider;
-use trestle_cloud::TemporaryToken;
-use trestle_cloud::aws::{AwsCredential, AwsCredentialProvider};
-use trestle_cloud::azure::AzureCredential;
+use olai_http::StaticCredentialProvider;
+use olai_http::TemporaryToken;
+use olai_http::aws::{AwsCredential, AwsCredentialProvider};
+use olai_http::azure::AzureCredential;
 use unitycatalog_common::models::credentials::v1::{
     Credential, azure_service_principal::Credential as AzureSpCredential,
 };
@@ -158,7 +158,7 @@ async fn vend_azure_service_principal(
 ) -> Result<TemporaryCredential> {
     let bearer_token = match &sp.credential {
         Some(AzureSpCredential::ClientSecret(secret)) => {
-            let token = trestle_cloud::azure::fetch_client_secret_token(
+            let token = olai_http::azure::fetch_client_secret_token(
                 &sp.directory_id,
                 sp.application_id.clone(),
                 secret.clone(),
@@ -168,7 +168,7 @@ async fn vend_azure_service_principal(
             extract_bearer_token(token.token.as_ref())?
         }
         Some(AzureSpCredential::FederatedTokenFile(token_file)) => {
-            let token = trestle_cloud::azure::fetch_workload_identity_token(
+            let token = olai_http::azure::fetch_workload_identity_token(
                 &sp.directory_id,
                 sp.application_id.clone(),
                 token_file.clone(),
@@ -206,7 +206,7 @@ async fn vend_azure_managed_identity(
     operation: VendOperation,
 ) -> Result<TemporaryCredential> {
     let msi_res_id = msi.managed_identity_id.clone();
-    let token = trestle_cloud::azure::fetch_managed_identity_token(None, None, msi_res_id).await?;
+    let token = olai_http::azure::fetch_managed_identity_token(None, None, msi_res_id).await?;
     let bearer_token = extract_bearer_token(token.token.as_ref())?;
     vend_azure_sas_from_bearer(url, &bearer_token, operation).await
 }
@@ -228,7 +228,7 @@ async fn vend_azure_storage_key(
         })?;
     let (container, prefix) = storage_url.bucket_and_prefix()?;
     let read_only = operation == VendOperation::Read;
-    let sas_token = trestle_cloud::azure::generate_storage_key_sas(
+    let sas_token = olai_http::azure::generate_storage_key_sas(
         &account,
         &container,
         &prefix,
@@ -251,7 +251,7 @@ async fn vend_azure_sas_from_bearer(
     })?;
     let (container, prefix) = storage_url.bucket_and_prefix()?;
     let read_only = operation == VendOperation::Read;
-    let sas_token = trestle_cloud::azure::generate_user_delegation_sas(
+    let sas_token = olai_http::azure::generate_user_delegation_sas(
         &account,
         &container,
         &prefix,
@@ -290,13 +290,13 @@ async fn vend_aws_iam_role(
                 token: role.session_token.clone(),
             }))
         } else {
-            trestle_cloud::aws::AmazonBuilder::from_env()
+            olai_http::aws::AmazonBuilder::from_env()
                 .with_region(region)
                 .build(None)?
                 .credentials
         };
 
-    let token = trestle_cloud::aws::assume_role_with_base(
+    let token = olai_http::aws::assume_role_with_base(
         &role.role_arn,
         region,
         None,

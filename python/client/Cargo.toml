@@ -12,7 +12,7 @@ name = "unitycatalog_client"
 crate-type = ["cdylib"]
 
 [dependencies]
-trestle-cloud = { path = "../../crates/trestle-cloud" }
+olai-http = { path = "../../../trestle/crates/olai-http" }
 unitycatalog-client = { path = "../../crates/client" }
 unitycatalog-common = { path = "../../crates/common", features = ["python"] }
 delta_kernel = { workspace = true }

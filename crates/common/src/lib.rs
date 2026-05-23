@@ -1,6 +1,5 @@
 pub use error::{Error, Result};
 pub use models::*;
-pub use trestle_derive as derive;
 
 pub(crate) mod codegen;
 pub mod error;

@@ -1,6 +1,6 @@
 // @generated — do not edit by hand.
 use crate::Result;
-use trestle_cloud::CloudClient;
+use olai_http::CloudClient;
 use unitycatalog_common::models::credentials::v1::*;
 use url::Url;
 /// HTTP client for service operations

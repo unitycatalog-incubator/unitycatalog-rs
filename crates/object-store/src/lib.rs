@@ -6,7 +6,7 @@ use object_store::gcp::GoogleCloudStorageBuilder;
 use object_store::path::Path;
 use object_store::prefix::PrefixStore;
 use object_store::{ObjectStore, Result};
-use trestle_cloud::CloudClient;
+use olai_http::CloudClient;
 use unitycatalog_client::{
     PathOperation, TableOperation, TableReference, TemporaryCredentialClient,
 };
@@ -90,7 +90,7 @@ impl UnityObjectStoreFactoryBuilder {
             );
         };
 
-        let trestle_cloud = if let Some(token) = self.token {
+        let olai_http = if let Some(token) = self.token {
             CloudClient::new_with_token(token)
         } else if self.allow_unauthenticated {
             CloudClient::new_unauthenticated()
@@ -98,7 +98,7 @@ impl UnityObjectStoreFactoryBuilder {
             return Err(Error::invalid_config("Failed to find credential for cloud client").into());
         };
 
-        let client = TemporaryCredentialClient::new_with_url(trestle_cloud, url);
+        let client = TemporaryCredentialClient::new_with_url(olai_http, url);
         Ok(UnityObjectStoreFactory {
             client,
             aws_region: self.aws_region,

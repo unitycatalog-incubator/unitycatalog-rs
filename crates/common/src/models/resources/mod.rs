@@ -1,5 +1,5 @@
 pub use super::_gen::ObjectLabel;
-pub use trestle_store::{EMPTY_RESOURCE_NAME, ResourceName, ResourceRef};
+pub use olai_store::{EMPTY_RESOURCE_NAME, ResourceName, ResourceRef};
 
 // Re-export the resource_name! macro from name.rs (which wraps the derive macro)
 pub use name::resource_name;

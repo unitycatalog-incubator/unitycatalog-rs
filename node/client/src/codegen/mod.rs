@@ -48,9 +48,9 @@ impl NapiUnityCatalogClient {
     #[napi(factory)]
     pub fn from_url(base_url: String, token: Option<String>) -> napi::Result<Self> {
         let client = if let Some(token) = token {
-            trestle_cloud::CloudClient::new_with_token(token)
+            olai_http::CloudClient::new_with_token(token)
         } else {
-            trestle_cloud::CloudClient::new_unauthenticated()
+            olai_http::CloudClient::new_unauthenticated()
         };
         let base_url = base_url.parse().map_err(|e: url::ParseError| {
             napi::Error::new(napi::Status::GenericFailure, e.to_string())
@@ -637,10 +637,9 @@ impl NapiUnityCatalogClient {
         schema_name: String,
         function_name: String,
     ) -> NapiFunctionClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, function_name);
         NapiFunctionClient {
-            client: self
-                .client
-                .function(catalog_name, schema_name, function_name),
+            client: self.client.function_from_full_name(full_name),
         }
     }
     #[napi]
@@ -651,8 +650,9 @@ impl NapiUnityCatalogClient {
     }
     #[napi]
     pub fn schema(&self, catalog_name: String, schema_name: String) -> NapiSchemaClient {
+        let full_name = format!("{}.{}", catalog_name, schema_name);
         NapiSchemaClient {
-            client: self.client.schema(catalog_name, schema_name),
+            client: self.client.schema_from_full_name(full_name),
         }
     }
     #[napi]
@@ -662,9 +662,15 @@ impl NapiUnityCatalogClient {
         }
     }
     #[napi]
-    pub fn table(&self, name: String) -> NapiTableClient {
+    pub fn table(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        table_name: String,
+    ) -> NapiTableClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, table_name);
         NapiTableClient {
-            client: self.client.table(name),
+            client: self.client.table_from_full_name(full_name),
         }
     }
     #[napi]
@@ -674,8 +680,9 @@ impl NapiUnityCatalogClient {
         schema_name: String,
         volume_name: String,
     ) -> NapiVolumeClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, volume_name);
         NapiVolumeClient {
-            client: self.client.volume(catalog_name, schema_name, volume_name),
+            client: self.client.volume_from_full_name(full_name),
         }
     }
 }

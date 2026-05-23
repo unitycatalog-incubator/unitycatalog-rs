@@ -10,7 +10,7 @@ homepage.workspace = true
 keywords.workspace = true
 
 [dependencies]
-trestle-cloud = { path = "../trestle-cloud" }
+olai-http = { path = "../../../trestle/crates/olai-http" }
 unitycatalog-common = { path = "../common" }
 
 thiserror = { workspace = true }

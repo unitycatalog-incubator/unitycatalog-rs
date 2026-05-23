@@ -6,7 +6,7 @@ use crate::models::{
 use super::tables::v1::TableSummary;
 
 /// Project-specific alias for `resource_store::Object` with our generated `ObjectLabel`.
-pub type Object = trestle_store::Object<ObjectLabel>;
+pub type Object = olai_store::Object<ObjectLabel>;
 
 impl ResourceExt for Object {
     fn resource_name(&self) -> ResourceName {

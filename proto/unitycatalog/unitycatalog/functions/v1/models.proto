@@ -119,6 +119,7 @@ message Function {
     pattern: "functions/{function}"
     plural: "functions"
     singular: "function"
+    name_field: "full_name"
   };
 
   // Name of function, relative to parent schema.

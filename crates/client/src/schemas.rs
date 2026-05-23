@@ -75,6 +75,19 @@ impl SchemaClient {
         }
     }
 
+    /// Construct a `SchemaClient` from a fully-qualified `catalog.schema` name.
+    pub fn new_from_full_name(full_name: impl ToString, client: SchemaClientBase) -> Self {
+        let full_name = full_name.to_string();
+        let mut parts = full_name.splitn(2, '.');
+        let catalog_name = parts.next().unwrap_or("").to_string();
+        let schema_name = parts.next().unwrap_or("").to_string();
+        Self {
+            catalog_name,
+            schema_name,
+            client,
+        }
+    }
+
     pub fn table(&self, name: impl Into<String>) -> TableClient {
         TableClient::new(
             format!("{}.{}.{}", self.catalog_name, self.schema_name, name.into()),

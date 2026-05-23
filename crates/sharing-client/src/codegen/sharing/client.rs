@@ -1,5 +1,5 @@
 #![allow(unused_mut)]
-use trestle_cloud::CloudClient;
+use olai_http::CloudClient;
 use url::Url;
 
 use crate::error::Result;

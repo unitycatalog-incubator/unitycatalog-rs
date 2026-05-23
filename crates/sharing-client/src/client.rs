@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
-use trestle_cloud::CloudClient;
+use olai_http::CloudClient;
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;

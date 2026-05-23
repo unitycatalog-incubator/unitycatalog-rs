@@ -130,6 +130,7 @@ message Table {
     pattern: "tables/{table}"
     plural: "tables"
     singular: "table"
+    name_field: "full_name"
   };
 
   // Name of table, relative to parent schema.

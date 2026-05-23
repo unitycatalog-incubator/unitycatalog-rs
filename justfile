@@ -1,6 +1,6 @@
 mod dev 'dev/justfile'
 
-set dotenv-load := true
+set dotenv-load
 
 # Show available commands
 _default:
@@ -26,7 +26,7 @@ generate-proto:
 generate-openapi:
     buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    cargo run --bin proto-gen -- enrich-openapi \
+    cargo run --manifest-path ../trestle/crates/olai-codegen/Cargo.toml --bin olai-codegen -- enrich-openapi \
       --jsonschema-dir openapi/jsonschema \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm -f {{ justfile_directory() }}/descriptors.bin
@@ -39,11 +39,11 @@ generate-openapi:
 [group('codegen')]
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    cargo run --bin proto-gen -- generate --config proto-gen.yaml \
+    cargo run --manifest-path ../trestle/crates/olai-codegen/Cargo.toml --bin olai-codegen -- generate --config proto-gen.yaml \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
     just fmt
-    mv python/client/src/codegen/unitycatalog_client.pyi python/client/unitycatalog_client.pyi
+    mv python/client/src/codegen/client.pyi python/client/unitycatalog_client.pyi
 
 # CURRENTLY not used, but we may need it again come validation ...
 [group('codegen')]
@@ -63,9 +63,9 @@ generate-node:
 # Regenerate proto-gen test fixture descriptors from proto/ source files.
 [group('codegen')]
 generate-proto-gen-fixtures:
-    buf dep update crates/trestle-codegen/proto
-    buf build --output {{ justfile_directory() }}/crates/trestle-codegen/proto/example.bin \
-      crates/trestle-codegen/proto/
+    buf dep update ../trestle/crates/trestle-codegen/proto
+    buf build --output {{ justfile_directory() }}/../trestle/crates/olai-codegen/proto/example.bin \
+      ../trestle/crates/olai-codegen/proto/
 
 [group('dev')]
 rest:

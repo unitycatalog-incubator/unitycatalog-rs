@@ -59,14 +59,14 @@ impl From<sqlx::Error> for Error {
     }
 }
 
-impl From<Error> for trestle_store::Error {
+impl From<Error> for olai_store::Error {
     fn from(e: Error) -> Self {
         match e {
-            Error::EntityNotFound(_) => trestle_store::Error::NotFound,
-            Error::AlreadyExists(_) => trestle_store::Error::AlreadyExists,
-            Error::InvalidUrl(e) => trestle_store::Error::InvalidArgument(e.to_string()),
-            Error::DecodePageToken(e) => trestle_store::Error::InvalidArgument(e.to_string()),
-            other => trestle_store::Error::Generic(other.to_string()),
+            Error::EntityNotFound(_) => olai_store::Error::NotFound,
+            Error::AlreadyExists(_) => olai_store::Error::AlreadyExists,
+            Error::InvalidUrl(e) => olai_store::Error::InvalidArgument(e.to_string()),
+            Error::DecodePageToken(e) => olai_store::Error::InvalidArgument(e.to_string()),
+            other => olai_store::Error::Generic(other.to_string()),
         }
     }
 }

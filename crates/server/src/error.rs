@@ -67,13 +67,13 @@ pub enum Error {
     #[error("Cloud credential error: {source}")]
     CloudCredential {
         #[from]
-        source: trestle_cloud::Error,
+        source: olai_http::Error,
     },
 
     #[error("Resource store error: {source}")]
     ResourceStore {
         #[from]
-        source: trestle_store::Error,
+        source: olai_store::Error,
     },
 }
 
@@ -104,10 +104,10 @@ impl Error {
             Error::Generic(_) => "INTERNAL_ERROR",
             Error::CloudCredential { .. } => "INTERNAL_ERROR",
             Error::ResourceStore { source } => match source {
-                trestle_store::Error::NotFound => "RESOURCE_NOT_FOUND",
-                trestle_store::Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
-                trestle_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
-                trestle_store::Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
+                olai_store::Error::NotFound => "RESOURCE_NOT_FOUND",
+                olai_store::Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
+                olai_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+                olai_store::Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
                 _ => "INTERNAL_ERROR",
             },
         }
@@ -159,18 +159,18 @@ impl IntoResponse for Error {
                         INTERNAL_ERROR
                     }
                     unitycatalog_common::Error::ResourceStore(e) => match e {
-                        trestle_store::Error::NotFound => (
+                        olai_store::Error::NotFound => (
                             StatusCode::NOT_FOUND,
                             "The requested resource does not exist.",
                         ),
-                        trestle_store::Error::AlreadyExists => {
+                        olai_store::Error::AlreadyExists => {
                             (StatusCode::CONFLICT, "The resource already exists.")
                         }
-                        trestle_store::Error::InvalidArgument(msg) => {
+                        olai_store::Error::InvalidArgument(msg) => {
                             error!("Invalid argument: {}", msg);
                             INVALID_ARGUMENT
                         }
-                        trestle_store::Error::InvalidIdentifier(e) => {
+                        olai_store::Error::InvalidIdentifier(e) => {
                             error!("Invalid identifier: {}", e);
                             INVALID_ARGUMENT
                         }
@@ -252,14 +252,14 @@ impl IntoResponse for Error {
                 )
             }
             Error::ResourceStore { source } => match source {
-                trestle_store::Error::NotFound => (
+                olai_store::Error::NotFound => (
                     StatusCode::NOT_FOUND,
                     "The requested resource does not exist.",
                 ),
-                trestle_store::Error::AlreadyExists => {
+                olai_store::Error::AlreadyExists => {
                     (StatusCode::CONFLICT, "The resource already exists.")
                 }
-                trestle_store::Error::InvalidArgument(msg) => {
+                olai_store::Error::InvalidArgument(msg) => {
                     error!("Invalid argument: {}", msg);
                     INVALID_ARGUMENT
                 }
@@ -337,13 +337,13 @@ impl From<Error> for Status {
                 Status::internal(format!("Cloud credential error: {}", source))
             }
             Error::ResourceStore { source } => match source {
-                trestle_store::Error::NotFound => {
+                olai_store::Error::NotFound => {
                     Status::not_found("The requested resource does not exist.")
                 }
-                trestle_store::Error::AlreadyExists => {
+                olai_store::Error::AlreadyExists => {
                     Status::already_exists("The resource already exists.")
                 }
-                trestle_store::Error::InvalidArgument(msg) => Status::invalid_argument(msg),
+                olai_store::Error::InvalidArgument(msg) => Status::invalid_argument(msg),
                 _ => Status::internal(format!("Resource store error: {source}")),
             }, // Error::RequestError(error) => Status::internal(error.to_string()),
                // #[cfg(feature = "axum")]

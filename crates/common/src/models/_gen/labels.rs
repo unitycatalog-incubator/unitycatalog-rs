@@ -1,5 +1,5 @@
 // @generated — do not edit by hand.
-/// All resource types managed by Unity Catalog.
+/// All resource types managed by the service.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Resource {
@@ -240,20 +240,451 @@ impl TryFrom<Resource> for super::volumes::v1::Volume {
 use crate::Error;
 use crate::models::object::Object;
 use crate::models::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
-::trestle_derive::object_conversions!(
-    super::catalogs::v1::Catalog, ObjectLabel::Catalog, id, [name], true;
-    super::tables::v1::Column, ObjectLabel::Column, column_id, [name], true;
-    super::credentials::v1::Credential, ObjectLabel::Credential, id, [name], true;
-    super::external_locations::v1::ExternalLocation, ObjectLabel::ExternalLocation,
-    external_location_id, [name], true; super::functions::v1::Function,
-    ObjectLabel::Function, function_id, [catalog_name, schema_name, name], true;
-    super::recipients::v1::Recipient, ObjectLabel::Recipient, id, [name], true;
-    super::schemas::v1::Schema, ObjectLabel::Schema, schema_id, [catalog_name, name],
-    true; super::shares::v1::Share, ObjectLabel::Share, id, [name], true;
-    super::tables::v1::Table, ObjectLabel::Table, table_id, [catalog_name, schema_name,
-    name], true; super::volumes::v1::Volume, ObjectLabel::Volume, volume_id,
-    [catalog_name, schema_name, name], false
-);
+impl TryFrom<Object> for super::catalogs::v1::Catalog {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::catalogs::v1::Catalog = ::serde_json::from_value(props)?;
+        res.id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::catalogs::v1::Catalog> for Object {
+    type Error = Error;
+    fn try_from(obj: super::catalogs::v1::Catalog) -> Result<Self, Self::Error> {
+        let id = obj
+            .id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Catalog,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::catalogs::v1::Catalog {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Catalog).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::tables::v1::Column {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::tables::v1::Column = ::serde_json::from_value(props)?;
+        res.column_id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::tables::v1::Column> for Object {
+    type Error = Error;
+    fn try_from(obj: super::tables::v1::Column) -> Result<Self, Self::Error> {
+        let id = obj
+            .column_id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Column,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::tables::v1::Column {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.column_id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Column).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::credentials::v1::Credential {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::credentials::v1::Credential = ::serde_json::from_value(props)?;
+        res.id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::credentials::v1::Credential> for Object {
+    type Error = Error;
+    fn try_from(obj: super::credentials::v1::Credential) -> Result<Self, Self::Error> {
+        let id = obj
+            .id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Credential,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::credentials::v1::Credential {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Credential).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::external_locations::v1::ExternalLocation {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::external_locations::v1::ExternalLocation =
+            ::serde_json::from_value(props)?;
+        res.external_location_id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::external_locations::v1::ExternalLocation> for Object {
+    type Error = Error;
+    fn try_from(obj: super::external_locations::v1::ExternalLocation) -> Result<Self, Self::Error> {
+        let id = obj
+            .external_location_id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::ExternalLocation,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::external_locations::v1::ExternalLocation {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.external_location_id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::ExternalLocation).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::functions::v1::Function {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::functions::v1::Function = ::serde_json::from_value(props)?;
+        res.function_id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::functions::v1::Function> for Object {
+    type Error = Error;
+    fn try_from(obj: super::functions::v1::Function) -> Result<Self, Self::Error> {
+        let id = obj
+            .function_id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Function,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::functions::v1::Function {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.catalog_name, &self.schema_name, &self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.function_id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Function).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::recipients::v1::Recipient {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::recipients::v1::Recipient = ::serde_json::from_value(props)?;
+        res.id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::recipients::v1::Recipient> for Object {
+    type Error = Error;
+    fn try_from(obj: super::recipients::v1::Recipient) -> Result<Self, Self::Error> {
+        let id = obj
+            .id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Recipient,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::recipients::v1::Recipient {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Recipient).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::schemas::v1::Schema {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::schemas::v1::Schema = ::serde_json::from_value(props)?;
+        res.schema_id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::schemas::v1::Schema> for Object {
+    type Error = Error;
+    fn try_from(obj: super::schemas::v1::Schema) -> Result<Self, Self::Error> {
+        let id = obj
+            .schema_id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Schema,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::schemas::v1::Schema {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.catalog_name, &self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.schema_id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Schema).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::shares::v1::Share {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::shares::v1::Share = ::serde_json::from_value(props)?;
+        res.id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::shares::v1::Share> for Object {
+    type Error = Error;
+    fn try_from(obj: super::shares::v1::Share) -> Result<Self, Self::Error> {
+        let id = obj
+            .id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Share,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::shares::v1::Share {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Share).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::tables::v1::Table {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::tables::v1::Table = ::serde_json::from_value(props)?;
+        res.table_id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::tables::v1::Table> for Object {
+    type Error = Error;
+    fn try_from(obj: super::tables::v1::Table) -> Result<Self, Self::Error> {
+        let id = obj
+            .table_id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Table,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::tables::v1::Table {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.catalog_name, &self.schema_name, &self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.table_id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Table).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::volumes::v1::Volume {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::volumes::v1::Volume = ::serde_json::from_value(props)?;
+        res.volume_id = object.id.hyphenated().to_string();
+        Ok(res)
+    }
+}
+impl TryFrom<super::volumes::v1::Volume> for Object {
+    type Error = Error;
+    fn try_from(obj: super::volumes::v1::Volume) -> Result<Self, Self::Error> {
+        let id = ::uuid::Uuid::parse_str(&obj.volume_id).unwrap_or_else(|_| ::uuid::Uuid::nil());
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Volume,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::volumes::v1::Volume {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.catalog_name, &self.schema_name, &self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        ::uuid::Uuid::parse_str(&self.volume_id)
+            .ok()
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Volume).to_ident(self.resource_ref())
+    }
+}
 impl super::catalogs::v1::Catalog {
     /// Returns the fully-qualified dot-separated name computed from component fields.
     pub fn qualified_name(&self) -> String {
@@ -314,7 +745,7 @@ impl super::volumes::v1::Volume {
         format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
     }
 }
-impl ::trestle_store::Label for ObjectLabel {
+impl ::olai_store::Label for ObjectLabel {
     fn as_str(&self) -> &str {
         self.as_ref()
     }
@@ -325,667 +756,667 @@ impl ::trestle_store::Label for ObjectLabel {
 /// sensitive, managed), hierarchical name components, and parent relationship.
 ///
 /// Use `ResourceRegistry::from_static` to build a runtime registry from this data.
-pub static RESOURCE_DESCRIPTORS: &[::trestle_store::ResourceTypeDescriptor<ObjectLabel>] = &[
-    ::trestle_store::ResourceTypeDescriptor {
+pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLabel>] = &[
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Catalog,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "storage_root",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "provider_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "share_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "catalog_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "browse_only",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Column,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "type_text",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "type_json",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "position",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "type_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "type_precision",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "type_scale",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "type_interval_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "nullable",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "partition_index",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "column_id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Credential,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "purpose",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "read_only",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "used_for_managed_storage",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "azure_service_principal",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "azure_managed_identity",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "azure_storage_key",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "aws_iam_role",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "databricks_gcp_service_account",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::ExternalLocation,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "url",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "credential_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "read_only",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "credential_id",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "browse_only",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "external_location_id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Function,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "schema_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "data_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "full_data_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "input_params",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "return_params",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "routine_body_language",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "routine_definition",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "routine_dependencies",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "parameter_style",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "is_deterministic",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "sql_data_access",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "is_null_call",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "security_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "specific_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "routine_body",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "function_id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
         ],
         path_names: &["catalog_name", "schema_name", "name"],
-        parent_label: Some(ObjectLabel::Schema),
+        parent_label: Some(ObjectLabel::Catalog),
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Recipient,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "authentication_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "tokens",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Schema,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "schema_id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
         ],
         path_names: &["catalog_name", "name"],
         parent_label: Some(ObjectLabel::Catalog),
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Share,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "objects",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "storage_location",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "storage_root",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
         ],
         path_names: &["name"],
         parent_label: None,
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Table,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "schema_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "table_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "data_source_format",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "columns",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "storage_location",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "properties",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "storage_credential_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "deleted_at",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "table_id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
         ],
         path_names: &["catalog_name", "schema_name", "name"],
-        parent_label: Some(ObjectLabel::Schema),
+        parent_label: Some(ObjectLabel::Catalog),
     },
-    ::trestle_store::ResourceTypeDescriptor {
+    ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Volume,
         fields: &[
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "catalog_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "schema_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "full_name",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "storage_location",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "volume_id",
-                role: ::trestle_store::FieldRole::Identifier,
+                role: ::olai_store::FieldRole::Identifier,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "volume_type",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "comment",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_at",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
-                role: ::trestle_store::FieldRole::Managed,
+                role: ::olai_store::FieldRole::Managed,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "browse_only",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
-            ::trestle_store::ResourceFieldDescriptor {
+            ::olai_store::ResourceFieldDescriptor {
                 name: "metastore_id",
-                role: ::trestle_store::FieldRole::Data,
+                role: ::olai_store::FieldRole::Data,
             },
         ],
         path_names: &["catalog_name", "schema_name", "name"],
-        parent_label: Some(ObjectLabel::Schema),
+        parent_label: Some(ObjectLabel::Catalog),
     },
 ];

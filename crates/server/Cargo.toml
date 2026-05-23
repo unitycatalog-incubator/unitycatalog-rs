@@ -11,11 +11,11 @@ keywords.workspace = true
 
 [dependencies]
 unitycatalog-common = { path = "../common", features = ["axum"] }
-trestle-store = { path = "../trestle-store" }
+olai-store = { path = "../../../trestle/crates/olai-store" }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }
-trestle-cloud = { path = "../trestle-cloud" }
+olai-http = { path = "../../../trestle/crates/olai-http" }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }

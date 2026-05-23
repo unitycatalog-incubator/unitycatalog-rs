@@ -25,7 +25,7 @@ pub enum Error {
     InvalidUrl(#[from] url::ParseError),
 
     #[error(transparent)]
-    ResourceStore(#[from] trestle_store::Error),
+    ResourceStore(#[from] olai_store::Error),
 }
 
 impl Error {
@@ -48,10 +48,10 @@ impl Error {
             Error::SerDe(_) => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
             Error::ResourceStore(e) => match e {
-                trestle_store::Error::NotFound => "RESOURCE_NOT_FOUND",
-                trestle_store::Error::AlreadyExists => "ALREADY_EXISTS",
-                trestle_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
-                trestle_store::Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
+                olai_store::Error::NotFound => "RESOURCE_NOT_FOUND",
+                olai_store::Error::AlreadyExists => "ALREADY_EXISTS",
+                olai_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+                olai_store::Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
                 _ => "INTERNAL_ERROR",
             },
         }

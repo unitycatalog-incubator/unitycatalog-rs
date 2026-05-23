@@ -307,12 +307,12 @@ impl Store {
 
 // --- ObjectStore<ObjectLabel> implementation ---
 
-use trestle_store::EMPTY_RESOURCE_NAME;
-use trestle_store::name::ResourceName;
+use olai_store::EMPTY_RESOURCE_NAME;
+use olai_store::name::ResourceName;
 
 #[async_trait::async_trait]
-impl trestle_store::ObjectStoreReader<ObjectLabel> for Store {
-    async fn get(&self, id: &Uuid) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
+impl olai_store::ObjectStoreReader<ObjectLabel> for Store {
+    async fn get(&self, id: &Uuid) -> olai_store::Result<olai_store::Object<ObjectLabel>> {
         Ok(self.get_object(id).await?)
     }
 
@@ -320,7 +320,7 @@ impl trestle_store::ObjectStoreReader<ObjectLabel> for Store {
         &self,
         label: ObjectLabel,
         name: &ResourceName,
-    ) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
+    ) -> olai_store::Result<olai_store::Object<ObjectLabel>> {
         Ok(self.get_object_by_name(&label, name).await?)
     }
 
@@ -330,7 +330,7 @@ impl trestle_store::ObjectStoreReader<ObjectLabel> for Store {
         namespace: Option<&ResourceName>,
         max_results: Option<usize>,
         page_token: Option<String>,
-    ) -> trestle_store::Result<(Vec<trestle_store::Object<ObjectLabel>>, Option<String>)> {
+    ) -> olai_store::Result<(Vec<olai_store::Object<ObjectLabel>>, Option<String>)> {
         let namespace = namespace.unwrap_or(&EMPTY_RESOURCE_NAME);
         let (objects, token) = self
             .list_objects(&label, namespace, page_token.as_deref(), max_results)
@@ -340,13 +340,13 @@ impl trestle_store::ObjectStoreReader<ObjectLabel> for Store {
 }
 
 #[async_trait::async_trait]
-impl trestle_store::ObjectStore<ObjectLabel> for Store {
+impl olai_store::ObjectStore<ObjectLabel> for Store {
     async fn create(
         &self,
         label: ObjectLabel,
         name: &ResourceName,
         properties: Option<serde_json::Value>,
-    ) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
+    ) -> olai_store::Result<olai_store::Object<ObjectLabel>> {
         Ok(self.add_object(&label, name, properties).await?)
     }
 
@@ -354,13 +354,13 @@ impl trestle_store::ObjectStore<ObjectLabel> for Store {
         &self,
         id: &Uuid,
         properties: Option<serde_json::Value>,
-    ) -> trestle_store::Result<trestle_store::Object<ObjectLabel>> {
+    ) -> olai_store::Result<olai_store::Object<ObjectLabel>> {
         Ok(self
             .update_object(id, None::<&ObjectLabel>, None::<&[String]>, properties)
             .await?)
     }
 
-    async fn delete(&self, id: &Uuid) -> trestle_store::Result<()> {
+    async fn delete(&self, id: &Uuid) -> olai_store::Result<()> {
         Ok(self.delete_object(id).await?)
     }
 }
@@ -368,7 +368,7 @@ impl trestle_store::ObjectStore<ObjectLabel> for Store {
 // --- AssociationStore<ObjectLabel> implementation ---
 
 #[async_trait::async_trait]
-impl trestle_store::AssociationStoreReader<ObjectLabel> for Store {
+impl olai_store::AssociationStoreReader<ObjectLabel> for Store {
     async fn list(
         &self,
         from_id: Uuid,
@@ -376,9 +376,9 @@ impl trestle_store::AssociationStoreReader<ObjectLabel> for Store {
         target_label: Option<ObjectLabel>,
         max_results: Option<usize>,
         page_token: Option<String>,
-    ) -> trestle_store::Result<(Vec<trestle_store::Association<ObjectLabel>>, Option<String>)> {
+    ) -> olai_store::Result<(Vec<olai_store::Association<ObjectLabel>>, Option<String>)> {
         let assoc_label: AssociationLabel = label.parse().map_err(|_| {
-            trestle_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
+            olai_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
         })?;
         let (associations, token) = self
             .list_associations(
@@ -389,9 +389,9 @@ impl trestle_store::AssociationStoreReader<ObjectLabel> for Store {
                 max_results,
             )
             .await?;
-        let converted: Vec<trestle_store::Association<ObjectLabel>> = associations
+        let converted: Vec<olai_store::Association<ObjectLabel>> = associations
             .into_iter()
-            .map(|a| trestle_store::Association {
+            .map(|a| olai_store::Association {
                 id: a.id,
                 from_id: a.from_id,
                 label: a.label.to_string(),
@@ -407,25 +407,25 @@ impl trestle_store::AssociationStoreReader<ObjectLabel> for Store {
 }
 
 #[async_trait::async_trait]
-impl trestle_store::AssociationStore<ObjectLabel> for Store {
+impl olai_store::AssociationStore<ObjectLabel> for Store {
     async fn add(
         &self,
         from_id: Uuid,
         to_id: Uuid,
         label: &str,
         properties: Option<serde_json::Value>,
-    ) -> trestle_store::Result<()> {
+    ) -> olai_store::Result<()> {
         let assoc_label: AssociationLabel = label.parse().map_err(|_| {
-            trestle_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
+            olai_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
         })?;
         self.add_association(&from_id, &assoc_label, &to_id, properties)
             .await?;
         Ok(())
     }
 
-    async fn remove(&self, from_id: Uuid, to_id: Uuid, label: &str) -> trestle_store::Result<()> {
+    async fn remove(&self, from_id: Uuid, to_id: Uuid, label: &str) -> olai_store::Result<()> {
         let assoc_label: AssociationLabel = label.parse().map_err(|_| {
-            trestle_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
+            olai_store::Error::InvalidArgument(format!("Unknown association label: {label}"))
         })?;
         self.delete_association(&from_id, &assoc_label, &to_id)
             .await?;

@@ -10,8 +10,8 @@ generate:
   generate_resource_enum: true
   error_type_path: "crate::Error"
   generate_object_conversions: true
-  derive_crate_name: trestle_derive
-  resource_store_crate_name: trestle_store
+  generate_store_integration: true
+  resource_store_crate_name: olai_store
   python:
     output: python/client/src/codegen
     error_type: PyUnityCatalogError
