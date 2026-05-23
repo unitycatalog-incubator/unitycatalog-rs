@@ -1,0 +1,29 @@
+[package]
+name = "unitycatalog-tasks"
+description = "Postgres-backed background task queue framework for unitycatalog-rs."
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+readme = "README.md"
+version.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true }
+fastrand = "2.3"
+futures = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sqlx = { workspace = true, features = ["postgres", "chrono", "uuid", "json"] }
+thiserror = { workspace = true }
+tokio = { version = "1", features = ["rt", "time", "macros", "sync"] }
+tokio-util = { version = "0.7", default-features = false }
+tracing = { workspace = true }
+uuid = { workspace = true, features = ["v7"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+serde_json = { workspace = true }

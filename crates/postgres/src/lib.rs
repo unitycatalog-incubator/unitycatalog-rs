@@ -7,6 +7,7 @@ mod graph;
 mod pagination;
 mod resources;
 mod secrets;
+mod tasks;
 
 #[cfg(all(test, feature = "integration-pg"))]
 mod tests {
