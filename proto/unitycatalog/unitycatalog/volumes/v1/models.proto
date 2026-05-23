@@ -18,6 +18,7 @@ message Volume {
     pattern: "volume/{volume}"
     plural: "volumes"
     singular: "volume"
+    name_field: "full_name"
   };
 
   // Name of volume, relative to parent schema.

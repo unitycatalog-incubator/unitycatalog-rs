@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
-use cloud_client::CloudClient;
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
+use olai_http::CloudClient;
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;

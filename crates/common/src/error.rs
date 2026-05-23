@@ -23,6 +23,9 @@ pub enum Error {
 
     #[error("invalid url: {0}")]
     InvalidUrl(#[from] url::ParseError),
+
+    #[error(transparent)]
+    ResourceStore(#[from] olai_store::Error),
 }
 
 impl Error {
@@ -44,6 +47,13 @@ impl Error {
             Error::InvalidUrl(_) => "INVALID_PARAMETER_VALUE",
             Error::SerDe(_) => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
+            Error::ResourceStore(e) => match e {
+                olai_store::Error::NotFound => "RESOURCE_NOT_FOUND",
+                olai_store::Error::AlreadyExists => "ALREADY_EXISTS",
+                olai_store::Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
+                olai_store::Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
+                _ => "INTERNAL_ERROR",
+            },
         }
     }
 }

@@ -17,7 +17,7 @@ pub enum Error {
     #[error("Client Error: {source}")]
     ClientError {
         #[from]
-        source: cloud_client::Error,
+        source: olai_http::Error,
     },
 
     #[error("Malformed response: {source}")]

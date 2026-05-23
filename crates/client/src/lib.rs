@@ -1,4 +1,4 @@
-use cloud_client::CloudClient;
+use olai_http::CloudClient;
 
 pub use catalogs::*;
 pub use credentials::*;
@@ -163,6 +163,11 @@ impl UnityCatalogClient {
         SchemaClient::new(catalog_name, schema_name, self.schemas.clone())
     }
 
+    /// Construct a [`SchemaClient`] from a fully-qualified `catalog.schema` name.
+    pub fn schema_from_full_name(&self, full_name: impl ToString) -> SchemaClient {
+        SchemaClient::new_from_full_name(full_name, self.schemas.clone())
+    }
+
     // Table methods
     pub fn list_table_summaries(
         &self,
@@ -206,6 +211,11 @@ impl UnityCatalogClient {
     }
 
     pub fn table(&self, full_name: impl ToString) -> TableClient {
+        TableClient::new(full_name, self.tables.clone())
+    }
+
+    /// Alias for [`table`](Self::table); accepts a fully-qualified `catalog.schema.table` name.
+    pub fn table_from_full_name(&self, full_name: impl ToString) -> TableClient {
         TableClient::new(full_name, self.tables.clone())
     }
 

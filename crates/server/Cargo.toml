@@ -14,7 +14,6 @@ unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }
-cloud-client = { path = "../cloud-client" }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }
@@ -25,6 +24,7 @@ deltalake-datafusion = { workspace = true }
 futures = { workspace = true }
 itertools = { workspace = true }
 object_store = { workspace = true }
+olai-http = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 strum = { workspace = true }
@@ -39,6 +39,8 @@ tonic = { workspace = true, optional = true }
 datafusion = { version = "49" }
 futures-util = { version = "0.3.28" }
 http = { version = "1.2", optional = true }
+olai-store = { path = "../../../trestle/crates/olai-store" }
+# olai-store = { version = "0" }
 tokio = { version = "1.40", features = ["rt-multi-thread"] }
 tower = { workspace = true, features = ["make"], optional = true }
 

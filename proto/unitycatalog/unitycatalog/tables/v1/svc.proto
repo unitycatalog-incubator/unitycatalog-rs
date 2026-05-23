@@ -6,6 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "unitycatalog/tables/v1/models.proto";
 
@@ -50,14 +51,16 @@ message ListTablesRequest {
   string catalog_name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "unitycatalog.io/Table"}
   ];
 
   // Name of parent schema for tables of interest.
   string schema_name = 2 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
     (buf.validate.field).string.min_len = 3,
-    (google.api.field_behavior) = REQUIRED
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "unitycatalog.io/Table"}
   ];
 
   // The maximum number of results per page that should be returned.
@@ -142,7 +145,10 @@ message CreateTableRequest {
 // Get a table
 message GetTableRequest {
   // Full name of the table.
-  string full_name = 1 [(google.api.field_behavior) = REQUIRED];
+  string full_name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "unitycatalog.io/Table"}
+  ];
 
   // Whether delta metadata should be included in the response.
   optional bool include_delta_metadata = 2 [(google.api.field_behavior) = OPTIONAL];
@@ -168,7 +174,10 @@ message GetTableExistsResponse {
 // Delete a table
 message DeleteTableRequest {
   // Full name of the table.
-  string full_name = 1 [(google.api.field_behavior) = REQUIRED];
+  string full_name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "unitycatalog.io/Table"}
+  ];
 }
 
 // Service for managing tables in Unity Catalog.

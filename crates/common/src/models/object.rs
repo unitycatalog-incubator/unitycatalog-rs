@@ -1,33 +1,12 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-
-use super::tables::v1::TableSummary;
 use crate::Error;
 use crate::models::{
     ObjectLabel, Resource, ResourceExt, ResourceIdent, ResourceName, ResourceRef, Table,
 };
 
-#[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
-pub struct Object {
-    /// The globally unique identifier of the object.
-    pub id: Uuid,
+use super::tables::v1::TableSummary;
 
-    /// The label / type of the object.
-    pub label: ObjectLabel,
-
-    /// The namespaced name of the object.
-    pub name: ResourceName,
-
-    /// The properties of the object.
-    pub properties: Option<serde_json::Value>,
-
-    /// The time when the object was created.
-    pub created_at: chrono::DateTime<chrono::Utc>,
-
-    /// The time when the object was last updated.
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
-}
+/// Project-specific alias for `resource_store::Object` with our generated `ObjectLabel`.
+pub type Object = olai_store::Object<ObjectLabel>;
 
 impl ResourceExt for Object {
     fn resource_name(&self) -> ResourceName {

@@ -15,7 +15,6 @@ path = "src/main.rs"
 
 [dependencies]
 # path dependencies (in alphabetical order)
-cloud-client = { path = "../cloud-client" }
 unitycatalog-client = { path = "../client" }
 unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-postgres = { path = "../postgres" }
@@ -24,6 +23,7 @@ unitycatalog-server = { path = "../server", features = ["axum"] }
 # workspace dependencies (in alphabetical order)
 axum = { workspace = true, features = ["tracing"] }
 chrono = { workspace = true }
+olai-http = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

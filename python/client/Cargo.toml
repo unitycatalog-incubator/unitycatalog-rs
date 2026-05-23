@@ -12,14 +12,16 @@ name = "unitycatalog_client"
 crate-type = ["cdylib"]
 
 [dependencies]
-cloud-client = { path = "../../crates/cloud-client" }
 unitycatalog-client = { path = "../../crates/client" }
 unitycatalog-common = { path = "../../crates/common", features = ["python"] }
-delta_kernel = { workspace = true }
 
 chrono = { workspace = true }
+delta_kernel = { workspace = true }
 futures = { workspace = true }
+olai-http = { workspace = true }
 pyo3 = { workspace = true, features = ["abi3-py39"] }
+url = { workspace = true }
+
 thiserror = "2"
 tokio = { version = "1", features = [
   "macros",
@@ -27,4 +29,3 @@ tokio = { version = "1", features = [
   "rt-multi-thread",
   "sync",
 ] }
-url = { workspace = true }

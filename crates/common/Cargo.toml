@@ -10,12 +10,11 @@ version.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-unitycatalog-derive = { path = "../derive" }
-
 async-trait = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
 itertools = { workspace = true }
+olai-http = { workspace = true, optional = true }
 pbjson = { workspace = true }
 pbjson-types = { workspace = true }
 prost = { workspace = true }
@@ -30,10 +29,9 @@ uuid = { workspace = true }
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
-
-# rest client dependencies (in alphabetical order)
-cloud-client = { path = "../cloud-client", optional = true }
 futures = { version = "0.3", optional = true }
+olai-store = { path = "../../../trestle/crates/olai-store" }
+# olai-store = { version = "0" }
 
 # grpc server specific dependencies (in alphabetical order)
 tonic = { workspace = true, optional = true }
@@ -70,10 +68,10 @@ grpc = ["tonic"]
 # and `FromRequestParts` for request types.
 axum = ["dep:axum", "dep:axum-extra", "http"]
 
-sqlx = ["dep:sqlx"]
+sqlx = ["dep:sqlx", "olai-store/sqlx"]
 
 # enable client implementation to interact with Unity REST APIs
-rest-client = ["futures", "cloud-client"]
+rest-client = ["futures", "olai-http"]
 
 # exposes functionality that help testing cutom handler / router implementations.
 integration = ["http-body-util", "mime", "axum"]

@@ -1167,8 +1167,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  table(name: string): TableClient {
-    return new TableClient(this.inner.table(name));
+  table(catalogName: string, schemaName: string, tableName: string): TableClient {
+    return new TableClient(this.inner.table(catalogName, schemaName, tableName));
   }
 
   /**

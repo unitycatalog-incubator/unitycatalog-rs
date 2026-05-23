@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_volume_client_construction() {
         let client = VolumeClientBase::new(
-            cloud_client::CloudClient::new_unauthenticated(),
+            olai_http::CloudClient::new_unauthenticated(),
             url::Url::parse("http://localhost:8080/").unwrap(),
         );
 
@@ -136,7 +136,7 @@ mod tests {
     #[test]
     fn test_volume_client_from_full_name() {
         let client = VolumeClientBase::new(
-            cloud_client::CloudClient::new_unauthenticated(),
+            olai_http::CloudClient::new_unauthenticated(),
             url::Url::parse("http://localhost:8080/").unwrap(),
         );
 
@@ -152,7 +152,7 @@ mod tests {
     #[should_panic(expected = "Invalid volume full name format")]
     fn test_volume_client_from_invalid_full_name() {
         let client = VolumeClientBase::new(
-            cloud_client::CloudClient::new_unauthenticated(),
+            olai_http::CloudClient::new_unauthenticated(),
             url::Url::parse("http://localhost:8080/").unwrap(),
         );
 

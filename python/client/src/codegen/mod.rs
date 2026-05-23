@@ -43,9 +43,9 @@ impl PyUnityCatalogClient {
     #[pyo3(signature = (base_url, token = None))]
     pub fn new(base_url: String, token: Option<String>) -> PyResult<Self> {
         let client = if let Some(token) = token {
-            cloud_client::CloudClient::new_with_token(token)
+            olai_http::CloudClient::new_with_token(token)
         } else {
-            cloud_client::CloudClient::new_unauthenticated()
+            olai_http::CloudClient::new_unauthenticated()
         };
         let base_url = base_url.parse().map_err(PyUnityCatalogError::from)?;
         Ok(Self {
@@ -585,10 +585,9 @@ impl PyUnityCatalogClient {
         schema_name: String,
         function_name: String,
     ) -> PyFunctionClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, function_name);
         PyFunctionClient {
-            client: self
-                .client
-                .function(catalog_name, schema_name, function_name),
+            client: self.client.function_from_full_name(full_name),
         }
     }
     pub fn recipient(&self, name: String) -> PyRecipientClient {
@@ -597,8 +596,9 @@ impl PyUnityCatalogClient {
         }
     }
     pub fn schema(&self, catalog_name: String, schema_name: String) -> PySchemaClient {
+        let full_name = format!("{}.{}", catalog_name, schema_name);
         PySchemaClient {
-            client: self.client.schema(catalog_name, schema_name),
+            client: self.client.schema_from_full_name(full_name),
         }
     }
     pub fn share(&self, name: String) -> PyShareClient {
@@ -606,9 +606,15 @@ impl PyUnityCatalogClient {
             client: self.client.share(name),
         }
     }
-    pub fn table(&self, name: String) -> PyTableClient {
+    pub fn table(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        table_name: String,
+    ) -> PyTableClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, table_name);
         PyTableClient {
-            client: self.client.table(name),
+            client: self.client.table_from_full_name(full_name),
         }
     }
     pub fn volume(
@@ -617,8 +623,9 @@ impl PyUnityCatalogClient {
         schema_name: String,
         volume_name: String,
     ) -> PyVolumeClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, volume_name);
         PyVolumeClient {
-            client: self.client.volume(catalog_name, schema_name, volume_name),
+            client: self.client.volume_from_full_name(full_name),
         }
     }
 }

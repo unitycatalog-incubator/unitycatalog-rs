@@ -59,6 +59,18 @@ impl From<sqlx::Error> for Error {
     }
 }
 
+impl From<Error> for olai_store::Error {
+    fn from(e: Error) -> Self {
+        match e {
+            Error::EntityNotFound(_) => olai_store::Error::NotFound,
+            Error::AlreadyExists(_) => olai_store::Error::AlreadyExists,
+            Error::InvalidUrl(e) => olai_store::Error::InvalidArgument(e.to_string()),
+            Error::DecodePageToken(e) => olai_store::Error::InvalidArgument(e.to_string()),
+            other => olai_store::Error::Generic(other.to_string()),
+        }
+    }
+}
+
 impl From<Error> for ServerError {
     fn from(e: Error) -> Self {
         match e {

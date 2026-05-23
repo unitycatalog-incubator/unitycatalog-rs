@@ -15,7 +15,7 @@ pub struct ObjectRelations {
 /// Associations describe relationships between two objects.
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow, PartialEq)]
 pub struct Association {
-    id: Uuid,
+    pub id: Uuid,
 
     /// Source object identifier.
     pub from_id: Uuid,
