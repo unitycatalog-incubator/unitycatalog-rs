@@ -10,12 +10,11 @@ version.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-olai-store = { path = "../../../trestle/crates/olai-store" }
-
 async-trait = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
 itertools = { workspace = true }
+olai-http = { workspace = true, optional = true }
 pbjson = { workspace = true }
 pbjson-types = { workspace = true }
 prost = { workspace = true }
@@ -30,10 +29,9 @@ uuid = { workspace = true }
 # rest server dependencies (in alphabetical order)
 axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
-
-# rest client dependencies (in alphabetical order)
-olai-http = { path = "../../../trestle/crates/olai-http", optional = true }
 futures = { version = "0.3", optional = true }
+olai-store = { path = "../../../trestle/crates/olai-store" }
+# olai-store = { version = "0" }
 
 # grpc server specific dependencies (in alphabetical order)
 tonic = { workspace = true, optional = true }

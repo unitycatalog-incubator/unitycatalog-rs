@@ -10,13 +10,13 @@ homepage.workspace = true
 keywords.workspace = true
 
 [dependencies]
-olai-http = { path = "../../../trestle/crates/olai-http" }
 unitycatalog-client = { path = "../client", default-features = false }
 unitycatalog-common = { path = "../common", default-features = false }
 
 async-trait = { workspace = true }
 chrono = { workspace = true }
 object_store = { workspace = true }
+olai-http = { workspace = true }
 thiserror = { workspace = true }
 url = { workspace = true }
 uuid = { workspace = true }
