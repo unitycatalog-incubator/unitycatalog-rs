@@ -13,6 +13,7 @@ rust-version.workspace = true
 # path dependencies (in alphabetical order)
 unitycatalog-common = { path = "../common", default-features = false }
 unitycatalog-server = { path = "../server", default-features = false }
+unitycatalog-tasks = { path = "../tasks" }
 
 # workspace dependencies (in alphabetical order)
 async-trait = { workspace = true }
