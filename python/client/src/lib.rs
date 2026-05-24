@@ -1,6 +1,7 @@
 use self::client::{
     PyCatalogClient, PyCredentialClient, PyExternalLocationClient, PyRecipientClient,
-    PySchemaClient, PyShareClient, PyTableClient, PyUnityCatalogClient, PyVolumeClient,
+    PySchemaClient, PyShareClient, PyTableClient, PyTemporaryCredentialClient,
+    PyUnityCatalogClient, PyVolumeClient,
 };
 use pyo3::prelude::*;
 use unitycatalog_common::models::catalogs::v1::{Catalog, CatalogType};
@@ -16,16 +17,22 @@ use unitycatalog_common::models::shares::v1::{
 use unitycatalog_common::models::tables::v1::{
     Column, ColumnTypeName, DataSourceFormat, Table, TableType,
 };
+use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
 mod client;
 mod codegen;
 mod error;
+mod reference;
 mod runtime;
 
 /// A Python module implemented in Rust.
+///
+/// This is exposed at `unitycatalog_client._client`; the public surface is
+/// re-exported by the pure-Python `unitycatalog_client.__init__` so users
+/// just `import unitycatalog_client`.
 #[pymodule]
-fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // exception types
     error::register_exceptions(m)?;
 
@@ -51,6 +58,7 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Column>()?;
     m.add_class::<ColumnTypeName>()?;
     m.add_class::<DataSourceFormat>()?;
+    m.add_class::<TemporaryCredential>()?;
     m.add_class::<Volume>()?;
     m.add_class::<VolumeType>()?;
 
@@ -62,8 +70,13 @@ fn unitycatalog_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySchemaClient>()?;
     m.add_class::<PyShareClient>()?;
     m.add_class::<PyTableClient>()?;
+    m.add_class::<PyTemporaryCredentialClient>()?;
     m.add_class::<PyUnityCatalogClient>()?;
     m.add_class::<PyVolumeClient>()?;
+
+    // URL-parser helpers (shared with `unitycatalog-object-store` so the
+    // Rust and Python URL surfaces stay in lock-step).
+    m.add_function(wrap_pyfunction!(reference::parse_uc_url, m)?)?;
 
     Ok(())
 }

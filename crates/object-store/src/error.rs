@@ -36,6 +36,10 @@ impl Error {
     pub fn credential_mismatch(msg: impl ToString) -> Self {
         Error::CredentialMismatch(msg.to_string())
     }
+
+    pub fn invalid_url(msg: impl ToString) -> Self {
+        Error::InvalidUrl(msg.to_string())
+    }
 }
 
 impl From<url::ParseError> for Error {

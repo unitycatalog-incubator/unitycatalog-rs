@@ -13,7 +13,11 @@ classifiers = [
 ]
 # dependencies = ["pydantic>=2, <3"]
 
+[project.optional-dependencies]
+# Construct `obstore` stores backed by Unity Catalog credential vending.
+obstore = ["obstore>=0.5"]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
-# python-source = "python"
-# module-name = "unitycatalog_client._client"
+python-source = "python"
+module-name = "unitycatalog_client._client"

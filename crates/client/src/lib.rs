@@ -41,6 +41,7 @@ use crate::codegen::tables::ListTablesBuilder;
 pub use crate::codegen::tables::builders::CreateTableBuilder;
 pub use crate::codegen::temporary_credentials::builders::{
     GenerateTemporaryPathCredentialsBuilder, GenerateTemporaryTableCredentialsBuilder,
+    GenerateTemporaryVolumeCredentialsBuilder,
 };
 use crate::codegen::volumes::ListVolumesBuilder;
 pub use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
@@ -273,6 +274,46 @@ impl UnityCatalogClient {
 
     pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
         TemporaryCredentialClient::new(self.temporary_credentials.clone())
+    }
+
+    // Builder constructors for the three `Generate*Credentials` RPCs. These
+    // are the surface the Python codegen calls into (see
+    // `python/client/src/codegen/mod.rs`); the ergonomic name-based
+    // wrappers live on [`TemporaryCredentialClient`] above.
+    pub fn generate_temporary_table_credentials(
+        &self,
+        table_id: impl Into<String>,
+        operation: unitycatalog_common::models::temporary_credentials::v1::generate_temporary_table_credentials_request::Operation,
+    ) -> GenerateTemporaryTableCredentialsBuilder {
+        GenerateTemporaryTableCredentialsBuilder::new(
+            self.temporary_credentials.clone(),
+            table_id,
+            operation,
+        )
+    }
+
+    pub fn generate_temporary_path_credentials(
+        &self,
+        url: impl Into<String>,
+        operation: unitycatalog_common::models::temporary_credentials::v1::generate_temporary_path_credentials_request::Operation,
+    ) -> GenerateTemporaryPathCredentialsBuilder {
+        GenerateTemporaryPathCredentialsBuilder::new(
+            self.temporary_credentials.clone(),
+            url,
+            operation,
+        )
+    }
+
+    pub fn generate_temporary_volume_credentials(
+        &self,
+        volume_id: impl Into<String>,
+        operation: unitycatalog_common::models::temporary_credentials::v1::generate_temporary_volume_credentials_request::Operation,
+    ) -> GenerateTemporaryVolumeCredentialsBuilder {
+        GenerateTemporaryVolumeCredentialsBuilder::new(
+            self.temporary_credentials.clone(),
+            volume_id,
+            operation,
+        )
     }
 
     // Volume methods

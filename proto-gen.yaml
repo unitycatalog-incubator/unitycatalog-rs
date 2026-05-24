@@ -12,6 +12,7 @@ generate:
   generate_object_conversions: true
   generate_store_integration: true
   resource_store_crate_name: olai_store
+  python_typings_filename: _client.pyi
   python:
     output: python/client/src/codegen
     error_type: PyUnityCatalogError

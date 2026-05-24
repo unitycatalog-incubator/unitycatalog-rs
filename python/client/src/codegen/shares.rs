@@ -54,6 +54,24 @@ impl PyShareClient {
             Ok::<_, PyUnityCatalogError>(())
         })
     }
+    #[pyo3(signature = (changes = None, omit_permissions_list = None))]
+    pub fn update_permissions(
+        &self,
+        py: Python,
+        changes: Option<Vec<PermissionsChange>>,
+        omit_permissions_list: Option<bool>,
+    ) -> PyUnityCatalogResult<UpdatePermissionsResponse> {
+        let mut request = self.client.update_permissions();
+        if let Some(changes) = changes {
+            request = request.with_changes(changes);
+        }
+        request = request.with_omit_permissions_list(omit_permissions_list);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
 }
 impl PyShareClient {
     pub fn new(client: ShareClient) -> Self {

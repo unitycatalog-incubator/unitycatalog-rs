@@ -1,6 +1,8 @@
+use olai_http::CloudClient;
 use pyo3::prelude::*;
 use unitycatalog_client::{
-    PathOperation, TableOperation, TableReference, TemporaryCredentialClient,
+    PathOperation, TableOperation, TableReference, TemporaryCredentialClient, VolumeOperation,
+    VolumeReference,
 };
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 
@@ -16,13 +18,35 @@ pub use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 
-#[pyclass(name = "TemporaryCredentialClient")]
+/// Client for vending short-lived credentials for tables, volumes, and
+/// raw external paths governed by Unity Catalog.
+///
+/// Construct directly with `TemporaryCredentialClient(base_url=...,
+/// token=...)`, or use the convenience helpers in
+/// [`unitycatalog_client.obstore`](crate::obstore) to plug the credentials
+/// into the `obstore` Python library.
+#[pyclass(name = "TemporaryCredentialClient", module = "unitycatalog_client")]
 pub struct PyTemporaryCredentialClient {
     client: TemporaryCredentialClient,
 }
 
 #[pymethods]
 impl PyTemporaryCredentialClient {
+    #[new]
+    #[pyo3(signature = (base_url, token = None))]
+    pub fn new(base_url: String, token: Option<String>) -> PyResult<Self> {
+        let cloud = if let Some(token) = token {
+            CloudClient::new_with_token(token)
+        } else {
+            CloudClient::new_unauthenticated()
+        };
+        let base_url = base_url.parse().map_err(PyUnityCatalogError::from)?;
+        Ok(Self {
+            client: TemporaryCredentialClient::new_with_url(cloud, base_url),
+        })
+    }
+
+    /// Vend a temporary credential for a Unity Catalog table.
     #[pyo3(signature = (table, operation))]
     pub fn temporary_table_credential(
         &self,
@@ -47,6 +71,39 @@ impl PyTemporaryCredentialClient {
         py.allow_threads(|| {
             let (credential, uuid) =
                 runtime.block_on(self.client.temporary_table_credential(table_ref, op))?;
+            Ok::<_, PyUnityCatalogError>((credential, uuid.to_string()))
+        })
+    }
+
+    /// Vend a temporary credential for a Unity Catalog volume.
+    ///
+    /// `volume` is the three-level `catalog.schema.volume` name. Server
+    /// support requires the metastore's `external_access_enabled` flag and
+    /// the caller's `EXTERNAL_USE_SCHEMA` privilege.
+    #[pyo3(signature = (volume, operation))]
+    pub fn temporary_volume_credential(
+        &self,
+        py: Python,
+        volume: String,
+        operation: String,
+    ) -> PyUnityCatalogResult<(TemporaryCredential, String)> {
+        let volume_ref = VolumeReference::Name(volume);
+        let op = match operation.to_ascii_lowercase().as_str() {
+            "read" => VolumeOperation::Read,
+            "read_write" | "write" => VolumeOperation::ReadWrite,
+            _ => {
+                return Err(PyUnityCatalogError::from(
+                    unitycatalog_common::error::Error::invalid_argument(format!(
+                        "Invalid operation: {}. Must be 'read' or 'read_write'",
+                        operation
+                    )),
+                ));
+            }
+        };
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let (credential, uuid) =
+                runtime.block_on(self.client.temporary_volume_credential(volume_ref, op))?;
             Ok::<_, PyUnityCatalogError>((credential, uuid.to_string()))
         })
     }

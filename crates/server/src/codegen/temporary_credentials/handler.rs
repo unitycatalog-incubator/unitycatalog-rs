@@ -30,4 +30,14 @@ pub trait TemporaryCredentialHandler<Cx = crate::api::RequestContext>:
         request: GenerateTemporaryPathCredentialsRequest,
         context: Cx,
     ) -> Result<TemporaryCredential>;
+    /// Generate a new set of credentials for a volume.
+    ///
+    /// The metastore must have the `external_access_enabled` flag set to true
+    /// (default false). The caller must have the `EXTERNAL_USE_SCHEMA`
+    /// privilege on the parent schema (granted by a catalog owner).
+    async fn generate_temporary_volume_credentials(
+        &self,
+        request: GenerateTemporaryVolumeCredentialsRequest,
+        context: Cx,
+    ) -> Result<TemporaryCredential>;
 }

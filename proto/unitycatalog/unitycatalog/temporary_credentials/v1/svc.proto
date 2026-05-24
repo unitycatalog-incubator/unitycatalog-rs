@@ -30,6 +30,28 @@ message GenerateTemporaryTableCredentialsRequest {
   Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// Generate a new set of credentials for a volume.
+message GenerateTemporaryVolumeCredentialsRequest {
+  enum Operation {
+    // The operation is not specified.
+    UNSPECIFIED = 0;
+
+    // The operation is read only.
+    READ_VOLUME = 1;
+
+    // The operation is read and write.
+    WRITE_VOLUME = 2;
+  }
+
+  // UUID of the volume to read or write.
+  string volume_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The operation performed against the volume data, either READ_VOLUME or
+  // WRITE_VOLUME. If WRITE_VOLUME is specified, the credentials returned will
+  // have write permissions, otherwise, it will be read only.
+  Operation operation = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
 // Generate a new set of credentials for a path.
 message GenerateTemporaryPathCredentialsRequest {
   enum Operation {
@@ -77,5 +99,18 @@ service TemporaryCredentialsService {
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryPathCredentials"};
+  }
+
+  // Generate a new set of credentials for a volume.
+  //
+  // The metastore must have the `external_access_enabled` flag set to true
+  // (default false). The caller must have the `EXTERNAL_USE_SCHEMA`
+  // privilege on the parent schema (granted by a catalog owner).
+  rpc GenerateTemporaryVolumeCredentials(GenerateTemporaryVolumeCredentialsRequest) returns (TemporaryCredential) {
+    option (google.api.http) = {
+      post: "/temporary-volume-credentials"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "GenerateTemporaryVolumeCredentials"};
   }
 }

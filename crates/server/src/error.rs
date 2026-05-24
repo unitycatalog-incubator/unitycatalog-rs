@@ -64,6 +64,9 @@ pub enum Error {
     #[error("Generic error: {0}")]
     Generic(String),
 
+    #[error("Not implemented: {0}")]
+    NotImplemented(&'static str),
+
     #[error("Cloud credential error: {source}")]
     CloudCredential {
         #[from]
@@ -102,6 +105,7 @@ impl Error {
             Error::ObjectStore { .. } => "INTERNAL_ERROR",
             Error::SerDe { .. } => "INTERNAL_ERROR",
             Error::Generic(_) => "INTERNAL_ERROR",
+            Error::NotImplemented(_) => "NOT_IMPLEMENTED",
             Error::CloudCredential { .. } => "INTERNAL_ERROR",
             Error::ResourceStore { source } => match source {
                 olai_store::Error::NotFound => "RESOURCE_NOT_FOUND",
@@ -240,6 +244,10 @@ impl IntoResponse for Error {
                 error!("Generic error: {}", message);
                 INTERNAL_ERROR
             }
+            Error::NotImplemented(what) => {
+                error!("Not implemented: {}", what);
+                (StatusCode::NOT_IMPLEMENTED, "Endpoint not implemented yet.")
+            }
             Error::CloudCredential { source } => {
                 error!("Cloud credential error: {}", source);
                 INTERNAL_ERROR
@@ -328,6 +336,9 @@ impl From<Error> for Status {
             Error::InvalidIdentifier(e) => Status::invalid_argument(e.to_string()),
             Error::InvalidArgument(message) => Status::invalid_argument(message),
             Error::Generic(message) => Status::internal(message),
+            Error::NotImplemented(what) => {
+                Status::unimplemented(format!("Not implemented: {what}"))
+            }
             // Error::Client(error) => Status::internal(error.to_string()),
             // Error::InvalidUrl(_) => Status::internal("Invalid url"),
             Error::ObjectStore { source } => {

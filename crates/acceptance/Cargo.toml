@@ -17,7 +17,7 @@ unitycatalog-common = { path = "../common" }
 
 # workspace dependencies
 chrono = { workspace = true, features = ["serde"] }
-olai-http = { workspace = true }
+olai-http = { workspace = true, features = ["recording"] }
 itertools = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }

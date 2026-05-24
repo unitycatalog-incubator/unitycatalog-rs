@@ -32,6 +32,7 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "UnityCatalogClient")]
 pub struct PyUnityCatalogClient {
@@ -501,6 +502,56 @@ impl PyUnityCatalogClient {
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (table_id, operation))]
+    pub fn generate_temporary_table_credentials(
+        &self,
+        py: Python,
+        table_id: String,
+        operation: generate_temporary_table_credentials_request::Operation,
+    ) -> PyUnityCatalogResult<TemporaryCredential> {
+        let request = self
+            .client
+            .generate_temporary_table_credentials(table_id, operation);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (url, operation, dry_run = None))]
+    pub fn generate_temporary_path_credentials(
+        &self,
+        py: Python,
+        url: String,
+        operation: generate_temporary_path_credentials_request::Operation,
+        dry_run: Option<bool>,
+    ) -> PyUnityCatalogResult<TemporaryCredential> {
+        let mut request = self
+            .client
+            .generate_temporary_path_credentials(url, operation);
+        request = request.with_dry_run(dry_run);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (volume_id, operation))]
+    pub fn generate_temporary_volume_credentials(
+        &self,
+        py: Python,
+        volume_id: String,
+        operation: generate_temporary_volume_credentials_request::Operation,
+    ) -> PyUnityCatalogResult<TemporaryCredential> {
+        let request = self
+            .client
+            .generate_temporary_volume_credentials(volume_id, operation);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

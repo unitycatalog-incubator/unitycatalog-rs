@@ -26,7 +26,7 @@ generate-proto:
 generate-openapi:
     buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    cargo run --manifest-path ../trestle/crates/olai-codegen/Cargo.toml --bin olai-codegen -- enrich-openapi \
+    cargo run --manifest-path ../trestle/crates/trestle/Cargo.toml --bin trestle -- enrich-openapi \
       --jsonschema-dir openapi/jsonschema \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm -f {{ justfile_directory() }}/descriptors.bin
@@ -39,11 +39,26 @@ generate-openapi:
 [group('codegen')]
 generate-code:
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
-    cargo run --manifest-path ../trestle/crates/olai-codegen/Cargo.toml --bin olai-codegen -- generate --config proto-gen.yaml \
+    cargo run --manifest-path ../trestle/crates/trestle/Cargo.toml --bin trestle -- generate --config proto-gen.yaml \
       --descriptors {{ justfile_directory() }}/descriptors.bin
     rm {{ justfile_directory() }}/descriptors.bin
     just fmt
-    mv python/client/src/codegen/client.pyi python/client/unitycatalog_client.pyi
+    mv python/client/src/codegen/_client.pyi python/client/python/unitycatalog_client/_client.pyi
+    # Splice in the hand-written PyO3 surface (exceptions, free functions,
+    # and the hand-written `#[pymethods]` on `TemporaryCredentialClient`).
+    # The codegen-emitted empty `class TemporaryCredentialClient: ...`
+    # placeholder is stripped first so the supplement can replace it with
+    # the fully-typed declaration. The supplement lives outside the
+    # package directory so type-checkers do not validate it standalone
+    # (it is a fragment, not a complete stub). Source-of-truth:
+    # `python/client/_client_supplement.pyi`.
+    grep -v '^class TemporaryCredentialClient: \.\.\.$' \
+      python/client/python/unitycatalog_client/_client.pyi \
+      > python/client/python/unitycatalog_client/_client.pyi.tmp
+    mv python/client/python/unitycatalog_client/_client.pyi.tmp \
+      python/client/python/unitycatalog_client/_client.pyi
+    cat python/client/_client_supplement.pyi \
+      >> python/client/python/unitycatalog_client/_client.pyi
 
 # CURRENTLY not used, but we may need it again come validation ...
 [group('codegen')]
@@ -154,6 +169,15 @@ integration:
     UC_INTEGRATION_STORAGE_ROOT="$DATABRICKS_STORAGE_ROOT" \
     UC_INTEGRATION_RECORD="false" \
     cargo run --bin unitycatalog-acceptance
+
+# run object-store integration tests against the docker `full` profile
+# (UC server + SeaweedFS + Postgres + Azurite). Marks the test crate's
+# `#[ignore]` tests as runnable.
+[group('test')]
+integration-object-store:
+    docker compose -f dev/compose.yaml --profile full up -d
+    UC_INTEGRATION_URL="http://localhost:8080/api/2.1/unity-catalog/" \
+    cargo test -p unitycatalog-object-store --test integration -- --ignored --test-threads=1
 
 [group('test')]
 integration-record:

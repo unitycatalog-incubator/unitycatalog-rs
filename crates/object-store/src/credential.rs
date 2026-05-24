@@ -1,3 +1,20 @@
+//! Cloud credential providers backed by Unity Catalog credential vending.
+//!
+//! Each [`UCCredentialProvider`] implements [`object_store::CredentialProvider`]
+//! for a single cloud (AWS, Azure, or GCP). It wraps a Unity Catalog
+//! [`TemporaryCredentialClient`] and an [`olai_http::TokenCache`] so that:
+//!
+//! 1. The first credential vended at construction time is reused until close
+//!    to its `expiration_time`.
+//! 2. When `object_store` requests a credential after expiry, the provider
+//!    transparently calls back into Unity Catalog to mint a fresh one
+//!    (without blocking concurrent callers thanks to the token cache's
+//!    single-flight semantics).
+//!
+//! The cache key is the originating securable + operation, so refreshes
+//! always hit the same vending endpoint with the same arguments — meaning
+//! credentials can never silently widen privileges across renewals.
+
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -7,17 +24,22 @@ use object_store::azure::AzureCredential;
 use object_store::gcp::GcpCredential;
 use object_store::{CredentialProvider, Result};
 use olai_http::{TemporaryToken, TokenCache};
-use unitycatalog_client::{PathOperation, TableOperation, TemporaryCredentialClient};
+use unitycatalog_client::{
+    PathOperation, TableOperation, TemporaryCredentialClient, VolumeOperation,
+};
 use unitycatalog_common::models::temporary_credentials::v1::{
     TemporaryCredential, temporary_credential::Credentials,
 };
 
 use crate::Error;
 
+/// Identifies the securable that a credential was vended for so refreshes
+/// hit the same endpoint with the same arguments.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum SecurableRef {
     Table(uuid::Uuid, TableOperation),
-    Path(url::Url, PathOperation),
+    Volume(uuid::Uuid, VolumeOperation),
+    Path(url::Url, PathOperation, Option<bool>),
 }
 
 pub struct UCCredentialProvider<T> {
@@ -32,8 +54,9 @@ pub async fn new_azure(
     securable: SecurableRef,
 ) -> Result<UCCredentialProvider<AzureCredential>> {
     let cache = TokenCache::<Arc<AzureCredential>>::default();
-    // NB: we just do this to initialize the cache with the credential we already have.
-    let _ = cache.get_or_insert_with(|| async { as_azure(cred) });
+    // Seed the cache with the credential we already have so the first
+    // `get_credential()` call does not round-trip to Unity Catalog again.
+    let _ = cache.get_or_insert_with(|| async { as_azure(cred) }).await;
     Ok(UCCredentialProvider::<AzureCredential> {
         client,
         cache,
@@ -47,8 +70,7 @@ pub async fn new_aws(
     securable: SecurableRef,
 ) -> Result<UCCredentialProvider<AwsCredential>> {
     let cache = TokenCache::<Arc<AwsCredential>>::default();
-    // NB: we just do this to initialize the cache with the credential we already have.
-    let _ = cache.get_or_insert_with(|| async { as_aws(cred) });
+    let _ = cache.get_or_insert_with(|| async { as_aws(cred) }).await;
     Ok(UCCredentialProvider::<AwsCredential> {
         client,
         cache,
@@ -62,8 +84,7 @@ pub async fn new_gcp(
     securable: SecurableRef,
 ) -> Result<UCCredentialProvider<GcpCredential>> {
     let cache = TokenCache::<Arc<GcpCredential>>::default();
-    // NB: we just do this to initialize the cache with the credential we already have.
-    let _ = cache.get_or_insert_with(|| async { as_gcp(cred) });
+    let _ = cache.get_or_insert_with(|| async { as_gcp(cred) }).await;
     Ok(UCCredentialProvider::<GcpCredential> {
         client,
         cache,
@@ -72,6 +93,10 @@ pub async fn new_gcp(
 }
 
 impl<T> UCCredentialProvider<T> {
+    /// Re-vend a credential for the securable this provider was bound to.
+    ///
+    /// Always hits the same endpoint with the same arguments to avoid
+    /// silently widening privileges across renewals.
     async fn get_credential_inner(&self) -> Result<TemporaryCredential> {
         match &self.securable {
             SecurableRef::Table(table, op) => Ok(self
@@ -80,9 +105,15 @@ impl<T> UCCredentialProvider<T> {
                 .await
                 .map_err(Error::from)?
                 .0),
-            SecurableRef::Path(path, op) => Ok(self
+            SecurableRef::Volume(volume, op) => Ok(self
                 .client
-                .temporary_path_credential(path.clone(), *op, false)
+                .temporary_volume_credential(*volume, *op)
+                .await
+                .map_err(Error::from)?
+                .0),
+            SecurableRef::Path(path, op, dry_run) => Ok(self
+                .client
+                .temporary_path_credential(path.clone(), *op, *dry_run)
                 .await
                 .map_err(Error::from)?
                 .0),
@@ -141,7 +172,8 @@ pub(super) fn as_azure(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<
     {
         AzureAad(token) => AzureCredential::BearerToken(token.aad_token.clone()),
         AzureUserDelegationSas(sas) => {
-            // split sas query string into pairs
+            // SAS tokens are query-string fragments (`k1=v1&k2=v2&...`).
+            // `object_store` wants them as a `Vec<(String, String)>`.
             let pairs = sas.sas_token.split('&');
             let mut map = Vec::new();
             for pair in pairs {
@@ -169,8 +201,6 @@ pub(super) fn as_aws(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Aw
         .as_ref()
         .ok_or(crate::Error::NoCredential)?
     {
-        // TODO: the return type also contains `access_point` field.
-        // but we currently cannot use it in the current apis.
         AwsTempCredentials(aws) => AwsCredential {
             key_id: aws.access_key_id.clone(),
             secret_key: aws.secret_access_key.clone(),
@@ -208,6 +238,19 @@ pub(super) fn as_gcp(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Gc
         token: Arc::new(gcp_cred),
         expiry: get_expiry(cred)?,
     })
+}
+
+/// Returns the [`AwsTemporaryCredentials::access_point`] if present, so the
+/// factory can use it when constructing the [`AmazonS3Builder`] — STS-vended
+/// credentials are often only valid against the S3 access-point URL, not the
+/// raw `s3://bucket/...` path.
+pub(super) fn aws_access_point(cred: &TemporaryCredential) -> Option<String> {
+    match cred.credentials.as_ref()? {
+        Credentials::AwsTempCredentials(aws) if !aws.access_point.is_empty() => {
+            Some(aws.access_point.clone())
+        }
+        _ => None,
+    }
 }
 
 fn get_expiry(cred: &TemporaryCredential) -> Result<Option<Instant>> {

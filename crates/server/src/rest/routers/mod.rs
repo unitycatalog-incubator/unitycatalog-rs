@@ -154,6 +154,10 @@ where
             "/temporary-path-credentials",
             post(generate_temporary_path_credentials::<T, Cx>),
         )
+        .route(
+            "/temporary-volume-credentials",
+            post(generate_temporary_volume_credentials::<T, Cx>),
+        )
         .with_state(handler)
 }
 

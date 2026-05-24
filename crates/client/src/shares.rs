@@ -6,7 +6,9 @@ use super::utils::stream_paginated;
 use crate::Result;
 use crate::codegen::shares::DeleteShareBuilder;
 pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
-use crate::codegen::shares::builders::{CreateShareBuilder, GetShareBuilder, UpdateShareBuilder};
+use crate::codegen::shares::builders::{
+    CreateShareBuilder, GetShareBuilder, UpdatePermissionsBuilder, UpdateShareBuilder,
+};
 
 impl ShareClientBase {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Share>> {
@@ -65,5 +67,12 @@ impl ShareClient {
 
     pub fn delete(&self) -> DeleteShareBuilder {
         DeleteShareBuilder::new(self.client.clone(), &self.name)
+    }
+
+    /// Update the recipient permissions on this share using the builder pattern.
+    ///
+    /// Maps to `PATCH /shares/{name}/permissions` in the Unity Catalog API.
+    pub fn update_permissions(&self) -> UpdatePermissionsBuilder {
+        UpdatePermissionsBuilder::new(self.client.clone(), &self.name)
     }
 }
