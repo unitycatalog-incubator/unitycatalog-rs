@@ -4,6 +4,7 @@ pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
 pub mod functions;
+pub mod providers;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
@@ -14,6 +15,7 @@ use crate::codegen::catalogs::NapiCatalogClient;
 use crate::codegen::credentials::NapiCredentialClient;
 use crate::codegen::external_locations::NapiExternalLocationClient;
 use crate::codegen::functions::NapiFunctionClient;
+use crate::codegen::providers::NapiProviderClient;
 use crate::codegen::recipients::NapiRecipientClient;
 use crate::codegen::schemas::NapiSchemaClient;
 use crate::codegen::shares::NapiShareClient;
@@ -33,6 +35,7 @@ use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::external_locations::v1::*;
 use unitycatalog_common::models::functions::v1::*;
+use unitycatalog_common::models::providers::v1::*;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
@@ -302,6 +305,60 @@ impl NapiUnityCatalogClient {
         request = request.with_routine_definition(routine_definition);
         request = request.with_routine_body_language(routine_body_language);
         request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn list_providers(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
+        let mut request = self.client.list_providers();
+        request = request.with_max_results(max_results);
+        request
+            .into_stream()
+            .map_ok(|item| Buffer::from(item.encode_to_vec()))
+            .try_collect::<Vec<_>>()
+            .await
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_providers_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_providers();
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_provider(
+        &self,
+        name: String,
+        authentication_type: i32,
+        owner: Option<String>,
+        comment: Option<String>,
+        recipient_profile_str: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.create_provider(
+            name,
+            authentication_type.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+        );
+        request = request.with_owner(owner);
+        request = request.with_comment(comment);
+        request = request.with_recipient_profile_str(recipient_profile_str);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
@@ -640,6 +697,12 @@ impl NapiUnityCatalogClient {
         let full_name = format!("{}.{}.{}", catalog_name, schema_name, function_name);
         NapiFunctionClient {
             client: self.client.function_from_full_name(full_name),
+        }
+    }
+    #[napi]
+    pub fn provider(&self, name: String) -> NapiProviderClient {
+        NapiProviderClient {
+            client: self.client.provider(name),
         }
     }
     #[napi]

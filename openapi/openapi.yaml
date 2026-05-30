@@ -15,6 +15,14 @@ tags:
        External locations define cloud storage paths accessible via storage credentials.
   - name: FunctionsService
     description: Manage User-Defined Functions (UDFs) in the service.
+  - name: ProvidersService
+    description: |-
+      Providers
+
+       A provider represents an organization that shares data with this metastore.
+       It is the inbound counterpart of a recipient: registered from a share
+       activation/credential file and used to access shares offered by an upstream
+       Delta Sharing server.
   - name: RecipientsService
     description: |-
       Recipients
@@ -661,6 +669,140 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Function"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /providers:
+    get:
+      tags:
+        - ProvidersService
+      description: List providers.
+      operationId: ListProviders
+      parameters:
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Opaque pagination token to go to next page based on previous query.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListProvidersResponse"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    post:
+      tags:
+        - ProvidersService
+      description: Create a new provider.
+      operationId: CreateProvider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProviderRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Provider"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /providers/{name}:
+    get:
+      tags:
+        - ProvidersService
+      description: Get a provider by name.
+      operationId: GetProvider
+      parameters:
+        - name: name
+          in: path
+          description: Name of the provider.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Provider"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    delete:
+      tags:
+        - ProvidersService
+      description: Delete a provider.
+      operationId: DeleteProvider
+      parameters:
+        - name: name
+          in: path
+          description: Name of the provider.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content: {}
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    patch:
+      tags:
+        - ProvidersService
+      description: Update a provider.
+      operationId: UpdateProvider
+      parameters:
+        - name: name
+          in: path
+          description: Name of the provider.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProviderRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Provider"
         default:
           description: Default error response
           content:
@@ -2122,6 +2264,39 @@ components:
       description: Create a new function
       additionalProperties: false
       title: Create Function Request
+    CreateProviderRequest:
+      required:
+        - name
+        - authentication_type
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the provider.
+          pattern: ^[a-z][0-9a-z._]*[0-9a-z]$
+        authenticationType:
+          type: integer
+          description: The delta sharing authentication type.
+          format: enum
+        owner:
+          type: string
+          description: Username of the provider owner.
+        comment:
+          type: string
+          description: Description about the provider.
+        recipientProfileStr:
+          type: string
+          description: |-
+            The recipient profile (credential file contents) used to connect to the
+             sharing server, required for TOKEN authentication.
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: Provider properties as map of string key-value pairs.
+      description: Creates a new provider
+      additionalProperties: false
+      title: Create Provider Request
     CreateRecipientRequest:
       required:
         - name
@@ -2964,6 +3139,29 @@ components:
       description: List functions response.
       additionalProperties: false
       title: List Functions Response
+    ListProvidersResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Provider"
+            additionalProperties: false
+            required:
+              - name
+              - authentication_type
+            description: |-
+              A provider is the inbound counterpart of a recipient: it is registered from a
+               share activation/credential file and is used to access shares offered by an
+               upstream Delta Sharing server.
+            title: A provider represents an organization sharing data with this metastore.
+          description: List of providers.
+        nextPageToken:
+          type: string
+          description: Opaque pagination token to go to next page based on previous query.
+      description: Response to list providers.
+      additionalProperties: false
+      title: List Providers Response
     ListRecipientsResponse:
       type: object
       properties:
@@ -3166,6 +3364,61 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NamedSchemaOrReference"
+    Provider:
+      required:
+        - name
+        - authentication_type
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: Unique ID of the provider.
+        name:
+          type: string
+          description: The name of the provider.
+        authenticationType:
+          type: integer
+          description: The delta sharing authentication type.
+          format: enum
+        owner:
+          type: string
+          description: Username of the provider owner.
+        comment:
+          type: string
+          description: Description about the provider.
+        recipientProfileStr:
+          type: string
+          description: |-
+            The recipient profile (credential file contents) used to connect to the
+             sharing server, present only for TOKEN authentication.
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: A map of key-value properties attached to the provider.
+        createdAt:
+          readOnly: true
+          type: string
+          description: Time at which this provider was created, in epoch milliseconds.
+        createdBy:
+          readOnly: true
+          type: string
+          description: Username of the creator of the provider.
+        updatedAt:
+          readOnly: true
+          type: string
+          description: Time at which this provider was updated, in epoch milliseconds.
+        updatedBy:
+          readOnly: true
+          type: string
+          description: Username of the provider updater.
+      description: |-
+        A provider is the inbound counterpart of a recipient: it is registered from a
+         share activation/credential file and is used to access shares offered by an
+         upstream Delta Sharing server.
+      additionalProperties: false
+      title: A provider represents an organization sharing data with this metastore.
     R2TemporaryCredentials:
       type: object
       properties:
@@ -3767,6 +4020,35 @@ components:
           description: The privileges assigned to each principal
       additionalProperties: false
       title: Update Permissions Response
+    UpdateProviderRequest:
+      required: []
+      type: object
+      properties:
+        newName:
+          type: string
+          description: New name for the provider.
+        owner:
+          type: string
+          description: Username of the provider owner.
+        comment:
+          type: string
+          description: Description about the provider.
+        recipientProfileStr:
+          type: string
+          description: |-
+            The recipient profile (credential file contents) used to connect to the
+             sharing server.
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          description: |-
+            When provided in update request, the specified properties will override the existing properties.
+             To add and remove properties, one would need to perform a read-modify-write.
+          title: Provider properties as map of string key-value pairs.
+      description: Update a provider
+      additionalProperties: false
+      title: Update Provider Request
     UpdateRecipientRequest:
       required: []
       type: object

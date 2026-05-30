@@ -6,6 +6,7 @@ pub use credentials::*;
 pub use error::*;
 pub use external_locations::*;
 pub use functions::*;
+pub use providers::*;
 pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
@@ -31,6 +32,8 @@ pub use crate::codegen::functions::builders::{
     CreateFunctionBuilder, DeleteFunctionBuilder, GetFunctionBuilder, ListFunctionsBuilder,
     UpdateFunctionBuilder,
 };
+use crate::codegen::providers::ListProvidersBuilder;
+pub use crate::codegen::providers::builders::{CreateProviderBuilder, UpdateProviderBuilder};
 use crate::codegen::recipients::ListRecipientsBuilder;
 pub use crate::codegen::recipients::builders::{CreateRecipientBuilder, UpdateRecipientBuilder};
 use crate::codegen::schemas::ListSchemasBuilder;
@@ -52,6 +55,7 @@ mod credentials;
 pub mod error;
 mod external_locations;
 mod functions;
+mod providers;
 mod recipients;
 mod schemas;
 mod shares;
@@ -67,6 +71,7 @@ pub struct UnityCatalogClient {
     tables: TableClientBase,
     shares: ShareClientBase,
     recipients: RecipientClientBase,
+    providers: ProviderClientBase,
     credentials: CredentialClientBase,
     external_locations: ExternalLocationClientBase,
     temporary_credentials: TemporaryCredentialClientBase,
@@ -94,6 +99,7 @@ impl UnityCatalogClient {
         let tables = TableClientBase::new(client.clone(), base_url.clone());
         let shares = ShareClientBase::new(client.clone(), base_url.clone());
         let recipients = RecipientClientBase::new(client.clone(), base_url.clone());
+        let providers = ProviderClientBase::new(client.clone(), base_url.clone());
         let credentials = CredentialClientBase::new(client.clone(), base_url.clone());
         let external_locations = ExternalLocationClientBase::new(client.clone(), base_url.clone());
         let temporary_credentials =
@@ -107,6 +113,7 @@ impl UnityCatalogClient {
             tables,
             shares,
             recipients,
+            providers,
             credentials,
             external_locations,
             temporary_credentials,
@@ -131,6 +138,11 @@ impl UnityCatalogClient {
     /// Low-level table client exposing request/response passthrough methods.
     pub fn tables_client(&self) -> crate::codegen::tables::TableClient {
         self.tables.clone()
+    }
+
+    /// Low-level provider client exposing request/response passthrough methods.
+    pub fn providers_client(&self) -> crate::codegen::providers::ProviderClient {
+        self.providers.clone()
     }
 
     // Catalog methods
@@ -269,6 +281,24 @@ impl UnityCatalogClient {
 
     pub fn recipient(&self, name: impl ToString) -> RecipientClient {
         RecipientClient::new(name, self.recipients.clone())
+    }
+
+    // Provider methods
+    pub fn create_provider(
+        &self,
+        name: impl ToString,
+        authentication_type: unitycatalog_common::providers::v1::ProviderAuthenticationType,
+    ) -> CreateProviderBuilder {
+        let provider = ProviderClient::new(name, self.providers.clone());
+        provider.create(authentication_type)
+    }
+
+    pub fn list_providers(&self) -> ListProvidersBuilder {
+        ListProvidersBuilder::new(self.providers.clone())
+    }
+
+    pub fn provider(&self, name: impl ToString) -> ProviderClient {
+        ProviderClient::new(name, self.providers.clone())
     }
 
     // External location methods

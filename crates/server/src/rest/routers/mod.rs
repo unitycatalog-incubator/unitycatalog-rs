@@ -1,6 +1,7 @@
 use crate::api::{
-    CatalogHandler, CredentialHandler, ExternalLocationHandler, FunctionHandler, RecipientHandler,
-    SchemaHandler, ShareHandler, TableHandler, TemporaryCredentialHandler, VolumeHandler,
+    CatalogHandler, CredentialHandler, ExternalLocationHandler, FunctionHandler, ProviderHandler,
+    RecipientHandler, SchemaHandler, ShareHandler, TableHandler, TemporaryCredentialHandler,
+    VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -81,6 +82,22 @@ where
         .route("/recipients/{name}", get(get_recipient::<T, Cx>))
         .route("/recipients/{name}", patch(update_recipient::<T, Cx>))
         .route("/recipients/{name}", delete(delete_recipient::<T, Cx>))
+        .with_state(handler)
+}
+
+pub fn create_providers_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: ProviderHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::providers::server::*;
+
+    axum::Router::new()
+        .route("/providers", get(list_providers::<T, Cx>))
+        .route("/providers", post(create_provider::<T, Cx>))
+        .route("/providers/{name}", get(get_provider::<T, Cx>))
+        .route("/providers/{name}", patch(update_provider::<T, Cx>))
+        .route("/providers/{name}", delete(delete_provider::<T, Cx>))
         .with_state(handler)
 }
 

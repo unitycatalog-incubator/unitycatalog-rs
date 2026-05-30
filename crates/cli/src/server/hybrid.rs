@@ -18,8 +18,9 @@ use unitycatalog_server::handlers::upstream::{
 use unitycatalog_server::policy::Policy;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
-    create_external_locations_router, create_functions_router, create_recipients_router,
-    create_schemas_router, create_shares_router, create_sharing_router, create_tables_router,
+    create_external_locations_router, create_functions_router, create_providers_router,
+    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
+    create_tables_router,
 };
 use unitycatalog_server::services::ServerHandler;
 
@@ -77,6 +78,22 @@ where
         )),
     };
 
+    // Delta Sharing resolves a shared table's storage location by looking up the
+    // backing Table primitive. When tables are routed upstream, point that
+    // resolution at the upstream handler too, so sharing reads work in the
+    // side-by-side topology; otherwise the local handler resolves it.
+    let sharing_handler = match routing.tables {
+        RoutingMode::Local => handler.clone(),
+        RoutingMode::Upstream => {
+            handler
+                .clone()
+                .with_table_source(Arc::new(UpstreamTableHandler::new(
+                    policy.clone(),
+                    client.tables_client(),
+                )))
+        }
+    };
+
     // Remaining surfaces are local-only in v1 (validated upstream of here).
     let api_routes = catalogs
         .merge(schemas)
@@ -85,13 +102,14 @@ where
         .merge(create_external_locations_router(handler.clone()))
         .merge(create_functions_router(handler.clone()))
         .merge(create_recipients_router(handler.clone()))
+        .merge(create_providers_router(handler.clone()))
         .merge(create_shares_router(handler.clone()));
 
     let router = Router::new()
         .nest("/api/2.1/unity-catalog", api_routes)
         .nest(
             "/api/v1/delta-sharing",
-            create_sharing_router(handler.clone()),
+            create_sharing_router(sharing_handler),
         );
     let server = router.layer(AuthenticationLayer::new(authenticator));
 

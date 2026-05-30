@@ -1,6 +1,6 @@
 use bytes::Bytes;
 
-use unitycatalog_common::models::tables::v1::{DataSourceFormat, Table};
+use unitycatalog_common::models::tables::v1::{DataSourceFormat, GetTableRequest, Table};
 use unitycatalog_common::{ResourceIdent, ResourceName, Share};
 use unitycatalog_sharing_client::models::sharing::v1::*;
 
@@ -10,7 +10,7 @@ use crate::api::sharing::{
     MetadataResponse, MetadataResponseData, ProtocolResponseData, SharingQueryHandler,
 };
 use crate::error::{Error, Result};
-use crate::store::ResourceStore;
+use crate::store::ResourceStoreReader;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SharingTableReference {
@@ -25,17 +25,19 @@ impl SharingTableReference {
     }
 }
 
-#[async_trait::async_trait]
-pub(super) trait SharingExt: Send + Sync + 'static {
-    async fn table_location(&self, table_ref: &SharingTableReference)
-    -> Result<StorageLocationUrl>;
-}
-
-#[async_trait::async_trait]
-impl<T: ResourceStore> SharingExt for T {
-    async fn table_location(
+impl ServerHandler<RequestContext> {
+    /// Resolve the storage location of a shared table.
+    ///
+    /// The Share itself is always read from the local store (shares are a
+    /// sharing-server-owned primitive). The backing Table primitive is resolved
+    /// through the configured [`table_source`](ServerHandler::table_source) when
+    /// present — so in the side-by-side topology it is fetched from the upstream
+    /// Unity Catalog rather than the local store — and falls back to a local
+    /// store lookup otherwise.
+    pub(super) async fn resolve_table_location(
         &self,
         table_ref: &SharingTableReference,
+        context: &RequestContext,
     ) -> Result<StorageLocationUrl> {
         let share_ident = ResourceIdent::share(ResourceName::new([table_ref.share.as_str()]));
         let share_info: Share = self.get(&share_ident).await?.0.try_into()?;
@@ -46,8 +48,22 @@ impl<T: ResourceStore> SharingExt for T {
         else {
             return Err(Error::NotFound);
         };
-        let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
-        let table_info: Table = self.get(&table_ident).await?.0.try_into()?;
+
+        let table_info: Table = if let Some(table_source) = self.table_source() {
+            // Side-by-side topology: resolve the Table primitive through the
+            // routed handler (e.g. upstream Unity Catalog), keyed by full name.
+            let request = GetTableRequest {
+                full_name: table_object.name.clone(),
+                ..Default::default()
+            };
+            table_source.get_table(request, context.clone()).await?
+        } else {
+            // Self-contained topology: the Table primitive lives in the local
+            // store alongside the Share.
+            let table_ident = ResourceIdent::table(ResourceName::new(table_object.name.split(".")));
+            self.get(&table_ident).await?.0.try_into()?
+        };
+
         let location = table_info.storage_location.ok_or(Error::NotFound)?;
         Ok(StorageLocationUrl::parse(&location)?)
     }
@@ -66,7 +82,7 @@ impl SharingQueryHandler for ServerHandler<RequestContext> {
             schema: request.schema,
             table: request.name,
         };
-        let location = self.table_location(&table_ref).await?;
+        let location = self.resolve_table_location(&table_ref, &context).await?;
         let snapshot = self
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
@@ -86,7 +102,7 @@ impl SharingQueryHandler for ServerHandler<RequestContext> {
             schema: request.schema,
             table: request.name,
         };
-        let location = self.table_location(&table_ref).await?;
+        let location = self.resolve_table_location(&table_ref, &context).await?;
         let snapshot = self
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
@@ -114,9 +130,10 @@ impl SharingQueryHandler for ServerHandler<RequestContext> {
             schema: request.schema,
             table: request.name,
         };
+        let location = self.resolve_table_location(&table_ref, &context).await?;
         let data = self
             .session
-            .extract_sharing_query_response(&table_ref, &self.handler)
+            .extract_sharing_query_response(&table_ref, &location)
             .await?;
         Ok(data)
     }

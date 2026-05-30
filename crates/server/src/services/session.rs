@@ -16,7 +16,7 @@ use unitycatalog_common::models::tables::v1::DataSourceFormat;
 
 use super::kernel::{DeltaLogReplayProvider, ObjectStoreFactory, build_engine};
 use super::location::StorageLocationUrl;
-use super::sharing::{SharingExt, SharingTableReference};
+use super::sharing::SharingTableReference;
 use crate::api::tables::TableManager;
 use crate::{Error, Result};
 
@@ -97,7 +97,7 @@ impl KernelSession {
     pub(super) async fn extract_sharing_query_response(
         &self,
         table_ref: &SharingTableReference,
-        sharing_ext: &dyn SharingExt,
+        location: &StorageLocationUrl,
     ) -> Result<Bytes> {
         let log_replay_table_name = table_ref.system_table_name();
         let inner_ref = DfTableReference::full(
@@ -110,7 +110,6 @@ impl KernelSession {
             .table_exist(inner_ref.clone())
             .map_err(|e| Error::Generic(e.to_string()))?
         {
-            let location = sharing_ext.table_location(table_ref).await?;
             let engine = build_engine(self.factory.as_ref(), location.location())
                 .await
                 .map_err(|e| Error::Generic(e.to_string()))?;

@@ -65,6 +65,8 @@ where
                 .map(|r| SharingShare {
                     name: r.name,
                     id: r.id,
+                    comment: r.comment,
+                    ..Default::default()
                 })
                 .collect(),
             next_page_token,
@@ -81,6 +83,8 @@ where
         Ok(SharingShare {
             name: share.name,
             id: share.id,
+            comment: share.comment,
+            ..Default::default()
         })
     }
 

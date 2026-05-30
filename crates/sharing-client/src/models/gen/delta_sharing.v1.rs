@@ -11,6 +11,15 @@ pub struct Share {
     /// Unique identifier for the share.
     #[prost(string, optional, tag="2")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
+    /// User-friendly display name of the share.
+    #[prost(string, optional, tag="3")]
+    pub display_name: ::core::option::Option<::prost::alloc::string::String>,
+    /// User-provided free-form text description of the share.
+    #[prost(string, optional, tag="4")]
+    pub comment: ::core::option::Option<::prost::alloc::string::String>,
+    /// A map of key-value properties attached to the share.
+    #[prost(map="string, string", tag="5")]
+    pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// A schema in a delta sharing service.
 ///
@@ -48,6 +57,17 @@ pub struct Table {
     /// A unique identifier for the share this table belongs to.
     #[prost(string, optional, tag="5")]
     pub share_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// The fully qualified location of the table.
+    ///
+    /// Required when the table is shared with directory-based access (`dir`).
+    #[prost(string, optional, tag="6")]
+    pub location: ::core::option::Option<::prost::alloc::string::String>,
+    /// Additional locations referenced by the table (e.g. for multi-location tables).
+    #[prost(string, repeated, tag="7")]
+    pub auxiliary_locations: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// The access modes supported for this table (e.g. `url`, `dir`).
+    #[prost(string, repeated, tag="8")]
+    pub access_modes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// File format for data files in a table
 #[allow(clippy::derive_partial_eq_without_eq)]

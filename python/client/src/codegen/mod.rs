@@ -3,6 +3,7 @@ pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
 pub mod functions;
+pub mod providers;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
@@ -13,6 +14,7 @@ use crate::codegen::catalogs::PyCatalogClient;
 use crate::codegen::credentials::PyCredentialClient;
 use crate::codegen::external_locations::PyExternalLocationClient;
 use crate::codegen::functions::PyFunctionClient;
+use crate::codegen::providers::PyProviderClient;
 use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
@@ -28,6 +30,7 @@ use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::external_locations::v1::*;
 use unitycatalog_common::models::functions::v1::*;
+use unitycatalog_common::models::providers::v1::*;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
@@ -294,6 +297,54 @@ impl PyUnityCatalogClient {
         request = request.with_routine_definition(routine_definition);
         request = request.with_routine_body_language(routine_body_language);
         request = request.with_comment(comment);
+        if let Some(properties) = properties {
+            request = request.with_properties(properties);
+        }
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (max_results = None))]
+    pub fn list_providers(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+    ) -> PyUnityCatalogResult<Vec<Provider>> {
+        let mut request = self.client.list_providers();
+        request = request.with_max_results(max_results);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            name,
+            authentication_type,
+            owner = None,
+            comment = None,
+            recipient_profile_str = None,
+            properties = None
+        )
+    )]
+    pub fn create_provider(
+        &self,
+        py: Python,
+        name: String,
+        authentication_type: ProviderAuthenticationType,
+        owner: Option<String>,
+        comment: Option<String>,
+        recipient_profile_str: Option<String>,
+        properties: Option<HashMap<String, String>>,
+    ) -> PyUnityCatalogResult<Provider> {
+        let mut request = self.client.create_provider(name, authentication_type);
+        request = request.with_owner(owner);
+        request = request.with_comment(comment);
+        request = request.with_recipient_profile_str(recipient_profile_str);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
@@ -639,6 +690,11 @@ impl PyUnityCatalogClient {
         let full_name = format!("{}.{}.{}", catalog_name, schema_name, function_name);
         PyFunctionClient {
             client: self.client.function_from_full_name(full_name),
+        }
+    }
+    pub fn provider(&self, name: String) -> PyProviderClient {
+        PyProviderClient {
+            client: self.client.provider(name),
         }
     }
     pub fn recipient(&self, name: String) -> PyRecipientClient {

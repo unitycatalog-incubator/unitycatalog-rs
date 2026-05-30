@@ -429,4 +429,44 @@ mod tests {
         assert_eq!(resources.len(), 1);
         assert!(next.is_none());
     }
+
+    #[tokio::test]
+    async fn test_provider_round_trip() {
+        use unitycatalog_common::models::providers::v1::{Provider, ProviderAuthenticationType};
+
+        let store = InMemoryResourceStore::new();
+        let resource: Resource = Provider {
+            name: "acme".into(),
+            authentication_type: ProviderAuthenticationType::Token as i32,
+            comment: Some("inbound share from acme".into()),
+            ..Default::default()
+        }
+        .into();
+
+        // Create exercises the Resource::Provider -> Object conversion.
+        let (created, reference) = store.create(resource.clone()).await.unwrap();
+        assert_eq!(created.resource_name(), resource.resource_name());
+
+        // Get exercises the Object -> Resource::Provider conversion and the
+        // hand-written ObjectLabel::Provider -> ResourceIdent mapping.
+        let ident = ObjectLabel::Provider.to_ident(reference);
+        let (retrieved, _) = store.get(&ident).await.unwrap();
+        assert_eq!(retrieved, created);
+        let provider: Provider = retrieved.try_into().unwrap();
+        assert_eq!(provider.name, "acme");
+        assert_eq!(provider.comment.as_deref(), Some("inbound share from acme"));
+
+        // List by the Provider label.
+        let (resources, _) = store
+            .list(&ObjectLabel::Provider, None, None, None)
+            .await
+            .unwrap();
+        assert_eq!(resources.len(), 1);
+
+        store.delete(&ident).await.unwrap();
+        assert!(matches!(
+            store.get(&ident).await.unwrap_err(),
+            Error::NotFound
+        ));
+    }
 }
