@@ -131,7 +131,7 @@ describe("UnityCatalogClient", () => {
     });
 
     it("returns a TableClient", () => {
-      const table = client.table("my-table");
+      const table = client.table("my-catalog", "my-schema", "my-table");
       expect(table).toBeInstanceOf(TableClient);
     });
   });
@@ -166,7 +166,7 @@ describe("UnityCatalogClient", () => {
     });
 
     it("TableClient has get, delete", () => {
-      const table = client.table("my-table");
+      const table = client.table("cat", "sch", "tbl");
       expect(table.get).toBeDefined();
       expect(table.delete).toBeDefined();
     });

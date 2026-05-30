@@ -12,7 +12,7 @@
 //! |------------------------------------------------------------|--------------------------------|
 //! | `uc:///Volumes/<catalog>/<schema>/<volume>[/<path>]`       | `temporary-volume-credentials` |
 //! | `uc:///Tables/<catalog>/<schema>/<table>`                  | `temporary-table-credentials`  |
-//! | `s3://`, `s3a://`, `gs://`, `abfs(s)://`, `az(ure)://`, `r2://` raw cloud URL | `temporary-path-credentials` |
+//! | `s3://`, `s3a://`, `gs://`, `abfs://`, `abfss://`, `az://`, `azure://`, `r2://` raw cloud URL | `temporary-path-credentials` |
 //!
 //! For ecosystem compatibility, the parser also accepts the
 //! `vol+dbfs:/Volumes/<catalog>/<schema>/<volume>[/<path>]` form used by
