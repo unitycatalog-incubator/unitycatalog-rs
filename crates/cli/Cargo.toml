@@ -18,7 +18,7 @@ path = "src/main.rs"
 unitycatalog-client = { path = "../client" }
 unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-postgres = { path = "../postgres" }
-unitycatalog-server = { path = "../server", features = ["axum"] }
+unitycatalog-server = { path = "../server", features = ["axum", "proxy"] }
 
 # workspace dependencies (in alphabetical order)
 async-trait = { workspace = true }
