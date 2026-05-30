@@ -1,3 +1,4 @@
+use futures::stream::BoxStream;
 use olai_http::CloudClient;
 
 pub use catalogs::*;
@@ -5,7 +6,6 @@ pub use credentials::*;
 pub use error::*;
 pub use external_locations::*;
 pub use functions::*;
-use futures::stream::BoxStream;
 pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
@@ -41,12 +41,13 @@ use crate::codegen::tables::ListTablesBuilder;
 pub use crate::codegen::tables::builders::CreateTableBuilder;
 pub use crate::codegen::temporary_credentials::builders::{
     GenerateTemporaryPathCredentialsBuilder, GenerateTemporaryTableCredentialsBuilder,
+    GenerateTemporaryVolumeCredentialsBuilder,
 };
 use crate::codegen::volumes::ListVolumesBuilder;
 pub use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
 
 mod catalogs;
-mod codegen;
+pub mod codegen;
 mod credentials;
 pub mod error;
 mod external_locations;
@@ -112,6 +113,24 @@ impl UnityCatalogClient {
             volumes,
             functions,
         }
+    }
+
+    /// Low-level catalog client exposing request/response passthrough methods.
+    ///
+    /// Useful for callers (such as the hybrid proxy server) that already hold a
+    /// fully-formed request and want to forward it verbatim.
+    pub fn catalogs_client(&self) -> crate::codegen::catalogs::CatalogClient {
+        self.catalogs.clone()
+    }
+
+    /// Low-level schema client exposing request/response passthrough methods.
+    pub fn schemas_client(&self) -> crate::codegen::schemas::SchemaClient {
+        self.schemas.clone()
+    }
+
+    /// Low-level table client exposing request/response passthrough methods.
+    pub fn tables_client(&self) -> crate::codegen::tables::TableClient {
+        self.tables.clone()
     }
 
     // Catalog methods
@@ -273,6 +292,46 @@ impl UnityCatalogClient {
 
     pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
         TemporaryCredentialClient::new(self.temporary_credentials.clone())
+    }
+
+    // Builder constructors for the three `Generate*Credentials` RPCs. These
+    // are the surface the Python codegen calls into (see
+    // `python/client/src/codegen/mod.rs`); the ergonomic name-based
+    // wrappers live on [`TemporaryCredentialClient`] above.
+    pub fn generate_temporary_table_credentials(
+        &self,
+        table_id: impl Into<String>,
+        operation: unitycatalog_common::models::temporary_credentials::v1::generate_temporary_table_credentials_request::Operation,
+    ) -> GenerateTemporaryTableCredentialsBuilder {
+        GenerateTemporaryTableCredentialsBuilder::new(
+            self.temporary_credentials.clone(),
+            table_id,
+            operation,
+        )
+    }
+
+    pub fn generate_temporary_path_credentials(
+        &self,
+        url: impl Into<String>,
+        operation: unitycatalog_common::models::temporary_credentials::v1::generate_temporary_path_credentials_request::Operation,
+    ) -> GenerateTemporaryPathCredentialsBuilder {
+        GenerateTemporaryPathCredentialsBuilder::new(
+            self.temporary_credentials.clone(),
+            url,
+            operation,
+        )
+    }
+
+    pub fn generate_temporary_volume_credentials(
+        &self,
+        volume_id: impl Into<String>,
+        operation: unitycatalog_common::models::temporary_credentials::v1::generate_temporary_volume_credentials_request::Operation,
+    ) -> GenerateTemporaryVolumeCredentialsBuilder {
+        GenerateTemporaryVolumeCredentialsBuilder::new(
+            self.temporary_credentials.clone(),
+            volume_id,
+            operation,
+        )
     }
 
     // Volume methods

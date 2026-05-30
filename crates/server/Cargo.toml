@@ -14,13 +14,13 @@ unitycatalog-common = { path = "../common", features = ["axum"] }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }
+unitycatalog-client = { path = "../client", optional = true }
 
 async-trait = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true }
 percent-encoding = "2.1"
 delta_kernel = { workspace = true }
-deltalake-datafusion = { workspace = true }
 futures = { workspace = true }
 itertools = { workspace = true }
 object_store = { workspace = true }
@@ -36,11 +36,10 @@ url = { workspace = true }
 axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
 tonic = { workspace = true, optional = true }
-datafusion = { version = "49" }
+datafusion = { version = "53.1.0" }
 futures-util = { version = "0.3.28" }
 http = { version = "1.2", optional = true }
-olai-store = { path = "../../../trestle/crates/olai-store" }
-# olai-store = { version = "0" }
+olai-store = { workspace = true }
 tokio = { version = "1.40", features = ["rt-multi-thread"] }
 tower = { workspace = true, features = ["make"], optional = true }
 
@@ -60,3 +59,7 @@ axum = ["dep:axum", "dep:axum-extra", "http", "tower"]
 memory = ["dashmap", "uuid"]
 
 grpc = ["tonic"]
+
+# reusable handler patterns: proxy leaves + UC-client connector
+proxy = ["dep:unitycatalog-client"]
+federation = ["proxy"]

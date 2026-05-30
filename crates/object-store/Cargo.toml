@@ -1,5 +1,8 @@
 [package]
 name = "unitycatalog-object-store"
+description = "object_store implementation backed by Unity Catalog credential vending. Read and write data governed by UC volumes, tables, and external locations."
+categories = ["object-store", "unity-catalog", "lakehouse"]
+documentation = "https://docs.rs/unitycatalog-object-store"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

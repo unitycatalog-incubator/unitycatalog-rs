@@ -61,6 +61,26 @@ impl<
         vend_credential(&credential, &request.url, operation).await
     }
 
+    /// Generate temporary credentials for a volume.
+    ///
+    /// **Not yet implemented.** Tracking issue:
+    /// <https://github.com/unitycatalog-incubator/unitycatalog-rs/issues/119>.
+    ///
+    /// The endpoint is defined in proto and exposed through the client
+    /// SDKs so callers targeting Databricks or any other compliant
+    /// server can use it today. This server returns
+    /// [`Error::NotImplemented`] until the handler lands.
+    ///
+    /// See: <https://docs.databricks.com/api/workspace/temporaryvolumecredentials/generatetemporaryvolumecredentials>
+    #[tracing::instrument(skip(self, _context))]
+    async fn generate_temporary_volume_credentials(
+        &self,
+        _request: GenerateTemporaryVolumeCredentialsRequest,
+        _context: RequestContext,
+    ) -> Result<TemporaryCredential> {
+        Err(Error::NotImplemented("temporary-volume-credentials"))
+    }
+
     #[tracing::instrument(skip(self, context))]
     async fn generate_temporary_table_credentials(
         &self,
@@ -102,6 +122,16 @@ impl SecuredAction for GenerateTemporaryPathCredentialsRequest {
 impl SecuredAction for GenerateTemporaryTableCredentialsRequest {
     fn resource(&self) -> ResourceIdent {
         ResourceIdent::table(ResourceRef::Undefined)
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for GenerateTemporaryVolumeCredentialsRequest {
+    fn resource(&self) -> ResourceIdent {
+        ResourceIdent::volume(ResourceRef::Undefined)
     }
 
     fn permission(&self) -> &'static Permission {

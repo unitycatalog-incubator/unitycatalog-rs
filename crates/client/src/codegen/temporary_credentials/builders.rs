@@ -72,3 +72,33 @@ impl IntoFuture for GenerateTemporaryPathCredentialsBuilder {
         Box::pin(async move { client.generate_temporary_path_credentials(&request).await })
     }
 }
+/// Builder for temporary volume credentials
+pub struct GenerateTemporaryVolumeCredentialsBuilder {
+    client: TemporaryCredentialClient,
+    request: GenerateTemporaryVolumeCredentialsRequest,
+}
+impl GenerateTemporaryVolumeCredentialsBuilder {
+    /// Create a new builder instance.
+    /// Obtain via the corresponding method on `TemporaryCredentialClient`.
+    pub(crate) fn new(
+        client: TemporaryCredentialClient,
+        volume_id: impl Into<String>,
+        operation: generate_temporary_volume_credentials_request::Operation,
+    ) -> Self {
+        let request = GenerateTemporaryVolumeCredentialsRequest {
+            volume_id: volume_id.into(),
+            operation: operation as i32,
+            ..Default::default()
+        };
+        Self { client, request }
+    }
+}
+impl IntoFuture for GenerateTemporaryVolumeCredentialsBuilder {
+    type Output = Result<TemporaryCredential>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+    fn into_future(self) -> Self::IntoFuture {
+        let client = self.client;
+        let request = self.request;
+        Box::pin(async move { client.generate_temporary_volume_credentials(&request).await })
+    }
+}

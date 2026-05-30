@@ -43,4 +43,21 @@ impl TemporaryCredentialClient {
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
+    /// Generate a new set of credentials for a volume.
+    ///
+    /// The metastore must have the `external_access_enabled` flag set to true
+    /// (default false). The caller must have the `EXTERNAL_USE_SCHEMA`
+    /// privilege on the parent schema (granted by a catalog owner).
+    pub async fn generate_temporary_volume_credentials(
+        &self,
+        request: &GenerateTemporaryVolumeCredentialsRequest,
+    ) -> Result<TemporaryCredential> {
+        let url = self.base_url.join("temporary-volume-credentials")?;
+        let response = self.client.post(url).json(request).send().await?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
+        let result = response.bytes().await?;
+        Ok(serde_json::from_slice(&result)?)
+    }
 }

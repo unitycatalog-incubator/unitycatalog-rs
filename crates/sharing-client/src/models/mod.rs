@@ -1,9 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
-use delta_kernel::{
-    actions::{Metadata as KernelMetadata, Protocol as DeltaProtocol},
-    table_features::ReaderFeature,
-};
+use delta_kernel::actions::{Metadata as KernelMetadata, Protocol as DeltaProtocol};
 use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
@@ -33,6 +30,19 @@ impl FromStr for ResponseFormat {
             _ => Err(Error::InvalidArgument(s.to_string())),
         }
     }
+}
+
+/// Delta reader features advertised by a Delta Sharing client in its
+/// `delta-sharing-capabilities` header.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ReaderFeature {
+    CatalogManaged,
+    ColumnMapping,
+    DeletionVectors,
+    TimestampWithoutTimezone,
+    TypeWidening,
+    V2Checkpoint,
+    VariantType,
 }
 
 fn parse_reader_feature(s: &str) -> Result<ReaderFeature> {

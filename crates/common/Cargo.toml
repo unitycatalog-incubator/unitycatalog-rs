@@ -16,6 +16,7 @@ chrono = { workspace = true }
 itertools = { workspace = true }
 olai-http = { workspace = true, optional = true }
 pbjson = { workspace = true }
+percent-encoding = "2"
 pbjson-types = { workspace = true }
 prost = { workspace = true }
 serde = { workspace = true }
@@ -30,8 +31,7 @@ uuid = { workspace = true }
 axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
 futures = { version = "0.3", optional = true }
-olai-store = { path = "../../../trestle/crates/olai-store" }
-# olai-store = { version = "0" }
+olai-store = { workspace = true }
 
 # grpc server specific dependencies (in alphabetical order)
 tonic = { workspace = true, optional = true }

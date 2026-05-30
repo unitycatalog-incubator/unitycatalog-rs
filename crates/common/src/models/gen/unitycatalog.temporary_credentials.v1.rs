@@ -145,6 +145,56 @@ pub mod generate_temporary_table_credentials_request {
         }
     }
 }
+/// Generate a new set of credentials for a volume.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GenerateTemporaryVolumeCredentialsRequest {
+    /// UUID of the volume to read or write.
+    #[prost(string, tag="1")]
+    pub volume_id: ::prost::alloc::string::String,
+    /// The operation performed against the volume data, either READ_VOLUME or
+    /// WRITE_VOLUME. If WRITE_VOLUME is specified, the credentials returned will
+    /// have write permissions, otherwise, it will be read only.
+    #[prost(enumeration="generate_temporary_volume_credentials_request::Operation", tag="2")]
+    pub operation: i32,
+}
+/// Nested message and enum types in `GenerateTemporaryVolumeCredentialsRequest`.
+pub mod generate_temporary_volume_credentials_request {
+    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[repr(i32)]
+    pub enum Operation {
+        /// The operation is not specified.
+        Unspecified = 0,
+        /// The operation is read only.
+        ReadVolume = 1,
+        /// The operation is read and write.
+        WriteVolume = 2,
+    }
+    impl Operation {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Operation::Unspecified => "UNSPECIFIED",
+                Operation::ReadVolume => "READ_VOLUME",
+                Operation::WriteVolume => "WRITE_VOLUME",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "UNSPECIFIED" => Some(Self::Unspecified),
+                "READ_VOLUME" => Some(Self::ReadVolume),
+                "WRITE_VOLUME" => Some(Self::WriteVolume),
+                _ => None,
+            }
+        }
+    }
+}
 /// Generate a new set of credentials for a path.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]

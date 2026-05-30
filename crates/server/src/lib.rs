@@ -1,6 +1,7 @@
 pub mod api;
 mod codegen;
 pub mod error;
+pub mod handlers;
 #[cfg(feature = "memory")]
 pub mod memory;
 pub mod policy;

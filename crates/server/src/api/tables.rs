@@ -177,7 +177,10 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<Requ
                 comment: request.comment,
                 columns: schema_to_columns(
                     snapshot.schema().as_ref(),
-                    snapshot.metadata().partition_columns(),
+                    snapshot
+                        .table_configuration()
+                        .metadata()
+                        .partition_columns(),
                 )?,
                 ..Default::default()
             }

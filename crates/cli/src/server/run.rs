@@ -73,7 +73,7 @@ where
     run(server, host, port, api_def, sharing_api_def).await
 }
 
-async fn run<S: Into<String> + Clone>(
+pub(crate) async fn run<S: Into<String> + Clone>(
     router: axum::Router,
     host: impl AsRef<str>,
     port: u16,

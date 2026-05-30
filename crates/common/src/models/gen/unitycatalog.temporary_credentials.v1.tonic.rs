@@ -24,6 +24,19 @@ pub mod temporary_credentials_service_server {
             tonic::Response<super::TemporaryCredential>,
             tonic::Status,
         >;
+        /** Generate a new set of credentials for a volume.
+
+ The metastore must have the `external_access_enabled` flag set to true
+ (default false). The caller must have the `EXTERNAL_USE_SCHEMA`
+ privilege on the parent schema (granted by a catalog owner).
+*/
+        async fn generate_temporary_volume_credentials(
+            &self,
+            request: tonic::Request<super::GenerateTemporaryVolumeCredentialsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::TemporaryCredential>,
+            tonic::Status,
+        >;
     }
     /** Service for generating temporary credentials to access tables and storage paths.
  Credentials are short-lived and scoped to a specific operation (read or read/write).
@@ -202,6 +215,62 @@ pub mod temporary_credentials_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GenerateTemporaryPathCredentialsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/unitycatalog.temporary_credentials.v1.TemporaryCredentialsService/GenerateTemporaryVolumeCredentials" => {
+                    #[allow(non_camel_case_types)]
+                    struct GenerateTemporaryVolumeCredentialsSvc<
+                        T: TemporaryCredentialsService,
+                    >(
+                        pub Arc<T>,
+                    );
+                    impl<
+                        T: TemporaryCredentialsService,
+                    > tonic::server::UnaryService<
+                        super::GenerateTemporaryVolumeCredentialsRequest,
+                    > for GenerateTemporaryVolumeCredentialsSvc<T> {
+                        type Response = super::TemporaryCredential;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::GenerateTemporaryVolumeCredentialsRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as TemporaryCredentialsService>::generate_temporary_volume_credentials(
+                                        &inner,
+                                        request,
+                                    )
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = GenerateTemporaryVolumeCredentialsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

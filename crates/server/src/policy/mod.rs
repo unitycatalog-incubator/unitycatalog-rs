@@ -150,8 +150,23 @@ pub async fn process_resources<
     permission: &Permission,
     resources: &mut Vec<R>,
 ) -> Result<()> {
+    filter_authorized(handler, context, permission, resources).await
+}
+
+/// [`process_resources`] for a `dyn`-typed policy.
+///
+/// Identical filtering behavior, but takes `&dyn Policy<Cx>` so it can be used
+/// with an `Arc<dyn Policy<Cx>>` (which does not satisfy the `Sized` bound on
+/// [`process_resources`]). Handler patterns that hold the policy behind a trait
+/// object — e.g. proxy/decorator handlers — use this.
+pub async fn filter_authorized<Cx: Send + Sync + 'static, R: ResourceExt + Send>(
+    policy: &dyn Policy<Cx>,
+    context: &Cx,
+    permission: &Permission,
+    resources: &mut Vec<R>,
+) -> Result<()> {
     let res = resources.iter().map(|r| r.into()).collect::<Vec<_>>();
-    let mut decisions = handler.authorize_many(&res, permission, context).await?;
+    let mut decisions = policy.authorize_many(&res, permission, context).await?;
     resources.retain(|_| decisions.pop() == Some(Decision::Allow));
     Ok(())
 }

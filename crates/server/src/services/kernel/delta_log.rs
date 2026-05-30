@@ -8,11 +8,9 @@ use datafusion::arrow::array::{AsArray, BooleanArray};
 use datafusion::arrow::compute::filter_record_batch;
 use datafusion::arrow::datatypes::SchemaRef;
 use datafusion::arrow::record_batch::RecordBatch;
-use datafusion::catalog::memory::MemorySourceConfig;
 use datafusion::catalog::{Session, TableProvider};
 use datafusion::common::DataFusionError;
 use datafusion::common::error::Result;
-use datafusion::datasource::source::DataSourceExec;
 use datafusion::execution::{RecordBatchStream, SendableRecordBatchStream, TaskContext};
 use datafusion::logical_expr::utils::conjunction;
 use datafusion::logical_expr::{ColumnarValue, Expr, TableProviderFilterPushDown, TableType};
@@ -21,136 +19,45 @@ use datafusion::physical_plan::execution_plan::{Boundedness, EmissionType};
 use datafusion::physical_plan::{
     DisplayAs, DisplayFormatType, ExecutionPlan, Partitioning, PhysicalExpr, PlanProperties,
 };
-use delta_kernel::DeltaResult;
-use delta_kernel::actions::get_log_schema;
 use delta_kernel::arrow::datatypes::SchemaRef as ArrowSchemaRef;
 use delta_kernel::engine::arrow_conversion::TryIntoArrow as _;
 use delta_kernel::engine::arrow_data::ArrowEngineData;
 use delta_kernel::scan::{Scan, ScanMetadata, scan_row_schema};
 use delta_kernel::snapshot::Snapshot;
+use delta_kernel::{DeltaResult, Engine};
 use futures::Stream;
-use itertools::Itertools;
 use url::Url;
 
-use crate::session::{KernelSessionExt, KernelTaskContextExt};
-
-static LOG_SCHEMA: LazyLock<ArrowSchemaRef> =
-    LazyLock::new(|| Arc::new(get_log_schema().as_ref().try_into_arrow().unwrap()));
 static SCAN_ROW_SCHEMA: LazyLock<ArrowSchemaRef> =
     LazyLock::new(|| Arc::new((scan_row_schema().as_ref()).try_into_arrow().unwrap()));
 
-#[derive(Debug)]
-pub struct DeltaLogTableProvider {
+/// A DataFusion [`TableProvider`] that replays a Delta table's log and exposes
+/// the resulting scan-file rows (per [`scan_row_schema`]).
+///
+/// The provider carries the delta_kernel [`Engine`] used to read the log, so it
+/// is fully self-contained and does not depend on any session extension.
+pub(crate) struct DeltaLogReplayProvider {
     table: Url,
+    engine: Arc<dyn Engine>,
 }
 
-impl DeltaLogTableProvider {
-    pub fn new(mut table: Url) -> Result<Self> {
-        if !table.path().ends_with('/') {
-            table.set_path(&format!("{}/", table.path()));
-        }
-        Ok(Self { table })
+impl std::fmt::Debug for DeltaLogReplayProvider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DeltaLogReplayProvider")
+            .field("table", &self.table)
+            .finish_non_exhaustive()
     }
-
-    pub fn log_schema() -> ArrowSchemaRef {
-        Arc::clone(&LOG_SCHEMA)
-    }
-}
-
-#[async_trait]
-impl TableProvider for DeltaLogTableProvider {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    fn schema(&self) -> ArrowSchemaRef {
-        Self::log_schema()
-    }
-
-    fn table_type(&self) -> TableType {
-        TableType::Base
-    }
-
-    fn supports_filters_pushdown(
-        &self,
-        filters: &[&Expr],
-    ) -> Result<Vec<TableProviderFilterPushDown>> {
-        //
-        Ok(vec![TableProviderFilterPushDown::Inexact; filters.len()])
-    }
-
-    async fn scan(
-        &self,
-        state: &dyn Session,
-        projection: Option<&Vec<usize>>,
-        _filters: &[Expr],
-        limit: Option<usize>,
-    ) -> Result<Arc<dyn ExecutionPlan>> {
-        let engine = state.kernel_engine()?;
-        let table_root = self.table.clone();
-
-        let snapshot = tokio::task::spawn_blocking(move || {
-            Snapshot::builder_for(table_root)
-                .build(engine.as_ref())
-                .map_err(|e| DataFusionError::Execution(e.to_string()))
-        })
-        .await
-        .map_err(|e| DataFusionError::Execution(e.to_string()))??;
-
-        let (log_schema, arrow_schema) = if let Some(proj) = projection {
-            let projected_schema = Arc::new(self.schema().project(proj)?);
-            let projected_names = projected_schema
-                .fields()
-                .iter()
-                .map(|f| f.name())
-                .collect_vec();
-            (
-                get_log_schema()
-                    .project(&projected_names)
-                    .map_err(|e| DataFusionError::Execution(e.to_string()))?,
-                projected_schema,
-            )
-        } else {
-            (get_log_schema().clone(), self.schema())
-        };
-
-        let engine = state.kernel_engine()?;
-        let actions = tokio::task::spawn_blocking(move || {
-            snapshot
-                .log_segment()
-                .read_actions(engine.as_ref(), log_schema.clone(), log_schema, None)?
-                .map(|res| {
-                    res.and_then(|data| {
-                        ArrowEngineData::try_from_engine_data(data.actions)
-                            .map(|d| d.record_batch().clone())
-                    })
-                })
-                .try_collect::<_, Vec<_>, _>()
-        })
-        .await
-        .map_err(|e| DataFusionError::Execution(e.to_string()))?
-        .map_err(|e| DataFusionError::Execution(e.to_string()))?;
-
-        let source = MemorySourceConfig::try_new(&[actions], arrow_schema, None)?.with_limit(limit);
-
-        Ok(DataSourceExec::from_data_source(source))
-    }
-}
-
-#[derive(Debug)]
-pub struct DeltaLogReplayProvider {
-    table: Url,
 }
 
 impl DeltaLogReplayProvider {
-    pub fn new(mut table: Url) -> Result<Self> {
+    pub(crate) fn new(mut table: Url, engine: Arc<dyn Engine>) -> Result<Self> {
         if !table.path().ends_with('/') {
             table.set_path(&format!("{}/", table.path()));
         }
-        Ok(Self { table })
+        Ok(Self { table, engine })
     }
 
-    pub fn scan_row_schema() -> ArrowSchemaRef {
+    pub(crate) fn scan_row_schema() -> ArrowSchemaRef {
         Arc::clone(&SCAN_ROW_SCHEMA)
     }
 }
@@ -173,7 +80,6 @@ impl TableProvider for DeltaLogReplayProvider {
         &self,
         filters: &[&Expr],
     ) -> Result<Vec<TableProviderFilterPushDown>> {
-        //
         Ok(vec![
             TableProviderFilterPushDown::Unsupported;
             filters.len()
@@ -189,11 +95,11 @@ impl TableProvider for DeltaLogReplayProvider {
     ) -> Result<Arc<dyn ExecutionPlan>> {
         // TODO: handle predicate - this needs to be applied in the stream where we produce the
         // record batches
-        let engine = state.kernel_engine()?;
+        let engine = self.engine.clone();
         let table_root = self.table.clone();
 
         let snapshot = tokio::task::spawn_blocking(move || {
-            Snapshot::builder_for(table_root)
+            Snapshot::builder_for(table_root.as_str())
                 .build(engine.as_ref())
                 .map_err(|e| DataFusionError::Execution(e.to_string()))
         })
@@ -223,6 +129,7 @@ impl TableProvider for DeltaLogReplayProvider {
         };
 
         let exec = DeltaLogReplayExec::new(
+            self.engine.clone(),
             scan.into(),
             PlanProperties::new(
                 EquivalenceProperties::new(projected_arrow),
@@ -237,24 +144,34 @@ impl TableProvider for DeltaLogReplayProvider {
     }
 }
 
-#[derive(Debug)]
 struct DeltaLogReplayExec {
+    engine: Arc<dyn Engine>,
     scan: Arc<Scan>,
-    properties: PlanProperties,
+    properties: Arc<PlanProperties>,
     projection: Option<Vec<usize>>,
     predicate: Option<Arc<dyn PhysicalExpr>>,
 }
 
+impl std::fmt::Debug for DeltaLogReplayExec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DeltaLogReplayExec")
+            .field("projection", &self.projection)
+            .finish_non_exhaustive()
+    }
+}
+
 impl DeltaLogReplayExec {
     pub fn new(
+        engine: Arc<dyn Engine>,
         scan: Arc<Scan>,
         properties: PlanProperties,
         projection: Option<Vec<usize>>,
         predicate: Option<Arc<dyn PhysicalExpr>>,
     ) -> Self {
         Self {
+            engine,
             scan,
-            properties,
+            properties: Arc::new(properties),
             projection,
             predicate,
         }
@@ -283,7 +200,7 @@ impl ExecutionPlan for DeltaLogReplayExec {
         "DeltaLogReplayExec"
     }
 
-    fn properties(&self) -> &PlanProperties {
+    fn properties(&self) -> &Arc<PlanProperties> {
         &self.properties
     }
 
@@ -301,7 +218,7 @@ impl ExecutionPlan for DeltaLogReplayExec {
     fn execute(
         &self,
         partition: usize,
-        context: Arc<TaskContext>,
+        _context: Arc<TaskContext>,
     ) -> Result<SendableRecordBatchStream> {
         if partition != 0 {
             return Err(DataFusionError::Execution(
@@ -309,9 +226,9 @@ impl ExecutionPlan for DeltaLogReplayExec {
             ));
         }
 
-        let engine = context.kernel_ext()?.engine.clone();
+        let engine = self.engine.clone();
         // TODO: where should we do the work, also how does the work actually get executed?
-        // Since itnernally we are using channels, we may just be blocking when we are polling ...
+        // Since internally we are using channels, we may just be blocking when we are polling ...
         let iter = self
             .scan
             .scan_metadata(engine.as_ref())
@@ -325,8 +242,9 @@ impl ExecutionPlan for DeltaLogReplayExec {
         Ok(Box::pin(stream))
     }
 }
+
 // TODO: handle limits. to do this we likely need to also use ReceiverStreamBuilder
-// since otherwise the read futures might not be dropped and we do the work anyawys.
+// since otherwise the read futures might not be dropped and we do the work anyways.
 struct DeltaLogReplayStream {
     schema: SchemaRef,
     input: Box<dyn Iterator<Item = DeltaResult<ScanMetadata>> + Send>,
@@ -357,7 +275,8 @@ impl Stream for DeltaLogReplayStream {
         let this = self.get_mut();
         match this.input.next() {
             Some(Ok(metadata)) => {
-                let data = match ArrowEngineData::try_from_engine_data(metadata.scan_files.data) {
+                let (scan_files, selection_vector) = metadata.scan_files.into_parts();
+                let data = match ArrowEngineData::try_from_engine_data(scan_files) {
                     Ok(data) => data,
                     Err(e) => {
                         tracing::error!("failed to convert scan metadata to record batch: {}", e);
@@ -366,7 +285,7 @@ impl Stream for DeltaLogReplayStream {
                 };
 
                 // Apply the selection vector to the record batch
-                let predicate = BooleanArray::from(metadata.scan_files.selection_vector);
+                let predicate = BooleanArray::from(selection_vector);
                 let mut record_batch = filter_record_batch(data.record_batch(), &predicate)
                     .map_err(|e| DataFusionError::ArrowError(Box::new(e), None));
 
