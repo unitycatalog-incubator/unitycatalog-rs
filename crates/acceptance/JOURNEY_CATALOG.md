@@ -102,7 +102,7 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 
 | Variable | Values | Description |
 |---|---|---|
-| `UC_INTEGRATION_PROFILE` | `oss_rust`, `managed_databricks` | Activates the `journey_tests_live` test with the named profile |
+| `UC_INTEGRATION_PROFILE` | `oss_rust`, `oss_java`, `managed_databricks` | Activates the `journey_tests_live` test with the named profile |
 
 ---
 
@@ -141,6 +141,27 @@ UC_INTEGRATION_PROFILE=oss_rust \
 UC_INTEGRATION_PROFILE=oss_rust \
   UC_INTEGRATION_URL=http://localhost:8080 \
   UC_INTEGRATION_RECORD=true \
+  cargo test -p unitycatalog-acceptance -- journey_tests_live
+```
+
+### Run against the open-source Java Unity Catalog server
+
+This boots the Java OSS server in Docker, waits for its healthcheck, and runs every
+journey compatible with the `OssJava` implementation tag. This is the same flow the
+`integration-oss-java` CI job runs.
+
+```bash
+just integration-oss-java
+
+# Tear down when done:
+docker compose -f dev/uc-oss.compose.yaml down -v
+```
+
+To run it by hand against an already-running Java server:
+
+```bash
+UC_INTEGRATION_PROFILE=oss_java \
+  UC_INTEGRATION_URL=http://localhost:8080 \
   cargo test -p unitycatalog-acceptance -- journey_tests_live
 ```
 
@@ -204,9 +225,9 @@ different payloads (e.g. three `POST /schemas` with different names).
 | `enhanced_catalog` | ✅ | ✅ | ✅ | ✅ |
 | `catalog_hierarchy` | ✅ | ✅ | ✅ | ✅ |
 | `schema_lifecycle` | ✅ | ✅ | ✅ | ✅ |
-| `table_managed_lifecycle` | ✅ | ✅ | ✅ | ✅ |
-| `volume_managed_lifecycle` | ✅ | ✅ | ✅ | ✅ |
-| `lakehouse_hierarchy` | ✅ | ✅ | ✅ | ✅ |
+| `table_managed_lifecycle` | — | ✅ | —¹ | ✅ |
+| `volume_managed_lifecycle` | — | ✅ | —² | ✅ |
+| `lakehouse_hierarchy` | — | ✅ | —¹ | ✅ |
 | `credential_lifecycle` | — | — | — | ✅ |
 | `external_location_lifecycle` | — | — | — | ✅ |
 | `volume_external_lifecycle` | — | — | — | ✅ |
@@ -217,3 +238,11 @@ different payloads (e.g. three `POST /schemas` with different names).
 | `share_lifecycle` | — | ✅ | — | ✅ |
 | `recipient_lifecycle` | — | ✅ | — | ✅ |
 | `function_lifecycle` | — | ✅ | — | ✅ |
+
+¹ The Java OSS server (`v0.4.1`, local file storage) returns `500 [INTERNAL]
+  "stagingLocation is null"` when creating MANAGED tables, so these journeys are
+  not OssJava-compatible without configured cloud storage.
+
+² The Java OSS server cannot deserialize the `VOLUME_TYPE_MANAGED` enum value our
+  client sends (it expects `MANAGED`) and returns a 500. Tracked as a
+  client/server wire-format follow-up.

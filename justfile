@@ -168,6 +168,17 @@ integration:
     UC_INTEGRATION_RECORD="false" \
     cargo run --bin unitycatalog-acceptance
 
+# run journey tests live against the open-source Java Unity Catalog server.
+# Boots the server via docker compose, waits for its healthcheck, then runs
+# every OssJava-compatible journey. Tear down with:
+#   docker compose -f dev/uc-oss.compose.yaml down -v
+[group('test')]
+integration-oss-java:
+    docker compose -f dev/uc-oss.compose.yaml up -d --wait
+    UC_INTEGRATION_PROFILE="oss_java" \
+    UC_INTEGRATION_URL="http://localhost:8080" \
+    cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
+
 # run object-store integration tests against the docker `full` profile
 # (UC server + SeaweedFS + Postgres + Azurite). Marks the test crate's
 # `#[ignore]` tests as runnable.

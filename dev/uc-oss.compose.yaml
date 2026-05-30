@@ -1,0 +1,38 @@
+# Minimal Compose fixture that boots the open-source Java Unity Catalog server
+# for acceptance/journey integration tests. Reused by `just integration-oss-java`
+# and the `integration-oss-java` CI job.
+#
+# The image is the same one used by the marimo playground (dev/ucp.compose.yaml).
+# See https://github.com/unitycatalog/unitycatalog for the upstream project.
+name: unitycatalog-oss
+
+services:
+  unitycatalog:
+    image: newfrontdocker/unitycatalog:v0.4.1
+    hostname: unitycatalog
+    container_name: unitycatalog-oss
+    ports:
+      - "8080:8080"
+    volumes:
+      # Tracked, minimal config — authorization disabled, managed tables enabled.
+      - type: bind
+        source: ./uc-oss/server.properties
+        target: /home/unitycatalog/etc/conf/server.properties
+        read_only: true
+      # Ephemeral data dir so every run starts from a clean catalog.
+      - type: volume
+        source: uc_oss_data
+        target: /home/unitycatalog/etc/data
+    healthcheck:
+      # The server is ready once it answers the catalogs list endpoint.
+      # The image ships wget (not curl).
+      test:
+        - CMD-SHELL
+        - "wget -q -O /dev/null http://localhost:8080/api/2.1/unity-catalog/catalogs || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  uc_oss_data:

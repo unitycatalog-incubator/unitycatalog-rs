@@ -59,7 +59,12 @@ impl UserJourney for LakehouseHierarchyJourney {
                 ResourceTag::Tables,
                 ResourceTag::Volumes,
             ],
-            implementations: vec![ImplementationTag::All],
+            // Creates managed tables, which the Java OSS server cannot create
+            // without configured cloud storage (500 "stagingLocation is null").
+            implementations: vec![
+                ImplementationTag::OssRust,
+                ImplementationTag::ManagedDatabricks,
+            ],
             tier: JourneyTier::Tier4Advanced,
             requires_external_storage: false,
         }

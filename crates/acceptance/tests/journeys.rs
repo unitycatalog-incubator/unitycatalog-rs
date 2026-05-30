@@ -1,5 +1,5 @@
 use unitycatalog_acceptance::journeys::{journeys_for_filter, journeys_for_profile};
-use unitycatalog_acceptance::{ImplementationProfile, JourneyConfig, JourneyFilter};
+use unitycatalog_acceptance::{ExecutionMode, ImplementationProfile, JourneyConfig, JourneyFilter};
 
 /// Default replay test — runs all journeys that have recordings.
 ///
@@ -41,6 +41,10 @@ async fn journey_tests() -> Result<(), Box<dyn std::error::Error>> {
 /// UC_INTEGRATION_PROFILE=oss_rust UC_INTEGRATION_URL=http://localhost:8080 \
 ///   cargo test -p unitycatalog-acceptance -- journey_tests_live
 ///
+/// # Run against the local Java OSS server (see `just integration-oss-java`)
+/// UC_INTEGRATION_PROFILE=oss_java UC_INTEGRATION_URL=http://localhost:8080 \
+///   cargo test -p unitycatalog-acceptance -- journey_tests_live
+///
 /// # Record against Databricks managed UC
 /// UC_INTEGRATION_PROFILE=managed_databricks \
 ///   UC_INTEGRATION_URL=https://my-workspace.azuredatabricks.net \
@@ -61,6 +65,10 @@ async fn journey_tests_live() -> Result<(), Box<dyn std::error::Error>> {
             std::env::var("UC_INTEGRATION_URL")
                 .unwrap_or_else(|_| "http://localhost:8080".to_string()),
         ),
+        "oss_java" => ImplementationProfile::oss_java(
+            std::env::var("UC_INTEGRATION_URL")
+                .unwrap_or_else(|_| "http://localhost:8080".to_string()),
+        ),
         "managed_databricks" => ImplementationProfile::managed_databricks(
             std::env::var("UC_INTEGRATION_URL")
                 .expect("UC_INTEGRATION_URL required for managed_databricks profile"),
@@ -72,13 +80,20 @@ async fn journey_tests_live() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let profile = ImplementationProfile::from_env(base_profile);
-    let recording_enabled = std::env::var("UC_INTEGRATION_RECORD").unwrap_or_default() == "true";
+
+    // Live by default — actually exercise the target server. Set
+    // `UC_INTEGRATION_RECORD=true` to additionally capture new fixtures.
+    let mode = if std::env::var("UC_INTEGRATION_RECORD").unwrap_or_default() == "true" {
+        ExecutionMode::Record
+    } else {
+        ExecutionMode::Live
+    };
 
     let cargo_dir = std::env::var("CARGO_MANIFEST_DIR")?;
     let path = std::path::Path::new(&cargo_dir).join("recordings");
 
     let config = JourneyConfig::for_profile(&profile)
-        .with_recording(recording_enabled)
+        .with_mode(mode)
         .with_output_dir(path);
 
     for journey in journeys_for_profile(&profile).iter_mut() {
