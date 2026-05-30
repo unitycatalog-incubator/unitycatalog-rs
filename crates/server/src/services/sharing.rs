@@ -91,12 +91,13 @@ impl SharingQueryHandler for ServerHandler<RequestContext> {
             .read_snapshot(&location, &DataSourceFormat::Delta, None)
             .await?;
 
+        let table_config = snapshot.table_configuration();
         let mut response = serde_json::to_vec(&MetadataResponse::MetaData(
-            MetadataResponseData::ParquetMetadata(snapshot.metadata().try_into()?),
+            MetadataResponseData::ParquetMetadata(table_config.metadata().try_into()?),
         ))?;
         response.push(b'\n');
         response.extend(serde_json::to_vec(&MetadataResponse::Protocol(
-            ProtocolResponseData::ParquetProtocol(snapshot.protocol().into()),
+            ProtocolResponseData::ParquetProtocol(table_config.protocol().into()),
         ))?);
 
         Ok(Bytes::from(response))

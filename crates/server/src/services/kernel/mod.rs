@@ -12,10 +12,9 @@
 
 use std::sync::Arc;
 
-use datafusion::common::{DataFusionError, Result as DFResult};
+use datafusion::common::Result as DFResult;
 use delta_kernel::Engine;
 use delta_kernel::engine::default::DefaultEngine;
-use delta_kernel::engine::default::executor::tokio::TokioMultiThreadExecutor;
 use object_store::DynObjectStore;
 use url::Url;
 
@@ -35,15 +34,11 @@ pub trait ObjectStoreFactory: Send + Sync + 'static {
 /// Build a delta_kernel [`Engine`] for the given table root.
 ///
 /// Resolves the object store for `table_root` via `factory` and wraps it in
-/// delta_kernel's [`DefaultEngine`], using the current multi-threaded Tokio
-/// runtime to execute blocking work.
+/// delta_kernel's [`DefaultEngine`], which manages its own background executor.
 pub(crate) async fn build_engine(
     factory: &dyn ObjectStoreFactory,
     table_root: &Url,
 ) -> DFResult<Arc<dyn Engine>> {
     let store = factory.create_object_store(table_root).await?;
-    let handle = tokio::runtime::Handle::try_current()
-        .map_err(|e| DataFusionError::Execution(e.to_string()))?;
-    let executor = Arc::new(TokioMultiThreadExecutor::new(handle));
-    Ok(Arc::new(DefaultEngine::new(store, executor)))
+    Ok(Arc::new(DefaultEngine::builder(store).build()))
 }

@@ -171,12 +171,16 @@ impl TableManager for KernelSession {
             .map_err(|e| Error::Generic(e.to_string()))?;
         let table_root = location.location().clone();
         let snapshot = tokio::task::spawn_blocking(move || {
-            Snapshot::try_new(table_root, engine.as_ref(), version)
+            let mut builder = Snapshot::builder_for(table_root.as_str());
+            if let Some(version) = version {
+                builder = builder.at_version(version);
+            }
+            builder.build(engine.as_ref())
         })
         .await
         .map_err(|e| Error::Generic(e.to_string()))?
         .map_err(|e| Error::Generic(e.to_string()))?;
-        Ok(Arc::new(snapshot))
+        Ok(snapshot)
     }
 }
 

@@ -99,7 +99,8 @@ impl TableProvider for DeltaLogReplayProvider {
         let table_root = self.table.clone();
 
         let snapshot = tokio::task::spawn_blocking(move || {
-            Snapshot::try_new(table_root, engine.as_ref(), None)
+            Snapshot::builder_for(table_root.as_str())
+                .build(engine.as_ref())
                 .map_err(|e| DataFusionError::Execution(e.to_string()))
         })
         .await
@@ -116,7 +117,7 @@ impl TableProvider for DeltaLogReplayProvider {
             .unwrap_or_else(Self::scan_row_schema);
 
         let scan = snapshot
-            .into_scan_builder()
+            .scan_builder()
             .build()
             .map_err(|e| DataFusionError::Execution(e.to_string()))?;
 
@@ -146,7 +147,7 @@ impl TableProvider for DeltaLogReplayProvider {
 struct DeltaLogReplayExec {
     engine: Arc<dyn Engine>,
     scan: Arc<Scan>,
-    properties: PlanProperties,
+    properties: Arc<PlanProperties>,
     projection: Option<Vec<usize>>,
     predicate: Option<Arc<dyn PhysicalExpr>>,
 }
@@ -170,7 +171,7 @@ impl DeltaLogReplayExec {
         Self {
             engine,
             scan,
-            properties,
+            properties: Arc::new(properties),
             projection,
             predicate,
         }
@@ -199,7 +200,7 @@ impl ExecutionPlan for DeltaLogReplayExec {
         "DeltaLogReplayExec"
     }
 
-    fn properties(&self) -> &PlanProperties {
+    fn properties(&self) -> &Arc<PlanProperties> {
         &self.properties
     }
 
@@ -274,7 +275,8 @@ impl Stream for DeltaLogReplayStream {
         let this = self.get_mut();
         match this.input.next() {
             Some(Ok(metadata)) => {
-                let data = match ArrowEngineData::try_from_engine_data(metadata.scan_files.data) {
+                let (scan_files, selection_vector) = metadata.scan_files.into_parts();
+                let data = match ArrowEngineData::try_from_engine_data(scan_files) {
                     Ok(data) => data,
                     Err(e) => {
                         tracing::error!("failed to convert scan metadata to record batch: {}", e);
@@ -283,7 +285,7 @@ impl Stream for DeltaLogReplayStream {
                 };
 
                 // Apply the selection vector to the record batch
-                let predicate = BooleanArray::from(metadata.scan_files.selection_vector);
+                let predicate = BooleanArray::from(selection_vector);
                 let mut record_batch = filter_record_batch(data.record_batch(), &predicate)
                     .map_err(|e| DataFusionError::ArrowError(Box::new(e), None));
 
