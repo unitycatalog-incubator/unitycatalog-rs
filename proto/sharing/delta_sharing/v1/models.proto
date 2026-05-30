@@ -16,6 +16,15 @@ message Share {
 
   // Unique identifier for the share.
   optional string id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // User-friendly display name of the share.
+  optional string display_name = 3;
+
+  // User-provided free-form text description of the share.
+  optional string comment = 4;
+
+  // A map of key-value properties attached to the share.
+  map<string, string> properties = 5;
 }
 
 // A schema in a delta sharing service.
@@ -62,4 +71,15 @@ message Table {
 
   // A unique identifier for the share this table belongs to.
   optional string share_id = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The fully qualified location of the table.
+  //
+  // Required when the table is shared with directory-based access (`dir`).
+  optional string location = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Additional locations referenced by the table (e.g. for multi-location tables).
+  repeated string auxiliary_locations = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The access modes supported for this table (e.g. `url`, `dir`).
+  repeated string access_modes = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

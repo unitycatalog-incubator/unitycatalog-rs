@@ -9,6 +9,11 @@ use unitycatalog_sharing_client::models::sharing::v1::*;
 use crate::api::sharing::{SharingHandler, SharingQueryHandler};
 use crate::{Error, Result};
 
+/// Response header advertising the Delta Sharing capabilities this server
+/// supports. The query path currently emits responses in `parquet` format.
+const DELTA_SHARING_CAPABILITIES: &str = "delta-sharing-capabilities";
+const DELTA_SHARING_CAPABILITIES_VALUE: &str = "responseformat=parquet";
+
 /// Create a new [Router] for the Delta Sharing REST API.
 pub fn get_router<T, Cx>(state: T) -> Router
 where
@@ -132,6 +137,7 @@ where
     let result = handler.get_table_metadata(request, context).await?;
     let response = Response::builder()
         .header(CONTENT_TYPE, "application/x-ndjson; charset=utf-8")
+        .header(DELTA_SHARING_CAPABILITIES, DELTA_SHARING_CAPABILITIES_VALUE)
         .body(Body::from(result))
         .map_err(|e| Error::generic(e.to_string()))?;
     Ok(response)
@@ -149,6 +155,7 @@ where
     let result = handler.query_table(request, context).await?;
     let response = Response::builder()
         .header(CONTENT_TYPE, "application/x-ndjson; charset=utf-8")
+        .header(DELTA_SHARING_CAPABILITIES, DELTA_SHARING_CAPABILITIES_VALUE)
         .body(Body::from(result))
         .map_err(|e| Error::generic(e.to_string()))?;
     Ok(response)

@@ -3,6 +3,7 @@ pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
 pub mod functions;
+pub mod providers;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;

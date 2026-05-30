@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file delta_sharing/v1/models.proto.
  */
 export const file_delta_sharing_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSI+CgVTaGFyZRIYCgRuYW1lGAEgASgJQgrgQQi6SARyAhABEhQKAmlkGAIgASgJQgPgQQNIAIgBAUIFCgNfaWQiQgoGU2NoZW1hEgwKBG5hbWUYASABKAkSDQoFc2hhcmUYAiABKAkSFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCL0AQoFVGFibGUSNwoEbmFtZRgBIAEoCUIp4EEIukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNQoGc2NoZW1hGAIgASgJQiW6SCJyIBABGP8BMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjUKBXNoYXJlGAMgASgJQia6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIUCgJpZBgEIAEoCUID4EEDSACIAQESGgoIc2hhcmVfaWQYBSABKAlCA+BBA0gBiAEBQgUKA19pZEILCglfc2hhcmVfaWRCgAEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgtNb2RlbHNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior]);
+  fileDesc("Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSL8AQoFU2hhcmUSGAoEbmFtZRgBIAEoCUIK4EEIukgEcgIQARIUCgJpZBgCIAEoCUID4EEDSACIAQESGQoMZGlzcGxheV9uYW1lGAMgASgJSAGIAQESFAoHY29tbWVudBgEIAEoCUgCiAEBEjsKCnByb3BlcnRpZXMYBSADKAsyJy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlLlByb3BlcnRpZXNFbnRyeRoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIFCgNfaWRCDwoNX2Rpc3BsYXlfbmFtZUIKCghfY29tbWVudCJCCgZTY2hlbWESDAoEbmFtZRgBIAEoCRINCgVzaGFyZRgCIAEoCRIUCgJpZBgDIAEoCUID4EEDSACIAQFCBQoDX2lkItoCCgVUYWJsZRI3CgRuYW1lGAEgASgJQingQQi6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgZzY2hlbWEYAiABKAlCJbpIInIgEAEY/wEyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSNQoFc2hhcmUYAyABKAlCJrpII3IhEAEY/wEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEhQKAmlkGAQgASgJQgPgQQNIAIgBARIaCghzaGFyZV9pZBgFIAEoCUID4EEDSAGIAQESGgoIbG9jYXRpb24YBiABKAlCA+BBA0gCiAEBEiAKE2F1eGlsaWFyeV9sb2NhdGlvbnMYByADKAlCA+BBAxIZCgxhY2Nlc3NfbW9kZXMYCCADKAlCA+BBA0IFCgNfaWRCCwoJX3NoYXJlX2lkQgsKCV9sb2NhdGlvbkKAAQoUY29tLmRlbHRhX3NoYXJpbmcudjFCC01vZGVsc1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior]);
 
 /**
  * A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.
@@ -34,6 +34,27 @@ export type Share = Message<"delta_sharing.v1.Share"> & {
    * @generated from field: optional string id = 2;
    */
   id?: string;
+
+  /**
+   * User-friendly display name of the share.
+   *
+   * @generated from field: optional string display_name = 3;
+   */
+  displayName?: string;
+
+  /**
+   * User-provided free-form text description of the share.
+   *
+   * @generated from field: optional string comment = 4;
+   */
+  comment?: string;
+
+  /**
+   * A map of key-value properties attached to the share.
+   *
+   * @generated from field: map<string, string> properties = 5;
+   */
+  properties: { [key: string]: string };
 };
 
 /**
@@ -121,6 +142,29 @@ export type Table = Message<"delta_sharing.v1.Table"> & {
    * @generated from field: optional string share_id = 5;
    */
   shareId?: string;
+
+  /**
+   * The fully qualified location of the table.
+   *
+   * Required when the table is shared with directory-based access (`dir`).
+   *
+   * @generated from field: optional string location = 6;
+   */
+  location?: string;
+
+  /**
+   * Additional locations referenced by the table (e.g. for multi-location tables).
+   *
+   * @generated from field: repeated string auxiliary_locations = 7;
+   */
+  auxiliaryLocations: string[];
+
+  /**
+   * The access modes supported for this table (e.g. `url`, `dir`).
+   *
+   * @generated from field: repeated string access_modes = 8;
+   */
+  accessModes: string[];
 };
 
 /**

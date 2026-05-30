@@ -3469,12 +3469,30 @@ impl serde::Serialize for Share {
         if self.id.is_some() {
             len += 1;
         }
+        if self.display_name.is_some() {
+            len += 1;
+        }
+        if self.comment.is_some() {
+            len += 1;
+        }
+        if !self.properties.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Share", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
         if let Some(v) = self.id.as_ref() {
             struct_ser.serialize_field("id", v)?;
+        }
+        if let Some(v) = self.display_name.as_ref() {
+            struct_ser.serialize_field("display_name", v)?;
+        }
+        if let Some(v) = self.comment.as_ref() {
+            struct_ser.serialize_field("comment", v)?;
+        }
+        if !self.properties.is_empty() {
+            struct_ser.serialize_field("properties", &self.properties)?;
         }
         struct_ser.end()
     }
@@ -3488,12 +3506,19 @@ impl<'de> serde::Deserialize<'de> for Share {
         const FIELDS: &[&str] = &[
             "name",
             "id",
+            "display_name",
+            "displayName",
+            "comment",
+            "properties",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Name,
             Id,
+            DisplayName,
+            Comment,
+            Properties,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -3518,6 +3543,9 @@ impl<'de> serde::Deserialize<'de> for Share {
                         match value {
                             "name" => Ok(GeneratedField::Name),
                             "id" => Ok(GeneratedField::Id),
+                            "displayName" | "display_name" => Ok(GeneratedField::DisplayName),
+                            "comment" => Ok(GeneratedField::Comment),
+                            "properties" => Ok(GeneratedField::Properties),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -3539,6 +3567,9 @@ impl<'de> serde::Deserialize<'de> for Share {
             {
                 let mut name__ = None;
                 let mut id__ = None;
+                let mut display_name__ = None;
+                let mut comment__ = None;
+                let mut properties__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -3553,6 +3584,26 @@ impl<'de> serde::Deserialize<'de> for Share {
                             }
                             id__ = map_.next_value()?;
                         }
+                        GeneratedField::DisplayName => {
+                            if display_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("displayName"));
+                            }
+                            display_name__ = map_.next_value()?;
+                        }
+                        GeneratedField::Comment => {
+                            if comment__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("comment"));
+                            }
+                            comment__ = map_.next_value()?;
+                        }
+                        GeneratedField::Properties => {
+                            if properties__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("properties"));
+                            }
+                            properties__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -3561,6 +3612,9 @@ impl<'de> serde::Deserialize<'de> for Share {
                 Ok(Share {
                     name: name__.unwrap_or_default(),
                     id: id__,
+                    display_name: display_name__,
+                    comment: comment__,
+                    properties: properties__.unwrap_or_default(),
                 })
             }
         }
@@ -3590,6 +3644,15 @@ impl serde::Serialize for Table {
         if self.share_id.is_some() {
             len += 1;
         }
+        if self.location.is_some() {
+            len += 1;
+        }
+        if !self.auxiliary_locations.is_empty() {
+            len += 1;
+        }
+        if !self.access_modes.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Table", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -3605,6 +3668,15 @@ impl serde::Serialize for Table {
         }
         if let Some(v) = self.share_id.as_ref() {
             struct_ser.serialize_field("share_id", v)?;
+        }
+        if let Some(v) = self.location.as_ref() {
+            struct_ser.serialize_field("location", v)?;
+        }
+        if !self.auxiliary_locations.is_empty() {
+            struct_ser.serialize_field("auxiliary_locations", &self.auxiliary_locations)?;
+        }
+        if !self.access_modes.is_empty() {
+            struct_ser.serialize_field("access_modes", &self.access_modes)?;
         }
         struct_ser.end()
     }
@@ -3622,6 +3694,11 @@ impl<'de> serde::Deserialize<'de> for Table {
             "id",
             "share_id",
             "shareId",
+            "location",
+            "auxiliary_locations",
+            "auxiliaryLocations",
+            "access_modes",
+            "accessModes",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -3631,6 +3708,9 @@ impl<'de> serde::Deserialize<'de> for Table {
             Share,
             Id,
             ShareId,
+            Location,
+            AuxiliaryLocations,
+            AccessModes,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -3658,6 +3738,9 @@ impl<'de> serde::Deserialize<'de> for Table {
                             "share" => Ok(GeneratedField::Share),
                             "id" => Ok(GeneratedField::Id),
                             "shareId" | "share_id" => Ok(GeneratedField::ShareId),
+                            "location" => Ok(GeneratedField::Location),
+                            "auxiliaryLocations" | "auxiliary_locations" => Ok(GeneratedField::AuxiliaryLocations),
+                            "accessModes" | "access_modes" => Ok(GeneratedField::AccessModes),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -3682,6 +3765,9 @@ impl<'de> serde::Deserialize<'de> for Table {
                 let mut share__ = None;
                 let mut id__ = None;
                 let mut share_id__ = None;
+                let mut location__ = None;
+                let mut auxiliary_locations__ = None;
+                let mut access_modes__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -3714,6 +3800,24 @@ impl<'de> serde::Deserialize<'de> for Table {
                             }
                             share_id__ = map_.next_value()?;
                         }
+                        GeneratedField::Location => {
+                            if location__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("location"));
+                            }
+                            location__ = map_.next_value()?;
+                        }
+                        GeneratedField::AuxiliaryLocations => {
+                            if auxiliary_locations__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("auxiliaryLocations"));
+                            }
+                            auxiliary_locations__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::AccessModes => {
+                            if access_modes__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessModes"));
+                            }
+                            access_modes__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -3725,6 +3829,9 @@ impl<'de> serde::Deserialize<'de> for Table {
                     share: share__.unwrap_or_default(),
                     id: id__,
                     share_id: share_id__,
+                    location: location__,
+                    auxiliary_locations: auxiliary_locations__.unwrap_or_default(),
+                    access_modes: access_modes__.unwrap_or_default(),
                 })
             }
         }

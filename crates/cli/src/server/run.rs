@@ -10,6 +10,7 @@ use unitycatalog_server::api::catalogs::CatalogHandler;
 use unitycatalog_server::api::credentials::CredentialHandler;
 use unitycatalog_server::api::external_locations::ExternalLocationHandler;
 use unitycatalog_server::api::functions::FunctionHandler;
+use unitycatalog_server::api::providers::ProviderHandler;
 use unitycatalog_server::api::recipients::RecipientHandler;
 use unitycatalog_server::api::schemas::SchemaHandler;
 use unitycatalog_server::api::shares::ShareHandler;
@@ -17,8 +18,9 @@ use unitycatalog_server::api::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
-    create_external_locations_router, create_functions_router, create_recipients_router,
-    create_schemas_router, create_shares_router, create_sharing_router, create_tables_router,
+    create_external_locations_router, create_functions_router, create_providers_router,
+    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
+    create_tables_router,
 };
 
 pub async fn run_server_rest<T, A, Cx>(
@@ -38,6 +40,7 @@ where
         + TableHandler<Cx>
         + ExternalLocationHandler<Cx>
         + RecipientHandler<Cx>
+        + ProviderHandler<Cx>
         + Clone,
     A: Authenticator<unitycatalog_server::policy::Principal> + Clone,
     Cx: axum::extract::FromRequestParts<T> + Send + 'static,
@@ -60,6 +63,7 @@ where
         .merge(create_external_locations_router(handler.clone()))
         .merge(create_functions_router(handler.clone()))
         .merge(create_recipients_router(handler.clone()))
+        .merge(create_providers_router(handler.clone()))
         .merge(create_shares_router(handler.clone()));
 
     let router = Router::new()

@@ -16,6 +16,7 @@ pub enum ResourceIdent {
     Schema(ResourceRef),
     Table(ResourceRef),
     Recipient(ResourceRef),
+    Provider(ResourceRef),
     Column(ResourceRef),
     Volume(ResourceRef),
     Function(ResourceRef),
@@ -62,6 +63,10 @@ impl ResourceIdent {
         Self::Recipient(name.into())
     }
 
+    pub fn provider(name: impl Into<ResourceRef>) -> Self {
+        Self::Provider(name.into())
+    }
+
     pub fn volume(name: impl Into<ResourceRef>) -> Self {
         Self::Volume(name.into())
     }
@@ -81,6 +86,7 @@ impl std::fmt::Display for ResourceIdent {
             ResourceIdent::Schema(r) => write!(f, "schema:{}", r),
             ResourceIdent::Table(r) => write!(f, "table:{}", r),
             ResourceIdent::Recipient(r) => write!(f, "recipient:{}", r),
+            ResourceIdent::Provider(r) => write!(f, "provider:{}", r),
             ResourceIdent::Column(r) => write!(f, "column:{}", r),
             ResourceIdent::Volume(r) => write!(f, "volume:{}", r),
             ResourceIdent::Function(r) => write!(f, "function:{}", r),
@@ -98,6 +104,7 @@ impl AsRef<ResourceRef> for ResourceIdent {
             ResourceIdent::Schema(r) => r,
             ResourceIdent::Table(r) => r,
             ResourceIdent::Recipient(r) => r,
+            ResourceIdent::Provider(r) => r,
             ResourceIdent::Column(r) => r,
             ResourceIdent::Volume(r) => r,
             ResourceIdent::Function(r) => r,
@@ -115,6 +122,7 @@ impl AsRef<ObjectLabel> for ResourceIdent {
             ResourceIdent::Schema(_) => &ObjectLabel::Schema,
             ResourceIdent::Table(_) => &ObjectLabel::Table,
             ResourceIdent::Recipient(_) => &ObjectLabel::Recipient,
+            ResourceIdent::Provider(_) => &ObjectLabel::Provider,
             ResourceIdent::Column(_) => &ObjectLabel::Column,
             ResourceIdent::Volume(_) => &ObjectLabel::Volume,
             ResourceIdent::Function(_) => &ObjectLabel::Function,
@@ -132,6 +140,7 @@ impl From<ResourceIdent> for ResourceRef {
             ResourceIdent::Schema(r) => r,
             ResourceIdent::Table(r) => r,
             ResourceIdent::Recipient(r) => r,
+            ResourceIdent::Provider(r) => r,
             ResourceIdent::Column(r) => r,
             ResourceIdent::Volume(r) => r,
             ResourceIdent::Function(r) => r,
@@ -189,6 +198,7 @@ impl ObjectLabel {
             ObjectLabel::Table => ResourceIdent::table(id),
             ObjectLabel::ExternalLocation => ResourceIdent::external_location(id),
             ObjectLabel::Recipient => ResourceIdent::recipient(id),
+            ObjectLabel::Provider => ResourceIdent::provider(id),
             ObjectLabel::Column => ResourceIdent::column(id),
             ObjectLabel::Volume => ResourceIdent::volume(id),
             ObjectLabel::Function => ResourceIdent::function(id),

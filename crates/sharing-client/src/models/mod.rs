@@ -429,6 +429,50 @@ mod tests {
     }
 
     #[test]
+    fn test_share_fields_round_trip() {
+        use sharing::v1::Share;
+
+        // The generated serde accepts camelCase and snake_case; verify the new
+        // spec fields (display_name/comment/properties) deserialize from
+        // camelCase JSON as produced by Delta Sharing clients.
+        let raw = json!({
+            "name": "share1",
+            "id": "abc-123",
+            "displayName": "Share One",
+            "comment": "a shared dataset",
+            "properties": {"team": "data"}
+        });
+        let share: Share = serde_json::from_value(raw).unwrap();
+        assert_eq!(share.name, "share1");
+        assert_eq!(share.id.as_deref(), Some("abc-123"));
+        assert_eq!(share.display_name.as_deref(), Some("Share One"));
+        assert_eq!(share.comment.as_deref(), Some("a shared dataset"));
+        assert_eq!(
+            share.properties.get("team").map(String::as_str),
+            Some("data")
+        );
+    }
+
+    #[test]
+    fn test_table_fields_round_trip() {
+        use sharing::v1::Table;
+
+        let raw = json!({
+            "name": "table1",
+            "schema": "schema1",
+            "share": "share1",
+            "location": "s3://bucket/path",
+            "auxiliaryLocations": ["s3://bucket/aux"],
+            "accessModes": ["url", "dir"]
+        });
+        let table: Table = serde_json::from_value(raw).unwrap();
+        assert_eq!(table.name, "table1");
+        assert_eq!(table.location.as_deref(), Some("s3://bucket/path"));
+        assert_eq!(table.auxiliary_locations, vec!["s3://bucket/aux"]);
+        assert_eq!(table.access_modes, vec!["url", "dir"]);
+    }
+
+    #[test]
     fn test_parse_capabilities_header() {
         let raw = "responseformat=delta;readerfeatures=deletionvectors,columnmapping";
         let parsed = DeltaSharingCapabilities::parse_header(raw).unwrap();

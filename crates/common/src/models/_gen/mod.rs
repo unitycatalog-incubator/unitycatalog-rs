@@ -5,6 +5,7 @@ pub use credentials::v1::Credential;
 pub use external_locations::v1::ExternalLocation;
 pub use functions::v1::Function;
 pub use labels::{ObjectLabel, Resource};
+pub use providers::v1::Provider;
 pub use recipients::v1::Recipient;
 pub use schemas::v1::Schema;
 pub use shares::v1::Share;
@@ -38,6 +39,13 @@ pub mod functions {
         include!("./../gen/unitycatalog.functions.v1.rs");
         #[cfg(feature = "grpc")]
         include!("./../gen/unitycatalog.functions.v1.tonic.rs");
+    }
+}
+pub mod providers {
+    pub mod v1 {
+        include!("./../gen/unitycatalog.providers.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./../gen/unitycatalog.providers.v1.tonic.rs");
     }
 }
 pub mod recipients {

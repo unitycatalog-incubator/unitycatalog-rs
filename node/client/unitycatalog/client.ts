@@ -5,6 +5,7 @@ import {
   type Credential,
   type ExternalLocation,
   type Function,
+  type Provider,
   type Recipient,
   type Schema,
   type Share,
@@ -15,6 +16,7 @@ import {
   CredentialSchema,
   ExternalLocationSchema,
   FunctionSchema,
+  ProviderSchema,
   RecipientSchema,
   SchemaSchema,
   ShareSchema,
@@ -27,6 +29,7 @@ import {
   NapiCredentialClient as NativeCredentialClient,
   NapiExternalLocationClient as NativeExternalLocationClient,
   NapiFunctionClient as NativeFunctionClient,
+  NapiProviderClient as NativeProviderClient,
   NapiRecipientClient as NativeRecipientClient,
   NapiSchemaClient as NativeSchemaClient,
   NapiShareClient as NativeShareClient,
@@ -284,6 +287,42 @@ export interface UpdateFunctionOptions {
 export interface DeleteFunctionOptions {
   /** Force deletion even if the function is not empty. */
   force?: boolean;
+}
+
+export interface ListProvidersOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface CreateProviderOptions {
+  /** Username of the provider owner. */
+  owner?: string;
+  /** Description about the provider. */
+  comment?: string;
+  /** The recipient profile (credential file contents) used to connect to the
+   *  sharing server, required for TOKEN authentication. */
+  recipientProfileStr?: string;
+  /** Provider properties as map of string key-value pairs. */
+  properties?: Record<string, string>;
+}
+
+export interface UpdateProviderOptions {
+  /** New name for the provider. */
+  newName?: string;
+  /** Username of the provider owner. */
+  owner?: string;
+  /** Description about the provider. */
+  comment?: string;
+  /** The recipient profile (credential file contents) used to connect to the
+   *  sharing server. */
+  recipientProfileStr?: string;
+  /** Provider properties as map of string key-value pairs.
+   * 
+   *  When provided in update request, the specified properties will override the existing properties.
+   *  To add and remove properties, one would need to perform a read-modify-write. */
+  properties?: Record<string, string>;
 }
 
 export interface ListRecipientsOptions {
@@ -645,6 +684,44 @@ export class FunctionClient {
 
 }
 
+export class ProviderClient {
+  private readonly inner: NativeProviderClient;
+
+  /** @internal */
+  constructor(inner: NativeProviderClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a provider by name.
+     */
+  async get(): Promise<Provider> {
+    try {
+      return fromBinary(ProviderSchema, await this.inner.get());
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Update a provider.
+     */
+  async update(options?: UpdateProviderOptions): Promise<Provider> {
+    const { newName, owner, comment, recipientProfileStr, properties } = options || {};
+    try {
+      return fromBinary(ProviderSchema, await this.inner.update(newName, owner, comment, recipientProfileStr, properties));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Delete a provider.
+     */
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
 export class RecipientClient {
   private readonly inner: NativeRecipientClient;
 
@@ -1000,6 +1077,44 @@ export class UnityCatalogClient {
 
   function(catalogName: string, schemaName: string, functionName: string): FunctionClient {
     return new FunctionClient(this.inner.function(catalogName, schemaName, functionName));
+  }
+
+  /**
+     * List providers.
+     */
+  async listProviders(options?: ListProvidersOptions): Promise<Provider[]> {
+    const { maxResults } = options || {};
+    try {
+      return (await this.inner.listProviders(maxResults)).map((data) =>
+        fromBinary(ProviderSchema, data),
+      );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List providers.
+     */
+  async *listProvidersStream(options?: ListProvidersOptions): AsyncIterable<Provider> {
+    const { maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listProvidersStream(maxResults)) {
+        yield fromBinary(ProviderSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Create a new provider.
+     */
+  async createProvider(name: string, authenticationType: number, options?: CreateProviderOptions): Promise<Provider> {
+    const { owner, comment, recipientProfileStr, properties } = options || {};
+    try {
+      return fromBinary(ProviderSchema, await this.inner.createProvider(name, authenticationType, owner, comment, recipientProfileStr, properties));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  provider(name: string): ProviderClient {
+    return new ProviderClient(this.inner.provider(name));
   }
 
   /**

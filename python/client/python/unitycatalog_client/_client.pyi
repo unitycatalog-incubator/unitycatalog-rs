@@ -595,6 +595,53 @@ class PrivilegeAssignment:
 
     def __init__(self, principal: str, privileges: Optional[List[str]] = None) -> None: ...
 
+class Provider:
+    """A provider represents an organization sharing data with this metastore.
+
+    A provider is the inbound counterpart of a recipient: it is registered from a share activation/
+    credential file and is used to access shares offered by an upstream Delta Sharing server."""
+
+    authentication_type: ProviderAuthenticationType
+    """The delta sharing authentication type."""
+    comment: Optional[str]
+    """Description about the provider."""
+    created_at: Optional[int]
+    """Time at which this provider was created, in epoch milliseconds."""
+    created_by: Optional[str]
+    """Username of the creator of the provider."""
+    id: Optional[str]
+    """Unique ID of the provider."""
+    name: str
+    """The name of the provider."""
+    owner: Optional[str]
+    """Username of the provider owner."""
+    properties: Dict[str, str]
+    """A map of key-value properties attached to the provider."""
+    recipient_profile_str: Optional[str]
+    """
+    The recipient profile (credential file contents) used to connect to the sharing server,
+    present only for TOKEN authentication.
+    """
+    updated_at: Optional[int]
+    """Time at which this provider was updated, in epoch milliseconds."""
+    updated_by: Optional[str]
+    """Username of the provider updater."""
+
+    def __init__(
+        self,
+        authentication_type: ProviderAuthenticationType,
+        name: str,
+        properties: Dict[str, str],
+        comment: Optional[str] = None,
+        created_at: Optional[int] = None,
+        created_by: Optional[str] = None,
+        id: Optional[str] = None,
+        owner: Optional[str] = None,
+        recipient_profile_str: Optional[str] = None,
+        updated_at: Optional[int] = None,
+        updated_by: Optional[str] = None,
+    ) -> None: ...
+
 class R2TemporaryCredentials:
     access_key_id: str
     """The access key ID that identifies the temporary credentials."""
@@ -1014,6 +1061,18 @@ class ParameterStyle(enum.Enum):
     S = "S"
     """The parameters are passed positionally (S = SQL)."""
 
+class ProviderAuthenticationType(enum.Enum):
+    """The delta sharing authentication type used by a provider."""
+
+    PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS = (
+        "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS"
+    )
+    """OAuth2 client-credentials authentication."""
+    PROVIDER_AUTHENTICATION_TYPE_TOKEN = "PROVIDER_AUTHENTICATION_TYPE_TOKEN"
+    """Token-based authentication (open sharing via a credential file)."""
+    PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED = "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED"
+    """No authentication type specified."""
+
 class Purpose(enum.Enum):
     """The purpose of a credential."""
 
@@ -1124,11 +1183,11 @@ class CatalogClient:
         """
         ...
     def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
+    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
     def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
-    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
 
 class CredentialClient:
     def delete(self) -> None:
@@ -1276,6 +1335,59 @@ class FunctionClient:
 
         Returns:
             A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
+        """
+        ...
+
+class ProviderClient:
+    def delete(self) -> None:
+        """
+        Delete a provider.
+
+
+        Returns:
+            None
+        """
+        ...
+    def get(self) -> Provider:
+        """
+        Get a provider by name.
+
+
+        Returns:
+            A provider represents an organization sharing data with this metastore. A provider is the
+            inbound counterpart of a recipient: it is registered from a share activation/ credential
+            file
+            and is used to access shares offered by an upstream Delta Sharing server.
+        """
+        ...
+    def update(
+        self,
+        new_name: Optional[str] = None,
+        owner: Optional[str] = None,
+        comment: Optional[str] = None,
+        recipient_profile_str: Optional[str] = None,
+        properties: Optional[Dict[str, str]] = None,
+    ) -> Provider:
+        """
+        Update a provider.
+
+
+        Args:
+            new_name: New name for the provider.
+            owner: Username of the provider owner.
+            comment: Description about the provider.
+            recipient_profile_str: The recipient profile (credential file contents) used to connect to the
+                                   sharing server.
+            properties: Provider properties as map of string key-value pairs. When provided in update
+                        request, the specified properties will override the existing properties. To add and
+                        remove properties, one would need to perform a read-modify-write.
+
+
+        Returns:
+            A provider represents an organization sharing data with this metastore. A provider is the
+            inbound counterpart of a recipient: it is registered from a share activation/ credential
+            file
+            and is used to access shares offered by an upstream Delta Sharing server.
         """
         ...
 
@@ -1658,6 +1770,36 @@ class UnityCatalogClient:
             A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
         """
         ...
+    def create_provider(
+        self,
+        name: str,
+        authentication_type: ProviderAuthenticationType,
+        owner: Optional[str] = None,
+        comment: Optional[str] = None,
+        recipient_profile_str: Optional[str] = None,
+        properties: Optional[Dict[str, str]] = None,
+    ) -> Provider:
+        """
+        Create a new provider.
+
+
+        Args:
+            name: Name of the provider.
+            authentication_type: The delta sharing authentication type.
+            owner: Username of the provider owner.
+            comment: Description about the provider.
+            recipient_profile_str: The recipient profile (credential file contents) used to connect to the
+                                   sharing server, required for TOKEN authentication.
+            properties: Provider properties as map of string key-value pairs.
+
+
+        Returns:
+            A provider represents an organization sharing data with this metastore. A provider is the
+            inbound counterpart of a recipient: it is registered from a share activation/ credential
+            file
+            and is used to access shares offered by an upstream Delta Sharing server.
+        """
+        ...
     def create_recipient(
         self,
         name: str,
@@ -1912,6 +2054,19 @@ class UnityCatalogClient:
             List of The functions returned.
         """
         ...
+    def list_providers(self, max_results: Optional[int] = None) -> List[Provider]:
+        """
+        List providers.
+
+
+        Args:
+            max_results: The maximum number of results per page that should be returned.
+
+
+        Returns:
+            List of List of providers.
+        """
+        ...
     def list_recipients(self, max_results: Optional[int] = None) -> List[Recipient]:
         """
         List recipients.
@@ -2031,6 +2186,7 @@ class UnityCatalogClient:
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
+    def provider(self, name: str) -> ProviderClient: ...
     def recipient(self, name: str) -> RecipientClient: ...
     def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
     def share(self, name: str) -> ShareClient: ...
