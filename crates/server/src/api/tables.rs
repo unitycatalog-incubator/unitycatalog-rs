@@ -221,10 +221,10 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<Requ
         self.check_required(&request, &context).await?;
         match self.get(&request.resource()).await {
             Ok(_) => Ok(GetTableExistsResponse { table_exists: true }),
-            Err(Error::NotFound) => Ok(GetTableExistsResponse {
+            Err(unitycatalog_common::Error::NotFound) => Ok(GetTableExistsResponse {
                 table_exists: false,
             }),
-            Err(e) => Err(e),
+            Err(e) => Err(e.into()),
         }
     }
 

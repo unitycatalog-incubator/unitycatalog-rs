@@ -8,3 +8,7 @@ pub mod models;
 #[cfg(feature = "python")]
 pub mod python;
 pub mod reference;
+#[cfg(feature = "store")]
+pub mod services;
+#[cfg(feature = "store")]
+pub mod store;

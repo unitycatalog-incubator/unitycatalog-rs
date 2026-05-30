@@ -197,8 +197,10 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
         match self.delete_secret(&request.name).await {
             // Delete the resource even if the secret is not found to allow cleanup
             // when the secret is deleted manually.
-            Ok(_) | Err(Error::NotFound) => Ok(self.delete(&request.resource()).await?),
-            Err(e) => Err(e),
+            Ok(_) | Err(unitycatalog_common::Error::NotFound) => {
+                Ok(self.delete(&request.resource()).await?)
+            }
+            Err(e) => Err(e.into()),
         }
     }
 }

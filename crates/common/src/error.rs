@@ -6,6 +6,9 @@ pub enum Error {
     #[error("Entity not found.")]
     NotFound,
 
+    #[error("Already exists")]
+    AlreadyExists,
+
     #[error("Invalid table location: {0}")]
     InvalidTableLocation(String),
 
@@ -41,6 +44,7 @@ impl Error {
     pub fn error_code(&self) -> &str {
         match self {
             Error::NotFound => "RESOURCE_NOT_FOUND",
+            Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
             Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
             Error::InvalidIdentifier(_) => "INVALID_PARAMETER_VALUE",
             Error::InvalidTableLocation(_) => "INVALID_PARAMETER_VALUE",
@@ -76,6 +80,7 @@ impl Error {
 
         match self {
             Error::NotFound => (StatusCode::NOT_FOUND, NOT_FOUND),
+            Error::AlreadyExists => (StatusCode::CONFLICT, ALREADY_EXISTS),
             Error::InvalidArgument(msg) => {
                 tracing::error!("Invalid argument: {msg}");
                 (StatusCode::BAD_REQUEST, INVALID)

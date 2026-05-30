@@ -1,13 +1,13 @@
 use itertools::Itertools;
 use unitycatalog_common::models::PropertyMap;
+use unitycatalog_common::store::{ResourceStore, ResourceStoreReader};
 use unitycatalog_common::{
     AssociationLabel, EMPTY_RESOURCE_NAME, Object, ObjectLabel, Resource, ResourceIdent,
     ResourceName, ResourceRef,
 };
-use unitycatalog_server::{Error, Result};
+use unitycatalog_common::{Error, Result};
 
 use crate::GraphStore;
-use unitycatalog_server::store::{ResourceStore, ResourceStoreReader};
 
 pub trait IdentRefs {
     fn ident(&self) -> (&ObjectLabel, &ResourceRef);

@@ -1,5 +1,5 @@
 /// A convenience type for declaring Results in the Delta Sharing libraries.
-use unitycatalog_server::Error as ServerError;
+use unitycatalog_common::Error as CommonError;
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
@@ -71,16 +71,16 @@ impl From<Error> for olai_store::Error {
     }
 }
 
-impl From<Error> for ServerError {
+impl From<Error> for CommonError {
     fn from(e: Error) -> Self {
         match e {
-            Error::Connection(e) => ServerError::generic(e.to_string()),
-            Error::Migration(e) => ServerError::generic(e.to_string()),
-            Error::InvalidUrl(e) => ServerError::InvalidArgument(e.to_string()),
-            Error::DecodePageToken(e) => ServerError::InvalidArgument(e.to_string()),
-            Error::Generic(e) => ServerError::Generic(e),
-            Error::EntityNotFound(_) => ServerError::NotFound,
-            Error::AlreadyExists(_) => ServerError::AlreadyExists,
+            Error::Connection(e) => CommonError::generic(e.to_string()),
+            Error::Migration(e) => CommonError::generic(e.to_string()),
+            Error::InvalidUrl(e) => CommonError::InvalidArgument(e.to_string()),
+            Error::DecodePageToken(e) => CommonError::InvalidArgument(e.to_string()),
+            Error::Generic(e) => CommonError::Generic(e),
+            Error::EntityNotFound(_) => CommonError::NotFound,
+            Error::AlreadyExists(_) => CommonError::AlreadyExists,
         }
     }
 }
