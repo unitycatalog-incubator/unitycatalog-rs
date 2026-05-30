@@ -6,11 +6,10 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 
 use crate::execution::{
-    ImplementationTag, JourneyLogger, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
-    UserJourney, cleanup_step,
+    ImplementationTag, JourneyContext, JourneyLogger, JourneyMetadata, JourneyState, JourneyTier,
+    ResourceTag, UserJourney, cleanup_step,
 };
 use crate::init_journey;
 use crate::reporting::ReportingConfig;
@@ -20,7 +19,6 @@ use crate::{AcceptanceError, AcceptanceResult};
 pub struct CatalogHierarchyJourney {
     catalog_name: String,
     schema_names: Vec<String>,
-    storage_root: String,
     logger: Option<JourneyLogger>,
 }
 
@@ -38,7 +36,6 @@ impl CatalogHierarchyJourney {
         Self {
             catalog_name,
             schema_names,
-            storage_root: "s3://open-lakehouse-dev/".to_string(),
             logger: None,
         }
     }
@@ -48,7 +45,6 @@ impl CatalogHierarchyJourney {
         Self {
             catalog_name: catalog_name.into(),
             schema_names,
-            storage_root: "s3://open-lakehouse-dev/".to_string(),
             logger: None,
         }
     }
@@ -64,7 +60,6 @@ impl CatalogHierarchyJourney {
         Self {
             catalog_name: catalog_name.into(),
             schema_names,
-            storage_root: "s3://open-lakehouse-dev/".to_string(),
             logger: Some(logger),
         }
     }
@@ -102,7 +97,6 @@ impl UserJourney for CatalogHierarchyJourney {
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
         let mut state = JourneyState::empty();
         state.set_string("catalog_name", self.catalog_name.clone());
-        state.set_string("storage_root", self.storage_root.clone());
 
         // Store schema names as a JSON array
         let schema_names_json = serde_json::to_string(&self.schema_names).map_err(|e| {
@@ -117,9 +111,6 @@ impl UserJourney for CatalogHierarchyJourney {
         if let Some(catalog_name) = state.get_string("catalog_name") {
             self.catalog_name = catalog_name;
         }
-        if let Some(storage_root) = state.get_string("storage_root") {
-            self.storage_root = storage_root;
-        }
         if let Some(schema_names_json) = state.get_string("schema_names") {
             self.schema_names = serde_json::from_str(&schema_names_json).map_err(|e| {
                 AcceptanceError::JourneyValidation(format!(
@@ -131,7 +122,7 @@ impl UserJourney for CatalogHierarchyJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Create logger directly since we can't mutate self
         let logger = if let Some(ref logger) = self.logger {
             logger.clone()
@@ -146,9 +137,9 @@ impl UserJourney for CatalogHierarchyJourney {
         logger.info("📁 Creating parent catalog")?;
         let created_catalog = logger
             .step("create_catalog", async {
-                client
+                ctx.client()
                     .create_catalog(&self.catalog_name)
-                    .with_storage_root(self.storage_root.clone())
+                    .with_storage_root(ctx.storage_root.clone())
                     .with_comment(Some(
                         "Hierarchy test catalog for schema management".to_string(),
                     ))
@@ -165,7 +156,8 @@ impl UserJourney for CatalogHierarchyJourney {
         logger.info("🔍 Verifying catalog creation")?;
         logger
             .step("verify_catalog", async {
-                let catalog_info = client
+                let catalog_info = ctx
+                    .client()
                     .catalog(&self.catalog_name)
                     .get()
                     .await
@@ -196,7 +188,7 @@ impl UserJourney for CatalogHierarchyJourney {
             let step_id = format!("create_schema_{}", index + 1);
             let created_schema = logger
                 .step(&step_id, async {
-                    client
+                    ctx.client()
                         .catalog(&self.catalog_name)
                         .create_schema(schema_name)
                         .with_comment(Some(format!(
@@ -221,7 +213,8 @@ impl UserJourney for CatalogHierarchyJourney {
         logger.info("📋 Listing schemas in catalog")?;
         logger
             .step("list_schemas", async {
-                let mut schemas_stream = client
+                let mut schemas_stream = ctx
+                    .client()
                     .list_schemas(&self.catalog_name)
                     .with_max_results(50)
                     .with_include_browse(false)
@@ -260,7 +253,8 @@ impl UserJourney for CatalogHierarchyJourney {
 
             logger
                 .step(&step_id, async {
-                    let schema_info = client
+                    let schema_info = ctx
+                        .client()
                         .catalog(&self.catalog_name)
                         .schema(schema_name)
                         .get()
@@ -313,7 +307,8 @@ impl UserJourney for CatalogHierarchyJourney {
             .step("test_access_patterns", async {
                 for schema_name in &self.schema_names {
                     // Test direct schema access
-                    let _schema_direct = client
+                    let _schema_direct = ctx
+                        .client()
                         .catalog(&self.catalog_name)
                         .schema(schema_name)
                         .get()
@@ -346,7 +341,7 @@ impl UserJourney for CatalogHierarchyJourney {
 
             logger
                 .step(&step_id, async {
-                    client
+                    ctx.client()
                         .catalog(&self.catalog_name)
                         .schema(schema_name)
                         .delete()
@@ -366,7 +361,7 @@ impl UserJourney for CatalogHierarchyJourney {
         // Delete the catalog
         logger
             .step("cleanup_catalog", async {
-                client
+                ctx.client()
                     .catalog(&self.catalog_name)
                     .delete()
                     .with_force(true)
@@ -385,7 +380,7 @@ impl UserJourney for CatalogHierarchyJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         if let Some(logger) = &self.logger {
             logger.info("🧹 Starting emergency cleanup operations")?;
 
@@ -394,7 +389,7 @@ impl UserJourney for CatalogHierarchyJourney {
                 cleanup_step(
                     logger,
                     &format!("emergency_cleanup_schema_{}", schema_name),
-                    client
+                    ctx.client()
                         .catalog(&self.catalog_name)
                         .schema(schema_name)
                         .delete()
@@ -407,7 +402,7 @@ impl UserJourney for CatalogHierarchyJourney {
             cleanup_step(
                 logger,
                 "emergency_cleanup_catalog",
-                client
+                ctx.client()
                     .catalog(&self.catalog_name)
                     .delete()
                     .with_force(true)
@@ -474,7 +469,6 @@ mod tests {
         // Save state
         let state = journey.save_state().unwrap();
         assert!(state.get_string("catalog_name").is_some());
-        assert!(state.get_string("storage_root").is_some());
         assert!(state.get_string("schema_names").is_some());
 
         // Create new journey and load state
@@ -485,7 +479,6 @@ mod tests {
         new_journey.load_state(&state).unwrap();
 
         assert_eq!(new_journey.catalog_name, journey.catalog_name);
-        assert_eq!(new_journey.storage_root, journey.storage_root);
         assert_eq!(new_journey.schema_names, journey.schema_names);
     }
 

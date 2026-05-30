@@ -7,28 +7,33 @@
 //! Run with UC_INTEGRATION_RECORD=true to record.
 
 use async_trait::async_trait;
-use unitycatalog_client::{PathOperation, UnityCatalogClient};
+use unitycatalog_client::PathOperation;
 use unitycatalog_common::credentials::v1::Purpose;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
 pub struct TemporaryPathCredentialsJourney {
     credential_name: String,
     external_location_name: String,
-    storage_root: String,
 }
 
 impl TemporaryPathCredentialsJourney {
-    pub fn new(storage_root: impl Into<String>) -> Self {
+    pub fn new() -> Self {
         let timestamp = chrono::Utc::now().timestamp();
         Self {
             credential_name: format!("tmp_path_cred_{}", timestamp),
             external_location_name: format!("tmp_path_loc_{}", timestamp),
-            storage_root: storage_root.into(),
         }
+    }
+}
+
+impl Default for TemporaryPathCredentialsJourney {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -62,7 +67,6 @@ impl UserJourney for TemporaryPathCredentialsJourney {
             "external_location_name",
             self.external_location_name.clone(),
         );
-        state.set_string("storage_root", self.storage_root.clone());
         Ok(state)
     }
 
@@ -73,15 +77,12 @@ impl UserJourney for TemporaryPathCredentialsJourney {
         if let Some(v) = state.get_string("external_location_name") {
             self.external_location_name = v;
         }
-        if let Some(v) = state.get_string("storage_root") {
-            self.storage_root = v;
-        }
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create credential
-        client
+        ctx.client()
             .create_credential(&self.credential_name, Purpose::Storage)
             .await
             .map_err(|e| {
@@ -89,10 +90,10 @@ impl UserJourney for TemporaryPathCredentialsJourney {
             })?;
 
         // Step 2: Create external location
-        client
+        ctx.client()
             .create_external_location(
                 &self.external_location_name,
-                &self.storage_root,
+                &ctx.storage_root,
                 &self.credential_name,
             )
             .await
@@ -110,11 +111,12 @@ impl UserJourney for TemporaryPathCredentialsJourney {
         // Step 3: Generate temporary read credentials for the path
         println!(
             "  🔐 Generating temporary path read credentials for '{}'",
-            self.storage_root
+            ctx.storage_root
         );
-        let (read_cred, _url) = client
+        let (read_cred, _url) = ctx
+            .client()
             .temporary_credentials()
-            .temporary_path_credential(&self.storage_root, PathOperation::Read, None)
+            .temporary_path_credential(&ctx.storage_root, PathOperation::Read, None)
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!(
@@ -129,9 +131,10 @@ impl UserJourney for TemporaryPathCredentialsJourney {
         println!("  ✓ Temporary path read credentials generated");
 
         // Step 4: Generate temporary read-write credentials
-        let (rw_cred, _url) = client
+        let (rw_cred, _url) = ctx
+            .client()
             .temporary_credentials()
-            .temporary_path_credential(&self.storage_root, PathOperation::ReadWrite, None)
+            .temporary_path_credential(&ctx.storage_root, PathOperation::ReadWrite, None)
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!(
@@ -148,12 +151,17 @@ impl UserJourney for TemporaryPathCredentialsJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
             .external_location(&self.external_location_name)
             .delete()
             .await;
-        let _ = client.credential(&self.credential_name).delete().await;
+        let _ = ctx
+            .client()
+            .credential(&self.credential_name)
+            .delete()
+            .await;
         Ok(())
     }
 }

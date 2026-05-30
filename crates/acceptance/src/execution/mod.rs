@@ -291,6 +291,38 @@ impl ImplementationProfile {
 }
 
 // ---------------------------------------------------------------------------
+// Journey context
+// ---------------------------------------------------------------------------
+
+/// Execution context handed to a journey's `setup`/`execute`/`cleanup`.
+///
+/// Bundles the [`UnityCatalogClient`] with the active implementation profile's
+/// `storage_root` so journeys can create catalogs with an explicit storage
+/// location (required by managed Databricks) without hardcoding a bucket.
+#[derive(Clone)]
+pub struct JourneyContext {
+    client: UnityCatalogClient,
+    /// Cloud/file storage root for the active profile (e.g. `s3://bucket/uc-test/`
+    /// for Databricks, `file:///tmp/uc-test/` for the OSS servers).
+    pub storage_root: String,
+}
+
+impl JourneyContext {
+    /// Create a new context for the given client and storage root.
+    pub fn new(client: UnityCatalogClient, storage_root: impl Into<String>) -> Self {
+        Self {
+            client,
+            storage_root: storage_root.into(),
+        }
+    }
+
+    /// The Unity Catalog client for the active profile.
+    pub fn client(&self) -> &UnityCatalogClient {
+        &self.client
+    }
+}
+
+// ---------------------------------------------------------------------------
 // UserJourney trait
 // ---------------------------------------------------------------------------
 
@@ -310,16 +342,16 @@ pub trait UserJourney: Send + Sync {
 
     /// Optional setup that runs before the journey
     #[allow(unused_variables)]
-    async fn setup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn setup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         Ok(())
     }
 
-    /// Execute the journey steps using the provided client
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()>;
+    /// Execute the journey steps using the provided context
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()>;
 
     /// Optional cleanup that runs after the journey (even on failure)
     #[allow(unused_variables)]
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         Ok(())
     }
 
@@ -348,16 +380,16 @@ impl<T: UserJourney> UserJourney for Box<T> {
         T::metadata(self)
     }
 
-    async fn setup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        T::setup(self, client).await
+    async fn setup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        T::setup(self, ctx).await
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        T::execute(self, client).await
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        T::execute(self, ctx).await
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        T::cleanup(self, client).await
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        T::cleanup(self, ctx).await
     }
 
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
@@ -435,23 +467,27 @@ impl JourneyState {
 
 /// Executes simple journeys and manages recording/replay
 pub struct JourneyExecutor {
-    client: UnityCatalogClient,
+    context: JourneyContext,
     _mock_server: Option<ServerGuard>,
 }
 
 impl JourneyExecutor {
     /// Create a new executor for live mode
-    pub fn new(client: UnityCatalogClient) -> Self {
+    pub fn new(client: UnityCatalogClient, storage_root: impl Into<String>) -> Self {
         Self {
-            client,
+            context: JourneyContext::new(client, storage_root),
             _mock_server: None,
         }
     }
 
     /// Create a new executor with mock server for replay mode
-    pub fn new_with_mock(client: UnityCatalogClient, mock_server: ServerGuard) -> Self {
+    pub fn new_with_mock(
+        client: UnityCatalogClient,
+        storage_root: impl Into<String>,
+        mock_server: ServerGuard,
+    ) -> Self {
         Self {
-            client,
+            context: JourneyContext::new(client, storage_root),
             _mock_server: Some(mock_server),
         }
     }
@@ -663,16 +699,16 @@ impl JourneyExecutor {
         };
 
         // Execute setup
-        if let Err(e) = journey.setup(&self.client).await {
+        if let Err(e) = journey.setup(&self.context).await {
             result.error_message = Some(format!("Setup failed: {}", e));
             return Ok(result);
         }
 
         // Execute main journey
-        let journey_result = journey.execute(&self.client).await;
+        let journey_result = journey.execute(&self.context).await;
 
         // Always run cleanup
-        if let Err(cleanup_err) = journey.cleanup(&self.client).await {
+        if let Err(cleanup_err) = journey.cleanup(&self.context).await {
             eprintln!(
                 "⚠️ Cleanup failed for journey '{}': {}",
                 journey.name(),
@@ -806,6 +842,10 @@ pub struct JourneyConfig {
     pub auth_token: Option<String>,
     pub timeout_seconds: u64,
     pub storage_root: String,
+    /// Implementation profile name (e.g. `managed_databricks`, `oss_rust`). Used to
+    /// namespace recordings as `<output_dir>/<profile_name>/<journey>/` so cassettes
+    /// for different implementations don't collide.
+    pub profile_name: String,
 }
 
 impl Default for JourneyConfig {
@@ -823,7 +863,9 @@ impl Default for JourneyConfig {
                 .parse()
                 .unwrap_or(30),
             storage_root: std::env::var("UC_INTEGRATION_STORAGE_ROOT")
-                .unwrap_or_else(|_| "s3://open-lakehouse-dev/".to_string()),
+                .unwrap_or_else(|_| "file:///tmp/uc-test/".to_string()),
+            profile_name: std::env::var("UC_INTEGRATION_PROFILE")
+                .unwrap_or_else(|_| "managed_databricks".to_string()),
         }
     }
 }
@@ -835,8 +877,15 @@ impl JourneyConfig {
             server_url: profile.server_url.clone(),
             auth_token: profile.auth_token.clone(),
             storage_root: profile.storage_root.clone(),
+            profile_name: profile.name.clone(),
             ..Default::default()
         }
+    }
+
+    /// Set the implementation profile name used to namespace recordings.
+    pub fn with_profile_name(mut self, profile_name: impl Into<String>) -> Self {
+        self.profile_name = profile_name.into();
+        self
     }
 
     /// Create client from configuration for live mode
@@ -894,18 +943,22 @@ impl JourneyConfig {
         &self,
         journey: &mut dyn UserJourney,
     ) -> AcceptanceResult<JourneyExecutionResult> {
+        // Recordings are namespaced by implementation profile so cassettes for
+        // different implementations don't collide: <output_dir>/<profile>/<journey>/.
+        let profile_dir = self.output_dir.join(&self.profile_name);
+
         if self.mode.is_live() {
             // Live execution against a real server. In Record mode we also point
             // the client at a recording directory and persist state afterwards;
             // in plain Live mode we just exercise the server.
             let out_dir = if self.mode == ExecutionMode::Record {
-                std::fs::create_dir_all(&self.output_dir)?;
-                std::fs::canonicalize(self.output_dir.clone())?.join(journey.name())
+                std::fs::create_dir_all(&profile_dir)?;
+                std::fs::canonicalize(profile_dir.clone())?.join(journey.name())
             } else {
-                self.output_dir.join(journey.name())
+                profile_dir.join(journey.name())
             };
             let client = self.create_client(out_dir.clone())?;
-            let executor = JourneyExecutor::new(client);
+            let executor = JourneyExecutor::new(client, self.storage_root.clone());
             let result = executor.execute_journey(journey).await?;
 
             // Save journey state only when recording new fixtures.
@@ -917,7 +970,7 @@ impl JourneyConfig {
             Ok(result)
         } else {
             // Replay mode - load state and use recorded interactions
-            let recordings_dir = self.output_dir.join(journey.name());
+            let recordings_dir = profile_dir.join(journey.name());
 
             // Skip journeys that have not been recorded yet rather than failing
             if !recordings_dir.exists() {
@@ -948,7 +1001,8 @@ impl JourneyConfig {
             journey.load_state(&state)?;
 
             let (mock_server, client) = JourneyExecutor::setup_mock_server(&recordings_dir).await?;
-            let executor = JourneyExecutor::new_with_mock(client, mock_server);
+            let executor =
+                JourneyExecutor::new_with_mock(client, self.storage_root.clone(), mock_server);
 
             executor.execute_journey(journey).await
         }
@@ -1058,7 +1112,7 @@ mod tests {
                     ..Default::default()
                 }
             }
-            async fn execute(&self, _: &UnityCatalogClient) -> AcceptanceResult<()> {
+            async fn execute(&self, _: &JourneyContext) -> AcceptanceResult<()> {
                 Ok(())
             }
         }

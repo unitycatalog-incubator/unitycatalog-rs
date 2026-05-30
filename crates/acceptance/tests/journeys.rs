@@ -1,9 +1,21 @@
 use unitycatalog_acceptance::journeys::{journeys_for_filter, journeys_for_profile};
-use unitycatalog_acceptance::{ExecutionMode, ImplementationProfile, JourneyConfig, JourneyFilter};
+use unitycatalog_acceptance::{
+    ExecutionMode, ImplementationProfile, ImplementationTag, JourneyConfig, JourneyFilter,
+};
 
-/// Default replay test — runs all journeys that have recordings.
+/// Implementation profiles that may have recordings under `recordings/<profile>/`.
+const REPLAY_PROFILES: &[(&str, ImplementationTag)] = &[
+    ("managed_databricks", ImplementationTag::ManagedDatabricks),
+    ("oss_rust", ImplementationTag::OssRust),
+    ("oss_java", ImplementationTag::OssJava),
+];
+
+/// Default replay test — replays recorded journeys for every implementation profile.
 ///
-/// Journeys without a recordings directory are skipped gracefully.
+/// Recordings are namespaced per implementation as `recordings/<profile>/<journey>/`.
+/// For each profile we replay only the journeys compatible with that implementation;
+/// journeys without a recordings directory are skipped gracefully.
+///
 /// Use environment variables to narrow the run:
 /// - `UC_JOURNEY_INCLUDE` — comma-separated journey names to run
 /// - `UC_JOURNEY_EXCLUDE` — comma-separated journey names to skip
@@ -14,20 +26,36 @@ async fn journey_tests() -> Result<(), Box<dyn std::error::Error>> {
     let cargo_dir = std::env::var("CARGO_MANIFEST_DIR")?;
     let path = std::path::Path::new(&cargo_dir).join("recordings");
 
-    let config = JourneyConfig::default()
-        .with_recording(false)
-        .with_output_dir(path);
+    // Honor an explicit implementation filter from the environment, otherwise
+    // replay every known profile.
+    let env_impl = std::env::var("UC_JOURNEY_IMPL").ok();
 
-    let filter = JourneyFilter::from_env();
+    for (profile_name, impl_tag) in REPLAY_PROFILES {
+        if let Some(ref wanted) = env_impl {
+            if wanted != profile_name {
+                continue;
+            }
+        }
 
-    for journey in journeys_for_filter(&filter).iter_mut() {
-        let result = config.execute_journey(journey.as_mut()).await?;
-        assert!(
-            result.is_success(),
-            "Journey '{}' failed: {:?}",
-            journey.name(),
-            result.error_message
-        );
+        let config = JourneyConfig::default()
+            .with_recording(false)
+            .with_output_dir(path.clone())
+            .with_profile_name(*profile_name);
+
+        // Replay only journeys compatible with this implementation.
+        let mut filter = JourneyFilter::from_env();
+        filter.implementation = Some(impl_tag.clone());
+
+        for journey in journeys_for_filter(&filter).iter_mut() {
+            let result = config.execute_journey(journey.as_mut()).await?;
+            assert!(
+                result.is_success(),
+                "[{}] Journey '{}' failed: {:?}",
+                profile_name,
+                journey.name(),
+                result.error_message
+            );
+        }
     }
 
     Ok(())

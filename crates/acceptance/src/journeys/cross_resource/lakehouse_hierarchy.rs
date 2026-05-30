@@ -8,12 +8,12 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::volumes::v1::VolumeType;
 use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -89,12 +89,13 @@ impl UserJourney for LakehouseHierarchyJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create catalog
         println!("  📁 Creating catalog '{}'", self.catalog_name);
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
             .with_comment("Lakehouse hierarchy test".to_string())
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
@@ -106,7 +107,7 @@ impl UserJourney for LakehouseHierarchyJourney {
                 "  📂 Creating schema '{}.{}'",
                 self.catalog_name, schema_name
             );
-            client
+            ctx.client()
                 .create_schema(&self.catalog_name, schema_name)
                 .with_comment(format!("{} layer", schema_name))
                 .await
@@ -118,7 +119,7 @@ impl UserJourney for LakehouseHierarchyJourney {
             let volume_name = format!("{}_files", schema_name);
 
             // Create managed table
-            client
+            ctx.client()
                 .create_table(
                     &table_name,
                     schema_name,
@@ -134,7 +135,7 @@ impl UserJourney for LakehouseHierarchyJourney {
             println!("    ✓ Table '{}'", table_name);
 
             // Create managed volume
-            client
+            ctx.client()
                 .create_volume(
                     &self.catalog_name,
                     schema_name,
@@ -150,7 +151,8 @@ impl UserJourney for LakehouseHierarchyJourney {
         }
 
         // Step 3: Verify — list schemas and check count
-        let schemas: Vec<_> = client
+        let schemas: Vec<_> = ctx
+            .client()
             .list_schemas(&self.catalog_name)
             .into_stream()
             .collect::<Vec<_>>()
@@ -169,7 +171,8 @@ impl UserJourney for LakehouseHierarchyJourney {
 
         // Verify tables and volumes in each schema
         for schema_name in &self.schema_names {
-            let tables: Vec<_> = client
+            let tables: Vec<_> = ctx
+                .client()
                 .list_tables(&self.catalog_name, schema_name)
                 .into_stream()
                 .collect::<Vec<_>>()
@@ -181,7 +184,8 @@ impl UserJourney for LakehouseHierarchyJourney {
                 })?;
             assert_eq!(tables.len(), 1, "Expected 1 table in {}", schema_name);
 
-            let volumes: Vec<_> = client
+            let volumes: Vec<_> = ctx
+                .client()
                 .list_volumes(&self.catalog_name, schema_name)
                 .into_stream()
                 .collect::<Vec<_>>()
@@ -198,23 +202,25 @@ impl UserJourney for LakehouseHierarchyJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         for schema_name in &self.schema_names {
             let table_name = format!("{}_events", schema_name);
             let volume_name = format!("{}_files", schema_name);
             let full_table = format!("{}.{}.{}", self.catalog_name, schema_name, table_name);
 
-            let _ = client.table(&full_table).delete().await;
-            let _ = client
+            let _ = ctx.client().table(&full_table).delete().await;
+            let _ = ctx
+                .client()
                 .volume(&self.catalog_name, schema_name, &volume_name)
                 .delete()
                 .await;
-            let _ = client
+            let _ = ctx
+                .client()
                 .schema(&self.catalog_name, schema_name)
                 .delete()
                 .await;
         }
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
         Ok(())
     }
 }

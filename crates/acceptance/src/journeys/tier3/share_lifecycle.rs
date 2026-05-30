@@ -8,11 +8,11 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -93,26 +93,27 @@ impl UserJourney for ShareLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let table_full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
 
         // Step 1: Create catalog, schema, and managed table
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create schema: {}", e))
             })?;
-        client
+        ctx.client()
             .create_table(
                 &self.table_name,
                 &self.schema_name,
@@ -128,7 +129,8 @@ impl UserJourney for ShareLifecycleJourney {
 
         // Step 2: Create share
         println!("  🤝 Creating share '{}'", self.share_name);
-        let share = client
+        let share = ctx
+            .client()
             .create_share(&self.share_name)
             .with_comment("Share lifecycle test".to_string())
             .await
@@ -139,14 +141,20 @@ impl UserJourney for ShareLifecycleJourney {
         println!("  ✓ Share created: {}", share.name);
 
         // Step 3: Get share
-        let fetched = client.share(&self.share_name).get().await.map_err(|e| {
-            AcceptanceError::JourneyExecution(format!("Failed to get share: {}", e))
-        })?;
+        let fetched = ctx
+            .client()
+            .share(&self.share_name)
+            .get()
+            .await
+            .map_err(|e| {
+                AcceptanceError::JourneyExecution(format!("Failed to get share: {}", e))
+            })?;
         assert_eq!(fetched.name, self.share_name);
         println!("  ✓ Share fetched: {}", fetched.name);
 
         // Step 4: List shares
-        let shares: Vec<_> = client
+        let shares: Vec<_> = ctx
+            .client()
             .list_shares()
             .into_stream()
             .collect::<Vec<_>>()
@@ -165,18 +173,19 @@ impl UserJourney for ShareLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let table_full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
-        let _ = client.share(&self.share_name).delete().await;
-        let _ = client.table(&table_full_name).delete().await;
-        let _ = client
+        let _ = ctx.client().share(&self.share_name).delete().await;
+        let _ = ctx.client().table(&table_full_name).delete().await;
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
         Ok(())
     }
 }

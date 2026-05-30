@@ -8,13 +8,13 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::functions::v1::{
     ParameterStyle, RoutineBody, SecurityType, SqlDataAccess,
 };
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -88,15 +88,16 @@ impl UserJourney for FunctionLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create catalog and schema
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
@@ -108,7 +109,8 @@ impl UserJourney for FunctionLifecycleJourney {
             "  ⚙️  Creating SQL UDF '{}.{}.{}'",
             self.catalog_name, self.schema_name, self.function_name
         );
-        let function = client
+        let function = ctx
+            .client()
             .create_function(
                 &self.function_name,
                 &self.catalog_name,
@@ -132,7 +134,8 @@ impl UserJourney for FunctionLifecycleJourney {
         println!("  ✓ Function created: {}", function.full_name);
 
         // Step 3: Get function
-        let fetched = client
+        let fetched = ctx
+            .client()
             .function(&self.catalog_name, &self.schema_name, &self.function_name)
             .get()
             .await
@@ -143,7 +146,8 @@ impl UserJourney for FunctionLifecycleJourney {
         println!("  ✓ Function fetched: {}", fetched.full_name);
 
         // Step 4: List functions
-        let functions: Vec<_> = client
+        let functions: Vec<_> = ctx
+            .client()
             .list_functions(&self.catalog_name, &self.schema_name)
             .into_stream()
             .collect::<Vec<_>>()
@@ -162,16 +166,18 @@ impl UserJourney for FunctionLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
             .function(&self.catalog_name, &self.schema_name, &self.function_name)
             .delete()
             .await;
-        let _ = client
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
         Ok(())
     }
 }

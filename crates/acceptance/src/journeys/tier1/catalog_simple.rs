@@ -6,11 +6,10 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 
 use crate::execution::{
-    ImplementationTag, JourneyLogger, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
-    UserJourney, cleanup_step,
+    ImplementationTag, JourneyContext, JourneyLogger, JourneyMetadata, JourneyState, JourneyTier,
+    ResourceTag, UserJourney, cleanup_step,
 };
 use crate::init_journey;
 use crate::reporting::ReportingConfig;
@@ -19,7 +18,6 @@ use crate::{AcceptanceError, AcceptanceResult};
 /// Enhanced catalog journey with rich reporting
 pub struct CatalogSimpleJourney {
     catalog_name: String,
-    storage_root: String,
     logger: Option<JourneyLogger>,
 }
 
@@ -31,7 +29,6 @@ impl CatalogSimpleJourney {
 
         Self {
             catalog_name,
-            storage_root: "s3://open-lakehouse-dev/".to_string(),
             logger: None,
         }
     }
@@ -40,7 +37,6 @@ impl CatalogSimpleJourney {
     pub fn with_catalog_name(catalog_name: impl Into<String>) -> Self {
         Self {
             catalog_name: catalog_name.into(),
-            storage_root: "s3://open-lakehouse-dev/".to_string(),
             logger: None,
         }
     }
@@ -51,7 +47,6 @@ impl CatalogSimpleJourney {
 
         Self {
             catalog_name: catalog_name.into(),
-            storage_root: "s3://open-lakehouse-dev/".to_string(),
             logger: Some(logger),
         }
     }
@@ -84,7 +79,6 @@ impl UserJourney for CatalogSimpleJourney {
     fn save_state(&self) -> AcceptanceResult<JourneyState> {
         let mut state = JourneyState::empty();
         state.set_string("catalog_name", self.catalog_name.clone());
-        state.set_string("storage_root", self.storage_root.clone());
         Ok(state)
     }
 
@@ -92,13 +86,10 @@ impl UserJourney for CatalogSimpleJourney {
         if let Some(catalog_name) = state.get_string("catalog_name") {
             self.catalog_name = catalog_name;
         }
-        if let Some(storage_root) = state.get_string("storage_root") {
-            self.storage_root = storage_root;
-        }
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Create logger directly since we can't mutate self
         let logger = if let Some(ref logger) = self.logger {
             logger.clone()
@@ -111,9 +102,10 @@ impl UserJourney for CatalogSimpleJourney {
 
         // Step 1: Create catalog
         logger.info("📁 Creating catalog")?;
-        let exec = client
+        let exec = ctx
+            .client()
             .create_catalog(&self.catalog_name)
-            .with_storage_root(self.storage_root.clone())
+            .with_storage_root(ctx.storage_root.clone())
             .with_comment(Some(
                 "Enhanced test catalog with rich reporting".to_string(),
             ));
@@ -137,7 +129,11 @@ impl UserJourney for CatalogSimpleJourney {
         logger.info("📋 Listing all catalogs")?;
         let _catalog_found = logger
             .step("list_catalogs", async {
-                let catalogs = client.list_catalogs().with_max_results(50).into_stream();
+                let catalogs = ctx
+                    .client()
+                    .list_catalogs()
+                    .with_max_results(50)
+                    .into_stream();
                 let found = catalogs
                     .any(|c| async {
                         c.ok()
@@ -160,7 +156,7 @@ impl UserJourney for CatalogSimpleJourney {
 
         // Step 4: Get detailed catalog information
         logger.info("🔍 Getting catalog details")?;
-        let exec = client.catalog(&self.catalog_name).get();
+        let exec = ctx.client().catalog(&self.catalog_name).get();
         let catalog_info = logger.step("inspect_catalog", exec.into_future()).await?;
 
         // Step 5: Validate catalog properties
@@ -177,10 +173,10 @@ impl UserJourney for CatalogSimpleJourney {
 
                 // Validate storage root if provided
                 if let Some(storage_root) = &catalog_info.storage_root {
-                    if storage_root != &self.storage_root {
+                    if storage_root != &ctx.storage_root {
                         logger.warn(&format!(
                             "Storage root mismatch: expected '{}', got '{}'",
-                            self.storage_root, storage_root
+                            ctx.storage_root, storage_root
                         ))?;
                     }
                 }
@@ -213,7 +209,7 @@ impl UserJourney for CatalogSimpleJourney {
         // Step 6: Clean up by deleting the catalog
         logger.info("🗑️ Deleting catalog")?;
         let exec = async {
-            client
+            ctx.client()
                 .catalog(&self.catalog_name)
                 .delete()
                 .with_force(true)
@@ -230,7 +226,7 @@ impl UserJourney for CatalogSimpleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         if let Some(logger) = &self.logger {
             logger.info("Starting cleanup operations")?;
 
@@ -238,7 +234,7 @@ impl UserJourney for CatalogSimpleJourney {
             cleanup_step(
                 logger,
                 "cleanup_delete_catalog",
-                client
+                ctx.client()
                     .catalog(&self.catalog_name)
                     .delete()
                     .with_force(true)
@@ -294,21 +290,18 @@ mod tests {
         // Save state
         let state = journey.save_state().unwrap();
         assert!(state.get_string("catalog_name").is_some());
-        assert!(state.get_string("storage_root").is_some());
 
         // Create new journey and load state
         let mut new_journey = CatalogSimpleJourney::with_catalog_name("different_name");
         new_journey.load_state(&state).unwrap();
 
         assert_eq!(new_journey.catalog_name, journey.catalog_name);
-        assert_eq!(new_journey.storage_root, journey.storage_root);
     }
 
     #[test]
     fn test_journey_initialization() {
         let journey = CatalogSimpleJourney::new();
         assert!(journey.catalog_name.starts_with("enhanced_catalog_"));
-        assert_eq!(journey.storage_root, "s3://open-lakehouse-dev/");
         assert!(journey.logger.is_none());
     }
 }

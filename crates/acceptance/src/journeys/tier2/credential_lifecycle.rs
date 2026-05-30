@@ -8,11 +8,11 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
-use unitycatalog_common::credentials::v1::Purpose;
+use unitycatalog_common::credentials::v1::{AwsIamRoleConfig, AzureManagedIdentity, Purpose};
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -67,20 +67,47 @@ impl UserJourney for CredentialLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        // Step 1: Create credential
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        // A storage credential must reference a real cloud identity, so we read the
+        // config from the environment. If none is configured we skip the journey
+        // (it cannot succeed against a real server without it).
+        //   UC_TEST_AWS_ROLE_ARN               — AWS IAM role ARN
+        //   UC_TEST_AZURE_ACCESS_CONNECTOR_ID   — Azure Databricks Access Connector resource ID
+        let aws_role_arn = std::env::var("UC_TEST_AWS_ROLE_ARN").ok();
+        let azure_connector_id = std::env::var("UC_TEST_AZURE_ACCESS_CONNECTOR_ID").ok();
+        if aws_role_arn.is_none() && azure_connector_id.is_none() {
+            println!(
+                "  ⏭️  Skipping credential_lifecycle — set UC_TEST_AWS_ROLE_ARN or \
+                 UC_TEST_AZURE_ACCESS_CONNECTOR_ID to exercise storage credentials"
+            );
+            return Ok(());
+        }
+
+        // Step 1: Create credential with the configured cloud identity
         println!("  🔑 Creating credential '{}'", self.credential_name);
-        let credential = client
+        let mut builder = ctx
+            .client()
             .create_credential(&self.credential_name, Purpose::Storage)
-            .with_comment("Credential lifecycle test".to_string())
-            .await
-            .map_err(|e| {
-                AcceptanceError::JourneyExecution(format!("Failed to create credential: {}", e))
-            })?;
+            .with_comment("Credential lifecycle test".to_string());
+        if let Some(role_arn) = aws_role_arn {
+            builder = builder.with_aws_iam_role(AwsIamRoleConfig {
+                role_arn,
+                ..Default::default()
+            });
+        } else if let Some(access_connector_id) = azure_connector_id {
+            builder = builder.with_azure_managed_identity(AzureManagedIdentity {
+                access_connector_id,
+                ..Default::default()
+            });
+        }
+        let credential = builder.await.map_err(|e| {
+            AcceptanceError::JourneyExecution(format!("Failed to create credential: {}", e))
+        })?;
         println!("  ✓ Credential created: {}", credential.name);
 
         // Step 2: Get credential
-        let fetched = client
+        let fetched = ctx
+            .client()
             .credential(&self.credential_name)
             .get()
             .await
@@ -91,7 +118,8 @@ impl UserJourney for CredentialLifecycleJourney {
         println!("  ✓ Credential fetched: {}", fetched.name);
 
         // Step 3: List credentials
-        let credentials: Vec<_> = client
+        let credentials: Vec<_> = ctx
+            .client()
             .list_credentials()
             .into_stream()
             .collect::<Vec<_>>()
@@ -108,7 +136,7 @@ impl UserJourney for CredentialLifecycleJourney {
         println!("  ✓ Listed {} credential(s)", credentials.len());
 
         // Step 4: Update comment
-        client
+        ctx.client()
             .credential(&self.credential_name)
             .update()
             .with_comment("Updated comment".to_string())
@@ -121,8 +149,12 @@ impl UserJourney for CredentialLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client.credential(&self.credential_name).delete().await;
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
+            .credential(&self.credential_name)
+            .delete()
+            .await;
         Ok(())
     }
 }

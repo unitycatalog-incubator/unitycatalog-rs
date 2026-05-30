@@ -7,11 +7,12 @@
 //! Run with UC_INTEGRATION_RECORD=true to record.
 
 use async_trait::async_trait;
-use unitycatalog_client::{TableOperation, UnityCatalogClient};
+use unitycatalog_client::TableOperation;
 use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -83,26 +84,27 @@ impl UserJourney for TemporaryTableCredentialsJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
 
         // Step 1: Create catalog, schema, and managed table
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create schema: {}", e))
             })?;
-        client
+        ctx.client()
             .create_table(
                 &self.table_name,
                 &self.schema_name,
@@ -121,7 +123,8 @@ impl UserJourney for TemporaryTableCredentialsJourney {
             "  🔐 Generating temporary read credentials for '{}'",
             full_name
         );
-        let (read_cred, _table_id) = client
+        let (read_cred, _table_id) = ctx
+            .client()
             .temporary_credentials()
             .temporary_table_credential(full_name.clone(), TableOperation::Read)
             .await
@@ -142,7 +145,8 @@ impl UserJourney for TemporaryTableCredentialsJourney {
             "  🔐 Generating temporary read-write credentials for '{}'",
             full_name
         );
-        let (rw_cred, _table_id) = client
+        let (rw_cred, _table_id) = ctx
+            .client()
             .temporary_credentials()
             .temporary_table_credential(full_name.clone(), TableOperation::ReadWrite)
             .await
@@ -161,17 +165,18 @@ impl UserJourney for TemporaryTableCredentialsJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
-        let _ = client.table(&full_name).delete().await;
-        let _ = client
+        let _ = ctx.client().table(&full_name).delete().await;
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
         Ok(())
     }
 }
