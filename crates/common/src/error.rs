@@ -57,3 +57,65 @@ impl Error {
         }
     }
 }
+
+#[cfg(feature = "axum")]
+impl Error {
+    /// Maps this error to an HTTP status and a static client-facing message.
+    ///
+    /// Shared by downstream `IntoResponse` impls (server, sharing-client) so the
+    /// status/message table for common variants lives in one place. Callers
+    /// remain responsible for composing the `error_code` and wrapping the result
+    /// in their own `ErrorResponse` body.
+    pub fn response_parts(&self) -> (http::StatusCode, &'static str) {
+        use http::StatusCode;
+
+        const INTERNAL: &str = "The request is not handled correctly due to a server error.";
+        const INVALID: &str = "Invalid argument provided in the request.";
+        const NOT_FOUND: &str = "The requested resource does not exist.";
+        const ALREADY_EXISTS: &str = "The resource already exists.";
+
+        match self {
+            Error::NotFound => (StatusCode::NOT_FOUND, NOT_FOUND),
+            Error::InvalidArgument(msg) => {
+                tracing::error!("Invalid argument: {msg}");
+                (StatusCode::BAD_REQUEST, INVALID)
+            }
+            Error::InvalidIdentifier(e) => {
+                tracing::error!("Invalid identifier: {e}");
+                (StatusCode::BAD_REQUEST, INVALID)
+            }
+            Error::InvalidTableLocation(loc) => {
+                tracing::error!("Invalid table location: {loc}");
+                (StatusCode::BAD_REQUEST, INVALID)
+            }
+            Error::InvalidUrl(e) => {
+                tracing::error!("Invalid URL: {e}");
+                (StatusCode::BAD_REQUEST, INVALID)
+            }
+            Error::SerDe(e) => {
+                tracing::error!("Serialization error: {e}");
+                (StatusCode::INTERNAL_SERVER_ERROR, INTERNAL)
+            }
+            Error::Generic(msg) => {
+                tracing::error!("Generic common error: {msg}");
+                (StatusCode::INTERNAL_SERVER_ERROR, INTERNAL)
+            }
+            Error::ResourceStore(e) => match e {
+                olai_store::Error::NotFound => (StatusCode::NOT_FOUND, NOT_FOUND),
+                olai_store::Error::AlreadyExists => (StatusCode::CONFLICT, ALREADY_EXISTS),
+                olai_store::Error::InvalidArgument(msg) => {
+                    tracing::error!("Invalid argument: {msg}");
+                    (StatusCode::BAD_REQUEST, INVALID)
+                }
+                olai_store::Error::InvalidIdentifier(e) => {
+                    tracing::error!("Invalid identifier: {e}");
+                    (StatusCode::BAD_REQUEST, INVALID)
+                }
+                _ => {
+                    tracing::error!("Resource store error: {e}");
+                    (StatusCode::INTERNAL_SERVER_ERROR, INTERNAL)
+                }
+            },
+        }
+    }
+}
