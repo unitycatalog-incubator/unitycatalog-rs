@@ -8,8 +8,8 @@ import "google/api/resource.proto";
 
 enum VolumeType {
   VOLUME_TYPE_UNSPECIFIED = 0;
-  VOLUME_TYPE_EXTERNAL = 1;
-  VOLUME_TYPE_MANAGED = 2;
+  EXTERNAL = 1;
+  MANAGED = 2;
 }
 
 message Volume {

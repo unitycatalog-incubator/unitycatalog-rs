@@ -6,7 +6,7 @@
 use async_trait::async_trait;
 use futures::StreamExt;
 use unitycatalog_client::UnityCatalogClient;
-use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
+use unitycatalog_common::tables::v1::{DataSourceFormat, GetTableExistsRequest, TableType};
 
 use crate::execution::{
     ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
@@ -43,7 +43,7 @@ impl UserJourney for TableManagedLifecycleJourney {
     }
 
     fn description(&self) -> &str {
-        "Managed table lifecycle: create catalog+schema, create MANAGED DELTA table, get, list, delete"
+        "Managed table lifecycle: create catalog+schema, create MANAGED DELTA table, get, list, list summaries, exists, delete"
     }
 
     fn metadata(&self) -> JourneyMetadata {
@@ -155,6 +155,40 @@ impl UserJourney for TableManagedLifecycleJourney {
             "Created table not found in list"
         );
         println!("  ✓ Listed {} table(s)", tables.len());
+
+        // Step 6: List table summaries (catalog-scoped read path; OSS Java lacks this)
+        let summaries: Vec<_> = client
+            .list_table_summaries(
+                &self.catalog_name,
+                Some(&self.schema_name),
+                None::<String>,
+                None,
+            )
+            .collect::<Vec<_>>()
+            .await
+            .into_iter()
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| {
+                AcceptanceError::JourneyExecution(format!("Failed to list table summaries: {}", e))
+            })?;
+        assert!(
+            summaries.iter().any(|s| s.full_name == full_name),
+            "Created table not found in summaries"
+        );
+        println!("  ✓ Listed {} table summary(ies)", summaries.len());
+
+        // Step 7: Check table existence (GET /tables/{full_name}/exists)
+        let exists = client
+            .tables_client()
+            .get_table_exists(&GetTableExistsRequest {
+                full_name: full_name.clone(),
+            })
+            .await
+            .map_err(|e| {
+                AcceptanceError::JourneyExecution(format!("Failed to check table exists: {}", e))
+            })?;
+        assert!(exists.table_exists, "Table reported as not existing");
+        println!("  ✓ Table existence confirmed");
 
         Ok(())
     }

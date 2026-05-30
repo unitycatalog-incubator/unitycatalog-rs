@@ -895,8 +895,8 @@ impl serde::Serialize for ProviderAuthenticationType {
     {
         let variant = match self {
             Self::Unspecified => "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED",
-            Self::Token => "PROVIDER_AUTHENTICATION_TYPE_TOKEN",
-            Self::OauthClientCredentials => "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS",
+            Self::Token => "TOKEN",
+            Self::OauthClientCredentials => "OAUTH_CLIENT_CREDENTIALS",
         };
         serializer.serialize_str(variant)
     }
@@ -909,8 +909,8 @@ impl<'de> serde::Deserialize<'de> for ProviderAuthenticationType {
     {
         const FIELDS: &[&str] = &[
             "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED",
-            "PROVIDER_AUTHENTICATION_TYPE_TOKEN",
-            "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS",
+            "TOKEN",
+            "OAUTH_CLIENT_CREDENTIALS",
         ];
 
         struct GeneratedVisitor;
@@ -952,8 +952,8 @@ impl<'de> serde::Deserialize<'de> for ProviderAuthenticationType {
             {
                 match value {
                     "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED" => Ok(ProviderAuthenticationType::Unspecified),
-                    "PROVIDER_AUTHENTICATION_TYPE_TOKEN" => Ok(ProviderAuthenticationType::Token),
-                    "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS" => Ok(ProviderAuthenticationType::OauthClientCredentials),
+                    "TOKEN" => Ok(ProviderAuthenticationType::Token),
+                    "OAUTH_CLIENT_CREDENTIALS" => Ok(ProviderAuthenticationType::OauthClientCredentials),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

@@ -33,6 +33,7 @@ pub fn all_journeys() -> Vec<Box<dyn UserJourney>> {
         // ── Tier 3: Delta Sharing ────────────────────────────────────────────
         Box::new(tier3::ShareLifecycleJourney::new()),
         Box::new(tier3::RecipientLifecycleJourney::new()),
+        Box::new(tier3::ProviderLifecycleJourney::new()),
         // ── Tier 4: Advanced ─────────────────────────────────────────────────
         Box::new(tier4::FunctionLifecycleJourney::new()),
         Box::new(cross_resource::LakehouseHierarchyJourney::new()),
@@ -59,6 +60,7 @@ pub fn all_journeys_with_storage(storage_root: &str) -> Vec<Box<dyn UserJourney>
 pub fn all_journeys_full(storage_root: &str) -> Vec<Box<dyn UserJourney>> {
     let mut journeys = all_journeys();
     journeys.push(Box::new(tier2::TemporaryTableCredentialsJourney::new()));
+    journeys.push(Box::new(tier2::TemporaryVolumeCredentialsJourney::new()));
     journeys.extend(all_journeys_with_storage(storage_root));
     journeys
 }
@@ -92,6 +94,7 @@ mod tests {
         assert!(names.contains(&"volume_managed_lifecycle"));
         assert!(names.contains(&"share_lifecycle"));
         assert!(names.contains(&"recipient_lifecycle"));
+        assert!(names.contains(&"provider_lifecycle"));
         assert!(names.contains(&"function_lifecycle"));
         assert!(names.contains(&"lakehouse_hierarchy"));
     }

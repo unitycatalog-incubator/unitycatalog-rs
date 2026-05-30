@@ -72,16 +72,16 @@ impl VolumeType {
     pub fn as_str_name(&self) -> &'static str {
         match self {
             VolumeType::Unspecified => "VOLUME_TYPE_UNSPECIFIED",
-            VolumeType::External => "VOLUME_TYPE_EXTERNAL",
-            VolumeType::Managed => "VOLUME_TYPE_MANAGED",
+            VolumeType::External => "EXTERNAL",
+            VolumeType::Managed => "MANAGED",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
     pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "VOLUME_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
-            "VOLUME_TYPE_EXTERNAL" => Some(Self::External),
-            "VOLUME_TYPE_MANAGED" => Some(Self::Managed),
+            "EXTERNAL" => Some(Self::External),
+            "MANAGED" => Some(Self::Managed),
             _ => None,
         }
     }

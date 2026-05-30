@@ -37,6 +37,7 @@ pub enum ResourceTag {
     ExternalLocations,
     Shares,
     Recipients,
+    Providers,
     Functions,
     TemporaryCredentials,
 }
