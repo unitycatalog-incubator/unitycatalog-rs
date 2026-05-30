@@ -40,7 +40,7 @@ impl UserJourney for SchemaLifecycleJourney {
     }
 
     fn description(&self) -> &str {
-        "Schema lifecycle: create catalog, create schema, get, list, update comment, delete"
+        "Schema lifecycle: create catalog, update catalog comment, create schema, get, list, update comment, delete"
     }
 
     fn metadata(&self) -> JourneyMetadata {
@@ -78,6 +78,17 @@ impl UserJourney for SchemaLifecycleJourney {
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
+
+        // Step 1b: Update catalog comment (exercises Catalog UPDATE / PATCH)
+        client
+            .catalog(&self.catalog_name)
+            .update()
+            .with_comment("Updated catalog comment".to_string())
+            .await
+            .map_err(|e| {
+                AcceptanceError::JourneyExecution(format!("Failed to update catalog: {}", e))
+            })?;
+        println!("  ✓ Catalog comment updated");
 
         // Step 2: Create schema
         println!(

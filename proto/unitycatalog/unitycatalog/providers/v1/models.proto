@@ -11,10 +11,10 @@ enum ProviderAuthenticationType {
   PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED = 0;
 
   // Token-based authentication (open sharing via a credential file).
-  PROVIDER_AUTHENTICATION_TYPE_TOKEN = 1;
+  TOKEN = 1;
 
   // OAuth2 client-credentials authentication.
-  PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS = 2;
+  OAUTH_CLIENT_CREDENTIALS = 2;
 }
 
 // A provider represents an organization sharing data with this metastore.

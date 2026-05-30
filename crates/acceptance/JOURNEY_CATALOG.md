@@ -40,8 +40,8 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 |---|---|---|---|---|
 | `enhanced_catalog` | `tier1/catalog_simple.rs` | Catalogs | create → list → inspect → delete | ✅ Recorded |
 | `catalog_hierarchy` | `tier1/catalog_hierarchy.rs` | Catalogs, Schemas | catalog + 3 schemas → list → verify → delete all | ✅ Recorded |
-| `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → create schema → get → list → update comment → delete | ⏳ Pending recording |
-| `table_managed_lifecycle` | `tier1/table_managed_lifecycle.rs` | Catalogs, Schemas, Tables | catalog + schema → create MANAGED DELTA table → get → list → delete | ⏳ Pending recording |
+| `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → update catalog comment → create schema → get → list → update comment → delete | ⏳ Pending recording |
+| `table_managed_lifecycle` | `tier1/table_managed_lifecycle.rs` | Catalogs, Schemas, Tables | catalog + schema → create MANAGED DELTA table → get → list → list summaries → exists → delete | ⏳ Pending recording |
 
 ### Tier 2 — Governance
 
@@ -54,6 +54,7 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 | `table_external_lifecycle` | `tier2/table_external_lifecycle.rs` | ManagedDatabricks | External storage | Tables, ExternalLocations, Credentials | full chain → EXTERNAL table → get → delete | ⏳ Pending recording |
 | `temporary_table_credentials` | `tier2/temporary_table_credentials.rs` | ManagedDatabricks | — | TemporaryCredentials, Tables | managed table → generate read + read-write temp creds | ⏳ Pending recording |
 | `temporary_path_credentials` | `tier2/temporary_path_credentials.rs` | ManagedDatabricks | External storage | TemporaryCredentials, ExternalLocations | external location → generate read + read-write path creds | ⏳ Pending recording |
+| `temporary_volume_credentials` | `tier2/temporary_volume_credentials.rs` | ManagedDatabricks | — | TemporaryCredentials, Volumes | managed volume → generate read + read-write temp creds | ⏳ Pending recording |
 
 ### Tier 3 — Delta Sharing
 
@@ -61,6 +62,7 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 |---|---|---|---|---|---|
 | `share_lifecycle` | `tier3/share_lifecycle.rs` | ManagedDatabricks, OssRust | Shares, Tables | table → create share → get → list → delete | ⏳ Pending recording |
 | `recipient_lifecycle` | `tier3/recipient_lifecycle.rs` | ManagedDatabricks, OssRust | Recipients | create TOKEN recipient → get → list → delete | ⏳ Pending recording |
+| `provider_lifecycle` | `tier3/provider_lifecycle.rs` | ManagedDatabricks, OssRust | Providers | create TOKEN provider → get → list → update comment → delete | ⏳ Pending recording |
 
 ### Tier 4 — Advanced
 
@@ -226,7 +228,7 @@ different payloads (e.g. three `POST /schemas` with different names).
 | `catalog_hierarchy` | ✅ | ✅ | ✅ | ✅ |
 | `schema_lifecycle` | ✅ | ✅ | ✅ | ✅ |
 | `table_managed_lifecycle` | — | ✅ | —¹ | ✅ |
-| `volume_managed_lifecycle` | — | ✅ | —² | ✅ |
+| `volume_managed_lifecycle` | — | ✅ | —¹ | ✅ |
 | `lakehouse_hierarchy` | — | ✅ | —¹ | ✅ |
 | `credential_lifecycle` | — | — | — | ✅ |
 | `external_location_lifecycle` | — | — | — | ✅ |
@@ -234,15 +236,17 @@ different payloads (e.g. three `POST /schemas` with different names).
 | `table_external_lifecycle` | — | — | — | ✅ |
 | `temporary_table_credentials` | — | — | — | ✅ |
 | `temporary_path_credentials` | — | — | — | ✅ |
+| `temporary_volume_credentials` | — | — | — | ✅ |
 | `governance_setup` | — | — | — | ✅ |
 | `share_lifecycle` | — | ✅ | — | ✅ |
 | `recipient_lifecycle` | — | ✅ | — | ✅ |
+| `provider_lifecycle` | — | ✅ | — | ✅ |
 | `function_lifecycle` | — | ✅ | — | ✅ |
 
 ¹ The Java OSS server (`v0.4.1`, local file storage) returns `500 [INTERNAL]
-  "stagingLocation is null"` when creating MANAGED tables, so these journeys are
-  not OssJava-compatible without configured cloud storage.
+  "stagingLocation is null"` when creating MANAGED tables/volumes, so these
+  journeys are not OssJava-compatible without configured cloud storage.
 
-² The Java OSS server cannot deserialize the `VOLUME_TYPE_MANAGED` enum value our
-  client sends (it expects `MANAGED`) and returns a 500. Tracked as a
-  client/server wire-format follow-up.
+  (The earlier `VOLUME_TYPE_MANAGED` wire-format mismatch — the Java server
+  expects bare `MANAGED` — was fixed by renaming the proto enum values; see
+  `API_COMPATIBILITY.md`.)

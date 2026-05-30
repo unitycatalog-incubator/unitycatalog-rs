@@ -5,6 +5,7 @@ mod external_location_lifecycle;
 mod table_external_lifecycle;
 mod temporary_path_credentials;
 mod temporary_table_credentials;
+mod temporary_volume_credentials;
 mod volume_external_lifecycle;
 mod volume_managed_lifecycle;
 
@@ -13,5 +14,6 @@ pub use external_location_lifecycle::ExternalLocationLifecycleJourney;
 pub use table_external_lifecycle::TableExternalLifecycleJourney;
 pub use temporary_path_credentials::TemporaryPathCredentialsJourney;
 pub use temporary_table_credentials::TemporaryTableCredentialsJourney;
+pub use temporary_volume_credentials::TemporaryVolumeCredentialsJourney;
 pub use volume_external_lifecycle::VolumeExternalLifecycleJourney;
 pub use volume_managed_lifecycle::VolumeManagedLifecycleJourney;

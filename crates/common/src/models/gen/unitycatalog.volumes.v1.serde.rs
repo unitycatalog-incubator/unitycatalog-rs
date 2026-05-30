@@ -1186,8 +1186,8 @@ impl serde::Serialize for VolumeType {
     {
         let variant = match self {
             Self::Unspecified => "VOLUME_TYPE_UNSPECIFIED",
-            Self::External => "VOLUME_TYPE_EXTERNAL",
-            Self::Managed => "VOLUME_TYPE_MANAGED",
+            Self::External => "EXTERNAL",
+            Self::Managed => "MANAGED",
         };
         serializer.serialize_str(variant)
     }
@@ -1200,8 +1200,8 @@ impl<'de> serde::Deserialize<'de> for VolumeType {
     {
         const FIELDS: &[&str] = &[
             "VOLUME_TYPE_UNSPECIFIED",
-            "VOLUME_TYPE_EXTERNAL",
-            "VOLUME_TYPE_MANAGED",
+            "EXTERNAL",
+            "MANAGED",
         ];
 
         struct GeneratedVisitor;
@@ -1243,8 +1243,8 @@ impl<'de> serde::Deserialize<'de> for VolumeType {
             {
                 match value {
                     "VOLUME_TYPE_UNSPECIFIED" => Ok(VolumeType::Unspecified),
-                    "VOLUME_TYPE_EXTERNAL" => Ok(VolumeType::External),
-                    "VOLUME_TYPE_MANAGED" => Ok(VolumeType::Managed),
+                    "EXTERNAL" => Ok(VolumeType::External),
+                    "MANAGED" => Ok(VolumeType::Managed),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

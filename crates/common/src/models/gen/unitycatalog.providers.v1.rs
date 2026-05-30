@@ -64,16 +64,16 @@ impl ProviderAuthenticationType {
     pub fn as_str_name(&self) -> &'static str {
         match self {
             ProviderAuthenticationType::Unspecified => "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED",
-            ProviderAuthenticationType::Token => "PROVIDER_AUTHENTICATION_TYPE_TOKEN",
-            ProviderAuthenticationType::OauthClientCredentials => "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS",
+            ProviderAuthenticationType::Token => "TOKEN",
+            ProviderAuthenticationType::OauthClientCredentials => "OAUTH_CLIENT_CREDENTIALS",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
     pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
         match value {
             "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
-            "PROVIDER_AUTHENTICATION_TYPE_TOKEN" => Some(Self::Token),
-            "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS" => Some(Self::OauthClientCredentials),
+            "TOKEN" => Some(Self::Token),
+            "OAUTH_CLIENT_CREDENTIALS" => Some(Self::OauthClientCredentials),
             _ => None,
         }
     }
