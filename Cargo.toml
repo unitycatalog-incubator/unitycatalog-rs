@@ -79,7 +79,6 @@ default.extend-ignore-re = [
 ]
 files.extend-exclude = [
   "crates/common/src/models/gen/**/*",
-  "app/src/gen/**/*",
   "openapi/**/*",
   "node/client/unitycatalog/models/gen/**/*",
   "../trestle/crates/trestle-codegen/src/gen/**/*",

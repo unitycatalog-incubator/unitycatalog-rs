@@ -22,9 +22,10 @@ aspects.
 
 The bulk of the implementation is within the rust crates inside the `crates` directory.
 
-There are two crates used for internal purposes and not meant for external use
-* [`unitycatalog-build`](crates/build/) - generate rust code from protobuf definitions.
-* [`unitycatalog-derive`](crates/derive/) - derive macros for internal use.
+Code generation (Rust server/client, OpenAPI) is handled by the external
+[`trestle`](https://github.com/open-lakehouse/trestle) codegen tooling, which
+also publishes the `olai-http` / `olai-store` crates we depend on for cloud
+auth/HTTP and storage abstractions.
 
 The core logic is implemented in the [`unitycatalog-common`](crates/common/) crate.
 There are further extension crates to build more advanced serves.

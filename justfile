@@ -10,9 +10,12 @@ _default:
 [group('codegen')]
 generate: generate-proto generate-code fix
 
-# run all code generation for unitycatalog and external types.
+# run all code generation for unitycatalog types.
+#
+# Generation of external types (google.api / gnostic extensions) now lives in
+# the `../trestle` codegen repo (`olai-codegen`); see `generate-proto-gen-fixtures`.
 [group('codegen')]
-generate-full: generate-build-ext generate-proto generate-code fix
+generate-full: generate-proto generate-code fix
 
 # run code generation for proto files.
 [group('codegen')]
@@ -64,11 +67,6 @@ generate-code:
 [group('codegen')]
 generate-common-ext:
     just crates/common/generate
-
-# generate types for build crate. (google.api and gnostic file extensions)
-[group('codegen')]
-generate-build-ext:
-    just crates/build/generate
 
 # generate types for node client. these are all slow changing external types
 [group('codegen')]
