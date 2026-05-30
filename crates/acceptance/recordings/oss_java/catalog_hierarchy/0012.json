@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "DELETE",
+    "url_path": "/api/2.1/unity-catalog/schemas/hierarchy_catalog_1780171408.staging_schema_1780171408",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-length": "6",
+      "server": "Armeria/1.28.4",
+      "date": "Sat, 30 May 2026 20:03:29 GMT",
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "body": "200 OK"
+  }
+}

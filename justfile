@@ -171,12 +171,45 @@ integration:
 # run journey tests live against the open-source Java Unity Catalog server.
 # Boots the server via docker compose, waits for its healthcheck, then runs
 # every OssJava-compatible journey. Tear down with:
-#   docker compose -f dev/uc-oss.compose.yaml down -v
+# docker compose -f dev/uc-oss.compose.yaml down -v
 [group('test')]
 integration-oss-java:
     docker compose -f dev/uc-oss.compose.yaml up -d --wait
     UC_INTEGRATION_PROFILE="oss_java" \
     UC_INTEGRATION_URL="http://localhost:8080" \
+    cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
+
+# Tear down afterwards with `docker compose -f dev/uc-oss.compose.yaml down -v`.
+# Boot the Java OSS server and record fixtures into crates/acceptance/recordings/oss_java/
+[group('test')]
+record-oss-java:
+    docker compose -f dev/uc-oss.compose.yaml up -d --wait
+    UC_INTEGRATION_PROFILE="oss_java" \
+    UC_INTEGRATION_URL="http://localhost:8080" \
+    UC_INTEGRATION_RECORD="true" \
+    cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
+    docker compose -f dev/uc-oss.compose.yaml down -v
+
+# Boots the local Rust server in the background (shutting it down on exit) and
+# records OssRust-compatible fixtures into crates/acceptance/recordings/oss_rust/
+[group('test')]
+record-oss-rust:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cargo build --bin uc
+    RUST_LOG=INFO cargo run --bin uc -- server --rest &
+    server_pid=$!
+    trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+    echo "⏳ Waiting for Rust server on http://localhost:8080 ..."
+    for _ in $(seq 1 60); do
+        if curl -sf -o /dev/null http://localhost:8080/api/2.1/unity-catalog/catalogs; then
+            break
+        fi
+        sleep 1
+    done
+    UC_INTEGRATION_PROFILE="oss_rust" \
+    UC_INTEGRATION_URL="http://localhost:8080" \
+    UC_INTEGRATION_RECORD="true" \
     cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
 
 # run object-store integration tests against the docker `full` profile
@@ -189,7 +222,7 @@ integration-object-store:
     cargo test -p unitycatalog-object-store --test integration -- --ignored --test-threads=1
 
 [group('test')]
-integration-record:
+record-managed:
     UC_INTEGRATION_URL="$DATABRICKS_HOST" \
     UC_INTEGRATION_TOKEN="$DATABRICKS_TOKEN" \
     UC_INTEGRATION_DIR="{{ justfile_directory() }}/crates/acceptance/recordings" \

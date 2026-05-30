@@ -1,7 +1,0 @@
-{
-  "data": {
-    "storage_root": "s3://open-lakehouse-dev/",
-    "schema_names": "[\"test_schema_1758050044\",\"analytics_schema_1758050044\",\"staging_schema_1758050044\"]",
-    "catalog_name": "hierarchy_catalog_1758050044"
-  }
-}

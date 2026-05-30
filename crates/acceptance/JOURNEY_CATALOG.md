@@ -12,7 +12,7 @@ API calls that exercise real workflows. Each journey can operate in two modes:
 
 | Mode | Description |
 |------|-------------|
-| **Replay** (default) | Loads pre-recorded HTTP interactions from `recordings/` and replays them against a mockito mock server. Fast and deterministic — no live server needed. |
+| **Replay** (default) | Loads pre-recorded HTTP interactions from `recordings/<profile>/` and replays them against a mockito mock server, once per implementation profile. Fast and deterministic — no live server needed. |
 | **Live** | Executes against a real Unity Catalog server. Set `UC_INTEGRATION_RECORD=true` to also capture the interactions as new recordings. |
 
 ---
@@ -38,9 +38,9 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 
 | Journey Name | File | Resources | Steps | Recording Status |
 |---|---|---|---|---|
-| `enhanced_catalog` | `tier1/catalog_simple.rs` | Catalogs | create → list → inspect → delete | ✅ Recorded |
-| `catalog_hierarchy` | `tier1/catalog_hierarchy.rs` | Catalogs, Schemas | catalog + 3 schemas → list → verify → delete all | ✅ Recorded |
-| `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → update catalog comment → create schema → get → list → update comment → delete | ⏳ Pending recording |
+| `enhanced_catalog` | `tier1/catalog_simple.rs` | Catalogs | create → list → inspect → delete | ✅ Recorded (databricks, oss_rust, oss_java) |
+| `catalog_hierarchy` | `tier1/catalog_hierarchy.rs` | Catalogs, Schemas | catalog + 3 schemas → list → verify → delete all | ✅ Recorded (databricks, oss_rust, oss_java) |
+| `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → update catalog comment → create schema → get → list → update comment → delete | ✅ Recorded (databricks, oss_rust, oss_java) |
 | `table_managed_lifecycle` | `tier1/table_managed_lifecycle.rs` | Catalogs, Schemas, Tables | catalog + schema → create MANAGED DELTA table → get → list → list summaries → exists → delete | ⏳ Pending recording |
 
 ### Tier 2 — Governance
@@ -62,7 +62,7 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 |---|---|---|---|---|---|
 | `share_lifecycle` | `tier3/share_lifecycle.rs` | ManagedDatabricks, OssRust | Shares, Tables | table → create share → get → list → delete | ⏳ Pending recording |
 | `recipient_lifecycle` | `tier3/recipient_lifecycle.rs` | ManagedDatabricks, OssRust | Recipients | create TOKEN recipient → get → list → delete | ⏳ Pending recording |
-| `provider_lifecycle` | `tier3/provider_lifecycle.rs` | ManagedDatabricks, OssRust | Providers | create TOKEN provider → get → list → update comment → delete | ⏳ Pending recording |
+| `provider_lifecycle` | `tier3/provider_lifecycle.rs` | ManagedDatabricks, OssRust | Providers | create TOKEN provider → get → list → update comment → delete | ✅ Recorded (databricks) |
 
 ### Tier 4 — Advanced
 
@@ -87,9 +87,21 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 |---|---|---|
 | `UC_INTEGRATION_URL` | `http://localhost:8080` | Base URL of the Unity Catalog server |
 | `UC_INTEGRATION_TOKEN` | — | Bearer token for authentication |
-| `UC_INTEGRATION_STORAGE_ROOT` | `s3://open-lakehouse-dev/` | Cloud storage root for journeys requiring external storage |
+| `UC_INTEGRATION_STORAGE_ROOT` | `file:///tmp/uc-test/` | Storage root threaded into every journey via `JourneyContext`; used as the catalog `MANAGED LOCATION` and for external resources. Override per profile (e.g. `s3://my-bucket/uc-test/` for Databricks). |
 | `UC_INTEGRATION_RECORD` | `false` | Set to `true` to record live interactions as new fixture files |
-| `UC_INTEGRATION_DIR` | `recordings/` | Directory where recordings are read from / written to |
+| `UC_INTEGRATION_DIR` | `recordings/` | Base directory for recordings. Cassettes are namespaced per profile: `<dir>/<profile>/<journey>/`. |
+
+### Resource-specific (managed Databricks)
+
+Some journeys need real workspace values to succeed against Databricks. When the relevant
+variable is unset, the journey either skips (credentials) or falls back to an OSS-friendly
+default (recipient owner).
+
+| Variable | Used by | Description |
+|---|---|---|
+| `UC_TEST_AWS_ROLE_ARN` | `credential_lifecycle` | AWS IAM role ARN for the storage credential. If set, an AWS credential is created. |
+| `UC_TEST_AZURE_ACCESS_CONNECTOR_ID` | `credential_lifecycle` | Azure Databricks Access Connector resource ID (alternative to the AWS role). If neither AWS nor Azure var is set, `credential_lifecycle` is skipped. |
+| `UC_TEST_RECIPIENT_OWNER` | `recipient_lifecycle` | Principal (user/group/SP) that owns the recipient. Must exist on Databricks. Defaults to `account users`. |
 
 ### Journey Selection
 
@@ -178,8 +190,14 @@ UC_INTEGRATION_PROFILE=managed_databricks \
   cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
 ```
 
-After recording, commit the new fixture files in `recordings/<journey_name>/` alongside the
-journey source code in the same commit.
+This records to `recordings/managed_databricks/<journey>/`. `UC_INTEGRATION_STORAGE_ROOT`
+**must** be a real, writable location your workspace can use as a catalog `MANAGED
+LOCATION` — Databricks rejects catalog creation without it. For storage-credential and
+recipient coverage, also set `UC_TEST_AWS_ROLE_ARN` (or `UC_TEST_AZURE_ACCESS_CONNECTOR_ID`)
+and `UC_TEST_RECIPIENT_OWNER` (see the resource-specific env vars above).
+
+After recording, commit the new fixture files in `recordings/<profile>/<journey>/` alongside
+the journey source code in the same commit.
 
 ---
 
@@ -188,12 +206,17 @@ journey source code in the same commit.
 1. **Implement the `UserJourney` trait** in an appropriate tier module:
    - Create `crates/acceptance/src/journeys/tierN/my_journey.rs`
    - Implement `name()`, `description()`, `metadata()`, `execute()`, and optionally `setup()`,
-     `cleanup()`, `save_state()`, `load_state()`
-   - Return accurate `JourneyMetadata` (resources, implementations, tier, requires_external_storage)
+     `cleanup()`, `save_state()`, `load_state()`. The `execute`/`setup`/`cleanup` methods receive
+     a `&JourneyContext` — use `ctx.client()` for the client and `ctx.storage_root` as the catalog
+     `MANAGED LOCATION` / external-resource root (do **not** hardcode a bucket).
+   - Return accurate `JourneyMetadata` (resources, implementations, tier, requires_external_storage).
+     Journeys that touch external storage must set `requires_external_storage: true` so they're
+     filtered out for the OSS profiles.
 
 2. **Register the journey** in `crates/acceptance/src/journeys/mod.rs`:
    - Add it to the appropriate `mod.rs` in its tier
-   - Add it to `all_journeys()` (or `all_journeys_with_storage()` if it needs a storage root)
+   - Add it to `all_journeys()` (all journeys live here now; the per-profile/tier/storage
+     filtering happens at runtime via `JourneyMetadata` + `JourneyFilter`)
 
 3. **Record fixtures** against the appropriate reference implementation:
    ```bash
@@ -201,13 +224,27 @@ journey source code in the same commit.
      UC_INTEGRATION_PROFILE=managed_databricks \
      ... cargo test -p unitycatalog-acceptance -- journey_tests_live
    ```
-   Commit the generated `recordings/my_journey/` directory with the journey source.
+   Commit the generated `recordings/<profile>/my_journey/` directory with the journey source.
 
 ---
 
 ## Recording Fixture Format
 
-Each journey gets a directory: `recordings/<journey_name>/`
+Recordings are **namespaced per implementation profile** so the same journey recorded
+against different servers doesn't collide:
+
+```
+recordings/
+  managed_databricks/
+    enhanced_catalog/
+    schema_lifecycle/
+    ...
+  oss_rust/
+    enhanced_catalog/
+    ...
+```
+
+Each journey gets a directory: `recordings/<profile>/<journey_name>/`
 
 - **`0000.json`, `0001.json`, ...**  — numbered HTTP request/response pairs in execution order
 - **`journey_state.json`** — key-value snapshot of the journey's state (e.g. generated names,

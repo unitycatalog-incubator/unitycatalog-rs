@@ -8,28 +8,32 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::credentials::v1::Purpose;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
 pub struct ExternalLocationLifecycleJourney {
     credential_name: String,
     external_location_name: String,
-    storage_root: String,
 }
 
 impl ExternalLocationLifecycleJourney {
-    pub fn new(storage_root: impl Into<String>) -> Self {
+    pub fn new() -> Self {
         let timestamp = chrono::Utc::now().timestamp();
         Self {
             credential_name: format!("ext_loc_cred_{}", timestamp),
             external_location_name: format!("ext_loc_{}", timestamp),
-            storage_root: storage_root.into(),
         }
+    }
+}
+
+impl Default for ExternalLocationLifecycleJourney {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -59,7 +63,6 @@ impl UserJourney for ExternalLocationLifecycleJourney {
             "external_location_name",
             self.external_location_name.clone(),
         );
-        state.set_string("storage_root", self.storage_root.clone());
         Ok(state)
     }
 
@@ -70,16 +73,13 @@ impl UserJourney for ExternalLocationLifecycleJourney {
         if let Some(v) = state.get_string("external_location_name") {
             self.external_location_name = v;
         }
-        if let Some(v) = state.get_string("storage_root") {
-            self.storage_root = v;
-        }
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create storage credential
         println!("  🔑 Creating credential '{}'", self.credential_name);
-        client
+        ctx.client()
             .create_credential(&self.credential_name, Purpose::Storage)
             .with_comment("External location lifecycle test credential".to_string())
             .await
@@ -92,10 +92,11 @@ impl UserJourney for ExternalLocationLifecycleJourney {
             "  🌍 Creating external location '{}'",
             self.external_location_name
         );
-        let ext_loc = client
+        let ext_loc = ctx
+            .client()
             .create_external_location(
                 &self.external_location_name,
-                &self.storage_root,
+                &ctx.storage_root,
                 &self.credential_name,
             )
             .with_comment("External location lifecycle test".to_string())
@@ -109,7 +110,8 @@ impl UserJourney for ExternalLocationLifecycleJourney {
         println!("  ✓ External location created: {}", ext_loc.name);
 
         // Step 3: List external locations
-        let locations: Vec<_> = client
+        let locations: Vec<_> = ctx
+            .client()
             .list_external_locations()
             .into_stream()
             .collect::<Vec<_>>()
@@ -133,12 +135,17 @@ impl UserJourney for ExternalLocationLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
             .external_location(&self.external_location_name)
             .delete()
             .await;
-        let _ = client.credential(&self.credential_name).delete().await;
+        let _ = ctx
+            .client()
+            .credential(&self.credential_name)
+            .delete()
+            .await;
         Ok(())
     }
 }

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "DELETE",
+    "url_path": "/api/2.1/unity-catalog/schemas/schema_lc_catalog_1780171408.schema_lc_1780171408",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "date": "Sat, 30 May 2026 20:03:29 GMT",
+      "content-length": "6",
+      "content-type": "text/plain; charset=utf-8",
+      "server": "Armeria/1.28.4"
+    },
+    "body": "200 OK"
+  }
+}

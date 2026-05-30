@@ -8,12 +8,12 @@
 //! Run with UC_INTEGRATION_RECORD=true to record.
 
 use async_trait::async_trait;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::credentials::v1::Purpose;
 use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -23,11 +23,10 @@ pub struct GovernanceSetupJourney {
     table_name: String,
     credential_name: String,
     external_location_name: String,
-    storage_root: String,
 }
 
 impl GovernanceSetupJourney {
-    pub fn new(storage_root: impl Into<String>) -> Self {
+    pub fn new() -> Self {
         let timestamp = chrono::Utc::now().timestamp();
         Self {
             catalog_name: format!("gov_catalog_{}", timestamp),
@@ -35,8 +34,13 @@ impl GovernanceSetupJourney {
             table_name: format!("gov_table_{}", timestamp),
             credential_name: format!("gov_cred_{}", timestamp),
             external_location_name: format!("gov_loc_{}", timestamp),
-            storage_root: storage_root.into(),
         }
+    }
+}
+
+impl Default for GovernanceSetupJourney {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -75,7 +79,6 @@ impl UserJourney for GovernanceSetupJourney {
             "external_location_name",
             self.external_location_name.clone(),
         );
-        state.set_string("storage_root", self.storage_root.clone());
         Ok(state)
     }
 
@@ -95,14 +98,11 @@ impl UserJourney for GovernanceSetupJourney {
         if let Some(v) = state.get_string("external_location_name") {
             self.external_location_name = v;
         }
-        if let Some(v) = state.get_string("storage_root") {
-            self.storage_root = v;
-        }
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let table_location = format!("{}/tables/{}/", self.storage_root, self.table_name);
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let table_location = format!("{}/tables/{}/", ctx.storage_root, self.table_name);
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
@@ -110,8 +110,9 @@ impl UserJourney for GovernanceSetupJourney {
 
         // Step 1: Create catalog
         println!("  📁 [1/5] Creating catalog '{}'", self.catalog_name);
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .with_comment("Governance test catalog".to_string())
             .await
             .map_err(|e| {
@@ -123,7 +124,7 @@ impl UserJourney for GovernanceSetupJourney {
             "  📂 [2/5] Creating schema '{}.{}'",
             self.catalog_name, self.schema_name
         );
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .with_comment("Governance test schema".to_string())
             .await
@@ -136,7 +137,7 @@ impl UserJourney for GovernanceSetupJourney {
             "  🔑 [3/5] Creating storage credential '{}'",
             self.credential_name
         );
-        client
+        ctx.client()
             .create_credential(&self.credential_name, Purpose::Storage)
             .with_comment("Governance test storage credential".to_string())
             .await
@@ -149,7 +150,7 @@ impl UserJourney for GovernanceSetupJourney {
             "  🌍 [4/5] Creating external location '{}'",
             self.external_location_name
         );
-        client
+        ctx.client()
             .create_external_location(
                 &self.external_location_name,
                 &table_location,
@@ -166,7 +167,8 @@ impl UserJourney for GovernanceSetupJourney {
 
         // Step 5: Create external table
         println!("  🗃️  [5/5] Creating external table '{}'", full_name);
-        let table = client
+        let table = ctx
+            .client()
             .create_table(
                 &self.table_name,
                 &self.schema_name,
@@ -186,22 +188,28 @@ impl UserJourney for GovernanceSetupJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
-        let _ = client.table(&full_name).delete().await;
-        let _ = client
+        let _ = ctx.client().table(&full_name).delete().await;
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
-        let _ = client
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
+        let _ = ctx
+            .client()
             .external_location(&self.external_location_name)
             .delete()
             .await;
-        let _ = client.credential(&self.credential_name).delete().await;
+        let _ = ctx
+            .client()
+            .credential(&self.credential_name)
+            .delete()
+            .await;
         Ok(())
     }
 }

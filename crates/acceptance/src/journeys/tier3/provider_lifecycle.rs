@@ -8,11 +8,11 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::providers::v1::ProviderAuthenticationType;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -73,10 +73,11 @@ impl UserJourney for ProviderLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create provider with TOKEN authentication
         println!("  🔗 Creating provider '{}'", self.provider_name);
-        let provider = client
+        let provider = ctx
+            .client()
             .create_provider(&self.provider_name, ProviderAuthenticationType::Token)
             .with_recipient_profile_str(RECIPIENT_PROFILE.to_string())
             .with_comment("Provider lifecycle test".to_string())
@@ -88,7 +89,8 @@ impl UserJourney for ProviderLifecycleJourney {
         println!("  ✓ Provider created: {}", provider.name);
 
         // Step 2: Get provider
-        let fetched = client
+        let fetched = ctx
+            .client()
             .provider(&self.provider_name)
             .get()
             .await
@@ -99,7 +101,8 @@ impl UserJourney for ProviderLifecycleJourney {
         println!("  ✓ Provider fetched: {}", fetched.name);
 
         // Step 3: List providers
-        let providers: Vec<_> = client
+        let providers: Vec<_> = ctx
+            .client()
             .list_providers()
             .into_stream()
             .collect::<Vec<_>>()
@@ -116,7 +119,7 @@ impl UserJourney for ProviderLifecycleJourney {
         println!("  ✓ Listed {} provider(s)", providers.len());
 
         // Step 4: Update provider comment (exercises Provider UPDATE / PATCH)
-        client
+        ctx.client()
             .provider(&self.provider_name)
             .update()
             .with_comment("Updated provider comment".to_string())
@@ -129,8 +132,8 @@ impl UserJourney for ProviderLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client.provider(&self.provider_name).delete().await;
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx.client().provider(&self.provider_name).delete().await;
         Ok(())
     }
 }

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "GET",
+    "url_path": "/api/2.1/unity-catalog/schemas/hierarchy_catalog_1780171408.test_schema_1780171408",
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json",
+      "server": "Armeria/1.28.4",
+      "date": "Sat, 30 May 2026 20:03:29 GMT",
+      "content-length": "410"
+    },
+    "body": "{\"name\":\"test_schema_1780171408\",\"catalog_name\":\"hierarchy_catalog_1780171408\",\"comment\":\"Test schema 1 for hierarchy validation\",\"properties\":{},\"full_name\":\"hierarchy_catalog_1780171408.test_schema_1780171408\",\"owner\":null,\"created_at\":1780171409144,\"created_by\":null,\"updated_at\":1780171409144,\"updated_by\":null,\"schema_id\":\"fcc711ac-5d45-4819-9fba-c96a278d313f\",\"storage_root\":null,\"storage_location\":null}"
+  }
+}

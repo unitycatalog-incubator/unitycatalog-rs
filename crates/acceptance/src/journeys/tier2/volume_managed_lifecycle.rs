@@ -8,11 +8,11 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::volumes::v1::VolumeType;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -89,11 +89,12 @@ impl UserJourney for VolumeManagedLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create catalog
         println!("  📁 Creating catalog '{}'", self.catalog_name);
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
@@ -104,7 +105,7 @@ impl UserJourney for VolumeManagedLifecycleJourney {
             "  📂 Creating schema '{}.{}'",
             self.catalog_name, self.schema_name
         );
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
@@ -116,7 +117,8 @@ impl UserJourney for VolumeManagedLifecycleJourney {
             "  📦 Creating managed volume '{}.{}.{}'",
             self.catalog_name, self.schema_name, self.volume_name
         );
-        let volume = client
+        let volume = ctx
+            .client()
             .create_volume(
                 &self.catalog_name,
                 &self.schema_name,
@@ -132,7 +134,8 @@ impl UserJourney for VolumeManagedLifecycleJourney {
         println!("  ✓ Volume created: {}", volume.full_name);
 
         // Step 4: Get volume
-        let fetched = client
+        let fetched = ctx
+            .client()
             .volume(&self.catalog_name, &self.schema_name, &self.volume_name)
             .get()
             .await
@@ -143,7 +146,8 @@ impl UserJourney for VolumeManagedLifecycleJourney {
         println!("  ✓ Volume fetched: {}", fetched.full_name);
 
         // Step 5: List volumes
-        let volumes: Vec<_> = client
+        let volumes: Vec<_> = ctx
+            .client()
             .list_volumes(&self.catalog_name, &self.schema_name)
             .into_stream()
             .collect::<Vec<_>>()
@@ -162,16 +166,18 @@ impl UserJourney for VolumeManagedLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
             .volume(&self.catalog_name, &self.schema_name, &self.volume_name)
             .delete()
             .await;
-        let _ = client
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
         Ok(())
     }
 }

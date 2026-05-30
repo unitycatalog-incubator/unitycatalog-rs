@@ -7,11 +7,12 @@
 //! Run with UC_INTEGRATION_RECORD=true to record.
 
 use async_trait::async_trait;
-use unitycatalog_client::{UnityCatalogClient, VolumeOperation};
+use unitycatalog_client::VolumeOperation;
 use unitycatalog_common::volumes::v1::VolumeType;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -83,26 +84,27 @@ impl UserJourney for TemporaryVolumeCredentialsJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.volume_name
         );
 
         // Step 1: Create catalog, schema, and managed volume
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create schema: {}", e))
             })?;
-        client
+        ctx.client()
             .create_volume(
                 &self.catalog_name,
                 &self.schema_name,
@@ -120,7 +122,8 @@ impl UserJourney for TemporaryVolumeCredentialsJourney {
             "  🔐 Generating temporary read credentials for '{}'",
             full_name
         );
-        let (read_cred, _volume_id) = client
+        let (read_cred, _volume_id) = ctx
+            .client()
             .temporary_credentials()
             .temporary_volume_credential(full_name.clone(), VolumeOperation::Read)
             .await
@@ -141,7 +144,8 @@ impl UserJourney for TemporaryVolumeCredentialsJourney {
             "  🔐 Generating temporary read-write credentials for '{}'",
             full_name
         );
-        let (rw_cred, _volume_id) = client
+        let (rw_cred, _volume_id) = ctx
+            .client()
             .temporary_credentials()
             .temporary_volume_credential(full_name.clone(), VolumeOperation::ReadWrite)
             .await
@@ -160,16 +164,18 @@ impl UserJourney for TemporaryVolumeCredentialsJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
             .volume(&self.catalog_name, &self.schema_name, &self.volume_name)
             .delete()
             .await;
-        let _ = client
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
         Ok(())
     }
 }

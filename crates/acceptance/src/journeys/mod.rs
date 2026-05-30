@@ -30,6 +30,12 @@ pub fn all_journeys() -> Vec<Box<dyn UserJourney>> {
         // ── Tier 2: Governance ──────────────────────────────────────────────
         Box::new(tier2::CredentialLifecycleJourney::new()),
         Box::new(tier2::VolumeManagedLifecycleJourney::new()),
+        Box::new(tier2::ExternalLocationLifecycleJourney::new()),
+        Box::new(tier2::VolumeExternalLifecycleJourney::new()),
+        Box::new(tier2::TableExternalLifecycleJourney::new()),
+        Box::new(tier2::TemporaryTableCredentialsJourney::new()),
+        Box::new(tier2::TemporaryVolumeCredentialsJourney::new()),
+        Box::new(tier2::TemporaryPathCredentialsJourney::new()),
         // ── Tier 3: Delta Sharing ────────────────────────────────────────────
         Box::new(tier3::ShareLifecycleJourney::new()),
         Box::new(tier3::RecipientLifecycleJourney::new()),
@@ -37,32 +43,8 @@ pub fn all_journeys() -> Vec<Box<dyn UserJourney>> {
         // ── Tier 4: Advanced ─────────────────────────────────────────────────
         Box::new(tier4::FunctionLifecycleJourney::new()),
         Box::new(cross_resource::LakehouseHierarchyJourney::new()),
+        Box::new(cross_resource::GovernanceSetupJourney::new()),
     ]
-}
-
-/// All journeys that require an external storage root (S3/ADLS/GCS path).
-///
-/// These are omitted from `all_journeys()` because they cannot be constructed
-/// without a known storage root. Call this function when you have a storage root
-/// configured (e.g. from `JourneyConfig::storage_root` or `UC_INTEGRATION_STORAGE_ROOT`).
-pub fn all_journeys_with_storage(storage_root: &str) -> Vec<Box<dyn UserJourney>> {
-    vec![
-        Box::new(tier2::ExternalLocationLifecycleJourney::new(storage_root)),
-        Box::new(tier2::VolumeExternalLifecycleJourney::new(storage_root)),
-        Box::new(tier2::TableExternalLifecycleJourney::new(storage_root)),
-        Box::new(tier2::TemporaryPathCredentialsJourney::new(storage_root)),
-        Box::new(cross_resource::GovernanceSetupJourney::new(storage_root)),
-    ]
-}
-
-/// All journeys that do not require external storage (from `all_journeys()`) plus
-/// the storage-dependent ones built from the provided `storage_root`.
-pub fn all_journeys_full(storage_root: &str) -> Vec<Box<dyn UserJourney>> {
-    let mut journeys = all_journeys();
-    journeys.push(Box::new(tier2::TemporaryTableCredentialsJourney::new()));
-    journeys.push(Box::new(tier2::TemporaryVolumeCredentialsJourney::new()));
-    journeys.extend(all_journeys_with_storage(storage_root));
-    journeys
 }
 
 /// Journeys filtered by a [`JourneyFilter`].

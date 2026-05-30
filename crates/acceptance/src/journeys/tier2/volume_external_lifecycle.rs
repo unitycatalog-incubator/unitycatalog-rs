@@ -7,12 +7,12 @@
 //! Run with UC_INTEGRATION_RECORD=true to record.
 
 use async_trait::async_trait;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::credentials::v1::Purpose;
 use unitycatalog_common::models::volumes::v1::VolumeType;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -22,11 +22,10 @@ pub struct VolumeExternalLifecycleJourney {
     volume_name: String,
     credential_name: String,
     external_location_name: String,
-    storage_root: String,
 }
 
 impl VolumeExternalLifecycleJourney {
-    pub fn new(storage_root: impl Into<String>) -> Self {
+    pub fn new() -> Self {
         let timestamp = chrono::Utc::now().timestamp();
         Self {
             catalog_name: format!("ext_vol_catalog_{}", timestamp),
@@ -34,8 +33,13 @@ impl VolumeExternalLifecycleJourney {
             volume_name: format!("ext_vol_{}", timestamp),
             credential_name: format!("ext_vol_cred_{}", timestamp),
             external_location_name: format!("ext_vol_loc_{}", timestamp),
-            storage_root: storage_root.into(),
         }
+    }
+}
+
+impl Default for VolumeExternalLifecycleJourney {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -74,7 +78,6 @@ impl UserJourney for VolumeExternalLifecycleJourney {
             "external_location_name",
             self.external_location_name.clone(),
         );
-        state.set_string("storage_root", self.storage_root.clone());
         Ok(state)
     }
 
@@ -94,21 +97,19 @@ impl UserJourney for VolumeExternalLifecycleJourney {
         if let Some(v) = state.get_string("external_location_name") {
             self.external_location_name = v;
         }
-        if let Some(v) = state.get_string("storage_root") {
-            self.storage_root = v;
-        }
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         // Step 1: Create catalog and schema
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
@@ -116,7 +117,7 @@ impl UserJourney for VolumeExternalLifecycleJourney {
             })?;
 
         // Step 2: Create credential
-        client
+        ctx.client()
             .create_credential(&self.credential_name, Purpose::Storage)
             .await
             .map_err(|e| {
@@ -124,8 +125,8 @@ impl UserJourney for VolumeExternalLifecycleJourney {
             })?;
 
         // Step 3: Create external location
-        let volume_storage_path = format!("{}/volumes/{}/", self.storage_root, self.volume_name);
-        client
+        let volume_storage_path = format!("{}/volumes/{}/", ctx.storage_root, self.volume_name);
+        ctx.client()
             .create_external_location(
                 &self.external_location_name,
                 &volume_storage_path,
@@ -144,7 +145,8 @@ impl UserJourney for VolumeExternalLifecycleJourney {
             "  📦 Creating external volume '{}.{}.{}'",
             self.catalog_name, self.schema_name, self.volume_name
         );
-        let volume = client
+        let volume = ctx
+            .client()
             .create_volume(
                 &self.catalog_name,
                 &self.schema_name,
@@ -163,7 +165,8 @@ impl UserJourney for VolumeExternalLifecycleJourney {
         println!("  ✓ External volume created: {}", volume.full_name);
 
         // Step 5: Get volume and verify it is external
-        let fetched = client
+        let fetched = ctx
+            .client()
             .volume(&self.catalog_name, &self.schema_name, &self.volume_name)
             .get()
             .await
@@ -176,21 +179,28 @@ impl UserJourney for VolumeExternalLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx
+            .client()
             .volume(&self.catalog_name, &self.schema_name, &self.volume_name)
             .delete()
             .await;
-        let _ = client
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
-        let _ = client
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
+        let _ = ctx
+            .client()
             .external_location(&self.external_location_name)
             .delete()
             .await;
-        let _ = client.credential(&self.credential_name).delete().await;
+        let _ = ctx
+            .client()
+            .credential(&self.credential_name)
+            .delete()
+            .await;
         Ok(())
     }
 }

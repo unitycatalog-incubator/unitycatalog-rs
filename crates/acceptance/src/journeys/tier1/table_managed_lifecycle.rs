@@ -5,11 +5,11 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::tables::v1::{DataSourceFormat, GetTableExistsRequest, TableType};
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -86,7 +86,7 @@ impl UserJourney for TableManagedLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
@@ -94,8 +94,9 @@ impl UserJourney for TableManagedLifecycleJourney {
 
         // Step 1: Create catalog
         println!("  📁 Creating catalog '{}'", self.catalog_name);
-        client
+        ctx.client()
             .create_catalog(&self.catalog_name)
+            .with_storage_root(ctx.storage_root.clone())
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
@@ -106,7 +107,7 @@ impl UserJourney for TableManagedLifecycleJourney {
             "  📂 Creating schema '{}.{}'",
             self.catalog_name, self.schema_name
         );
-        client
+        ctx.client()
             .create_schema(&self.catalog_name, &self.schema_name)
             .await
             .map_err(|e| {
@@ -115,7 +116,8 @@ impl UserJourney for TableManagedLifecycleJourney {
 
         // Step 3: Create managed Delta table
         println!("  🗃️  Creating managed table '{}'", full_name);
-        let table = client
+        let table = ctx
+            .client()
             .create_table(
                 &self.table_name,
                 &self.schema_name,
@@ -133,14 +135,15 @@ impl UserJourney for TableManagedLifecycleJourney {
         println!("  ✓ Table created: {}", table.full_name);
 
         // Step 4: Get table
-        let fetched = client.table(&full_name).get().await.map_err(|e| {
+        let fetched = ctx.client().table(&full_name).get().await.map_err(|e| {
             AcceptanceError::JourneyExecution(format!("Failed to get table: {}", e))
         })?;
         assert_eq!(fetched.name, self.table_name);
         println!("  ✓ Table fetched: {}", fetched.full_name);
 
         // Step 5: List tables
-        let tables: Vec<_> = client
+        let tables: Vec<_> = ctx
+            .client()
             .list_tables(&self.catalog_name, &self.schema_name)
             .into_stream()
             .collect::<Vec<_>>()
@@ -157,7 +160,8 @@ impl UserJourney for TableManagedLifecycleJourney {
         println!("  ✓ Listed {} table(s)", tables.len());
 
         // Step 6: List table summaries (catalog-scoped read path; OSS Java lacks this)
-        let summaries: Vec<_> = client
+        let summaries: Vec<_> = ctx
+            .client()
             .list_table_summaries(
                 &self.catalog_name,
                 Some(&self.schema_name),
@@ -178,7 +182,8 @@ impl UserJourney for TableManagedLifecycleJourney {
         println!("  ✓ Listed {} table summary(ies)", summaries.len());
 
         // Step 7: Check table existence (GET /tables/{full_name}/exists)
-        let exists = client
+        let exists = ctx
+            .client()
             .tables_client()
             .get_table_exists(&GetTableExistsRequest {
                 full_name: full_name.clone(),
@@ -193,18 +198,19 @@ impl UserJourney for TableManagedLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
         let full_name = format!(
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
 
-        let _ = client.table(&full_name).delete().await;
-        let _ = client
+        let _ = ctx.client().table(&full_name).delete().await;
+        let _ = ctx
+            .client()
             .schema(&self.catalog_name, &self.schema_name)
             .delete()
             .await;
-        let _ = client.catalog(&self.catalog_name).delete().await;
+        let _ = ctx.client().catalog(&self.catalog_name).delete().await;
 
         Ok(())
     }

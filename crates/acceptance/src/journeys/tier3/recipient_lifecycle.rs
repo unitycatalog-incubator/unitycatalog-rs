@@ -8,11 +8,11 @@
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::recipients::v1::AuthenticationType;
 
 use crate::execution::{
-    ImplementationTag, JourneyMetadata, JourneyState, JourneyTier, ResourceTag, UserJourney,
+    ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
+    UserJourney,
 };
 use crate::{AcceptanceError, AcceptanceResult};
 
@@ -70,15 +70,19 @@ impl UserJourney for RecipientLifecycleJourney {
         Ok(())
     }
 
-    async fn execute(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
+    async fn execute(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        // The recipient owner must be a principal that exists on the target server.
+        // Databricks validates this, so source it from the environment; OSS servers
+        // don't validate, so the default is fine there.
+        //   UC_TEST_RECIPIENT_OWNER — principal (user/group/SP) that owns the recipient
+        let owner = std::env::var("UC_TEST_RECIPIENT_OWNER")
+            .unwrap_or_else(|_| "account users".to_string());
+
         // Step 1: Create recipient with TOKEN authentication
         println!("  👤 Creating recipient '{}'", self.recipient_name);
-        let recipient = client
-            .create_recipient(
-                &self.recipient_name,
-                AuthenticationType::Token,
-                "acceptance-test",
-            )
+        let recipient = ctx
+            .client()
+            .create_recipient(&self.recipient_name, AuthenticationType::Token, owner)
             .with_comment("Recipient lifecycle test".to_string())
             .await
             .map_err(|e| {
@@ -88,7 +92,8 @@ impl UserJourney for RecipientLifecycleJourney {
         println!("  ✓ Recipient created: {}", recipient.name);
 
         // Step 2: Get recipient
-        let fetched = client
+        let fetched = ctx
+            .client()
             .recipient(&self.recipient_name)
             .get()
             .await
@@ -99,7 +104,8 @@ impl UserJourney for RecipientLifecycleJourney {
         println!("  ✓ Recipient fetched: {}", fetched.name);
 
         // Step 3: List recipients
-        let recipients: Vec<_> = client
+        let recipients: Vec<_> = ctx
+            .client()
             .list_recipients()
             .into_stream()
             .collect::<Vec<_>>()
@@ -118,8 +124,8 @@ impl UserJourney for RecipientLifecycleJourney {
         Ok(())
     }
 
-    async fn cleanup(&self, client: &UnityCatalogClient) -> AcceptanceResult<()> {
-        let _ = client.recipient(&self.recipient_name).delete().await;
+    async fn cleanup(&self, ctx: &JourneyContext) -> AcceptanceResult<()> {
+        let _ = ctx.client().recipient(&self.recipient_name).delete().await;
         Ok(())
     }
 }
