@@ -249,12 +249,13 @@ impl<Cx: Send + Sync + 'static> TableHandler<Cx> for UpstreamTableHandler<Cx> {
             .iter()
             .map(|t| ResourceIdent::table(ResourceName::from_naive_str_split(&t.full_name)))
             .collect();
-        let mut decisions = self
+        let decisions = self
             .policy
             .authorize_many(&idents, &Permission::Read, &context)
             .await?;
-        resp.tables
-            .retain(|_| decisions.pop() == Some(Decision::Allow));
+        // `decisions[i]` corresponds to `resp.tables[i]`; pair in forward order.
+        let mut allow = decisions.into_iter().map(|d| d == Decision::Allow);
+        resp.tables.retain(|_| allow.next().unwrap_or(false));
         Ok(resp)
     }
 

@@ -68,17 +68,30 @@ pub(crate) async fn find_external_location_for_url(
             let Ok(ext_loc_url) = StorageLocationUrl::parse(&l.url) else {
                 return false;
             };
-            location
-                .raw()
-                .as_str()
-                .starts_with(ext_loc_url.raw().as_str())
-                || location
-                    .location()
-                    .as_str()
-                    .starts_with(ext_loc_url.location().as_str())
+            is_path_prefix(location.raw().as_str(), ext_loc_url.raw().as_str())
+                || is_path_prefix(
+                    location.location().as_str(),
+                    ext_loc_url.location().as_str(),
+                )
         })
         .max_by(|l, r| l.url.len().cmp(&r.url.len()))
         .ok_or(Error::NotFound)
+}
+
+/// Whether `prefix` is a path-segment prefix of `url`.
+///
+/// Unlike a raw `starts_with`, this respects path boundaries so that a location
+/// registered for `s3://bucket/data` does **not** match `s3://bucket/data-secret/x`
+/// (which `starts_with` alone would wrongly accept). A match requires either an
+/// exact equality or that the character immediately after `prefix` is a `/`.
+/// A trailing `/` on `prefix` is normalized away first.
+fn is_path_prefix(url: &str, prefix: &str) -> bool {
+    let prefix = prefix.strip_suffix('/').unwrap_or(prefix);
+    match url.strip_prefix(prefix) {
+        Some("") => true,
+        Some(rest) => rest.starts_with('/'),
+        None => false,
+    }
 }
 
 pub(crate) async fn get_object_store(
@@ -171,4 +184,26 @@ fn get_azure_store(
     }
 
     Ok(Arc::new(builder.build()?))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_path_prefix;
+
+    #[test]
+    fn path_prefix_matches_exact_and_subpaths() {
+        assert!(is_path_prefix("s3://bucket/data", "s3://bucket/data"));
+        assert!(is_path_prefix("s3://bucket/data/file", "s3://bucket/data"));
+        assert!(is_path_prefix("s3://bucket/data/x/y", "s3://bucket/data/"));
+    }
+
+    #[test]
+    fn path_prefix_rejects_sibling_prefix() {
+        // The classic over-match: `data` must not match `data-secret`.
+        assert!(!is_path_prefix(
+            "s3://bucket/data-secret/file",
+            "s3://bucket/data"
+        ));
+        assert!(!is_path_prefix("s3://bucket/database", "s3://bucket/data"));
+    }
 }
