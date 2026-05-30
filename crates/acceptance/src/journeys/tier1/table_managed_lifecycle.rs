@@ -53,7 +53,13 @@ impl UserJourney for TableManagedLifecycleJourney {
                 ResourceTag::Schemas,
                 ResourceTag::Tables,
             ],
-            implementations: vec![ImplementationTag::All],
+            // The Java OSS server rejects managed-table creation with a 500
+            // ("stagingLocation is null") unless backed by configured cloud
+            // storage, so it is excluded here.
+            implementations: vec![
+                ImplementationTag::OssRust,
+                ImplementationTag::ManagedDatabricks,
+            ],
             tier: JourneyTier::Tier1Crud,
             requires_external_storage: false,
         }

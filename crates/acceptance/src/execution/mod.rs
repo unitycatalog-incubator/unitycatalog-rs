@@ -229,6 +229,21 @@ impl ImplementationProfile {
         }
     }
 
+    /// Profile for the Java OSS Unity Catalog implementation
+    pub fn oss_java(server_url: impl Into<String>) -> Self {
+        Self {
+            name: "oss_java".to_string(),
+            server_url: server_url.into(),
+            auth_token: None,
+            storage_root: "file:///tmp/uc-test/".to_string(),
+            filter: JourneyFilter {
+                implementation: Some(ImplementationTag::OssJava),
+                skip_external_storage: true,
+                ..Default::default()
+            },
+        }
+    }
+
     /// Profile for the Databricks managed Unity Catalog (reference implementation)
     pub fn managed_databricks(
         server_url: impl Into<String>,
@@ -751,10 +766,40 @@ impl JourneyExecutionResult {
 // JourneyConfig
 // ---------------------------------------------------------------------------
 
+/// How a journey is executed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExecutionMode {
+    /// Replay recorded HTTP interactions against a mockito mock server. Journeys
+    /// without a recordings directory are skipped. No live server needed.
+    Replay,
+    /// Execute against a live server without recording. Used to validate clients
+    /// against a real implementation (e.g. the Java OSS server in CI).
+    Live,
+    /// Execute against a live server and record the interactions as new fixtures.
+    Record,
+}
+
+impl ExecutionMode {
+    /// Resolve the mode from the `UC_INTEGRATION_RECORD` environment variable
+    /// (`true` = [`Record`](Self::Record), otherwise [`Replay`](Self::Replay)).
+    fn from_record_env() -> Self {
+        if std::env::var("UC_INTEGRATION_RECORD").unwrap_or_default() == "true" {
+            Self::Record
+        } else {
+            Self::Replay
+        }
+    }
+
+    /// True when the journey runs against a live server (Live or Record).
+    fn is_live(self) -> bool {
+        matches!(self, Self::Live | Self::Record)
+    }
+}
+
 /// Configuration for journey execution
 #[derive(Debug, Clone)]
 pub struct JourneyConfig {
-    pub recording_enabled: bool,
+    pub mode: ExecutionMode,
     pub output_dir: PathBuf,
     pub server_url: String,
     pub auth_token: Option<String>,
@@ -765,7 +810,7 @@ pub struct JourneyConfig {
 impl Default for JourneyConfig {
     fn default() -> Self {
         Self {
-            recording_enabled: std::env::var("UC_INTEGRATION_RECORD").unwrap_or_default() == "true",
+            mode: ExecutionMode::from_record_env(),
             output_dir: std::env::var("UC_INTEGRATION_DIR")
                 .unwrap_or_else(|_| "test_data/recordings".to_string())
                 .into(),
@@ -805,7 +850,7 @@ impl JourneyConfig {
         } else {
             CloudClient::new_unauthenticated()
         };
-        if self.recording_enabled {
+        if self.mode == ExecutionMode::Record {
             std::fs::create_dir_all(&out_dir)?;
             client.set_recording_dir(out_dir)?;
         }
@@ -813,9 +858,23 @@ impl JourneyConfig {
         Ok(UnityCatalogClient::new(client, base_url))
     }
 
-    /// Enable/disable recording (true = live mode with recording, false = replay mode)
+    /// Set the execution mode (replay, live, or record).
+    pub fn with_mode(mut self, mode: ExecutionMode) -> Self {
+        self.mode = mode;
+        self
+    }
+
+    /// Convenience: `true` selects [`ExecutionMode::Record`] (live + record new
+    /// fixtures), `false` selects [`ExecutionMode::Replay`].
+    ///
+    /// For live execution without recording, use [`with_mode`](Self::with_mode)
+    /// with [`ExecutionMode::Live`].
     pub fn with_recording(mut self, enabled: bool) -> Self {
-        self.recording_enabled = enabled;
+        self.mode = if enabled {
+            ExecutionMode::Record
+        } else {
+            ExecutionMode::Replay
+        };
         self
     }
 
@@ -834,16 +893,22 @@ impl JourneyConfig {
         &self,
         journey: &mut dyn UserJourney,
     ) -> AcceptanceResult<JourneyExecutionResult> {
-        if self.recording_enabled {
-            // Live mode with recording - save state after execution
-            let out_dir = std::fs::canonicalize(self.output_dir.clone())?;
-            let out_dir = out_dir.join(journey.name());
+        if self.mode.is_live() {
+            // Live execution against a real server. In Record mode we also point
+            // the client at a recording directory and persist state afterwards;
+            // in plain Live mode we just exercise the server.
+            let out_dir = if self.mode == ExecutionMode::Record {
+                std::fs::create_dir_all(&self.output_dir)?;
+                std::fs::canonicalize(self.output_dir.clone())?.join(journey.name())
+            } else {
+                self.output_dir.join(journey.name())
+            };
             let client = self.create_client(out_dir.clone())?;
             let executor = JourneyExecutor::new(client);
             let result = executor.execute_journey(journey).await?;
 
-            // Save journey state if journey was successful
-            if result.is_success() {
+            // Save journey state only when recording new fixtures.
+            if self.mode == ExecutionMode::Record && result.is_success() {
                 let state = journey.save_state()?;
                 JourneyExecutor::save_journey_state(&out_dir, &state)?;
             }
@@ -946,16 +1011,17 @@ mod tests {
     async fn test_execution_mode_configuration() {
         let config = JourneyConfig::default();
 
-        // Test default mode (replay if UC_INTEGRATION_RECORD is not set)
-        assert!(!config.recording_enabled);
-
-        // Test recording flag (live mode with recording)
+        // with_recording(true) selects Record (live + record fixtures).
         let recording_config = config.clone().with_recording(true);
-        assert!(recording_config.recording_enabled);
+        assert_eq!(recording_config.mode, ExecutionMode::Record);
 
-        // Test replay mode (recording disabled)
+        // with_recording(false) selects Replay.
         let replay_config = config.clone().with_recording(false);
-        assert!(!replay_config.recording_enabled);
+        assert_eq!(replay_config.mode, ExecutionMode::Replay);
+
+        // with_mode allows live execution without recording.
+        let live_config = config.with_mode(ExecutionMode::Live);
+        assert_eq!(live_config.mode, ExecutionMode::Live);
     }
 
     #[test]

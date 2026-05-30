@@ -39,3 +39,37 @@ jobs:
 
       - name: Run tests
         run: cargo test --lib --bins --tests -- --nocapture
+
+  integration_oss_java:
+    name: integration-oss-java
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+          rustflags: ""
+
+      - name: Start Unity Catalog OSS (Java) server
+        run: docker compose -f dev/uc-oss.compose.yaml up -d --wait
+
+      - name: Run journey tests against UC OSS (Java)
+        env:
+          UC_INTEGRATION_PROFILE: oss_java
+          UC_INTEGRATION_URL: http://localhost:8080
+        run: cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
+
+      - name: Dump server logs
+        if: always()
+        run: docker compose -f dev/uc-oss.compose.yaml logs
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f dev/uc-oss.compose.yaml down -v
