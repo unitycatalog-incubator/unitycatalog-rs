@@ -15,8 +15,9 @@ The most important components involved in our code generation are:
 
 - The `protobuf` definitions which define the API surface.
 - [`buf.gen.yaml`](buf.gen.yaml) which defines the code we generate using `buf`
-- the [`build`](crates/build) crate which holds custom generation logic
-- the [`derive`](crates/derive) crate which holds custom derive macros
+- the external [`trestle`](https://github.com/open-lakehouse/trestle) codegen
+  tool, which holds the custom generation logic. It must be checked out as a
+  sibling directory (`../trestle`) for `just generate*` to work.
 
 The Unity Catalog API is specified as a REST API, but we maintain API definitions in
 protobuf for more flexible code generation and better maintainability. To map protobuf

@@ -5,17 +5,17 @@
 The project follows a multi-crate Rust workspace architecture with language bindings:
 
 - `crates/` - Core Rust implementation organized by functionality:
-  - `common/` - Shared types and utilities
+  - `common/` - Shared types and utilities (most of its size is generated proto code under `models/gen/`)
   - `client/` - Unity Catalog client library
   - `server/` - REST API server implementation
   - `postgres/` - PostgreSQL backend integration
   - `cli/` - Command-line interface
-  - `cloud-client/` - Cloud provider integration
   - `object-store/` - Cloud object storage abstraction (AWS, Azure, GCP)
   - `sharing-client/` - Delta Sharing protocol client
-  - `build/` - Code generation utilities (internal)
-  - `derive/` - Custom derive macros (internal)
   - `acceptance/` - Acceptance testing utilities
+- Cloud auth/HTTP and storage abstractions come from the external `olai-http` /
+  `olai-store` crates (published from the [`trestle`](https://github.com/open-lakehouse/trestle)
+  codegen repo). See [Code generation](#code-generation).
 - `python/client/` - Python bindings via PyO3
 - `node/client/` - Node.js bindings via NAPI
 - `proto/` - Protocol buffer definitions
@@ -28,10 +28,9 @@ The project follows a multi-crate Rust workspace architecture with language bind
 
 We use [`just`](https://just.systems/) as the primary task runner. Key commands:
 
-**Code generation:**
+**Code generation** (requires the `../trestle` sibling checkout — see [Code generation](#code-generation)):
 - `just generate` - Run complete code generation pipeline
-- `just generate-full` - Run full generation including external types
-- `just generate-code` - Run internal code generation pipeline
+- `just generate-code` - Run REST server/client code generation
 - `just generate-proto` - Run code generation pipeline for Protocol Buffers
 - `just generate-node` - Generate types for Node.js client
 - `just generate-openapi` - Update OpenAPI specification
@@ -68,6 +67,36 @@ Standard Rust commands also work:
 - `cargo test` - Run Rust unit tests
 - `cargo build` - Build Rust workspace
 - `cargo clippy` - Run Rust linter
+
+## Code generation
+
+Much of the code is generated from the proto definitions in `proto/`. The fast
+edit/check loop (`cargo check`, `cargo test`) does **not** require any of the
+generation tooling — you only need it when changing proto or regenerating.
+
+**Prerequisites (only needed to run `just generate*`):**
+- The codegen tool lives in a **sibling `../trestle` checkout** — clone it
+  adjacent to this repo (`just generate-code` / `generate-openapi` shell out to
+  `../trestle/crates/trestle`). Without it, those targets fail with a
+  "manifest path does not exist" error.
+- `buf` (proto compiler), `uv` (Python), and `npm`/`npx` (OpenAPI bundling).
+
+**Commands:** `just generate` runs the full pipeline; `just generate-proto`,
+`generate-code`, `generate-openapi`, and `generate-node` run individual stages.
+
+**Never hand-edit generated files.** This includes anything under
+`crates/**/codegen/**`, `crates/**/models/gen/**`, `crates/**/models/_gen/**`,
+or any file beginning with `// @generated`. Change the proto/codegen inputs and
+regenerate instead, then commit the generated output in the **same commit** as
+the source change. The one hand-maintained exception is the spliced PyO3 stub
+supplement (`python/client/_client_supplement.pyi`) — see `.github/CONTRIBUTING.md`.
+
+## Environment & services
+
+Some targets need external services or env vars (a local `.env` is dotenv-loaded):
+- `just rest-db` / `build-sqlx` — require Docker + Postgres.
+- `just integration` / `integration-record` — require `DATABRICKS_HOST`,
+  `DATABRICKS_TOKEN`, and `DATABRICKS_STORAGE_ROOT`.
 
 ## Code Examples in Documentation
 
