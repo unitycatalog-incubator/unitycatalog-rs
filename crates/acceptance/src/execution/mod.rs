@@ -961,9 +961,12 @@ impl JourneyConfig {
             let executor = JourneyExecutor::new(client, self.storage_root.clone());
             let result = executor.execute_journey(journey).await?;
 
-            // Save journey state only when recording new fixtures.
+            // Save journey state only when recording new fixtures. We also persist the
+            // storage root used during recording so replay can reconstruct the exact
+            // request bodies (catalog `storage_root` etc.) that were captured.
             if self.mode == ExecutionMode::Record && result.is_success() {
-                let state = journey.save_state()?;
+                let mut state = journey.save_state()?;
+                state.set_string("__storage_root", self.storage_root.clone());
                 JourneyExecutor::save_journey_state(&out_dir, &state)?;
             }
 
@@ -998,11 +1001,15 @@ impl JourneyConfig {
 
             // Load and apply journey state
             let state = JourneyExecutor::load_journey_state(&recordings_dir).await?;
+            // Reconstruct the storage root captured at record time so replayed request
+            // bodies match the recordings; fall back to the configured root.
+            let storage_root = state
+                .get_string("__storage_root")
+                .unwrap_or_else(|| self.storage_root.clone());
             journey.load_state(&state)?;
 
             let (mock_server, client) = JourneyExecutor::setup_mock_server(&recordings_dir).await?;
-            let executor =
-                JourneyExecutor::new_with_mock(client, self.storage_root.clone(), mock_server);
+            let executor = JourneyExecutor::new_with_mock(client, storage_root, mock_server);
 
             executor.execute_journey(journey).await
         }

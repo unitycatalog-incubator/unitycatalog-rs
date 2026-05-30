@@ -38,15 +38,10 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 
 | Journey Name | File | Resources | Steps | Recording Status |
 |---|---|---|---|---|
-| `enhanced_catalog` | `tier1/catalog_simple.rs` | Catalogs | create → list → inspect → delete | ⏳ Pending re-record¹ |
-| `catalog_hierarchy` | `tier1/catalog_hierarchy.rs` | Catalogs, Schemas | catalog + 3 schemas → list → verify → delete all | ⏳ Pending re-record¹ |
-| `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → update catalog comment → create schema → get → list → update comment → delete | ⏳ Pending recording |
+| `enhanced_catalog` | `tier1/catalog_simple.rs` | Catalogs | create → list → inspect → delete | ✅ Recorded (databricks, oss_rust, oss_java) |
+| `catalog_hierarchy` | `tier1/catalog_hierarchy.rs` | Catalogs, Schemas | catalog + 3 schemas → list → verify → delete all | ✅ Recorded (databricks, oss_rust, oss_java) |
+| `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → update catalog comment → create schema → get → list → update comment → delete | ✅ Recorded (databricks, oss_rust, oss_java) |
 | `table_managed_lifecycle` | `tier1/table_managed_lifecycle.rs` | Catalogs, Schemas, Tables | catalog + schema → create MANAGED DELTA table → get → list → list summaries → exists → delete | ⏳ Pending recording |
-
-¹ Previously recorded against Databricks, but those cassettes were invalidated when catalog
-  creation began sending an explicit `storage_root` (the recorded request bodies no longer
-  match). Re-record under `recordings/managed_databricks/` with a valid
-  `UC_INTEGRATION_STORAGE_ROOT`.
 
 ### Tier 2 — Governance
 
@@ -67,7 +62,7 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 |---|---|---|---|---|---|
 | `share_lifecycle` | `tier3/share_lifecycle.rs` | ManagedDatabricks, OssRust | Shares, Tables | table → create share → get → list → delete | ⏳ Pending recording |
 | `recipient_lifecycle` | `tier3/recipient_lifecycle.rs` | ManagedDatabricks, OssRust | Recipients | create TOKEN recipient → get → list → delete | ⏳ Pending recording |
-| `provider_lifecycle` | `tier3/provider_lifecycle.rs` | ManagedDatabricks, OssRust | Providers | create TOKEN provider → get → list → update comment → delete | ⏳ Pending recording |
+| `provider_lifecycle` | `tier3/provider_lifecycle.rs` | ManagedDatabricks, OssRust | Providers | create TOKEN provider → get → list → update comment → delete | ✅ Recorded (databricks) |
 
 ### Tier 4 — Advanced
 
