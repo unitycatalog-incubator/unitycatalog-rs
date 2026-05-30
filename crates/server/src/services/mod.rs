@@ -15,6 +15,7 @@ use unitycatalog_common::ObjectLabel;
 use unitycatalog_common::models::ResourceIdent;
 
 pub mod credential_vending;
+pub(crate) mod kernel;
 pub mod location;
 pub(crate) mod object_store;
 pub mod secrets;
@@ -29,7 +30,7 @@ pub struct ServerHandler<Cx> {
 
 impl<Cx: Send + Sync + 'static> ServerHandler<Cx>
 where
-    ServerHandlerInner<Cx>: deltalake_datafusion::ObjectStoreFactory,
+    ServerHandlerInner<Cx>: kernel::ObjectStoreFactory,
 {
     pub fn try_new_tokio(
         policy: Arc<dyn Policy<Cx>>,

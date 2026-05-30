@@ -21,7 +21,6 @@ bytes = { workspace = true }
 chrono = { workspace = true }
 percent-encoding = "2.1"
 delta_kernel = { workspace = true }
-deltalake-datafusion = { workspace = true }
 futures = { workspace = true }
 itertools = { workspace = true }
 object_store = { workspace = true }

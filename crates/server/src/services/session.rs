@@ -11,11 +11,10 @@ use datafusion::physical_plan::PhysicalExpr;
 use datafusion::prelude::SessionContext;
 use datafusion::prelude::{Expr, col, lit, named_struct};
 use delta_kernel::{Snapshot, Version};
-use deltalake_datafusion::table_provider::DeltaLogReplayProvider;
-use deltalake_datafusion::{KernelContextExt as _, KernelExtensionConfig, ObjectStoreFactory};
 use itertools::Itertools;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
 
+use super::kernel::{DeltaLogReplayProvider, ObjectStoreFactory, build_engine};
 use super::location::StorageLocationUrl;
 use super::sharing::{SharingExt, SharingTableReference};
 use crate::api::tables::TableManager;
@@ -63,13 +62,12 @@ impl Extractors {
 pub struct KernelSession {
     ctx: SessionContext,
     extractors: Extractors,
+    factory: Arc<dyn ObjectStoreFactory>,
 }
 
 impl KernelSession {
     pub fn new(object_store_factory: Arc<dyn ObjectStoreFactory>) -> Result<Self> {
-        let config =
-            KernelExtensionConfig::default().with_object_store_factory(object_store_factory);
-        let ctx = SessionContext::new().enable_delta_kernel(Some(config));
+        let ctx = SessionContext::new();
         let catalog = Arc::new(MemoryCatalogProvider::new());
         catalog
             .register_schema(
@@ -82,6 +80,7 @@ impl KernelSession {
         Ok(Self {
             extractors: Extractors::new(&ctx)?,
             ctx,
+            factory: object_store_factory,
         })
     }
 
@@ -112,11 +111,14 @@ impl KernelSession {
             .map_err(|e| Error::Generic(e.to_string()))?
         {
             let location = sharing_ext.table_location(table_ref).await?;
+            let engine = build_engine(self.factory.as_ref(), location.location())
+                .await
+                .map_err(|e| Error::Generic(e.to_string()))?;
             self.ctx
                 .register_table(
                     inner_ref.clone(),
                     Arc::new(
-                        DeltaLogReplayProvider::new(location.location().clone())
+                        DeltaLogReplayProvider::new(location.location().clone(), engine)
                             .map_err(|e| Error::Generic(e.to_string()))?,
                     ),
                 )
@@ -155,21 +157,26 @@ impl KernelSession {
 impl TableManager for KernelSession {
     async fn read_snapshot(
         &self,
-        _location: &StorageLocationUrl,
-        _format: &DataSourceFormat,
-        _version: Option<Version>,
+        location: &StorageLocationUrl,
+        format: &DataSourceFormat,
+        version: Option<Version>,
     ) -> Result<Arc<Snapshot>> {
-        todo!()
-        // match format {
-        //     DataSourceFormat::Delta => Ok(self
-        //         .ctx
-        //         .read_delta_snapshot(location.location(), version)
-        //         .await?),
-        //     _ => Err(Error::InvalidArgument(format!(
-        //         "unsupported data source format in kernel session: {:?}",
-        //         format
-        //     ))),
-        // }
+        if !matches!(format, DataSourceFormat::Delta) {
+            return Err(Error::InvalidArgument(format!(
+                "unsupported data source format in kernel session: {format:?}"
+            )));
+        }
+        let engine = build_engine(self.factory.as_ref(), location.location())
+            .await
+            .map_err(|e| Error::Generic(e.to_string()))?;
+        let table_root = location.location().clone();
+        let snapshot = tokio::task::spawn_blocking(move || {
+            Snapshot::try_new(table_root, engine.as_ref(), version)
+        })
+        .await
+        .map_err(|e| Error::Generic(e.to_string()))?
+        .map_err(|e| Error::Generic(e.to_string()))?;
+        Ok(Arc::new(snapshot))
     }
 }
 
