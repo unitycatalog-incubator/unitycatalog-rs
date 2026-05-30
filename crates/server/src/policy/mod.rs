@@ -166,7 +166,82 @@ pub async fn filter_authorized<Cx: Send + Sync + 'static, R: ResourceExt + Send>
     resources: &mut Vec<R>,
 ) -> Result<()> {
     let res = resources.iter().map(|r| r.into()).collect::<Vec<_>>();
-    let mut decisions = policy.authorize_many(&res, permission, context).await?;
-    resources.retain(|_| decisions.pop() == Some(Decision::Allow));
+    let decisions = policy.authorize_many(&res, permission, context).await?;
+    // `decisions[i]` corresponds to `resources[i]`; pair them in forward order.
+    let mut allow = decisions.into_iter().map(|d| d == Decision::Allow);
+    resources.retain(|_| allow.next().unwrap_or(false));
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use unitycatalog_common::models::{ResourceName, ResourceRef, resource_name};
+
+    /// Minimal resource carrying a share name, for exercising [`filter_authorized`].
+    #[derive(Debug, Clone, PartialEq)]
+    struct TestShare(&'static str);
+
+    impl ResourceExt for TestShare {
+        fn resource_name(&self) -> ResourceName {
+            ResourceName::new([self.0])
+        }
+        fn resource_ref(&self) -> ResourceRef {
+            ResourceRef::Name(self.resource_name())
+        }
+        fn resource_ident(&self) -> ResourceIdent {
+            ResourceIdent::share(self.resource_name())
+        }
+    }
+
+    /// Policy that allows only resources whose ident matches one of `allow`,
+    /// and denies everything else — i.e. a non-uniform per-resource decision.
+    struct AllowListPolicy {
+        allow: Vec<ResourceIdent>,
+    }
+
+    #[async_trait::async_trait]
+    impl Policy<()> for AllowListPolicy {
+        async fn authorize(
+            &self,
+            resource: &ResourceIdent,
+            _permission: &Permission,
+            _context: &(),
+        ) -> Result<Decision> {
+            Ok(if self.allow.contains(resource) {
+                Decision::Allow
+            } else {
+                Decision::Deny
+            })
+        }
+    }
+
+    /// Regression test for the reversed decision mapping bug: a non-uniform
+    /// policy must filter the *correct* resources, in their original order.
+    /// Before the fix, decisions were consumed back-to-front via `pop()`, so
+    /// resource `i` was matched against decision `n-1-i`.
+    #[tokio::test]
+    async fn filter_authorized_pairs_decision_with_correct_resource() {
+        let policy = AllowListPolicy {
+            allow: vec![
+                ResourceIdent::share(resource_name!("a")),
+                ResourceIdent::share(resource_name!("c")),
+            ],
+        };
+
+        // Asymmetric layout so a reversed mapping yields a different result:
+        // allowed at indices 0 and 2, denied at 1 and 3.
+        let mut resources = vec![
+            TestShare("a"),
+            TestShare("b"),
+            TestShare("c"),
+            TestShare("d"),
+        ];
+
+        filter_authorized(&policy, &(), &Permission::Read, &mut resources)
+            .await
+            .unwrap();
+
+        assert_eq!(resources, vec![TestShare("a"), TestShare("c")]);
+    }
 }

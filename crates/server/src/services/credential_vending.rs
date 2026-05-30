@@ -100,18 +100,36 @@ fn build_s3_session_policy(bucket: &str, prefix: &str, operation: VendOperation)
     };
     let bucket_arn = format!("arn:aws:s3:::{bucket}");
 
-    let actions = match operation {
-        VendOperation::Read => {
-            r#"["s3:GetObject","s3:GetObjectVersion","s3:ListBucket","s3:GetBucketLocation"]"#
-        }
-        VendOperation::ReadWrite => {
-            r#"["s3:GetObject","s3:GetObjectVersion","s3:PutObject","s3:DeleteObject","s3:ListBucket","s3:GetBucketLocation"]"#
-        }
+    let actions: &[&str] = match operation {
+        VendOperation::Read => &[
+            "s3:GetObject",
+            "s3:GetObjectVersion",
+            "s3:ListBucket",
+            "s3:GetBucketLocation",
+        ],
+        VendOperation::ReadWrite => &[
+            "s3:GetObject",
+            "s3:GetObjectVersion",
+            "s3:PutObject",
+            "s3:DeleteObject",
+            "s3:ListBucket",
+            "s3:GetBucketLocation",
+        ],
     };
 
-    format!(
-        r#"{{"Version":"2012-10-17","Statement":[{{"Effect":"Allow","Action":{actions},"Resource":["{object_arn}","{bucket_arn}"]}}]}}"#
-    )
+    // Build via `serde_json` so `bucket`/`prefix` (which derive from
+    // caller-influenced input) are JSON-escaped. Hand-formatting this document
+    // would let a crafted prefix break out of the `Resource` array and broaden
+    // the session policy — defeating the downscoping this is meant to enforce.
+    serde_json::json!({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Action": actions,
+            "Resource": [object_arn, bucket_arn],
+        }],
+    })
+    .to_string()
 }
 
 /// Generate a temporary credential for the given `Credential` and storage `url`,
@@ -398,6 +416,38 @@ mod tests {
         assert!(
             policy.contains("arn:aws:s3:::my-bucket/*"),
             "missing wildcard ARN"
+        );
+    }
+
+    #[test]
+    fn test_s3_session_policy_escapes_injection_in_prefix() {
+        // A prefix containing JSON metacharacters must not break out of the
+        // document. The result must remain valid JSON with exactly one
+        // statement (no injected Allow/Action entries).
+        let malicious =
+            r#"x"],"Resource":["*"}],"Statement":[{"Effect":"Allow","Action":["*"],"Resource":["*"#;
+        let policy = build_s3_session_policy("my-bucket", malicious, VendOperation::Read);
+
+        let parsed: serde_json::Value =
+            serde_json::from_str(&policy).expect("session policy must be valid JSON");
+        let statements = parsed["Statement"]
+            .as_array()
+            .expect("Statement must be an array");
+        assert_eq!(
+            statements.len(),
+            1,
+            "injected prefix must not add statements"
+        );
+        // The whole malicious string is escaped inside the single Resource ARN.
+        let resources = statements[0]["Resource"]
+            .as_array()
+            .expect("Resource must be an array");
+        assert!(
+            resources[0]
+                .as_str()
+                .unwrap()
+                .contains(&format!("my-bucket/{malicious}/*")),
+            "prefix must be contained verbatim within the object ARN"
         );
     }
 
