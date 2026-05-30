@@ -580,6 +580,7 @@ module.exports.NapiCatalogClient = nativeBinding.NapiCatalogClient
 module.exports.NapiCredentialClient = nativeBinding.NapiCredentialClient
 module.exports.NapiExternalLocationClient = nativeBinding.NapiExternalLocationClient
 module.exports.NapiFunctionClient = nativeBinding.NapiFunctionClient
+module.exports.NapiProviderClient = nativeBinding.NapiProviderClient
 module.exports.NapiRecipientClient = nativeBinding.NapiRecipientClient
 module.exports.NapiSchemaClient = nativeBinding.NapiSchemaClient
 module.exports.NapiShareClient = nativeBinding.NapiShareClient

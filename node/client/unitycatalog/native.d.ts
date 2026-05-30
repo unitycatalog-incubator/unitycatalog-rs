@@ -24,6 +24,12 @@ export declare class NapiFunctionClient {
   delete(force?: boolean | undefined | null): Promise<void>
 }
 
+export declare class NapiProviderClient {
+  get(): Promise<Buffer>
+  update(newName?: string | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, recipientProfileStr?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
+  delete(): Promise<void>
+}
+
 export declare class NapiRecipientClient {
   get(): Promise<Buffer>
   update(newName?: string | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, expirationTime?: number | undefined | null): Promise<Buffer>
@@ -65,6 +71,9 @@ export declare class NapiUnityCatalogClient {
   listFunctions(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
   listFunctionsStream(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): ReadableStream<Buffer>
   createFunction(name: string, catalogName: string, schemaName: string, dataType: string, fullDataType: string, parameterStyle: number, isDeterministic: boolean, sqlDataAccess: number, isNullCall: boolean, securityType: number, routineBody: number, routineDefinition?: string | undefined | null, routineBodyLanguage?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
+  listProviders(maxResults?: number | undefined | null): Promise<Array<Buffer>>
+  listProvidersStream(maxResults?: number | undefined | null): ReadableStream<Buffer>
+  createProvider(name: string, authenticationType: number, owner?: string | undefined | null, comment?: string | undefined | null, recipientProfileStr?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   listRecipients(maxResults?: number | undefined | null): Promise<Array<Buffer>>
   listRecipientsStream(maxResults?: number | undefined | null): ReadableStream<Buffer>
   createRecipient(name: string, authenticationType: number, owner: string, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null, expirationTime?: number | undefined | null): Promise<Buffer>
@@ -84,6 +93,7 @@ export declare class NapiUnityCatalogClient {
   credential(name: string): NapiCredentialClient
   externalLocation(name: string): NapiExternalLocationClient
   function(catalogName: string, schemaName: string, functionName: string): NapiFunctionClient
+  provider(name: string): NapiProviderClient
   recipient(name: string): NapiRecipientClient
   schema(catalogName: string, schemaName: string): NapiSchemaClient
   share(name: string): NapiShareClient
