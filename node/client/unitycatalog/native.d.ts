@@ -87,7 +87,7 @@ export declare class NapiUnityCatalogClient {
   recipient(name: string): NapiRecipientClient
   schema(catalogName: string, schemaName: string): NapiSchemaClient
   share(name: string): NapiShareClient
-  table(name: string): NapiTableClient
+  table(catalogName: string, schemaName: string, tableName: string): NapiTableClient
   volume(catalogName: string, schemaName: string, volumeName: string): NapiVolumeClient
 }
 

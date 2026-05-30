@@ -35,7 +35,10 @@ jobs:
         working-directory: node/client
 
       - name: Build NAPI binding
-        run: npx napi build --platform --release
+        # Regenerate the TypeScript declarations (`--dts`) so a stale committed
+        # `native.d.ts` cannot silently break `tsc` when the Rust NAPI surface
+        # changes; the type definitions are always rebuilt from the binding.
+        run: npx napi build --platform --release --dts unitycatalog/native.d.ts
         working-directory: node/client
 
       - name: Compile TypeScript
