@@ -39,8 +39,7 @@ tonic = { workspace = true, optional = true }
 datafusion = { version = "53.1.0" }
 futures-util = { version = "0.3.28" }
 http = { version = "1.2", optional = true }
-olai-store = { path = "../../../trestle/crates/olai-store" }
-# olai-store = { version = "0" }
+olai-store = { workspace = true }
 tokio = { version = "1.40", features = ["rt-multi-thread"] }
 tower = { workspace = true, features = ["make"], optional = true }
 

@@ -28,8 +28,7 @@ url = { workspace = true }
 
 # crates.io dependencies (in alphabetical order)
 base64 = "0.22"
-olai-store = { path = "../../../trestle/crates/olai-store" }
-# olai-store = { version = "0" }
+olai-store = { workspace = true }
 paste = "1.0"
 sqlx = { workspace = true, features = [
   "postgres",
