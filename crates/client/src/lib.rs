@@ -1,3 +1,4 @@
+use futures::stream::BoxStream;
 use olai_http::CloudClient;
 
 pub use catalogs::*;
@@ -5,7 +6,6 @@ pub use credentials::*;
 pub use error::*;
 pub use external_locations::*;
 pub use functions::*;
-use futures::stream::BoxStream;
 pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
@@ -47,7 +47,7 @@ use crate::codegen::volumes::ListVolumesBuilder;
 pub use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBuilder};
 
 mod catalogs;
-mod codegen;
+pub mod codegen;
 mod credentials;
 pub mod error;
 mod external_locations;
@@ -113,6 +113,24 @@ impl UnityCatalogClient {
             volumes,
             functions,
         }
+    }
+
+    /// Low-level catalog client exposing request/response passthrough methods.
+    ///
+    /// Useful for callers (such as the hybrid proxy server) that already hold a
+    /// fully-formed request and want to forward it verbatim.
+    pub fn catalogs_client(&self) -> crate::codegen::catalogs::CatalogClient {
+        self.catalogs.clone()
+    }
+
+    /// Low-level schema client exposing request/response passthrough methods.
+    pub fn schemas_client(&self) -> crate::codegen::schemas::SchemaClient {
+        self.schemas.clone()
+    }
+
+    /// Low-level table client exposing request/response passthrough methods.
+    pub fn tables_client(&self) -> crate::codegen::tables::TableClient {
+        self.tables.clone()
     }
 
     // Catalog methods

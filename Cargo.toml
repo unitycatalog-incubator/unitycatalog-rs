@@ -21,13 +21,11 @@ keywords = [
 ]
 
 [workspace.dependencies]
-delta_kernel = { version = "0.15.1", features = [
+delta_kernel = { package = "buoyant_kernel", version = "0.22.0, <0.22.100", features = [
   "internal-api",
   "default-engine-rustls",
-  "arrow-55",
+  "arrow-58",
 ] }
-deltalake-datafusion = { git = "https://github.com/delta-incubator/deltalake-datafusion", rev = "645f0156f3a7792a1b2d350020eab68d58e49726" }
-# deltalake-datafusion = { path = "../deltalake-datafusion/crates/datafusion" }
 
 async-trait = "0.1.83"
 axum = { version = "0.8" }
@@ -43,9 +41,9 @@ napi = { version = "3.5", default-features = false, features = [
   "web_stream",
 ] }
 napi-derive = "3.5"
-object_store = { version = "0.12", features = ["azure", "aws", "gcp"] }
-olai-http = { path = "../trestle/crates/olai-http" }
-# olai-http = { version = "0" }
+object_store = { version = "0.13.2", features = ["azure", "aws", "gcp"] }
+olai-http = { version = "0.0.1" }
+olai-store = { version = "0.0.1" }
 pbjson = { version = "0.9" }
 pbjson-types = "0.9"
 prost = { version = "0.14.1" }
