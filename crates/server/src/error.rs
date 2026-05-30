@@ -133,57 +133,7 @@ impl IntoResponse for Error {
         let error_code = self.error_code().to_string();
         let (status, message) = match self {
             Error::Common { source } => {
-                let (status, message) = match &source {
-                    unitycatalog_common::Error::NotFound => (
-                        StatusCode::NOT_FOUND,
-                        "The requested resource does not exist.",
-                    ),
-                    unitycatalog_common::Error::InvalidArgument(msg) => {
-                        error!("Invalid argument: {}", msg);
-                        INVALID_ARGUMENT
-                    }
-                    unitycatalog_common::Error::InvalidIdentifier(e) => {
-                        error!("Invalid identifier: {}", e);
-                        INVALID_ARGUMENT
-                    }
-                    unitycatalog_common::Error::InvalidTableLocation(loc) => {
-                        error!("Invalid table location: {}", loc);
-                        INVALID_ARGUMENT
-                    }
-                    unitycatalog_common::Error::InvalidUrl(e) => {
-                        error!("Invalid URL: {}", e);
-                        INVALID_ARGUMENT
-                    }
-                    unitycatalog_common::Error::SerDe(e) => {
-                        error!("Serialization error: {}", e);
-                        INTERNAL_ERROR
-                    }
-                    unitycatalog_common::Error::Generic(msg) => {
-                        error!("Generic common error: {}", msg);
-                        INTERNAL_ERROR
-                    }
-                    unitycatalog_common::Error::ResourceStore(e) => match e {
-                        olai_store::Error::NotFound => (
-                            StatusCode::NOT_FOUND,
-                            "The requested resource does not exist.",
-                        ),
-                        olai_store::Error::AlreadyExists => {
-                            (StatusCode::CONFLICT, "The resource already exists.")
-                        }
-                        olai_store::Error::InvalidArgument(msg) => {
-                            error!("Invalid argument: {}", msg);
-                            INVALID_ARGUMENT
-                        }
-                        olai_store::Error::InvalidIdentifier(e) => {
-                            error!("Invalid identifier: {}", e);
-                            INVALID_ARGUMENT
-                        }
-                        _ => {
-                            error!("Resource store error: {}", e);
-                            INTERNAL_ERROR
-                        }
-                    },
-                };
+                let (status, message) = source.response_parts();
                 return (
                     status,
                     Json(ErrorResponse {
@@ -356,11 +306,7 @@ impl From<Error> for Status {
                 }
                 olai_store::Error::InvalidArgument(msg) => Status::invalid_argument(msg),
                 _ => Status::internal(format!("Resource store error: {source}")),
-            }, // Error::RequestError(error) => Status::internal(error.to_string()),
-               // #[cfg(feature = "axum")]
-               // Error::AxumPath(rejection) => Status::internal(format!("Axum path: {}", rejection)),
-               // #[cfg(feature = "axum")]
-               // Error::AxumQuery(rejection) => Status::internal(format!("Axum query: {}", rejection)),
+            },
         }
     }
 }

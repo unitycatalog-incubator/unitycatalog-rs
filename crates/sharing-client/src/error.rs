@@ -43,14 +43,6 @@ pub enum Error {
 
     #[error("Generic error: {0}")]
     Generic(String),
-
-    #[cfg(feature = "server")]
-    #[error("Axum path: {0}")]
-    AxumPath(#[from] axum::extract::rejection::PathRejection),
-
-    #[cfg(feature = "server")]
-    #[error("Axum query: {0}")]
-    AxumQuery(#[from] axum_extra::extract::QueryRejection),
 }
 
 impl Error {
@@ -74,21 +66,15 @@ impl Error {
     }
 }
 
-#[derive(serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ErrorResponse {
-    pub error_code: String,
-    pub message: String,
-}
-
 #[cfg(feature = "server")]
 mod server {
     use axum::extract::Json;
     use axum::http::StatusCode;
     use axum::response::{IntoResponse, Response};
     use tracing::error;
+    use unitycatalog_common::ErrorResponse;
 
-    use super::{Error, ErrorResponse};
+    use super::Error;
 
     const INTERNAL_ERROR: (StatusCode, &str) = (
         StatusCode::INTERNAL_SERVER_ERROR,
@@ -105,32 +91,7 @@ mod server {
             let error_code = self.error_code().to_string();
             let (status, message) = match self {
                 Error::Common { source } => {
-                    let (status, message) = match &source {
-                        unitycatalog_common::Error::NotFound => (
-                            StatusCode::NOT_FOUND,
-                            "The requested resource does not exist.",
-                        ),
-                        unitycatalog_common::Error::InvalidArgument(msg) => {
-                            error!("Invalid argument: {}", msg);
-                            INVALID_ARGUMENT
-                        }
-                        unitycatalog_common::Error::InvalidIdentifier(e) => {
-                            error!("Invalid identifier: {}", e);
-                            INVALID_ARGUMENT
-                        }
-                        unitycatalog_common::Error::InvalidTableLocation(loc) => {
-                            error!("Invalid table location: {}", loc);
-                            INVALID_ARGUMENT
-                        }
-                        unitycatalog_common::Error::InvalidUrl(e) => {
-                            error!("Invalid URL: {}", e);
-                            INVALID_ARGUMENT
-                        }
-                        _ => {
-                            error!("Common error: {}", source);
-                            INTERNAL_ERROR
-                        }
-                    };
+                    let (status, message) = source.response_parts();
                     return (
                         status,
                         Json(ErrorResponse {
@@ -174,14 +135,6 @@ mod server {
                 Error::Generic(message) => {
                     error!("Generic error: {}", message);
                     INTERNAL_ERROR
-                }
-                Error::AxumPath(rejection) => {
-                    error!("Path extraction error: {}", rejection);
-                    (StatusCode::BAD_REQUEST, "Invalid path parameter.")
-                }
-                Error::AxumQuery(rejection) => {
-                    error!("Query extraction error: {}", rejection);
-                    (StatusCode::BAD_REQUEST, "Invalid query parameter.")
                 }
             };
 

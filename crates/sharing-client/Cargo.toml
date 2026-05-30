@@ -30,4 +30,4 @@ url = { workspace = true }
 
 [features]
 default = []
-server = ["axum", "axum-extra"]
+server = ["axum", "axum-extra", "unitycatalog-common/axum"]

@@ -4,7 +4,7 @@ use crate::models::sharing::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
@@ -21,7 +21,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
             page_token,
         }) = parts
             .extract::<axum_extra::extract::Query<QueryParams>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListSharesRequest {
             max_results,
             page_token,
@@ -30,23 +31,29 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSharesRequest {
 }
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetShareRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetShareRequest { name })
     }
 }
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(share) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(share) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -59,7 +66,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
             page_token,
         }) = parts
             .extract::<axum_extra::extract::Query<QueryParams>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListSchemasRequest {
             share,
             max_results,
@@ -69,14 +77,15 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSchemasRequest {
 }
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let axum::extract::Path((share, name)) = parts
             .extract::<axum::extract::Path<(String, String)>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -89,7 +98,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
             page_token,
         }) = parts
             .extract::<axum_extra::extract::Query<QueryParams>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListTablesRequest {
             share,
             name,
@@ -100,12 +110,15 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTablesRequest {
 }
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListAllTablesRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let axum::extract::Path(name) = parts.extract::<axum::extract::Path<String>>().await?;
+        let axum::extract::Path(name) = parts
+            .extract::<axum::extract::Path<String>>()
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -118,7 +131,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListAllTablesRequest
             page_token,
         }) = parts
             .extract::<axum_extra::extract::Query<QueryParams>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListAllTablesRequest {
             name,
             max_results,
@@ -128,14 +142,15 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListAllTablesRequest
 }
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableVersionRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let axum::extract::Path((share, schema, name)) = parts
             .extract::<axum::extract::Path<(String, String, String)>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
@@ -143,7 +158,8 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableVersionReque
         }
         let axum_extra::extract::Query(QueryParams { starting_timestamp }) = parts
             .extract::<axum_extra::extract::Query<QueryParams>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetTableVersionRequest {
             share,
             schema,
@@ -154,14 +170,15 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableVersionReque
 }
 
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for GetTableMetadataRequest {
-    type Rejection = crate::Error;
+    type Rejection = axum::response::Response;
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         let axum::extract::Path((share, schema, name)) = parts
             .extract::<axum::extract::Path<(String, String, String)>>()
-            .await?;
+            .await
+            .map_err(axum::response::IntoResponse::into_response)?;
         Ok(GetTableMetadataRequest {
             share,
             schema,
