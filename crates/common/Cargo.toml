@@ -70,8 +70,11 @@ axum = ["dep:axum", "dep:axum-extra", "http"]
 
 sqlx = ["dep:sqlx", "olai-store/sqlx"]
 
+# storage abstraction traits (ResourceStore, SecretManager) implemented by backends
+store = ["dep:futures"]
+
 # enable client implementation to interact with Unity REST APIs
-rest-client = ["futures", "olai-http"]
+rest-client = ["dep:futures", "olai-http"]
 
 # exposes functionality that help testing cutom handler / router implementations.
 integration = ["http-body-util", "mime", "axum"]

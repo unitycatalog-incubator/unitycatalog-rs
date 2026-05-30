@@ -11,8 +11,9 @@ rust-version.workspace = true
 
 [dependencies]
 # path dependencies (in alphabetical order)
-unitycatalog-common = { path = "../common", default-features = false }
-unitycatalog-server = { path = "../server", default-features = false }
+unitycatalog-common = { path = "../common", default-features = false, features = [
+  "store",
+] }
 
 # workspace dependencies (in alphabetical order)
 async-trait = { workspace = true }
@@ -43,15 +44,7 @@ uuid = { version = "1.8", features = ["serde"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "parking_lot"] }
-unitycatalog-common = { path = "../common", default-features = false, features = [
-  "sqlx",
-  "axum",
-] }
 
 [features]
 default = ["sqlx"]
-# feature flags for integration tests
-# running integration tests requires a running PostgreSQL instance
-# and DATABASE_URL environment variable set
-integration-pg = ["unitycatalog-common/integration"]
 sqlx = ["unitycatalog-common/sqlx", "olai-store/sqlx"]
