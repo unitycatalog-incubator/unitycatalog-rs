@@ -20,6 +20,21 @@ impl SecretManager for GraphStore {
         .map_err(crate::Error::from)?;
         let blob = value.ok_or_else(|| crate::Error::entity_not_found(secret_name))?;
         let plaintext = self.encryptor.open(secret_name, &blob).await?;
+
+        // Lazy KEK rotation: if this secret was sealed under a retired KEK, re-wrap its data key
+        // under the active KEK and write it back. Best-effort — a write failure must not fail the
+        // read, and the value ciphertext is untouched so the result is identical either way.
+        // A proactive sweep for secrets never read again is tracked in the rotation follow-up.
+        if let Ok(Some(rewrapped)) = self.encryptor.rewrap(&blob).await {
+            let _ = sqlx::query!(
+                "UPDATE secrets SET value = $2 WHERE name = $1",
+                secret_name,
+                &rewrapped,
+            )
+            .execute(&mut *conn)
+            .await;
+        }
+
         Ok(Bytes::from(plaintext))
     }
 

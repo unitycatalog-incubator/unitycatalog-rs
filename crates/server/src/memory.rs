@@ -304,6 +304,14 @@ impl SecretManager for InMemoryResourceStore {
             .map(|entry| entry.value().clone())
             .ok_or(Error::NotFound)?;
         let plaintext = self.encryptor.open(secret_name, &blob).await?;
+
+        // Lazy KEK rotation: re-wrap under the active KEK if sealed under a retired one (mirrors
+        // the Postgres store). Best-effort; never fails the read.
+        if let Ok(Some(rewrapped)) = self.encryptor.rewrap(&blob).await {
+            self.secrets
+                .insert(secret_name.to_string(), bytes::Bytes::from(rewrapped));
+        }
+
         Ok(bytes::Bytes::from(plaintext))
     }
 
@@ -330,6 +338,36 @@ mod tests {
         let encryptor =
             EnvelopeEncryptor::local(LocalKeyProvider::single("test", vec![0x42; 32]).unwrap());
         InMemoryResourceStore::new(encryptor)
+    }
+
+    #[tokio::test]
+    async fn test_get_secret_lazily_rewraps_after_rotation() {
+        // Seal a value under v1.
+        let v1 = EnvelopeEncryptor::local(LocalKeyProvider::single("v1", vec![0x01; 32]).unwrap());
+        let sealed_v1 = v1.seal("cred", b"value").await.unwrap();
+
+        // Build a store whose active KEK is v2 (v1 retired) and plant the v1-sealed blob.
+        let rotated = EnvelopeEncryptor::local(
+            LocalKeyProvider::new(
+                "v2",
+                [("v1".into(), vec![0x01; 32]), ("v2".into(), vec![0x02; 32])],
+            )
+            .unwrap(),
+        );
+        let store = InMemoryResourceStore::new(rotated);
+        store
+            .secrets
+            .insert("cred".to_string(), bytes::Bytes::from(sealed_v1.clone()));
+
+        // Reading returns the correct plaintext...
+        assert_eq!(&store.get_secret("cred").await.unwrap()[..], b"value");
+        // ...and the stored blob has been re-wrapped (it differs from the v1 blob, and a
+        // v2-only encryptor can now open it).
+        let after = store.secrets.get("cred").unwrap().value().clone();
+        assert_ne!(&after[..], &sealed_v1[..]);
+        let v2_only =
+            EnvelopeEncryptor::local(LocalKeyProvider::single("v2", vec![0x02; 32]).unwrap());
+        assert_eq!(v2_only.open("cred", &after).await.unwrap(), b"value");
     }
 
     #[tokio::test]
