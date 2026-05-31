@@ -97,7 +97,7 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             gcp_service_account: request.databricks_gcp_service_account,
         };
         credential.validate()?;
-        self.create_secret(&request.name, credential.to_vec()?.into())
+        self.put_secret(&request.name, credential.to_vec()?.into())
             .await?;
         let cred = Credential {
             name: request.name.clone(),
@@ -148,10 +148,8 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
             gcp_service_account: request.databricks_gcp_service_account,
         };
         credential.validate()?;
-        if credential.validate().is_ok() {
-            self.update_secret(&request.name, credential.to_vec()?.into())
-                .await?;
-        }
+        self.put_secret(&request.name, credential.to_vec()?.into())
+            .await?;
         let curr = self
             .get_credential(
                 GetCredentialRequest {
@@ -209,7 +207,7 @@ impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandle
 impl<T: ResourceStore + Policy<RequestContext> + SecretManager> CredentialHandlerExt for T {
     async fn get_credential_internal(&self, request: GetCredentialRequest) -> Result<Credential> {
         let mut cred: Credential = self.get(&request.resource()).await?.0.try_into()?;
-        let (_, secret_data) = self.get_secret(&cred.name).await?;
+        let secret_data = self.get_secret(&cred.name).await?;
         let secret: CredentialContainer = serde_json::from_slice(&secret_data)?;
         if secret.azure_msi.is_some() {
             cred.azure_managed_identity = secret.azure_msi;

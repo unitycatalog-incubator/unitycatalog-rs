@@ -27,6 +27,7 @@ delta_kernel = { package = "buoyant_kernel", version = "0.22.0, <0.22.100", feat
   "arrow-58",
 ] }
 
+aes-gcm = { version = "0.10" }
 async-trait = "0.1.83"
 axum = { version = "0.8" }
 axum-extra = { version = "0.10", features = ["query"] }
@@ -62,6 +63,7 @@ url = { version = "2.5.2", features = [
   "std",
 ], default-features = false }
 uuid = { version = "1", features = ["serde"] }
+zeroize = { version = "1.8", features = ["derive"] }
 reqwest = { version = "0.12", default-features = false, features = [
   "rustls-tls-native-roots",
   "http2",

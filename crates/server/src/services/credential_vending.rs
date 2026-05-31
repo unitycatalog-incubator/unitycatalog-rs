@@ -1,4 +1,6 @@
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use olai_http::StaticCredentialProvider;
@@ -132,17 +134,89 @@ fn build_s3_session_policy(bucket: &str, prefix: &str, operation: VendOperation)
     .to_string()
 }
 
+/// Re-vend this many milliseconds before a cached credential actually expires, so callers always
+/// receive a credential with usable lifetime left.
+const CACHE_REFRESH_MARGIN_MILLIS: i64 = 60_000;
+
+/// Process-wide cache of vended credentials, keyed by the vend inputs.
+///
+/// Vending makes a synchronous HTTPS round-trip to a cloud provider (Azure AAD/Storage, AWS STS) on
+/// every call; the resulting SAS/STS tokens carry an expiry, so identical requests within that
+/// window can reuse the previous result instead of re-hitting the provider.
+static VENDED_CACHE: OnceLock<Mutex<HashMap<u64, TemporaryCredential>>> = OnceLock::new();
+
+fn vended_cache() -> &'static Mutex<HashMap<u64, TemporaryCredential>> {
+    VENDED_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Cache key for a vend request: the credential's secret material plus the storage scope and
+/// operation. Hashing the credential content means a rotated credential produces a different key,
+/// so a stale token is never served after rotation.
+fn vend_cache_key(credential: &Credential, url: &str, operation: VendOperation) -> Result<u64> {
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    // The secret-bearing credential variants serialize deterministically enough for cache keying.
+    serde_json::to_vec(&credential.azure_service_principal)
+        .and_then(|b| {
+            hasher.write(&b);
+            serde_json::to_vec(&credential.azure_managed_identity)
+        })
+        .and_then(|b| {
+            hasher.write(&b);
+            serde_json::to_vec(&credential.azure_storage_key)
+        })
+        .and_then(|b| {
+            hasher.write(&b);
+            serde_json::to_vec(&credential.aws_iam_role)
+        })
+        .map_err(Error::from)?;
+    url.hash(&mut hasher);
+    (operation as u8).hash(&mut hasher);
+    Ok(hasher.finish())
+}
+
+/// Current wall-clock time in epoch milliseconds.
+fn now_epoch_millis() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as i64
+}
+
 /// Generate a temporary credential for the given `Credential` and storage `url`,
 /// downscoped to the requested `operation`.
 ///
-/// Dispatches to the appropriate cloud provider based on which credential field
-/// is populated:
+/// Results are cached by `(credential material, url, operation)` until shortly before the vended
+/// token expires, so repeated requests for the same scope avoid redundant calls to the cloud
+/// provider. See [`vend_credential_uncached`] for the dispatch logic.
+pub(crate) async fn vend_credential(
+    credential: &Credential,
+    url: &str,
+    operation: VendOperation,
+) -> Result<TemporaryCredential> {
+    let key = vend_cache_key(credential, url, operation)?;
+
+    if let Some(cached) = vended_cache()
+        .lock()
+        .unwrap()
+        .get(&key)
+        .filter(|c| c.expiration_time - CACHE_REFRESH_MARGIN_MILLIS > now_epoch_millis())
+        .cloned()
+    {
+        return Ok(cached);
+    }
+
+    let vended = vend_credential_uncached(credential, url, operation).await?;
+    vended_cache().lock().unwrap().insert(key, vended.clone());
+    Ok(vended)
+}
+
+/// Dispatch to the appropriate cloud provider based on which credential field is populated:
 /// - `AzureServicePrincipal` → fetch AAD bearer token, then exchange for a User Delegation SAS
 /// - `AzureManagedIdentity`  → fetch AAD bearer token via IMDS, then User Delegation SAS
 /// - `AzureStorageKey`       → service SAS signed with the account key
 /// - `AwsIamRoleConfig`      → AWS STS `AssumeRole` with inline session policy
 /// - GCP                     → not yet implemented
-pub(crate) async fn vend_credential(
+async fn vend_credential_uncached(
     credential: &Credential,
     url: &str,
     operation: VendOperation,
@@ -457,5 +531,84 @@ mod tests {
         let millis = parse_sas_expiry(sas);
         assert!(millis.is_some(), "expected to parse expiry");
         assert!(millis.unwrap() > 0);
+    }
+
+    fn empty_credential() -> Credential {
+        Credential::default()
+    }
+
+    #[test]
+    fn test_vend_cache_key_is_sensitive_to_inputs() {
+        let cred = empty_credential();
+        let base = vend_cache_key(&cred, "s3://bucket/a", VendOperation::Read).unwrap();
+        // Same inputs → same key.
+        assert_eq!(
+            base,
+            vend_cache_key(&cred, "s3://bucket/a", VendOperation::Read).unwrap()
+        );
+        // URL, operation each change the key.
+        assert_ne!(
+            base,
+            vend_cache_key(&cred, "s3://bucket/b", VendOperation::Read).unwrap()
+        );
+        assert_ne!(
+            base,
+            vend_cache_key(&cred, "s3://bucket/a", VendOperation::ReadWrite).unwrap()
+        );
+        // A different credential (rotated secret) changes the key.
+        let mut rotated = empty_credential();
+        rotated.azure_storage_key = Some(
+            unitycatalog_common::models::credentials::v1::AzureStorageKey {
+                account_name: "acct".into(),
+                account_key: "rotated-secret".into(),
+            },
+        );
+        assert_ne!(
+            base,
+            vend_cache_key(&rotated, "s3://bucket/a", VendOperation::Read).unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_vend_credential_serves_unexpired_cache_entry() {
+        // A credential with no supported type would error if dispatched, so a successful
+        // result proves the cached entry short-circuited the (network) dispatch.
+        let cred = empty_credential();
+        let url = "s3://cache-hit-bucket/unique-prefix";
+        let key = vend_cache_key(&cred, url, VendOperation::Read).unwrap();
+        let cached = TemporaryCredential {
+            expiration_time: now_epoch_millis() + 3_600_000,
+            url: url.to_string(),
+            credentials: None,
+        };
+        vended_cache().lock().unwrap().insert(key, cached.clone());
+
+        let got = vend_credential(&cred, url, VendOperation::Read)
+            .await
+            .unwrap();
+        assert_eq!(got.expiration_time, cached.expiration_time);
+    }
+
+    #[tokio::test]
+    async fn test_vend_credential_ignores_expired_cache_entry() {
+        // An entry inside the refresh margin must be treated as a miss, so dispatch runs (and here
+        // errors, since the credential has no supported type).
+        let cred = empty_credential();
+        let url = "s3://cache-expired-bucket/unique-prefix";
+        let key = vend_cache_key(&cred, url, VendOperation::Read).unwrap();
+        let expired = TemporaryCredential {
+            // Already within the refresh margin of "now".
+            expiration_time: now_epoch_millis() + 1_000,
+            url: url.to_string(),
+            credentials: None,
+        };
+        vended_cache().lock().unwrap().insert(key, expired);
+
+        assert!(
+            vend_credential(&cred, url, VendOperation::Read)
+                .await
+                .is_err(),
+            "expired entry should fall through to dispatch"
+        );
     }
 }

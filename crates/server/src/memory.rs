@@ -8,6 +8,8 @@ use unitycatalog_common::models::{ResourceExt, ResourceIdent, ResourceName, Reso
 
 use unitycatalog_common::{Error, Result};
 
+use unitycatalog_common::services::encryption::EnvelopeEncryptor;
+
 use crate::services::secrets::SecretManager;
 use crate::store::{ResourceStore, ResourceStoreReader};
 
@@ -21,22 +23,20 @@ pub struct InMemoryResourceStore {
     resources: Arc<DashMap<Uuid, Resource>>,
     id_map: Arc<DashMap<ObjectLabel, DashMap<ResourceName, Uuid>>>,
     associations: Arc<DashMap<AssociationLabel, DashMap<Uuid, (Uuid, Option<PropertyMap>)>>>,
-    secrets: Arc<DashMap<String, DashMap<Uuid, bytes::Bytes>>>,
-}
-
-impl Default for InMemoryResourceStore {
-    fn default() -> Self {
-        Self::new()
-    }
+    /// Sealed secret blobs keyed by name. Encryption matches the production path so dev/test
+    /// behaviour (and the on-disk format) is exercised here too.
+    secrets: Arc<DashMap<String, bytes::Bytes>>,
+    encryptor: EnvelopeEncryptor,
 }
 
 impl InMemoryResourceStore {
-    pub fn new() -> Self {
+    pub fn new(encryptor: EnvelopeEncryptor) -> Self {
         Self {
             resources: DashMap::new().into(),
             id_map: DashMap::new().into(),
             associations: DashMap::new().into(),
             secrets: DashMap::new().into(),
+            encryptor,
         }
     }
 
@@ -297,58 +297,21 @@ impl ResourceStore for InMemoryResourceStore {
 
 #[async_trait::async_trait]
 impl SecretManager for InMemoryResourceStore {
-    async fn get_secret(&self, secret_name: &str) -> Result<(Uuid, bytes::Bytes)> {
-        let (uuid, value) = self
-            .secrets
-            .get(secret_name)
-            .and_then(|map| {
-                map.value()
-                    .iter()
-                    .max_by_key(|s| *s.key())
-                    .map(|entry| (*entry.key(), entry.value().clone()))
-            })
-            .ok_or(Error::NotFound)?;
-        Ok((uuid, value))
-    }
-
-    async fn get_secret_version(&self, secret_name: &str, version: Uuid) -> Result<bytes::Bytes> {
-        let (uuid, value) = self
-            .secrets
-            .get(secret_name)
-            .and_then(|map| {
-                map.value()
-                    .iter()
-                    .find(|s| *s.key() == version)
-                    .map(|entry| (*entry.key(), entry.value().clone()))
-            })
-            .ok_or(Error::NotFound)?;
-        if uuid != version {
-            return Err(Error::NotFound);
-        }
-        Ok(value)
-    }
-
-    async fn create_secret(&self, secret_name: &str, secret_value: bytes::Bytes) -> Result<Uuid> {
-        if self.secrets.contains_key(secret_name) {
-            return Err(Error::AlreadyExists);
-        }
-        let uuid = Uuid::now_v7();
-        self.secrets
-            .entry(secret_name.to_string())
-            .or_default()
-            .insert(uuid, secret_value);
-        Ok(uuid)
-    }
-
-    async fn update_secret(&self, secret_name: &str, secret_value: bytes::Bytes) -> Result<Uuid> {
-        let map = self
+    async fn get_secret(&self, secret_name: &str) -> Result<bytes::Bytes> {
+        let blob = self
             .secrets
             .get(secret_name)
             .map(|entry| entry.value().clone())
             .ok_or(Error::NotFound)?;
-        let uuid = Uuid::now_v7();
-        map.insert(uuid, secret_value);
-        Ok(uuid)
+        let plaintext = self.encryptor.open(secret_name, &blob).await?;
+        Ok(bytes::Bytes::from(plaintext))
+    }
+
+    async fn put_secret(&self, secret_name: &str, secret_value: bytes::Bytes) -> Result<()> {
+        let blob = self.encryptor.seal(secret_name, &secret_value).await?;
+        self.secrets
+            .insert(secret_name.to_string(), bytes::Bytes::from(blob));
+        Ok(())
     }
 
     async fn delete_secret(&self, secret_name: &str) -> Result<()> {
@@ -361,10 +324,49 @@ impl SecretManager for InMemoryResourceStore {
 mod tests {
     use super::*;
     use unitycatalog_common::models::{Catalog, ObjectLabel};
+    use unitycatalog_common::services::encryption::LocalKeyProvider;
+
+    fn test_store() -> InMemoryResourceStore {
+        let encryptor =
+            EnvelopeEncryptor::local(LocalKeyProvider::single("test", vec![0x42; 32]).unwrap());
+        InMemoryResourceStore::new(encryptor)
+    }
+
+    #[tokio::test]
+    async fn test_secret_round_trip() {
+        let store = test_store();
+        store
+            .put_secret("cred", bytes::Bytes::from_static(b"top secret"))
+            .await
+            .unwrap();
+        // Stored blob must be ciphertext, not the plaintext.
+        let blob = store.secrets.get("cred").unwrap().value().clone();
+        assert!(
+            !blob
+                .windows(b"top secret".len())
+                .any(|w| w == b"top secret")
+        );
+
+        let got = store.get_secret("cred").await.unwrap();
+        assert_eq!(&got[..], b"top secret");
+
+        // put_secret is an idempotent overwrite.
+        store
+            .put_secret("cred", bytes::Bytes::from_static(b"rotated"))
+            .await
+            .unwrap();
+        assert_eq!(&store.get_secret("cred").await.unwrap()[..], b"rotated");
+
+        store.delete_secret("cred").await.unwrap();
+        assert!(matches!(
+            store.get_secret("cred").await.unwrap_err(),
+            Error::NotFound
+        ));
+    }
 
     #[tokio::test]
     async fn test_create_get_delete() {
-        let store = InMemoryResourceStore::new();
+        let store = test_store();
         let resource: Resource = Catalog {
             name: "new_catalog".into(),
             ..Default::default()
@@ -385,7 +387,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_list() {
-        let store = InMemoryResourceStore::new();
+        let store = test_store();
         let resource: Resource = Catalog {
             name: "new_catalog".into(),
             ..Default::default()
@@ -434,7 +436,7 @@ mod tests {
     async fn test_provider_round_trip() {
         use unitycatalog_common::models::providers::v1::{Provider, ProviderAuthenticationType};
 
-        let store = InMemoryResourceStore::new();
+        let store = test_store();
         let resource: Resource = Provider {
             name: "acme".into(),
             authentication_type: ProviderAuthenticationType::Token as i32,
