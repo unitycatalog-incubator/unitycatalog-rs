@@ -5,7 +5,6 @@ use delta_kernel::{Snapshot, Version};
 use session::*;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
 
-use self::commit_coordinator::{CommitCoordinator, ProvidesCommitCoordinator};
 use self::location::StorageLocationUrl;
 use self::secrets::{ProvidesSecretManager, SecretManager};
 use crate::Result;
@@ -14,8 +13,10 @@ use crate::policy::{Decision, Permission, Policy, ProvidesPolicy};
 use crate::store::{ProvidesObjectStore, ProvidesResourceStore, ResourceStore};
 use unitycatalog_common::ObjectLabel;
 use unitycatalog_common::models::ResourceIdent;
+use unitycatalog_common::services::commit_coordinator::{
+    CommitCoordinator, InMemoryCommitCoordinator, ProvidesCommitCoordinator,
+};
 
-pub mod commit_coordinator;
 pub mod credential_vending;
 pub(crate) mod kernel;
 pub mod location;
@@ -49,11 +50,28 @@ where
         store: Arc<dyn ResourceStore>,
         secrets: Arc<dyn SecretManager>,
     ) -> Result<Self> {
-        let handler = Arc::new(ServerHandlerInner::new(
-            policy.clone(),
-            store.clone(),
-            secrets.clone(),
-        ));
+        Self::try_new_tokio_with_coordinator(
+            policy,
+            store,
+            secrets,
+            Arc::new(InMemoryCommitCoordinator::default()),
+        )
+    }
+
+    /// Construct a handler backed by a specific [`CommitCoordinator`].
+    ///
+    /// Use this to wire a persistent coordinator (e.g. the Postgres-backed
+    /// `GraphStore`) instead of the default in-memory one.
+    pub fn try_new_tokio_with_coordinator(
+        policy: Arc<dyn Policy<Cx>>,
+        store: Arc<dyn ResourceStore>,
+        secrets: Arc<dyn SecretManager>,
+        commit_coordinator: Arc<dyn CommitCoordinator>,
+    ) -> Result<Self> {
+        let handler = Arc::new(
+            ServerHandlerInner::new(policy.clone(), store.clone(), secrets.clone())
+                .with_commit_coordinator(commit_coordinator),
+        );
         let session = Arc::new(KernelSession::new(handler.clone())?);
         Ok(Self {
             handler,
@@ -87,8 +105,8 @@ pub struct ServerHandlerInner<Cx> {
     store: Arc<dyn ResourceStore>,
     object_store: Option<Arc<dyn olai_store::ObjectStore<ObjectLabel>>>,
     secrets: Arc<dyn SecretManager>,
-    /// In-memory Delta catalog-managed commit coordinator.
-    commit_coordinator: Arc<CommitCoordinator>,
+    /// Delta catalog-managed commit coordinator (in-memory by default).
+    commit_coordinator: Arc<dyn CommitCoordinator>,
 }
 
 impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
@@ -102,12 +120,13 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
             store,
             object_store: None,
             secrets,
-            commit_coordinator: Arc::new(CommitCoordinator::default()),
+            commit_coordinator: Arc::new(InMemoryCommitCoordinator::default()),
         }
     }
 
-    /// Override the Delta commit coordinator (e.g. with a custom unbackfilled cap).
-    pub fn with_commit_coordinator(mut self, coordinator: Arc<CommitCoordinator>) -> Self {
+    /// Override the Delta commit coordinator (e.g. a Postgres-backed one, or a
+    /// custom unbackfilled cap).
+    pub fn with_commit_coordinator(mut self, coordinator: Arc<dyn CommitCoordinator>) -> Self {
         self.commit_coordinator = coordinator;
         self
     }
@@ -227,13 +246,13 @@ impl<Cx: Send + Sync + 'static> ProvidesSecretManager for ServerHandler<Cx> {
 }
 
 impl<Cx: Send + Sync + 'static> ProvidesCommitCoordinator for ServerHandlerInner<Cx> {
-    fn commit_coordinator(&self) -> &CommitCoordinator {
+    fn commit_coordinator(&self) -> &dyn CommitCoordinator {
         self.commit_coordinator.as_ref()
     }
 }
 
 impl<Cx: Send + Sync + 'static> ProvidesCommitCoordinator for ServerHandler<Cx> {
-    fn commit_coordinator(&self) -> &CommitCoordinator {
+    fn commit_coordinator(&self) -> &dyn CommitCoordinator {
         self.handler.commit_coordinator.as_ref()
     }
 }

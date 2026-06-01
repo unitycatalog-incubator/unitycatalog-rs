@@ -13,10 +13,10 @@ use unitycatalog_common::models::{ResourceIdent, ResourceRef};
 use super::RequestContext;
 pub use crate::codegen::delta_commits::DeltaCommitHandler;
 use crate::policy::{Permission, Policy};
-use crate::services::commit_coordinator::{CommitError, ProvidesCommitCoordinator};
 use crate::services::location::StorageLocationUrl;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
+use unitycatalog_common::services::commit_coordinator::{CommitError, ProvidesCommitCoordinator};
 
 /// Map a [`CommitError`] onto the server [`Error`] (and thus the HTTP status).
 impl From<CommitError> for Error {
@@ -25,6 +25,7 @@ impl From<CommitError> for Error {
             CommitError::VersionConflict(msg) => Error::CommitVersionConflict(msg),
             CommitError::InvalidArgument(msg) => Error::InvalidArgument(msg),
             CommitError::ResourceExhausted(msg) => Error::ResourceExhausted(msg),
+            CommitError::Backend(msg) => Error::Generic(msg),
         }
     }
 }
@@ -104,6 +105,7 @@ where
                 request.commit_info,
                 request.latest_backfilled_version,
             )
+            .await
             .map_err(Error::from)
     }
 
@@ -131,6 +133,7 @@ where
                 request.start_version,
                 request.end_version,
             )
+            .await
             .map_err(Error::from)?;
 
         Ok(GetCommitsResponse {

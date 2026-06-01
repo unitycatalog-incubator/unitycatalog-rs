@@ -1,20 +1,22 @@
-//! In-memory Delta catalog-managed commit coordinator.
+//! Delta catalog-managed commit coordinator.
 //!
-//! This implements the server side of Delta's catalog-managed commits ("commit
-//! coordinator") protocol: the catalog — not filesystem PUT-if-absent — is the
-//! source of truth for which commit wins each table version. Writers stage a
-//! commit file under `_delta_log/_staged_commits/<version>.<uuid>.json` and ask
+//! This defines the server-side contract for Delta's catalog-managed commits
+//! ("commit coordinator") protocol: the catalog — not filesystem PUT-if-absent —
+//! is the source of truth for which commit wins each table version. Writers stage
+//! a commit file under `_delta_log/_staged_commits/<version>.<uuid>.json` and ask
 //! the catalog to *ratify* it; readers ask the catalog for ratified-but-unpublished
 //! commits and merge them with the published Delta log.
 //!
-//! The arbitration and backfill logic is a faithful port of the Unity Catalog
-//! OSS reference implementation (`DeltaCommitRepository.java`'s `postCommitCore`
-//! → `handleOnboardingCommit` / `handleNormalCommit` / `handleBackfillOnlyCommit`).
-//! The notable invariants preserved from OSS:
+//! [`CommitCoordinator`] is the backend-agnostic trait; [`InMemoryCommitCoordinator`]
+//! is the default in-memory implementation. A Postgres-backed implementation lives
+//! in `unitycatalog-postgres`. Both faithfully port the arbitration and backfill
+//! logic of the Unity Catalog OSS reference implementation
+//! (`DeltaCommitRepository.java`'s `postCommitCore` → `handleOnboardingCommit` /
+//! `handleNormalCommit` / `handleBackfillOnlyCommit`). The notable invariants:
 //!
 //! 1. The highest commit row is never deleted on backfill — when fully backfilled
-//!    it is retained as a marker (`is_backfilled_latest`), so an onboarded table
-//!    always keeps at least one row to report `latest_table_version`.
+//!    it is retained as a marker, so an onboarded table always keeps at least one
+//!    row to report `latest_table_version`.
 //! 2. [`get_commits`](CommitCoordinator::get_commits) excludes that marker row from
 //!    the returned `commits`, but still reports its version as `latest_table_version`.
 //! 3. First *posted* commit version is `>= 1`; version `0` is established
@@ -23,12 +25,6 @@
 //! 5. There is a cap on unbackfilled commits per table (OSS hardcodes 10); exceeding
 //!    it rejects the commit with a resource-exhausted (429) error.
 //!
-//! Storage is in-memory: a map of per-table state, each entry behind its own
-//! `Mutex`. The per-table mutex is held across the whole read-validate-mutate
-//! sequence so first-writer-wins is atomic — this is our equivalent of OSS's
-//! unique `(table_id, commit_version)` constraint. A persistent (Postgres)
-//! backend is a deferred follow-up.
-//!
 //! Wire-format note: this matches the *shipped* UC OSS server, not the prose
 //! `ManagedTablesSpec.md`, which disagree in places (path `/delta/preview/commits`
 //! vs `/delta/commit`, field `latest_backfilled_version` vs `latest_published_version`).
@@ -36,21 +32,16 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
-use unitycatalog_common::models::delta_commits::v1::CommitInfo;
+use crate::models::delta_commits::v1::CommitInfo;
 
 /// Default cap on the number of unbackfilled commits a table may accumulate
 /// before further commits are rejected. Matches UC OSS `MAX_NUM_COMMITS_PER_TABLE`.
 pub const DEFAULT_MAX_UNBACKFILLED_COMMITS: i64 = 10;
 
-/// Implemented by handlers that carry a [`CommitCoordinator`].
-pub trait ProvidesCommitCoordinator {
-    fn commit_coordinator(&self) -> &CommitCoordinator;
-}
-
-/// Error returned by the [`CommitCoordinator`].
+/// Error returned by a [`CommitCoordinator`].
 ///
-/// Variants map onto the HTTP statuses the UC OSS commit API returns
-/// (see `crate::Error`'s `IntoResponse`).
+/// Variants map onto the HTTP statuses the UC OSS commit API returns; the server
+/// crate maps them onto its own error type (and thus the response status).
 #[derive(Debug, thiserror::Error)]
 pub enum CommitError {
     /// The requested version was already accepted (replay or lost the
@@ -66,9 +57,106 @@ pub enum CommitError {
     /// The table has too many unbackfilled commits. Maps to 429.
     #[error("resource exhausted: {0}")]
     ResourceExhausted(String),
+
+    /// An unexpected backend error (e.g. database failure). Maps to 500.
+    #[error("commit coordinator backend error: {0}")]
+    Backend(String),
 }
 
-type CommitResult<T> = Result<T, CommitError>;
+/// Result type for commit-coordinator operations.
+pub type CommitResult<T> = Result<T, CommitError>;
+
+/// Backend-agnostic Delta commit coordinator.
+///
+/// Implementations persist ratified commits per table and arbitrate the
+/// first-writer-wins race for each version. See the module docs for the rules,
+/// which are a port of UC OSS `postCommitCore`.
+#[async_trait::async_trait]
+pub trait CommitCoordinator: Send + Sync + 'static {
+    /// Ratify a commit and/or record a backfill notification for `table_id`.
+    ///
+    /// At least one of `commit_info` / `latest_backfilled_version` must be set.
+    async fn commit(
+        &self,
+        table_id: &str,
+        commit_info: Option<CommitInfo>,
+        latest_backfilled_version: Option<i64>,
+    ) -> CommitResult<()>;
+
+    /// Return ratified-but-unpublished commits for `table_id` in
+    /// `[start_version, end_version]`, plus `latest_table_version`.
+    ///
+    /// The returned commits exclude the internal backfilled-latest marker row.
+    /// `latest_table_version` is `0` for a managed table with no commits, else the
+    /// highest tracked version.
+    async fn get_commits(
+        &self,
+        table_id: &str,
+        start_version: i64,
+        end_version: Option<i64>,
+    ) -> CommitResult<(Vec<CommitInfo>, i64)>;
+}
+
+#[async_trait::async_trait]
+impl<T: CommitCoordinator> CommitCoordinator for Arc<T> {
+    async fn commit(
+        &self,
+        table_id: &str,
+        commit_info: Option<CommitInfo>,
+        latest_backfilled_version: Option<i64>,
+    ) -> CommitResult<()> {
+        self.as_ref()
+            .commit(table_id, commit_info, latest_backfilled_version)
+            .await
+    }
+
+    async fn get_commits(
+        &self,
+        table_id: &str,
+        start_version: i64,
+        end_version: Option<i64>,
+    ) -> CommitResult<(Vec<CommitInfo>, i64)> {
+        self.as_ref()
+            .get_commits(table_id, start_version, end_version)
+            .await
+    }
+}
+
+/// Auxiliary trait for handlers that carry a [`CommitCoordinator`].
+pub trait ProvidesCommitCoordinator: Send + Sync + 'static {
+    fn commit_coordinator(&self) -> &dyn CommitCoordinator;
+}
+
+/// Validate that all `CommitInfo` fields are positive / non-empty, matching UC
+/// OSS `validateCommitInfo`. Shared by all backends.
+pub fn validate_commit_info(info: &CommitInfo) -> CommitResult<()> {
+    if info.version <= 0 {
+        return Err(CommitError::InvalidArgument(
+            "commit_info.version must be positive".to_string(),
+        ));
+    }
+    if info.timestamp <= 0 {
+        return Err(CommitError::InvalidArgument(
+            "commit_info.timestamp must be positive".to_string(),
+        ));
+    }
+    if info.file_name.is_empty() {
+        return Err(CommitError::InvalidArgument(
+            "commit_info.file_name must not be empty".to_string(),
+        ));
+    }
+    if info.file_size <= 0 {
+        return Err(CommitError::InvalidArgument(
+            "commit_info.file_size must be positive".to_string(),
+        ));
+    }
+    if info.file_modification_timestamp <= 0 {
+        return Err(CommitError::InvalidArgument(
+            "commit_info.file_modification_timestamp must be positive".to_string(),
+        ));
+    }
+    Ok(())
+}
 
 /// A ratified commit plus the marker flag used during backfill.
 #[derive(Debug, Clone)]
@@ -95,20 +183,25 @@ impl TableCommitState {
     }
 }
 
-/// In-memory Delta commit coordinator.
+/// In-memory [`CommitCoordinator`].
+///
+/// Storage is a map of per-table state, each entry behind its own `Mutex`. The
+/// per-table mutex is held across the whole read-validate-mutate sequence so
+/// first-writer-wins is atomic — this is the in-memory equivalent of the Postgres
+/// backend's unique `(table_id, commit_version)` constraint.
 #[derive(Debug)]
-pub struct CommitCoordinator {
+pub struct InMemoryCommitCoordinator {
     tables: RwLock<HashMap<String, Arc<Mutex<TableCommitState>>>>,
     max_unbackfilled_commits: i64,
 }
 
-impl Default for CommitCoordinator {
+impl Default for InMemoryCommitCoordinator {
     fn default() -> Self {
         Self::new(DEFAULT_MAX_UNBACKFILLED_COMMITS)
     }
 }
 
-impl CommitCoordinator {
+impl InMemoryCommitCoordinator {
     /// Create a coordinator with the given unbackfilled-commit cap.
     pub fn new(max_unbackfilled_commits: i64) -> Self {
         Self {
@@ -134,12 +227,11 @@ impl CommitCoordinator {
             .or_default()
             .clone()
     }
+}
 
-    /// Ratify a commit and/or record a backfill notification for `table_id`.
-    ///
-    /// At least one of `commit_info` / `latest_backfilled_version` must be set.
-    /// This is the port of `postCommitCore`; see the module docs for the rules.
-    pub fn commit(
+#[async_trait::async_trait]
+impl CommitCoordinator for InMemoryCommitCoordinator {
+    async fn commit(
         &self,
         table_id: &str,
         commit_info: Option<CommitInfo>,
@@ -234,14 +326,7 @@ impl CommitCoordinator {
         }
     }
 
-    /// Return ratified-but-unpublished commits for `table_id` in
-    /// `[start_version, end_version]`, plus `latest_table_version`.
-    ///
-    /// The returned commits exclude the internal backfilled-latest marker row.
-    /// `latest_table_version` is `0` for a managed table with no commits, else the
-    /// highest tracked version. The window is capped to `max_unbackfilled_commits`
-    /// commits; truncation is logged.
-    pub fn get_commits(
+    async fn get_commits(
         &self,
         table_id: &str,
         start_version: i64,
@@ -301,41 +386,10 @@ impl CommitCoordinator {
     }
 }
 
-/// Validate that all `CommitInfo` fields are positive / non-empty, matching UC
-/// OSS `validateCommitInfo`.
-fn validate_commit_info(info: &CommitInfo) -> CommitResult<()> {
-    if info.version <= 0 {
-        return Err(CommitError::InvalidArgument(
-            "commit_info.version must be positive".to_string(),
-        ));
-    }
-    if info.timestamp <= 0 {
-        return Err(CommitError::InvalidArgument(
-            "commit_info.timestamp must be positive".to_string(),
-        ));
-    }
-    if info.file_name.is_empty() {
-        return Err(CommitError::InvalidArgument(
-            "commit_info.file_name must not be empty".to_string(),
-        ));
-    }
-    if info.file_size <= 0 {
-        return Err(CommitError::InvalidArgument(
-            "commit_info.file_size must be positive".to_string(),
-        ));
-    }
-    if info.file_modification_timestamp <= 0 {
-        return Err(CommitError::InvalidArgument(
-            "commit_info.file_modification_timestamp must be positive".to_string(),
-        ));
-    }
-    Ok(())
-}
-
 /// Backfill commits up to `up_to`, preserving the highest-version row.
 ///
 /// Port of UC OSS `backfillCommits`: deletes rows with version
-/// `<= min(up_to, last - 1)`; if `up_to == last`, the last row is kept and marked
+/// `<= min(up_to, last - 1)`; if `up_to >= last`, the last row is kept and marked
 /// as the backfilled-latest marker instead of being deleted.
 fn backfill(state: &mut TableCommitState, up_to: i64) {
     let Some(last) = state.last_version() else {
@@ -387,12 +441,12 @@ mod tests {
         }
     }
 
-    #[test]
-    fn onboarding_then_normal_commits() {
-        let cc = CommitCoordinator::default();
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-        cc.commit("t", Some(commit_info(2)), None).unwrap();
-        let (commits, latest) = cc.get_commits("t", 0, None).unwrap();
+    #[tokio::test]
+    async fn onboarding_then_normal_commits() {
+        let cc = InMemoryCommitCoordinator::default();
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
+        cc.commit("t", Some(commit_info(2)), None).await.unwrap();
+        let (commits, latest) = cc.get_commits("t", 0, None).await.unwrap();
         assert_eq!(latest, 2);
         assert_eq!(
             commits.iter().map(|c| c.version).collect::<Vec<_>>(),
@@ -400,71 +454,77 @@ mod tests {
         );
     }
 
-    #[test]
-    fn backfill_only_with_no_prior_commit_is_invalid() {
-        let cc = CommitCoordinator::default();
-        let err = cc.commit("t", None, Some(1)).unwrap_err();
+    #[tokio::test]
+    async fn backfill_only_with_no_prior_commit_is_invalid() {
+        let cc = InMemoryCommitCoordinator::default();
+        let err = cc.commit("t", None, Some(1)).await.unwrap_err();
         assert!(matches!(err, CommitError::InvalidArgument(_)));
     }
 
-    #[test]
-    fn replay_version_conflicts() {
-        let cc = CommitCoordinator::default();
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-        cc.commit("t", Some(commit_info(2)), None).unwrap();
-        let err = cc.commit("t", Some(commit_info(2)), None).unwrap_err();
+    #[tokio::test]
+    async fn replay_version_conflicts() {
+        let cc = InMemoryCommitCoordinator::default();
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
+        cc.commit("t", Some(commit_info(2)), None).await.unwrap();
+        let err = cc
+            .commit("t", Some(commit_info(2)), None)
+            .await
+            .unwrap_err();
         assert!(matches!(err, CommitError::VersionConflict(_)));
-        // also conflicts for a lower version
-        let err = cc.commit("t", Some(commit_info(1)), None).unwrap_err();
+        let err = cc
+            .commit("t", Some(commit_info(1)), None)
+            .await
+            .unwrap_err();
         assert!(matches!(err, CommitError::VersionConflict(_)));
     }
 
-    #[test]
-    fn version_gap_is_invalid() {
-        let cc = CommitCoordinator::default();
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-        let err = cc.commit("t", Some(commit_info(3)), None).unwrap_err();
+    #[tokio::test]
+    async fn version_gap_is_invalid() {
+        let cc = InMemoryCommitCoordinator::default();
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
+        let err = cc
+            .commit("t", Some(commit_info(3)), None)
+            .await
+            .unwrap_err();
         assert!(matches!(err, CommitError::InvalidArgument(_)));
     }
 
-    #[test]
-    fn field_validation() {
-        let cc = CommitCoordinator::default();
+    #[tokio::test]
+    async fn field_validation() {
+        let cc = InMemoryCommitCoordinator::default();
         let mut bad = commit_info(1);
         bad.version = 0;
         assert!(matches!(
-            cc.commit("t", Some(bad), None).unwrap_err(),
+            cc.commit("t", Some(bad), None).await.unwrap_err(),
             CommitError::InvalidArgument(_)
         ));
         let mut bad = commit_info(1);
         bad.file_name = String::new();
         assert!(matches!(
-            cc.commit("t", Some(bad), None).unwrap_err(),
+            cc.commit("t", Some(bad), None).await.unwrap_err(),
             CommitError::InvalidArgument(_)
         ));
         let mut bad = commit_info(1);
         bad.file_size = 0;
         assert!(matches!(
-            cc.commit("t", Some(bad), None).unwrap_err(),
+            cc.commit("t", Some(bad), None).await.unwrap_err(),
             CommitError::InvalidArgument(_)
         ));
     }
 
-    #[test]
-    fn backfill_prunes_but_keeps_highest_as_marker() {
-        let cc = CommitCoordinator::default();
+    #[tokio::test]
+    async fn backfill_prunes_but_keeps_highest_as_marker() {
+        let cc = InMemoryCommitCoordinator::default();
         for v in 1..=4 {
-            cc.commit("t", Some(commit_info(v)), None).unwrap();
+            cc.commit("t", Some(commit_info(v)), None).await.unwrap();
         }
-        // Backfill up to 4 (== latest): all lower rows pruned, row 4 kept as marker.
-        cc.commit("t", None, Some(4)).unwrap();
-        let (commits, latest) = cc.get_commits("t", 0, None).unwrap();
+        cc.commit("t", None, Some(4)).await.unwrap();
+        let (commits, latest) = cc.get_commits("t", 0, None).await.unwrap();
         assert_eq!(latest, 4, "latest_table_version still reported from marker");
         assert!(commits.is_empty(), "marker row excluded from commits");
 
-        // A subsequent commit at 5 succeeds and is visible.
-        cc.commit("t", Some(commit_info(5)), None).unwrap();
-        let (commits, latest) = cc.get_commits("t", 0, None).unwrap();
+        cc.commit("t", Some(commit_info(5)), None).await.unwrap();
+        let (commits, latest) = cc.get_commits("t", 0, None).await.unwrap();
         assert_eq!(latest, 5);
         assert_eq!(
             commits.iter().map(|c| c.version).collect::<Vec<_>>(),
@@ -472,14 +532,14 @@ mod tests {
         );
     }
 
-    #[test]
-    fn partial_backfill_prunes_only_below_watermark() {
-        let cc = CommitCoordinator::default();
+    #[tokio::test]
+    async fn partial_backfill_prunes_only_below_watermark() {
+        let cc = InMemoryCommitCoordinator::default();
         for v in 1..=5 {
-            cc.commit("t", Some(commit_info(v)), None).unwrap();
+            cc.commit("t", Some(commit_info(v)), None).await.unwrap();
         }
-        cc.commit("t", None, Some(3)).unwrap();
-        let (commits, latest) = cc.get_commits("t", 0, None).unwrap();
+        cc.commit("t", None, Some(3)).await.unwrap();
+        let (commits, latest) = cc.get_commits("t", 0, None).await.unwrap();
         assert_eq!(latest, 5);
         assert_eq!(
             commits.iter().map(|c| c.version).collect::<Vec<_>>(),
@@ -487,54 +547,55 @@ mod tests {
         );
     }
 
-    #[test]
-    fn backfill_beyond_latest_is_invalid() {
-        let cc = CommitCoordinator::default();
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-        let err = cc.commit("t", None, Some(2)).unwrap_err();
+    #[tokio::test]
+    async fn backfill_beyond_latest_is_invalid() {
+        let cc = InMemoryCommitCoordinator::default();
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
+        let err = cc.commit("t", None, Some(2)).await.unwrap_err();
         assert!(matches!(err, CommitError::InvalidArgument(_)));
     }
 
-    #[test]
-    fn unbackfilled_cap_is_enforced_and_reopened_by_backfill() {
-        let cc = CommitCoordinator::new(3);
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-        cc.commit("t", Some(commit_info(2)), None).unwrap();
-        cc.commit("t", Some(commit_info(3)), None).unwrap();
-        // 4th unbackfilled commit exceeds cap of 3.
-        let err = cc.commit("t", Some(commit_info(4)), None).unwrap_err();
+    #[tokio::test]
+    async fn unbackfilled_cap_is_enforced_and_reopened_by_backfill() {
+        let cc = InMemoryCommitCoordinator::new(3);
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
+        cc.commit("t", Some(commit_info(2)), None).await.unwrap();
+        cc.commit("t", Some(commit_info(3)), None).await.unwrap();
+        let err = cc
+            .commit("t", Some(commit_info(4)), None)
+            .await
+            .unwrap_err();
         assert!(matches!(err, CommitError::ResourceExhausted(_)));
-        // Backfill up to 2, then commit 4 piggy-backing nothing: now in range.
-        cc.commit("t", None, Some(2)).unwrap();
-        cc.commit("t", Some(commit_info(4)), None).unwrap();
-        let (_, latest) = cc.get_commits("t", 0, None).unwrap();
+        cc.commit("t", None, Some(2)).await.unwrap();
+        cc.commit("t", Some(commit_info(4)), None).await.unwrap();
+        let (_, latest) = cc.get_commits("t", 0, None).await.unwrap();
         assert_eq!(latest, 4);
     }
 
-    #[test]
-    fn get_commits_unknown_table_reports_zero() {
-        let cc = CommitCoordinator::default();
-        let (commits, latest) = cc.get_commits("missing", 0, None).unwrap();
+    #[tokio::test]
+    async fn get_commits_unknown_table_reports_zero() {
+        let cc = InMemoryCommitCoordinator::default();
+        let (commits, latest) = cc.get_commits("missing", 0, None).await.unwrap();
         assert!(commits.is_empty());
         assert_eq!(latest, 0);
     }
 
-    #[test]
-    fn get_commits_invalid_range() {
-        let cc = CommitCoordinator::default();
+    #[tokio::test]
+    async fn get_commits_invalid_range() {
+        let cc = InMemoryCommitCoordinator::default();
         assert!(matches!(
-            cc.get_commits("t", 5, Some(2)).unwrap_err(),
+            cc.get_commits("t", 5, Some(2)).await.unwrap_err(),
             CommitError::InvalidArgument(_)
         ));
     }
 
-    #[test]
-    fn get_commits_respects_end_version() {
-        let cc = CommitCoordinator::default();
+    #[tokio::test]
+    async fn get_commits_respects_end_version() {
+        let cc = InMemoryCommitCoordinator::default();
         for v in 1..=3 {
-            cc.commit("t", Some(commit_info(v)), None).unwrap();
+            cc.commit("t", Some(commit_info(v)), None).await.unwrap();
         }
-        let (commits, latest) = cc.get_commits("t", 0, Some(1)).unwrap();
+        let (commits, latest) = cc.get_commits("t", 0, Some(1)).await.unwrap();
         assert_eq!(latest, 3);
         assert_eq!(
             commits.iter().map(|c| c.version).collect::<Vec<_>>(),
@@ -542,45 +603,42 @@ mod tests {
         );
     }
 
-    #[test]
-    fn get_commits_caps_window_to_max() {
-        // With a small cap, get_commits should never return more than `max` rows.
-        let cc = CommitCoordinator::new(2);
-        // Keep within the cap by backfilling as we advance.
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-        cc.commit("t", Some(commit_info(2)), None).unwrap();
-        cc.commit("t", None, Some(1)).unwrap(); // prune v1
-        cc.commit("t", Some(commit_info(3)), None).unwrap();
-        let (commits, latest) = cc.get_commits("t", 0, None).unwrap();
+    #[tokio::test]
+    async fn get_commits_caps_window_to_max() {
+        let cc = InMemoryCommitCoordinator::new(2);
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
+        cc.commit("t", Some(commit_info(2)), None).await.unwrap();
+        cc.commit("t", None, Some(1)).await.unwrap();
+        cc.commit("t", Some(commit_info(3)), None).await.unwrap();
+        let (commits, latest) = cc.get_commits("t", 0, None).await.unwrap();
         assert_eq!(latest, 3);
-        // Window starts at oldest retained (2) and spans at most 2 versions: [2, 3].
         assert_eq!(
             commits.iter().map(|c| c.version).collect::<Vec<_>>(),
             vec![2, 3]
         );
     }
 
-    #[test]
-    fn first_writer_wins_under_concurrency() {
-        use std::thread;
+    #[tokio::test]
+    async fn first_writer_wins_under_concurrency() {
+        let cc = Arc::new(InMemoryCommitCoordinator::default());
+        cc.commit("t", Some(commit_info(1)), None).await.unwrap();
 
-        let cc = Arc::new(CommitCoordinator::default());
-        cc.commit("t", Some(commit_info(1)), None).unwrap();
-
-        // Many threads race to commit version 2; exactly one must win.
         let mut handles = Vec::new();
         for _ in 0..16 {
             let cc = cc.clone();
-            handles.push(thread::spawn(move || {
-                cc.commit("t", Some(commit_info(2)), None)
+            handles.push(tokio::spawn(async move {
+                cc.commit("t", Some(commit_info(2)), None).await
             }));
         }
-        let results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
-        let wins = results.iter().filter(|r| r.is_ok()).count();
-        let conflicts = results
-            .iter()
-            .filter(|r| matches!(r, Err(CommitError::VersionConflict(_))))
-            .count();
+        let mut wins = 0;
+        let mut conflicts = 0;
+        for h in handles {
+            match h.await.unwrap() {
+                Ok(()) => wins += 1,
+                Err(CommitError::VersionConflict(_)) => conflicts += 1,
+                Err(e) => panic!("unexpected error: {e:?}"),
+            }
+        }
         assert_eq!(wins, 1, "exactly one writer wins version 2");
         assert_eq!(conflicts, 15, "all other writers conflict");
     }
