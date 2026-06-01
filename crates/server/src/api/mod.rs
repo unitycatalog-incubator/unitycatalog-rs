@@ -1,4 +1,5 @@
 pub use catalogs::CatalogHandler;
+pub use commits::DeltaCommitHandler;
 pub use credentials::CredentialHandler;
 pub use external_locations::ExternalLocationHandler;
 pub use functions::FunctionHandler;
@@ -27,6 +28,7 @@ use unitycatalog_common::models::ResourceIdent;
 // ) -> Result<()>
 
 pub mod catalogs;
+pub mod commits;
 pub mod credentials;
 pub mod external_locations;
 pub mod functions;

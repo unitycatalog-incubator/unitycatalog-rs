@@ -163,7 +163,14 @@ async fn get_db_handler(
         .migrate()
         .await
         .map_err(|e| Error::Generic(format!("running migrations: {e}")))?;
-    let handler = ServerHandler::try_new_tokio(policy.clone(), store.clone(), store)?;
+    // The Postgres store also implements `CommitCoordinator`, so Delta
+    // catalog-managed commits are persisted in the database rather than memory.
+    let handler = ServerHandler::try_new_tokio_with_coordinator(
+        policy.clone(),
+        store.clone(),
+        store.clone(),
+        store,
+    )?;
     Ok((handler, policy))
 }
 

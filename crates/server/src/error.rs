@@ -52,6 +52,12 @@ pub enum Error {
     #[error("Already exists")]
     AlreadyExists,
 
+    #[error("Commit version conflict: {0}")]
+    CommitVersionConflict(String),
+
+    #[error("Resource exhausted: {0}")]
+    ResourceExhausted(String),
+
     #[error("Invalid argument")]
     InvalidArgument(String),
 
@@ -94,6 +100,8 @@ impl Error {
         match self {
             Error::NotFound => "RESOURCE_NOT_FOUND",
             Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
+            Error::CommitVersionConflict(_) => "COMMIT_VERSION_CONFLICT",
+            Error::ResourceExhausted(_) => "RESOURCE_EXHAUSTED",
             Error::NotAllowed => "PERMISSION_DENIED",
             Error::Unauthenticated => "UNAUTHENTICATED",
             Error::InvalidArgument(_) => "INVALID_PARAMETER_VALUE",
@@ -178,6 +186,20 @@ impl IntoResponse for Error {
                 "The request is forbidden from being fulfilled.",
             ),
             Error::AlreadyExists => (StatusCode::CONFLICT, "The resource already exists."),
+            Error::CommitVersionConflict(message) => {
+                error!("Commit version conflict: {}", message);
+                (
+                    StatusCode::CONFLICT,
+                    "The commit version was already accepted by another writer.",
+                )
+            }
+            Error::ResourceExhausted(message) => {
+                error!("Resource exhausted: {}", message);
+                (
+                    StatusCode::TOO_MANY_REQUESTS,
+                    "The maximum number of unbackfilled commits for this table was reached.",
+                )
+            }
             Error::Unauthenticated => (
                 StatusCode::UNAUTHORIZED,
                 "The request is unauthenticated. The bearer token is missing or incorrect.",
@@ -283,6 +305,8 @@ impl From<Error> for Status {
             // Error::Arrow(error) => Status::internal(error.to_string()),
             // Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
             Error::AlreadyExists => Status::already_exists("The resource already exists."),
+            Error::CommitVersionConflict(message) => Status::aborted(message),
+            Error::ResourceExhausted(message) => Status::resource_exhausted(message),
             Error::InvalidIdentifier(e) => Status::invalid_argument(e.to_string()),
             Error::InvalidArgument(message) => Status::invalid_argument(message),
             Error::Generic(message) => Status::internal(message),
