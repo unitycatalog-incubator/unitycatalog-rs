@@ -1,6 +1,7 @@
 // @generated — do not edit by hand.
 pub mod catalogs;
 pub mod credentials;
+pub mod delta_commits;
 pub mod external_locations;
 pub mod functions;
 pub mod providers;

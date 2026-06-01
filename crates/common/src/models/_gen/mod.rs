@@ -28,6 +28,13 @@ pub mod credentials {
         include!("./../gen/unitycatalog.credentials.v1.tonic.rs");
     }
 }
+pub mod delta_commits {
+    pub mod v1 {
+        include!("./../gen/unitycatalog.delta_commits.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./../gen/unitycatalog.delta_commits.v1.tonic.rs");
+    }
+}
 pub mod external_locations {
     pub mod v1 {
         include!("./../gen/unitycatalog.external_locations.v1.rs");

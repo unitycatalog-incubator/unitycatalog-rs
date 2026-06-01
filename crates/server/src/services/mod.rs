@@ -5,6 +5,7 @@ use delta_kernel::{Snapshot, Version};
 use session::*;
 use unitycatalog_common::models::tables::v1::DataSourceFormat;
 
+use self::commit_coordinator::{CommitCoordinator, ProvidesCommitCoordinator};
 use self::location::StorageLocationUrl;
 use self::secrets::{ProvidesSecretManager, SecretManager};
 use crate::Result;
@@ -14,6 +15,7 @@ use crate::store::{ProvidesObjectStore, ProvidesResourceStore, ResourceStore};
 use unitycatalog_common::ObjectLabel;
 use unitycatalog_common::models::ResourceIdent;
 
+pub mod commit_coordinator;
 pub mod credential_vending;
 pub(crate) mod kernel;
 pub mod location;
@@ -85,6 +87,8 @@ pub struct ServerHandlerInner<Cx> {
     store: Arc<dyn ResourceStore>,
     object_store: Option<Arc<dyn olai_store::ObjectStore<ObjectLabel>>>,
     secrets: Arc<dyn SecretManager>,
+    /// In-memory Delta catalog-managed commit coordinator.
+    commit_coordinator: Arc<CommitCoordinator>,
 }
 
 impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
@@ -98,7 +102,14 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
             store,
             object_store: None,
             secrets,
+            commit_coordinator: Arc::new(CommitCoordinator::default()),
         }
+    }
+
+    /// Override the Delta commit coordinator (e.g. with a custom unbackfilled cap).
+    pub fn with_commit_coordinator(mut self, coordinator: Arc<CommitCoordinator>) -> Self {
+        self.commit_coordinator = coordinator;
+        self
     }
 
     /// Set the generic object store.
@@ -212,6 +223,18 @@ impl<Cx: Send + Sync + 'static> ProvidesSecretManager for ServerHandlerInner<Cx>
 impl<Cx: Send + Sync + 'static> ProvidesSecretManager for ServerHandler<Cx> {
     fn secret_manager(&self) -> &dyn SecretManager {
         self.handler.secrets.as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesCommitCoordinator for ServerHandlerInner<Cx> {
+    fn commit_coordinator(&self) -> &CommitCoordinator {
+        self.commit_coordinator.as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesCommitCoordinator for ServerHandler<Cx> {
+    fn commit_coordinator(&self) -> &CommitCoordinator {
+        self.handler.commit_coordinator.as_ref()
     }
 }
 

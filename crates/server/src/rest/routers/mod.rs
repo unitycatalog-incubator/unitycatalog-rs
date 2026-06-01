@@ -1,7 +1,7 @@
 use crate::api::{
-    CatalogHandler, CredentialHandler, ExternalLocationHandler, FunctionHandler, ProviderHandler,
-    RecipientHandler, SchemaHandler, ShareHandler, TableHandler, TemporaryCredentialHandler,
-    VolumeHandler,
+    CatalogHandler, CredentialHandler, DeltaCommitHandler, ExternalLocationHandler,
+    FunctionHandler, ProviderHandler, RecipientHandler, SchemaHandler, ShareHandler, TableHandler,
+    TemporaryCredentialHandler, VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -174,6 +174,21 @@ where
         .route(
             "/temporary-volume-credentials",
             post(generate_temporary_volume_credentials::<T, Cx>),
+        )
+        .with_state(handler)
+}
+
+pub fn create_commits_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: DeltaCommitHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::delta_commits::server::*;
+
+    axum::Router::new()
+        .route(
+            "/delta/preview/commits",
+            post(commit::<T, Cx>).get(get_commits::<T, Cx>),
         )
         .with_state(handler)
 }

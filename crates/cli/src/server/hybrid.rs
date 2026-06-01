@@ -17,10 +17,10 @@ use unitycatalog_server::handlers::upstream::{
 };
 use unitycatalog_server::policy::Policy;
 use unitycatalog_server::rest::{
-    AuthenticationLayer, Authenticator, create_catalogs_router, create_credentials_router,
-    create_external_locations_router, create_functions_router, create_providers_router,
-    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
-    create_tables_router,
+    AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
+    create_credentials_router, create_external_locations_router, create_functions_router,
+    create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
+    create_sharing_router, create_tables_router,
 };
 use unitycatalog_server::services::ServerHandler;
 
@@ -103,7 +103,8 @@ where
         .merge(create_functions_router(handler.clone()))
         .merge(create_recipients_router(handler.clone()))
         .merge(create_providers_router(handler.clone()))
-        .merge(create_shares_router(handler.clone()));
+        .merge(create_shares_router(handler.clone()))
+        .merge(create_commits_router(handler.clone()));
 
     let router = Router::new()
         .nest("/api/2.1/unity-catalog", api_routes)
