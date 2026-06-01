@@ -8,8 +8,9 @@ use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::{ConstantPolicy, Policy};
 use unitycatalog_server::{rest::AnonymousAuthenticator, services::ServerHandler};
 
-use crate::config::{Backend, Config, PostgresBackendConfig, SecretBackend};
+use crate::config::{Backend, Config, PostgresBackendConfig};
 use crate::error::{Error, Result};
+use unitycatalog_common::services::encryption::EnvelopeEncryptor;
 
 mod hybrid;
 mod run;
@@ -85,9 +86,21 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
         .unwrap_or(DEFAULT_HOST);
     let port = args.port.or(config.port).unwrap_or(DEFAULT_PORT);
 
+    let encryptor = config
+        .encryption
+        .as_ref()
+        .ok_or_else(|| {
+            Error::Generic(
+                "missing `encryption` configuration: an active KEK is required to store secrets"
+                    .into(),
+            )
+        })?
+        .build_encryptor()
+        .map_err(Error::Generic)?;
+
     let (handler, policy) = match &config.backend {
-        Backend::InMemory => get_memory_handler().await?,
-        Backend::Postgres(pg) => get_db_handler(pg, &config.secret_backend).await?,
+        Backend::InMemory => get_memory_handler(encryptor).await?,
+        Backend::Postgres(pg) => get_db_handler(pg, encryptor).await?,
     };
 
     if config.routing.any_upstream() {
@@ -134,19 +147,14 @@ async fn handle_grpc(_args: &ServerArgs) -> Result<()> {
 
 async fn get_db_handler(
     pg: &PostgresBackendConfig,
-    secret_backend: &Option<SecretBackend>,
+    encryptor: EnvelopeEncryptor,
 ) -> Result<LocalHandler> {
     let db_url = pg
         .connection_string()
         .ok_or_else(|| Error::Generic("incomplete postgres backend configuration".into()))?;
 
-    let encryption_key = match secret_backend {
-        Some(SecretBackend::Postgres(cfg)) => cfg.encryption_key.value(),
-        _ => None,
-    };
-
     let store = Arc::new(
-        GraphStore::connect(&db_url, encryption_key)
+        GraphStore::connect(&db_url, encryptor)
             .await
             .map_err(|e| Error::Generic(format!("connecting to database: {e}")))?,
     );
@@ -159,8 +167,8 @@ async fn get_db_handler(
     Ok((handler, policy))
 }
 
-async fn get_memory_handler() -> Result<LocalHandler> {
-    let store = Arc::new(InMemoryResourceStore::new());
+async fn get_memory_handler(encryptor: EnvelopeEncryptor) -> Result<LocalHandler> {
+    let store = Arc::new(InMemoryResourceStore::new(encryptor));
     let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
     let handler = ServerHandler::try_new_tokio(policy.clone(), store.clone(), store)?;
     Ok((handler, policy))

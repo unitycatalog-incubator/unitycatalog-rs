@@ -1,13 +1,14 @@
 // @generated — do not edit by hand.
 //! Handler trait for [`CatalogHandler`].
 //!
-//! Implement this trait to provide a custom backend for this service.
-//! Register your implementation with the generated route setup functions.
+//! Implement this trait to provide a custom backend for this service, then mount the
+//! generated handler functions (in the sibling `server` module) onto an `axum::Router`
+//! with your implementation as state.
 //!
 //! # Composability
 //!
 //! A single struct can implement multiple handler traits to serve multiple
-//! services. Use [`axum::Router::merge`] to compose routers together.
+//! services. Use [`axum::Router::merge`] to compose per-service routers together.
 //!
 //! Manage catalogs and schemas in the service.
 use crate::Result;

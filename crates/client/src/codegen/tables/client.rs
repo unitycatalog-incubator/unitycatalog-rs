@@ -30,7 +30,7 @@ impl TableClient {
     ) -> Result<ListTableSummariesResponse> {
         let mut url = self.base_url.join("table-summaries")?;
         url.query_pairs_mut()
-            .append_pair("catalog_name", &request.catalog_name.to_string());
+            .append_pair("catalog_name", &request.catalog_name);
         if let Some(ref value) = request.schema_name_pattern {
             url.query_pairs_mut()
                 .append_pair("schema_name_pattern", &value.to_string());
@@ -67,9 +67,9 @@ impl TableClient {
     pub async fn list_tables(&self, request: &ListTablesRequest) -> Result<ListTablesResponse> {
         let mut url = self.base_url.join("tables")?;
         url.query_pairs_mut()
-            .append_pair("catalog_name", &request.catalog_name.to_string());
+            .append_pair("catalog_name", &request.catalog_name);
         url.query_pairs_mut()
-            .append_pair("schema_name", &request.schema_name.to_string());
+            .append_pair("schema_name", &request.schema_name);
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());

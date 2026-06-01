@@ -1,110 +1,65 @@
 use bytes::Bytes;
 use unitycatalog_common::Result;
 use unitycatalog_common::services::secrets::SecretManager;
-use uuid::Uuid;
 
 use crate::GraphStore;
 
-const DEFAULT_ENCRYPTION_KEY: &str = "dummy";
-
 #[async_trait::async_trait]
 impl SecretManager for GraphStore {
-    async fn get_secret(&self, secret_name: &str) -> Result<(Uuid, Bytes)> {
-        let key = self
-            .encryption_key
-            .as_deref()
-            .unwrap_or(DEFAULT_ENCRYPTION_KEY);
+    async fn get_secret(&self, secret_name: &str) -> Result<Bytes> {
         let mut conn = self.pool.acquire().await.map_err(crate::Error::from)?;
-        #[derive(sqlx::FromRow)]
-        struct Secret {
-            id: Uuid,
-            value: Option<String>,
-        }
-        let res = sqlx::query_as!(
-            Secret,
+        let value: Option<Vec<u8>> = sqlx::query_scalar!(
             r#"
-            SELECT id, pgp_sym_decrypt(value, $1) as value FROM secrets
-            WHERE name = $2
-            ORDER BY id DESC
-            LIMIT 1
-            "#,
-            key,
-            secret_name,
-        )
-        .fetch_one(&mut *conn)
-        .await
-        .map_err(crate::Error::from)?;
-        if res.value.is_none() {
-            return Err(crate::Error::entity_not_found(secret_name).into());
-        }
-        Ok((res.id, bytes::Bytes::from(res.value.unwrap())))
-    }
-
-    async fn get_secret_version(&self, secret_name: &str, version: Uuid) -> Result<Bytes> {
-        let key = self
-            .encryption_key
-            .as_deref()
-            .unwrap_or(DEFAULT_ENCRYPTION_KEY);
-        let mut conn = self.pool.acquire().await.map_err(crate::Error::from)?;
-        let value: Option<String> = sqlx::query_scalar!(
-            r#"
-            SELECT pgp_sym_decrypt(value, $2) FROM secrets
-            WHERE name = $1 AND id = $3
+            SELECT value FROM secrets
+            WHERE name = $1
             "#,
             secret_name,
-            key,
-            version,
         )
-        .fetch_one(&mut *conn)
+        .fetch_optional(&mut *conn)
         .await
         .map_err(crate::Error::from)?;
-        if let Some(value) = value {
-            return Ok(bytes::Bytes::from(value));
+        let blob = value.ok_or_else(|| crate::Error::entity_not_found(secret_name))?;
+        let plaintext = self.encryptor.open(secret_name, &blob).await?;
+
+        // Lazy KEK rotation: if this secret was sealed under a retired KEK, re-wrap its data key
+        // under the active KEK and write it back. Best-effort — a write failure must not fail the
+        // read, and the value ciphertext is untouched so the result is identical either way.
+        // A proactive sweep for secrets never read again is tracked in the rotation follow-up.
+        if let Ok(Some(rewrapped)) = self.encryptor.rewrap(&blob).await {
+            let _ = sqlx::query!(
+                "UPDATE secrets SET value = $2 WHERE name = $1",
+                secret_name,
+                &rewrapped,
+            )
+            .execute(&mut *conn)
+            .await;
         }
-        Err(crate::Error::entity_not_found(secret_name).into())
+
+        Ok(Bytes::from(plaintext))
     }
 
-    async fn create_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
-        let key = self
-            .encryption_key
-            .as_deref()
-            .unwrap_or(DEFAULT_ENCRYPTION_KEY);
+    async fn put_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<()> {
+        let blob = self.encryptor.seal(secret_name, &secret_value).await?;
         let mut txn = self.pool.begin().await.map_err(crate::Error::from)?;
-        let value = std::str::from_utf8(&secret_value).unwrap();
-        let query_result = sqlx::query_scalar!(
+        sqlx::query!(
             r#"
             INSERT INTO secrets(name, value)
-            VALUES ($1, pgp_sym_encrypt($2, $3, 'cipher-algo=aes256'))
-            RETURNING id
+            VALUES ($1, $2)
+            ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value
             "#,
             secret_name,
-            value,
-            key,
+            &blob,
         )
-        .fetch_one(&mut *txn)
-        .await;
-        match query_result {
-            Ok(id) => {
-                txn.commit().await.map_err(crate::Error::from)?;
-                Ok(id)
-            }
-            Err(e) => {
-                txn.rollback().await.map_err(crate::Error::from)?;
-                tracing::error!("create_secret: {} -> {:?}", secret_name, e);
-                Err(crate::Error::from(e).into())
-            }
-        }
-    }
-
-    async fn update_secret(&self, secret_name: &str, secret_value: Bytes) -> Result<Uuid> {
-        // NB: we create a new version of the secret on each create operation.
-        // get request should be used to get the latest version.
-        self.create_secret(secret_name, secret_value).await
+        .execute(&mut *txn)
+        .await
+        .map_err(crate::Error::from)?;
+        txn.commit().await.map_err(crate::Error::from)?;
+        Ok(())
     }
 
     async fn delete_secret(&self, secret_name: &str) -> Result<()> {
         let mut txn = self.pool.begin().await.map_err(crate::Error::from)?;
-        let _ = sqlx::query!(
+        let result = sqlx::query!(
             r#"
             DELETE FROM secrets
             WHERE name = $1
@@ -114,6 +69,11 @@ impl SecretManager for GraphStore {
         .execute(&mut *txn)
         .await
         .map_err(crate::Error::from)?;
+        if result.rows_affected() == 0 {
+            txn.rollback().await.map_err(crate::Error::from)?;
+            return Err(crate::Error::entity_not_found(secret_name).into());
+        }
+        txn.commit().await.map_err(crate::Error::from)?;
         Ok(())
     }
 }

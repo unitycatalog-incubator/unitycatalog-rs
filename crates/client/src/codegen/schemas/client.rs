@@ -24,7 +24,7 @@ impl SchemaClient {
     pub async fn list_schemas(&self, request: &ListSchemasRequest) -> Result<ListSchemasResponse> {
         let mut url = self.base_url.join("schemas")?;
         url.query_pairs_mut()
-            .append_pair("catalog_name", &request.catalog_name.to_string());
+            .append_pair("catalog_name", &request.catalog_name);
         if let Some(ref value) = request.max_results {
             url.query_pairs_mut()
                 .append_pair("max_results", &value.to_string());

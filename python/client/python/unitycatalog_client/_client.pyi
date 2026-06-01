@@ -1064,14 +1064,12 @@ class ParameterStyle(enum.Enum):
 class ProviderAuthenticationType(enum.Enum):
     """The delta sharing authentication type used by a provider."""
 
-    PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS = (
-        "PROVIDER_AUTHENTICATION_TYPE_OAUTH_CLIENT_CREDENTIALS"
-    )
+    OAUTH_CLIENT_CREDENTIALS = "OAUTH_CLIENT_CREDENTIALS"
     """OAuth2 client-credentials authentication."""
-    PROVIDER_AUTHENTICATION_TYPE_TOKEN = "PROVIDER_AUTHENTICATION_TYPE_TOKEN"
-    """Token-based authentication (open sharing via a credential file)."""
     PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED = "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED"
     """No authentication type specified."""
+    TOKEN = "TOKEN"
+    """Token-based authentication (open sharing via a credential file)."""
 
 class Purpose(enum.Enum):
     """The purpose of a credential."""
@@ -1117,8 +1115,8 @@ class TableType(enum.Enum):
     TABLE_TYPE_UNSPECIFIED = "TABLE_TYPE_UNSPECIFIED"
 
 class VolumeType(enum.Enum):
-    VOLUME_TYPE_EXTERNAL = "VOLUME_TYPE_EXTERNAL"
-    VOLUME_TYPE_MANAGED = "VOLUME_TYPE_MANAGED"
+    EXTERNAL = "EXTERNAL"
+    MANAGED = "MANAGED"
     VOLUME_TYPE_UNSPECIFIED = "VOLUME_TYPE_UNSPECIFIED"
 
 class CatalogClient:
@@ -1183,11 +1181,11 @@ class CatalogClient:
         """
         ...
     def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
-    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
     def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
+    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
 
 class CredentialClient:
     def delete(self) -> None:

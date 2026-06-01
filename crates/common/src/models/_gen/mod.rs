@@ -1,3 +1,4 @@
+// @generated — do not edit by hand.
 use std::collections::HashMap;
 pub mod labels;
 pub use catalogs::v1::Catalog;

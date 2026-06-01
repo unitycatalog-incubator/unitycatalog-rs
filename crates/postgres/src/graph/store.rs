@@ -7,6 +7,7 @@
 use sqlx::PgPool;
 use sqlx::migrate::Migrator;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use unitycatalog_common::services::encryption::EnvelopeEncryptor;
 use unitycatalog_common::{ResourceIdent, ResourceRef};
 use uuid::Uuid;
 
@@ -21,22 +22,19 @@ static MIGRATOR: Migrator = sqlx::migrate!();
 #[derive(Clone)]
 pub struct Store {
     pub(crate) pool: PgPool,
-    pub(crate) encryption_key: Option<String>,
+    pub(crate) encryptor: EnvelopeEncryptor,
 }
 
 impl Store {
-    pub fn new(pool: PgPool, encryption_key: Option<String>) -> Self {
-        Self {
-            pool,
-            encryption_key,
-        }
+    pub fn new(pool: PgPool, encryptor: EnvelopeEncryptor) -> Self {
+        Self { pool, encryptor }
     }
 
-    pub async fn connect(url: impl AsRef<str>, encryption_key: Option<String>) -> Result<Self> {
+    pub async fn connect(url: impl AsRef<str>, encryptor: EnvelopeEncryptor) -> Result<Self> {
         let options: PgConnectOptions = url.as_ref().parse()?;
         let pool_options = PgPoolOptions::new().max_connections(96);
         let pool = pool_options.connect_with(options).await?;
-        Ok(Self::new(pool, encryption_key))
+        Ok(Self::new(pool, encryptor))
     }
 
     pub async fn migrate(&self) -> Result<()> {

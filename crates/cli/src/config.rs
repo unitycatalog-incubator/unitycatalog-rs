@@ -40,8 +40,13 @@ pub struct Config {
     #[serde(default)]
     pub backend: Backend,
 
+    /// Envelope-encryption configuration for secrets at rest.
+    ///
+    /// Required whenever secrets are stored (i.e. always, in practice). Defines the active
+    /// key-encryption key (KEK) used to wrap per-secret data keys, plus any retired KEKs kept
+    /// available for decryption during rotation.
     #[serde(default)]
-    pub secret_backend: Option<SecretBackend>,
+    pub encryption: Option<EncryptionConfig>,
 
     /// Upstream Unity Catalog instance to delegate selected surfaces to.
     ///
@@ -64,7 +69,7 @@ impl Default for Config {
             host: None,
             port: None,
             backend: Backend::InMemory,
-            secret_backend: None,
+            encryption: None,
             upstream: None,
             routing: RoutingConfig::default(),
         }
@@ -212,21 +217,59 @@ impl PostgresBackendConfig {
     }
 }
 
-/// Secret backend configuration.
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(tag = "engine")]
-pub enum SecretBackend {
-    /// Postgres secret backend.
-    ///
-    /// This is used to store secrets in a Postgres database.
-    /// This is generally only recommended for evaluation purposes.
-    /// For production use, it is recommended to use a dedicated secret store.
-    Postgres(PostgresSecretConfig),
+/// Envelope-encryption configuration for secrets at rest.
+///
+/// Secrets are sealed with a per-secret data key that is wrapped by a key-encryption key (KEK).
+/// Exactly one KEK is `active` (used for new writes); any number of `retired` KEKs may be listed so
+/// values previously sealed under them can still be decrypted and lazily re-wrapped during
+/// rotation.
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+pub struct EncryptionConfig {
+    /// The active KEK that new secrets are wrapped under.
+    pub active: KeyConfig,
+
+    /// Retired KEKs retained for decryption during rotation.
+    #[serde(default)]
+    pub retired: Vec<KeyConfig>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct PostgresSecretConfig {
-    pub encryption_key: ConfigValue,
+/// A single key-encryption key: a stable id plus its 32-byte material (base64-encoded).
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+pub struct KeyConfig {
+    /// Stable identifier for this KEK (e.g. `"v1"`), recorded in every sealed secret.
+    pub id: String,
+
+    /// The KEK material: 32 bytes (AES-256), base64-encoded. Resolved from an inline value or an
+    /// environment variable via [`ConfigValue`].
+    pub key: ConfigValue,
+}
+
+impl EncryptionConfig {
+    /// Resolve all configured KEKs and build an [`EnvelopeEncryptor`].
+    ///
+    /// Fails if the active KEK or any retired KEK cannot be resolved or is not valid 32-byte
+    /// base64 material.
+    pub fn build_encryptor(
+        &self,
+    ) -> Result<unitycatalog_common::services::encryption::EnvelopeEncryptor, String> {
+        use base64::Engine as _;
+        use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
+
+        let mut keys = Vec::new();
+        for key in std::iter::once(&self.active).chain(self.retired.iter()) {
+            let encoded = key
+                .key
+                .value()
+                .ok_or_else(|| format!("KEK '{}' material could not be resolved", key.id))?;
+            let bytes = base64::engine::general_purpose::STANDARD
+                .decode(encoded.trim())
+                .map_err(|e| format!("KEK '{}' is not valid base64: {e}", key.id))?;
+            keys.push((key.id.clone(), bytes));
+        }
+        let provider = LocalKeyProvider::new(self.active.id.clone(), keys)
+            .map_err(|e| format!("invalid encryption configuration: {e}"))?;
+        Ok(EnvelopeEncryptor::local(provider))
+    }
 }
 
 #[cfg(test)]
@@ -277,7 +320,7 @@ mod tests {
         assert!(config.host.is_none());
         assert!(config.port.is_none());
         assert!(matches!(config.backend, Backend::InMemory));
-        assert!(config.secret_backend.is_none());
+        assert!(config.encryption.is_none());
         assert!(config.upstream.is_none());
         assert_eq!(config.routing, RoutingConfig::default());
         assert!(!config.routing.any_upstream());
@@ -289,6 +332,49 @@ mod tests {
         let config: Config = serde_json::from_str(config).unwrap();
         assert!(matches!(config.backend, Backend::InMemory));
         assert!(!config.routing.any_upstream());
+    }
+
+    #[test]
+    fn test_encryption_config_builds_encryptor() {
+        use base64::Engine as _;
+        let active = base64::engine::general_purpose::STANDARD.encode([0x11u8; 32]);
+        let retired = base64::engine::general_purpose::STANDARD.encode([0x22u8; 32]);
+        let yaml = format!(
+            r#"
+            backend:
+              engine: in-memory
+            encryption:
+              active:
+                id: v2
+                key: "{active}"
+              retired:
+                - id: v1
+                  key: "{retired}"
+            "#
+        );
+        let config: Config = serde_yml::from_str(&yaml).unwrap();
+        let enc = config.encryption.as_ref().expect("encryption present");
+        assert_eq!(enc.active.id, "v2");
+        assert_eq!(enc.retired.len(), 1);
+        // Builds a working encryptor.
+        assert!(enc.build_encryptor().is_ok());
+
+        // Round-trips through YAML.
+        let reparsed: Config =
+            serde_yml::from_str(&serde_yml::to_string(&config).unwrap()).unwrap();
+        assert_eq!(reparsed.encryption, config.encryption);
+    }
+
+    #[test]
+    fn test_encryption_config_rejects_bad_key() {
+        let yaml = r#"
+            encryption:
+              active:
+                id: v1
+                key: "not-base64-and-wrong-size!!"
+        "#;
+        let config: Config = serde_yml::from_str(yaml).unwrap();
+        assert!(config.encryption.unwrap().build_encryptor().is_err());
     }
 
     #[test]
