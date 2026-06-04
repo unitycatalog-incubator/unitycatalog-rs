@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package unitycatalog.tags.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "unitycatalog/tags/v1/models.proto";
+
+// List tag policies
+message ListTagPoliciesRequest {
+  // The maximum number of results per page that should be returned.
+  optional int32 page_size = 1 [
+    (buf.validate.field).int32 = {
+      gt: 0
+      lte: 1000
+    },
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// List tag policies response.
+message ListTagPoliciesResponse {
+  // The tag policies returned.
+  repeated TagPolicy tag_policies = 1;
+
+  // The next_page_token value to include in the next List request.
+  optional string next_page_token = 2;
+}
+
+// Create a new tag policy
+message CreateTagPolicyRequest {
+  // The tag policy to create.
+  TagPolicy tag_policy = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Get a tag policy
+message GetTagPolicyRequest {
+  // The key of the governed tag.
+  string tag_key = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Update a tag policy
+message UpdateTagPolicyRequest {
+  // The key of the governed tag to update.
+  string tag_key = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The tag policy with the updated fields.
+  TagPolicy tag_policy = 2 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The list of fields to update, as a comma-separated string.
+  optional string update_mask = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Delete a tag policy
+message DeleteTagPolicyRequest {
+  // The key of the governed tag to delete.
+  string tag_key = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Manage governed tag definitions (tag policies).
+service TagPoliciesService {
+  // List tag policies
+  //
+  // Gets an array of tag policies. There is no guarantee of a specific ordering
+  // of the elements in the array.
+  rpc ListTagPolicies(ListTagPoliciesRequest) returns (ListTagPoliciesResponse) {
+    option (google.api.http) = {get: "/tag-policies"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListTagPolicies"};
+  }
+
+  // Create a new tag policy
+  //
+  // Creates a new governed tag definition.
+  rpc CreateTagPolicy(CreateTagPolicyRequest) returns (TagPolicy) {
+    option (google.api.http) = {
+      post: "/tag-policies"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "CreateTagPolicy"};
+  }
+
+  // Get a tag policy
+  //
+  // Gets the governed tag definition for the specified tag key.
+  rpc GetTagPolicy(GetTagPolicyRequest) returns (TagPolicy) {
+    option (google.api.http) = {get: "/tag-policies/{tag_key}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "GetTagPolicy"};
+  }
+
+  // Update a tag policy
+  //
+  // Updates the governed tag definition that matches the supplied tag key.
+  rpc UpdateTagPolicy(UpdateTagPolicyRequest) returns (TagPolicy) {
+    option (google.api.http) = {
+      patch: "/tag-policies/{tag_key}"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "UpdateTagPolicy"};
+  }
+
+  // Delete a tag policy
+  //
+  // Deletes the governed tag definition that matches the supplied tag key.
+  rpc DeleteTagPolicy(DeleteTagPolicyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/tag-policies/{tag_key}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "DeleteTagPolicy"};
+  }
+}

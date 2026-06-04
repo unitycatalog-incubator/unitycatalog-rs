@@ -8,6 +8,7 @@ pub use recipients::RecipientHandler;
 pub use schemas::SchemaHandler;
 pub use shares::ShareHandler;
 pub use tables::TableHandler;
+pub use tag_policies::TagPolicyHandler;
 pub use temporary_credentials::TemporaryCredentialHandler;
 pub use volumes::VolumeHandler;
 
@@ -38,6 +39,7 @@ pub mod schemas;
 pub mod shares;
 pub mod sharing;
 pub mod tables;
+pub mod tag_policies;
 pub mod temporary_credentials;
 pub mod volumes;
 

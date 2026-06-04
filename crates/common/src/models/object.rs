@@ -36,6 +36,7 @@ impl ResourceExt for Resource {
             Resource::Column(obj) => obj.resource_name(),
             Resource::Volume(obj) => obj.resource_name(),
             Resource::Function(obj) => obj.resource_name(),
+            Resource::TagPolicy(obj) => obj.resource_name(),
         }
     }
 
@@ -52,6 +53,7 @@ impl ResourceExt for Resource {
             Resource::Column(obj) => obj.resource_ref(),
             Resource::Volume(obj) => obj.resource_ref(),
             Resource::Function(obj) => obj.resource_ref(),
+            Resource::TagPolicy(obj) => obj.resource_ref(),
         }
     }
 
@@ -68,6 +70,7 @@ impl ResourceExt for Resource {
             Resource::Column(obj) => obj.resource_ident(),
             Resource::Volume(obj) => obj.resource_ident(),
             Resource::Function(obj) => obj.resource_ident(),
+            Resource::TagPolicy(obj) => obj.resource_ident(),
         }
     }
 }
@@ -88,6 +91,7 @@ impl TryFrom<Resource> for Object {
             Resource::Column(obj) => obj.try_into(),
             Resource::Volume(obj) => obj.try_into(),
             Resource::Function(obj) => obj.try_into(),
+            Resource::TagPolicy(obj) => obj.try_into(),
         }
     }
 }
@@ -108,6 +112,7 @@ impl TryFrom<Object> for Resource {
             ObjectLabel::Column => Ok(Resource::Column(obj.try_into()?)),
             ObjectLabel::Volume => Ok(Resource::Volume(obj.try_into()?)),
             ObjectLabel::Function => Ok(Resource::Function(obj.try_into()?)),
+            ObjectLabel::TagPolicy => Ok(Resource::TagPolicy(obj.try_into()?)),
         }
     }
 }

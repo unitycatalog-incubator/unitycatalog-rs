@@ -9,5 +9,6 @@ pub mod recipients;
 pub mod schemas;
 pub mod shares;
 pub mod tables;
+pub mod tag_policies;
 pub mod temporary_credentials;
 pub mod volumes;
