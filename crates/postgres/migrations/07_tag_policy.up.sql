@@ -1,0 +1,12 @@
+-- no-transaction
+-- Add the `tag_policy` object label for governed tag definitions (Tag Policies API).
+--
+-- `ALTER TYPE ... ADD VALUE` cannot run inside a transaction block, hence the
+-- `-- no-transaction` directive above (honored by sqlx's migrator).
+--
+-- The value is `tag_policy` (snake_case) to match the `ObjectLabel` Rust enum's
+-- `sqlx(rename_all = "snake_case")` serialization. NOTE: the original labels in
+-- migration 03 use a `*_info` naming scheme that no longer matches the snake_case
+-- values the Rust code emits — that broader mismatch is tracked separately and is
+-- intentionally not addressed here.
+ALTER TYPE object_label ADD VALUE IF NOT EXISTS 'tag_policy';

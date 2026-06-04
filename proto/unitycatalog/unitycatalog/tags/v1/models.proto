@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package unitycatalog.tags.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+
+// An allowed value for a governed tag.
+message Value {
+  // The name of the allowed value.
+  string name = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// A governed tag definition (tag policy).
+//
+// A tag policy defines a tag key together with the rules that govern how it can
+// be used, including the optional set of allowed values. Assigning a governed
+// tag to an entity is done through the Entity Tag Assignments API.
+message TagPolicy {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/TagPolicy"
+    pattern: "tagPolicies/{tag_policy}"
+    plural: "tagPolicies"
+    singular: "tagPolicy"
+    name_field: "tag_key"
+  };
+
+  // The key of the governed tag.
+  string tag_key = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // User-provided free-form text description of the tag policy.
+  optional string description = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // The set of allowed values for the governed tag.
+  //
+  // When empty, the governed tag does not restrict the values that may be assigned.
+  repeated Value values = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Unique identifier for the tag policy.
+  optional string id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
+
+  // Time at which this tag policy was created, in epoch milliseconds.
+  optional int64 created_at = 1000 [
+    (buf.validate.field).int64.gt = 0,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Time at which this tag policy was last updated, in epoch milliseconds.
+  optional int64 updated_at = 1002 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

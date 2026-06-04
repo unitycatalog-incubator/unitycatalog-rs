@@ -20,6 +20,7 @@ pub enum ResourceIdent {
     Column(ResourceRef),
     Volume(ResourceRef),
     Function(ResourceRef),
+    TagPolicy(ResourceRef),
 }
 
 impl ResourceIdent {
@@ -74,6 +75,10 @@ impl ResourceIdent {
     pub fn function(name: impl Into<ResourceRef>) -> Self {
         Self::Function(name.into())
     }
+
+    pub fn tag_policy(name: impl Into<ResourceRef>) -> Self {
+        Self::TagPolicy(name.into())
+    }
 }
 
 impl std::fmt::Display for ResourceIdent {
@@ -90,6 +95,7 @@ impl std::fmt::Display for ResourceIdent {
             ResourceIdent::Column(r) => write!(f, "column:{}", r),
             ResourceIdent::Volume(r) => write!(f, "volume:{}", r),
             ResourceIdent::Function(r) => write!(f, "function:{}", r),
+            ResourceIdent::TagPolicy(r) => write!(f, "tag_policy:{}", r),
         }
     }
 }
@@ -108,6 +114,7 @@ impl AsRef<ResourceRef> for ResourceIdent {
             ResourceIdent::Column(r) => r,
             ResourceIdent::Volume(r) => r,
             ResourceIdent::Function(r) => r,
+            ResourceIdent::TagPolicy(r) => r,
         }
     }
 }
@@ -126,6 +133,7 @@ impl AsRef<ObjectLabel> for ResourceIdent {
             ResourceIdent::Column(_) => &ObjectLabel::Column,
             ResourceIdent::Volume(_) => &ObjectLabel::Volume,
             ResourceIdent::Function(_) => &ObjectLabel::Function,
+            ResourceIdent::TagPolicy(_) => &ObjectLabel::TagPolicy,
         }
     }
 }
@@ -144,6 +152,7 @@ impl From<ResourceIdent> for ResourceRef {
             ResourceIdent::Column(r) => r,
             ResourceIdent::Volume(r) => r,
             ResourceIdent::Function(r) => r,
+            ResourceIdent::TagPolicy(r) => r,
         }
     }
 }
@@ -202,6 +211,7 @@ impl ObjectLabel {
             ObjectLabel::Column => ResourceIdent::column(id),
             ObjectLabel::Volume => ResourceIdent::volume(id),
             ObjectLabel::Function => ResourceIdent::function(id),
+            ObjectLabel::TagPolicy => ResourceIdent::tag_policy(id),
         }
     }
 }

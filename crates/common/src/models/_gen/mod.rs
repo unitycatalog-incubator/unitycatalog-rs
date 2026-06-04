@@ -12,6 +12,7 @@ pub use schemas::v1::Schema;
 pub use shares::v1::Share;
 pub use tables::v1::Column;
 pub use tables::v1::Table;
+pub use tags::v1::TagPolicy;
 pub use volumes::v1::Volume;
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 pub mod catalogs {
@@ -82,6 +83,13 @@ pub mod tables {
         include!("./../gen/unitycatalog.tables.v1.rs");
         #[cfg(feature = "grpc")]
         include!("./../gen/unitycatalog.tables.v1.tonic.rs");
+    }
+}
+pub mod tags {
+    pub mod v1 {
+        include!("./../gen/unitycatalog.tags.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./../gen/unitycatalog.tags.v1.tonic.rs");
     }
 }
 pub mod temporary_credentials {

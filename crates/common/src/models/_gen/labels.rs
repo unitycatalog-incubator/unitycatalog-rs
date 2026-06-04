@@ -13,6 +13,7 @@ pub enum Resource {
     Schema(super::schemas::v1::Schema),
     Share(super::shares::v1::Share),
     Table(super::tables::v1::Table),
+    TagPolicy(super::tags::v1::TagPolicy),
     Volume(super::volumes::v1::Volume),
 }
 /// Discriminant label for each resource type.
@@ -50,6 +51,7 @@ pub enum ObjectLabel {
     Schema,
     Share,
     Table,
+    TagPolicy,
     Volume,
 }
 impl Resource {
@@ -66,6 +68,7 @@ impl Resource {
             Resource::Schema(_) => &ObjectLabel::Schema,
             Resource::Share(_) => &ObjectLabel::Share,
             Resource::Table(_) => &ObjectLabel::Table,
+            Resource::TagPolicy(_) => &ObjectLabel::TagPolicy,
             Resource::Volume(_) => &ObjectLabel::Volume,
         }
     }
@@ -236,6 +239,23 @@ impl TryFrom<Resource> for super::tables::v1::Table {
             _ => Err(<crate::Error>::generic(concat!(
                 "Resource is not a ",
                 stringify!(Table)
+            ))),
+        }
+    }
+}
+impl From<super::tags::v1::TagPolicy> for Resource {
+    fn from(v: super::tags::v1::TagPolicy) -> Self {
+        Resource::TagPolicy(v)
+    }
+}
+impl TryFrom<Resource> for super::tags::v1::TagPolicy {
+    type Error = crate::Error;
+    fn try_from(r: Resource) -> Result<Self, Self::Error> {
+        match r {
+            Resource::TagPolicy(v) => Ok(v),
+            _ => Err(<crate::Error>::generic(concat!(
+                "Resource is not a ",
+                stringify!(TagPolicy)
             ))),
         }
     }
@@ -711,6 +731,51 @@ impl ResourceExt for super::tables::v1::Table {
         (ObjectLabel::Table).to_ident(self.resource_ref())
     }
 }
+impl TryFrom<Object> for super::tags::v1::TagPolicy {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::tags::v1::TagPolicy = ::serde_json::from_value(props)?;
+        res.id = Some(object.id.hyphenated().to_string());
+        Ok(res)
+    }
+}
+impl TryFrom<super::tags::v1::TagPolicy> for Object {
+    type Error = Error;
+    fn try_from(obj: super::tags::v1::TagPolicy) -> Result<Self, Self::Error> {
+        let id = obj
+            .id
+            .as_ref()
+            .map(|id| ::uuid::Uuid::parse_str(id))
+            .transpose()?
+            .unwrap_or_else(::uuid::Uuid::nil);
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::TagPolicy,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::tags::v1::TagPolicy {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.tag_key])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        self.id
+            .as_ref()
+            .and_then(|id| ::uuid::Uuid::parse_str(id).ok())
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::TagPolicy).to_ident(self.resource_ref())
+    }
+}
 impl TryFrom<Object> for super::volumes::v1::Volume {
     type Error = Error;
     fn try_from(object: Object) -> Result<Self, Self::Error> {
@@ -808,6 +873,12 @@ impl super::tables::v1::Table {
     /// Returns the fully-qualified dot-separated name computed from component fields.
     pub fn qualified_name(&self) -> String {
         format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
+    }
+}
+impl super::tags::v1::TagPolicy {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.tag_key.clone()
     }
 }
 impl super::volumes::v1::Volume {
@@ -1473,6 +1544,37 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
         ],
         path_names: &["catalog_name", "schema_name", "name"],
         parent_label: Some(ObjectLabel::Catalog),
+    },
+    ::olai_store::ResourceTypeDescriptor {
+        label: ObjectLabel::TagPolicy,
+        fields: &[
+            ::olai_store::ResourceFieldDescriptor {
+                name: "tag_key",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "description",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "values",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "id",
+                role: ::olai_store::FieldRole::Identifier,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_at",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "updated_at",
+                role: ::olai_store::FieldRole::Managed,
+            },
+        ],
+        path_names: &["tag_key"],
+        parent_label: None,
     },
     ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Volume,

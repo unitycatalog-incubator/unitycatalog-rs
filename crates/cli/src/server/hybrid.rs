@@ -20,7 +20,7 @@ use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
     create_credentials_router, create_external_locations_router, create_functions_router,
     create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
-    create_sharing_router, create_tables_router,
+    create_sharing_router, create_tables_router, create_tag_policies_router,
 };
 use unitycatalog_server::services::ServerHandler;
 
@@ -108,6 +108,8 @@ where
 
     let router = Router::new()
         .nest("/api/2.1/unity-catalog", api_routes)
+        // Tag Policies (governed tag definitions) are local-only and live under /api/2.1.
+        .nest("/api/2.1", create_tag_policies_router(handler.clone()))
         .nest(
             "/api/v1/delta-sharing",
             create_sharing_router(sharing_handler),

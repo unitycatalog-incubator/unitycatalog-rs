@@ -1,7 +1,7 @@
 use crate::api::{
     CatalogHandler, CredentialHandler, DeltaCommitHandler, ExternalLocationHandler,
     FunctionHandler, ProviderHandler, RecipientHandler, SchemaHandler, ShareHandler, TableHandler,
-    TemporaryCredentialHandler, VolumeHandler,
+    TagPolicyHandler, TemporaryCredentialHandler, VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -222,5 +222,29 @@ where
         .route("/functions/{name}", get(get_function::<T, Cx>))
         .route("/functions/{name}", patch(update_function::<T, Cx>))
         .route("/functions/{name}", delete(delete_function::<T, Cx>))
+        .with_state(handler)
+}
+
+/// Router for the Tag Policies (governed tag definitions) API.
+///
+/// Unlike the Unity Catalog securable APIs, these routes live under `/api/2.1/tag-policies`
+/// (not `/api/2.1/unity-catalog/...`), so this router is mounted at a distinct base by the
+/// server setup.
+pub fn create_tag_policies_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: TagPolicyHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::tag_policies::server::*;
+
+    axum::Router::new()
+        .route("/tag-policies", get(list_tag_policies::<T, Cx>))
+        .route("/tag-policies", post(create_tag_policy::<T, Cx>))
+        .route("/tag-policies/{tag_key}", get(get_tag_policy::<T, Cx>))
+        .route("/tag-policies/{tag_key}", patch(update_tag_policy::<T, Cx>))
+        .route(
+            "/tag-policies/{tag_key}",
+            delete(delete_tag_policy::<T, Cx>),
+        )
         .with_state(handler)
 }
