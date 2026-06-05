@@ -12,19 +12,19 @@ impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListTagPoliciesReque
         #[derive(serde::Deserialize)]
         struct QueryParams {
             #[serde(default)]
-            page_size: Option<i32>,
+            max_results: Option<i32>,
             #[serde(default)]
             page_token: Option<String>,
         }
         let axum_extra::extract::Query(QueryParams {
-            page_size,
+            max_results,
             page_token,
         }) = parts
             .extract::<axum_extra::extract::Query<QueryParams>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
         Ok(ListTagPoliciesRequest {
-            page_size,
+            max_results,
             page_token,
         })
     }

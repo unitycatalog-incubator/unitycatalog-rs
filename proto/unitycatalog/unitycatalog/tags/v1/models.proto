@@ -58,9 +58,9 @@ message Value {
 message TagPolicy {
   option (google.api.resource) = {
     type: "unitycatalog.io/TagPolicy"
-    pattern: "tagPolicies/{tag_policy}"
-    plural: "tagPolicies"
-    singular: "tagPolicy"
+    pattern: "tag_policies/{tag_policy}"
+    plural: "tag_policies"
+    singular: "tag_policy"
     name_field: "tag_key"
   };
 

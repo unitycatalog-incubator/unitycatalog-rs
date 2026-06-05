@@ -8,6 +8,7 @@ pub mod recipients;
 pub mod schemas;
 pub mod shares;
 pub mod tables;
+pub mod tag_policies;
 pub mod temporary_credentials;
 pub mod volumes;
 use crate::codegen::catalogs::PyCatalogClient;
@@ -19,6 +20,7 @@ use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
 use crate::codegen::tables::PyTableClient;
+use crate::codegen::tag_policies::PyTagPolicyClient;
 use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -35,6 +37,7 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "UnityCatalogClient")]
@@ -559,6 +562,35 @@ impl PyUnityCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (max_results = None))]
+    pub fn list_tag_policies(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+    ) -> PyUnityCatalogResult<Vec<TagPolicy>> {
+        let mut request = self.client.list_tag_policies();
+        request = request.with_max_results(max_results);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (tag_policy = None))]
+    pub fn create_tag_policy(
+        &self,
+        py: Python,
+        tag_policy: Option<TagPolicy>,
+    ) -> PyUnityCatalogResult<TagPolicy> {
+        let mut request = self.client.create_tag_policy();
+        request = request.with_tag_policy(tag_policy);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
     #[pyo3(signature = (table_id, operation))]
     pub fn generate_temporary_table_credentials(
         &self,
@@ -722,6 +754,11 @@ impl PyUnityCatalogClient {
         let full_name = format!("{}.{}.{}", catalog_name, schema_name, table_name);
         PyTableClient {
             client: self.client.table_from_full_name(full_name),
+        }
+    }
+    pub fn tag_policy(&self, tag_policy_name: String) -> PyTagPolicyClient {
+        PyTagPolicyClient {
+            client: self.client.tag_policy(tag_policy_name),
         }
     }
     pub fn volume(

@@ -72,7 +72,7 @@ pub struct TagPolicy {
 pub struct ListTagPoliciesRequest {
     /// The maximum number of results per page that should be returned.
     #[prost(int32, optional, tag="1")]
-    pub page_size: ::core::option::Option<i32>,
+    pub max_results: ::core::option::Option<i32>,
     /// Opaque pagination token to go to next page based on previous query.
     #[prost(string, optional, tag="2")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,

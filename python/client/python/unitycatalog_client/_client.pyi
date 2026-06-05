@@ -230,6 +230,44 @@ class Column:
         type_scale: Optional[int] = None,
     ) -> None: ...
 
+class CommitInfo:
+    """Information about a single Delta commit ratified by the catalog.
+
+    Mirrors the `CommitInfo` shape used by the Unity Catalog OSS commit coordinator (`uc_delta_commits`
+    rows). All fields are required and must be positive / non-empty (see the `commit` RPC)."""
+
+    file_modification_timestamp: int
+    """
+    The filesystem modification timestamp of the staged commit file (milliseconds since
+    epoch).
+    """
+    file_name: str
+    """
+    The name of the staged commit file, e.g. `00000000000000000005.<uuid>.json` under
+    `_delta_log/ _staged_commits/`.
+    """
+    file_size: int
+    """The size of the staged commit file in bytes."""
+    timestamp: int
+    """
+    The in-commit timestamp (milliseconds since epoch). Monotonicity is the client's
+    responsibility; the server only requires it to be positive.
+    """
+    version: int
+    """
+    The table version this commit produces. Posted commits are >= 1; version 0 is established
+    out-of- band by create-table.
+    """
+
+    def __init__(
+        self,
+        file_modification_timestamp: int,
+        file_name: str,
+        file_size: int,
+        timestamp: int,
+        version: int,
+    ) -> None: ...
+
 class Credential:
     """A credential used to access external data sources or services."""
 
@@ -376,6 +414,30 @@ class DatabricksGcpServiceAccount:
         credential_id: Optional[str] = None,
         email: Optional[str] = None,
         private_key_id: Optional[str] = None,
+    ) -> None: ...
+
+class EntityTagAssignment:
+    """The assignment of a tag to a Unity Catalog entity.
+
+    Unlike a TagPolicy (a governed-tag *definition*), an assignment is the application of a tag to a
+    specific securable. It has no identifier of its own — its identity is the composite of (entity_type,
+    entity_name, tag_key). It is intentionally NOT a `google.api.resource`: assignments are stored as
+    associations between the entity and its tag, not as standalone objects."""
+
+    entity_name: str
+    """The fully qualified name of the entity to which the tag is assigned."""
+    entity_type: str
+    """
+    The type of the entity to which the tag is assigned. Supported values: catalogs, schemas,
+    tables, columns, volumes.
+    """
+    tag_key: str
+    """The key of the tag."""
+    tag_value: Optional[str]
+    """The value of the tag."""
+
+    def __init__(
+        self, entity_name: str, entity_type: str, tag_key: str, tag_value: Optional[str] = None
     ) -> None: ...
 
 class ExternalLocation:
@@ -571,6 +633,24 @@ class GcpOauthToken:
     """The OAuth token used to access Google Cloud services."""
 
     def __init__(self, oauth_token: str) -> None: ...
+
+class Metadata:
+    """A Delta metadata change accompanying a commit. Modeled minimally; the coordinator stores it opaquely
+    and does not interpret it."""
+
+    configuration: Dict[str, str]
+    """Configuration key/value pairs from the Delta metadata action."""
+    id: Optional[str]
+    """The Delta metadata `id`."""
+    schema_string: Optional[str]
+    """The serialized schema string from the Delta metadata action."""
+
+    def __init__(
+        self,
+        configuration: Dict[str, str],
+        id: Optional[str] = None,
+        schema_string: Optional[str] = None,
+    ) -> None: ...
 
 class PermissionsChange:
     add: List[str]
@@ -873,6 +953,39 @@ class TableSummary:
 
     def __init__(self, full_name: str, table_type: TableType) -> None: ...
 
+class TagPolicy:
+    """A governed tag definition (tag policy).
+
+    A tag policy defines a tag key together with the rules that govern how it can be used, including the
+    optional set of allowed values. Assigning a governed tag to an entity is done through the Entity Tag
+    Assignments API."""
+
+    created_at: Optional[int]
+    """Time at which this tag policy was created, in epoch milliseconds."""
+    description: Optional[str]
+    """User-provided free-form text description of the tag policy."""
+    id: Optional[str]
+    """Unique identifier for the tag policy."""
+    tag_key: str
+    """The key of the governed tag."""
+    updated_at: Optional[int]
+    """Time at which this tag policy was last updated, in epoch milliseconds."""
+    values: List[Value]
+    """
+    The set of allowed values for the governed tag. When empty, the governed tag does not
+    restrict the values that may be assigned.
+    """
+
+    def __init__(
+        self,
+        tag_key: str,
+        created_at: Optional[int] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        updated_at: Optional[int] = None,
+        values: Optional[List[Value]] = None,
+    ) -> None: ...
+
 class TemporaryCredential:
     """The response to the GenerateTemporaryTableCredentialsRequest."""
 
@@ -904,6 +1017,14 @@ class TemporaryCredential:
         gcp_oauth_token: Optional[GcpOauthToken] = None,
         r2_temp_credentials: Optional[R2TemporaryCredentials] = None,
     ) -> None: ...
+
+class Value:
+    """An allowed value for a governed tag."""
+
+    name: str
+    """The name of the allowed value."""
+
+    def __init__(self, name: str) -> None: ...
 
 class Volume:
     browse_only: Optional[bool]
@@ -1180,12 +1301,12 @@ class CatalogClient:
             A catalog is a root-level namespace that contains schemas.
         """
         ...
-    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
-    def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
+    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
     def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
+    def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
 
 class CredentialClient:
     def delete(self) -> None:
@@ -1485,10 +1606,10 @@ class SchemaClient:
             A schema is a namespace within a catalog that contains tables.
         """
         ...
-    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
+    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
     def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
 
 class ShareClient:
@@ -1586,6 +1707,54 @@ class TableClient:
 
         Returns:
             The requested resource
+        """
+        ...
+
+class TagPolicyClient:
+    def delete(self) -> None:
+        """
+        Delete a tag policy
+
+        Deletes the governed tag definition that matches the supplied tag key.
+
+
+        Returns:
+            None
+        """
+        ...
+    def get(self) -> TagPolicy:
+        """
+        Get a tag policy
+
+        Gets the governed tag definition for the specified tag key.
+
+
+        Returns:
+            A governed tag definition (tag policy). A tag policy defines a tag key together with the
+            rules
+            that govern how it can be used, including the optional set of allowed values. Assigning a
+            governed tag to an entity is done through the Entity Tag Assignments API.
+        """
+        ...
+    def update(
+        self, tag_policy: Optional[TagPolicy] = None, update_mask: Optional[str] = None
+    ) -> TagPolicy:
+        """
+        Update a tag policy
+
+        Updates the governed tag definition that matches the supplied tag key.
+
+
+        Args:
+            tag_policy: The tag policy with the updated fields.
+            update_mask: The list of fields to update, as a comma-separated string.
+
+
+        Returns:
+            A governed tag definition (tag policy). A tag policy defines a tag key together with the
+            rules
+            that govern how it can be used, including the optional set of allowed values. Assigning a
+            governed tag to an entity is done through the Entity Tag Assignments API.
         """
         ...
 
@@ -1893,6 +2062,24 @@ class UnityCatalogClient:
             The requested resource
         """
         ...
+    def create_tag_policy(self, tag_policy: Optional[TagPolicy] = None) -> TagPolicy:
+        """
+        Create a new tag policy
+
+        Creates a new governed tag definition.
+
+
+        Args:
+            tag_policy: The tag policy to create.
+
+
+        Returns:
+            A governed tag definition (tag policy). A tag policy defines a tag key together with the
+            rules
+            that govern how it can be used, including the optional set of allowed values. Assigning a
+            governed tag to an entity is done through the Entity Tag Assignments API.
+        """
+        ...
     def create_volume(
         self,
         catalog_name: str,
@@ -2155,6 +2342,22 @@ class UnityCatalogClient:
             List of The tables returned.
         """
         ...
+    def list_tag_policies(self, max_results: Optional[int] = None) -> List[TagPolicy]:
+        """
+        List tag policies
+
+        Gets an array of tag policies. There is no guarantee of a specific ordering of the elements in the
+        array.
+
+
+        Args:
+            max_results: The maximum number of results per page that should be returned.
+
+
+        Returns:
+            List of The tag policies returned.
+        """
+        ...
     def list_volumes(
         self,
         catalog_name: str,
@@ -2189,6 +2392,7 @@ class UnityCatalogClient:
     def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
     def share(self, name: str) -> ShareClient: ...
     def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
+    def tag_policy(self, tag_policy_name: str) -> TagPolicyClient: ...
     def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
 # Hand-written supplement appended to `_client.pyi` after codegen.
 #

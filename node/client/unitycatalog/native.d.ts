@@ -53,6 +53,12 @@ export declare class NapiTableClient {
   delete(): Promise<void>
 }
 
+export declare class NapiTagPolicyClient {
+  get(): Promise<Buffer>
+  update(updateMask?: string | undefined | null): Promise<Buffer>
+  delete(): Promise<void>
+}
+
 export declare class NapiTemporaryCredentialClient {
 
 }
@@ -86,6 +92,9 @@ export declare class NapiUnityCatalogClient {
   listTables(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeDeltaMetadata?: boolean | undefined | null, omitColumns?: boolean | undefined | null, omitProperties?: boolean | undefined | null, omitUsername?: boolean | undefined | null, includeBrowse?: boolean | undefined | null, includeManifestCapabilities?: boolean | undefined | null): Promise<Array<Buffer>>
   listTablesStream(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeDeltaMetadata?: boolean | undefined | null, omitColumns?: boolean | undefined | null, omitProperties?: boolean | undefined | null, omitUsername?: boolean | undefined | null, includeBrowse?: boolean | undefined | null, includeManifestCapabilities?: boolean | undefined | null): ReadableStream<Buffer>
   createTable(name: string, schemaName: string, catalogName: string, tableType: number, dataSourceFormat: number, storageLocation?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
+  listTagPolicies(maxResults?: number | undefined | null): Promise<Array<Buffer>>
+  listTagPoliciesStream(maxResults?: number | undefined | null): ReadableStream<Buffer>
+  createTagPolicy(): Promise<Buffer>
   listVolumes(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
   listVolumesStream(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): ReadableStream<Buffer>
   createVolume(catalogName: string, schemaName: string, name: string, volumeType: number, storageLocation?: string | undefined | null, comment?: string | undefined | null): Promise<Buffer>
@@ -98,6 +107,7 @@ export declare class NapiUnityCatalogClient {
   schema(catalogName: string, schemaName: string): NapiSchemaClient
   share(name: string): NapiShareClient
   table(catalogName: string, schemaName: string, tableName: string): NapiTableClient
+  tagPolicy(tagPolicyName: string): NapiTagPolicyClient
   volume(catalogName: string, schemaName: string, volumeName: string): NapiVolumeClient
 }
 

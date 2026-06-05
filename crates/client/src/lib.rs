@@ -3,6 +3,7 @@ use olai_http::CloudClient;
 
 pub use catalogs::*;
 pub use credentials::*;
+pub use entity_tag_assignments::*;
 pub use error::*;
 pub use external_locations::*;
 pub use functions::*;
@@ -11,6 +12,7 @@ pub use recipients::*;
 pub use schemas::*;
 pub use shares::*;
 pub use tables::*;
+pub use tag_policies::*;
 pub use temporary_credentials::*;
 use unitycatalog_common::models::volumes::v1::VolumeType;
 use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
@@ -24,6 +26,9 @@ use crate::codegen::catalogs::ListCatalogsBuilder;
 pub use crate::codegen::catalogs::builders::{CreateCatalogBuilder, UpdateCatalogBuilder};
 use crate::codegen::credentials::ListCredentialsBuilder;
 pub use crate::codegen::credentials::builders::{CreateCredentialBuilder, UpdateCredentialBuilder};
+pub use crate::codegen::entity_tag_assignments::builders::{
+    CreateEntityTagAssignmentBuilder, UpdateEntityTagAssignmentBuilder,
+};
 use crate::codegen::external_locations::ListExternalLocationsBuilder;
 pub use crate::codegen::external_locations::builders::{
     CreateExternalLocationBuilder, UpdateExternalLocationBuilder,
@@ -42,6 +47,8 @@ use crate::codegen::shares::ListSharesBuilder;
 pub use crate::codegen::shares::builders::{CreateShareBuilder, UpdateShareBuilder};
 use crate::codegen::tables::ListTablesBuilder;
 pub use crate::codegen::tables::builders::CreateTableBuilder;
+use crate::codegen::tag_policies::ListTagPoliciesBuilder;
+pub use crate::codegen::tag_policies::builders::{CreateTagPolicyBuilder, UpdateTagPolicyBuilder};
 pub use crate::codegen::temporary_credentials::builders::{
     GenerateTemporaryPathCredentialsBuilder, GenerateTemporaryTableCredentialsBuilder,
     GenerateTemporaryVolumeCredentialsBuilder,
@@ -52,6 +59,7 @@ pub use crate::codegen::volumes::builders::{CreateVolumeBuilder, UpdateVolumeBui
 mod catalogs;
 pub mod codegen;
 mod credentials;
+mod entity_tag_assignments;
 pub mod error;
 mod external_locations;
 mod functions;
@@ -60,6 +68,7 @@ mod recipients;
 mod schemas;
 mod shares;
 mod tables;
+mod tag_policies;
 mod temporary_credentials;
 mod utils;
 mod volumes;
@@ -77,6 +86,8 @@ pub struct UnityCatalogClient {
     temporary_credentials: TemporaryCredentialClientBase,
     volumes: VolumeClientBase,
     functions: FunctionClientBase,
+    tag_policies: TagPolicyClientBase,
+    entity_tag_assignments: EntityTagAssignmentClientBase,
 }
 
 impl UnityCatalogClient {
@@ -106,6 +117,9 @@ impl UnityCatalogClient {
             TemporaryCredentialClientBase::new(client.clone(), base_url.clone());
         let volumes = VolumeClientBase::new(client.clone(), base_url.clone());
         let functions = FunctionClientBase::new(client.clone(), base_url.clone());
+        let tag_policies = TagPolicyClientBase::new(client.clone(), base_url.clone());
+        let entity_tag_assignments =
+            EntityTagAssignmentClientBase::new(client.clone(), base_url.clone());
 
         Self {
             catalogs,
@@ -119,6 +133,8 @@ impl UnityCatalogClient {
             temporary_credentials,
             volumes,
             functions,
+            tag_policies,
+            entity_tag_assignments,
         }
     }
 
@@ -423,6 +439,27 @@ impl UnityCatalogClient {
 
     pub fn function_from_full_name(&self, full_name: impl ToString) -> FunctionClient {
         FunctionClient::new_from_full_name(full_name, self.functions.clone())
+    }
+
+    // Tag policy methods
+    pub fn list_tag_policies(&self) -> ListTagPoliciesBuilder {
+        ListTagPoliciesBuilder::new(self.tag_policies.clone())
+    }
+
+    pub fn create_tag_policy(&self) -> CreateTagPolicyBuilder {
+        CreateTagPolicyBuilder::new(self.tag_policies.clone())
+    }
+
+    pub fn tag_policy(&self, tag_key: impl ToString) -> TagPolicyClient {
+        TagPolicyClient::new(tag_key, self.tag_policies.clone())
+    }
+
+    /// Client for managing tag assignments on Unity Catalog entities.
+    ///
+    /// Tag assignments are keyed by `(entity_type, entity_name, tag_key)` rather than a single
+    /// scoped name, so the methods on the returned client take those components explicitly.
+    pub fn entity_tag_assignments(&self) -> EntityTagAssignmentClientBase {
+        self.entity_tag_assignments.clone()
     }
 
     #[allow(clippy::too_many_arguments)]

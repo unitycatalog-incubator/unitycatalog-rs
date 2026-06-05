@@ -58,7 +58,7 @@ impl<T: ResourceStore + Policy<RequestContext>> TagPolicyHandler<RequestContext>
             .list(
                 &ObjectLabel::TagPolicy,
                 None,
-                request.page_size.map(|v| v as usize),
+                request.max_results.map(|v| v as usize),
                 request.page_token,
             )
             .await?;

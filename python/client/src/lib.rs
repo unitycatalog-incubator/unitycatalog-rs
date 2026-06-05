@@ -1,6 +1,6 @@
 use self::client::{
     PyCatalogClient, PyCredentialClient, PyExternalLocationClient, PyRecipientClient,
-    PySchemaClient, PyShareClient, PyTableClient, PyTemporaryCredentialClient,
+    PySchemaClient, PyShareClient, PyTableClient, PyTagPolicyClient, PyTemporaryCredentialClient,
     PyUnityCatalogClient, PyVolumeClient,
 };
 use pyo3::prelude::*;
@@ -17,6 +17,7 @@ use unitycatalog_common::models::shares::v1::{
 use unitycatalog_common::models::tables::v1::{
     Column, ColumnTypeName, DataSourceFormat, Table, TableType,
 };
+use unitycatalog_common::models::tags::v1::{TagPolicy, Value};
 use unitycatalog_common::models::temporary_credentials::v1::TemporaryCredential;
 use unitycatalog_common::models::volumes::v1::{Volume, VolumeType};
 
@@ -61,6 +62,8 @@ fn _client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TemporaryCredential>()?;
     m.add_class::<Volume>()?;
     m.add_class::<VolumeType>()?;
+    m.add_class::<TagPolicy>()?;
+    m.add_class::<Value>()?;
 
     // service clients
     m.add_class::<PyCatalogClient>()?;
@@ -70,6 +73,7 @@ fn _client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySchemaClient>()?;
     m.add_class::<PyShareClient>()?;
     m.add_class::<PyTableClient>()?;
+    m.add_class::<PyTagPolicyClient>()?;
     m.add_class::<PyTemporaryCredentialClient>()?;
     m.add_class::<PyUnityCatalogClient>()?;
     m.add_class::<PyVolumeClient>()?;

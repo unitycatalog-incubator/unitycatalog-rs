@@ -1071,15 +1071,15 @@ impl serde::Serialize for ListTagPoliciesRequest {
     {
         use serde::ser::SerializeStruct;
         let mut len = 0;
-        if self.page_size.is_some() {
+        if self.max_results.is_some() {
             len += 1;
         }
         if self.page_token.is_some() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.tags.v1.ListTagPoliciesRequest", len)?;
-        if let Some(v) = self.page_size.as_ref() {
-            struct_ser.serialize_field("page_size", v)?;
+        if let Some(v) = self.max_results.as_ref() {
+            struct_ser.serialize_field("max_results", v)?;
         }
         if let Some(v) = self.page_token.as_ref() {
             struct_ser.serialize_field("page_token", v)?;
@@ -1094,15 +1094,15 @@ impl<'de> serde::Deserialize<'de> for ListTagPoliciesRequest {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "page_size",
-            "pageSize",
+            "max_results",
+            "maxResults",
             "page_token",
             "pageToken",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
-            PageSize,
+            MaxResults,
             PageToken,
             __SkipField__,
         }
@@ -1126,7 +1126,7 @@ impl<'de> serde::Deserialize<'de> for ListTagPoliciesRequest {
                         E: serde::de::Error,
                     {
                         match value {
-                            "pageSize" | "page_size" => Ok(GeneratedField::PageSize),
+                            "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
                             "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
@@ -1147,15 +1147,15 @@ impl<'de> serde::Deserialize<'de> for ListTagPoliciesRequest {
                 where
                     V: serde::de::MapAccess<'de>,
             {
-                let mut page_size__ = None;
+                let mut max_results__ = None;
                 let mut page_token__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
-                        GeneratedField::PageSize => {
-                            if page_size__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("pageSize"));
+                        GeneratedField::MaxResults => {
+                            if max_results__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxResults"));
                             }
-                            page_size__ = 
+                            max_results__ = 
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
@@ -1171,7 +1171,7 @@ impl<'de> serde::Deserialize<'de> for ListTagPoliciesRequest {
                     }
                 }
                 Ok(ListTagPoliciesRequest {
-                    page_size: page_size__,
+                    max_results: max_results__,
                     page_token: page_token__,
                 })
             }

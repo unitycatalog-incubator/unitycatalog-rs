@@ -12,7 +12,7 @@ import "unitycatalog/tags/v1/models.proto";
 // List tag policies
 message ListTagPoliciesRequest {
   // The maximum number of results per page that should be returned.
-  optional int32 page_size = 1 [
+  optional int32 max_results = 1 [
     (buf.validate.field).int32 = {
       gt: 0
       lte: 1000

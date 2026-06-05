@@ -585,6 +585,7 @@ module.exports.NapiRecipientClient = nativeBinding.NapiRecipientClient
 module.exports.NapiSchemaClient = nativeBinding.NapiSchemaClient
 module.exports.NapiShareClient = nativeBinding.NapiShareClient
 module.exports.NapiTableClient = nativeBinding.NapiTableClient
+module.exports.NapiTagPolicyClient = nativeBinding.NapiTagPolicyClient
 module.exports.NapiTemporaryCredentialClient = nativeBinding.NapiTemporaryCredentialClient
 module.exports.NapiUnityCatalogClient = nativeBinding.NapiUnityCatalogClient
 module.exports.NapiVolumeClient = nativeBinding.NapiVolumeClient

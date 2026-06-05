@@ -10,6 +10,7 @@ import {
   type Schema,
   type Share,
   type Table,
+  type TagPolicy,
   type TemporaryCredential,
   type Volume,
   CatalogSchema,
@@ -21,6 +22,7 @@ import {
   SchemaSchema,
   ShareSchema,
   TableSchema,
+  TagPolicySchema,
   TemporaryCredentialSchema,
   VolumeSchema,
 } from "./models";
@@ -34,6 +36,7 @@ import {
   NapiSchemaClient as NativeSchemaClient,
   NapiShareClient as NativeShareClient,
   NapiTableClient as NativeTableClient,
+  NapiTagPolicyClient as NativeTagPolicyClient,
   NapiUnityCatalogClient as NativeClient,
   NapiVolumeClient as NativeVolumeClient,
 } from "./native";
@@ -481,6 +484,18 @@ export interface GetTableOptions {
   includeManifestCapabilities?: boolean;
 }
 
+export interface ListTagPoliciesOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface UpdateTagPolicyOptions {
+  /** The list of fields to update, as a comma-separated string. */
+  updateMask?: string;
+}
+
 export interface GenerateTemporaryPathCredentialsOptions {
   /** When set to true, the service will not validate that the generated
    *  credentials can perform write operations, therefore no new paths will be
@@ -864,6 +879,50 @@ export class TableClient {
 
   /**
      * Delete a table
+     */
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
+export class TagPolicyClient {
+  private readonly inner: NativeTagPolicyClient;
+
+  /** @internal */
+  constructor(inner: NativeTagPolicyClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a tag policy
+     * 
+     * Gets the governed tag definition for the specified tag key.
+     */
+  async get(): Promise<TagPolicy> {
+    try {
+      return fromBinary(TagPolicySchema, await this.inner.get());
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Update a tag policy
+     * 
+     * Updates the governed tag definition that matches the supplied tag key.
+     */
+  async update(options?: UpdateTagPolicyOptions): Promise<TagPolicy> {
+    const { updateMask } = options || {};
+    try {
+      return fromBinary(TagPolicySchema, await this.inner.update(updateMask));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Delete a tag policy
+     * 
+     * Deletes the governed tag definition that matches the supplied tag key.
      */
   async delete(): Promise<void> {
     try {
@@ -1284,6 +1343,51 @@ export class UnityCatalogClient {
 
   table(catalogName: string, schemaName: string, tableName: string): TableClient {
     return new TableClient(this.inner.table(catalogName, schemaName, tableName));
+  }
+
+  /**
+     * List tag policies
+     * 
+     * Gets an array of tag policies. There is no guarantee of a specific ordering
+     * of the elements in the array.
+     */
+  async listTagPolicies(options?: ListTagPoliciesOptions): Promise<TagPolicy[]> {
+    const { maxResults } = options || {};
+    try {
+      return (await this.inner.listTagPolicies(maxResults)).map((data) =>
+        fromBinary(TagPolicySchema, data),
+      );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List tag policies
+     * 
+     * Gets an array of tag policies. There is no guarantee of a specific ordering
+     * of the elements in the array.
+     */
+  async *listTagPoliciesStream(options?: ListTagPoliciesOptions): AsyncIterable<TagPolicy> {
+    const { maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listTagPoliciesStream(maxResults)) {
+        yield fromBinary(TagPolicySchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Create a new tag policy
+     * 
+     * Creates a new governed tag definition.
+     */
+  async createTagPolicy(): Promise<TagPolicy> {
+    try {
+      return fromBinary(TagPolicySchema, await this.inner.createTagPolicy());
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  tagPolicy(tagPolicyName: string): TagPolicyClient {
+    return new TagPolicyClient(this.inner.tagPolicy(tagPolicyName));
   }
 
   /**

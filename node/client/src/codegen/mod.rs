@@ -9,6 +9,7 @@ pub mod recipients;
 pub mod schemas;
 pub mod shares;
 pub mod tables;
+pub mod tag_policies;
 pub mod temporary_credentials;
 pub mod volumes;
 use crate::codegen::catalogs::NapiCatalogClient;
@@ -20,6 +21,7 @@ use crate::codegen::recipients::NapiRecipientClient;
 use crate::codegen::schemas::NapiSchemaClient;
 use crate::codegen::shares::NapiShareClient;
 use crate::codegen::tables::NapiTableClient;
+use crate::codegen::tag_policies::NapiTagPolicyClient;
 use crate::codegen::temporary_credentials::NapiTemporaryCredentialClient;
 use crate::codegen::volumes::NapiVolumeClient;
 use crate::error::NapiErrorExt;
@@ -40,6 +42,7 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[napi]
@@ -607,6 +610,41 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub async fn list_tag_policies(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
+        let mut request = self.client.list_tag_policies();
+        request = request.with_max_results(max_results);
+        request
+            .into_stream()
+            .map_ok(|item| Buffer::from(item.encode_to_vec()))
+            .try_collect::<Vec<_>>()
+            .await
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_tag_policies_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_tag_policies();
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_tag_policy(&self) -> napi::Result<Buffer> {
+        let mut request = self.client.create_tag_policy();
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
     pub async fn list_volumes(
         &self,
         catalog_name: String,
@@ -734,6 +772,12 @@ impl NapiUnityCatalogClient {
         let full_name = format!("{}.{}.{}", catalog_name, schema_name, table_name);
         NapiTableClient {
             client: self.client.table_from_full_name(full_name),
+        }
+    }
+    #[napi]
+    pub fn tag_policy(&self, tag_policy_name: String) -> NapiTagPolicyClient {
+        NapiTagPolicyClient {
+            client: self.client.tag_policy(tag_policy_name),
         }
     }
     #[napi]
