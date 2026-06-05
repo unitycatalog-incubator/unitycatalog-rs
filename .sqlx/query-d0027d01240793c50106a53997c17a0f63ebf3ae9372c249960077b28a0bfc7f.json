@@ -20,7 +20,9 @@
                 "has_part",
                 "part_of",
                 "references",
-                "referenced_by"
+                "referenced_by",
+                "tagged",
+                "tagged_by"
               ]
             }
           }

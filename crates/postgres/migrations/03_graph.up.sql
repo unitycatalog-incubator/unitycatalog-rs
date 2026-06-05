@@ -1,12 +1,19 @@
+-- Values must match the `ObjectLabel` Rust enum's `sqlx(rename_all = "snake_case")`
+-- serialization (crates/common/src/models/_gen/labels.rs). Keep this list in sync when
+-- adding a new managed resource type.
 CREATE TYPE object_label AS ENUM (
-    'share_info',
-    'catalog_info',
-    'schema_info',
-    'table_info',
-    'column_info',
-    'credential_info',
-    'external_location_info',
-    'recipient_info'
+    'catalog',
+    'column',
+    'credential',
+    'external_location',
+    'function',
+    'provider',
+    'recipient',
+    'schema',
+    'share',
+    'table',
+    'tag_policy',
+    'volume'
 );
 
 CREATE TABLE objects (
