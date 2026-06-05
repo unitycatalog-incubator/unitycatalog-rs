@@ -374,6 +374,204 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /entity-tag-assignments:
+        post:
+            tags:
+                - EntityTagAssignmentsService
+            description: |-
+                Create an entity tag assignment
+
+                 Assigns a tag to a Unity Catalog entity.
+            operationId: CreateEntityTagAssignment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateEntityTagAssignmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntityTagAssignment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /entity-tag-assignments/{entityType}/{entityName}/tags:
+        get:
+            tags:
+                - EntityTagAssignmentsService
+            description: |-
+                List entity tag assignments
+
+                 Gets the tag assignments for the specified entity.
+            operationId: ListEntityTagAssignments
+            parameters:
+                - name: entityType
+                  in: path
+                  description: The type of the entity whose tag assignments to list.
+                  required: true
+                  schema:
+                    type: string
+                - name: entityName
+                  in: path
+                  description: The fully qualified name of the entity whose tag assignments to list.
+                  required: true
+                  schema:
+                    type: string
+                - name: maxResults
+                  in: query
+                  description: The maximum number of results per page that should be returned.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  description: Opaque pagination token to go to next page based on previous query.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEntityTagAssignmentsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /entity-tag-assignments/{entityType}/{entityName}/tags/{tagKey}:
+        get:
+            tags:
+                - EntityTagAssignmentsService
+            description: |-
+                Get an entity tag assignment
+
+                 Gets the tag assignment for the specified entity and tag key.
+            operationId: GetEntityTagAssignment
+            parameters:
+                - name: entityType
+                  in: path
+                  description: The type of the entity to which the tag is assigned.
+                  required: true
+                  schema:
+                    type: string
+                - name: entityName
+                  in: path
+                  description: The fully qualified name of the entity to which the tag is assigned.
+                  required: true
+                  schema:
+                    type: string
+                - name: tagKey
+                  in: path
+                  description: The key of the tag.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntityTagAssignment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - EntityTagAssignmentsService
+            description: |-
+                Delete an entity tag assignment
+
+                 Deletes the tag assignment for the specified entity and tag key.
+            operationId: DeleteEntityTagAssignment
+            parameters:
+                - name: entityType
+                  in: path
+                  description: The type of the entity to which the tag is assigned.
+                  required: true
+                  schema:
+                    type: string
+                - name: entityName
+                  in: path
+                  description: The fully qualified name of the entity to which the tag is assigned.
+                  required: true
+                  schema:
+                    type: string
+                - name: tagKey
+                  in: path
+                  description: The key of the tag to delete.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        patch:
+            tags:
+                - EntityTagAssignmentsService
+            description: |-
+                Update an entity tag assignment
+
+                 Updates the tag assignment for the specified entity and tag key.
+            operationId: UpdateEntityTagAssignment
+            parameters:
+                - name: entityType
+                  in: path
+                  description: The type of the entity to which the tag is assigned.
+                  required: true
+                  schema:
+                    type: string
+                - name: entityName
+                  in: path
+                  description: The fully qualified name of the entity to which the tag is assigned.
+                  required: true
+                  schema:
+                    type: string
+                - name: tagKey
+                  in: path
+                  description: The key of the tag to update.
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateEntityTagAssignmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntityTagAssignment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /external-locations:
         get:
             tags:
@@ -2359,6 +2557,16 @@ components:
                         - $ref: '#/components/schemas/DatabricksGcpServiceAccount'
                     description: The Databricks managed GCP service account configuration.
             description: Create a new credential.
+        CreateEntityTagAssignmentRequest:
+            required:
+                - tagAssignment
+            type: object
+            properties:
+                tagAssignment:
+                    allOf:
+                        - $ref: '#/components/schemas/EntityTagAssignment'
+                    description: The tag assignment to create.
+            description: Create an entity tag assignment
         CreateExternalLocationRequest:
             required:
                 - name
@@ -2823,6 +3031,36 @@ components:
                     items:
                         $ref: '#/components/schemas/NamedAny'
             description: When request bodies or response payloads may be one of a number of different schemas, a `discriminator` object can be used to aid in serialization, deserialization, and validation.  The discriminator is a specific object in a schema which is used to inform the consumer of the specification of an alternative schema based on the value associated with it.  When using the discriminator, _inline_ schemas will not be considered.
+        EntityTagAssignment:
+            required:
+                - entityType
+                - entityName
+                - tagKey
+            type: object
+            properties:
+                entityType:
+                    type: string
+                    description: |-
+                        The type of the entity to which the tag is assigned.
+
+                         Supported values: catalogs, schemas, tables, columns, volumes.
+                entityName:
+                    type: string
+                    description: The fully qualified name of the entity to which the tag is assigned.
+                tagKey:
+                    type: string
+                    description: The key of the tag.
+                tagValue:
+                    type: string
+                    description: The value of the tag.
+            description: |-
+                The assignment of a tag to a Unity Catalog entity.
+
+                 Unlike a TagPolicy (a governed-tag *definition*), an assignment is the application
+                 of a tag to a specific securable. It has no identifier of its own — its identity is
+                 the composite of (entity_type, entity_name, tag_key). It is intentionally NOT a
+                 `google.api.resource`: assignments are stored as associations between the entity and
+                 its tag, not as standalone objects.
         ExternalDocs:
             type: object
             properties:
@@ -3191,6 +3429,18 @@ components:
                 nextPageToken:
                     type: string
                     description: The next_page_token value to include in the next List request.
+        ListEntityTagAssignmentsResponse:
+            type: object
+            properties:
+                tagAssignments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EntityTagAssignment'
+                    description: The tag assignments returned.
+                nextPageToken:
+                    type: string
+                    description: The next_page_token value to include in the next List request.
+            description: List entity tag assignments response.
         ListExternalLocationsResponse:
             type: object
             properties:
@@ -3956,6 +4206,31 @@ components:
                         - $ref: '#/components/schemas/DatabricksGcpServiceAccount'
                     description: The Databricks managed GCP service account configuration.
             description: Update a credential.
+        UpdateEntityTagAssignmentRequest:
+            required:
+                - entityType
+                - entityName
+                - tagKey
+                - tagAssignment
+            type: object
+            properties:
+                entityType:
+                    type: string
+                    description: The type of the entity to which the tag is assigned.
+                entityName:
+                    type: string
+                    description: The fully qualified name of the entity to which the tag is assigned.
+                tagKey:
+                    type: string
+                    description: The key of the tag to update.
+                tagAssignment:
+                    allOf:
+                        - $ref: '#/components/schemas/EntityTagAssignment'
+                    description: The tag assignment with the updated fields.
+                updateMask:
+                    type: string
+                    description: The list of fields to update, as a comma-separated string.
+            description: Update an entity tag assignment
         UpdateExternalLocationRequest:
             required:
                 - name
@@ -4282,6 +4557,8 @@ tags:
         Service implementing the Delta catalog-managed commits ("commit coordinator")
          protocol. The catalog is the source of truth for which commit wins each
          version.
+    - name: EntityTagAssignmentsService
+      description: Manage assignments of tags to Unity Catalog entities.
     - name: ExternalLocationsService
       description: |-
         Service for managing external locations in Unity Catalog.

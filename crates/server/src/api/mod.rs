@@ -1,6 +1,7 @@
 pub use catalogs::CatalogHandler;
 pub use commits::DeltaCommitHandler;
 pub use credentials::CredentialHandler;
+pub use entity_tag_assignments::EntityTagAssignmentHandler;
 pub use external_locations::ExternalLocationHandler;
 pub use functions::FunctionHandler;
 pub use providers::ProviderHandler;
@@ -31,6 +32,7 @@ use unitycatalog_common::models::ResourceIdent;
 pub mod catalogs;
 pub mod commits;
 pub mod credentials;
+pub mod entity_tag_assignments;
 pub mod external_locations;
 pub mod functions;
 pub mod providers;

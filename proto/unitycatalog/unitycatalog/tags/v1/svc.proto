@@ -130,3 +130,180 @@ service TagPoliciesService {
     option (gnostic.openapi.v3.operation) = {operation_id: "DeleteTagPolicy"};
   }
 }
+
+// List entity tag assignments
+message ListEntityTagAssignmentsRequest {
+  // The type of the entity whose tag assignments to list.
+  string entity_type = 1 [
+    (buf.validate.field).string.pattern = "^(catalogs|schemas|tables|columns|volumes)$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The fully qualified name of the entity whose tag assignments to list.
+  string entity_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The maximum number of results per page that should be returned.
+  optional int32 max_results = 3 [
+    (buf.validate.field).int32 = {
+      gt: 0
+      lte: 1000
+    },
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// List entity tag assignments response.
+message ListEntityTagAssignmentsResponse {
+  // The tag assignments returned.
+  repeated EntityTagAssignment tag_assignments = 1;
+
+  // The next_page_token value to include in the next List request.
+  optional string next_page_token = 2;
+}
+
+// Create an entity tag assignment
+message CreateEntityTagAssignmentRequest {
+  // The tag assignment to create.
+  EntityTagAssignment tag_assignment = 1 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Get an entity tag assignment
+message GetEntityTagAssignmentRequest {
+  // The type of the entity to which the tag is assigned.
+  string entity_type = 1 [
+    (buf.validate.field).string.pattern = "^(catalogs|schemas|tables|columns|volumes)$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The fully qualified name of the entity to which the tag is assigned.
+  string entity_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The key of the tag.
+  string tag_key = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Update an entity tag assignment
+message UpdateEntityTagAssignmentRequest {
+  // The type of the entity to which the tag is assigned.
+  string entity_type = 1 [
+    (buf.validate.field).string.pattern = "^(catalogs|schemas|tables|columns|volumes)$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The fully qualified name of the entity to which the tag is assigned.
+  string entity_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The key of the tag to update.
+  string tag_key = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The tag assignment with the updated fields.
+  EntityTagAssignment tag_assignment = 4 [
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The list of fields to update, as a comma-separated string.
+  optional string update_mask = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Delete an entity tag assignment
+message DeleteEntityTagAssignmentRequest {
+  // The type of the entity to which the tag is assigned.
+  string entity_type = 1 [
+    (buf.validate.field).string.pattern = "^(catalogs|schemas|tables|columns|volumes)$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The fully qualified name of the entity to which the tag is assigned.
+  string entity_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The key of the tag to delete.
+  string tag_key = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Manage assignments of tags to Unity Catalog entities.
+service EntityTagAssignmentsService {
+  // List entity tag assignments
+  //
+  // Gets the tag assignments for the specified entity.
+  rpc ListEntityTagAssignments(ListEntityTagAssignmentsRequest) returns (ListEntityTagAssignmentsResponse) {
+    option (google.api.http) = {get: "/entity-tag-assignments/{entity_type}/{entity_name}/tags"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListEntityTagAssignments"};
+  }
+
+  // Create an entity tag assignment
+  //
+  // Assigns a tag to a Unity Catalog entity.
+  rpc CreateEntityTagAssignment(CreateEntityTagAssignmentRequest) returns (EntityTagAssignment) {
+    option (google.api.http) = {
+      post: "/entity-tag-assignments"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "CreateEntityTagAssignment"};
+  }
+
+  // Get an entity tag assignment
+  //
+  // Gets the tag assignment for the specified entity and tag key.
+  rpc GetEntityTagAssignment(GetEntityTagAssignmentRequest) returns (EntityTagAssignment) {
+    option (google.api.http) = {get: "/entity-tag-assignments/{entity_type}/{entity_name}/tags/{tag_key}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "GetEntityTagAssignment"};
+  }
+
+  // Update an entity tag assignment
+  //
+  // Updates the tag assignment for the specified entity and tag key.
+  rpc UpdateEntityTagAssignment(UpdateEntityTagAssignmentRequest) returns (EntityTagAssignment) {
+    option (google.api.http) = {
+      patch: "/entity-tag-assignments/{entity_type}/{entity_name}/tags/{tag_key}"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "UpdateEntityTagAssignment"};
+  }
+
+  // Delete an entity tag assignment
+  //
+  // Deletes the tag assignment for the specified entity and tag key.
+  rpc DeleteEntityTagAssignment(DeleteEntityTagAssignmentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/entity-tag-assignments/{entity_type}/{entity_name}/tags/{tag_key}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "DeleteEntityTagAssignment"};
+  }
+}

@@ -205,4 +205,36 @@ impl ResourceStore for GraphStore {
             .collect();
         Ok((idents, token))
     }
+
+    async fn list_associations_with_properties(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
+        let target_label = target_label.map(|r| r.ident().0);
+        let (target_id, _) = self.ident_to_uuid(resource).await?;
+        let (associations, token) = self
+            .list_associations(
+                &target_id,
+                label,
+                target_label,
+                page_token.as_deref(),
+                max_results,
+            )
+            .await?;
+        let entries = associations
+            .into_iter()
+            .map(|assoc| {
+                let props = match assoc.properties {
+                    Some(serde_json::Value::Object(map)) => Some(map.into_iter().collect()),
+                    _ => None,
+                };
+                (assoc.to_label.to_ident(assoc.to_id), props)
+            })
+            .collect();
+        Ok((entries, token))
+    }
 }

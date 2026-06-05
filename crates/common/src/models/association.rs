@@ -30,6 +30,10 @@ pub enum AssociationLabel {
     PartOf,
     References,
     ReferencedBy,
+    /// An entity is tagged with a tag (entity -> tag policy).
+    Tagged,
+    /// A tag is applied to an entity (tag policy -> entity); inverse of `Tagged`.
+    TaggedBy,
 }
 
 impl AssociationLabel {
@@ -49,6 +53,8 @@ impl AssociationLabel {
             AssociationLabel::ReferencedBy => Some(AssociationLabel::References),
             AssociationLabel::OwnedBy => Some(AssociationLabel::OwnerOf),
             AssociationLabel::OwnerOf => Some(AssociationLabel::OwnedBy),
+            AssociationLabel::Tagged => Some(AssociationLabel::TaggedBy),
+            AssociationLabel::TaggedBy => Some(AssociationLabel::Tagged),
         }
     }
 }

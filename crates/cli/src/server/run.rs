@@ -9,6 +9,7 @@ use unitycatalog_common::{Error, Result};
 use unitycatalog_server::api::catalogs::CatalogHandler;
 use unitycatalog_server::api::commits::DeltaCommitHandler;
 use unitycatalog_server::api::credentials::CredentialHandler;
+use unitycatalog_server::api::entity_tag_assignments::EntityTagAssignmentHandler;
 use unitycatalog_server::api::external_locations::ExternalLocationHandler;
 use unitycatalog_server::api::functions::FunctionHandler;
 use unitycatalog_server::api::providers::ProviderHandler;
@@ -20,9 +21,10 @@ use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::api::tag_policies::TagPolicyHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
-    create_credentials_router, create_external_locations_router, create_functions_router,
-    create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
-    create_sharing_router, create_tables_router, create_tag_policies_router,
+    create_credentials_router, create_entity_tag_assignments_router,
+    create_external_locations_router, create_functions_router, create_providers_router,
+    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
+    create_tables_router, create_tag_policies_router,
 };
 
 pub async fn run_server_rest<T, A, Cx>(
@@ -45,6 +47,7 @@ where
         + ProviderHandler<Cx>
         + DeltaCommitHandler<Cx>
         + TagPolicyHandler<Cx>
+        + EntityTagAssignmentHandler<Cx>
         + Clone,
     A: Authenticator<unitycatalog_server::policy::Principal> + Clone,
     Cx: axum::extract::FromRequestParts<T> + Send + 'static,
@@ -69,7 +72,8 @@ where
         .merge(create_recipients_router(handler.clone()))
         .merge(create_providers_router(handler.clone()))
         .merge(create_shares_router(handler.clone()))
-        .merge(create_commits_router(handler.clone()));
+        .merge(create_commits_router(handler.clone()))
+        .merge(create_entity_tag_assignments_router(handler.clone()));
 
     let router = Router::new()
         .nest("/api/2.1/unity-catalog", api_routes)

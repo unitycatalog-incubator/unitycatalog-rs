@@ -7,6 +7,17 @@ use uuid::Uuid;
 use crate::models::{AssociationLabel, ObjectLabel, PropertyMap, Resource};
 use crate::{Object, ResourceIdent, ResourceName, ResourceRef, Result};
 
+/// Convert a stored association `properties` JSON value into a [`PropertyMap`].
+///
+/// Association properties are persisted as a JSON object (see `add_association`), so a
+/// non-object value yields `None`.
+fn json_to_property_map(value: serde_json::Value) -> Option<PropertyMap> {
+    match value {
+        serde_json::Value::Object(map) => Some(map.into_iter().collect()),
+        _ => None,
+    }
+}
+
 #[async_trait::async_trait]
 pub trait ResourceStoreReader: Send + Sync + 'static {
     /// Get a resource by its identifier.
@@ -152,6 +163,28 @@ pub trait ResourceStore: ResourceStoreReader + Send + Sync + 'static {
         max_results: Option<usize>,
         page_token: Option<String>,
     ) -> Result<(Vec<ResourceIdent>, Option<String>)>;
+
+    /// List associations of a resource together with each association's properties.
+    ///
+    /// Like [`list_associations`](Self::list_associations), but also returns the
+    /// [`PropertyMap`] stored on each association edge (e.g. a tag assignment's value).
+    ///
+    /// The default implementation delegates to `list_associations` and returns `None`
+    /// for every property map; stores that persist association properties should override
+    /// this to surface them.
+    async fn list_associations_with_properties(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
+        let (idents, token) = self
+            .list_associations(resource, label, target_label, max_results, page_token)
+            .await?;
+        Ok((idents.into_iter().map(|i| (i, None)).collect(), token))
+    }
 }
 
 pub trait ProvidesResourceStore: Send + Sync + 'static {
@@ -331,6 +364,35 @@ where
             .collect();
         Ok((idents, token))
     }
+
+    async fn list_associations_with_properties(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
+        let resource_id = self.resolve_ident(resource).await?;
+        let target_obj_label = target_label.map(|r| *r.label());
+        let (associations, token) = olai_store::AssociationStoreReader::list(
+            &self.store,
+            resource_id,
+            label.as_ref(),
+            target_obj_label,
+            max_results,
+            page_token,
+        )
+        .await?;
+        let entries = associations
+            .into_iter()
+            .map(|assoc| {
+                let props = assoc.properties.and_then(json_to_property_map);
+                (assoc.to_label.to_ident(assoc.to_id), props)
+            })
+            .collect();
+        Ok((entries, token))
+    }
 }
 
 #[async_trait::async_trait]
@@ -400,6 +462,25 @@ impl<T: ResourceStore> ResourceStore for Arc<T> {
         page_token: Option<String>,
     ) -> Result<(Vec<ResourceIdent>, Option<String>)> {
         T::list_associations(self, resource, label, target_label, max_results, page_token).await
+    }
+
+    async fn list_associations_with_properties(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
+        T::list_associations_with_properties(
+            self,
+            resource,
+            label,
+            target_label,
+            max_results,
+            page_token,
+        )
+        .await
     }
 }
 
@@ -475,6 +556,25 @@ impl<T: ProvidesResourceStore> ResourceStore for T {
     ) -> Result<(Vec<ResourceIdent>, Option<String>)> {
         self.store()
             .list_associations(resource, label, target_label, max_results, page_token)
+            .await
+    }
+
+    async fn list_associations_with_properties(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
+        self.store()
+            .list_associations_with_properties(
+                resource,
+                label,
+                target_label,
+                max_results,
+                page_token,
+            )
             .await
     }
 }

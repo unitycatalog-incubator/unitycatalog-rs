@@ -22,7 +22,10 @@ const MAX_PAGE_SIZE: usize = 10000;
 pub struct InMemoryResourceStore {
     resources: Arc<DashMap<Uuid, Resource>>,
     id_map: Arc<DashMap<ObjectLabel, DashMap<ResourceName, Uuid>>>,
-    associations: Arc<DashMap<AssociationLabel, DashMap<Uuid, (Uuid, Option<PropertyMap>)>>>,
+    /// Association edges keyed by label, then by `(from_uuid, to_uuid)` so a single source
+    /// resource can hold many edges of the same label (e.g. an entity with multiple tags).
+    /// The value is the edge's optional properties (e.g. a tag assignment's value).
+    associations: Arc<DashMap<AssociationLabel, DashMap<(Uuid, Uuid), Option<PropertyMap>>>>,
     /// Sealed secret blobs keyed by name. Encryption matches the production path so dev/test
     /// behaviour (and the on-disk format) is exercised here too.
     secrets: Arc<DashMap<String, bytes::Bytes>>,
@@ -202,10 +205,10 @@ impl ResourceStore for InMemoryResourceStore {
             ResourceRef::Undefined => return Err(Error::NotFound),
         };
         let map = self.associations.entry(label.clone()).or_default();
-        map.insert(from_uuid, (to_uuid, properties.clone()));
+        map.insert((from_uuid, to_uuid), properties.clone());
         if let Some(inverse) = label.inverse() {
             let inverse_map = self.associations.entry(inverse).or_default();
-            inverse_map.insert(to_uuid, (from_uuid, properties.clone()));
+            inverse_map.insert((to_uuid, from_uuid), properties.clone());
         }
         Ok(())
     }
@@ -227,10 +230,10 @@ impl ResourceStore for InMemoryResourceStore {
             ResourceRef::Undefined => return Err(Error::NotFound),
         };
         let map = self.associations.get(label).ok_or(Error::NotFound)?;
-        map.remove(&from_uuid);
+        map.remove(&(from_uuid, to_uuid));
         if let Some(inverse) = label.inverse() {
             let inverse_map = self.associations.get(&inverse).ok_or(Error::NotFound)?;
-            inverse_map.remove(&to_uuid);
+            inverse_map.remove(&(to_uuid, from_uuid));
         }
         Ok(())
     }
@@ -243,6 +246,38 @@ impl ResourceStore for InMemoryResourceStore {
         max_results: Option<usize>,
         page_token: Option<String>,
     ) -> Result<(Vec<ResourceIdent>, Option<String>)> {
+        let (page, token) = self
+            .collect_associations(resource, label, target_label, max_results, page_token)
+            .await?;
+        let idents = page.into_iter().map(|(ident, _)| ident).collect();
+        Ok((idents, token))
+    }
+
+    async fn list_associations_with_properties(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
+        self.collect_associations(resource, label, target_label, max_results, page_token)
+            .await
+    }
+}
+
+impl InMemoryResourceStore {
+    /// Shared association-listing logic returning each edge's target ident and properties,
+    /// with pagination over the target uuid. Used by both `list_associations` and
+    /// `list_associations_with_properties`.
+    async fn collect_associations(
+        &self,
+        resource: &ResourceIdent,
+        label: &AssociationLabel,
+        target_label: Option<&ResourceIdent>,
+        max_results: Option<usize>,
+        page_token: Option<String>,
+    ) -> Result<(Vec<(ResourceIdent, Option<PropertyMap>)>, Option<String>)> {
         let resource_uuid = match resource.as_ref() {
             ResourceRef::Uuid(uuid) => *uuid,
             ResourceRef::Name(name) => self
@@ -262,36 +297,40 @@ impl ResourceStore for InMemoryResourceStore {
             })
             .transpose()?;
         let page_token = page_token.map(|t| Uuid::parse_str(&t)).transpose()?;
-        let mut association_ids = self
+        // Collect (to_uuid, properties) for every edge whose source is `resource_uuid`,
+        // applying the optional target filter and the pagination cursor.
+        let mut edges = self
             .associations
             .get(label)
             .map(|map| {
                 map.value()
-                    .get(&resource_uuid)
                     .iter()
-                    .filter(|entry| {
-                        target_uuid.is_none_or(|uuid| entry.value().0 == uuid)
-                            && page_token.is_none_or(|t| &t > entry.key())
+                    .filter_map(|entry| {
+                        let (from, to) = *entry.key();
+                        (from == resource_uuid).then(|| (to, entry.value().clone()))
                     })
-                    .map(|entry| entry.value().0)
+                    .filter(|(to, _)| {
+                        target_uuid.is_none_or(|uuid| *to == uuid)
+                            && page_token.is_none_or(|t| t > *to)
+                    })
                     .collect::<Vec<_>>()
             })
             .unwrap_or_default();
-        if association_ids.is_empty() {
+        if edges.is_empty() {
             return Ok((Vec::new(), None));
         }
-        association_ids.sort_unstable();
+        edges.sort_unstable_by_key(|(to, _)| *to);
 
         let max_page_size = usize::min(max_results.unwrap_or(MAX_PAGE_SIZE), MAX_PAGE_SIZE);
-        let mut resources = Vec::new();
-        let mut last_id = &Uuid::nil();
-        for uuid in association_ids.iter().rev().take(max_page_size) {
-            let resource = self.resources.get(uuid).ok_or(Error::NotFound)?;
-            last_id = uuid;
-            resources.push(resource.resource_ident());
+        let mut results = Vec::new();
+        let mut last_id = Uuid::nil();
+        for (to_uuid, props) in edges.into_iter().rev().take(max_page_size) {
+            let resource = self.resources.get(&to_uuid).ok_or(Error::NotFound)?;
+            last_id = to_uuid;
+            results.push((resource.resource_ident(), props));
         }
-        let next_page_token = (resources.len() == max_page_size).then(|| last_id.to_string());
-        Ok((resources, next_page_token))
+        let next_page_token = (results.len() == max_page_size).then(|| last_id.to_string());
+        Ok((results, next_page_token))
     }
 }
 
