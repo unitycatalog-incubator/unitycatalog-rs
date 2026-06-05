@@ -1,7 +1,7 @@
 use crate::api::{
-    CatalogHandler, CredentialHandler, DeltaCommitHandler, ExternalLocationHandler,
-    FunctionHandler, ProviderHandler, RecipientHandler, SchemaHandler, ShareHandler, TableHandler,
-    TagPolicyHandler, TemporaryCredentialHandler, VolumeHandler,
+    CatalogHandler, CredentialHandler, DeltaCommitHandler, EntityTagAssignmentHandler,
+    ExternalLocationHandler, FunctionHandler, ProviderHandler, RecipientHandler, SchemaHandler,
+    ShareHandler, TableHandler, TagPolicyHandler, TemporaryCredentialHandler, VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -245,6 +245,42 @@ where
         .route(
             "/tag-policies/{tag_key}",
             delete(delete_tag_policy::<T, Cx>),
+        )
+        .with_state(handler)
+}
+
+/// Router for the Entity Tag Assignments API (applying tags to UC securables).
+///
+/// These routes live under the Unity Catalog surface
+/// (`/api/2.1/unity-catalog/entity-tag-assignments/...`), so this router is merged into the
+/// `unity-catalog`-nested route set.
+pub fn create_entity_tag_assignments_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: EntityTagAssignmentHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::entity_tag_assignments::server::*;
+
+    axum::Router::new()
+        .route(
+            "/entity-tag-assignments",
+            post(create_entity_tag_assignment::<T, Cx>),
+        )
+        .route(
+            "/entity-tag-assignments/{entity_type}/{entity_name}/tags",
+            get(list_entity_tag_assignments::<T, Cx>),
+        )
+        .route(
+            "/entity-tag-assignments/{entity_type}/{entity_name}/tags/{tag_key}",
+            get(get_entity_tag_assignment::<T, Cx>),
+        )
+        .route(
+            "/entity-tag-assignments/{entity_type}/{entity_name}/tags/{tag_key}",
+            patch(update_entity_tag_assignment::<T, Cx>),
+        )
+        .route(
+            "/entity-tag-assignments/{entity_type}/{entity_name}/tags/{tag_key}",
+            delete(delete_entity_tag_assignment::<T, Cx>),
         )
         .with_state(handler)
 }

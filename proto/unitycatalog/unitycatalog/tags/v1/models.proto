@@ -6,6 +6,41 @@ import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 
+// The assignment of a tag to a Unity Catalog entity.
+//
+// Unlike a TagPolicy (a governed-tag *definition*), an assignment is the application
+// of a tag to a specific securable. It has no identifier of its own — its identity is
+// the composite of (entity_type, entity_name, tag_key). It is intentionally NOT a
+// `google.api.resource`: assignments are stored as associations between the entity and
+// its tag, not as standalone objects.
+message EntityTagAssignment {
+  // The type of the entity to which the tag is assigned.
+  //
+  // Supported values: catalogs, schemas, tables, columns, volumes.
+  string entity_type = 1 [
+    (buf.validate.field).string.pattern = "^(catalogs|schemas|tables|columns|volumes)$",
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The fully qualified name of the entity to which the tag is assigned.
+  string entity_name = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The key of the tag.
+  string tag_key = 3 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).required = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The value of the tag.
+  optional string tag_value = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
 // An allowed value for a governed tag.
 message Value {
   // The name of the allowed value.
