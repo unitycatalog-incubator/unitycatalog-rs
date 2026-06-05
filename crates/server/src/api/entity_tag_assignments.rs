@@ -148,16 +148,19 @@ impl<T: ResourceStore + Policy<RequestContext>> EntityTagAssignmentHandler<Reque
                 request.page_token,
             )
             .await?;
-        let tag_assignments = edges
-            .into_iter()
-            .map(|(tag_ref, props)| EntityTagAssignment {
+        let mut tag_assignments = Vec::with_capacity(edges.len());
+        for (tag_ref, props) in edges {
+            // The association target is the TagPolicy; resolve it to recover its tag key.
+            // The edge may reference the target by UUID (e.g. the Postgres backend), so fetch
+            // the resource rather than reading the key off the ident.
+            let tag_key = tag_key_for(self, &tag_ref).await?;
+            tag_assignments.push(EntityTagAssignment {
                 entity_type: request.entity_type.clone(),
                 entity_name: request.entity_name.clone(),
-                // The association target is the TagPolicy; its name is the tag key.
-                tag_key: tag_key_from_ident(&tag_ref),
+                tag_key,
                 tag_value: tag_value_from_props(props),
-            })
-            .collect();
+            });
+        }
         Ok(ListEntityTagAssignmentsResponse {
             tag_assignments,
             next_page_token,
@@ -194,12 +197,20 @@ impl<T: ResourceStore + Policy<RequestContext>> EntityTagAssignmentHandler<Reque
     }
 }
 
-/// Extract the tag key (the TagPolicy's single-segment name) from an association target ident.
-fn tag_key_from_ident(ident: &ResourceIdent) -> String {
-    match ident.as_ref() {
-        ResourceRef::Name(name) => name.iter().last().cloned().unwrap_or_default(),
-        _ => String::new(),
+/// Resolve the tag key for an association target.
+///
+/// The target may be referenced by name or (e.g. on the Postgres backend) by UUID, so this
+/// looks the TagPolicy up in the store and returns its `tag_key`.
+async fn tag_key_for<S: ResourceStore>(store: &S, tag_ref: &ResourceIdent) -> Result<String> {
+    // Fast path: the ident already carries the single-segment name.
+    if let ResourceRef::Name(name) = tag_ref.as_ref() {
+        if let Some(last) = name.iter().last() {
+            return Ok(last.clone());
+        }
     }
+    let (resource, _) = store.get(tag_ref).await?;
+    let policy: TagPolicy = resource.try_into()?;
+    Ok(policy.tag_key)
 }
 
 // Authorization is checked against the *entity* being tagged: tagging is a modification of the

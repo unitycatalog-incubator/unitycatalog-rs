@@ -16,14 +16,18 @@
             "name": "object_label",
             "kind": {
               "Enum": [
-                "share_info",
-                "catalog_info",
-                "schema_info",
-                "table_info",
-                "column_info",
-                "credential_info",
-                "external_location_info",
-                "recipient_info"
+                "catalog",
+                "column",
+                "credential",
+                "external_location",
+                "function",
+                "provider",
+                "recipient",
+                "schema",
+                "share",
+                "table",
+                "tag_policy",
+                "volume"
               ]
             }
           }
@@ -57,14 +61,18 @@
             "name": "object_label",
             "kind": {
               "Enum": [
-                "share_info",
-                "catalog_info",
-                "schema_info",
-                "table_info",
-                "column_info",
-                "credential_info",
-                "external_location_info",
-                "recipient_info"
+                "catalog",
+                "column",
+                "credential",
+                "external_location",
+                "function",
+                "provider",
+                "recipient",
+                "schema",
+                "share",
+                "table",
+                "tag_policy",
+                "volume"
               ]
             }
           }
