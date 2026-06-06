@@ -9,6 +9,7 @@ use crate::codegen::providers::*;
 use crate::codegen::recipients::*;
 use crate::codegen::schemas::*;
 use crate::codegen::shares::*;
+use crate::codegen::staging_tables::*;
 use crate::codegen::tables::*;
 use crate::codegen::tag_policies::*;
 use crate::codegen::temporary_credentials::*;
@@ -117,6 +118,15 @@ impl UnityCatalogClient {
     ///Low-level `shares` client exposing request/response passthrough methods.
     pub fn shares_client(&self) -> crate::codegen::shares::ShareServiceClient {
         crate::codegen::shares::ShareServiceClient::new(self.client.clone(), self.base_url.clone())
+    }
+    ///Low-level `staging_tables` client exposing request/response passthrough methods.
+    pub fn staging_tables_client(
+        &self,
+    ) -> crate::codegen::staging_tables::StagingTableServiceClient {
+        crate::codegen::staging_tables::StagingTableServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `tables` client exposing request/response passthrough methods.
     pub fn tables_client(&self) -> crate::codegen::tables::TableServiceClient {
@@ -696,6 +706,41 @@ impl UnityCatalogClient {
         ShareClient::new(
             share_name,
             crate::codegen::shares::ShareServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
+    }
+    /// Creates a new staging table, allocating an immutable table id and a storage
+    /// location under the parent schema/catalog managed storage root. The caller
+    /// must have the CREATE privilege on the parent schema.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of the staging table, relative to the parent schema.
+    /// * `catalog_name` - Name of the parent catalog.
+    /// * `schema_name` - Name of the parent schema relative to its parent catalog.
+    pub fn create_staging_table(
+        &self,
+        name: impl Into<String>,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+    ) -> CreateStagingTableBuilder {
+        CreateStagingTableBuilder::new(
+            crate::codegen::staging_tables::StagingTableServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+            catalog_name,
+            schema_name,
+        )
+    }
+    /// Access the `staging_table` resource scoped to the given name.
+    pub fn staging_table(&self, staging_table_name: impl Into<String>) -> StagingTableClient {
+        StagingTableClient::new(
+            staging_table_name,
+            crate::codegen::staging_tables::StagingTableServiceClient::new(
                 self.client.clone(),
                 self.base_url.clone(),
             ),

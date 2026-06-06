@@ -26,6 +26,7 @@ impl<T: ResourceStore + Policy<RequestContext>> SchemaHandler<RequestContext> fo
             catalog_name: request.catalog_name,
             comment: request.comment,
             properties: request.properties,
+            storage_location: request.storage_location,
             ..Default::default()
         };
         // TODO:

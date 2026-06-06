@@ -19,6 +19,9 @@ impl serde::Serialize for CreateSchemaRequest {
         if !self.properties.is_empty() {
             len += 1;
         }
+        if self.storage_location.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.CreateSchemaRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -31,6 +34,9 @@ impl serde::Serialize for CreateSchemaRequest {
         }
         if !self.properties.is_empty() {
             struct_ser.serialize_field("properties", &self.properties)?;
+        }
+        if let Some(v) = self.storage_location.as_ref() {
+            struct_ser.serialize_field("storage_location", v)?;
         }
         struct_ser.end()
     }
@@ -47,6 +53,8 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
             "catalogName",
             "comment",
             "properties",
+            "storage_location",
+            "storageLocation",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -55,6 +63,7 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
             CatalogName,
             Comment,
             Properties,
+            StorageLocation,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -81,6 +90,7 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
                             "catalogName" | "catalog_name" => Ok(GeneratedField::CatalogName),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -104,6 +114,7 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
                 let mut catalog_name__ = None;
                 let mut comment__ = None;
                 let mut properties__ = None;
+                let mut storage_location__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -132,6 +143,12 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
                                 map_.next_value::<std::collections::HashMap<_, _>>()?
                             );
                         }
+                        GeneratedField::StorageLocation => {
+                            if storage_location__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("storageLocation"));
+                            }
+                            storage_location__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -142,6 +159,7 @@ impl<'de> serde::Deserialize<'de> for CreateSchemaRequest {
                     catalog_name: catalog_name__.unwrap_or_default(),
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),
+                    storage_location: storage_location__,
                 })
             }
         }
@@ -663,6 +681,9 @@ impl serde::Serialize for Schema {
         if self.schema_id.is_some() {
             len += 1;
         }
+        if self.storage_location.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.schemas.v1.Schema", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -701,6 +722,9 @@ impl serde::Serialize for Schema {
         if let Some(v) = self.schema_id.as_ref() {
             struct_ser.serialize_field("schema_id", v)?;
         }
+        if let Some(v) = self.storage_location.as_ref() {
+            struct_ser.serialize_field("storage_location", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -729,6 +753,8 @@ impl<'de> serde::Deserialize<'de> for Schema {
             "updatedBy",
             "schema_id",
             "schemaId",
+            "storage_location",
+            "storageLocation",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -744,6 +770,7 @@ impl<'de> serde::Deserialize<'de> for Schema {
             UpdatedAt,
             UpdatedBy,
             SchemaId,
+            StorageLocation,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -777,6 +804,7 @@ impl<'de> serde::Deserialize<'de> for Schema {
                             "updatedAt" | "updated_at" => Ok(GeneratedField::UpdatedAt),
                             "updatedBy" | "updated_by" => Ok(GeneratedField::UpdatedBy),
                             "schemaId" | "schema_id" => Ok(GeneratedField::SchemaId),
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -807,6 +835,7 @@ impl<'de> serde::Deserialize<'de> for Schema {
                 let mut updated_at__ = None;
                 let mut updated_by__ = None;
                 let mut schema_id__ = None;
+                let mut storage_location__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -881,6 +910,12 @@ impl<'de> serde::Deserialize<'de> for Schema {
                             }
                             schema_id__ = map_.next_value()?;
                         }
+                        GeneratedField::StorageLocation => {
+                            if storage_location__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("storageLocation"));
+                            }
+                            storage_location__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -898,6 +933,7 @@ impl<'de> serde::Deserialize<'de> for Schema {
                     updated_at: updated_at__,
                     updated_by: updated_by__,
                     schema_id: schema_id__,
+                    storage_location: storage_location__,
                 })
             }
         }

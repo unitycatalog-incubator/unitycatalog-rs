@@ -17,6 +17,7 @@ use unitycatalog_server::api::recipients::RecipientHandler;
 use unitycatalog_server::api::schemas::SchemaHandler;
 use unitycatalog_server::api::shares::ShareHandler;
 use unitycatalog_server::api::sharing::{SharingHandler, SharingQueryHandler};
+use unitycatalog_server::api::staging_tables::StagingTableHandler;
 use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::api::tag_policies::TagPolicyHandler;
 use unitycatalog_server::api::volumes::VolumeHandler;
@@ -25,7 +26,8 @@ use unitycatalog_server::rest::{
     create_credentials_router, create_entity_tag_assignments_router,
     create_external_locations_router, create_functions_router, create_providers_router,
     create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
-    create_tables_router, create_tag_policies_router, create_volumes_router,
+    create_staging_tables_router, create_tables_router, create_tag_policies_router,
+    create_volumes_router,
 };
 
 pub async fn run_server_rest<T, A, Cx>(
@@ -42,6 +44,7 @@ where
         + SharingQueryHandler<Cx>
         + ShareHandler<Cx>
         + SchemaHandler<Cx>
+        + StagingTableHandler<Cx>
         + TableHandler<Cx>
         + VolumeHandler<Cx>
         + ExternalLocationHandler<Cx>
@@ -67,6 +70,7 @@ where
 
     let api_routes = create_catalogs_router(handler.clone())
         .merge(create_schemas_router(handler.clone()))
+        .merge(create_staging_tables_router(handler.clone()))
         .merge(create_tables_router(handler.clone()))
         .merge(create_volumes_router(handler.clone()))
         .merge(create_credentials_router(handler.clone()))

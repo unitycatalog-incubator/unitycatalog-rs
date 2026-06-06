@@ -21,7 +21,7 @@ use unitycatalog_server::rest::{
     create_credentials_router, create_entity_tag_assignments_router,
     create_external_locations_router, create_functions_router, create_providers_router,
     create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
-    create_tables_router, create_tag_policies_router,
+    create_staging_tables_router, create_tables_router, create_tag_policies_router,
 };
 use unitycatalog_server::services::ServerHandler;
 
@@ -99,6 +99,7 @@ where
     let api_routes = catalogs
         .merge(schemas)
         .merge(tables)
+        .merge(create_staging_tables_router(handler.clone()))
         .merge(create_credentials_router(handler.clone()))
         .merge(create_external_locations_router(handler.clone()))
         .merge(create_functions_router(handler.clone()))

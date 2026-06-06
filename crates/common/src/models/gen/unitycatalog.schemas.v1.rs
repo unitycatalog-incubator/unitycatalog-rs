@@ -38,6 +38,13 @@ pub struct Schema {
     /// Unique identifier for the schema.
     #[prost(string, optional, tag="11")]
     pub schema_id: ::core::option::Option<::prost::alloc::string::String>,
+    /// Storage root URL for managed tables within the schema.
+    ///
+    /// When set, managed tables created in this schema are rooted here; otherwise
+    /// the parent catalog's storage_root is used. Already includes the managed
+    /// storage prefix when assigned.
+    #[prost(string, optional, tag="12")]
+    pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List Schemas in a catalog
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
@@ -86,6 +93,9 @@ pub struct CreateSchemaRequest {
     /// A map of key-value properties attached to the securable.
     #[prost(map="string, string", tag="4")]
     pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    /// Storage root URL for managed tables within the schema.
+    #[prost(string, optional, tag="5")]
+    pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a Schema
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

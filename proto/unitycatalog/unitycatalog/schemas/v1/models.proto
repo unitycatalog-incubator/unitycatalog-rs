@@ -51,4 +51,11 @@ message Schema {
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = IDENTIFIER
   ];
+
+  // Storage root URL for managed tables within the schema.
+  //
+  // When set, managed tables created in this schema are rooted here; otherwise
+  // the parent catalog's storage_root is used. Already includes the managed
+  // storage prefix when assigned.
+  optional string storage_location = 12 [(google.api.field_behavior) = OPTIONAL];
 }

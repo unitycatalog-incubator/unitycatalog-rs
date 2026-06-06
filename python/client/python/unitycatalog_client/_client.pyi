@@ -884,6 +884,12 @@ class Schema:
     """A map of key-value properties attached to the securable."""
     schema_id: Optional[str]
     """Unique identifier for the schema."""
+    storage_location: Optional[str]
+    """
+    Storage root URL for managed tables within the schema. When set, managed tables created in
+    this schema are rooted here; otherwise the parent catalog's storage_root is used. Already
+    includes the managed storage prefix when assigned.
+    """
     updated_at: Optional[int]
     """Time at which this schema was last updated, in epoch milliseconds."""
     updated_by: Optional[str]
@@ -900,6 +906,7 @@ class Schema:
         created_by: Optional[str] = None,
         owner: Optional[str] = None,
         schema_id: Optional[str] = None,
+        storage_location: Optional[str] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
     ) -> None: ...
@@ -941,6 +948,53 @@ class Share:
         storage_root: Optional[str] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
+    ) -> None: ...
+
+class StagingTable:
+    """A staging table is a transient reservation created while provisioning a Unity Catalog managed table.
+
+    On creation the server allocates an immutable table id and storage location under the parent
+    schema/catalog's managed storage root. The client then writes the initial Delta commit
+    (`_delta_log/00...0.json`) at that location and finalizes the table via the CreateTable API, which
+    commits this staging row. A staging table is not yet a usable table and is not returned by the table
+    APIs."""
+
+    catalog_name: str
+    """Name of the parent catalog."""
+    created_at: Optional[int]
+    """Time at which this staging table was created, in epoch milliseconds."""
+    created_by: Optional[str]
+    """
+    Username of the principal that created the staging table. Only this principal may finalize
+    the table.
+    """
+    id: str
+    """
+    Unique identifier generated for the staging table. Becomes the managed table's id once
+    finalized.
+    """
+    name: str
+    """Name of the staging table, relative to the parent schema."""
+    schema_name: str
+    """Name of the parent schema relative to its parent catalog."""
+    stage_committed: bool
+    """Whether the staging table has been finalized into a managed table."""
+    staging_location: str
+    """
+    Storage location allocated for the staging table, where the client writes the initial
+    Delta commit. Immutable once allocated.
+    """
+
+    def __init__(
+        self,
+        catalog_name: str,
+        id: str,
+        name: str,
+        schema_name: str,
+        stage_committed: bool,
+        staging_location: str,
+        created_at: Optional[int] = None,
+        created_by: Optional[str] = None,
     ) -> None: ...
 
 class Table:
@@ -1773,6 +1827,8 @@ class ShareClient:
         """
         ...
 
+class StagingTableClient: ...
+
 class TableClient:
     def delete(self) -> None:
         """
@@ -2145,6 +2201,7 @@ class UnityCatalogClient:
         catalog_name: str,
         comment: Optional[str] = None,
         properties: Optional[Dict[str, str]] = None,
+        storage_location: Optional[str] = None,
     ) -> Schema:
         """
         Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin, or have
@@ -2156,6 +2213,7 @@ class UnityCatalogClient:
             catalog_name: Name of parent catalog.
             comment: User-provided free-form text description.
             properties: A map of key-value properties attached to the securable.
+            storage_location: Storage root URL for managed tables within the schema.
 
 
         Returns:
@@ -2174,6 +2232,31 @@ class UnityCatalogClient:
 
         Returns:
             The requested resource
+        """
+        ...
+    def create_staging_table(self, name: str, catalog_name: str, schema_name: str) -> StagingTable:
+        """
+        Creates a new staging table, allocating an immutable table id and a storage location under the
+        parent schema/catalog managed storage root. The caller must have the CREATE privilege on the parent
+        schema.
+
+
+        Args:
+            name: Name of the staging table, relative to the parent schema.
+            catalog_name: Name of the parent catalog.
+            schema_name: Name of the parent schema relative to its parent catalog.
+
+
+        Returns:
+            A staging table is a transient reservation created while provisioning a Unity Catalog
+            managed
+            table. On creation the server allocates an immutable table id and storage location under the
+            parent schema/catalog's managed storage root. The client then writes the initial Delta
+            commit
+            (`_delta_log/00...0.json`) at that location and finalizes the table via the CreateTable API,
+            which commits this staging row. A staging table is not yet a usable table and is not
+            returned by
+            the table APIs.
         """
         ...
     def create_table(
@@ -2640,6 +2723,7 @@ class UnityCatalogClient:
     def recipient(self, recipient_name: str) -> RecipientClient: ...
     def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
     def share(self, share_name: str) -> ShareClient: ...
+    def staging_table(self, staging_table_name: str) -> StagingTableClient: ...
     def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
     def tag_policy(self, tag_policy_name: str) -> TagPolicyClient: ...
     def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...

@@ -15,6 +15,7 @@ import {
   type Recipient,
   type Schema,
   type Share,
+  type StagingTable,
   type Table,
   type TagPolicy,
   type TemporaryCredential,
@@ -34,6 +35,7 @@ import {
   RecipientSchema,
   SchemaSchema,
   ShareSchema,
+  StagingTableSchema,
   TableSchema,
   TagPolicySchema,
   TemporaryCredentialSchema,
@@ -49,6 +51,7 @@ import {
   NapiRecipientClient as NativeRecipientClient,
   NapiSchemaClient as NativeSchemaClient,
   NapiShareClient as NativeShareClient,
+  NapiStagingTableClient as NativeStagingTableClient,
   NapiTableClient as NativeTableClient,
   NapiTagPolicyClient as NativeTagPolicyClient,
   NapiUnityCatalogClient as NativeClient,
@@ -416,6 +419,8 @@ export interface CreateSchemaOptions {
   comment?: string;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string>;
+  /** Storage root URL for managed tables within the schema. */
+  storageLocation?: string;
 }
 
 export interface UpdateSchemaOptions {
@@ -898,6 +903,16 @@ export class ShareClient {
 
 }
 
+export class StagingTableClient {
+  private readonly inner: NativeStagingTableClient;
+
+  /** @internal */
+  constructor(inner: NativeStagingTableClient) {
+    this.inner = inner;
+  }
+
+}
+
 export class TableClient {
   private readonly inner: NativeTableClient;
 
@@ -1367,9 +1382,9 @@ export class UnityCatalogClient {
      * or have the CREATE_SCHEMA privilege in the parent catalog.
      */
   async createSchema(name: string, catalogName: string, options?: CreateSchemaOptions): Promise<Schema> {
-    const { comment, properties } = options || {};
+    const { comment, properties, storageLocation } = options || {};
     try {
-      return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties));
+      return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties, storageLocation));
     } catch (e) { throw parseNativeError(e); }
   }
 
@@ -1413,6 +1428,21 @@ export class UnityCatalogClient {
 
   share(shareName: string): ShareClient {
     return new ShareClient(this.inner.share(shareName));
+  }
+
+  /**
+     * Creates a new staging table, allocating an immutable table id and a storage
+     * location under the parent schema/catalog managed storage root. The caller
+     * must have the CREATE privilege on the parent schema.
+     */
+  async createStagingTable(name: string, catalogName: string, schemaName: string): Promise<StagingTable> {
+    try {
+      return fromBinary(StagingTableSchema, await this.inner.createStagingTable(name, catalogName, schemaName));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  stagingTable(stagingTableName: string): StagingTableClient {
+    return new StagingTableClient(this.inner.stagingTable(stagingTableName));
   }
 
   /**
