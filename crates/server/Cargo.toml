@@ -36,15 +36,15 @@ url = { workspace = true }
 axum = { workspace = true, optional = true }
 axum-extra = { workspace = true, optional = true }
 tonic = { workspace = true, optional = true }
-datafusion = { version = "53.1.0" }
+datafusion = { workspace = true }
 futures-util = { version = "0.3.28" }
 http = { version = "1.2", optional = true }
 olai-store = { workspace = true }
-tokio = { version = "1.40", features = ["rt-multi-thread"] }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
 tower = { workspace = true, features = ["make"], optional = true }
 
 # in-memory handler dependencies (in alphabetical order)
-dashmap = { version = "6", optional = true }
+dashmap = { workspace = true, optional = true }
 uuid = { workspace = true, optional = true, features = ["v7"] }
 
 [dev-dependencies]
