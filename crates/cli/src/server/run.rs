@@ -19,12 +19,13 @@ use unitycatalog_server::api::shares::ShareHandler;
 use unitycatalog_server::api::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::api::tag_policies::TagPolicyHandler;
+use unitycatalog_server::api::volumes::VolumeHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
     create_credentials_router, create_entity_tag_assignments_router,
     create_external_locations_router, create_functions_router, create_providers_router,
     create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
-    create_tables_router, create_tag_policies_router,
+    create_tables_router, create_tag_policies_router, create_volumes_router,
 };
 
 pub async fn run_server_rest<T, A, Cx>(
@@ -42,6 +43,7 @@ where
         + ShareHandler<Cx>
         + SchemaHandler<Cx>
         + TableHandler<Cx>
+        + VolumeHandler<Cx>
         + ExternalLocationHandler<Cx>
         + RecipientHandler<Cx>
         + ProviderHandler<Cx>
@@ -66,6 +68,7 @@ where
     let api_routes = create_catalogs_router(handler.clone())
         .merge(create_schemas_router(handler.clone()))
         .merge(create_tables_router(handler.clone()))
+        .merge(create_volumes_router(handler.clone()))
         .merge(create_credentials_router(handler.clone()))
         .merge(create_external_locations_router(handler.clone()))
         .merge(create_functions_router(handler.clone()))
@@ -111,7 +114,11 @@ pub(crate) async fn run<S: Into<String> + Clone>(
     let listener = TcpListener::bind(format!("{}:{}", host.as_ref(), port))
         .await
         .map_err(|e| Error::Generic(e.to_string()))?;
-    tracing::info!("Listening on: {}", listener.local_addr().unwrap());
+    let addr = listener
+        .local_addr()
+        .map_err(|e| Error::Generic(e.to_string()))?;
+    crate::render::status::success(&format!("listening on http://{addr}"));
+    tracing::info!("Listening on: {addr}");
     axum::serve(listener, router)
         .with_graceful_shutdown(shutdown_signal())
         .await

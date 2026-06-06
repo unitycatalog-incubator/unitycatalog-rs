@@ -135,6 +135,15 @@ impl RoutingConfig {
             .any(|(_, mode)| *mode == RoutingMode::Upstream)
     }
 
+    /// Names of all surfaces currently routed upstream (for display).
+    pub fn upstream_surfaces(&self) -> Vec<&'static str> {
+        self.surfaces()
+            .into_iter()
+            .filter(|(_, mode)| *mode == RoutingMode::Upstream)
+            .map(|(name, _)| name)
+            .collect()
+    }
+
     /// Surfaces that are routed upstream but do not yet have a proxy adapter
     /// implemented. Setting any of these to [`RoutingMode::Upstream`] is a
     /// configuration error and the server should refuse to start.
