@@ -15,8 +15,7 @@ pub async fn list_tag_policies_example(base_url: url::Url) {
 pub async fn create_tag_policy_example(base_url: url::Url) {
     let client = UnityCatalogClient::new_unauthenticated(base_url);
     let policy = client
-        .create_tag_policy()
-        .with_tag_policy(TagPolicy {
+        .create_tag_policy(TagPolicy {
             tag_key: "classification".to_string(),
             description: Some("Data sensitivity level".to_string()),
             values: vec![
@@ -48,8 +47,7 @@ pub async fn update_tag_policy_example(base_url: url::Url) {
     let client = UnityCatalogClient::new_unauthenticated(base_url);
     let policy = client
         .tag_policy("classification")
-        .update()
-        .with_tag_policy(TagPolicy {
+        .update(TagPolicy {
             tag_key: "classification".to_string(),
             description: Some("Updated description".to_string()),
             ..Default::default()

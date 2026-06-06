@@ -56,8 +56,8 @@ impl TagPolicyClient {
     }
 
     /// Update this tag policy using the builder pattern.
-    pub fn update(&self) -> UpdateTagPolicyBuilder {
-        UpdateTagPolicyBuilder::new(self.client.clone(), &self.tag_key)
+    pub fn update(&self, tag_policy: TagPolicy) -> UpdateTagPolicyBuilder {
+        UpdateTagPolicyBuilder::new(self.client.clone(), &self.tag_key, tag_policy)
     }
 
     /// Delete this tag policy.

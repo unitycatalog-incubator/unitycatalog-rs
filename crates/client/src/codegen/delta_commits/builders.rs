@@ -1,9 +1,8 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
-use super::super::stream_paginated;
 use super::client::*;
 use crate::Result;
-use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
+use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::delta_commits::v1::*;
 /// Builder for commit

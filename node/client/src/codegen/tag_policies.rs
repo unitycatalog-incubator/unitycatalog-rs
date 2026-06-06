@@ -22,8 +22,19 @@ impl NapiTagPolicyClient {
             .default_error()
     }
     #[napi(catch_unwind)]
-    pub async fn update(&self, update_mask: Option<String>) -> napi::Result<Buffer> {
-        let mut request = self.client.update();
+    pub async fn update(
+        &self,
+        tag_policy: napi::bindgen_prelude::Buffer,
+        update_mask: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.update(
+            <TagPolicy as prost::Message>::decode(tag_policy.as_ref()).map_err(|e| {
+                napi::Error::new(
+                    napi::Status::GenericFailure,
+                    format!("invalid {} payload: {e}", stringify!(TagPolicy)),
+                )
+            })?,
+        );
         request = request.with_update_mask(update_mask);
         request
             .await

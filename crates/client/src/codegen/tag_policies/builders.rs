@@ -71,16 +71,12 @@ pub struct CreateTagPolicyBuilder {
 impl CreateTagPolicyBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `TagPolicyClient`.
-    pub(crate) fn new(client: TagPolicyClient) -> Self {
+    pub(crate) fn new(client: TagPolicyClient, tag_policy: TagPolicy) -> Self {
         let request = CreateTagPolicyRequest {
+            tag_policy: Some(tag_policy),
             ..Default::default()
         };
         Self { client, request }
-    }
-    /// The tag policy to create.
-    pub fn with_tag_policy(mut self, tag_policy: impl Into<Option<TagPolicy>>) -> Self {
-        self.request.tag_policy = tag_policy.into();
-        self
     }
 }
 impl IntoFuture for CreateTagPolicyBuilder {
@@ -125,17 +121,17 @@ pub struct UpdateTagPolicyBuilder {
 impl UpdateTagPolicyBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `TagPolicyClient`.
-    pub(crate) fn new(client: TagPolicyClient, tag_key: impl Into<String>) -> Self {
+    pub(crate) fn new(
+        client: TagPolicyClient,
+        tag_key: impl Into<String>,
+        tag_policy: TagPolicy,
+    ) -> Self {
         let request = UpdateTagPolicyRequest {
             tag_key: tag_key.into(),
+            tag_policy: Some(tag_policy),
             ..Default::default()
         };
         Self { client, request }
-    }
-    /// The tag policy with the updated fields.
-    pub fn with_tag_policy(mut self, tag_policy: impl Into<Option<TagPolicy>>) -> Self {
-        self.request.tag_policy = tag_policy.into();
-        self
     }
     /// The list of fields to update, as a comma-separated string.
     pub fn with_update_mask(mut self, update_mask: impl Into<Option<String>>) -> Self {

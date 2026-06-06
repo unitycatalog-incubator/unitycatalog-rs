@@ -53,19 +53,15 @@ pub struct CreateEntityTagAssignmentBuilder {
 impl CreateEntityTagAssignmentBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `EntityTagAssignmentClient`.
-    pub(crate) fn new(client: EntityTagAssignmentClient) -> Self {
+    pub(crate) fn new(
+        client: EntityTagAssignmentClient,
+        tag_assignment: EntityTagAssignment,
+    ) -> Self {
         let request = CreateEntityTagAssignmentRequest {
+            tag_assignment: Some(tag_assignment),
             ..Default::default()
         };
         Self { client, request }
-    }
-    /// The tag assignment to create.
-    pub fn with_tag_assignment(
-        mut self,
-        tag_assignment: impl Into<Option<EntityTagAssignment>>,
-    ) -> Self {
-        self.request.tag_assignment = tag_assignment.into();
-        self
     }
 }
 impl IntoFuture for CreateEntityTagAssignmentBuilder {
@@ -122,22 +118,16 @@ impl UpdateEntityTagAssignmentBuilder {
         entity_type: impl Into<String>,
         entity_name: impl Into<String>,
         tag_key: impl Into<String>,
+        tag_assignment: EntityTagAssignment,
     ) -> Self {
         let request = UpdateEntityTagAssignmentRequest {
             entity_type: entity_type.into(),
             entity_name: entity_name.into(),
             tag_key: tag_key.into(),
+            tag_assignment: Some(tag_assignment),
             ..Default::default()
         };
         Self { client, request }
-    }
-    /// The tag assignment with the updated fields.
-    pub fn with_tag_assignment(
-        mut self,
-        tag_assignment: impl Into<Option<EntityTagAssignment>>,
-    ) -> Self {
-        self.request.tag_assignment = tag_assignment.into();
-        self
     }
     /// The list of fields to update, as a comma-separated string.
     pub fn with_update_mask(mut self, update_mask: impl Into<Option<String>>) -> Self {

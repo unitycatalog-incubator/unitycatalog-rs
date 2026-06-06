@@ -193,7 +193,7 @@ impl UserJourney for GovernanceSetupJourney {
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
-        let _ = ctx.client().table(&full_name).delete().await;
+        let _ = ctx.client().table_from_full_name(&full_name).delete().await;
         let _ = ctx
             .client()
             .schema(&self.catalog_name, &self.schema_name)

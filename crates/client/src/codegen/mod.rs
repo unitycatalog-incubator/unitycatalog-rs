@@ -1,5 +1,6 @@
 // @generated — do not edit by hand.
 pub mod catalogs;
+pub mod client;
 pub mod credentials;
 pub mod delta_commits;
 pub mod entity_tag_assignments;
@@ -13,6 +14,7 @@ pub mod tables;
 pub mod tag_policies;
 pub mod temporary_credentials;
 pub mod volumes;
+pub use client::*;
 use futures::Future;
 pub(super) fn stream_paginated<F, Fut, S, T>(
     state: S,

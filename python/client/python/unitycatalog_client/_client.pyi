@@ -3,13 +3,12 @@ from __future__ import annotations
 from typing import Optional, List, Dict, Any, Literal
 import enum
 
-class AwsIamRoleConfig:
+class AwsIamRoleConfig():
     """The AWS IAM role configuration used server-side to call STS AssumeRole.
 
-    This is an internal configuration type, not exposed in the public API response. It stores the static
-    credentials (or ambient credential fallback) used to authorize the STS:AssumeRole call when vending
-    temporary credentials."""
-
+This is an internal configuration type, not exposed in the public API response. It stores the static
+credentials (or ambient credential fallback) used to authorize the STS:AssumeRole call when vending
+temporary credentials."""
     access_key_id: Optional[str]
     """
     AWS access key ID used to authorize the STS AssumeRole call. When set together with
@@ -30,15 +29,17 @@ class AwsIamRoleConfig:
     """
 
     def __init__(
-        self,
-        role_arn: str,
-        access_key_id: Optional[str] = None,
-        region: Optional[str] = None,
-        secret_access_key: Optional[str] = None,
-        session_token: Optional[str] = None,
-    ) -> None: ...
 
-class AwsTemporaryCredentials:
+            self,
+            role_arn: str,
+            access_key_id: Optional[str] = None,
+            region: Optional[str] = None,
+            secret_access_key: Optional[str] = None,
+            session_token: Optional[str] = None
+        ) -> None:
+        ...
+
+class AwsTemporaryCredentials():
     access_key_id: str
     """The access key ID that identifies the temporary credentials."""
     access_point: str
@@ -52,21 +53,27 @@ class AwsTemporaryCredentials:
     """The token that users must pass to AWS API to use the temporary credentials."""
 
     def __init__(
-        self, access_key_id: str, access_point: str, secret_access_key: str, session_token: str
-    ) -> None: ...
 
-class AzureAad:
+            self,
+            access_key_id: str,
+            access_point: str,
+            secret_access_key: str,
+            session_token: str
+        ) -> None:
+        ...
+
+class AzureAad():
     aad_token: str
     """
     Opaque token that contains claims that you can use in Azure Active Directory to access
     cloud services.
     """
 
-    def __init__(self, aad_token: str) -> None: ...
+    def __init__(self, aad_token: str) -> None:
+        ...
 
-class AzureManagedIdentity:
+class AzureManagedIdentity():
     """The Azure managed identity configuration."""
-
     access_connector_id: str
     """
     The Azure resource ID of the Azure Databricks Access Connector. Use the format /
@@ -85,15 +92,16 @@ class AzureManagedIdentity:
     """
 
     def __init__(
-        self,
-        access_connector_id: str,
-        credential_id: Optional[str] = None,
-        managed_identity_id: Optional[str] = None,
-    ) -> None: ...
 
-class AzureServicePrincipal:
+            self,
+            access_connector_id: str,
+            credential_id: Optional[str] = None,
+            managed_identity_id: Optional[str] = None
+        ) -> None:
+        ...
+
+class AzureServicePrincipal():
     """The Azure service principal configuration."""
-
     application_id: str
     """The application ID of the application registration within the referenced AAD tenant."""
     directory_id: str
@@ -109,32 +117,34 @@ class AzureServicePrincipal:
 Specifically useful for workload identity federation."""
 
     def __init__(
-        self,
-        application_id: str,
-        directory_id: str,
-        client_secret: Optional[str] = None,
-        federated_token_file: Optional[str] = None,
-    ) -> None: ...
 
-class AzureStorageKey:
+            self,
+            application_id: str,
+            directory_id: str,
+            client_secret: Optional[str] = None,
+            federated_token_file: Optional[str] = None
+        ) -> None:
+        ...
+
+class AzureStorageKey():
     """The Azure storage key configuration."""
-
     account_key: str
     """The account key of the storage account."""
     account_name: str
     """The name of the storage account."""
 
-    def __init__(self, account_key: str, account_name: str) -> None: ...
+    def __init__(self, account_key: str, account_name: str) -> None:
+        ...
 
-class AzureUserDelegationSas:
+class AzureUserDelegationSas():
     sas_token: str
     """The signed URI (SAS Token) used to access blob services for a given path"""
 
-    def __init__(self, sas_token: str) -> None: ...
+    def __init__(self, sas_token: str) -> None:
+        ...
 
-class Catalog:
+class Catalog():
     """A catalog is a root-level namespace that contains schemas."""
-
     browse_only: Optional[bool]
     """
     Indicates whether the principal is limited to retrieving metadata for the associated
@@ -171,24 +181,26 @@ class Catalog:
     """Username of user who last modified catalog."""
 
     def __init__(
-        self,
-        name: str,
-        properties: Dict[str, str],
-        browse_only: Optional[bool] = None,
-        catalog_type: Optional[CatalogType] = None,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        id: Optional[str] = None,
-        owner: Optional[str] = None,
-        provider_name: Optional[str] = None,
-        share_name: Optional[str] = None,
-        storage_root: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class Column:
+            self,
+            name: str,
+            properties: Dict[str, str],
+            browse_only: Optional[bool] = None,
+            catalog_type: Optional[CatalogType] = None,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            id: Optional[str] = None,
+            owner: Optional[str] = None,
+            provider_name: Optional[str] = None,
+            share_name: Optional[str] = None,
+            storage_root: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class Column():
     column_id: Optional[str]
     """a unique id for the column"""
     comment: Optional[str]
@@ -215,27 +227,28 @@ class Column:
     """Full data type specification as SQL/catalogString text."""
 
     def __init__(
-        self,
-        name: str,
-        type_json: str,
-        type_name: ColumnTypeName,
-        type_text: str,
-        column_id: Optional[str] = None,
-        comment: Optional[str] = None,
-        nullable: Optional[bool] = None,
-        partition_index: Optional[int] = None,
-        position: Optional[int] = None,
-        type_interval_type: Optional[str] = None,
-        type_precision: Optional[int] = None,
-        type_scale: Optional[int] = None,
-    ) -> None: ...
 
-class CommitInfo:
+            self,
+            name: str,
+            type_json: str,
+            type_name: ColumnTypeName,
+            type_text: str,
+            column_id: Optional[str] = None,
+            comment: Optional[str] = None,
+            nullable: Optional[bool] = None,
+            partition_index: Optional[int] = None,
+            position: Optional[int] = None,
+            type_interval_type: Optional[str] = None,
+            type_precision: Optional[int] = None,
+            type_scale: Optional[int] = None
+        ) -> None:
+        ...
+
+class CommitInfo():
     """Information about a single Delta commit ratified by the catalog.
 
-    Mirrors the `CommitInfo` shape used by the Unity Catalog OSS commit coordinator (`uc_delta_commits`
-    rows). All fields are required and must be positive / non-empty (see the `commit` RPC)."""
-
+Mirrors the `CommitInfo` shape used by the Unity Catalog OSS commit coordinator (`uc_delta_commits`
+rows). All fields are required and must be positive / non-empty (see the `commit` RPC)."""
     file_modification_timestamp: int
     """
     The filesystem modification timestamp of the staged commit file (milliseconds since
@@ -260,17 +273,18 @@ class CommitInfo:
     """
 
     def __init__(
-        self,
-        file_modification_timestamp: int,
-        file_name: str,
-        file_size: int,
-        timestamp: int,
-        version: int,
-    ) -> None: ...
 
-class Credential:
+            self,
+            file_modification_timestamp: int,
+            file_name: str,
+            file_size: int,
+            timestamp: int,
+            version: int
+        ) -> None:
+        ...
+
+class Credential():
     """A credential used to access external data sources or services."""
-
     aws_iam_role: Optional[AwsIamRoleConfig]
     """The AWS IAM role configuration."""
     azure_managed_identity: Optional[AzureManagedIdentity]
@@ -316,27 +330,29 @@ class Credential:
     """
 
     def __init__(
-        self,
-        name: str,
-        purpose: Purpose,
-        read_only: bool,
-        used_for_managed_storage: bool,
-        aws_iam_role: Optional[AwsIamRoleConfig] = None,
-        azure_managed_identity: Optional[AzureManagedIdentity] = None,
-        azure_service_principal: Optional[AzureServicePrincipal] = None,
-        azure_storage_key: Optional[AzureStorageKey] = None,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
-        full_name: Optional[str] = None,
-        id: Optional[str] = None,
-        owner: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class DataObject:
+            self,
+            name: str,
+            purpose: Purpose,
+            read_only: bool,
+            used_for_managed_storage: bool,
+            aws_iam_role: Optional[AwsIamRoleConfig] = None,
+            azure_managed_identity: Optional[AzureManagedIdentity] = None,
+            azure_service_principal: Optional[AzureServicePrincipal] = None,
+            azure_storage_key: Optional[AzureStorageKey] = None,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
+            full_name: Optional[str] = None,
+            id: Optional[str] = None,
+            owner: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class DataObject():
     added_at: Optional[int]
     """The time when this data object is added to the share, in epoch milliseconds."""
     added_by: Optional[str]
@@ -376,32 +392,33 @@ class DataObject:
     """
 
     def __init__(
-        self,
-        data_object_type: DataObjectType,
-        name: str,
-        added_at: Optional[int] = None,
-        added_by: Optional[str] = None,
-        comment: Optional[str] = None,
-        enable_cdf: Optional[bool] = None,
-        history_data_sharing_status: Optional[HistoryStatus] = None,
-        partitions: Optional[List[str]] = None,
-        shared_as: Optional[str] = None,
-        start_version: Optional[int] = None,
-    ) -> None: ...
 
-class DataObjectUpdate:
+            self,
+            data_object_type: DataObjectType,
+            name: str,
+            added_at: Optional[int] = None,
+            added_by: Optional[str] = None,
+            comment: Optional[str] = None,
+            enable_cdf: Optional[bool] = None,
+            history_data_sharing_status: Optional[HistoryStatus] = None,
+            partitions: Optional[List[str]] = None,
+            shared_as: Optional[str] = None,
+            start_version: Optional[int] = None
+        ) -> None:
+        ...
+
+class DataObjectUpdate():
     """Data object update."""
-
     action: Action
     """Name of the share."""
     data_object: DataObject
     """User-provided free-form text description."""
 
-    def __init__(self, action: Action, data_object: DataObject) -> None: ...
+    def __init__(self, action: Action, data_object: DataObject) -> None:
+        ...
 
-class DatabricksGcpServiceAccount:
+class DatabricksGcpServiceAccount():
     """The Databricks managed GCP service account configuration."""
-
     credential_id: Optional[str]
     """The Databricks internal ID that represents this managed identity."""
     email: Optional[str]
@@ -410,20 +427,21 @@ class DatabricksGcpServiceAccount:
     """The ID that represents the private key for this Service Account."""
 
     def __init__(
-        self,
-        credential_id: Optional[str] = None,
-        email: Optional[str] = None,
-        private_key_id: Optional[str] = None,
-    ) -> None: ...
 
-class EntityTagAssignment:
+            self,
+            credential_id: Optional[str] = None,
+            email: Optional[str] = None,
+            private_key_id: Optional[str] = None
+        ) -> None:
+        ...
+
+class EntityTagAssignment():
     """The assignment of a tag to a Unity Catalog entity.
 
-    Unlike a TagPolicy (a governed-tag *definition*), an assignment is the application of a tag to a
-    specific securable. It has no identifier of its own — its identity is the composite of (entity_type,
-    entity_name, tag_key). It is intentionally NOT a `google.api.resource`: assignments are stored as
-    associations between the entity and its tag, not as standalone objects."""
-
+Unlike a TagPolicy (a governed-tag *definition*), an assignment is the application of a tag to a
+specific securable. It has no identifier of its own — its identity is the composite of (entity_type,
+entity_name, tag_key). It is intentionally NOT a `google.api.resource`: assignments are stored as
+associations between the entity and its tag, not as standalone objects."""
     entity_name: str
     """The fully qualified name of the entity to which the tag is assigned."""
     entity_type: str
@@ -437,10 +455,16 @@ class EntityTagAssignment:
     """The value of the tag."""
 
     def __init__(
-        self, entity_name: str, entity_type: str, tag_key: str, tag_value: Optional[str] = None
-    ) -> None: ...
 
-class ExternalLocation:
+            self,
+            entity_name: str,
+            entity_type: str,
+            tag_key: str,
+            tag_value: Optional[str] = None
+        ) -> None:
+        ...
+
+class ExternalLocation():
     browse_only: Optional[bool]
     """
     Indicates whether the principal is limited to retrieving metadata for the associated
@@ -471,25 +495,26 @@ class ExternalLocation:
     """Path URL of the external location."""
 
     def __init__(
-        self,
-        credential_id: str,
-        credential_name: str,
-        name: str,
-        read_only: bool,
-        url: str,
-        browse_only: Optional[bool] = None,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        external_location_id: Optional[str] = None,
-        owner: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class Function:
+            self,
+            credential_id: str,
+            credential_name: str,
+            name: str,
+            read_only: bool,
+            url: str,
+            browse_only: Optional[bool] = None,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            external_location_id: Optional[str] = None,
+            owner: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class Function():
     """A User-Defined Function (UDF) registered under a catalog + schema hierarchy."""
-
     catalog_name: str
     """Name of parent catalog."""
     comment: Optional[str]
@@ -547,38 +572,39 @@ class Function:
     """Username of user who last modified the function."""
 
     def __init__(
-        self,
-        catalog_name: str,
-        data_type: str,
-        full_data_type: str,
-        full_name: str,
-        is_deterministic: bool,
-        is_null_call: bool,
-        name: str,
-        parameter_style: ParameterStyle,
-        properties: Dict[str, str],
-        routine_body: RoutineBody,
-        schema_name: str,
-        security_type: SecurityType,
-        sql_data_access: SqlDataAccess,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        function_id: Optional[str] = None,
-        input_params: Optional[FunctionParameterInfos] = None,
-        owner: Optional[str] = None,
-        return_params: Optional[str] = None,
-        routine_body_language: Optional[str] = None,
-        routine_definition: Optional[str] = None,
-        routine_dependencies: Optional[str] = None,
-        specific_name: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class FunctionParameterInfo:
+            self,
+            catalog_name: str,
+            data_type: str,
+            full_data_type: str,
+            full_name: str,
+            is_deterministic: bool,
+            is_null_call: bool,
+            name: str,
+            parameter_style: ParameterStyle,
+            properties: Dict[str, str],
+            routine_body: RoutineBody,
+            schema_name: str,
+            security_type: SecurityType,
+            sql_data_access: SqlDataAccess,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            function_id: Optional[str] = None,
+            input_params: Optional[FunctionParameterInfos] = None,
+            owner: Optional[str] = None,
+            return_params: Optional[str] = None,
+            routine_body_language: Optional[str] = None,
+            routine_definition: Optional[str] = None,
+            routine_dependencies: Optional[str] = None,
+            specific_name: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class FunctionParameterInfo():
     """Information about a single function parameter."""
-
     comment: Optional[str]
     """User-provided free-form text description."""
     name: str
@@ -605,39 +631,41 @@ class FunctionParameterInfo:
     """Full data type specification as SQL/catalogString text."""
 
     def __init__(
-        self,
-        name: str,
-        parameter_mode: ParameterMode,
-        parameter_type: FunctionParameterType,
-        type_name: ColumnTypeName,
-        type_text: str,
-        comment: Optional[str] = None,
-        parameter_default: Optional[str] = None,
-        position: Optional[int] = None,
-        type_interval_type: Optional[str] = None,
-        type_json: Optional[str] = None,
-        type_precision: Optional[int] = None,
-        type_scale: Optional[int] = None,
-    ) -> None: ...
 
-class FunctionParameterInfos:
+            self,
+            name: str,
+            parameter_mode: ParameterMode,
+            parameter_type: FunctionParameterType,
+            type_name: ColumnTypeName,
+            type_text: str,
+            comment: Optional[str] = None,
+            parameter_default: Optional[str] = None,
+            position: Optional[int] = None,
+            type_interval_type: Optional[str] = None,
+            type_json: Optional[str] = None,
+            type_precision: Optional[int] = None,
+            type_scale: Optional[int] = None
+        ) -> None:
+        ...
+
+class FunctionParameterInfos():
     """A collection of function parameters."""
-
     parameters: List[FunctionParameterInfo]
     """The parameters of the function."""
 
-    def __init__(self, parameters: Optional[List[FunctionParameterInfo]] = None) -> None: ...
+    def __init__(self, parameters: Optional[List[FunctionParameterInfo]] = None) -> None:
+        ...
 
-class GcpOauthToken:
+class GcpOauthToken():
     oauth_token: str
     """The OAuth token used to access Google Cloud services."""
 
-    def __init__(self, oauth_token: str) -> None: ...
+    def __init__(self, oauth_token: str) -> None:
+        ...
 
-class Metadata:
+class Metadata():
     """A Delta metadata change accompanying a commit. Modeled minimally; the coordinator stores it opaquely
-    and does not interpret it."""
-
+and does not interpret it."""
     configuration: Dict[str, str]
     """Configuration key/value pairs from the Delta metadata action."""
     id: Optional[str]
@@ -646,13 +674,15 @@ class Metadata:
     """The serialized schema string from the Delta metadata action."""
 
     def __init__(
-        self,
-        configuration: Dict[str, str],
-        id: Optional[str] = None,
-        schema_string: Optional[str] = None,
-    ) -> None: ...
 
-class PermissionsChange:
+            self,
+            configuration: Dict[str, str],
+            id: Optional[str] = None,
+            schema_string: Optional[str] = None
+        ) -> None:
+        ...
+
+class PermissionsChange():
     add: List[str]
     """The set of privileges to add."""
     principal: str
@@ -661,10 +691,15 @@ class PermissionsChange:
     """The set of privileges to remove."""
 
     def __init__(
-        self, principal: str, add: Optional[List[str]] = None, remove: Optional[List[str]] = None
-    ) -> None: ...
 
-class PrivilegeAssignment:
+            self,
+            principal: str,
+            add: Optional[List[str]] = None,
+            remove: Optional[List[str]] = None
+        ) -> None:
+        ...
+
+class PrivilegeAssignment():
     principal: str
     """
     The principal (user email address or group name). For deleted principals, principal is
@@ -673,14 +708,14 @@ class PrivilegeAssignment:
     privileges: List[str]
     """The privileges assigned to the principal."""
 
-    def __init__(self, principal: str, privileges: Optional[List[str]] = None) -> None: ...
+    def __init__(self, principal: str, privileges: Optional[List[str]] = None) -> None:
+        ...
 
-class Provider:
+class Provider():
     """A provider represents an organization sharing data with this metastore.
 
-    A provider is the inbound counterpart of a recipient: it is registered from a share activation/
-    credential file and is used to access shares offered by an upstream Delta Sharing server."""
-
+A provider is the inbound counterpart of a recipient: it is registered from a share activation/
+credential file and is used to access shares offered by an upstream Delta Sharing server."""
     authentication_type: ProviderAuthenticationType
     """The delta sharing authentication type."""
     comment: Optional[str]
@@ -708,21 +743,23 @@ class Provider:
     """Username of the provider updater."""
 
     def __init__(
-        self,
-        authentication_type: ProviderAuthenticationType,
-        name: str,
-        properties: Dict[str, str],
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        id: Optional[str] = None,
-        owner: Optional[str] = None,
-        recipient_profile_str: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class R2TemporaryCredentials:
+            self,
+            authentication_type: ProviderAuthenticationType,
+            name: str,
+            properties: Dict[str, str],
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            id: Optional[str] = None,
+            owner: Optional[str] = None,
+            recipient_profile_str: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class R2TemporaryCredentials():
     access_key_id: str
     """The access key ID that identifies the temporary credentials."""
     secret_access_key: str
@@ -730,9 +767,16 @@ class R2TemporaryCredentials:
     session_token: str
     """The generated JWT that users must pass to use the temporary credentials."""
 
-    def __init__(self, access_key_id: str, secret_access_key: str, session_token: str) -> None: ...
+    def __init__(
 
-class Recipient:
+            self,
+            access_key_id: str,
+            secret_access_key: str,
+            session_token: str
+        ) -> None:
+        ...
+
+class Recipient():
     authentication_type: AuthenticationType
     """The delta sharing authentication type."""
     comment: Optional[str]
@@ -757,21 +801,23 @@ class Recipient:
     """Username of share updater."""
 
     def __init__(
-        self,
-        authentication_type: AuthenticationType,
-        name: str,
-        properties: Dict[str, str],
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        id: Optional[str] = None,
-        owner: Optional[str] = None,
-        tokens: Optional[List[RecipientToken]] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class RecipientToken:
+            self,
+            authentication_type: AuthenticationType,
+            name: str,
+            properties: Dict[str, str],
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            id: Optional[str] = None,
+            owner: Optional[str] = None,
+            tokens: Optional[List[RecipientToken]] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class RecipientToken():
     activation_url: str
     """
     Full activation URL to retrieve the access token. It will be empty if the token is already
@@ -791,19 +837,20 @@ class RecipientToken:
     """Username of recipient token updater."""
 
     def __init__(
-        self,
-        activation_url: str,
-        created_at: int,
-        created_by: str,
-        expiration_time: int,
-        id: str,
-        updated_at: int,
-        updated_by: str,
-    ) -> None: ...
 
-class Schema:
+            self,
+            activation_url: str,
+            created_at: int,
+            created_by: str,
+            expiration_time: int,
+            id: str,
+            updated_at: int,
+            updated_by: str
+        ) -> None:
+        ...
+
+class Schema():
     """A schema is a namespace within a catalog that contains tables."""
-
     catalog_name: str
     """Name of parent catalog."""
     comment: Optional[str]
@@ -828,21 +875,23 @@ class Schema:
     """Username of user who last modified schema."""
 
     def __init__(
-        self,
-        catalog_name: str,
-        full_name: str,
-        name: str,
-        properties: Dict[str, str],
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        owner: Optional[str] = None,
-        schema_id: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class Share:
+            self,
+            catalog_name: str,
+            full_name: str,
+            name: str,
+            properties: Dict[str, str],
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            owner: Optional[str] = None,
+            schema_id: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class Share():
     comment: Optional[str]
     """User-provided free-form text description."""
     created_at: Optional[int]
@@ -867,21 +916,23 @@ class Share:
     """Username of share updater."""
 
     def __init__(
-        self,
-        name: str,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        id: Optional[str] = None,
-        objects: Optional[List[DataObject]] = None,
-        owner: Optional[str] = None,
-        storage_location: Optional[str] = None,
-        storage_root: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class Table:
+            self,
+            name: str,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            id: Optional[str] = None,
+            objects: Optional[List[DataObject]] = None,
+            owner: Optional[str] = None,
+            storage_location: Optional[str] = None,
+            storage_root: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class Table():
     catalog_name: str
     """Name of parent catalog."""
     columns: List[Column]
@@ -925,41 +976,43 @@ class Table:
     """Username of user who last modified table."""
 
     def __init__(
-        self,
-        catalog_name: str,
-        data_source_format: DataSourceFormat,
-        full_name: str,
-        name: str,
-        properties: Dict[str, str],
-        schema_name: str,
-        table_type: TableType,
-        columns: Optional[List[Column]] = None,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        deleted_at: Optional[int] = None,
-        owner: Optional[str] = None,
-        storage_credential_name: Optional[str] = None,
-        storage_location: Optional[str] = None,
-        table_id: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
 
-class TableSummary:
+            self,
+            catalog_name: str,
+            data_source_format: DataSourceFormat,
+            full_name: str,
+            name: str,
+            properties: Dict[str, str],
+            schema_name: str,
+            table_type: TableType,
+            columns: Optional[List[Column]] = None,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            deleted_at: Optional[int] = None,
+            owner: Optional[str] = None,
+            storage_credential_name: Optional[str] = None,
+            storage_location: Optional[str] = None,
+            table_id: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
+
+class TableSummary():
     full_name: str
     """The full name of the table."""
     table_type: TableType
 
-    def __init__(self, full_name: str, table_type: TableType) -> None: ...
+    def __init__(self, full_name: str, table_type: TableType) -> None:
+        ...
 
-class TagPolicy:
+class TagPolicy():
     """A governed tag definition (tag policy).
 
-    A tag policy defines a tag key together with the rules that govern how it can be used, including the
-    optional set of allowed values. Assigning a governed tag to an entity is done through the Entity Tag
-    Assignments API."""
-
+A tag policy defines a tag key together with the rules that govern how it can be used, including the
+optional set of allowed values. Assigning a governed tag to an entity is done through the Entity Tag
+Assignments API."""
     created_at: Optional[int]
     """Time at which this tag policy was created, in epoch milliseconds."""
     description: Optional[str]
@@ -977,18 +1030,19 @@ class TagPolicy:
     """
 
     def __init__(
-        self,
-        tag_key: str,
-        created_at: Optional[int] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        values: Optional[List[Value]] = None,
-    ) -> None: ...
 
-class TemporaryCredential:
+            self,
+            tag_key: str,
+            created_at: Optional[int] = None,
+            description: Optional[str] = None,
+            id: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            values: Optional[List[Value]] = None
+        ) -> None:
+        ...
+
+class TemporaryCredential():
     """The response to the GenerateTemporaryTableCredentialsRequest."""
-
     expiration_time: int
     """
     Server time when the credential will expire, in epoch milliseconds. The API client is
@@ -1008,25 +1062,27 @@ class TemporaryCredential:
     """Credentials for R2."""
 
     def __init__(
-        self,
-        expiration_time: int,
-        url: str,
-        aws_temp_credentials: Optional[AwsTemporaryCredentials] = None,
-        azure_aad: Optional[AzureAad] = None,
-        azure_user_delegation_sas: Optional[AzureUserDelegationSas] = None,
-        gcp_oauth_token: Optional[GcpOauthToken] = None,
-        r2_temp_credentials: Optional[R2TemporaryCredentials] = None,
-    ) -> None: ...
 
-class Value:
+            self,
+            expiration_time: int,
+            url: str,
+            aws_temp_credentials: Optional[AwsTemporaryCredentials] = None,
+            azure_aad: Optional[AzureAad] = None,
+            azure_user_delegation_sas: Optional[AzureUserDelegationSas] = None,
+            gcp_oauth_token: Optional[GcpOauthToken] = None,
+            r2_temp_credentials: Optional[R2TemporaryCredentials] = None
+        ) -> None:
+        ...
+
+class Value():
     """An allowed value for a governed tag."""
-
     name: str
     """The name of the allowed value."""
 
-    def __init__(self, name: str) -> None: ...
+    def __init__(self, name: str) -> None:
+        ...
 
-class Volume:
+class Volume():
     browse_only: Optional[bool]
     """
     Indicates whether the principal is limited to retrieving metadata for the associated
@@ -1066,23 +1122,25 @@ class Volume:
     """
 
     def __init__(
-        self,
-        catalog_name: str,
-        full_name: str,
-        name: str,
-        schema_name: str,
-        storage_location: str,
-        volume_id: str,
-        volume_type: VolumeType,
-        browse_only: Optional[bool] = None,
-        comment: Optional[str] = None,
-        created_at: Optional[int] = None,
-        created_by: Optional[str] = None,
-        metastore_id: Optional[str] = None,
-        owner: Optional[str] = None,
-        updated_at: Optional[int] = None,
-        updated_by: Optional[str] = None,
-    ) -> None: ...
+
+            self,
+            catalog_name: str,
+            full_name: str,
+            name: str,
+            schema_name: str,
+            storage_location: str,
+            volume_id: str,
+            volume_type: VolumeType,
+            browse_only: Optional[bool] = None,
+            comment: Optional[str] = None,
+            created_at: Optional[int] = None,
+            created_by: Optional[str] = None,
+            metastore_id: Optional[str] = None,
+            owner: Optional[str] = None,
+            updated_at: Optional[int] = None,
+            updated_by: Optional[str] = None
+        ) -> None:
+        ...
 
 class Action(enum.Enum):
     ACTION_UNSPECIFIED = "ACTION_UNSPECIFIED"
@@ -1101,7 +1159,6 @@ class AuthenticationType(enum.Enum):
 
 class CatalogType(enum.Enum):
     """The type of the catalog."""
-
     CATALOG_TYPE_UNSPECIFIED = "CATALOG_TYPE_UNSPECIFIED"
     """Unknown catalog type."""
     DELTASHARING_CATALOG = "DELTASHARING_CATALOG"
@@ -1155,7 +1212,6 @@ class DataSourceFormat(enum.Enum):
 
 class FunctionParameterType(enum.Enum):
     """The type of the function parameter."""
-
     COLUMN = "COLUMN"
     """A named column parameter."""
     FUNCTION_PARAMETER_TYPE_UNSPECIFIED = "FUNCTION_PARAMETER_TYPE_UNSPECIFIED"
@@ -1170,21 +1226,18 @@ class HistoryStatus(enum.Enum):
 
 class ParameterMode(enum.Enum):
     """The mode of the function parameter."""
-
     IN = "IN"
     """Input parameter."""
     PARAMETER_MODE_UNSPECIFIED = "PARAMETER_MODE_UNSPECIFIED"
 
 class ParameterStyle(enum.Enum):
     """The parameter-passing style."""
-
     PARAMETER_STYLE_UNSPECIFIED = "PARAMETER_STYLE_UNSPECIFIED"
     S = "S"
     """The parameters are passed positionally (S = SQL)."""
 
 class ProviderAuthenticationType(enum.Enum):
     """The delta sharing authentication type used by a provider."""
-
     OAUTH_CLIENT_CREDENTIALS = "OAUTH_CLIENT_CREDENTIALS"
     """OAuth2 client-credentials authentication."""
     PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED = "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED"
@@ -1194,7 +1247,6 @@ class ProviderAuthenticationType(enum.Enum):
 
 class Purpose(enum.Enum):
     """The purpose of a credential."""
-
     PURPOSE_UNSPECIFIED = "PURPOSE_UNSPECIFIED"
     SERVICE = "SERVICE"
     """The credential is used to access external services."""
@@ -1203,7 +1255,6 @@ class Purpose(enum.Enum):
 
 class RoutineBody(enum.Enum):
     """Determines whether the function body is interpreted as SQL or as an external function."""
-
     EXTERNAL = "EXTERNAL"
     """The function is defined externally."""
     ROUTINE_BODY_UNSPECIFIED = "ROUTINE_BODY_UNSPECIFIED"
@@ -1212,14 +1263,12 @@ class RoutineBody(enum.Enum):
 
 class SecurityType(enum.Enum):
     """The security type of the function."""
-
     DEFINER = "DEFINER"
     """The function runs as the invoking user (DEFINER = standard SQL semantics)."""
     SECURITY_TYPE_UNSPECIFIED = "SECURITY_TYPE_UNSPECIFIED"
 
 class SqlDataAccess(enum.Enum):
     """Information about the SQL data access capability of the function."""
-
     CONTAINS_SQL = "CONTAINS_SQL"
     """Function contains no SQL."""
     NO_SQL = "NO_SQL"
@@ -1230,7 +1279,6 @@ class SqlDataAccess(enum.Enum):
 
 class TableType(enum.Enum):
     """The type of the table."""
-
     EXTERNAL = "EXTERNAL"
     MANAGED = "MANAGED"
     TABLE_TYPE_UNSPECIFIED = "TABLE_TYPE_UNSPECIFIED"
@@ -1240,7 +1288,7 @@ class VolumeType(enum.Enum):
     MANAGED = "MANAGED"
     VOLUME_TYPE_UNSPECIFIED = "VOLUME_TYPE_UNSPECIFIED"
 
-class CatalogClient:
+class CatalogClient():
     def delete(self, force: Optional[bool] = None) -> None:
         """
         Delete a catalog
@@ -1275,12 +1323,14 @@ class CatalogClient:
         """
         ...
     def update(
-        self,
-        owner: Optional[str] = None,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-        new_name: Optional[str] = None,
-    ) -> Catalog:
+
+            self,
+            owner: Optional[str] = None,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str,
+            str]] = None,
+            new_name: Optional[str] = None
+        ) -> Catalog:
         """
         Update a catalog
 
@@ -1301,14 +1351,34 @@ class CatalogClient:
             A catalog is a root-level namespace that contains schemas.
         """
         ...
-    def function(
-        self, catalog_name: str, schema_name: str, function_name: str
-    ) -> FunctionClient: ...
-    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
-    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
-    def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
+    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient:
+        ...
+    def volume(
 
-class CredentialClient:
+            self,
+            catalog_name: str,
+            schema_name: str,
+            volume_name: str
+        ) -> VolumeClient:
+        ...
+    def table(
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            table_name: str
+        ) -> TableClient:
+        ...
+    def function(
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            function_name: str
+        ) -> FunctionClient:
+        ...
+
+class CredentialClient():
     def delete(self) -> None:
         """
         Returns:
@@ -1322,19 +1392,20 @@ class CredentialClient:
         """
         ...
     def update(
-        self,
-        new_name: Optional[str] = None,
-        comment: Optional[str] = None,
-        read_only: Optional[bool] = None,
-        owner: Optional[str] = None,
-        skip_validation: Optional[bool] = None,
-        force: Optional[bool] = None,
-        azure_service_principal: Optional[AzureServicePrincipal] = None,
-        azure_managed_identity: Optional[AzureManagedIdentity] = None,
-        azure_storage_key: Optional[AzureStorageKey] = None,
-        aws_iam_role: Optional[AwsIamRoleConfig] = None,
-        databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
-    ) -> Credential:
+
+            self,
+            new_name: Optional[str] = None,
+            comment: Optional[str] = None,
+            read_only: Optional[bool] = None,
+            owner: Optional[str] = None,
+            skip_validation: Optional[bool] = None,
+            force: Optional[bool] = None,
+            azure_service_principal: Optional[AzureServicePrincipal] = None,
+            azure_managed_identity: Optional[AzureManagedIdentity] = None,
+            azure_storage_key: Optional[AzureStorageKey] = None,
+            aws_iam_role: Optional[AwsIamRoleConfig] = None,
+            databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None
+        ) -> Credential:
         """
         Args:
             new_name: New name of the credential.
@@ -1357,7 +1428,7 @@ class CredentialClient:
         """
         ...
 
-class ExternalLocationClient:
+class ExternalLocationClient():
     def delete(self, force: Optional[bool] = None) -> None:
         """
         Delete an external location
@@ -1381,16 +1452,17 @@ class ExternalLocationClient:
         """
         ...
     def update(
-        self,
-        url: Optional[str] = None,
-        credential_name: Optional[str] = None,
-        read_only: Optional[bool] = None,
-        owner: Optional[str] = None,
-        comment: Optional[str] = None,
-        new_name: Optional[str] = None,
-        force: Optional[bool] = None,
-        skip_validation: Optional[bool] = None,
-    ) -> ExternalLocation:
+
+            self,
+            url: Optional[str] = None,
+            credential_name: Optional[str] = None,
+            read_only: Optional[bool] = None,
+            owner: Optional[str] = None,
+            comment: Optional[str] = None,
+            new_name: Optional[str] = None,
+            force: Optional[bool] = None,
+            skip_validation: Optional[bool] = None
+        ) -> ExternalLocation:
         """
         Update an external location
 
@@ -1412,7 +1484,7 @@ class ExternalLocationClient:
         """
         ...
 
-class FunctionClient:
+class FunctionClient():
     def delete(self, force: Optional[bool] = None) -> None:
         """
         Delete a function
@@ -1457,7 +1529,7 @@ class FunctionClient:
         """
         ...
 
-class ProviderClient:
+class ProviderClient():
     def delete(self) -> None:
         """
         Delete a provider.
@@ -1480,13 +1552,15 @@ class ProviderClient:
         """
         ...
     def update(
-        self,
-        new_name: Optional[str] = None,
-        owner: Optional[str] = None,
-        comment: Optional[str] = None,
-        recipient_profile_str: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-    ) -> Provider:
+
+            self,
+            new_name: Optional[str] = None,
+            owner: Optional[str] = None,
+            comment: Optional[str] = None,
+            recipient_profile_str: Optional[str] = None,
+            properties: Optional[Dict[str,
+            str]] = None
+        ) -> Provider:
         """
         Update a provider.
 
@@ -1510,7 +1584,7 @@ class ProviderClient:
         """
         ...
 
-class RecipientClient:
+class RecipientClient():
     def delete(self) -> None:
         """
         Delete a recipient.
@@ -1530,13 +1604,15 @@ class RecipientClient:
         """
         ...
     def update(
-        self,
-        new_name: Optional[str] = None,
-        owner: Optional[str] = None,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-        expiration_time: Optional[int] = None,
-    ) -> Recipient:
+
+            self,
+            new_name: Optional[str] = None,
+            owner: Optional[str] = None,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str,
+            str]] = None,
+            expiration_time: Optional[int] = None
+        ) -> Recipient:
         """
         Update a recipient.
 
@@ -1556,7 +1632,7 @@ class RecipientClient:
         """
         ...
 
-class SchemaClient:
+class SchemaClient():
     def delete(self, force: Optional[bool] = None) -> None:
         """
         Deletes the specified schema from the parent catalog. The caller must be the owner of the schema or
@@ -1582,11 +1658,13 @@ class SchemaClient:
         """
         ...
     def update(
-        self,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-        new_name: Optional[str] = None,
-    ) -> Schema:
+
+            self,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str,
+            str]] = None,
+            new_name: Optional[str] = None
+        ) -> Schema:
         """
         Updates a schema for a catalog. The caller must be the owner of the schema or a metastore admin.
         If the caller is a metastore admin, only the owner field can be changed in the update. If the name
@@ -1606,13 +1684,32 @@ class SchemaClient:
             A schema is a namespace within a catalog that contains tables.
         """
         ...
-    def function(
-        self, catalog_name: str, schema_name: str, function_name: str
-    ) -> FunctionClient: ...
-    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
-    def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
+    def volume(
 
-class ShareClient:
+            self,
+            catalog_name: str,
+            schema_name: str,
+            volume_name: str
+        ) -> VolumeClient:
+        ...
+    def table(
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            table_name: str
+        ) -> TableClient:
+        ...
+    def function(
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            function_name: str
+        ) -> FunctionClient:
+        ...
+
+class ShareClient():
     def delete(self) -> None:
         """
         Deletes a share.
@@ -1635,11 +1732,7 @@ class ShareClient:
             The requested resource
         """
         ...
-    def update_permissions(
-        self,
-        changes: Optional[List[PermissionsChange]] = None,
-        omit_permissions_list: Optional[bool] = None,
-    ) -> UpdatePermissionsResponse:
+    def update_permissions(self, changes: Optional[List[PermissionsChange]] = None, omit_permissions_list: Optional[bool] = None) -> UpdatePermissionsResponse:
         """
         Updates the permissions for a data share in the metastore.
 
@@ -1655,12 +1748,13 @@ class ShareClient:
         """
         ...
     def update(
-        self,
-        updates: Optional[List[DataObjectUpdate]] = None,
-        new_name: Optional[str] = None,
-        owner: Optional[str] = None,
-        comment: Optional[str] = None,
-    ) -> Share:
+
+            self,
+            updates: Optional[List[DataObjectUpdate]] = None,
+            new_name: Optional[str] = None,
+            owner: Optional[str] = None,
+            comment: Optional[str] = None
+        ) -> Share:
         """
         Update a share.
 
@@ -1677,7 +1771,7 @@ class ShareClient:
         """
         ...
 
-class TableClient:
+class TableClient():
     def delete(self) -> None:
         """
         Delete a table
@@ -1688,11 +1782,12 @@ class TableClient:
         """
         ...
     def get(
-        self,
-        include_delta_metadata: Optional[bool] = None,
-        include_browse: Optional[bool] = None,
-        include_manifest_capabilities: Optional[bool] = None,
-    ) -> Table:
+
+            self,
+            include_delta_metadata: Optional[bool] = None,
+            include_browse: Optional[bool] = None,
+            include_manifest_capabilities: Optional[bool] = None
+        ) -> Table:
         """
         Get a table
 
@@ -1710,7 +1805,7 @@ class TableClient:
         """
         ...
 
-class TagPolicyClient:
+class TagPolicyClient():
     def delete(self) -> None:
         """
         Delete a tag policy
@@ -1736,9 +1831,7 @@ class TagPolicyClient:
             governed tag to an entity is done through the Entity Tag Assignments API.
         """
         ...
-    def update(
-        self, tag_policy: Optional[TagPolicy] = None, update_mask: Optional[str] = None
-    ) -> TagPolicy:
+    def update(self, tag_policy: TagPolicy, update_mask: Optional[str] = None) -> TagPolicy:
         """
         Update a tag policy
 
@@ -1758,8 +1851,7 @@ class TagPolicyClient:
         """
         ...
 
-
-class VolumeClient:
+class VolumeClient():
     def delete(self) -> None:
         """
         Returns:
@@ -1778,11 +1870,12 @@ class VolumeClient:
         """
         ...
     def update(
-        self,
-        new_name: Optional[str] = None,
-        comment: Optional[str] = None,
-        owner: Optional[str] = None,
-    ) -> Volume:
+
+            self,
+            new_name: Optional[str] = None,
+            comment: Optional[str] = None,
+            owner: Optional[str] = None
+        ) -> Volume:
         """
         Args:
             new_name: New name for the volume.
@@ -1795,17 +1888,48 @@ class VolumeClient:
         """
         ...
 
-class UnityCatalogClient:
-    def __init__(self, base_url: str, token: Optional[str] = None) -> None: ...
+class UnityCatalogClient():
+    def __init__(self, base_url: str, token: Optional[str] = None) -> None:
+        ...
+    def commit(
+
+            self,
+            table_id: str,
+            table_uri: str,
+            commit_info: Optional[CommitInfo] = None,
+            latest_backfilled_version: Optional[int] = None,
+            metadata: Optional[Metadata] = None
+        ) -> None:
+        """
+        Ratify a staged commit at the requested version (first-writer-wins), and/or notify the catalog that
+        commits have been backfilled to the Delta log.
+
+
+        Args:
+            table_id: UUID of the catalog-managed table being committed to.
+            table_uri: The storage URI of the table. Must match the table's registered storage location
+                       (normalized) on the commit path.
+            commit_info: The commit to ratify. Absent for a backfill-only notification.
+            latest_backfilled_version: Notify the catalog that commits up to and including this version
+                                       have been published (backfilled) to the Delta log. The catalog prunes
+                                       ratified commits accordingly.
+            metadata: An optional Delta metadata change accompanying the commit.
+
+
+        Returns:
+            The requested resource
+        """
+        ...
     def create_catalog(
-        self,
-        name: str,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-        storage_root: Optional[str] = None,
-        provider_name: Optional[str] = None,
-        share_name: Optional[str] = None,
-    ) -> Catalog:
+
+            self,
+            name: str,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str, str]] = None,
+            storage_root: Optional[str] = None,
+            provider_name: Optional[str] = None,
+            share_name: Optional[str] = None
+        ) -> Catalog:
         """
         Create a new catalog
 
@@ -1828,18 +1952,19 @@ class UnityCatalogClient:
         """
         ...
     def create_credential(
-        self,
-        name: str,
-        purpose: Purpose,
-        comment: Optional[str] = None,
-        read_only: Optional[bool] = None,
-        skip_validation: Optional[bool] = None,
-        azure_service_principal: Optional[AzureServicePrincipal] = None,
-        azure_managed_identity: Optional[AzureManagedIdentity] = None,
-        azure_storage_key: Optional[AzureStorageKey] = None,
-        aws_iam_role: Optional[AwsIamRoleConfig] = None,
-        databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None,
-    ) -> Credential:
+
+            self,
+            name: str,
+            purpose: Purpose,
+            comment: Optional[str] = None,
+            read_only: Optional[bool] = None,
+            skip_validation: Optional[bool] = None,
+            azure_service_principal: Optional[AzureServicePrincipal] = None,
+            azure_managed_identity: Optional[AzureManagedIdentity] = None,
+            azure_storage_key: Optional[AzureStorageKey] = None,
+            aws_iam_role: Optional[AwsIamRoleConfig] = None,
+            databricks_gcp_service_account: Optional[DatabricksGcpServiceAccount] = None
+        ) -> Credential:
         """
         Args:
             name: The credential name. The name must be unique among storage and service credentials within
@@ -1861,15 +1986,37 @@ class UnityCatalogClient:
             A credential used to access external data sources or services.
         """
         ...
+    def create_entity_tag_assignment(self, tag_assignment: EntityTagAssignment) -> EntityTagAssignment:
+        """
+        Create an entity tag assignment
+
+        Assigns a tag to a Unity Catalog entity.
+
+
+        Args:
+            tag_assignment: The tag assignment to create.
+
+
+        Returns:
+            The assignment of a tag to a Unity Catalog entity. Unlike a TagPolicy (a governed-tag
+            *definition*), an assignment is the application of a tag to a specific securable. It has no
+            identifier of its own — its identity is the composite of (entity_type, entity_name,
+            tag_key). It
+            is intentionally NOT a `google.api.resource`: assignments are stored as associations between
+            the
+            entity and its tag, not as standalone objects.
+        """
+        ...
     def create_external_location(
-        self,
-        name: str,
-        url: str,
-        credential_name: str,
-        read_only: Optional[bool] = None,
-        comment: Optional[str] = None,
-        skip_validation: Optional[bool] = None,
-    ) -> ExternalLocation:
+
+            self,
+            name: str,
+            url: str,
+            credential_name: str,
+            read_only: Optional[bool] = None,
+            comment: Optional[str] = None,
+            skip_validation: Optional[bool] = None
+        ) -> ExternalLocation:
         """
         Create a new external location
 
@@ -1889,24 +2036,25 @@ class UnityCatalogClient:
         """
         ...
     def create_function(
-        self,
-        name: str,
-        catalog_name: str,
-        schema_name: str,
-        data_type: str,
-        full_data_type: str,
-        parameter_style: ParameterStyle,
-        is_deterministic: bool,
-        sql_data_access: SqlDataAccess,
-        is_null_call: bool,
-        security_type: SecurityType,
-        routine_body: RoutineBody,
-        input_params: Optional[FunctionParameterInfos] = None,
-        routine_definition: Optional[str] = None,
-        routine_body_language: Optional[str] = None,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-    ) -> Function:
+
+            self,
+            name: str,
+            catalog_name: str,
+            schema_name: str,
+            data_type: str,
+            full_data_type: str,
+            parameter_style: ParameterStyle,
+            is_deterministic: bool,
+            sql_data_access: SqlDataAccess,
+            is_null_call: bool,
+            security_type: SecurityType,
+            routine_body: RoutineBody,
+            input_params: Optional[FunctionParameterInfos] = None,
+            routine_definition: Optional[str] = None,
+            routine_body_language: Optional[str] = None,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str, str]] = None
+        ) -> Function:
         """
         Create a function
 
@@ -1938,14 +2086,15 @@ class UnityCatalogClient:
         """
         ...
     def create_provider(
-        self,
-        name: str,
-        authentication_type: ProviderAuthenticationType,
-        owner: Optional[str] = None,
-        comment: Optional[str] = None,
-        recipient_profile_str: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-    ) -> Provider:
+
+            self,
+            name: str,
+            authentication_type: ProviderAuthenticationType,
+            owner: Optional[str] = None,
+            comment: Optional[str] = None,
+            recipient_profile_str: Optional[str] = None,
+            properties: Optional[Dict[str, str]] = None
+        ) -> Provider:
         """
         Create a new provider.
 
@@ -1968,14 +2117,15 @@ class UnityCatalogClient:
         """
         ...
     def create_recipient(
-        self,
-        name: str,
-        authentication_type: AuthenticationType,
-        owner: str,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-        expiration_time: Optional[int] = None,
-    ) -> Recipient:
+
+            self,
+            name: str,
+            authentication_type: AuthenticationType,
+            owner: str,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str, str]] = None,
+            expiration_time: Optional[int] = None
+        ) -> Recipient:
         """
         Create a new recipient.
 
@@ -1996,12 +2146,13 @@ class UnityCatalogClient:
         """
         ...
     def create_schema(
-        self,
-        name: str,
-        catalog_name: str,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-    ) -> Schema:
+
+            self,
+            name: str,
+            catalog_name: str,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str, str]] = None
+        ) -> Schema:
         """
         Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin, or have
         the CREATE_SCHEMA privilege in the parent catalog.
@@ -2033,17 +2184,18 @@ class UnityCatalogClient:
         """
         ...
     def create_table(
-        self,
-        name: str,
-        schema_name: str,
-        catalog_name: str,
-        table_type: TableType,
-        data_source_format: DataSourceFormat,
-        columns: Optional[List[Column]] = None,
-        storage_location: Optional[str] = None,
-        comment: Optional[str] = None,
-        properties: Optional[Dict[str, str]] = None,
-    ) -> Table:
+
+            self,
+            name: str,
+            schema_name: str,
+            catalog_name: str,
+            table_type: TableType,
+            data_source_format: DataSourceFormat,
+            columns: Optional[List[Column]] = None,
+            storage_location: Optional[str] = None,
+            comment: Optional[str] = None,
+            properties: Optional[Dict[str, str]] = None
+        ) -> Table:
         """
         Create a table
 
@@ -2062,7 +2214,7 @@ class UnityCatalogClient:
             The requested resource
         """
         ...
-    def create_tag_policy(self, tag_policy: Optional[TagPolicy] = None) -> TagPolicy:
+    def create_tag_policy(self, tag_policy: TagPolicy) -> TagPolicy:
         """
         Create a new tag policy
 
@@ -2081,14 +2233,15 @@ class UnityCatalogClient:
         """
         ...
     def create_volume(
-        self,
-        catalog_name: str,
-        schema_name: str,
-        name: str,
-        volume_type: VolumeType,
-        storage_location: Optional[str] = None,
-        comment: Optional[str] = None,
-    ) -> Volume:
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            name: str,
+            volume_type: VolumeType,
+            storage_location: Optional[str] = None,
+            comment: Optional[str] = None
+        ) -> Volume:
         """
         Args:
             catalog_name: The identifier of the catalog
@@ -2105,9 +2258,30 @@ class UnityCatalogClient:
             The requested resource
         """
         ...
+    def delete_entity_tag_assignment(
+
+            self,
+            entity_type: str,
+            entity_name: str,
+            tag_key: str
+        ) -> None:
+        """
+        Delete an entity tag assignment
+
+        Deletes the tag assignment for the specified entity and tag key.
+
+
+        Returns:
+            The requested resource
+        """
+        ...
     def generate_temporary_path_credentials(
-        self, url: str, operation: Operation, dry_run: Optional[bool] = None
-    ) -> TemporaryCredential:
+
+            self,
+            url: str,
+            operation: Operation,
+            dry_run: Optional[bool] = None
+        ) -> TemporaryCredential:
         """
         Generate a new set of credentials for a path.
 
@@ -2124,9 +2298,7 @@ class UnityCatalogClient:
             The response to the GenerateTemporaryTableCredentialsRequest.
         """
         ...
-    def generate_temporary_table_credentials(
-        self, table_id: str, operation: Operation
-    ) -> TemporaryCredential:
+    def generate_temporary_table_credentials(self, table_id: str, operation: Operation) -> TemporaryCredential:
         """
         Generate a new set of credentials for a table.
 
@@ -2142,9 +2314,7 @@ class UnityCatalogClient:
             The response to the GenerateTemporaryTableCredentialsRequest.
         """
         ...
-    def generate_temporary_volume_credentials(
-        self, volume_id: str, operation: Operation
-    ) -> TemporaryCredential:
+    def generate_temporary_volume_credentials(self, volume_id: str, operation: Operation) -> TemporaryCredential:
         """
         Generate a new set of credentials for a volume.
 
@@ -2161,6 +2331,53 @@ class UnityCatalogClient:
 
         Returns:
             The response to the GenerateTemporaryTableCredentialsRequest.
+        """
+        ...
+    def get_commits(
+
+            self,
+            table_id: str,
+            table_uri: str,
+            start_version: int,
+            end_version: Optional[int] = None
+        ) -> GetCommitsResponse:
+        """
+        Return ratified-but-unpublished commits for a table, plus the latest version the catalog tracks.
+
+
+        Args:
+            table_id: UUID of the catalog-managed table.
+            table_uri: The storage URI of the table.
+            start_version: The lowest version to return (inclusive). Defaults to 0.
+            end_version: The highest version to return (inclusive). When set, must be `>= start_version`.
+                         Defaults to the latest version.
+
+
+        Returns:
+            Response listing ratified-but-unpublished commits for a table.
+        """
+        ...
+    def get_entity_tag_assignment(
+
+            self,
+            entity_type: str,
+            entity_name: str,
+            tag_key: str
+        ) -> EntityTagAssignment:
+        """
+        Get an entity tag assignment
+
+        Gets the tag assignment for the specified entity and tag key.
+
+
+        Returns:
+            The assignment of a tag to a Unity Catalog entity. Unlike a TagPolicy (a governed-tag
+            *definition*), an assignment is the application of a tag to a specific securable. It has no
+            identifier of its own — its identity is the composite of (entity_type, entity_name,
+            tag_key). It
+            is intentionally NOT a `google.api.resource`: assignments are stored as associations between
+            the
+            entity and its tag, not as standalone objects.
         """
         ...
     def list_catalogs(self, max_results: Optional[int] = None) -> List[Catalog]:
@@ -2181,9 +2398,7 @@ class UnityCatalogClient:
             List of The catalogs returned.
         """
         ...
-    def list_credentials(
-        self, purpose: Optional[Purpose] = None, max_results: Optional[int] = None
-    ) -> List[Credential]:
+    def list_credentials(self, purpose: Optional[Purpose] = None, max_results: Optional[int] = None) -> List[Credential]:
         """
         Args:
             purpose: Return only credentials for the specified purpose.
@@ -2194,9 +2409,30 @@ class UnityCatalogClient:
             List of The credentials returned.
         """
         ...
-    def list_external_locations(
-        self, max_results: Optional[int] = None, include_browse: Optional[bool] = None
-    ) -> List[ExternalLocation]:
+    def list_entity_tag_assignments(
+
+            self,
+            entity_type: str,
+            entity_name: str,
+            max_results: Optional[int] = None,
+            page_token: Optional[str] = None
+        ) -> ListEntityTagAssignmentsResponse:
+        """
+        List entity tag assignments
+
+        Gets the tag assignments for the specified entity.
+
+
+        Args:
+            max_results: The maximum number of results per page that should be returned.
+            page_token: Opaque pagination token to go to next page based on previous query.
+
+
+        Returns:
+            List entity tag assignments response.
+        """
+        ...
+    def list_external_locations(self, max_results: Optional[int] = None, include_browse: Optional[bool] = None) -> List[ExternalLocation]:
         """
         List external locations
 
@@ -2212,12 +2448,13 @@ class UnityCatalogClient:
         """
         ...
     def list_functions(
-        self,
-        catalog_name: str,
-        schema_name: str,
-        max_results: Optional[int] = None,
-        include_browse: Optional[bool] = None,
-    ) -> List[Function]:
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            max_results: Optional[int] = None,
+            include_browse: Optional[bool] = None
+        ) -> List[Function]:
         """
         List functions
 
@@ -2266,11 +2503,12 @@ class UnityCatalogClient:
         """
         ...
     def list_schemas(
-        self,
-        catalog_name: str,
-        max_results: Optional[int] = None,
-        include_browse: Optional[bool] = None,
-    ) -> List[Schema]:
+
+            self,
+            catalog_name: str,
+            max_results: Optional[int] = None,
+            include_browse: Optional[bool] = None
+        ) -> List[Schema]:
         """
         Gets an array of schemas for a catalog in the metastore. If the caller is the metastore admin or the
         owner of the parent catalog, all schemas for the catalog will be retrieved. Otherwise, only schemas
@@ -2303,17 +2541,18 @@ class UnityCatalogClient:
         """
         ...
     def list_tables(
-        self,
-        catalog_name: str,
-        schema_name: str,
-        max_results: Optional[int] = None,
-        include_delta_metadata: Optional[bool] = None,
-        omit_columns: Optional[bool] = None,
-        omit_properties: Optional[bool] = None,
-        omit_username: Optional[bool] = None,
-        include_browse: Optional[bool] = None,
-        include_manifest_capabilities: Optional[bool] = None,
-    ) -> List[Table]:
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            max_results: Optional[int] = None,
+            include_delta_metadata: Optional[bool] = None,
+            omit_columns: Optional[bool] = None,
+            omit_properties: Optional[bool] = None,
+            omit_username: Optional[bool] = None,
+            include_browse: Optional[bool] = None,
+            include_manifest_capabilities: Optional[bool] = None
+        ) -> List[Table]:
         """
         Gets an array of all tables for the current metastore under the parent catalog and schema.
 
@@ -2359,12 +2598,13 @@ class UnityCatalogClient:
         """
         ...
     def list_volumes(
-        self,
-        catalog_name: str,
-        schema_name: str,
-        max_results: Optional[int] = None,
-        include_browse: Optional[bool] = None,
-    ) -> List[Volume]:
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            max_results: Optional[int] = None,
+            include_browse: Optional[bool] = None
+        ) -> List[Volume]:
         """
         Lists volumes.
 
@@ -2381,19 +2621,76 @@ class UnityCatalogClient:
             List of The volumes returned.
         """
         ...
-    def catalog(self, name: str) -> CatalogClient: ...
-    def credential(self, name: str) -> CredentialClient: ...
-    def external_location(self, name: str) -> ExternalLocationClient: ...
+    def update_entity_tag_assignment(
+
+            self,
+            entity_type: str,
+            entity_name: str,
+            tag_key: str,
+            tag_assignment: EntityTagAssignment,
+            update_mask: Optional[str] = None
+        ) -> EntityTagAssignment:
+        """
+        Update an entity tag assignment
+
+        Updates the tag assignment for the specified entity and tag key.
+
+
+        Args:
+            tag_assignment: The tag assignment with the updated fields.
+            update_mask: The list of fields to update, as a comma-separated string.
+
+
+        Returns:
+            The assignment of a tag to a Unity Catalog entity. Unlike a TagPolicy (a governed-tag
+            *definition*), an assignment is the application of a tag to a specific securable. It has no
+            identifier of its own — its identity is the composite of (entity_type, entity_name,
+            tag_key). It
+            is intentionally NOT a `google.api.resource`: assignments are stored as associations between
+            the
+            entity and its tag, not as standalone objects.
+        """
+        ...
+    def catalog(self, name: str) -> CatalogClient:
+        ...
+    def credential(self, name: str) -> CredentialClient:
+        ...
+    def external_location(self, name: str) -> ExternalLocationClient:
+        ...
     def function(
-        self, catalog_name: str, schema_name: str, function_name: str
-    ) -> FunctionClient: ...
-    def provider(self, name: str) -> ProviderClient: ...
-    def recipient(self, name: str) -> RecipientClient: ...
-    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient: ...
-    def share(self, name: str) -> ShareClient: ...
-    def table(self, catalog_name: str, schema_name: str, table_name: str) -> TableClient: ...
-    def tag_policy(self, tag_policy_name: str) -> TagPolicyClient: ...
-    def volume(self, catalog_name: str, schema_name: str, volume_name: str) -> VolumeClient: ...
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            function_name: str
+        ) -> FunctionClient:
+        ...
+    def provider(self, name: str) -> ProviderClient:
+        ...
+    def recipient(self, name: str) -> RecipientClient:
+        ...
+    def schema(self, catalog_name: str, schema_name: str) -> SchemaClient:
+        ...
+    def share(self, name: str) -> ShareClient:
+        ...
+    def table(
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            table_name: str
+        ) -> TableClient:
+        ...
+    def tag_policy(self, tag_policy_name: str) -> TagPolicyClient:
+        ...
+    def volume(
+
+            self,
+            catalog_name: str,
+            schema_name: str,
+            volume_name: str
+        ) -> VolumeClient:
+        ...
 # Hand-written supplement appended to `_client.pyi` after codegen.
 #
 # Declares the PyO3 symbols hand-registered in

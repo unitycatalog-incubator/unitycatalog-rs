@@ -52,7 +52,7 @@ Write the commit message to that path using the Write tool (not echo/heredoc).
 
 <body: what changed and why>
 
-Co-authored-by: Isaac
+AI-assisted-by: Isaac
 ```
 
 **Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`

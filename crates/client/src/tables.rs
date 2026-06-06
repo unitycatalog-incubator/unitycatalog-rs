@@ -137,6 +137,15 @@ impl TableClient {
         }
     }
 
+    /// Construct a [`TableClient`] from a fully-qualified `catalog.schema.table` name.
+    ///
+    /// A table is already identified by its full name, so this is an alias for [`new`](Self::new);
+    /// it exists so the generated aggregate's `table_from_full_name` accessor can call a uniform
+    /// `new_from_full_name` across all scoped clients.
+    pub fn new_from_full_name(full_name: impl ToString, client: TableClientBase) -> Self {
+        Self::new(full_name, client)
+    }
+
     /// Get a table using the builder pattern.
     pub fn get(&self) -> GetTableBuilder {
         GetTableBuilder::new(self.client.clone(), &self.full_name)

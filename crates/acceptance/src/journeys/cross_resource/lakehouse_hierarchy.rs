@@ -208,7 +208,11 @@ impl UserJourney for LakehouseHierarchyJourney {
             let volume_name = format!("{}_files", schema_name);
             let full_table = format!("{}.{}.{}", self.catalog_name, schema_name, table_name);
 
-            let _ = ctx.client().table(&full_table).delete().await;
+            let _ = ctx
+                .client()
+                .table_from_full_name(&full_table)
+                .delete()
+                .await;
             let _ = ctx
                 .client()
                 .volume(&self.catalog_name, schema_name, &volume_name)

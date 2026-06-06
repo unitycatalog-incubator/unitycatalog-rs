@@ -179,7 +179,11 @@ impl UserJourney for ShareLifecycleJourney {
             self.catalog_name, self.schema_name, self.table_name
         );
         let _ = ctx.client().share(&self.share_name).delete().await;
-        let _ = ctx.client().table(&table_full_name).delete().await;
+        let _ = ctx
+            .client()
+            .table_from_full_name(&table_full_name)
+            .delete()
+            .await;
         let _ = ctx
             .client()
             .schema(&self.catalog_name, &self.schema_name)

@@ -33,7 +33,7 @@ pub async fn create_table_example(base_url: url::Url) {
 pub async fn get_table_example(base_url: url::Url) {
     let client = UnityCatalogClient::new_unauthenticated(base_url);
     let table = client
-        .table("my_catalog.my_schema.my_table")
+        .table_from_full_name("my_catalog.my_schema.my_table")
         .get()
         .await
         .unwrap();
@@ -45,7 +45,7 @@ pub async fn get_table_example(base_url: url::Url) {
 pub async fn delete_table_example(base_url: url::Url) {
     let client = UnityCatalogClient::new_unauthenticated(base_url);
     client
-        .table("my_catalog.my_schema.my_table")
+        .table_from_full_name("my_catalog.my_schema.my_table")
         .delete()
         .await
         .unwrap();

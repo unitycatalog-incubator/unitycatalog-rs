@@ -46,6 +46,7 @@ export declare class NapiShareClient {
   get(includeSharedData?: boolean | undefined | null): Promise<Buffer>
   update(newName?: string | undefined | null, owner?: string | undefined | null, comment?: string | undefined | null): Promise<Buffer>
   delete(): Promise<void>
+  updatePermissions(omitPermissionsList?: boolean | undefined | null): Promise<Buffer>
 }
 
 export declare class NapiTableClient {
@@ -55,12 +56,8 @@ export declare class NapiTableClient {
 
 export declare class NapiTagPolicyClient {
   get(): Promise<Buffer>
-  update(updateMask?: string | undefined | null): Promise<Buffer>
+  update(tagPolicy: Buffer, updateMask?: string | undefined | null): Promise<Buffer>
   delete(): Promise<void>
-}
-
-export declare class NapiTemporaryCredentialClient {
-
 }
 
 export declare class NapiUnityCatalogClient {
@@ -71,6 +68,13 @@ export declare class NapiUnityCatalogClient {
   listCredentials(purpose?: number | undefined | null, maxResults?: number | undefined | null): Promise<Array<Buffer>>
   listCredentialsStream(purpose?: number | undefined | null, maxResults?: number | undefined | null): ReadableStream<Buffer>
   createCredential(name: string, purpose: number, comment?: string | undefined | null, readOnly?: boolean | undefined | null, skipValidation?: boolean | undefined | null): Promise<Buffer>
+  commit(tableId: string, tableUri: string, latestBackfilledVersion?: number | undefined | null): Promise<void>
+  getCommits(tableId: string, tableUri: string, startVersion: number, endVersion?: number | undefined | null): Promise<Buffer>
+  listEntityTagAssignments(entityType: string, entityName: string, maxResults?: number | undefined | null, pageToken?: string | undefined | null): Promise<Buffer>
+  createEntityTagAssignment(tagAssignment: Buffer): Promise<Buffer>
+  getEntityTagAssignment(entityType: string, entityName: string, tagKey: string): Promise<Buffer>
+  updateEntityTagAssignment(entityType: string, entityName: string, tagKey: string, tagAssignment: Buffer, updateMask?: string | undefined | null): Promise<Buffer>
+  deleteEntityTagAssignment(entityType: string, entityName: string, tagKey: string): Promise<void>
   listExternalLocations(maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
   listExternalLocationsStream(maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): ReadableStream<Buffer>
   createExternalLocation(name: string, url: string, credentialName: string, readOnly?: boolean | undefined | null, comment?: string | undefined | null, skipValidation?: boolean | undefined | null): Promise<Buffer>
@@ -94,7 +98,10 @@ export declare class NapiUnityCatalogClient {
   createTable(name: string, schemaName: string, catalogName: string, tableType: number, dataSourceFormat: number, storageLocation?: string | undefined | null, comment?: string | undefined | null, properties?: Record<string, string> | undefined | null): Promise<Buffer>
   listTagPolicies(maxResults?: number | undefined | null): Promise<Array<Buffer>>
   listTagPoliciesStream(maxResults?: number | undefined | null): ReadableStream<Buffer>
-  createTagPolicy(): Promise<Buffer>
+  createTagPolicy(tagPolicy: Buffer): Promise<Buffer>
+  generateTemporaryTableCredentials(tableId: string, operation: number): Promise<Buffer>
+  generateTemporaryPathCredentials(url: string, operation: number, dryRun?: boolean | undefined | null): Promise<Buffer>
+  generateTemporaryVolumeCredentials(volumeId: string, operation: number): Promise<Buffer>
   listVolumes(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): Promise<Array<Buffer>>
   listVolumesStream(catalogName: string, schemaName: string, maxResults?: number | undefined | null, includeBrowse?: boolean | undefined | null): ReadableStream<Buffer>
   createVolume(catalogName: string, schemaName: string, name: string, volumeType: number, storageLocation?: string | undefined | null, comment?: string | undefined | null): Promise<Buffer>

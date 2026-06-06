@@ -163,9 +163,14 @@ impl UserJourney for TableExternalLifecycleJourney {
         println!("  ✓ External table created: {}", table.full_name);
 
         // Step 4: Get table and verify it is external
-        let fetched = ctx.client().table(&full_name).get().await.map_err(|e| {
-            AcceptanceError::JourneyExecution(format!("Failed to get table: {}", e))
-        })?;
+        let fetched = ctx
+            .client()
+            .table_from_full_name(&full_name)
+            .get()
+            .await
+            .map_err(|e| {
+                AcceptanceError::JourneyExecution(format!("Failed to get table: {}", e))
+            })?;
         assert_eq!(fetched.table_type(), TableType::External);
         println!("  ✓ Table type confirmed: External");
 
@@ -177,7 +182,7 @@ impl UserJourney for TableExternalLifecycleJourney {
             "{}.{}.{}",
             self.catalog_name, self.schema_name, self.table_name
         );
-        let _ = ctx.client().table(&full_name).delete().await;
+        let _ = ctx.client().table_from_full_name(&full_name).delete().await;
         let _ = ctx
             .client()
             .schema(&self.catalog_name, &self.schema_name)
