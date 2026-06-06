@@ -890,21 +890,21 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi]
-    pub fn catalog(&self, name: String) -> NapiCatalogClient {
+    pub fn catalog(&self, catalog_name: String) -> NapiCatalogClient {
         NapiCatalogClient {
-            client: self.client.catalog(name),
+            client: self.client.catalog(catalog_name),
         }
     }
     #[napi]
-    pub fn credential(&self, name: String) -> NapiCredentialClient {
+    pub fn credential(&self, credential_name: String) -> NapiCredentialClient {
         NapiCredentialClient {
-            client: self.client.credential(name),
+            client: self.client.credential(credential_name),
         }
     }
     #[napi]
-    pub fn external_location(&self, name: String) -> NapiExternalLocationClient {
+    pub fn external_location(&self, external_location_name: String) -> NapiExternalLocationClient {
         NapiExternalLocationClient {
-            client: self.client.external_location(name),
+            client: self.client.external_location(external_location_name),
         }
     }
     #[napi]
@@ -920,15 +920,15 @@ impl NapiUnityCatalogClient {
         }
     }
     #[napi]
-    pub fn provider(&self, name: String) -> NapiProviderClient {
+    pub fn provider(&self, provider_name: String) -> NapiProviderClient {
         NapiProviderClient {
-            client: self.client.provider(name),
+            client: self.client.provider(provider_name),
         }
     }
     #[napi]
-    pub fn recipient(&self, name: String) -> NapiRecipientClient {
+    pub fn recipient(&self, recipient_name: String) -> NapiRecipientClient {
         NapiRecipientClient {
-            client: self.client.recipient(name),
+            client: self.client.recipient(recipient_name),
         }
     }
     #[napi]
@@ -939,9 +939,9 @@ impl NapiUnityCatalogClient {
         }
     }
     #[napi]
-    pub fn share(&self, name: String) -> NapiShareClient {
+    pub fn share(&self, share_name: String) -> NapiShareClient {
         NapiShareClient {
-            client: self.client.share(name),
+            client: self.client.share(share_name),
         }
     }
     #[napi]

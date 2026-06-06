@@ -1055,8 +1055,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  catalog(name: string): CatalogClient {
-    return new CatalogClient(this.inner.catalog(name));
+  catalog(catalogName: string): CatalogClient {
+    return new CatalogClient(this.inner.catalog(catalogName));
   }
 
   async listCredentials(options?: ListCredentialsOptions): Promise<Credential[]> {
@@ -1084,8 +1084,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  credential(name: string): CredentialClient {
-    return new CredentialClient(this.inner.credential(name));
+  credential(credentialName: string): CredentialClient {
+    return new CredentialClient(this.inner.credential(credentialName));
   }
 
   /**
@@ -1201,8 +1201,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  externalLocation(name: string): ExternalLocationClient {
-    return new ExternalLocationClient(this.inner.externalLocation(name));
+  externalLocation(externalLocationName: string): ExternalLocationClient {
+    return new ExternalLocationClient(this.inner.externalLocation(externalLocationName));
   }
 
   /**
@@ -1290,8 +1290,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  provider(name: string): ProviderClient {
-    return new ProviderClient(this.inner.provider(name));
+  provider(providerName: string): ProviderClient {
+    return new ProviderClient(this.inner.provider(providerName));
   }
 
   /**
@@ -1328,8 +1328,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  recipient(name: string): RecipientClient {
-    return new RecipientClient(this.inner.recipient(name));
+  recipient(recipientName: string): RecipientClient {
+    return new RecipientClient(this.inner.recipient(recipientName));
   }
 
   /**
@@ -1411,8 +1411,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  share(name: string): ShareClient {
-    return new ShareClient(this.inner.share(name));
+  share(shareName: string): ShareClient {
+    return new ShareClient(this.inner.share(shareName));
   }
 
   /**

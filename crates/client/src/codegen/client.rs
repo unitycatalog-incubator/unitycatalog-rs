@@ -182,8 +182,8 @@ impl UnityCatalogClient {
     pub fn create_catalog(&self, name: impl Into<String>) -> CreateCatalogBuilder {
         CreateCatalogBuilder::new(self.catalogs.clone(), name)
     }
-    pub fn catalog(&self, name: impl ToString) -> CatalogClient {
-        CatalogClient::new(name, self.catalogs.clone())
+    pub fn catalog(&self, catalog_name: impl ToString) -> CatalogClient {
+        CatalogClient::new(catalog_name, self.catalogs.clone())
     }
     pub fn list_credentials(&self) -> ListCredentialsBuilder {
         ListCredentialsBuilder::new(self.credentials.clone())
@@ -195,8 +195,8 @@ impl UnityCatalogClient {
     ) -> CreateCredentialBuilder {
         CreateCredentialBuilder::new(self.credentials.clone(), name, purpose)
     }
-    pub fn credential(&self, name: impl ToString) -> CredentialClient {
-        CredentialClient::new(name, self.credentials.clone())
+    pub fn credential(&self, credential_name: impl ToString) -> CredentialClient {
+        CredentialClient::new(credential_name, self.credentials.clone())
     }
     pub fn commit(
         &self,
@@ -292,8 +292,11 @@ impl UnityCatalogClient {
             credential_name,
         )
     }
-    pub fn external_location(&self, name: impl ToString) -> ExternalLocationClient {
-        ExternalLocationClient::new(name, self.external_locations.clone())
+    pub fn external_location(
+        &self,
+        external_location_name: impl ToString,
+    ) -> ExternalLocationClient {
+        ExternalLocationClient::new(external_location_name, self.external_locations.clone())
     }
     pub fn list_functions(
         &self,
@@ -358,8 +361,8 @@ impl UnityCatalogClient {
     ) -> CreateProviderBuilder {
         CreateProviderBuilder::new(self.providers.clone(), name, authentication_type)
     }
-    pub fn provider(&self, name: impl ToString) -> ProviderClient {
-        ProviderClient::new(name, self.providers.clone())
+    pub fn provider(&self, provider_name: impl ToString) -> ProviderClient {
+        ProviderClient::new(provider_name, self.providers.clone())
     }
     pub fn list_recipients(&self) -> ListRecipientsBuilder {
         ListRecipientsBuilder::new(self.recipients.clone())
@@ -372,8 +375,8 @@ impl UnityCatalogClient {
     ) -> CreateRecipientBuilder {
         CreateRecipientBuilder::new(self.recipients.clone(), name, authentication_type, owner)
     }
-    pub fn recipient(&self, name: impl ToString) -> RecipientClient {
-        RecipientClient::new(name, self.recipients.clone())
+    pub fn recipient(&self, recipient_name: impl ToString) -> RecipientClient {
+        RecipientClient::new(recipient_name, self.recipients.clone())
     }
     pub fn list_schemas(&self, catalog_name: impl Into<String>) -> ListSchemasBuilder {
         ListSchemasBuilder::new(self.schemas.clone(), catalog_name)
@@ -398,8 +401,8 @@ impl UnityCatalogClient {
     pub fn create_share(&self, name: impl Into<String>) -> CreateShareBuilder {
         CreateShareBuilder::new(self.shares.clone(), name)
     }
-    pub fn share(&self, name: impl ToString) -> ShareClient {
-        ShareClient::new(name, self.shares.clone())
+    pub fn share(&self, share_name: impl ToString) -> ShareClient {
+        ShareClient::new(share_name, self.shares.clone())
     }
     pub fn list_table_summaries(
         &self,

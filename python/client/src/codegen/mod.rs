@@ -842,19 +842,19 @@ impl PyUnityCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn catalog(&self, name: String) -> PyCatalogClient {
+    pub fn catalog(&self, catalog_name: String) -> PyCatalogClient {
         PyCatalogClient {
-            client: self.client.catalog(name),
+            client: self.client.catalog(catalog_name),
         }
     }
-    pub fn credential(&self, name: String) -> PyCredentialClient {
+    pub fn credential(&self, credential_name: String) -> PyCredentialClient {
         PyCredentialClient {
-            client: self.client.credential(name),
+            client: self.client.credential(credential_name),
         }
     }
-    pub fn external_location(&self, name: String) -> PyExternalLocationClient {
+    pub fn external_location(&self, external_location_name: String) -> PyExternalLocationClient {
         PyExternalLocationClient {
-            client: self.client.external_location(name),
+            client: self.client.external_location(external_location_name),
         }
     }
     pub fn function(
@@ -868,14 +868,14 @@ impl PyUnityCatalogClient {
             client: self.client.function_from_full_name(full_name),
         }
     }
-    pub fn provider(&self, name: String) -> PyProviderClient {
+    pub fn provider(&self, provider_name: String) -> PyProviderClient {
         PyProviderClient {
-            client: self.client.provider(name),
+            client: self.client.provider(provider_name),
         }
     }
-    pub fn recipient(&self, name: String) -> PyRecipientClient {
+    pub fn recipient(&self, recipient_name: String) -> PyRecipientClient {
         PyRecipientClient {
-            client: self.client.recipient(name),
+            client: self.client.recipient(recipient_name),
         }
     }
     pub fn schema(&self, catalog_name: String, schema_name: String) -> PySchemaClient {
@@ -884,9 +884,9 @@ impl PyUnityCatalogClient {
             client: self.client.schema_from_full_name(full_name),
         }
     }
-    pub fn share(&self, name: String) -> PyShareClient {
+    pub fn share(&self, share_name: String) -> PyShareClient {
         PyShareClient {
-            client: self.client.share(name),
+            client: self.client.share(share_name),
         }
     }
     pub fn table(
