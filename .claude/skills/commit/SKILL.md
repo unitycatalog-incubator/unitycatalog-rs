@@ -57,7 +57,7 @@ AI-assisted-by: Isaac
 
 **Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
 
-The `Co-authored-by: Isaac` trailer is required on every commit.
+The `AI-assisted-by: Isaac` trailer is required on every commit.
 
 ### Step 6 — Print message and provide command
 1. Print the full commit message in a code block so the user can review it
