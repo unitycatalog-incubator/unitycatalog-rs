@@ -18,6 +18,14 @@ impl ExternalLocationClient {
             client,
         }
     }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.external_location_name
+    }
+    /// The fully-qualified name of this resource.
+    pub fn full_name(&self) -> String {
+        self.external_location_name.clone()
+    }
     /// Get an external location
     pub fn get(&self) -> GetExternalLocationBuilder {
         GetExternalLocationBuilder::new(self.client.clone(), &self.external_location_name)

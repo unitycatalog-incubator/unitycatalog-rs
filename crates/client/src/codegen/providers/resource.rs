@@ -15,6 +15,14 @@ impl ProviderClient {
             client,
         }
     }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.provider_name
+    }
+    /// The fully-qualified name of this resource.
+    pub fn full_name(&self) -> String {
+        self.provider_name.clone()
+    }
     /// Get a provider by name.
     pub fn get(&self) -> GetProviderBuilder {
         GetProviderBuilder::new(self.client.clone(), &self.provider_name)

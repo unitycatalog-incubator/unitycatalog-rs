@@ -15,6 +15,14 @@ impl RecipientClient {
             client,
         }
     }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.recipient_name
+    }
+    /// The fully-qualified name of this resource.
+    pub fn full_name(&self) -> String {
+        self.recipient_name.clone()
+    }
     /// Get a recipient by name.
     pub fn get(&self) -> GetRecipientBuilder {
         GetRecipientBuilder::new(self.client.clone(), &self.recipient_name)

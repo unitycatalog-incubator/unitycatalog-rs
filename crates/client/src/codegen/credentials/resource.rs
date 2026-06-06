@@ -15,6 +15,14 @@ impl CredentialClient {
             client,
         }
     }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.credential_name
+    }
+    /// The fully-qualified name of this resource.
+    pub fn full_name(&self) -> String {
+        self.credential_name.clone()
+    }
     pub fn get(&self) -> GetCredentialBuilder {
         GetCredentialBuilder::new(self.client.clone(), &self.credential_name)
     }

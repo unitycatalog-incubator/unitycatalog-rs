@@ -33,6 +33,25 @@ impl TableClient {
         let table_name = parts.next().unwrap_or_default();
         Self::new(catalog_name, schema_name, table_name, client)
     }
+    /// The `catalog_name` component of this resource's name.
+    pub fn catalog_name(&self) -> &str {
+        &self.catalog_name
+    }
+    /// The `schema_name` component of this resource's name.
+    pub fn schema_name(&self) -> &str {
+        &self.schema_name
+    }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.table_name
+    }
+    /// The fully-qualified name of this resource (its dot-joined name components).
+    pub fn full_name(&self) -> String {
+        format!(
+            "{}.{}.{}",
+            self.catalog_name, self.schema_name, self.table_name
+        )
+    }
     /// Get a table
     pub fn get(&self) -> GetTableBuilder {
         GetTableBuilder::new(

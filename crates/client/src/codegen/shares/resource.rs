@@ -15,6 +15,14 @@ impl ShareClient {
             client,
         }
     }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.share_name
+    }
+    /// The fully-qualified name of this resource.
+    pub fn full_name(&self) -> String {
+        self.share_name.clone()
+    }
     /// Get a share by name.
     pub fn get(&self) -> GetShareBuilder {
         GetShareBuilder::new(self.client.clone(), &self.share_name)

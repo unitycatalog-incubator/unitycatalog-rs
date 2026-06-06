@@ -16,6 +16,14 @@ impl TagPolicyClient {
             client,
         }
     }
+    /// This resource's own name (the leaf component).
+    pub fn name(&self) -> &str {
+        &self.tag_policy_name
+    }
+    /// The fully-qualified name of this resource.
+    pub fn full_name(&self) -> String {
+        self.tag_policy_name.clone()
+    }
     /// Get a tag policy
     ///
     /// Gets the governed tag definition for the specified tag key.
