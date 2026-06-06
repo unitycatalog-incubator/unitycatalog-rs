@@ -22,7 +22,7 @@ use datafusion::catalog::{AsyncCatalogProviderList, TableProvider};
 use datafusion::common::TableReference;
 use datafusion::error::DataFusionError;
 use datafusion::prelude::SessionContext;
-use datafusion_unitycatalog::catalog::unity::{
+use datafusion_unitycatalog::catalog::{
     TableProviderBuilder, TableProviderError, UnityCatalogProviderList,
 };
 use deltalake_core::DeltaTableConfig;
