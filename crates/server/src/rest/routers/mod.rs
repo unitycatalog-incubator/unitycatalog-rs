@@ -1,7 +1,8 @@
 use crate::api::{
     CatalogHandler, CredentialHandler, DeltaCommitHandler, EntityTagAssignmentHandler,
     ExternalLocationHandler, FunctionHandler, ProviderHandler, RecipientHandler, SchemaHandler,
-    ShareHandler, TableHandler, TagPolicyHandler, TemporaryCredentialHandler, VolumeHandler,
+    ShareHandler, StagingTableHandler, TableHandler, TagPolicyHandler, TemporaryCredentialHandler,
+    VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -114,6 +115,18 @@ where
         .route("/schemas/{name}", get(get_schema::<T, Cx>))
         .route("/schemas/{name}", patch(update_schema::<T, Cx>))
         .route("/schemas/{name}", delete(delete_schema::<T, Cx>))
+        .with_state(handler)
+}
+
+pub fn create_staging_tables_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: StagingTableHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::staging_tables::server::*;
+
+    axum::Router::new()
+        .route("/staging-tables", post(create_staging_table::<T, Cx>))
         .with_state(handler)
 }
 

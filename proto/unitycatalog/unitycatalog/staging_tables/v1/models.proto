@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package unitycatalog.staging_tables.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+
+// A staging table is a transient reservation created while provisioning a
+// Unity Catalog managed table.
+//
+// On creation the server allocates an immutable table id and storage location
+// under the parent schema/catalog's managed storage root. The client then
+// writes the initial Delta commit (`_delta_log/00...0.json`) at that location
+// and finalizes the table via the CreateTable API, which commits this staging
+// row. A staging table is not yet a usable table and is not returned by the
+// table APIs.
+message StagingTable {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/StagingTable"
+    pattern: "staging-tables/{staging_table}"
+    plural: "staging_tables"
+    singular: "staging_table"
+  };
+
+  // Unique identifier generated for the staging table. Becomes the managed
+  // table's id once finalized.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
+
+  // Name of the staging table, relative to the parent schema.
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Name of the parent schema relative to its parent catalog.
+  string schema_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Name of the parent catalog.
+  string catalog_name = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // Storage location allocated for the staging table, where the client writes
+  // the initial Delta commit. Immutable once allocated.
+  string staging_location = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Username of the principal that created the staging table. Only this
+  // principal may finalize the table.
+  optional string created_by = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Whether the staging table has been finalized into a managed table.
+  bool stage_committed = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time at which this staging table was created, in epoch milliseconds.
+  optional int64 created_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

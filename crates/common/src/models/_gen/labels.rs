@@ -12,6 +12,7 @@ pub enum Resource {
     Recipient(super::recipients::v1::Recipient),
     Schema(super::schemas::v1::Schema),
     Share(super::shares::v1::Share),
+    StagingTable(super::staging_tables::v1::StagingTable),
     Table(super::tables::v1::Table),
     TagPolicy(super::tags::v1::TagPolicy),
     Volume(super::volumes::v1::Volume),
@@ -50,6 +51,7 @@ pub enum ObjectLabel {
     Recipient,
     Schema,
     Share,
+    StagingTable,
     Table,
     TagPolicy,
     Volume,
@@ -67,6 +69,7 @@ impl Resource {
             Resource::Recipient(_) => &ObjectLabel::Recipient,
             Resource::Schema(_) => &ObjectLabel::Schema,
             Resource::Share(_) => &ObjectLabel::Share,
+            Resource::StagingTable(_) => &ObjectLabel::StagingTable,
             Resource::Table(_) => &ObjectLabel::Table,
             Resource::TagPolicy(_) => &ObjectLabel::TagPolicy,
             Resource::Volume(_) => &ObjectLabel::Volume,
@@ -222,6 +225,23 @@ impl TryFrom<Resource> for super::shares::v1::Share {
             _ => Err(<crate::Error>::generic(concat!(
                 "Resource is not a ",
                 stringify!(Share)
+            ))),
+        }
+    }
+}
+impl From<super::staging_tables::v1::StagingTable> for Resource {
+    fn from(v: super::staging_tables::v1::StagingTable) -> Self {
+        Resource::StagingTable(v)
+    }
+}
+impl TryFrom<Resource> for super::staging_tables::v1::StagingTable {
+    type Error = crate::Error;
+    fn try_from(r: Resource) -> Result<Self, Self::Error> {
+        match r {
+            Resource::StagingTable(v) => Ok(v),
+            _ => Err(<crate::Error>::generic(concat!(
+                "Resource is not a ",
+                stringify!(StagingTable)
             ))),
         }
     }
@@ -686,6 +706,45 @@ impl ResourceExt for super::shares::v1::Share {
         (ObjectLabel::Share).to_ident(self.resource_ref())
     }
 }
+impl TryFrom<Object> for super::staging_tables::v1::StagingTable {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::staging_tables::v1::StagingTable = ::serde_json::from_value(props)?;
+        res.id = object.id.hyphenated().to_string();
+        Ok(res)
+    }
+}
+impl TryFrom<super::staging_tables::v1::StagingTable> for Object {
+    type Error = Error;
+    fn try_from(obj: super::staging_tables::v1::StagingTable) -> Result<Self, Self::Error> {
+        let id = ::uuid::Uuid::parse_str(&obj.id).unwrap_or_else(|_| ::uuid::Uuid::nil());
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::StagingTable,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::staging_tables::v1::StagingTable {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        ::uuid::Uuid::parse_str(&self.id)
+            .ok()
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::StagingTable).to_ident(self.resource_ref())
+    }
+}
 impl TryFrom<Object> for super::tables::v1::Table {
     type Error = Error;
     fn try_from(object: Object) -> Result<Self, Self::Error> {
@@ -864,6 +923,12 @@ impl super::schemas::v1::Schema {
     }
 }
 impl super::shares::v1::Share {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        self.name.clone()
+    }
+}
+impl super::staging_tables::v1::StagingTable {
     /// Returns the fully-qualified dot-separated name computed from component fields.
     pub fn qualified_name(&self) -> String {
         self.name.clone()
@@ -1411,6 +1476,10 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
                 name: "schema_id",
                 role: ::olai_store::FieldRole::Identifier,
             },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "storage_location",
+                role: ::olai_store::FieldRole::Data,
+            },
         ],
         path_names: &["catalog_name", "name"],
         parent_label: Some(ObjectLabel::Catalog),
@@ -1460,6 +1529,45 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
             },
             ::olai_store::ResourceFieldDescriptor {
                 name: "updated_by",
+                role: ::olai_store::FieldRole::Managed,
+            },
+        ],
+        path_names: &["name"],
+        parent_label: None,
+    },
+    ::olai_store::ResourceTypeDescriptor {
+        label: ObjectLabel::StagingTable,
+        fields: &[
+            ::olai_store::ResourceFieldDescriptor {
+                name: "id",
+                role: ::olai_store::FieldRole::Identifier,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "schema_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "catalog_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "staging_location",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_by",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "stage_committed",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_at",
                 role: ::olai_store::FieldRole::Managed,
             },
         ],

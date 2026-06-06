@@ -7,11 +7,13 @@ use itertools::Itertools;
 use unitycatalog_common::ResourceIdent;
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::ResourceName;
+use unitycatalog_common::models::staging_tables::v1::StagingTable;
 use unitycatalog_common::models::tables::v1::*;
 
+use super::staging_tables::find_staging_table_by_location;
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::tables::TableHandler;
-use crate::policy::{Permission, Policy, process_resources};
+use crate::policy::{Permission, Policy, Principal, process_resources};
 use crate::services::location::StorageLocationUrl;
 use crate::services::object_store::validate_external_storage_location;
 use crate::store::ResourceStore;
@@ -191,7 +193,58 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<Requ
                 )?,
                 ..Default::default()
             }
-        } else {
+        } else if request.table_type == TableType::Managed as i32 {
+            // Managed table: finalize a previously created staging table. The
+            // client has written the initial Delta commit (`0.json`) at the
+            // staging location; here we commit the staging reservation, adopt its
+            // id as the table id, and register the table. The server never writes
+            // the Delta log itself.
+            if request.data_source_format != DataSourceFormat::Delta as i32 {
+                return Err(Error::invalid_argument(format!(
+                    "managed tables must use the DELTA data source format, got {:?}",
+                    request.data_source_format()
+                )));
+            }
+            let Some(location) = request.storage_location.as_ref() else {
+                return Err(Error::invalid_argument(
+                    "managed tables require storage_location to be the staging location",
+                ));
+            };
+
+            // Resolve and validate the staging reservation.
+            let staging = find_staging_table_by_location(self, location).await?;
+            match context.recipient() {
+                Principal::User(name) if staging.created_by.as_deref() == Some(name.as_str()) => {}
+                Principal::Anonymous if staging.created_by.is_none() => {}
+                _ => {
+                    return Err(Error::NotAllowed);
+                }
+            }
+            if staging.stage_committed {
+                return Err(Error::invalid_argument(format!(
+                    "staging table at '{location}' has already been committed"
+                )));
+            }
+
+            // Confirm the client wrote a readable Delta table at the location and
+            // adopt its schema as the source of truth.
+            let location_url = StorageLocationUrl::parse(location)?;
+            let snapshot = self
+                .read_snapshot(&location_url, &DataSourceFormat::Delta, None)
+                .await?;
+
+            // Mark the staging reservation committed.
+            let staging_ident = ResourceIdent::staging_table(ResourceName::new([
+                staging.catalog_name.as_str(),
+                staging.schema_name.as_str(),
+                staging.name.as_str(),
+            ]));
+            let committed = StagingTable {
+                stage_committed: true,
+                ..staging.clone()
+            };
+            self.update(&staging_ident, committed.into()).await?;
+
             Table {
                 name: request.name,
                 catalog_name: request.catalog_name,
@@ -201,9 +254,21 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<Requ
                 properties: request.properties,
                 storage_location: request.storage_location,
                 comment: request.comment,
-                columns: request.columns,
+                table_id: Some(staging.id),
+                columns: schema_to_columns(
+                    snapshot.schema().as_ref(),
+                    snapshot
+                        .table_configuration()
+                        .metadata()
+                        .partition_columns(),
+                )?,
                 ..Default::default()
             }
+        } else {
+            return Err(Error::invalid_argument(format!(
+                "unsupported table type: {:?}",
+                request.table_type()
+            )));
         };
         // TODO: update the table with the current actor as owner
         // TODO: create updated_* relations
@@ -397,6 +462,74 @@ mod tests {
                     table_type: TableType::External as i32,
                     data_source_format: DataSourceFormat::Delta as i32,
                     storage_location: Some("s3://bucket/other/tbl".to_string()),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    /// A managed table in a non-Delta format is rejected before any staging
+    /// lookup or storage access.
+    #[tokio::test]
+    async fn managed_table_non_delta_is_rejected() {
+        let h = handler();
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    name: "t".to_string(),
+                    schema_name: "sch".to_string(),
+                    catalog_name: "cat".to_string(),
+                    table_type: TableType::Managed as i32,
+                    data_source_format: DataSourceFormat::Parquet as i32,
+                    storage_location: Some("s3://bucket/cat/__unitystorage/tables/x".to_string()),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    /// A managed table whose storage_location has no matching staging table is
+    /// rejected: the reservation must be created first via `/staging-tables`.
+    #[tokio::test]
+    async fn managed_table_without_staging_reservation_is_rejected() {
+        let h = handler();
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    name: "t".to_string(),
+                    schema_name: "sch".to_string(),
+                    catalog_name: "cat".to_string(),
+                    table_type: TableType::Managed as i32,
+                    data_source_format: DataSourceFormat::Delta as i32,
+                    storage_location: Some(
+                        "s3://bucket/cat/__unitystorage/tables/unknown".to_string(),
+                    ),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::NotFound)), "{res:?}");
+    }
+
+    /// A managed table request without a storage_location (the staging location)
+    /// is rejected.
+    #[tokio::test]
+    async fn managed_table_without_storage_location_is_rejected() {
+        let h = handler();
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    name: "t".to_string(),
+                    schema_name: "sch".to_string(),
+                    catalog_name: "cat".to_string(),
+                    table_type: TableType::Managed as i32,
+                    data_source_format: DataSourceFormat::Delta as i32,
+                    storage_location: None,
                     ..Default::default()
                 },
                 ctx(),

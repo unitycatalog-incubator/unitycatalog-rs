@@ -10,6 +10,7 @@ pub use providers::v1::Provider;
 pub use recipients::v1::Recipient;
 pub use schemas::v1::Schema;
 pub use shares::v1::Share;
+pub use staging_tables::v1::StagingTable;
 pub use tables::v1::Column;
 pub use tables::v1::Table;
 pub use tags::v1::TagPolicy;
@@ -76,6 +77,13 @@ pub mod shares {
         include!("./../gen/unitycatalog.shares.v1.rs");
         #[cfg(feature = "grpc")]
         include!("./../gen/unitycatalog.shares.v1.tonic.rs");
+    }
+}
+pub mod staging_tables {
+    pub mod v1 {
+        include!("./../gen/unitycatalog.staging_tables.v1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./../gen/unitycatalog.staging_tables.v1.tonic.rs");
     }
 }
 pub mod tables {

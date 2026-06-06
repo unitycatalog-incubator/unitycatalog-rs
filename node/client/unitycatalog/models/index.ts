@@ -17,6 +17,8 @@ export * from "./gen/unitycatalog/schemas/v1/models_pb";
 export * from "./gen/unitycatalog/schemas/v1/svc_pb";
 export * from "./gen/unitycatalog/shares/v1/models_pb";
 export * from "./gen/unitycatalog/shares/v1/svc_pb";
+export * from "./gen/unitycatalog/staging_tables/v1/models_pb";
+export * from "./gen/unitycatalog/staging_tables/v1/svc_pb";
 export * from "./gen/unitycatalog/tables/v1/models_pb";
 export * from "./gen/unitycatalog/tables/v1/svc_pb";
 export * from "./gen/unitycatalog/tags/v1/models_pb";

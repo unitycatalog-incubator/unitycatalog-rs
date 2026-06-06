@@ -8,6 +8,7 @@ pub mod providers;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
+pub mod staging_tables;
 pub mod tables;
 pub mod tag_policies;
 pub mod volumes;
@@ -19,6 +20,7 @@ use crate::codegen::providers::NapiProviderClient;
 use crate::codegen::recipients::NapiRecipientClient;
 use crate::codegen::schemas::NapiSchemaClient;
 use crate::codegen::shares::NapiShareClient;
+use crate::codegen::staging_tables::NapiStagingTableClient;
 use crate::codegen::tables::NapiTableClient;
 use crate::codegen::tag_policies::NapiTagPolicyClient;
 use crate::codegen::volumes::NapiVolumeClient;
@@ -40,6 +42,7 @@ use unitycatalog_common::models::providers::v1::*;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
+use unitycatalog_common::models::staging_tables::v1::*;
 use unitycatalog_common::models::tables::v1::*;
 use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::tags::v1::*;
@@ -586,12 +589,14 @@ impl NapiUnityCatalogClient {
         catalog_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
+        storage_location: Option<String>,
     ) -> napi::Result<Buffer> {
         let mut request = self.client.create_schema(name, catalog_name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
+        request = request.with_storage_location(storage_location);
         request
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))
@@ -632,6 +637,21 @@ impl NapiUnityCatalogClient {
     ) -> napi::Result<Buffer> {
         let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_staging_table(
+        &self,
+        name: String,
+        catalog_name: String,
+        schema_name: String,
+    ) -> napi::Result<Buffer> {
+        let mut request = self
+            .client
+            .create_staging_table(name, catalog_name, schema_name);
         request
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))
@@ -942,6 +962,12 @@ impl NapiUnityCatalogClient {
     pub fn share(&self, share_name: String) -> NapiShareClient {
         NapiShareClient {
             client: self.client.share(share_name),
+        }
+    }
+    #[napi]
+    pub fn staging_table(&self, staging_table_name: String) -> NapiStagingTableClient {
+        NapiStagingTableClient {
+            client: self.client.staging_table(staging_table_name),
         }
     }
     #[napi]

@@ -107,6 +107,11 @@ impl CreateSchemaBuilder {
             .collect();
         self
     }
+    /// Storage root URL for managed tables within the schema.
+    pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
+        self.request.storage_location = storage_location.into();
+        self
+    }
 }
 impl IntoFuture for CreateSchemaBuilder {
     type Output = Result<Schema>;

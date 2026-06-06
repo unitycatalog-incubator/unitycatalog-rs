@@ -21,6 +21,7 @@ pub enum ResourceIdent {
     Volume(ResourceRef),
     Function(ResourceRef),
     TagPolicy(ResourceRef),
+    StagingTable(ResourceRef),
 }
 
 impl ResourceIdent {
@@ -79,6 +80,10 @@ impl ResourceIdent {
     pub fn tag_policy(name: impl Into<ResourceRef>) -> Self {
         Self::TagPolicy(name.into())
     }
+
+    pub fn staging_table(name: impl Into<ResourceRef>) -> Self {
+        Self::StagingTable(name.into())
+    }
 }
 
 impl std::fmt::Display for ResourceIdent {
@@ -96,6 +101,7 @@ impl std::fmt::Display for ResourceIdent {
             ResourceIdent::Volume(r) => write!(f, "volume:{}", r),
             ResourceIdent::Function(r) => write!(f, "function:{}", r),
             ResourceIdent::TagPolicy(r) => write!(f, "tag_policy:{}", r),
+            ResourceIdent::StagingTable(r) => write!(f, "staging_table:{}", r),
         }
     }
 }
@@ -115,6 +121,7 @@ impl AsRef<ResourceRef> for ResourceIdent {
             ResourceIdent::Volume(r) => r,
             ResourceIdent::Function(r) => r,
             ResourceIdent::TagPolicy(r) => r,
+            ResourceIdent::StagingTable(r) => r,
         }
     }
 }
@@ -134,6 +141,7 @@ impl AsRef<ObjectLabel> for ResourceIdent {
             ResourceIdent::Volume(_) => &ObjectLabel::Volume,
             ResourceIdent::Function(_) => &ObjectLabel::Function,
             ResourceIdent::TagPolicy(_) => &ObjectLabel::TagPolicy,
+            ResourceIdent::StagingTable(_) => &ObjectLabel::StagingTable,
         }
     }
 }
@@ -153,6 +161,7 @@ impl From<ResourceIdent> for ResourceRef {
             ResourceIdent::Volume(r) => r,
             ResourceIdent::Function(r) => r,
             ResourceIdent::TagPolicy(r) => r,
+            ResourceIdent::StagingTable(r) => r,
         }
     }
 }
@@ -212,6 +221,7 @@ impl ObjectLabel {
             ObjectLabel::Volume => ResourceIdent::volume(id),
             ObjectLabel::Function => ResourceIdent::function(id),
             ObjectLabel::TagPolicy => ResourceIdent::tag_policy(id),
+            ObjectLabel::StagingTable => ResourceIdent::staging_table(id),
         }
     }
 }

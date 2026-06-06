@@ -7,6 +7,7 @@ pub mod providers;
 pub mod recipients;
 pub mod schemas;
 pub mod shares;
+pub mod staging_tables;
 pub mod tables;
 pub mod tag_policies;
 pub mod volumes;
@@ -18,6 +19,7 @@ use crate::codegen::providers::PyProviderClient;
 use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
+use crate::codegen::staging_tables::PyStagingTableClient;
 use crate::codegen::tables::PyTableClient;
 use crate::codegen::tag_policies::PyTagPolicyClient;
 use crate::codegen::volumes::PyVolumeClient;
@@ -36,6 +38,7 @@ use unitycatalog_common::models::providers::v1::*;
 use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
+use unitycatalog_common::models::staging_tables::v1::*;
 use unitycatalog_common::models::tables::v1::*;
 use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::temporary_credentials::v1::*;
@@ -569,7 +572,15 @@ impl PyUnityCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    #[pyo3(signature = (name, catalog_name, comment = None, properties = None))]
+    #[pyo3(
+        signature = (
+            name,
+            catalog_name,
+            comment = None,
+            properties = None,
+            storage_location = None
+        )
+    )]
     pub fn create_schema(
         &self,
         py: Python,
@@ -577,12 +588,14 @@ impl PyUnityCatalogClient {
         catalog_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
+        storage_location: Option<String>,
     ) -> PyUnityCatalogResult<Schema> {
         let mut request = self.client.create_schema(name, catalog_name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
+        request = request.with_storage_location(storage_location);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -613,6 +626,23 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<Share> {
         let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (name, catalog_name, schema_name))]
+    pub fn create_staging_table(
+        &self,
+        py: Python,
+        name: String,
+        catalog_name: String,
+        schema_name: String,
+    ) -> PyUnityCatalogResult<StagingTable> {
+        let request = self
+            .client
+            .create_staging_table(name, catalog_name, schema_name);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
@@ -887,6 +917,11 @@ impl PyUnityCatalogClient {
     pub fn share(&self, share_name: String) -> PyShareClient {
         PyShareClient {
             client: self.client.share(share_name),
+        }
+    }
+    pub fn staging_table(&self, staging_table_name: String) -> PyStagingTableClient {
+        PyStagingTableClient {
+            client: self.client.staging_table(staging_table_name),
         }
     }
     pub fn table(
