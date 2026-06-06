@@ -69,7 +69,10 @@ impl Default for Config {
             host: None,
             port: None,
             backend: Backend::InMemory,
-            encryption: None,
+            // No config file: fall back to a dev KEK so the in-memory server
+            // runs out of the box. Real deployments supply their own
+            // `encryption` config (see `EncryptionConfig::dev_default`).
+            encryption: Some(EncryptionConfig::dev_default()),
             upstream: None,
             routing: RoutingConfig::default(),
         }
@@ -242,6 +245,25 @@ pub struct EncryptionConfig {
     pub retired: Vec<KeyConfig>,
 }
 
+impl EncryptionConfig {
+    /// A fixed, well-known KEK for local development only.
+    ///
+    /// Used by [`Config::default`] so `uc server` runs without a config file
+    /// against the in-memory backend, where secrets do not survive a restart.
+    /// **Never use this in production** — supply a real KEK via a config file.
+    pub fn dev_default() -> Self {
+        // 32 zero-derived bytes (`0..32`), base64-encoded. Deliberately not secret.
+        const DEV_KEK: &str = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=";
+        Self {
+            active: KeyConfig {
+                id: "dev".to_string(),
+                key: ConfigValue::Value(DEV_KEK.to_string()),
+            },
+            retired: Vec::new(),
+        }
+    }
+}
+
 /// A single key-encryption key: a stable id plus its 32-byte material (base64-encoded).
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct KeyConfig {
@@ -329,10 +351,13 @@ mod tests {
         assert!(config.host.is_none());
         assert!(config.port.is_none());
         assert!(matches!(config.backend, Backend::InMemory));
-        assert!(config.encryption.is_none());
         assert!(config.upstream.is_none());
         assert_eq!(config.routing, RoutingConfig::default());
         assert!(!config.routing.any_upstream());
+        // The default ships a dev KEK so the server runs without a config file.
+        let enc = config.encryption.as_ref().expect("dev encryption present");
+        assert_eq!(enc.active.id, "dev");
+        assert!(enc.build_encryptor().is_ok());
     }
 
     #[test]
