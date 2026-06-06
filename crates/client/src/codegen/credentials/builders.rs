@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::credentials::v1::*;
 /// Builder for listing credentials
 pub struct ListCredentialsBuilder {
-    client: CredentialClient,
+    client: CredentialServiceClient,
     request: ListCredentialsRequest,
 }
 impl ListCredentialsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CredentialClient`.
-    pub(crate) fn new(client: CredentialClient) -> Self {
+    /// Obtain via the corresponding method on `CredentialServiceClient`.
+    pub(crate) fn new(client: CredentialServiceClient) -> Self {
         let request = ListCredentialsRequest {
             ..Default::default()
         };
@@ -70,13 +70,17 @@ impl IntoFuture for ListCredentialsBuilder {
 }
 /// Builder for creating a credential
 pub struct CreateCredentialBuilder {
-    client: CredentialClient,
+    client: CredentialServiceClient,
     request: CreateCredentialRequest,
 }
 impl CreateCredentialBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CredentialClient`.
-    pub(crate) fn new(client: CredentialClient, name: impl Into<String>, purpose: Purpose) -> Self {
+    /// Obtain via the corresponding method on `CredentialServiceClient`.
+    pub(crate) fn new(
+        client: CredentialServiceClient,
+        name: impl Into<String>,
+        purpose: Purpose,
+    ) -> Self {
         let request = CreateCredentialRequest {
             name: name.into(),
             purpose: purpose as i32,
@@ -148,13 +152,13 @@ impl IntoFuture for CreateCredentialBuilder {
 }
 /// Builder for getting a credential
 pub struct GetCredentialBuilder {
-    client: CredentialClient,
+    client: CredentialServiceClient,
     request: GetCredentialRequest,
 }
 impl GetCredentialBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CredentialClient`.
-    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CredentialServiceClient`.
+    pub(crate) fn new(client: CredentialServiceClient, name: impl Into<String>) -> Self {
         let request = GetCredentialRequest {
             name: name.into(),
             ..Default::default()
@@ -173,13 +177,13 @@ impl IntoFuture for GetCredentialBuilder {
 }
 /// Builder for updating a credential
 pub struct UpdateCredentialBuilder {
-    client: CredentialClient,
+    client: CredentialServiceClient,
     request: UpdateCredentialRequest,
 }
 impl UpdateCredentialBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CredentialClient`.
-    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CredentialServiceClient`.
+    pub(crate) fn new(client: CredentialServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateCredentialRequest {
             name: name.into(),
             ..Default::default()
@@ -266,13 +270,13 @@ impl IntoFuture for UpdateCredentialBuilder {
 }
 /// Builder for deleting a credential
 pub struct DeleteCredentialBuilder {
-    client: CredentialClient,
+    client: CredentialServiceClient,
     request: DeleteCredentialRequest,
 }
 impl DeleteCredentialBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CredentialClient`.
-    pub(crate) fn new(client: CredentialClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CredentialServiceClient`.
+    pub(crate) fn new(client: CredentialServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteCredentialRequest {
             name: name.into(),
             ..Default::default()

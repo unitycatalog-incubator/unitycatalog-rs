@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::recipients::v1::*;
 /// Builder for listing recipients
 pub struct ListRecipientsBuilder {
-    client: RecipientClient,
+    client: RecipientServiceClient,
     request: ListRecipientsRequest,
 }
 impl ListRecipientsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `RecipientClient`.
-    pub(crate) fn new(client: RecipientClient) -> Self {
+    /// Obtain via the corresponding method on `RecipientServiceClient`.
+    pub(crate) fn new(client: RecipientServiceClient) -> Self {
         let request = ListRecipientsRequest {
             ..Default::default()
         };
@@ -65,14 +65,14 @@ impl IntoFuture for ListRecipientsBuilder {
 }
 /// Builder for creating a recipient
 pub struct CreateRecipientBuilder {
-    client: RecipientClient,
+    client: RecipientServiceClient,
     request: CreateRecipientRequest,
 }
 impl CreateRecipientBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `RecipientClient`.
+    /// Obtain via the corresponding method on `RecipientServiceClient`.
     pub(crate) fn new(
-        client: RecipientClient,
+        client: RecipientServiceClient,
         name: impl Into<String>,
         authentication_type: AuthenticationType,
         owner: impl Into<String>,
@@ -123,13 +123,13 @@ impl IntoFuture for CreateRecipientBuilder {
 }
 /// Builder for getting a recipient
 pub struct GetRecipientBuilder {
-    client: RecipientClient,
+    client: RecipientServiceClient,
     request: GetRecipientRequest,
 }
 impl GetRecipientBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `RecipientClient`.
-    pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `RecipientServiceClient`.
+    pub(crate) fn new(client: RecipientServiceClient, name: impl Into<String>) -> Self {
         let request = GetRecipientRequest {
             name: name.into(),
             ..Default::default()
@@ -148,13 +148,13 @@ impl IntoFuture for GetRecipientBuilder {
 }
 /// Builder for updating a recipient
 pub struct UpdateRecipientBuilder {
-    client: RecipientClient,
+    client: RecipientServiceClient,
     request: UpdateRecipientRequest,
 }
 impl UpdateRecipientBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `RecipientClient`.
-    pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `RecipientServiceClient`.
+    pub(crate) fn new(client: RecipientServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateRecipientRequest {
             name: name.into(),
             ..Default::default()
@@ -209,13 +209,13 @@ impl IntoFuture for UpdateRecipientBuilder {
 }
 /// Builder for deleting a recipient
 pub struct DeleteRecipientBuilder {
-    client: RecipientClient,
+    client: RecipientServiceClient,
     request: DeleteRecipientRequest,
 }
 impl DeleteRecipientBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `RecipientClient`.
-    pub(crate) fn new(client: RecipientClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `RecipientServiceClient`.
+    pub(crate) fn new(client: RecipientServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteRecipientRequest {
             name: name.into(),
             ..Default::default()

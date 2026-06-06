@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::schemas::v1::*;
 /// Builder for listing schemas
 pub struct ListSchemasBuilder {
-    client: SchemaClient,
+    client: SchemaServiceClient,
     request: ListSchemasRequest,
 }
 impl ListSchemasBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `SchemaClient`.
-    pub(crate) fn new(client: SchemaClient, catalog_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `SchemaServiceClient`.
+    pub(crate) fn new(client: SchemaServiceClient, catalog_name: impl Into<String>) -> Self {
         let request = ListSchemasRequest {
             catalog_name: catalog_name.into(),
             ..Default::default()
@@ -71,14 +71,14 @@ impl IntoFuture for ListSchemasBuilder {
 }
 /// Builder for creating a schema
 pub struct CreateSchemaBuilder {
-    client: SchemaClient,
+    client: SchemaServiceClient,
     request: CreateSchemaRequest,
 }
 impl CreateSchemaBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `SchemaClient`.
+    /// Obtain via the corresponding method on `SchemaServiceClient`.
     pub(crate) fn new(
-        client: SchemaClient,
+        client: SchemaServiceClient,
         name: impl Into<String>,
         catalog_name: impl Into<String>,
     ) -> Self {
@@ -119,13 +119,13 @@ impl IntoFuture for CreateSchemaBuilder {
 }
 /// Builder for getting a schema
 pub struct GetSchemaBuilder {
-    client: SchemaClient,
+    client: SchemaServiceClient,
     request: GetSchemaRequest,
 }
 impl GetSchemaBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `SchemaClient`.
-    pub(crate) fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `SchemaServiceClient`.
+    pub(crate) fn new(client: SchemaServiceClient, full_name: impl Into<String>) -> Self {
         let request = GetSchemaRequest {
             full_name: full_name.into(),
             ..Default::default()
@@ -144,13 +144,13 @@ impl IntoFuture for GetSchemaBuilder {
 }
 /// Builder for updating a schema
 pub struct UpdateSchemaBuilder {
-    client: SchemaClient,
+    client: SchemaServiceClient,
     request: UpdateSchemaRequest,
 }
 impl UpdateSchemaBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `SchemaClient`.
-    pub(crate) fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `SchemaServiceClient`.
+    pub(crate) fn new(client: SchemaServiceClient, full_name: impl Into<String>) -> Self {
         let request = UpdateSchemaRequest {
             full_name: full_name.into(),
             ..Default::default()
@@ -195,13 +195,13 @@ impl IntoFuture for UpdateSchemaBuilder {
 }
 /// Builder for deleting a schema
 pub struct DeleteSchemaBuilder {
-    client: SchemaClient,
+    client: SchemaServiceClient,
     request: DeleteSchemaRequest,
 }
 impl DeleteSchemaBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `SchemaClient`.
-    pub(crate) fn new(client: SchemaClient, full_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `SchemaServiceClient`.
+    pub(crate) fn new(client: SchemaServiceClient, full_name: impl Into<String>) -> Self {
         let request = DeleteSchemaRequest {
             full_name: full_name.into(),
             ..Default::default()

@@ -2,14 +2,12 @@ use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use unitycatalog_common::models::catalogs::v1::*;
 
-use super::schemas::{SchemaClient, SchemaClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
-pub(super) use crate::codegen::catalogs::CatalogClient as CatalogClientBase;
-use crate::codegen::catalogs::{DeleteCatalogBuilder, GetCatalogBuilder, UpdateCatalogBuilder};
-use crate::codegen::schemas::CreateSchemaBuilder;
+pub use crate::codegen::catalogs::CatalogClient;
+pub(super) use crate::codegen::catalogs::CatalogServiceClient;
 
-impl CatalogClientBase {
+impl CatalogServiceClient {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Catalog>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
@@ -32,51 +30,5 @@ impl CatalogClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct CatalogClient {
-    name: String,
-    client: CatalogClientBase,
-}
-
-impl CatalogClient {
-    pub fn new(name: impl ToString, client: CatalogClientBase) -> Self {
-        Self {
-            name: name.to_string(),
-            client,
-        }
-    }
-
-    /// Create a new schema in this catalog.
-    pub fn create_schema(&self, name: impl ToString) -> CreateSchemaBuilder {
-        let schemas_client = super::schemas::SchemaClientBase::new(
-            self.client.client.clone(),
-            self.client.base_url.clone(),
-        );
-        CreateSchemaBuilder::new(schemas_client, name.to_string(), &self.name)
-    }
-
-    /// Get a schema client for a schema contained in this catalog.
-    pub fn schema(&self, name: impl ToString) -> SchemaClient {
-        SchemaClient::new(
-            &self.name,
-            name,
-            SchemaClientBase::new(self.client.client.clone(), self.client.base_url.clone()),
-        )
-    }
-
-    /// Get a catalog using the builder pattern.
-    pub fn get(&self) -> GetCatalogBuilder {
-        GetCatalogBuilder::new(self.client.clone(), &self.name)
-    }
-
-    pub fn update(&self) -> UpdateCatalogBuilder {
-        UpdateCatalogBuilder::new(self.client.clone(), &self.name)
-    }
-
-    pub fn delete(&self) -> DeleteCatalogBuilder {
-        DeleteCatalogBuilder::new(self.client.clone(), &self.name)
     }
 }

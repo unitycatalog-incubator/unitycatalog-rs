@@ -8,14 +8,14 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::volumes::v1::*;
 /// Builder for listing volumes
 pub struct ListVolumesBuilder {
-    client: VolumeClient,
+    client: VolumeServiceClient,
     request: ListVolumesRequest,
 }
 impl ListVolumesBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `VolumeClient`.
+    /// Obtain via the corresponding method on `VolumeServiceClient`.
     pub(crate) fn new(
-        client: VolumeClient,
+        client: VolumeServiceClient,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
     ) -> Self {
@@ -76,14 +76,14 @@ impl IntoFuture for ListVolumesBuilder {
 }
 /// Builder for creating a volume
 pub struct CreateVolumeBuilder {
-    client: VolumeClient,
+    client: VolumeServiceClient,
     request: CreateVolumeRequest,
 }
 impl CreateVolumeBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `VolumeClient`.
+    /// Obtain via the corresponding method on `VolumeServiceClient`.
     pub(crate) fn new(
-        client: VolumeClient,
+        client: VolumeServiceClient,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
         name: impl Into<String>,
@@ -120,13 +120,13 @@ impl IntoFuture for CreateVolumeBuilder {
 }
 /// Builder for getting a volume
 pub struct GetVolumeBuilder {
-    client: VolumeClient,
+    client: VolumeServiceClient,
     request: GetVolumeRequest,
 }
 impl GetVolumeBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `VolumeClient`.
-    pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `VolumeServiceClient`.
+    pub(crate) fn new(client: VolumeServiceClient, name: impl Into<String>) -> Self {
         let request = GetVolumeRequest {
             name: name.into(),
             ..Default::default()
@@ -150,13 +150,13 @@ impl IntoFuture for GetVolumeBuilder {
 }
 /// Builder for updating a volume
 pub struct UpdateVolumeBuilder {
-    client: VolumeClient,
+    client: VolumeServiceClient,
     request: UpdateVolumeRequest,
 }
 impl UpdateVolumeBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `VolumeClient`.
-    pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `VolumeServiceClient`.
+    pub(crate) fn new(client: VolumeServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateVolumeRequest {
             name: name.into(),
             ..Default::default()
@@ -190,13 +190,13 @@ impl IntoFuture for UpdateVolumeBuilder {
 }
 /// Builder for deleting a volume
 pub struct DeleteVolumeBuilder {
-    client: VolumeClient,
+    client: VolumeServiceClient,
     request: DeleteVolumeRequest,
 }
 impl DeleteVolumeBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `VolumeClient`.
-    pub(crate) fn new(client: VolumeClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `VolumeServiceClient`.
+    pub(crate) fn new(client: VolumeServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteVolumeRequest {
             name: name.into(),
             ..Default::default()

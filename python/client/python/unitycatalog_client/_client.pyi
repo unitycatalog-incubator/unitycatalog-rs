@@ -1,6 +1,6 @@
 # @generated — do not edit by hand.
 from __future__ import annotations
-from typing import Optional, List, Dict, Any, Literal
+from typing import Optional, List, Dict
 import enum
 
 class AwsIamRoleConfig:
@@ -634,6 +634,68 @@ class GcpOauthToken:
 
     def __init__(self, oauth_token: str) -> None: ...
 
+class GetCommitsResponse:
+    """Response listing ratified-but-unpublished commits for a table."""
+
+    commits: List[CommitInfo]
+    """
+    Ratified commits in `[start_version, end_version]`, contiguous and ordered ascending by
+    version. Excludes the internal fully-backfilled marker row.
+    """
+    latest_table_version: int
+    """
+    The latest table version the catalog tracks. `0` indicates a managed table with no commits
+    yet.
+    """
+
+    def __init__(
+        self, latest_table_version: int, commits: Optional[List[CommitInfo]] = None
+    ) -> None: ...
+
+class GetPermissionsResponse:
+    """Response to list shares."""
+
+    next_page_token: Optional[str]
+    """Opaque pagination token to go to next page based on previous query."""
+    privilege_assignments: List[PrivilegeAssignment]
+    """The privileges assigned to each principal"""
+
+    def __init__(
+        self,
+        next_page_token: Optional[str] = None,
+        privilege_assignments: Optional[List[PrivilegeAssignment]] = None,
+    ) -> None: ...
+
+class GetTableExistsResponse:
+    table_exists: bool
+    """Boolean reflecting if table exists."""
+
+    def __init__(self, table_exists: bool) -> None: ...
+
+class ListEntityTagAssignmentsResponse:
+    """List entity tag assignments response."""
+
+    next_page_token: Optional[str]
+    """The next_page_token value to include in the next List request."""
+    tag_assignments: List[EntityTagAssignment]
+    """The tag assignments returned."""
+
+    def __init__(
+        self,
+        next_page_token: Optional[str] = None,
+        tag_assignments: Optional[List[EntityTagAssignment]] = None,
+    ) -> None: ...
+
+class ListTableSummariesResponse:
+    next_page_token: Optional[str]
+    """The next_page_token value to include in the next List request."""
+    tables: List[TableSummary]
+    """The table summaries returned."""
+
+    def __init__(
+        self, next_page_token: Optional[str] = None, tables: Optional[List[TableSummary]] = None
+    ) -> None: ...
+
 class Metadata:
     """A Delta metadata change accompanying a commit. Modeled minimally; the coordinator stores it opaquely
     and does not interpret it."""
@@ -1018,6 +1080,14 @@ class TemporaryCredential:
         r2_temp_credentials: Optional[R2TemporaryCredentials] = None,
     ) -> None: ...
 
+class UpdatePermissionsResponse:
+    privilege_assignments: List[PrivilegeAssignment]
+    """The privileges assigned to each principal"""
+
+    def __init__(
+        self, privilege_assignments: Optional[List[PrivilegeAssignment]] = None
+    ) -> None: ...
+
 class Value:
     """An allowed value for a governed tag."""
 
@@ -1161,6 +1231,32 @@ class FunctionParameterType(enum.Enum):
     FUNCTION_PARAMETER_TYPE_UNSPECIFIED = "FUNCTION_PARAMETER_TYPE_UNSPECIFIED"
     PARAM = "PARAM"
     """A named parameter (default)."""
+
+class GenerateTemporaryPathCredentialsRequestOperation(enum.Enum):
+    PATH_CREATE_TABLE = "PATH_CREATE_TABLE"
+    """The operation creates a table at the path."""
+    PATH_READ = "PATH_READ"
+    """The operation is read only."""
+    PATH_READ_WRITE = "PATH_READ_WRITE"
+    """The operation is read and write."""
+    UNSPECIFIED = "UNSPECIFIED"
+    """The operation is not specified."""
+
+class GenerateTemporaryTableCredentialsRequestOperation(enum.Enum):
+    READ = "READ"
+    """The operation is read only."""
+    READ_WRITE = "READ_WRITE"
+    """The operation is read and write."""
+    UNSPECIFIED = "UNSPECIFIED"
+    """The operation is not specified."""
+
+class GenerateTemporaryVolumeCredentialsRequestOperation(enum.Enum):
+    READ_VOLUME = "READ_VOLUME"
+    """The operation is read only."""
+    UNSPECIFIED = "UNSPECIFIED"
+    """The operation is not specified."""
+    WRITE_VOLUME = "WRITE_VOLUME"
+    """The operation is read and write."""
 
 class HistoryStatus(enum.Enum):
     DISABLED = "DISABLED"
@@ -2167,7 +2263,10 @@ class UnityCatalogClient:
         """
         ...
     def generate_temporary_path_credentials(
-        self, url: str, operation: Operation, dry_run: Optional[bool] = None
+        self,
+        url: str,
+        operation: GenerateTemporaryPathCredentialsRequestOperation,
+        dry_run: Optional[bool] = None,
     ) -> TemporaryCredential:
         """
         Generate a new set of credentials for a path.
@@ -2186,7 +2285,7 @@ class UnityCatalogClient:
         """
         ...
     def generate_temporary_table_credentials(
-        self, table_id: str, operation: Operation
+        self, table_id: str, operation: GenerateTemporaryTableCredentialsRequestOperation
     ) -> TemporaryCredential:
         """
         Generate a new set of credentials for a table.
@@ -2204,7 +2303,7 @@ class UnityCatalogClient:
         """
         ...
     def generate_temporary_volume_credentials(
-        self, volume_id: str, operation: Operation
+        self, volume_id: str, operation: GenerateTemporaryVolumeCredentialsRequestOperation
     ) -> TemporaryCredential:
         """
         Generate a new set of credentials for a volume.

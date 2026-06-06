@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::external_locations::v1::*;
 /// Builder for listing external locations
 pub struct ListExternalLocationsBuilder {
-    client: ExternalLocationClient,
+    client: ExternalLocationServiceClient,
     request: ListExternalLocationsRequest,
 }
 impl ListExternalLocationsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ExternalLocationClient`.
-    pub(crate) fn new(client: ExternalLocationClient) -> Self {
+    /// Obtain via the corresponding method on `ExternalLocationServiceClient`.
+    pub(crate) fn new(client: ExternalLocationServiceClient) -> Self {
         let request = ListExternalLocationsRequest {
             ..Default::default()
         };
@@ -73,14 +73,14 @@ impl IntoFuture for ListExternalLocationsBuilder {
 }
 /// Builder for creating a external location
 pub struct CreateExternalLocationBuilder {
-    client: ExternalLocationClient,
+    client: ExternalLocationServiceClient,
     request: CreateExternalLocationRequest,
 }
 impl CreateExternalLocationBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ExternalLocationClient`.
+    /// Obtain via the corresponding method on `ExternalLocationServiceClient`.
     pub(crate) fn new(
-        client: ExternalLocationClient,
+        client: ExternalLocationServiceClient,
         name: impl Into<String>,
         url: impl Into<String>,
         credential_name: impl Into<String>,
@@ -120,13 +120,13 @@ impl IntoFuture for CreateExternalLocationBuilder {
 }
 /// Builder for getting a external location
 pub struct GetExternalLocationBuilder {
-    client: ExternalLocationClient,
+    client: ExternalLocationServiceClient,
     request: GetExternalLocationRequest,
 }
 impl GetExternalLocationBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ExternalLocationClient`.
-    pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ExternalLocationServiceClient`.
+    pub(crate) fn new(client: ExternalLocationServiceClient, name: impl Into<String>) -> Self {
         let request = GetExternalLocationRequest {
             name: name.into(),
             ..Default::default()
@@ -145,13 +145,13 @@ impl IntoFuture for GetExternalLocationBuilder {
 }
 /// Builder for updating a external location
 pub struct UpdateExternalLocationBuilder {
-    client: ExternalLocationClient,
+    client: ExternalLocationServiceClient,
     request: UpdateExternalLocationRequest,
 }
 impl UpdateExternalLocationBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ExternalLocationClient`.
-    pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ExternalLocationServiceClient`.
+    pub(crate) fn new(client: ExternalLocationServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateExternalLocationRequest {
             name: name.into(),
             ..Default::default()
@@ -210,13 +210,13 @@ impl IntoFuture for UpdateExternalLocationBuilder {
 }
 /// Builder for deleting a external location
 pub struct DeleteExternalLocationBuilder {
-    client: ExternalLocationClient,
+    client: ExternalLocationServiceClient,
     request: DeleteExternalLocationRequest,
 }
 impl DeleteExternalLocationBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ExternalLocationClient`.
-    pub(crate) fn new(client: ExternalLocationClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ExternalLocationServiceClient`.
+    pub(crate) fn new(client: ExternalLocationServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteExternalLocationRequest {
             name: name.into(),
             ..Default::default()

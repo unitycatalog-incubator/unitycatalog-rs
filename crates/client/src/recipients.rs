@@ -4,13 +4,10 @@ use unitycatalog_common::models::recipients::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-use crate::codegen::recipients::DeleteRecipientBuilder;
-pub(super) use crate::codegen::recipients::RecipientClient as RecipientClientBase;
-use crate::codegen::recipients::builders::{
-    CreateRecipientBuilder, GetRecipientBuilder, UpdateRecipientBuilder,
-};
+pub use crate::codegen::recipients::RecipientClient;
+pub(super) use crate::codegen::recipients::RecipientServiceClient;
 
-impl RecipientClientBase {
+impl RecipientServiceClient {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Recipient>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
@@ -33,48 +30,5 @@ impl RecipientClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct RecipientClient {
-    name: String,
-    client: RecipientClientBase,
-}
-
-impl RecipientClient {
-    pub fn new(name: impl ToString, client: RecipientClientBase) -> Self {
-        Self {
-            name: name.to_string(),
-            client,
-        }
-    }
-
-    /// Create a new recipient using the builder pattern.
-    pub fn create(
-        &self,
-        authentication_type: AuthenticationType,
-        owner: impl Into<String>,
-    ) -> CreateRecipientBuilder {
-        CreateRecipientBuilder::new(
-            self.client.clone(),
-            &self.name,
-            authentication_type,
-            owner.into(),
-        )
-    }
-
-    /// Get a recipient using the builder pattern.
-    pub fn get(&self) -> GetRecipientBuilder {
-        GetRecipientBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Update this recipient using the builder pattern.
-    pub fn update(&self) -> UpdateRecipientBuilder {
-        UpdateRecipientBuilder::new(self.client.clone(), &self.name)
-    }
-
-    pub fn delete(&self) -> DeleteRecipientBuilder {
-        DeleteRecipientBuilder::new(self.client.clone(), &self.name)
     }
 }

@@ -1,19 +1,13 @@
 use futures::stream::BoxStream;
 use futures::{StreamExt, TryStreamExt};
 use unitycatalog_common::models::schemas::v1::*;
-use unitycatalog_common::models::tables::v1::{DataSourceFormat, TableType};
 
-use super::tables::{TableClient, TableClientBase};
 use super::utils::stream_paginated;
 use crate::Result;
-use crate::codegen::schemas::DeleteSchemaBuilder;
-pub(super) use crate::codegen::schemas::SchemaClient as SchemaClientBase;
-use crate::codegen::schemas::builders::{
-    CreateSchemaBuilder, GetSchemaBuilder, UpdateSchemaBuilder,
-};
-use crate::codegen::tables::builders::CreateTableBuilder;
+pub use crate::codegen::schemas::SchemaClient;
+pub(super) use crate::codegen::schemas::SchemaServiceClient;
 
-impl SchemaClientBase {
+impl SchemaServiceClient {
     pub fn list(
         &self,
         catalog_name: impl Into<String>,
@@ -52,95 +46,5 @@ impl SchemaClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct SchemaClient {
-    catalog_name: String,
-    schema_name: String,
-    client: SchemaClientBase,
-}
-
-impl SchemaClient {
-    pub fn new(
-        catalog_name: impl ToString,
-        schema_name: impl ToString,
-        client: SchemaClientBase,
-    ) -> Self {
-        Self {
-            catalog_name: catalog_name.to_string(),
-            schema_name: schema_name.to_string(),
-            client,
-        }
-    }
-
-    /// Construct a `SchemaClient` from a fully-qualified `catalog.schema` name.
-    pub fn new_from_full_name(full_name: impl ToString, client: SchemaClientBase) -> Self {
-        let full_name = full_name.to_string();
-        let mut parts = full_name.splitn(2, '.');
-        let catalog_name = parts.next().unwrap_or("").to_string();
-        let schema_name = parts.next().unwrap_or("").to_string();
-        Self {
-            catalog_name,
-            schema_name,
-            client,
-        }
-    }
-
-    pub fn table(&self, name: impl Into<String>) -> TableClient {
-        TableClient::new(
-            format!("{}.{}.{}", self.catalog_name, self.schema_name, name.into()),
-            TableClientBase::new(self.client.client.clone(), self.client.base_url.clone()),
-        )
-    }
-
-    /// Create a new schema using the builder pattern.
-    pub fn create(&self) -> CreateSchemaBuilder {
-        CreateSchemaBuilder::new(self.client.clone(), &self.schema_name, &self.catalog_name)
-    }
-
-    /// Create a new table in this schema using the builder pattern.
-    pub fn create_table(
-        &self,
-        name: impl ToString,
-        table_type: TableType,
-        data_source_format: DataSourceFormat,
-    ) -> CreateTableBuilder {
-        let tables_client = super::tables::TableClientBase::new(
-            self.client.client.clone(),
-            self.client.base_url.clone(),
-        );
-        CreateTableBuilder::new(
-            tables_client,
-            name.to_string(),
-            &self.schema_name,
-            &self.catalog_name,
-            table_type,
-            data_source_format,
-        )
-    }
-
-    /// Get a schema using the builder pattern.
-    pub fn get(&self) -> GetSchemaBuilder {
-        GetSchemaBuilder::new(
-            self.client.clone(),
-            format!("{}.{}", self.catalog_name, self.schema_name),
-        )
-    }
-
-    /// Update this schema using the builder pattern.
-    pub fn update(&self) -> UpdateSchemaBuilder {
-        UpdateSchemaBuilder::new(
-            self.client.clone(),
-            format!("{}.{}", self.catalog_name, self.schema_name),
-        )
-    }
-
-    pub fn delete(&self) -> DeleteSchemaBuilder {
-        DeleteSchemaBuilder::new(
-            self.client.clone(),
-            format!("{}.{}", self.catalog_name, self.schema_name),
-        )
     }
 }

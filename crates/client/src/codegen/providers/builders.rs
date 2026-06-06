@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::providers::v1::*;
 /// Builder for listing providers
 pub struct ListProvidersBuilder {
-    client: ProviderClient,
+    client: ProviderServiceClient,
     request: ListProvidersRequest,
 }
 impl ListProvidersBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ProviderClient`.
-    pub(crate) fn new(client: ProviderClient) -> Self {
+    /// Obtain via the corresponding method on `ProviderServiceClient`.
+    pub(crate) fn new(client: ProviderServiceClient) -> Self {
         let request = ListProvidersRequest {
             ..Default::default()
         };
@@ -65,14 +65,14 @@ impl IntoFuture for ListProvidersBuilder {
 }
 /// Builder for creating a provider
 pub struct CreateProviderBuilder {
-    client: ProviderClient,
+    client: ProviderServiceClient,
     request: CreateProviderRequest,
 }
 impl CreateProviderBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ProviderClient`.
+    /// Obtain via the corresponding method on `ProviderServiceClient`.
     pub(crate) fn new(
-        client: ProviderClient,
+        client: ProviderServiceClient,
         name: impl Into<String>,
         authentication_type: ProviderAuthenticationType,
     ) -> Self {
@@ -127,13 +127,13 @@ impl IntoFuture for CreateProviderBuilder {
 }
 /// Builder for getting a provider
 pub struct GetProviderBuilder {
-    client: ProviderClient,
+    client: ProviderServiceClient,
     request: GetProviderRequest,
 }
 impl GetProviderBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ProviderClient`.
-    pub(crate) fn new(client: ProviderClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ProviderServiceClient`.
+    pub(crate) fn new(client: ProviderServiceClient, name: impl Into<String>) -> Self {
         let request = GetProviderRequest {
             name: name.into(),
             ..Default::default()
@@ -152,13 +152,13 @@ impl IntoFuture for GetProviderBuilder {
 }
 /// Builder for updating a provider
 pub struct UpdateProviderBuilder {
-    client: ProviderClient,
+    client: ProviderServiceClient,
     request: UpdateProviderRequest,
 }
 impl UpdateProviderBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ProviderClient`.
-    pub(crate) fn new(client: ProviderClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ProviderServiceClient`.
+    pub(crate) fn new(client: ProviderServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateProviderRequest {
             name: name.into(),
             ..Default::default()
@@ -217,13 +217,13 @@ impl IntoFuture for UpdateProviderBuilder {
 }
 /// Builder for deleting a provider
 pub struct DeleteProviderBuilder {
-    client: ProviderClient,
+    client: ProviderServiceClient,
     request: DeleteProviderRequest,
 }
 impl DeleteProviderBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ProviderClient`.
-    pub(crate) fn new(client: ProviderClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ProviderServiceClient`.
+    pub(crate) fn new(client: ProviderServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteProviderRequest {
             name: name.into(),
             ..Default::default()

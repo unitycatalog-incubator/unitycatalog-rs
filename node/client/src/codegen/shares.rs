@@ -44,6 +44,20 @@ impl NapiShareClient {
         request.await.default_error()
     }
     #[napi(catch_unwind)]
+    pub async fn get_permissions(
+        &self,
+        max_results: Option<i32>,
+        page_token: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.get_permissions();
+        request = request.with_max_results(max_results);
+        request = request.with_page_token(page_token);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
     pub async fn update_permissions(
         &self,
         omit_permissions_list: Option<bool>,

@@ -4,13 +4,10 @@ use unitycatalog_common::models::shares::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-use crate::codegen::shares::DeleteShareBuilder;
-pub(super) use crate::codegen::shares::ShareClient as ShareClientBase;
-use crate::codegen::shares::builders::{
-    CreateShareBuilder, GetShareBuilder, UpdatePermissionsBuilder, UpdateShareBuilder,
-};
+pub use crate::codegen::shares::ShareClient;
+pub(super) use crate::codegen::shares::ShareServiceClient;
 
-impl ShareClientBase {
+impl ShareServiceClient {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<Share>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
@@ -33,46 +30,5 @@ impl ShareClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct ShareClient {
-    name: String,
-    client: ShareClientBase,
-}
-
-impl ShareClient {
-    pub fn new(name: impl ToString, client: ShareClientBase) -> Self {
-        Self {
-            name: name.to_string(),
-            client,
-        }
-    }
-
-    /// Create a new share using the builder pattern.
-    pub fn create(&self) -> CreateShareBuilder {
-        CreateShareBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Get a share using the builder pattern.
-    pub fn get(&self) -> GetShareBuilder {
-        GetShareBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Update this share using the builder pattern.
-    pub fn update(&self) -> UpdateShareBuilder {
-        UpdateShareBuilder::new(self.client.clone(), &self.name)
-    }
-
-    pub fn delete(&self) -> DeleteShareBuilder {
-        DeleteShareBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Update the recipient permissions on this share using the builder pattern.
-    ///
-    /// Maps to `PATCH /shares/{name}/permissions` in the Unity Catalog API.
-    pub fn update_permissions(&self) -> UpdatePermissionsBuilder {
-        UpdatePermissionsBuilder::new(self.client.clone(), &self.name)
     }
 }

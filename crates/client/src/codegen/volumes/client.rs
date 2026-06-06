@@ -5,11 +5,11 @@ use unitycatalog_common::models::volumes::v1::*;
 use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
-pub struct VolumeClient {
+pub struct VolumeServiceClient {
     pub(crate) client: CloudClient,
     pub(crate) base_url: Url,
 }
-impl VolumeClient {
+impl VolumeServiceClient {
     /// Create a new client instance
     pub fn new(client: CloudClient, mut base_url: Url) -> Self {
         if !base_url.path().ends_with('/') {

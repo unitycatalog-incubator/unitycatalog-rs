@@ -5,11 +5,11 @@ use unitycatalog_common::models::tags::v1::*;
 use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
-pub struct TagPolicyClient {
+pub struct TagPolicyServiceClient {
     pub(crate) client: CloudClient,
     pub(crate) base_url: Url,
 }
-impl TagPolicyClient {
+impl TagPolicyServiceClient {
     /// Create a new client instance
     pub fn new(client: CloudClient, mut base_url: Url) -> Self {
         if !base_url.path().ends_with('/') {

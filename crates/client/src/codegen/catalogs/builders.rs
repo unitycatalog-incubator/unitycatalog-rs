@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::catalogs::v1::*;
 /// Builder for listing catalogs
 pub struct ListCatalogsBuilder {
-    client: CatalogClient,
+    client: CatalogServiceClient,
     request: ListCatalogsRequest,
 }
 impl ListCatalogsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CatalogClient`.
-    pub(crate) fn new(client: CatalogClient) -> Self {
+    /// Obtain via the corresponding method on `CatalogServiceClient`.
+    pub(crate) fn new(client: CatalogServiceClient) -> Self {
         let request = ListCatalogsRequest {
             ..Default::default()
         };
@@ -65,13 +65,13 @@ impl IntoFuture for ListCatalogsBuilder {
 }
 /// Builder for creating a catalog
 pub struct CreateCatalogBuilder {
-    client: CatalogClient,
+    client: CatalogServiceClient,
     request: CreateCatalogRequest,
 }
 impl CreateCatalogBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CatalogClient`.
-    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CatalogServiceClient`.
+    pub(crate) fn new(client: CatalogServiceClient, name: impl Into<String>) -> Self {
         let request = CreateCatalogRequest {
             name: name.into(),
             ..Default::default()
@@ -125,13 +125,13 @@ impl IntoFuture for CreateCatalogBuilder {
 }
 /// Builder for getting a catalog
 pub struct GetCatalogBuilder {
-    client: CatalogClient,
+    client: CatalogServiceClient,
     request: GetCatalogRequest,
 }
 impl GetCatalogBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CatalogClient`.
-    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CatalogServiceClient`.
+    pub(crate) fn new(client: CatalogServiceClient, name: impl Into<String>) -> Self {
         let request = GetCatalogRequest {
             name: name.into(),
             ..Default::default()
@@ -155,13 +155,13 @@ impl IntoFuture for GetCatalogBuilder {
 }
 /// Builder for updating a catalog
 pub struct UpdateCatalogBuilder {
-    client: CatalogClient,
+    client: CatalogServiceClient,
     request: UpdateCatalogRequest,
 }
 impl UpdateCatalogBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CatalogClient`.
-    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CatalogServiceClient`.
+    pub(crate) fn new(client: CatalogServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateCatalogRequest {
             name: name.into(),
             ..Default::default()
@@ -211,13 +211,13 @@ impl IntoFuture for UpdateCatalogBuilder {
 }
 /// Builder for deleting a catalog
 pub struct DeleteCatalogBuilder {
-    client: CatalogClient,
+    client: CatalogServiceClient,
     request: DeleteCatalogRequest,
 }
 impl DeleteCatalogBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `CatalogClient`.
-    pub(crate) fn new(client: CatalogClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `CatalogServiceClient`.
+    pub(crate) fn new(client: CatalogServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteCatalogRequest {
             name: name.into(),
             ..Default::default()

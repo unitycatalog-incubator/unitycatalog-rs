@@ -4,11 +4,10 @@ use unitycatalog_common::models::tables::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-use crate::codegen::tables::DeleteTableBuilder;
-pub(super) use crate::codegen::tables::TableClient as TableClientBase;
-use crate::codegen::tables::builders::GetTableBuilder;
+pub use crate::codegen::tables::TableClient;
+pub(super) use crate::codegen::tables::TableServiceClient;
 
-impl TableClientBase {
+impl TableServiceClient {
     pub fn list_summaries(
         &self,
         catalog_name: impl Into<String>,
@@ -120,38 +119,5 @@ impl TableClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct TableClient {
-    full_name: String,
-    client: TableClientBase,
-}
-
-impl TableClient {
-    pub fn new(full_name: impl ToString, client: TableClientBase) -> Self {
-        Self {
-            full_name: full_name.to_string(),
-            client,
-        }
-    }
-
-    /// Construct a [`TableClient`] from a fully-qualified `catalog.schema.table` name.
-    ///
-    /// A table is already identified by its full name, so this is an alias for [`new`](Self::new);
-    /// it exists so the generated aggregate's `table_from_full_name` accessor can call a uniform
-    /// `new_from_full_name` across all scoped clients.
-    pub fn new_from_full_name(full_name: impl ToString, client: TableClientBase) -> Self {
-        Self::new(full_name, client)
-    }
-
-    /// Get a table using the builder pattern.
-    pub fn get(&self) -> GetTableBuilder {
-        GetTableBuilder::new(self.client.clone(), &self.full_name)
-    }
-
-    pub fn delete(&self) -> DeleteTableBuilder {
-        DeleteTableBuilder::new(self.client.clone(), self.full_name.clone())
     }
 }

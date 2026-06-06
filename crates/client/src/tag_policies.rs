@@ -4,12 +4,10 @@ use unitycatalog_common::models::tags::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-pub(super) use crate::codegen::tag_policies::TagPolicyClient as TagPolicyClientBase;
-use crate::codegen::tag_policies::{
-    DeleteTagPolicyBuilder, GetTagPolicyBuilder, UpdateTagPolicyBuilder,
-};
+pub use crate::codegen::tag_policies::TagPolicyClient;
+pub(super) use crate::codegen::tag_policies::TagPolicyServiceClient;
 
-impl TagPolicyClientBase {
+impl TagPolicyServiceClient {
     pub fn list(&self, max_results: impl Into<Option<i32>>) -> BoxStream<'_, Result<TagPolicy>> {
         let max_results = max_results.into();
         stream_paginated(max_results, move |mut max_results, page_token| async move {
@@ -32,36 +30,5 @@ impl TagPolicyClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-/// Client scoped to a single governed tag definition (tag policy), keyed by tag key.
-#[derive(Clone)]
-pub struct TagPolicyClient {
-    tag_key: String,
-    client: TagPolicyClientBase,
-}
-
-impl TagPolicyClient {
-    pub fn new(tag_key: impl ToString, client: TagPolicyClientBase) -> Self {
-        Self {
-            tag_key: tag_key.to_string(),
-            client,
-        }
-    }
-
-    /// Get this tag policy using the builder pattern.
-    pub fn get(&self) -> GetTagPolicyBuilder {
-        GetTagPolicyBuilder::new(self.client.clone(), &self.tag_key)
-    }
-
-    /// Update this tag policy using the builder pattern.
-    pub fn update(&self, tag_policy: TagPolicy) -> UpdateTagPolicyBuilder {
-        UpdateTagPolicyBuilder::new(self.client.clone(), &self.tag_key, tag_policy)
-    }
-
-    /// Delete this tag policy.
-    pub fn delete(&self) -> DeleteTagPolicyBuilder {
-        DeleteTagPolicyBuilder::new(self.client.clone(), &self.tag_key)
     }
 }

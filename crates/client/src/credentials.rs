@@ -4,12 +4,10 @@ use unitycatalog_common::models::credentials::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-pub(super) use crate::codegen::credentials::CredentialClient as CredentialClientBase;
-use crate::codegen::credentials::{
-    CreateCredentialBuilder, DeleteCredentialBuilder, GetCredentialBuilder, UpdateCredentialBuilder,
-};
+pub use crate::codegen::credentials::CredentialClient;
+pub(super) use crate::codegen::credentials::CredentialServiceClient;
 
-impl CredentialClientBase {
+impl CredentialServiceClient {
     pub fn list(
         &self,
         purpose: Option<Purpose>,
@@ -38,40 +36,5 @@ impl CredentialClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct CredentialClient {
-    name: String,
-    client: CredentialClientBase,
-}
-
-impl CredentialClient {
-    pub fn new(name: impl ToString, client: CredentialClientBase) -> Self {
-        Self {
-            name: name.to_string(),
-            client,
-        }
-    }
-
-    /// Create a new credential using the builder pattern.
-    pub fn create(&self, purpose: Purpose) -> CreateCredentialBuilder {
-        CreateCredentialBuilder::new(self.client.clone(), &self.name, purpose)
-    }
-
-    /// Get a credential using the builder pattern.
-    pub fn get(&self) -> GetCredentialBuilder {
-        GetCredentialBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Update this credential using the builder pattern.
-    pub fn update(&self) -> UpdateCredentialBuilder {
-        UpdateCredentialBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Delete this credential using the builder pattern.
-    pub fn delete(&self) -> DeleteCredentialBuilder {
-        DeleteCredentialBuilder::new(self.client.clone(), &self.name)
     }
 }

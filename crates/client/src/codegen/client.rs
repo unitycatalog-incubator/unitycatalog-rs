@@ -1,15 +1,4 @@
 // @generated — do not edit by hand.
-use crate::CatalogClient;
-use crate::CredentialClient;
-use crate::ExternalLocationClient;
-use crate::FunctionClient;
-use crate::ProviderClient;
-use crate::RecipientClient;
-use crate::SchemaClient;
-use crate::ShareClient;
-use crate::TableClient;
-use crate::TagPolicyClient;
-use crate::VolumeClient;
 use crate::codegen::catalogs::*;
 use crate::codegen::credentials::*;
 use crate::codegen::delta_commits::*;
@@ -36,75 +25,19 @@ use unitycatalog_common::models::volumes::v1::*;
 use url::Url;
 #[derive(Clone)]
 pub struct UnityCatalogClient {
-    catalogs: crate::codegen::catalogs::CatalogClient,
-    credentials: crate::codegen::credentials::CredentialClient,
-    delta_commits: crate::codegen::delta_commits::DeltaCommitClient,
-    entity_tag_assignments: crate::codegen::entity_tag_assignments::EntityTagAssignmentClient,
-    external_locations: crate::codegen::external_locations::ExternalLocationClient,
-    functions: crate::codegen::functions::FunctionClient,
-    providers: crate::codegen::providers::ProviderClient,
-    recipients: crate::codegen::recipients::RecipientClient,
-    schemas: crate::codegen::schemas::SchemaClient,
-    shares: crate::codegen::shares::ShareClient,
-    tables: crate::codegen::tables::TableClient,
-    tag_policies: crate::codegen::tag_policies::TagPolicyClient,
-    temporary_credentials: crate::codegen::temporary_credentials::TemporaryCredentialClient,
-    volumes: crate::codegen::volumes::VolumeClient,
+    client: CloudClient,
+    base_url: Url,
 }
 impl UnityCatalogClient {
     /// Create a new aggregate client from a cloud client and base URL.
+    ///
+    /// Per-service clients are constructed on demand (they only hold a cheaply-cloneable
+    /// `CloudClient` + `Url`), so nothing is allocated per service here.
     pub fn new(client: CloudClient, mut base_url: Url) -> Self {
         if !base_url.path().ends_with('/') {
             base_url.set_path(&format!("{}/", base_url.path()));
         }
-        let catalogs =
-            crate::codegen::catalogs::CatalogClient::new(client.clone(), base_url.clone());
-        let credentials =
-            crate::codegen::credentials::CredentialClient::new(client.clone(), base_url.clone());
-        let delta_commits =
-            crate::codegen::delta_commits::DeltaCommitClient::new(client.clone(), base_url.clone());
-        let entity_tag_assignments =
-            crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
-                client.clone(),
-                base_url.clone(),
-            );
-        let external_locations = crate::codegen::external_locations::ExternalLocationClient::new(
-            client.clone(),
-            base_url.clone(),
-        );
-        let functions =
-            crate::codegen::functions::FunctionClient::new(client.clone(), base_url.clone());
-        let providers =
-            crate::codegen::providers::ProviderClient::new(client.clone(), base_url.clone());
-        let recipients =
-            crate::codegen::recipients::RecipientClient::new(client.clone(), base_url.clone());
-        let schemas = crate::codegen::schemas::SchemaClient::new(client.clone(), base_url.clone());
-        let shares = crate::codegen::shares::ShareClient::new(client.clone(), base_url.clone());
-        let tables = crate::codegen::tables::TableClient::new(client.clone(), base_url.clone());
-        let tag_policies =
-            crate::codegen::tag_policies::TagPolicyClient::new(client.clone(), base_url.clone());
-        let temporary_credentials =
-            crate::codegen::temporary_credentials::TemporaryCredentialClient::new(
-                client.clone(),
-                base_url.clone(),
-            );
-        let volumes = crate::codegen::volumes::VolumeClient::new(client.clone(), base_url.clone());
-        Self {
-            catalogs,
-            credentials,
-            delta_commits,
-            entity_tag_assignments,
-            external_locations,
-            functions,
-            providers,
-            recipients,
-            schemas,
-            shares,
-            tables,
-            tag_policies,
-            temporary_credentials,
-            volumes,
-        }
+        Self { client, base_url }
     }
     /// Create a new aggregate client with no authentication.
     pub fn new_unauthenticated(base_url: Url) -> Self {
@@ -115,96 +48,206 @@ impl UnityCatalogClient {
         Self::new(CloudClient::new_with_token(token), base_url)
     }
     ///Low-level `catalogs` client exposing request/response passthrough methods.
-    pub fn catalogs_client(&self) -> crate::codegen::catalogs::CatalogClient {
-        self.catalogs.clone()
+    pub fn catalogs_client(&self) -> crate::codegen::catalogs::CatalogServiceClient {
+        crate::codegen::catalogs::CatalogServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `credentials` client exposing request/response passthrough methods.
-    pub fn credentials_client(&self) -> crate::codegen::credentials::CredentialClient {
-        self.credentials.clone()
+    pub fn credentials_client(&self) -> crate::codegen::credentials::CredentialServiceClient {
+        crate::codegen::credentials::CredentialServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `delta_commits` client exposing request/response passthrough methods.
     pub fn delta_commits_client(&self) -> crate::codegen::delta_commits::DeltaCommitClient {
-        self.delta_commits.clone()
+        crate::codegen::delta_commits::DeltaCommitClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `entity_tag_assignments` client exposing request/response passthrough methods.
     pub fn entity_tag_assignments_client(
         &self,
     ) -> crate::codegen::entity_tag_assignments::EntityTagAssignmentClient {
-        self.entity_tag_assignments.clone()
+        crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `external_locations` client exposing request/response passthrough methods.
     pub fn external_locations_client(
         &self,
-    ) -> crate::codegen::external_locations::ExternalLocationClient {
-        self.external_locations.clone()
+    ) -> crate::codegen::external_locations::ExternalLocationServiceClient {
+        crate::codegen::external_locations::ExternalLocationServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `functions` client exposing request/response passthrough methods.
-    pub fn functions_client(&self) -> crate::codegen::functions::FunctionClient {
-        self.functions.clone()
+    pub fn functions_client(&self) -> crate::codegen::functions::FunctionServiceClient {
+        crate::codegen::functions::FunctionServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `providers` client exposing request/response passthrough methods.
-    pub fn providers_client(&self) -> crate::codegen::providers::ProviderClient {
-        self.providers.clone()
+    pub fn providers_client(&self) -> crate::codegen::providers::ProviderServiceClient {
+        crate::codegen::providers::ProviderServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `recipients` client exposing request/response passthrough methods.
-    pub fn recipients_client(&self) -> crate::codegen::recipients::RecipientClient {
-        self.recipients.clone()
+    pub fn recipients_client(&self) -> crate::codegen::recipients::RecipientServiceClient {
+        crate::codegen::recipients::RecipientServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `schemas` client exposing request/response passthrough methods.
-    pub fn schemas_client(&self) -> crate::codegen::schemas::SchemaClient {
-        self.schemas.clone()
+    pub fn schemas_client(&self) -> crate::codegen::schemas::SchemaServiceClient {
+        crate::codegen::schemas::SchemaServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `shares` client exposing request/response passthrough methods.
-    pub fn shares_client(&self) -> crate::codegen::shares::ShareClient {
-        self.shares.clone()
+    pub fn shares_client(&self) -> crate::codegen::shares::ShareServiceClient {
+        crate::codegen::shares::ShareServiceClient::new(self.client.clone(), self.base_url.clone())
     }
     ///Low-level `tables` client exposing request/response passthrough methods.
-    pub fn tables_client(&self) -> crate::codegen::tables::TableClient {
-        self.tables.clone()
+    pub fn tables_client(&self) -> crate::codegen::tables::TableServiceClient {
+        crate::codegen::tables::TableServiceClient::new(self.client.clone(), self.base_url.clone())
     }
     ///Low-level `tag_policies` client exposing request/response passthrough methods.
-    pub fn tag_policies_client(&self) -> crate::codegen::tag_policies::TagPolicyClient {
-        self.tag_policies.clone()
+    pub fn tag_policies_client(&self) -> crate::codegen::tag_policies::TagPolicyServiceClient {
+        crate::codegen::tag_policies::TagPolicyServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `temporary_credentials` client exposing request/response passthrough methods.
     pub fn temporary_credentials_client(
         &self,
     ) -> crate::codegen::temporary_credentials::TemporaryCredentialClient {
-        self.temporary_credentials.clone()
+        crate::codegen::temporary_credentials::TemporaryCredentialClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
     ///Low-level `volumes` client exposing request/response passthrough methods.
-    pub fn volumes_client(&self) -> crate::codegen::volumes::VolumeClient {
-        self.volumes.clone()
+    pub fn volumes_client(&self) -> crate::codegen::volumes::VolumeServiceClient {
+        crate::codegen::volumes::VolumeServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
     }
+    /// List catalogs
+    ///
+    /// Gets an array of catalogs in the metastore. If the caller is the metastore admin,
+    /// all catalogs will be retrieved. Otherwise, only catalogs owned by the caller
+    /// (or for which the caller has the USE_CATALOG privilege) will be retrieved.
+    /// There is no guarantee of a specific ordering of the elements in the array.
     pub fn list_catalogs(&self) -> ListCatalogsBuilder {
-        ListCatalogsBuilder::new(self.catalogs.clone())
+        ListCatalogsBuilder::new(crate::codegen::catalogs::CatalogServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        ))
     }
+    /// Create a new catalog
+    ///
+    /// Creates a new catalog instance in the parent metastore if the caller
+    /// is a metastore admin or has the CREATE_CATALOG privilege.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of catalog.
     pub fn create_catalog(&self, name: impl Into<String>) -> CreateCatalogBuilder {
-        CreateCatalogBuilder::new(self.catalogs.clone(), name)
+        CreateCatalogBuilder::new(
+            crate::codegen::catalogs::CatalogServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+        )
     }
-    pub fn catalog(&self, catalog_name: impl ToString) -> CatalogClient {
-        CatalogClient::new(catalog_name, self.catalogs.clone())
+    /// Access the `catalog` resource scoped to the given name.
+    pub fn catalog(&self, catalog_name: impl Into<String>) -> CatalogClient {
+        CatalogClient::new(
+            catalog_name,
+            crate::codegen::catalogs::CatalogServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
     pub fn list_credentials(&self) -> ListCredentialsBuilder {
-        ListCredentialsBuilder::new(self.credentials.clone())
+        ListCredentialsBuilder::new(crate::codegen::credentials::CredentialServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        ))
     }
+    /// # Arguments
+    ///
+    /// * `name` - The credential name. The name must be unique among storage and service credentials within the metastore.
+    /// * `purpose` - Indicates the purpose of the credential.
     pub fn create_credential(
         &self,
         name: impl Into<String>,
         purpose: Purpose,
     ) -> CreateCredentialBuilder {
-        CreateCredentialBuilder::new(self.credentials.clone(), name, purpose)
+        CreateCredentialBuilder::new(
+            crate::codegen::credentials::CredentialServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+            purpose,
+        )
     }
-    pub fn credential(&self, credential_name: impl ToString) -> CredentialClient {
-        CredentialClient::new(credential_name, self.credentials.clone())
+    /// Access the `credential` resource scoped to the given name.
+    pub fn credential(&self, credential_name: impl Into<String>) -> CredentialClient {
+        CredentialClient::new(
+            credential_name,
+            crate::codegen::credentials::CredentialServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// Ratify a staged commit at the requested version (first-writer-wins), and/or
+    /// notify the catalog that commits have been backfilled to the Delta log.
+    ///
+    /// # Arguments
+    ///
+    /// * `table_id` - UUID of the catalog-managed table being committed to.
+    /// * `table_uri` - The storage URI of the table. Must match the table's registered storage
+    /// location (normalized) on the commit path.
     pub fn commit(
         &self,
         table_id: impl Into<String>,
         table_uri: impl Into<String>,
     ) -> CommitBuilder {
-        CommitBuilder::new(self.delta_commits.clone(), table_id, table_uri)
+        CommitBuilder::new(
+            crate::codegen::delta_commits::DeltaCommitClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            table_id,
+            table_uri,
+        )
     }
+    /// Return ratified-but-unpublished commits for a table, plus the latest
+    /// version the catalog tracks.
+    ///
+    /// # Arguments
+    ///
+    /// * `table_id` - UUID of the catalog-managed table.
+    /// * `table_uri` - The storage URI of the table.
+    /// * `start_version` - The lowest version to return (inclusive). Defaults to 0.
     pub fn get_commits(
         &self,
         table_id: impl Into<String>,
@@ -212,29 +255,65 @@ impl UnityCatalogClient {
         start_version: i64,
     ) -> GetCommitsBuilder {
         GetCommitsBuilder::new(
-            self.delta_commits.clone(),
+            crate::codegen::delta_commits::DeltaCommitClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             table_id,
             table_uri,
             start_version,
         )
     }
+    /// List entity tag assignments
+    ///
+    /// Gets the tag assignments for the specified entity.
+    ///
+    /// # Arguments
+    ///
+    /// * `entity_type` - The type of the entity whose tag assignments to list.
+    /// * `entity_name` - The fully qualified name of the entity whose tag assignments to list.
     pub fn list_entity_tag_assignments(
         &self,
         entity_type: impl Into<String>,
         entity_name: impl Into<String>,
     ) -> ListEntityTagAssignmentsBuilder {
         ListEntityTagAssignmentsBuilder::new(
-            self.entity_tag_assignments.clone(),
+            crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             entity_type,
             entity_name,
         )
     }
+    /// Create an entity tag assignment
+    ///
+    /// Assigns a tag to a Unity Catalog entity.
+    ///
+    /// # Arguments
+    ///
+    /// * `tag_assignment` - The tag assignment to create.
     pub fn create_entity_tag_assignment(
         &self,
         tag_assignment: EntityTagAssignment,
     ) -> CreateEntityTagAssignmentBuilder {
-        CreateEntityTagAssignmentBuilder::new(self.entity_tag_assignments.clone(), tag_assignment)
+        CreateEntityTagAssignmentBuilder::new(
+            crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            tag_assignment,
+        )
     }
+    /// Get an entity tag assignment
+    ///
+    /// Gets the tag assignment for the specified entity and tag key.
+    ///
+    /// # Arguments
+    ///
+    /// * `entity_type` - The type of the entity to which the tag is assigned.
+    /// * `entity_name` - The fully qualified name of the entity to which the tag is assigned.
+    /// * `tag_key` - The key of the tag.
     pub fn get_entity_tag_assignment(
         &self,
         entity_type: impl Into<String>,
@@ -242,12 +321,25 @@ impl UnityCatalogClient {
         tag_key: impl Into<String>,
     ) -> GetEntityTagAssignmentBuilder {
         GetEntityTagAssignmentBuilder::new(
-            self.entity_tag_assignments.clone(),
+            crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             entity_type,
             entity_name,
             tag_key,
         )
     }
+    /// Update an entity tag assignment
+    ///
+    /// Updates the tag assignment for the specified entity and tag key.
+    ///
+    /// # Arguments
+    ///
+    /// * `entity_type` - The type of the entity to which the tag is assigned.
+    /// * `entity_name` - The fully qualified name of the entity to which the tag is assigned.
+    /// * `tag_key` - The key of the tag to update.
+    /// * `tag_assignment` - The tag assignment with the updated fields.
     pub fn update_entity_tag_assignment(
         &self,
         entity_type: impl Into<String>,
@@ -256,13 +348,25 @@ impl UnityCatalogClient {
         tag_assignment: EntityTagAssignment,
     ) -> UpdateEntityTagAssignmentBuilder {
         UpdateEntityTagAssignmentBuilder::new(
-            self.entity_tag_assignments.clone(),
+            crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             entity_type,
             entity_name,
             tag_key,
             tag_assignment,
         )
     }
+    /// Delete an entity tag assignment
+    ///
+    /// Deletes the tag assignment for the specified entity and tag key.
+    ///
+    /// # Arguments
+    ///
+    /// * `entity_type` - The type of the entity to which the tag is assigned.
+    /// * `entity_name` - The fully qualified name of the entity to which the tag is assigned.
+    /// * `tag_key` - The key of the tag to delete.
     pub fn delete_entity_tag_assignment(
         &self,
         entity_type: impl Into<String>,
@@ -270,15 +374,31 @@ impl UnityCatalogClient {
         tag_key: impl Into<String>,
     ) -> DeleteEntityTagAssignmentBuilder {
         DeleteEntityTagAssignmentBuilder::new(
-            self.entity_tag_assignments.clone(),
+            crate::codegen::entity_tag_assignments::EntityTagAssignmentClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             entity_type,
             entity_name,
             tag_key,
         )
     }
+    /// List external locations
     pub fn list_external_locations(&self) -> ListExternalLocationsBuilder {
-        ListExternalLocationsBuilder::new(self.external_locations.clone())
+        ListExternalLocationsBuilder::new(
+            crate::codegen::external_locations::ExternalLocationServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// Create a new external location
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of external location.
+    /// * `url` - Path URL of the external location.
+    /// * `credential_name` - Name of the storage credential used with this location.
     pub fn create_external_location(
         &self,
         name: impl Into<String>,
@@ -286,25 +406,71 @@ impl UnityCatalogClient {
         credential_name: impl Into<String>,
     ) -> CreateExternalLocationBuilder {
         CreateExternalLocationBuilder::new(
-            self.external_locations.clone(),
+            crate::codegen::external_locations::ExternalLocationServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             name,
             url,
             credential_name,
         )
     }
+    /// Access the `external_location` resource scoped to the given name.
     pub fn external_location(
         &self,
-        external_location_name: impl ToString,
+        external_location_name: impl Into<String>,
     ) -> ExternalLocationClient {
-        ExternalLocationClient::new(external_location_name, self.external_locations.clone())
+        ExternalLocationClient::new(
+            external_location_name,
+            crate::codegen::external_locations::ExternalLocationServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// List functions
+    ///
+    /// List functions within the specified parent catalog and schema. If the caller is the metastore
+    /// admin, all functions are returned in the response. Otherwise, the caller must have USE_CATALOG
+    /// on the parent catalog and USE_SCHEMA on the parent schema, and the function must either be
+    /// owned by the caller or have SELECT on the function.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - Name of parent catalog for functions of interest.
+    /// * `schema_name` - Parent schema of functions.
     pub fn list_functions(
         &self,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
     ) -> ListFunctionsBuilder {
-        ListFunctionsBuilder::new(self.functions.clone(), catalog_name, schema_name)
+        ListFunctionsBuilder::new(
+            crate::codegen::functions::FunctionServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+        )
     }
+    /// Create a function
+    ///
+    /// Creates a new function. The caller must be a metastore admin or have the CREATE_FUNCTION
+    /// privilege on the parent catalog and schema.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of function, relative to parent schema.
+    /// * `catalog_name` - Name of parent catalog.
+    /// * `schema_name` - Name of parent schema.
+    /// * `data_type` - Full data type specification of the return type of the function.
+    /// * `full_data_type` - Full data type specification as SQL/catalogString text.
+    /// * `parameter_style` - The parameter-passing style.
+    /// * `is_deterministic` - Indicates whether the function is deterministic.
+    /// * `sql_data_access` - SQL data access information.
+    /// * `is_null_call` - Indicates whether the function is null-calling.
+    /// * `security_type` - The security type of the function.
+    /// * `routine_body` - The routine body.
     pub fn create_function(
         &self,
         name: impl Into<String>,
@@ -320,7 +486,10 @@ impl UnityCatalogClient {
         routine_body: RoutineBody,
     ) -> CreateFunctionBuilder {
         CreateFunctionBuilder::new(
-            self.functions.clone(),
+            crate::codegen::functions::FunctionServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             name,
             catalog_name,
             schema_name,
@@ -334,89 +503,259 @@ impl UnityCatalogClient {
             routine_body,
         )
     }
+    /// Access the `function` resource scoped to the given name.
     pub fn function(
         &self,
-        catalog_name: impl ToString,
-        schema_name: impl ToString,
-        function_name: impl ToString,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        function_name: impl Into<String>,
     ) -> FunctionClient {
-        let full_name = format!(
-            "{}.{}.{}",
-            catalog_name.to_string(),
-            schema_name.to_string(),
-            function_name.to_string()
-        );
-        self.function_from_full_name(full_name)
+        FunctionClient::new(
+            catalog_name,
+            schema_name,
+            function_name,
+            crate::codegen::functions::FunctionServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
-    pub fn function_from_full_name(&self, full_name: impl ToString) -> FunctionClient {
-        FunctionClient::new_from_full_name(full_name, self.functions.clone())
+    /// Access the `function` resource from its dot-joined full name.
+    pub fn function_from_full_name(&self, full_name: impl Into<String>) -> FunctionClient {
+        FunctionClient::from_full_name(
+            full_name,
+            crate::codegen::functions::FunctionServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// List providers.
     pub fn list_providers(&self) -> ListProvidersBuilder {
-        ListProvidersBuilder::new(self.providers.clone())
+        ListProvidersBuilder::new(crate::codegen::providers::ProviderServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        ))
     }
+    /// Create a new provider.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of the provider.
+    /// * `authentication_type` - The delta sharing authentication type.
     pub fn create_provider(
         &self,
         name: impl Into<String>,
         authentication_type: ProviderAuthenticationType,
     ) -> CreateProviderBuilder {
-        CreateProviderBuilder::new(self.providers.clone(), name, authentication_type)
+        CreateProviderBuilder::new(
+            crate::codegen::providers::ProviderServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+            authentication_type,
+        )
     }
-    pub fn provider(&self, provider_name: impl ToString) -> ProviderClient {
-        ProviderClient::new(provider_name, self.providers.clone())
+    /// Access the `provider` resource scoped to the given name.
+    pub fn provider(&self, provider_name: impl Into<String>) -> ProviderClient {
+        ProviderClient::new(
+            provider_name,
+            crate::codegen::providers::ProviderServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// List recipients.
     pub fn list_recipients(&self) -> ListRecipientsBuilder {
-        ListRecipientsBuilder::new(self.recipients.clone())
+        ListRecipientsBuilder::new(crate::codegen::recipients::RecipientServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        ))
     }
+    /// Create a new recipient.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of the recipient.
+    /// * `authentication_type` - The delta sharing authentication type.
+    /// * `owner` - Username of the recipient owner.
     pub fn create_recipient(
         &self,
         name: impl Into<String>,
         authentication_type: AuthenticationType,
         owner: impl Into<String>,
     ) -> CreateRecipientBuilder {
-        CreateRecipientBuilder::new(self.recipients.clone(), name, authentication_type, owner)
+        CreateRecipientBuilder::new(
+            crate::codegen::recipients::RecipientServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+            authentication_type,
+            owner,
+        )
     }
-    pub fn recipient(&self, recipient_name: impl ToString) -> RecipientClient {
-        RecipientClient::new(recipient_name, self.recipients.clone())
+    /// Access the `recipient` resource scoped to the given name.
+    pub fn recipient(&self, recipient_name: impl Into<String>) -> RecipientClient {
+        RecipientClient::new(
+            recipient_name,
+            crate::codegen::recipients::RecipientServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
+    /// admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
+    /// Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
+    /// will be retrieved. There is no guarantee of a specific ordering of the elements in the array.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - Name of parent catalog.
     pub fn list_schemas(&self, catalog_name: impl Into<String>) -> ListSchemasBuilder {
-        ListSchemasBuilder::new(self.schemas.clone(), catalog_name)
+        ListSchemasBuilder::new(
+            crate::codegen::schemas::SchemaServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+        )
     }
+    /// Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin,
+    /// or have the CREATE_SCHEMA privilege in the parent catalog.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of schema, relative to parent catalog.
+    /// * `catalog_name` - Name of parent catalog.
     pub fn create_schema(
         &self,
         name: impl Into<String>,
         catalog_name: impl Into<String>,
     ) -> CreateSchemaBuilder {
-        CreateSchemaBuilder::new(self.schemas.clone(), name, catalog_name)
+        CreateSchemaBuilder::new(
+            crate::codegen::schemas::SchemaServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+            catalog_name,
+        )
     }
-    pub fn schema(&self, catalog_name: impl ToString, schema_name: impl ToString) -> SchemaClient {
-        let full_name = format!("{}.{}", catalog_name.to_string(), schema_name.to_string());
-        self.schema_from_full_name(full_name)
+    /// Access the `schema` resource scoped to the given name.
+    pub fn schema(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+    ) -> SchemaClient {
+        SchemaClient::new(
+            catalog_name,
+            schema_name,
+            crate::codegen::schemas::SchemaServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
-    pub fn schema_from_full_name(&self, full_name: impl ToString) -> SchemaClient {
-        SchemaClient::new_from_full_name(full_name, self.schemas.clone())
+    /// Access the `schema` resource from its dot-joined full name.
+    pub fn schema_from_full_name(&self, full_name: impl Into<String>) -> SchemaClient {
+        SchemaClient::from_full_name(
+            full_name,
+            crate::codegen::schemas::SchemaServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// List shares.
     pub fn list_shares(&self) -> ListSharesBuilder {
-        ListSharesBuilder::new(self.shares.clone())
+        ListSharesBuilder::new(crate::codegen::shares::ShareServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        ))
     }
+    /// Create a new share.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of the share.
     pub fn create_share(&self, name: impl Into<String>) -> CreateShareBuilder {
-        CreateShareBuilder::new(self.shares.clone(), name)
+        CreateShareBuilder::new(
+            crate::codegen::shares::ShareServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            name,
+        )
     }
-    pub fn share(&self, share_name: impl ToString) -> ShareClient {
-        ShareClient::new(share_name, self.shares.clone())
+    /// Access the `share` resource scoped to the given name.
+    pub fn share(&self, share_name: impl Into<String>) -> ShareClient {
+        ShareClient::new(
+            share_name,
+            crate::codegen::shares::ShareServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
+    /// - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
+    /// - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
+    /// SELECT privilege on the table and ownership or USE_SCHEMA privilege on the schema, provided that the user also has ownership
+    /// or the USE_CATALOG privilege on the parent catalog.
+    ///
+    /// There is no guarantee of a specific ordering of the elements in the array.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - Name of parent catalog for tables of interest.
     pub fn list_table_summaries(
         &self,
         catalog_name: impl Into<String>,
     ) -> ListTableSummariesBuilder {
-        ListTableSummariesBuilder::new(self.tables.clone(), catalog_name)
+        ListTableSummariesBuilder::new(
+            crate::codegen::tables::TableServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+        )
     }
+    /// Gets an array of all tables for the current metastore under the parent catalog and schema.
+    ///
+    /// The caller must be a metastore admin or an owner of (or have the SELECT privilege on) the table.
+    /// For the latter case, the caller must also be the owner or have the USE_CATALOG privilege on the
+    /// parent catalog and the USE_SCHEMA privilege on the parent schema. There is no guarantee of a
+    /// specific ordering of the elements in the array.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - Name of parent catalog for tables of interest.
+    /// * `schema_name` - Name of parent schema for tables of interest.
     pub fn list_tables(
         &self,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
     ) -> ListTablesBuilder {
-        ListTablesBuilder::new(self.tables.clone(), catalog_name, schema_name)
+        ListTablesBuilder::new(
+            crate::codegen::tables::TableServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+        )
     }
+    /// Create a table
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of table, relative to parent schema.
+    /// * `schema_name` - Name of parent schema relative to its parent catalog.
+    /// * `catalog_name` - Name of parent catalog.
     pub fn create_table(
         &self,
         name: impl Into<String>,
@@ -426,7 +765,10 @@ impl UnityCatalogClient {
         data_source_format: DataSourceFormat,
     ) -> CreateTableBuilder {
         CreateTableBuilder::new(
-            self.tables.clone(),
+            crate::codegen::tables::TableServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             name,
             schema_name,
             catalog_name,
@@ -434,72 +776,167 @@ impl UnityCatalogClient {
             data_source_format,
         )
     }
+    /// Access the `table` resource scoped to the given name.
     pub fn table(
         &self,
-        catalog_name: impl ToString,
-        schema_name: impl ToString,
-        table_name: impl ToString,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        table_name: impl Into<String>,
     ) -> TableClient {
-        let full_name = format!(
-            "{}.{}.{}",
-            catalog_name.to_string(),
-            schema_name.to_string(),
-            table_name.to_string()
-        );
-        self.table_from_full_name(full_name)
+        TableClient::new(
+            catalog_name,
+            schema_name,
+            table_name,
+            crate::codegen::tables::TableServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
-    pub fn table_from_full_name(&self, full_name: impl ToString) -> TableClient {
-        TableClient::new_from_full_name(full_name, self.tables.clone())
+    /// Access the `table` resource from its dot-joined full name.
+    pub fn table_from_full_name(&self, full_name: impl Into<String>) -> TableClient {
+        TableClient::from_full_name(
+            full_name,
+            crate::codegen::tables::TableServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// List tag policies
+    ///
+    /// Gets an array of tag policies. There is no guarantee of a specific ordering
+    /// of the elements in the array.
     pub fn list_tag_policies(&self) -> ListTagPoliciesBuilder {
-        ListTagPoliciesBuilder::new(self.tag_policies.clone())
+        ListTagPoliciesBuilder::new(crate::codegen::tag_policies::TagPolicyServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        ))
     }
+    /// Create a new tag policy
+    ///
+    /// Creates a new governed tag definition.
+    ///
+    /// # Arguments
+    ///
+    /// * `tag_policy` - The tag policy to create.
     pub fn create_tag_policy(&self, tag_policy: TagPolicy) -> CreateTagPolicyBuilder {
-        CreateTagPolicyBuilder::new(self.tag_policies.clone(), tag_policy)
+        CreateTagPolicyBuilder::new(
+            crate::codegen::tag_policies::TagPolicyServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            tag_policy,
+        )
     }
-    pub fn tag_policy(&self, tag_policy_name: impl ToString) -> TagPolicyClient {
-        TagPolicyClient::new(tag_policy_name, self.tag_policies.clone())
+    /// Access the `tag_policy` resource scoped to the given name.
+    pub fn tag_policy(&self, tag_policy_name: impl Into<String>) -> TagPolicyClient {
+        TagPolicyClient::new(
+            tag_policy_name,
+            crate::codegen::tag_policies::TagPolicyServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
+    /// Generate a new set of credentials for a table.
+    ///
+    /// # Arguments
+    ///
+    /// * `table_id` - UUID of the table to read or write.
+    /// * `operation` - The operation performed against the table data, either READ or READ_WRITE.
+    /// If READ_WRITE is specified, the credentials returned will have write
+    /// permissions, otherwise, it will be read only.
     pub fn generate_temporary_table_credentials(
         &self,
         table_id: impl Into<String>,
         operation: generate_temporary_table_credentials_request::Operation,
     ) -> GenerateTemporaryTableCredentialsBuilder {
         GenerateTemporaryTableCredentialsBuilder::new(
-            self.temporary_credentials.clone(),
+            crate::codegen::temporary_credentials::TemporaryCredentialClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             table_id,
             operation,
         )
     }
+    /// Generate a new set of credentials for a path.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - URL for path-based access.
+    /// * `operation` - The operation being performed on the path.
     pub fn generate_temporary_path_credentials(
         &self,
         url: impl Into<String>,
         operation: generate_temporary_path_credentials_request::Operation,
     ) -> GenerateTemporaryPathCredentialsBuilder {
         GenerateTemporaryPathCredentialsBuilder::new(
-            self.temporary_credentials.clone(),
+            crate::codegen::temporary_credentials::TemporaryCredentialClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             url,
             operation,
         )
     }
+    /// Generate a new set of credentials for a volume.
+    ///
+    /// The metastore must have the `external_access_enabled` flag set to true
+    /// (default false). The caller must have the `EXTERNAL_USE_SCHEMA`
+    /// privilege on the parent schema (granted by a catalog owner).
+    ///
+    /// # Arguments
+    ///
+    /// * `volume_id` - UUID of the volume to read or write.
+    /// * `operation` - The operation performed against the volume data, either READ_VOLUME or
+    /// WRITE_VOLUME. If WRITE_VOLUME is specified, the credentials returned will
+    /// have write permissions, otherwise, it will be read only.
     pub fn generate_temporary_volume_credentials(
         &self,
         volume_id: impl Into<String>,
         operation: generate_temporary_volume_credentials_request::Operation,
     ) -> GenerateTemporaryVolumeCredentialsBuilder {
         GenerateTemporaryVolumeCredentialsBuilder::new(
-            self.temporary_credentials.clone(),
+            crate::codegen::temporary_credentials::TemporaryCredentialClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             volume_id,
             operation,
         )
     }
+    /// Lists volumes.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - The identifier of the catalog
+    /// * `schema_name` - The identifier of the schema
     pub fn list_volumes(
         &self,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
     ) -> ListVolumesBuilder {
-        ListVolumesBuilder::new(self.volumes.clone(), catalog_name, schema_name)
+        ListVolumesBuilder::new(
+            crate::codegen::volumes::VolumeServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+        )
     }
+    /// # Arguments
+    ///
+    /// * `catalog_name` - The identifier of the catalog
+    /// * `schema_name` - The identifier of the schema
+    /// * `name` - The identifier of the volume
+    /// * `volume_type` - The type of the volume.
+    ///
+    /// An external volume is located in the specified external location.
+    /// A managed volume is located in the default location which is specified
+    /// by the parent schema, or the parent catalog, or the Metastore.
     pub fn create_volume(
         &self,
         catalog_name: impl Into<String>,
@@ -508,28 +945,41 @@ impl UnityCatalogClient {
         volume_type: VolumeType,
     ) -> CreateVolumeBuilder {
         CreateVolumeBuilder::new(
-            self.volumes.clone(),
+            crate::codegen::volumes::VolumeServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
             catalog_name,
             schema_name,
             name,
             volume_type,
         )
     }
+    /// Access the `volume` resource scoped to the given name.
     pub fn volume(
         &self,
-        catalog_name: impl ToString,
-        schema_name: impl ToString,
-        volume_name: impl ToString,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        volume_name: impl Into<String>,
     ) -> VolumeClient {
-        let full_name = format!(
-            "{}.{}.{}",
-            catalog_name.to_string(),
-            schema_name.to_string(),
-            volume_name.to_string()
-        );
-        self.volume_from_full_name(full_name)
+        VolumeClient::new(
+            catalog_name,
+            schema_name,
+            volume_name,
+            crate::codegen::volumes::VolumeServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
-    pub fn volume_from_full_name(&self, full_name: impl ToString) -> VolumeClient {
-        VolumeClient::new_from_full_name(full_name, self.volumes.clone())
+    /// Access the `volume` resource from its dot-joined full name.
+    pub fn volume_from_full_name(&self, full_name: impl Into<String>) -> VolumeClient {
+        VolumeClient::from_full_name(
+            full_name,
+            crate::codegen::volumes::VolumeServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
     }
 }

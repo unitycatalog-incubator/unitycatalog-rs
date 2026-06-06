@@ -5,11 +5,11 @@ use unitycatalog_common::models::providers::v1::*;
 use url::Url;
 /// HTTP client for service operations
 #[derive(Clone)]
-pub struct ProviderClient {
+pub struct ProviderServiceClient {
     pub(crate) client: CloudClient,
     pub(crate) base_url: Url,
 }
-impl ProviderClient {
+impl ProviderServiceClient {
     /// Create a new client instance
     pub fn new(client: CloudClient, mut base_url: Url) -> Self {
         if !base_url.path().ends_with('/') {

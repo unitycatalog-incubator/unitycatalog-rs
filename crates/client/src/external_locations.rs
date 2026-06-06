@@ -4,13 +4,10 @@ use unitycatalog_common::models::external_locations::v1::*;
 
 use super::utils::stream_paginated;
 use crate::Result;
-use crate::codegen::external_locations::DeleteExternalLocationBuilder;
-pub(super) use crate::codegen::external_locations::ExternalLocationClient as ExternalLocationClientBase;
-use crate::codegen::external_locations::builders::{
-    CreateExternalLocationBuilder, GetExternalLocationBuilder, UpdateExternalLocationBuilder,
-};
+pub use crate::codegen::external_locations::ExternalLocationClient;
+pub(super) use crate::codegen::external_locations::ExternalLocationServiceClient;
 
-impl ExternalLocationClientBase {
+impl ExternalLocationServiceClient {
     pub fn list(
         &self,
         max_results: impl Into<Option<i32>>,
@@ -39,48 +36,5 @@ impl ExternalLocationClientBase {
         .map_ok(|resp| futures::stream::iter(resp.into_iter().map(Ok)))
         .try_flatten()
         .boxed()
-    }
-}
-
-#[derive(Clone)]
-pub struct ExternalLocationClient {
-    name: String,
-    client: ExternalLocationClientBase,
-}
-
-impl ExternalLocationClient {
-    pub fn new(name: impl ToString, client: ExternalLocationClientBase) -> Self {
-        Self {
-            name: name.to_string(),
-            client,
-        }
-    }
-
-    /// Create a new external location using the builder pattern.
-    pub fn create(
-        &self,
-        url: impl ToString,
-        credential_name: impl ToString,
-    ) -> CreateExternalLocationBuilder {
-        CreateExternalLocationBuilder::new(
-            self.client.clone(),
-            &self.name,
-            url.to_string(),
-            credential_name.to_string(),
-        )
-    }
-
-    /// Get an external location using the builder pattern.
-    pub fn get(&self) -> GetExternalLocationBuilder {
-        GetExternalLocationBuilder::new(self.client.clone(), &self.name)
-    }
-
-    /// Update this external location using the builder pattern.
-    pub fn update(&self) -> UpdateExternalLocationBuilder {
-        UpdateExternalLocationBuilder::new(self.client.clone(), &self.name)
-    }
-
-    pub fn delete(&self) -> DeleteExternalLocationBuilder {
-        DeleteExternalLocationBuilder::new(self.client.clone(), &self.name)
     }
 }

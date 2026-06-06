@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::tags::v1::*;
 /// Builder for listing tag policies
 pub struct ListTagPoliciesBuilder {
-    client: TagPolicyClient,
+    client: TagPolicyServiceClient,
     request: ListTagPoliciesRequest,
 }
 impl ListTagPoliciesBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TagPolicyClient`.
-    pub(crate) fn new(client: TagPolicyClient) -> Self {
+    /// Obtain via the corresponding method on `TagPolicyServiceClient`.
+    pub(crate) fn new(client: TagPolicyServiceClient) -> Self {
         let request = ListTagPoliciesRequest {
             ..Default::default()
         };
@@ -65,13 +65,13 @@ impl IntoFuture for ListTagPoliciesBuilder {
 }
 /// Builder for creating a tag policy
 pub struct CreateTagPolicyBuilder {
-    client: TagPolicyClient,
+    client: TagPolicyServiceClient,
     request: CreateTagPolicyRequest,
 }
 impl CreateTagPolicyBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TagPolicyClient`.
-    pub(crate) fn new(client: TagPolicyClient, tag_policy: TagPolicy) -> Self {
+    /// Obtain via the corresponding method on `TagPolicyServiceClient`.
+    pub(crate) fn new(client: TagPolicyServiceClient, tag_policy: TagPolicy) -> Self {
         let request = CreateTagPolicyRequest {
             tag_policy: Some(tag_policy),
             ..Default::default()
@@ -90,13 +90,13 @@ impl IntoFuture for CreateTagPolicyBuilder {
 }
 /// Builder for getting a tag policy
 pub struct GetTagPolicyBuilder {
-    client: TagPolicyClient,
+    client: TagPolicyServiceClient,
     request: GetTagPolicyRequest,
 }
 impl GetTagPolicyBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TagPolicyClient`.
-    pub(crate) fn new(client: TagPolicyClient, tag_key: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `TagPolicyServiceClient`.
+    pub(crate) fn new(client: TagPolicyServiceClient, tag_key: impl Into<String>) -> Self {
         let request = GetTagPolicyRequest {
             tag_key: tag_key.into(),
             ..Default::default()
@@ -115,14 +115,14 @@ impl IntoFuture for GetTagPolicyBuilder {
 }
 /// Builder for updating a tag policy
 pub struct UpdateTagPolicyBuilder {
-    client: TagPolicyClient,
+    client: TagPolicyServiceClient,
     request: UpdateTagPolicyRequest,
 }
 impl UpdateTagPolicyBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TagPolicyClient`.
+    /// Obtain via the corresponding method on `TagPolicyServiceClient`.
     pub(crate) fn new(
-        client: TagPolicyClient,
+        client: TagPolicyServiceClient,
         tag_key: impl Into<String>,
         tag_policy: TagPolicy,
     ) -> Self {
@@ -150,13 +150,13 @@ impl IntoFuture for UpdateTagPolicyBuilder {
 }
 /// Builder for deleting a tag policy
 pub struct DeleteTagPolicyBuilder {
-    client: TagPolicyClient,
+    client: TagPolicyServiceClient,
     request: DeleteTagPolicyRequest,
 }
 impl DeleteTagPolicyBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TagPolicyClient`.
-    pub(crate) fn new(client: TagPolicyClient, tag_key: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `TagPolicyServiceClient`.
+    pub(crate) fn new(client: TagPolicyServiceClient, tag_key: impl Into<String>) -> Self {
         let request = DeleteTagPolicyRequest {
             tag_key: tag_key.into(),
             ..Default::default()

@@ -16,9 +16,9 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::Result;
-use crate::codegen::tables::TableClient as TableClientBase;
+use crate::codegen::tables::TableServiceClient;
 pub(super) use crate::codegen::temporary_credentials::TemporaryCredentialClient as TemporaryCredentialClientBase;
-use crate::codegen::volumes::client::VolumeClient as VolumeClientBaseFromCodegen;
+use crate::codegen::volumes::client::VolumeServiceClient;
 
 /// A reference to a table in unity catalog.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -194,8 +194,10 @@ impl TemporaryCredentialClient {
         let table_id = match table.into() {
             TableReference::Id(id) => id.as_hyphenated().to_string(),
             TableReference::Name(name) => {
-                let table_client =
-                    TableClientBase::new(self.client.client.clone(), self.client.base_url.clone());
+                let table_client = TableServiceClient::new(
+                    self.client.client.clone(),
+                    self.client.base_url.clone(),
+                );
                 let table_info = table_client
                     .get_table(&GetTableRequest {
                         full_name: name,
@@ -263,7 +265,7 @@ impl TemporaryCredentialClient {
         let volume_id = match volume.into() {
             VolumeReference::Id(id) => id.as_hyphenated().to_string(),
             VolumeReference::Name(name) => {
-                let volume_client = VolumeClientBaseFromCodegen::new(
+                let volume_client = VolumeServiceClient::new(
                     self.client.client.clone(),
                     self.client.base_url.clone(),
                 );
