@@ -1,89 +1,31 @@
 //! Integration test for the Unity Catalog DataFusion resolver.
 //!
 //! These tests hit a live Unity Catalog server and its backing object store, so
-//! they are `#[ignore]`d by default. Run them explicitly once the environment
-//! stack is up and seeded:
+//! they are `#[ignore]`d by default. They also use the crate's Delta
+//! [`DeltaTableProviderBuilder`], so the whole module requires the `delta`
+//! feature. Run them explicitly once the environment stack is up and seeded:
 //!
 //! ```text
 //! UC_ENDPOINT=http://localhost:8081/api/2.1/unity-catalog/ \
 //! UC_TEST_TABLE=unity.default.numbers \
 //! AWS_REGION=us-east-1 \
-//! cargo test -p datafusion-unitycatalog --test unity_resolve -- --ignored --nocapture
+//! cargo test -p datafusion-unitycatalog --features delta --test unity_resolve -- --ignored --nocapture
 //! ```
 //!
 //! Set `UC_TOKEN` for an authenticated server; omit it for a local
 //! unauthenticated OSS server. Set `UC_TEST_TABLE_2` to a second table in the
 //! *same bucket* to exercise the routing store's per-table credential
 //! disambiguation.
+#![cfg(feature = "delta")]
 
 use std::sync::Arc;
 
-use datafusion::catalog::{AsyncCatalogProviderList, TableProvider};
+use datafusion::catalog::AsyncCatalogProviderList;
 use datafusion::common::TableReference;
-use datafusion::error::DataFusionError;
 use datafusion::prelude::SessionContext;
-use datafusion_unitycatalog::catalog::{
-    TableProviderBuilder, TableProviderError, UnityCatalogProviderList,
-};
-use deltalake_core::DeltaTableConfig;
-use deltalake_core::delta_datafusion::DeltaScanNext;
-use deltalake_core::delta_datafusion::engine::DataFusionEngine;
-use deltalake_core::kernel::Snapshot;
-use deltalake_core::logstore::{StorageConfig, logstore_with};
+use datafusion_unitycatalog::catalog::{DeltaTableProviderBuilder, UnityCatalogProviderList};
 use object_store::path::Path;
-use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_object_store::UnityObjectStoreFactory;
-use url::Url;
-
-/// A [`TableProviderBuilder`] that builds a Delta provider directly from a
-/// [`SessionContext`], reading through whatever object store the resolver has
-/// registered on the runtime for the table's location. Mirrors hydrofoil's
-/// `LakehouseTableProviderBuilder` without the Flight SQL plumbing.
-struct TestProviderBuilder {
-    ctx: SessionContext,
-}
-
-impl std::fmt::Debug for TestProviderBuilder {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TestProviderBuilder")
-            .finish_non_exhaustive()
-    }
-}
-
-#[async_trait::async_trait]
-impl TableProviderBuilder for TestProviderBuilder {
-    async fn build_delta(
-        &self,
-        location: &Url,
-        _table: &Table,
-    ) -> Result<Arc<dyn TableProvider>, TableProviderError> {
-        let task_ctx = self.ctx.task_ctx();
-        let root_store = self
-            .ctx
-            .runtime_env()
-            .object_store_registry
-            .get_store(location)
-            .map_err(|e| DataFusionError::External(Box::new(e)))?;
-        let log_store = logstore_with(root_store, location, StorageConfig::default())
-            .map_err(|e| DataFusionError::External(Box::new(e)))?;
-
-        let engine = DataFusionEngine::new_from_context(task_ctx);
-        let snapshot = Snapshot::try_new_with_engine(
-            engine,
-            location.clone(),
-            DeltaTableConfig::default(),
-            None,
-        )
-        .await
-        .map_err(|e| DataFusionError::External(Box::new(e)))?;
-
-        let provider = DeltaScanNext::builder()
-            .with_snapshot(Arc::new(snapshot))
-            .with_log_store(log_store)
-            .await?;
-        Ok(provider)
-    }
-}
 
 fn factory_from_env() -> Option<UnityObjectStoreFactoryFut> {
     let uri = std::env::var("UC_ENDPOINT").ok()?;
@@ -120,7 +62,7 @@ async fn resolve_and_scan_uc_table() {
 
     let factory = Arc::new(factory_fut.build().await);
     let ctx = SessionContext::new();
-    let builder = Arc::new(TestProviderBuilder { ctx: ctx.clone() });
+    let builder = Arc::new(DeltaTableProviderBuilder::new(ctx.clone()));
     let resolver = UnityCatalogProviderList::new(factory, ctx.runtime_env(), builder);
 
     // Drive resolution exactly as the session does at plan time.

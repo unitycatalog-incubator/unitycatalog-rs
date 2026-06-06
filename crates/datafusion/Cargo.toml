@@ -19,6 +19,20 @@ url = { workspace = true }
 unitycatalog-common = { path = "../common" }
 unitycatalog-object-store = { path = "../object-store" }
 
+deltalake-core = { version = "0.32.3", features = [
+  "datafusion",
+  "cloud",
+], optional = true }
+
+[features]
+default = ["delta"]
+# Expose a Delta-backed `TableProviderBuilder` (pulls in delta-rs).
+delta = ["dep:deltalake-core"]
+
 [dev-dependencies]
-deltalake-core = { version = "0.32.3", features = ["datafusion", "cloud"] }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[[example]]
+name = "unity_catalog"
+required-features = ["delta"]

@@ -23,7 +23,11 @@
 //! [`Table`]: unitycatalog_common::models::tables::v1::Table
 
 mod builder;
+#[cfg(feature = "delta")]
+mod delta;
 mod provider;
 
 pub use builder::{TableProviderBuilder, TableProviderError};
+#[cfg(feature = "delta")]
+pub use delta::DeltaTableProviderBuilder;
 pub use provider::{UnityCatalogProvider, UnityCatalogProviderList, UnityCatalogSchemaProvider};

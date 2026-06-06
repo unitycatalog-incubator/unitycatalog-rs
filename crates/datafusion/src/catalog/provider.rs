@@ -177,7 +177,7 @@ impl AsyncSchemaProvider for UnityCatalogSchemaProvider {
             .ctx
             .factory
             .unity_client()
-            .table_from_full_name(&full_name)
+            .table(&self.catalog, &self.schema, name)
             .get()
             .await
         {
