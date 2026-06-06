@@ -6,6 +6,9 @@ pub enum Error {
     #[error("Common error: {0}")]
     Common(#[from] unitycatalog_common::Error),
 
+    #[error("Client error: {0}")]
+    Client(#[from] unitycatalog_client::Error),
+
     #[error("Server error: {0}")]
     Server(#[from] unitycatalog_server::Error),
 

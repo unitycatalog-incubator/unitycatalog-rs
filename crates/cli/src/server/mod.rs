@@ -1,6 +1,8 @@
+use std::io::IsTerminal;
 use std::sync::{Arc, LazyLock};
 
 use clap::Parser;
+use comfy_table::{Cell, ContentArrangement, Table, presets::UTF8_FULL};
 use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_postgres::GraphStore;
 use unitycatalog_server::api::RequestContext;
@@ -43,6 +45,9 @@ pub struct ServerArgs {
 
     #[clap(long, help = "expose rest gRPC", default_value_t = false)]
     grpc: bool,
+
+    #[clap(long, help = "suppress the startup banner and summary")]
+    quiet: bool,
 }
 
 fn load_config(path: &str) -> Result<Config> {
@@ -75,7 +80,11 @@ pub async fn handle_server(args: &ServerArgs) -> Result<()> {
 async fn handle_rest(args: &ServerArgs) -> Result<()> {
     unitycatalog_server::telemetry::init_tracing();
 
-    println!("{}", WELCOME.as_str());
+    // The ASCII banner is decorative; only show it on an interactive terminal
+    // and when not silenced, so piped/redirected output stays clean.
+    if !args.quiet && std::io::stdout().is_terminal() {
+        println!("{}", WELCOME.as_str());
+    }
 
     let config = load_config(&args.config)?;
 
@@ -85,6 +94,10 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
         .or(config.host.as_deref())
         .unwrap_or(DEFAULT_HOST);
     let port = args.port.or(config.port).unwrap_or(DEFAULT_PORT);
+
+    if !args.quiet {
+        print_startup_summary(host, port, &config);
+    }
 
     let encryptor = config
         .encryption
@@ -143,6 +156,47 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
 
 async fn handle_grpc(_args: &ServerArgs) -> Result<()> {
     unimplemented!()
+}
+
+/// Print a concise, human-readable summary of how the server is configured,
+/// just before it starts listening. The actual "listening on …" line is
+/// emitted from [`run::run`] once the socket is bound (so it reflects the real
+/// address even when `port = 0`).
+fn print_startup_summary(host: &str, port: u16, config: &Config) {
+    let base = format!("http://{host}:{port}");
+
+    let backend = match &config.backend {
+        Backend::InMemory => "in-memory".to_string(),
+        Backend::Postgres(_) => "postgres".to_string(),
+    };
+
+    let routing = if config.routing.any_upstream() {
+        format!(
+            "hybrid (upstream: {})",
+            config.routing.upstream_surfaces().join(", ")
+        )
+    } else {
+        "local".to_string()
+    };
+
+    let mut table = Table::new();
+    table
+        .load_preset(UTF8_FULL)
+        .set_content_arrangement(ContentArrangement::Dynamic);
+    for (key, value) in [
+        ("Bind address", base.clone()),
+        ("Backend", backend),
+        ("Routing", routing),
+        ("Unity Catalog API", format!("{base}/api/2.1/unity-catalog")),
+        ("Delta Sharing API", format!("{base}/api/v1/delta-sharing")),
+        ("Swagger UI", format!("{base}/api/2.1/unity-catalog/")),
+    ] {
+        table.add_row(vec![
+            Cell::new(key).add_attribute(comfy_table::Attribute::Bold),
+            Cell::new(value),
+        ]);
+    }
+    println!("{table}");
 }
 
 async fn get_db_handler(

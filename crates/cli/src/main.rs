@@ -1,13 +1,22 @@
 use clap::{Args, Parser, Subcommand};
+use unitycatalog_client::UnityCatalogClient;
 
 use crate::client::{ClientCommand, handle_client};
-use crate::error::Result;
+use crate::error::{Error, Result};
+use crate::explore::{ExploreCommand, handle_explore};
+use crate::render::OutputFormat;
 use crate::server::{ServerArgs, handle_server};
+
+/// REST path prefix under which the Unity Catalog 2.1 API is served. The client
+/// resolves resource paths relative to its base URL, so the base must include
+/// this prefix — callers pass only the host (e.g. `http://localhost:8080`).
+const UC_API_PREFIX: &str = "/api/2.1/unity-catalog";
 
 mod client;
 mod config;
 mod error;
-mod output;
+mod explore;
+mod render;
 mod server;
 // mod test;
 
@@ -23,7 +32,7 @@ struct Cli {
 
 #[derive(Debug, Args)]
 struct GlobalOpts {
-    /// Server URL
+    /// Server URL (host only; the `/api/2.1/unity-catalog` prefix is added automatically)
     #[clap(
         long,
         global = true,
@@ -31,6 +40,36 @@ struct GlobalOpts {
         default_value = "http://localhost:8080"
     )]
     server: String,
+
+    /// Output format (`auto` renders a table on a terminal, JSON when piped)
+    #[clap(
+        long,
+        short,
+        global = true,
+        env = "UC_OUTPUT",
+        default_value = "auto",
+        value_enum
+    )]
+    output: OutputFormat,
+}
+
+impl GlobalOpts {
+    /// Build an unauthenticated client for the configured server, ensuring the
+    /// base URL carries the [`UC_API_PREFIX`]. A `--server` value that already
+    /// ends with the prefix is used as-is, so passing either `http://host:8080`
+    /// or `http://host:8080/api/2.1/unity-catalog` works.
+    fn client(&self) -> Result<UnityCatalogClient> {
+        let mut url = url::Url::parse(&self.server)
+            .map_err(|e| Error::Generic(format!("invalid server url `{}`: {e}", self.server)))?;
+        let path = url.path().trim_end_matches('/');
+        if !path.ends_with(UC_API_PREFIX) {
+            url.set_path(&format!("{path}{UC_API_PREFIX}"));
+        }
+        Ok(UnityCatalogClient::new(
+            olai_http::CloudClient::new_unauthenticated(),
+            url,
+        ))
+    }
 }
 
 #[derive(Subcommand)]
@@ -43,6 +82,9 @@ enum Commands {
         about = "execute requests against a sharing server"
     )]
     Client(ClientCommand),
+
+    #[clap(about = "interactively browse the catalog hierarchy in a TUI")]
+    Explore(ExploreCommand),
 
     #[clap(about = "run database migrations")]
     Migrate,
@@ -61,6 +103,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::Server(cmd) => handle_server(cmd).await?,
         Commands::Client(client_args) => {
             handle_client(client_args, args.global_opts).await?;
+        }
+        Commands::Explore(cmd) => {
+            handle_explore(cmd, args.global_opts).await?;
         }
         Commands::Migrate => todo!(),
     };
