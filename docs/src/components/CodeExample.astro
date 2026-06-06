@@ -17,16 +17,19 @@ import pyCatalogs from "../../../examples/python/catalogs.py?raw";
 import pyObjectStore from "../../../examples/python/object_store.py?raw";
 import pySchemas from "../../../examples/python/schemas.py?raw";
 import pyTables from "../../../examples/python/tables.py?raw";
+import pyTagPolicies from "../../../examples/python/tag_policies.py?raw";
 import pyVolumes from "../../../examples/python/volumes.py?raw";
 // Vite ?raw imports — resolved at build time, proper HMR in dev
 import rustCatalogs from "../../../examples/rust/src/catalogs.rs?raw";
 import rustObjectStore from "../../../examples/rust/src/object_store.rs?raw";
 import rustSchemas from "../../../examples/rust/src/schemas.rs?raw";
 import rustTables from "../../../examples/rust/src/tables.rs?raw";
+import rustTagPolicies from "../../../examples/rust/src/tag_policies.rs?raw";
 import rustVolumes from "../../../examples/rust/src/volumes.rs?raw";
 import tsCatalogs from "../../../examples/typescript/examples/catalogs.ts?raw";
 import tsSchemas from "../../../examples/typescript/examples/schemas.ts?raw";
 import tsTables from "../../../examples/typescript/examples/tables.ts?raw";
+import tsTagPolicies from "../../../examples/typescript/examples/tag_policies.ts?raw";
 import tsVolumes from "../../../examples/typescript/examples/volumes.ts?raw";
 
 interface Props {
@@ -92,6 +95,7 @@ function buildRegistry(): Map<string, SnippetEntry> {
       ["object_store.rs", rustObjectStore],
       ["schemas.rs", rustSchemas],
       ["tables.rs", rustTables],
+      ["tag_policies.rs", rustTagPolicies],
       ["volumes.rs", rustVolumes],
     ],
     "rust",
@@ -102,6 +106,7 @@ function buildRegistry(): Map<string, SnippetEntry> {
       ["object_store.py", pyObjectStore],
       ["schemas.py", pySchemas],
       ["tables.py", pyTables],
+      ["tag_policies.py", pyTagPolicies],
       ["volumes.py", pyVolumes],
     ],
     "python",
@@ -111,6 +116,7 @@ function buildRegistry(): Map<string, SnippetEntry> {
       ["catalogs.ts", tsCatalogs],
       ["schemas.ts", tsSchemas],
       ["tables.ts", tsTables],
+      ["tag_policies.ts", tsTagPolicies],
       ["volumes.ts", tsVolumes],
     ],
     "typescript",

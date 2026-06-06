@@ -30,6 +30,14 @@ impl NapiTableClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub async fn get_table_exists(&self) -> napi::Result<Buffer> {
+        let mut request = self.client.get_table_exists();
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
     pub async fn delete(&self) -> napi::Result<()> {
         let mut request = self.client.delete();
         request.await.default_error()

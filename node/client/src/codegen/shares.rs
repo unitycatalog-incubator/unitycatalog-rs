@@ -43,6 +43,32 @@ impl NapiShareClient {
         let mut request = self.client.delete();
         request.await.default_error()
     }
+    #[napi(catch_unwind)]
+    pub async fn get_permissions(
+        &self,
+        max_results: Option<i32>,
+        page_token: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.get_permissions();
+        request = request.with_max_results(max_results);
+        request = request.with_page_token(page_token);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn update_permissions(
+        &self,
+        omit_permissions_list: Option<bool>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.update_permissions();
+        request = request.with_omit_permissions_list(omit_permissions_list);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
 }
 impl NapiShareClient {
     pub fn new(client: ShareClient) -> Self {

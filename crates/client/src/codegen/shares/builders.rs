@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::shares::v1::*;
 /// Builder for listing shares
 pub struct ListSharesBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: ListSharesRequest,
 }
 impl ListSharesBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient) -> Self {
         let request = ListSharesRequest {
             ..Default::default()
         };
@@ -65,13 +65,13 @@ impl IntoFuture for ListSharesBuilder {
 }
 /// Builder for creating a share
 pub struct CreateShareBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: CreateShareRequest,
 }
 impl CreateShareBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient, name: impl Into<String>) -> Self {
         let request = CreateShareRequest {
             name: name.into(),
             ..Default::default()
@@ -95,13 +95,13 @@ impl IntoFuture for CreateShareBuilder {
 }
 /// Builder for getting a share
 pub struct GetShareBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: GetShareRequest,
 }
 impl GetShareBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient, name: impl Into<String>) -> Self {
         let request = GetShareRequest {
             name: name.into(),
             ..Default::default()
@@ -128,13 +128,13 @@ impl IntoFuture for GetShareBuilder {
 }
 /// Builder for updating a share
 pub struct UpdateShareBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: UpdateShareRequest,
 }
 impl UpdateShareBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateShareRequest {
             name: name.into(),
             ..Default::default()
@@ -176,13 +176,13 @@ impl IntoFuture for UpdateShareBuilder {
 }
 /// Builder for deleting a share
 pub struct DeleteShareBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: DeleteShareRequest,
 }
 impl DeleteShareBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteShareRequest {
             name: name.into(),
             ..Default::default()
@@ -201,13 +201,13 @@ impl IntoFuture for DeleteShareBuilder {
 }
 /// Builder for permissions
 pub struct GetPermissionsBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: GetPermissionsRequest,
 }
 impl GetPermissionsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient, name: impl Into<String>) -> Self {
         let request = GetPermissionsRequest {
             name: name.into(),
             ..Default::default()
@@ -236,13 +236,13 @@ impl IntoFuture for GetPermissionsBuilder {
 }
 /// Builder for permissions
 pub struct UpdatePermissionsBuilder {
-    client: ShareClient,
+    client: ShareServiceClient,
     request: UpdatePermissionsRequest,
 }
 impl UpdatePermissionsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `ShareClient`.
-    pub(crate) fn new(client: ShareClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `ShareServiceClient`.
+    pub(crate) fn new(client: ShareServiceClient, name: impl Into<String>) -> Self {
         let request = UpdatePermissionsRequest {
             name: name.into(),
             ..Default::default()

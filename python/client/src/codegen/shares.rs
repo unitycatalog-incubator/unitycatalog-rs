@@ -54,6 +54,22 @@ impl PyShareClient {
             Ok::<_, PyUnityCatalogError>(())
         })
     }
+    #[pyo3(signature = (max_results = None, page_token = None))]
+    pub fn get_permissions(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+        page_token: Option<String>,
+    ) -> PyUnityCatalogResult<GetPermissionsResponse> {
+        let mut request = self.client.get_permissions();
+        request = request.with_max_results(max_results);
+        request = request.with_page_token(page_token);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
     #[pyo3(signature = (changes = None, omit_permissions_list = None))]
     pub fn update_permissions(
         &self,

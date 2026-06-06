@@ -14,9 +14,9 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use unitycatalog_client::codegen::catalogs::CatalogClient;
-use unitycatalog_client::codegen::schemas::SchemaClient;
-use unitycatalog_client::codegen::tables::TableClient;
+use unitycatalog_client::codegen::catalogs::CatalogServiceClient;
+use unitycatalog_client::codegen::schemas::SchemaServiceClient;
+use unitycatalog_client::codegen::tables::TableServiceClient;
 use unitycatalog_common::ResourceIdent;
 use unitycatalog_common::models::ResourceName;
 use unitycatalog_common::models::catalogs::v1::*;
@@ -67,11 +67,11 @@ where
     Cx: Send + Sync + 'static,
 {
     policy: Arc<dyn Policy<Cx>>,
-    client: CatalogClient,
+    client: CatalogServiceClient,
 }
 
 impl<Cx: Send + Sync + 'static> UpstreamCatalogHandler<Cx> {
-    pub fn new(policy: Arc<dyn Policy<Cx>>, client: CatalogClient) -> Self {
+    pub fn new(policy: Arc<dyn Policy<Cx>>, client: CatalogServiceClient) -> Self {
         Self { policy, client }
     }
 }
@@ -143,11 +143,11 @@ where
     Cx: Send + Sync + 'static,
 {
     policy: Arc<dyn Policy<Cx>>,
-    client: SchemaClient,
+    client: SchemaServiceClient,
 }
 
 impl<Cx: Send + Sync + 'static> UpstreamSchemaHandler<Cx> {
-    pub fn new(policy: Arc<dyn Policy<Cx>>, client: SchemaClient) -> Self {
+    pub fn new(policy: Arc<dyn Policy<Cx>>, client: SchemaServiceClient) -> Self {
         Self { policy, client }
     }
 }
@@ -219,11 +219,11 @@ where
     Cx: Send + Sync + 'static,
 {
     policy: Arc<dyn Policy<Cx>>,
-    client: TableClient,
+    client: TableServiceClient,
 }
 
 impl<Cx: Send + Sync + 'static> UpstreamTableHandler<Cx> {
-    pub fn new(policy: Arc<dyn Policy<Cx>>, client: TableClient) -> Self {
+    pub fn new(policy: Arc<dyn Policy<Cx>>, client: TableServiceClient) -> Self {
         Self { policy, client }
     }
 }

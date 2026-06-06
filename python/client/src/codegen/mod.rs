@@ -8,7 +8,7 @@ pub mod recipients;
 pub mod schemas;
 pub mod shares;
 pub mod tables;
-pub mod temporary_credentials;
+pub mod tag_policies;
 pub mod volumes;
 use crate::codegen::catalogs::PyCatalogClient;
 use crate::codegen::credentials::PyCredentialClient;
@@ -19,6 +19,7 @@ use crate::codegen::recipients::PyRecipientClient;
 use crate::codegen::schemas::PySchemaClient;
 use crate::codegen::shares::PyShareClient;
 use crate::codegen::tables::PyTableClient;
+use crate::codegen::tag_policies::PyTagPolicyClient;
 use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
@@ -28,6 +29,7 @@ use std::collections::HashMap;
 use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
+use unitycatalog_common::models::delta_commits::v1::*;
 use unitycatalog_common::models::external_locations::v1::*;
 use unitycatalog_common::models::functions::v1::*;
 use unitycatalog_common::models::providers::v1::*;
@@ -35,6 +37,7 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "UnityCatalogClient")]
@@ -163,6 +166,151 @@ impl PyUnityCatalogClient {
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;
             Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            table_id,
+            table_uri,
+            commit_info = None,
+            latest_backfilled_version = None,
+            metadata = None
+        )
+    )]
+    pub fn commit(
+        &self,
+        py: Python,
+        table_id: String,
+        table_uri: String,
+        commit_info: Option<CommitInfo>,
+        latest_backfilled_version: Option<i64>,
+        metadata: Option<Metadata>,
+    ) -> PyUnityCatalogResult<()> {
+        let mut request = self.client.commit(table_id, table_uri);
+        request = request.with_commit_info(commit_info);
+        request = request.with_latest_backfilled_version(latest_backfilled_version);
+        request = request.with_metadata(metadata);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(())
+        })
+    }
+    #[pyo3(signature = (table_id, table_uri, start_version, end_version = None))]
+    pub fn get_commits(
+        &self,
+        py: Python,
+        table_id: String,
+        table_uri: String,
+        start_version: i64,
+        end_version: Option<i64>,
+    ) -> PyUnityCatalogResult<GetCommitsResponse> {
+        let mut request = self.client.get_commits(table_id, table_uri, start_version);
+        request = request.with_end_version(end_version);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (entity_type, entity_name, max_results = None, page_token = None)
+    )]
+    pub fn list_entity_tag_assignments(
+        &self,
+        py: Python,
+        entity_type: String,
+        entity_name: String,
+        max_results: Option<i32>,
+        page_token: Option<String>,
+    ) -> PyUnityCatalogResult<ListEntityTagAssignmentsResponse> {
+        let mut request = self
+            .client
+            .list_entity_tag_assignments(entity_type, entity_name);
+        request = request.with_max_results(max_results);
+        request = request.with_page_token(page_token);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (tag_assignment))]
+    pub fn create_entity_tag_assignment(
+        &self,
+        py: Python,
+        tag_assignment: EntityTagAssignment,
+    ) -> PyUnityCatalogResult<EntityTagAssignment> {
+        let request = self.client.create_entity_tag_assignment(tag_assignment);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (entity_type, entity_name, tag_key))]
+    pub fn get_entity_tag_assignment(
+        &self,
+        py: Python,
+        entity_type: String,
+        entity_name: String,
+        tag_key: String,
+    ) -> PyUnityCatalogResult<EntityTagAssignment> {
+        let request = self
+            .client
+            .get_entity_tag_assignment(entity_type, entity_name, tag_key);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            entity_type,
+            entity_name,
+            tag_key,
+            tag_assignment,
+            update_mask = None
+        )
+    )]
+    pub fn update_entity_tag_assignment(
+        &self,
+        py: Python,
+        entity_type: String,
+        entity_name: String,
+        tag_key: String,
+        tag_assignment: EntityTagAssignment,
+        update_mask: Option<String>,
+    ) -> PyUnityCatalogResult<EntityTagAssignment> {
+        let mut request = self.client.update_entity_tag_assignment(
+            entity_type,
+            entity_name,
+            tag_key,
+            tag_assignment,
+        );
+        request = request.with_update_mask(update_mask);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (entity_type, entity_name, tag_key))]
+    pub fn delete_entity_tag_assignment(
+        &self,
+        py: Python,
+        entity_type: String,
+        entity_name: String,
+        tag_key: String,
+    ) -> PyUnityCatalogResult<()> {
+        let request = self
+            .client
+            .delete_entity_tag_assignment(entity_type, entity_name, tag_key);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(())
         })
     }
     #[pyo3(signature = (max_results = None, include_browse = None))]
@@ -559,6 +707,34 @@ impl PyUnityCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    #[pyo3(signature = (max_results = None))]
+    pub fn list_tag_policies(
+        &self,
+        py: Python,
+        max_results: Option<i32>,
+    ) -> PyUnityCatalogResult<Vec<TagPolicy>> {
+        let mut request = self.client.list_tag_policies();
+        request = request.with_max_results(max_results);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(signature = (tag_policy))]
+    pub fn create_tag_policy(
+        &self,
+        py: Python,
+        tag_policy: TagPolicy,
+    ) -> PyUnityCatalogResult<TagPolicy> {
+        let request = self.client.create_tag_policy(tag_policy);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
     #[pyo3(signature = (table_id, operation))]
     pub fn generate_temporary_table_credentials(
         &self,
@@ -666,19 +842,19 @@ impl PyUnityCatalogClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
-    pub fn catalog(&self, name: String) -> PyCatalogClient {
+    pub fn catalog(&self, catalog_name: String) -> PyCatalogClient {
         PyCatalogClient {
-            client: self.client.catalog(name),
+            client: self.client.catalog(catalog_name),
         }
     }
-    pub fn credential(&self, name: String) -> PyCredentialClient {
+    pub fn credential(&self, credential_name: String) -> PyCredentialClient {
         PyCredentialClient {
-            client: self.client.credential(name),
+            client: self.client.credential(credential_name),
         }
     }
-    pub fn external_location(&self, name: String) -> PyExternalLocationClient {
+    pub fn external_location(&self, external_location_name: String) -> PyExternalLocationClient {
         PyExternalLocationClient {
-            client: self.client.external_location(name),
+            client: self.client.external_location(external_location_name),
         }
     }
     pub fn function(
@@ -692,14 +868,14 @@ impl PyUnityCatalogClient {
             client: self.client.function_from_full_name(full_name),
         }
     }
-    pub fn provider(&self, name: String) -> PyProviderClient {
+    pub fn provider(&self, provider_name: String) -> PyProviderClient {
         PyProviderClient {
-            client: self.client.provider(name),
+            client: self.client.provider(provider_name),
         }
     }
-    pub fn recipient(&self, name: String) -> PyRecipientClient {
+    pub fn recipient(&self, recipient_name: String) -> PyRecipientClient {
         PyRecipientClient {
-            client: self.client.recipient(name),
+            client: self.client.recipient(recipient_name),
         }
     }
     pub fn schema(&self, catalog_name: String, schema_name: String) -> PySchemaClient {
@@ -708,9 +884,9 @@ impl PyUnityCatalogClient {
             client: self.client.schema_from_full_name(full_name),
         }
     }
-    pub fn share(&self, name: String) -> PyShareClient {
+    pub fn share(&self, share_name: String) -> PyShareClient {
         PyShareClient {
-            client: self.client.share(name),
+            client: self.client.share(share_name),
         }
     }
     pub fn table(
@@ -722,6 +898,11 @@ impl PyUnityCatalogClient {
         let full_name = format!("{}.{}.{}", catalog_name, schema_name, table_name);
         PyTableClient {
             client: self.client.table_from_full_name(full_name),
+        }
+    }
+    pub fn tag_policy(&self, tag_policy_name: String) -> PyTagPolicyClient {
+        PyTagPolicyClient {
+            client: self.client.tag_policy(tag_policy_name),
         }
     }
     pub fn volume(

@@ -1,27 +1,43 @@
 // @generated — do not edit by hand.
-import { fromBinary } from "@bufbuild/protobuf";
+import { fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
   type Catalog,
   type Credential,
+  type EntityTagAssignment,
   type ExternalLocation,
   type Function,
+  type GetCommitsResponse,
+  type GetPermissionsResponse,
+  type GetTableExistsResponse,
+  type ListEntityTagAssignmentsResponse,
+  type ListTableSummariesResponse,
   type Provider,
   type Recipient,
   type Schema,
   type Share,
   type Table,
+  type TagPolicy,
   type TemporaryCredential,
+  type UpdatePermissionsResponse,
   type Volume,
   CatalogSchema,
   CredentialSchema,
+  EntityTagAssignmentSchema,
   ExternalLocationSchema,
   FunctionSchema,
+  GetCommitsResponseSchema,
+  GetPermissionsResponseSchema,
+  GetTableExistsResponseSchema,
+  ListEntityTagAssignmentsResponseSchema,
+  ListTableSummariesResponseSchema,
   ProviderSchema,
   RecipientSchema,
   SchemaSchema,
   ShareSchema,
   TableSchema,
+  TagPolicySchema,
   TemporaryCredentialSchema,
+  UpdatePermissionsResponseSchema,
   VolumeSchema,
 } from "./models";
 import {
@@ -34,6 +50,7 @@ import {
   NapiSchemaClient as NativeSchemaClient,
   NapiShareClient as NativeShareClient,
   NapiTableClient as NativeTableClient,
+  NapiTagPolicyClient as NativeTagPolicyClient,
   NapiUnityCatalogClient as NativeClient,
   NapiVolumeClient as NativeVolumeClient,
 } from "./native";
@@ -215,6 +232,31 @@ export interface UpdateCredentialOptions {
   /** Force an update even if there are dependent services (when purpose is SERVICE)
    *  or dependent external locations and external tables (when purpose is STORAGE). */
   force?: boolean;
+}
+
+export interface CommitOptions {
+  /** Notify the catalog that commits up to and including this version have been
+   *  published (backfilled) to the Delta log. The catalog prunes ratified
+   *  commits accordingly. */
+  latestBackfilledVersion?: number;
+}
+
+export interface GetCommitsOptions {
+  /** The highest version to return (inclusive). When set, must be
+   *  `>= start_version`. Defaults to the latest version. */
+  endVersion?: number;
+}
+
+export interface ListEntityTagAssignmentsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface UpdateEntityTagAssignmentOptions {
+  /** The list of fields to update, as a comma-separated string. */
+  updateMask?: string;
 }
 
 export interface ListExternalLocationsOptions {
@@ -479,6 +521,18 @@ export interface GetTableOptions {
   includeBrowse?: boolean;
   /** Whether to include a manifest containing capabilities the table has. */
   includeManifestCapabilities?: boolean;
+}
+
+export interface ListTagPoliciesOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+}
+
+export interface UpdateTagPolicyOptions {
+  /** The list of fields to update, as a comma-separated string. */
+  updateMask?: string;
 }
 
 export interface GenerateTemporaryPathCredentialsOptions {
@@ -873,6 +927,50 @@ export class TableClient {
 
 }
 
+export class TagPolicyClient {
+  private readonly inner: NativeTagPolicyClient;
+
+  /** @internal */
+  constructor(inner: NativeTagPolicyClient) {
+    this.inner = inner;
+  }
+
+  /**
+     * Get a tag policy
+     * 
+     * Gets the governed tag definition for the specified tag key.
+     */
+  async get(): Promise<TagPolicy> {
+    try {
+      return fromBinary(TagPolicySchema, await this.inner.get());
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Update a tag policy
+     * 
+     * Updates the governed tag definition that matches the supplied tag key.
+     */
+  async update(tagPolicy: TagPolicy, options?: UpdateTagPolicyOptions): Promise<TagPolicy> {
+    const { updateMask } = options || {};
+    try {
+      return fromBinary(TagPolicySchema, await this.inner.update(Buffer.from(toBinary(TagPolicySchema, tagPolicy)), updateMask));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Delete a tag policy
+     * 
+     * Deletes the governed tag definition that matches the supplied tag key.
+     */
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
 export class VolumeClient {
   private readonly inner: NativeVolumeClient;
 
@@ -957,8 +1055,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  catalog(name: string): CatalogClient {
-    return new CatalogClient(this.inner.catalog(name));
+  catalog(catalogName: string): CatalogClient {
+    return new CatalogClient(this.inner.catalog(catalogName));
   }
 
   async listCredentials(options?: ListCredentialsOptions): Promise<Credential[]> {
@@ -986,8 +1084,87 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  credential(name: string): CredentialClient {
-    return new CredentialClient(this.inner.credential(name));
+  credential(credentialName: string): CredentialClient {
+    return new CredentialClient(this.inner.credential(credentialName));
+  }
+
+  /**
+     * Ratify a staged commit at the requested version (first-writer-wins), and/or
+     * notify the catalog that commits have been backfilled to the Delta log.
+     */
+  async commit(tableId: string, tableUri: string, options?: CommitOptions): Promise<void> {
+    const { latestBackfilledVersion } = options || {};
+    try {
+      await this.inner.commit(tableId, tableUri, latestBackfilledVersion);
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Return ratified-but-unpublished commits for a table, plus the latest
+     * version the catalog tracks.
+     */
+  async getCommits(tableId: string, tableUri: string, startVersion: number, options?: GetCommitsOptions): Promise<GetCommitsResponse> {
+    const { endVersion } = options || {};
+    try {
+      return fromBinary(GetCommitsResponseSchema, await this.inner.getCommits(tableId, tableUri, startVersion, endVersion));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List entity tag assignments
+     * 
+     * Gets the tag assignments for the specified entity.
+     */
+  async listEntityTagAssignments(entityType: string, entityName: string, options?: ListEntityTagAssignmentsOptions): Promise<ListEntityTagAssignmentsResponse> {
+    const { maxResults, pageToken } = options || {};
+    try {
+      return fromBinary(ListEntityTagAssignmentsResponseSchema, await this.inner.listEntityTagAssignments(entityType, entityName, maxResults, pageToken));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Create an entity tag assignment
+     * 
+     * Assigns a tag to a Unity Catalog entity.
+     */
+  async createEntityTagAssignment(tagAssignment: EntityTagAssignment): Promise<EntityTagAssignment> {
+    try {
+      return fromBinary(EntityTagAssignmentSchema, await this.inner.createEntityTagAssignment(Buffer.from(toBinary(EntityTagAssignmentSchema, tagAssignment))));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Get an entity tag assignment
+     * 
+     * Gets the tag assignment for the specified entity and tag key.
+     */
+  async getEntityTagAssignment(entityType: string, entityName: string, tagKey: string): Promise<EntityTagAssignment> {
+    try {
+      return fromBinary(EntityTagAssignmentSchema, await this.inner.getEntityTagAssignment(entityType, entityName, tagKey));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Update an entity tag assignment
+     * 
+     * Updates the tag assignment for the specified entity and tag key.
+     */
+  async updateEntityTagAssignment(entityType: string, entityName: string, tagKey: string, tagAssignment: EntityTagAssignment, options?: UpdateEntityTagAssignmentOptions): Promise<EntityTagAssignment> {
+    const { updateMask } = options || {};
+    try {
+      return fromBinary(EntityTagAssignmentSchema, await this.inner.updateEntityTagAssignment(entityType, entityName, tagKey, Buffer.from(toBinary(EntityTagAssignmentSchema, tagAssignment)), updateMask));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Delete an entity tag assignment
+     * 
+     * Deletes the tag assignment for the specified entity and tag key.
+     */
+  async deleteEntityTagAssignment(entityType: string, entityName: string, tagKey: string): Promise<void> {
+    try {
+      await this.inner.deleteEntityTagAssignment(entityType, entityName, tagKey);
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**
@@ -1024,8 +1201,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  externalLocation(name: string): ExternalLocationClient {
-    return new ExternalLocationClient(this.inner.externalLocation(name));
+  externalLocation(externalLocationName: string): ExternalLocationClient {
+    return new ExternalLocationClient(this.inner.externalLocation(externalLocationName));
   }
 
   /**
@@ -1113,8 +1290,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  provider(name: string): ProviderClient {
-    return new ProviderClient(this.inner.provider(name));
+  provider(providerName: string): ProviderClient {
+    return new ProviderClient(this.inner.provider(providerName));
   }
 
   /**
@@ -1151,8 +1328,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  recipient(name: string): RecipientClient {
-    return new RecipientClient(this.inner.recipient(name));
+  recipient(recipientName: string): RecipientClient {
+    return new RecipientClient(this.inner.recipient(recipientName));
   }
 
   /**
@@ -1234,8 +1411,8 @@ export class UnityCatalogClient {
     } catch (e) { throw parseNativeError(e); }
   }
 
-  share(name: string): ShareClient {
-    return new ShareClient(this.inner.share(name));
+  share(shareName: string): ShareClient {
+    return new ShareClient(this.inner.share(shareName));
   }
 
   /**
@@ -1284,6 +1461,83 @@ export class UnityCatalogClient {
 
   table(catalogName: string, schemaName: string, tableName: string): TableClient {
     return new TableClient(this.inner.table(catalogName, schemaName, tableName));
+  }
+
+  /**
+     * List tag policies
+     * 
+     * Gets an array of tag policies. There is no guarantee of a specific ordering
+     * of the elements in the array.
+     */
+  async listTagPolicies(options?: ListTagPoliciesOptions): Promise<TagPolicy[]> {
+    const { maxResults } = options || {};
+    try {
+      return (await this.inner.listTagPolicies(maxResults)).map((data) =>
+        fromBinary(TagPolicySchema, data),
+      );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * List tag policies
+     * 
+     * Gets an array of tag policies. There is no guarantee of a specific ordering
+     * of the elements in the array.
+     */
+  async *listTagPoliciesStream(options?: ListTagPoliciesOptions): AsyncIterable<TagPolicy> {
+    const { maxResults } = options || {};
+    try {
+      for await (const data of this.inner.listTagPoliciesStream(maxResults)) {
+        yield fromBinary(TagPolicySchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Create a new tag policy
+     * 
+     * Creates a new governed tag definition.
+     */
+  async createTagPolicy(tagPolicy: TagPolicy): Promise<TagPolicy> {
+    try {
+      return fromBinary(TagPolicySchema, await this.inner.createTagPolicy(Buffer.from(toBinary(TagPolicySchema, tagPolicy))));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  tagPolicy(tagPolicyName: string): TagPolicyClient {
+    return new TagPolicyClient(this.inner.tagPolicy(tagPolicyName));
+  }
+
+  /**
+     * Generate a new set of credentials for a table.
+     */
+  async generateTemporaryTableCredentials(tableId: string, operation: number): Promise<TemporaryCredential> {
+    try {
+      return fromBinary(TemporaryCredentialSchema, await this.inner.generateTemporaryTableCredentials(tableId, operation));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Generate a new set of credentials for a path.
+     */
+  async generateTemporaryPathCredentials(url: string, operation: number, options?: GenerateTemporaryPathCredentialsOptions): Promise<TemporaryCredential> {
+    const { dryRun } = options || {};
+    try {
+      return fromBinary(TemporaryCredentialSchema, await this.inner.generateTemporaryPathCredentials(url, operation, dryRun));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Generate a new set of credentials for a volume.
+     * 
+     * The metastore must have the `external_access_enabled` flag set to true
+     * (default false). The caller must have the `EXTERNAL_USE_SCHEMA`
+     * privilege on the parent schema (granted by a catalog owner).
+     */
+  async generateTemporaryVolumeCredentials(volumeId: string, operation: number): Promise<TemporaryCredential> {
+    try {
+      return fromBinary(TemporaryCredentialSchema, await this.inner.generateTemporaryVolumeCredentials(volumeId, operation));
+    } catch (e) { throw parseNativeError(e); }
   }
 
   /**

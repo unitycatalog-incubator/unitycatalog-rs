@@ -14,6 +14,7 @@ pub use crate::codegen::recipients::PyRecipientClient;
 pub use crate::codegen::schemas::PySchemaClient;
 pub use crate::codegen::shares::PyShareClient;
 pub use crate::codegen::tables::PyTableClient;
+pub use crate::codegen::tag_policies::PyTagPolicyClient;
 pub use crate::codegen::volumes::PyVolumeClient;
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;

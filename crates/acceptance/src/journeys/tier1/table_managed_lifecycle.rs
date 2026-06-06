@@ -135,9 +135,14 @@ impl UserJourney for TableManagedLifecycleJourney {
         println!("  ✓ Table created: {}", table.full_name);
 
         // Step 4: Get table
-        let fetched = ctx.client().table(&full_name).get().await.map_err(|e| {
-            AcceptanceError::JourneyExecution(format!("Failed to get table: {}", e))
-        })?;
+        let fetched = ctx
+            .client()
+            .table_from_full_name(&full_name)
+            .get()
+            .await
+            .map_err(|e| {
+                AcceptanceError::JourneyExecution(format!("Failed to get table: {}", e))
+            })?;
         assert_eq!(fetched.name, self.table_name);
         println!("  ✓ Table fetched: {}", fetched.full_name);
 
@@ -160,21 +165,15 @@ impl UserJourney for TableManagedLifecycleJourney {
         println!("  ✓ Listed {} table(s)", tables.len());
 
         // Step 6: List table summaries (catalog-scoped read path; OSS Java lacks this)
-        let summaries: Vec<_> = ctx
+        let summaries = ctx
             .client()
-            .list_table_summaries(
-                &self.catalog_name,
-                Some(&self.schema_name),
-                None::<String>,
-                None,
-            )
-            .collect::<Vec<_>>()
+            .list_table_summaries(&self.catalog_name)
+            .with_schema_name_pattern(self.schema_name.clone())
             .await
-            .into_iter()
-            .collect::<Result<Vec<_>, _>>()
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to list table summaries: {}", e))
-            })?;
+            })?
+            .tables;
         assert!(
             summaries.iter().any(|s| s.full_name == full_name),
             "Created table not found in summaries"
@@ -204,7 +203,7 @@ impl UserJourney for TableManagedLifecycleJourney {
             self.catalog_name, self.schema_name, self.table_name
         );
 
-        let _ = ctx.client().table(&full_name).delete().await;
+        let _ = ctx.client().table_from_full_name(&full_name).delete().await;
         let _ = ctx
             .client()
             .schema(&self.catalog_name, &self.schema_name)

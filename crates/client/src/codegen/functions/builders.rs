@@ -8,14 +8,14 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::functions::v1::*;
 /// Builder for listing functions
 pub struct ListFunctionsBuilder {
-    client: FunctionClient,
+    client: FunctionServiceClient,
     request: ListFunctionsRequest,
 }
 impl ListFunctionsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `FunctionClient`.
+    /// Obtain via the corresponding method on `FunctionServiceClient`.
     pub(crate) fn new(
-        client: FunctionClient,
+        client: FunctionServiceClient,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
     ) -> Self {
@@ -76,14 +76,14 @@ impl IntoFuture for ListFunctionsBuilder {
 }
 /// Builder for creating a function
 pub struct CreateFunctionBuilder {
-    client: FunctionClient,
+    client: FunctionServiceClient,
     request: CreateFunctionRequest,
 }
 impl CreateFunctionBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `FunctionClient`.
+    /// Obtain via the corresponding method on `FunctionServiceClient`.
     pub(crate) fn new(
-        client: FunctionClient,
+        client: FunctionServiceClient,
         name: impl Into<String>,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
@@ -166,13 +166,13 @@ impl IntoFuture for CreateFunctionBuilder {
 }
 /// Builder for getting a function
 pub struct GetFunctionBuilder {
-    client: FunctionClient,
+    client: FunctionServiceClient,
     request: GetFunctionRequest,
 }
 impl GetFunctionBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `FunctionClient`.
-    pub(crate) fn new(client: FunctionClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `FunctionServiceClient`.
+    pub(crate) fn new(client: FunctionServiceClient, name: impl Into<String>) -> Self {
         let request = GetFunctionRequest {
             name: name.into(),
             ..Default::default()
@@ -191,13 +191,13 @@ impl IntoFuture for GetFunctionBuilder {
 }
 /// Builder for updating a function
 pub struct UpdateFunctionBuilder {
-    client: FunctionClient,
+    client: FunctionServiceClient,
     request: UpdateFunctionRequest,
 }
 impl UpdateFunctionBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `FunctionClient`.
-    pub(crate) fn new(client: FunctionClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `FunctionServiceClient`.
+    pub(crate) fn new(client: FunctionServiceClient, name: impl Into<String>) -> Self {
         let request = UpdateFunctionRequest {
             name: name.into(),
             ..Default::default()
@@ -221,13 +221,13 @@ impl IntoFuture for UpdateFunctionBuilder {
 }
 /// Builder for deleting a function
 pub struct DeleteFunctionBuilder {
-    client: FunctionClient,
+    client: FunctionServiceClient,
     request: DeleteFunctionRequest,
 }
 impl DeleteFunctionBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `FunctionClient`.
-    pub(crate) fn new(client: FunctionClient, name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `FunctionServiceClient`.
+    pub(crate) fn new(client: FunctionServiceClient, name: impl Into<String>) -> Self {
         let request = DeleteFunctionRequest {
             name: name.into(),
             ..Default::default()

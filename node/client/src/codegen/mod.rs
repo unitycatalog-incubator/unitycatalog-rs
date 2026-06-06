@@ -9,7 +9,7 @@ pub mod recipients;
 pub mod schemas;
 pub mod shares;
 pub mod tables;
-pub mod temporary_credentials;
+pub mod tag_policies;
 pub mod volumes;
 use crate::codegen::catalogs::NapiCatalogClient;
 use crate::codegen::credentials::NapiCredentialClient;
@@ -20,7 +20,7 @@ use crate::codegen::recipients::NapiRecipientClient;
 use crate::codegen::schemas::NapiSchemaClient;
 use crate::codegen::shares::NapiShareClient;
 use crate::codegen::tables::NapiTableClient;
-use crate::codegen::temporary_credentials::NapiTemporaryCredentialClient;
+use crate::codegen::tag_policies::NapiTagPolicyClient;
 use crate::codegen::volumes::NapiVolumeClient;
 use crate::error::NapiErrorExt;
 use futures::StreamExt;
@@ -33,6 +33,7 @@ use std::collections::HashMap;
 use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
+use unitycatalog_common::models::delta_commits::v1::*;
 use unitycatalog_common::models::external_locations::v1::*;
 use unitycatalog_common::models::functions::v1::*;
 use unitycatalog_common::models::providers::v1::*;
@@ -40,6 +41,8 @@ use unitycatalog_common::models::recipients::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::tags::v1::*;
+use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
 #[napi]
@@ -168,6 +171,125 @@ impl NapiUnityCatalogClient {
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))
             .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn commit(
+        &self,
+        table_id: String,
+        table_uri: String,
+        latest_backfilled_version: Option<i64>,
+    ) -> napi::Result<()> {
+        let mut request = self.client.commit(table_id, table_uri);
+        request = request.with_latest_backfilled_version(latest_backfilled_version);
+        request.await.default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn get_commits(
+        &self,
+        table_id: String,
+        table_uri: String,
+        start_version: i64,
+        end_version: Option<i64>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.get_commits(table_id, table_uri, start_version);
+        request = request.with_end_version(end_version);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn list_entity_tag_assignments(
+        &self,
+        entity_type: String,
+        entity_name: String,
+        max_results: Option<i32>,
+        page_token: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self
+            .client
+            .list_entity_tag_assignments(entity_type, entity_name);
+        request = request.with_max_results(max_results);
+        request = request.with_page_token(page_token);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_entity_tag_assignment(
+        &self,
+        tag_assignment: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.create_entity_tag_assignment(
+            <EntityTagAssignment as prost::Message>::decode(tag_assignment.as_ref()).map_err(
+                |e| {
+                    napi::Error::new(
+                        napi::Status::GenericFailure,
+                        format!("invalid {} payload: {e}", stringify!(EntityTagAssignment)),
+                    )
+                },
+            )?,
+        );
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn get_entity_tag_assignment(
+        &self,
+        entity_type: String,
+        entity_name: String,
+        tag_key: String,
+    ) -> napi::Result<Buffer> {
+        let mut request = self
+            .client
+            .get_entity_tag_assignment(entity_type, entity_name, tag_key);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn update_entity_tag_assignment(
+        &self,
+        entity_type: String,
+        entity_name: String,
+        tag_key: String,
+        tag_assignment: napi::bindgen_prelude::Buffer,
+        update_mask: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.update_entity_tag_assignment(
+            entity_type,
+            entity_name,
+            tag_key,
+            <EntityTagAssignment as prost::Message>::decode(tag_assignment.as_ref()).map_err(
+                |e| {
+                    napi::Error::new(
+                        napi::Status::GenericFailure,
+                        format!("invalid {} payload: {e}", stringify!(EntityTagAssignment)),
+                    )
+                },
+            )?,
+        );
+        request = request.with_update_mask(update_mask);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn delete_entity_tag_assignment(
+        &self,
+        entity_type: String,
+        entity_name: String,
+        tag_key: String,
+    ) -> napi::Result<()> {
+        let mut request =
+            self.client
+                .delete_entity_tag_assignment(entity_type, entity_name, tag_key);
+        request.await.default_error()
     }
     #[napi(catch_unwind)]
     pub async fn list_external_locations(
@@ -607,6 +729,104 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi(catch_unwind)]
+    pub async fn list_tag_policies(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
+        let mut request = self.client.list_tag_policies();
+        request = request.with_max_results(max_results);
+        request
+            .into_stream()
+            .map_ok(|item| Buffer::from(item.encode_to_vec()))
+            .try_collect::<Vec<_>>()
+            .await
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_tag_policies_stream(
+        &self,
+        env: Env,
+        max_results: Option<i32>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_tag_policies();
+        request = request.with_max_results(max_results);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_tag_policy(
+        &self,
+        tag_policy: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.create_tag_policy(
+            <TagPolicy as prost::Message>::decode(tag_policy.as_ref()).map_err(|e| {
+                napi::Error::new(
+                    napi::Status::GenericFailure,
+                    format!("invalid {} payload: {e}", stringify!(TagPolicy)),
+                )
+            })?,
+        );
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn generate_temporary_table_credentials(
+        &self,
+        table_id: String,
+        operation: i32,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.generate_temporary_table_credentials(
+            table_id,
+            operation.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+        );
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn generate_temporary_path_credentials(
+        &self,
+        url: String,
+        operation: i32,
+        dry_run: Option<bool>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.generate_temporary_path_credentials(
+            url,
+            operation.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+        );
+        request = request.with_dry_run(dry_run);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn generate_temporary_volume_credentials(
+        &self,
+        volume_id: String,
+        operation: i32,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.generate_temporary_volume_credentials(
+            volume_id,
+            operation.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+        );
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
     pub async fn list_volumes(
         &self,
         catalog_name: String,
@@ -670,21 +890,21 @@ impl NapiUnityCatalogClient {
             .default_error()
     }
     #[napi]
-    pub fn catalog(&self, name: String) -> NapiCatalogClient {
+    pub fn catalog(&self, catalog_name: String) -> NapiCatalogClient {
         NapiCatalogClient {
-            client: self.client.catalog(name),
+            client: self.client.catalog(catalog_name),
         }
     }
     #[napi]
-    pub fn credential(&self, name: String) -> NapiCredentialClient {
+    pub fn credential(&self, credential_name: String) -> NapiCredentialClient {
         NapiCredentialClient {
-            client: self.client.credential(name),
+            client: self.client.credential(credential_name),
         }
     }
     #[napi]
-    pub fn external_location(&self, name: String) -> NapiExternalLocationClient {
+    pub fn external_location(&self, external_location_name: String) -> NapiExternalLocationClient {
         NapiExternalLocationClient {
-            client: self.client.external_location(name),
+            client: self.client.external_location(external_location_name),
         }
     }
     #[napi]
@@ -700,15 +920,15 @@ impl NapiUnityCatalogClient {
         }
     }
     #[napi]
-    pub fn provider(&self, name: String) -> NapiProviderClient {
+    pub fn provider(&self, provider_name: String) -> NapiProviderClient {
         NapiProviderClient {
-            client: self.client.provider(name),
+            client: self.client.provider(provider_name),
         }
     }
     #[napi]
-    pub fn recipient(&self, name: String) -> NapiRecipientClient {
+    pub fn recipient(&self, recipient_name: String) -> NapiRecipientClient {
         NapiRecipientClient {
-            client: self.client.recipient(name),
+            client: self.client.recipient(recipient_name),
         }
     }
     #[napi]
@@ -719,9 +939,9 @@ impl NapiUnityCatalogClient {
         }
     }
     #[napi]
-    pub fn share(&self, name: String) -> NapiShareClient {
+    pub fn share(&self, share_name: String) -> NapiShareClient {
         NapiShareClient {
-            client: self.client.share(name),
+            client: self.client.share(share_name),
         }
     }
     #[napi]
@@ -734,6 +954,12 @@ impl NapiUnityCatalogClient {
         let full_name = format!("{}.{}.{}", catalog_name, schema_name, table_name);
         NapiTableClient {
             client: self.client.table_from_full_name(full_name),
+        }
+    }
+    #[napi]
+    pub fn tag_policy(&self, tag_policy_name: String) -> NapiTagPolicyClient {
+        NapiTagPolicyClient {
+            client: self.client.tag_policy(tag_policy_name),
         }
     }
     #[napi]

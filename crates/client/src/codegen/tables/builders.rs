@@ -8,13 +8,13 @@ use std::future::IntoFuture;
 use unitycatalog_common::models::tables::v1::*;
 /// Builder for table summaries
 pub struct ListTableSummariesBuilder {
-    client: TableClient,
+    client: TableServiceClient,
     request: ListTableSummariesRequest,
 }
 impl ListTableSummariesBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TableClient`.
-    pub(crate) fn new(client: TableClient, catalog_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `TableServiceClient`.
+    pub(crate) fn new(client: TableServiceClient, catalog_name: impl Into<String>) -> Self {
         let request = ListTableSummariesRequest {
             catalog_name: catalog_name.into(),
             ..Default::default()
@@ -67,14 +67,14 @@ impl IntoFuture for ListTableSummariesBuilder {
 }
 /// Builder for listing tables
 pub struct ListTablesBuilder {
-    client: TableClient,
+    client: TableServiceClient,
     request: ListTablesRequest,
 }
 impl ListTablesBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TableClient`.
+    /// Obtain via the corresponding method on `TableServiceClient`.
     pub(crate) fn new(
-        client: TableClient,
+        client: TableServiceClient,
         catalog_name: impl Into<String>,
         schema_name: impl Into<String>,
     ) -> Self {
@@ -166,14 +166,14 @@ impl IntoFuture for ListTablesBuilder {
 }
 /// Builder for creating a table
 pub struct CreateTableBuilder {
-    client: TableClient,
+    client: TableServiceClient,
     request: CreateTableRequest,
 }
 impl CreateTableBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TableClient`.
+    /// Obtain via the corresponding method on `TableServiceClient`.
     pub(crate) fn new(
-        client: TableClient,
+        client: TableServiceClient,
         name: impl Into<String>,
         schema_name: impl Into<String>,
         catalog_name: impl Into<String>,
@@ -233,13 +233,13 @@ impl IntoFuture for CreateTableBuilder {
 }
 /// Builder for getting a table
 pub struct GetTableBuilder {
-    client: TableClient,
+    client: TableServiceClient,
     request: GetTableRequest,
 }
 impl GetTableBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TableClient`.
-    pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `TableServiceClient`.
+    pub(crate) fn new(client: TableServiceClient, full_name: impl Into<String>) -> Self {
         let request = GetTableRequest {
             full_name: full_name.into(),
             ..Default::default()
@@ -279,13 +279,13 @@ impl IntoFuture for GetTableBuilder {
 }
 /// Builder for table exists
 pub struct GetTableExistsBuilder {
-    client: TableClient,
+    client: TableServiceClient,
     request: GetTableExistsRequest,
 }
 impl GetTableExistsBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TableClient`.
-    pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `TableServiceClient`.
+    pub(crate) fn new(client: TableServiceClient, full_name: impl Into<String>) -> Self {
         let request = GetTableExistsRequest {
             full_name: full_name.into(),
             ..Default::default()
@@ -304,13 +304,13 @@ impl IntoFuture for GetTableExistsBuilder {
 }
 /// Builder for deleting a table
 pub struct DeleteTableBuilder {
-    client: TableClient,
+    client: TableServiceClient,
     request: DeleteTableRequest,
 }
 impl DeleteTableBuilder {
     /// Create a new builder instance.
-    /// Obtain via the corresponding method on `TableClient`.
-    pub(crate) fn new(client: TableClient, full_name: impl Into<String>) -> Self {
+    /// Obtain via the corresponding method on `TableServiceClient`.
+    pub(crate) fn new(client: TableServiceClient, full_name: impl Into<String>) -> Self {
         let request = DeleteTableRequest {
             full_name: full_name.into(),
             ..Default::default()

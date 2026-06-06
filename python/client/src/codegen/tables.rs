@@ -34,6 +34,14 @@ impl PyTableClient {
             Ok::<_, PyUnityCatalogError>(result)
         })
     }
+    pub fn get_table_exists(&self, py: Python) -> PyUnityCatalogResult<GetTableExistsResponse> {
+        let request = self.client.get_table_exists();
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result = runtime.block_on(request.into_future())?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();
         let runtime = get_runtime(py)?;

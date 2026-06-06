@@ -1797,7 +1797,7 @@ paths:
                  of the elements in the array.
             operationId: ListTagPolicies
             parameters:
-                - name: pageSize
+                - name: maxResults
                   in: query
                   description: The maximum number of results per page that should be returned.
                   schema:
