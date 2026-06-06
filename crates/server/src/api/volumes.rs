@@ -7,6 +7,8 @@ use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::volumes::VolumeHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::services::location::StorageLocationUrl;
+use crate::services::object_store::validate_external_storage_location;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
@@ -26,16 +28,18 @@ impl<T: ResourceStore + Policy<RequestContext>> VolumeHandler<RequestContext> fo
 
         let storage_location = match volume_type {
             VolumeType::External => {
-                // External volumes MUST have an explicit storage location.
-                //
-                // TODO (production): validate storage_location against registered
-                // ExternalLocation records to ensure the caller has access to that path.
-                request
+                // External volumes MUST have an explicit storage location that
+                // lives within a registered external location and does not
+                // overlap any existing table or volume.
+                let location = request
                     .storage_location
                     .filter(|s| !s.is_empty())
                     .ok_or_else(|| {
                         Error::invalid_argument("storage_location is required for EXTERNAL volumes")
-                    })?
+                    })?;
+                let parsed = StorageLocationUrl::parse(&location)?;
+                validate_external_storage_location(self, &parsed).await?;
+                location
             }
             VolumeType::Managed => {
                 // Managed volumes derive their storage location from the catalog storage root.
@@ -196,5 +200,125 @@ impl SecuredAction for DeleteVolumeRequest {
 
     fn permission(&self) -> &'static Permission {
         &Permission::Manage
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use unitycatalog_common::models::credentials::v1::{
+        AwsIamRoleConfig, CreateCredentialRequest, Purpose,
+    };
+    use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
+    use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
+
+    use super::*;
+    use crate::api::{CredentialHandler, ExternalLocationHandler};
+    use crate::memory::InMemoryResourceStore;
+    use crate::policy::ConstantPolicy;
+    use crate::services::ServerHandler;
+
+    fn handler() -> ServerHandler<RequestContext> {
+        let encryptor =
+            EnvelopeEncryptor::local(LocalKeyProvider::single("test", vec![0x42; 32]).unwrap());
+        let store = Arc::new(InMemoryResourceStore::new(encryptor));
+        let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
+        ServerHandler::try_new_tokio(policy, store.clone(), store).unwrap()
+    }
+
+    fn ctx() -> RequestContext {
+        RequestContext {
+            recipient: crate::policy::Principal::anonymous(),
+        }
+    }
+
+    /// Register a credential and an external location at `s3://bucket/ext` so
+    /// external volumes can be created beneath it.
+    async fn setup_external_location(h: &ServerHandler<RequestContext>) {
+        h.create_credential(
+            CreateCredentialRequest {
+                name: "cred".to_string(),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: "ext".to_string(),
+                url: "s3://bucket/ext".to_string(),
+                credential_name: "cred".to_string(),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+    }
+
+    fn create_external_volume(name: &str, location: Option<&str>) -> CreateVolumeRequest {
+        CreateVolumeRequest {
+            catalog_name: "cat".to_string(),
+            schema_name: "sch".to_string(),
+            name: name.to_string(),
+            volume_type: VolumeType::External as i32,
+            storage_location: location.map(str::to_string),
+            comment: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn external_volume_outside_external_location_is_rejected() {
+        let h = handler();
+        setup_external_location(&h).await;
+        // Path not contained in any external location.
+        let res = h
+            .create_volume(
+                create_external_volume("v", Some("s3://bucket/other/vol")),
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn external_volume_within_external_location_succeeds() {
+        let h = handler();
+        setup_external_location(&h).await;
+        let created = h
+            .create_volume(
+                create_external_volume("v", Some("s3://bucket/ext/vol")),
+                ctx(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(created.storage_location, "s3://bucket/ext/vol");
+    }
+
+    #[tokio::test]
+    async fn external_volume_overlapping_existing_volume_is_rejected() {
+        let h = handler();
+        setup_external_location(&h).await;
+        h.create_volume(
+            create_external_volume("v1", Some("s3://bucket/ext/vol")),
+            ctx(),
+        )
+        .await
+        .unwrap();
+        // A nested path under an existing volume overlaps it.
+        let res = h
+            .create_volume(
+                create_external_volume("v2", Some("s3://bucket/ext/vol/inner")),
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
     }
 }

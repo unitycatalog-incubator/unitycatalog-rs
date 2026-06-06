@@ -13,6 +13,7 @@ use super::{RequestContext, SecuredAction};
 pub use crate::codegen::tables::TableHandler;
 use crate::policy::{Permission, Policy, process_resources};
 use crate::services::location::StorageLocationUrl;
+use crate::services::object_store::validate_external_storage_location;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
@@ -163,6 +164,12 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<Requ
                 return Err(Error::invalid_argument("missing storage location"));
             };
             let location = StorageLocationUrl::parse(location)?;
+            // Validate the storage location before touching cloud storage so we
+            // fail fast on a governance violation. The path must live inside a
+            // registered external location and must not overlap any existing
+            // table or volume (Unity Catalog forbids overlapping governed
+            // storage regions).
+            validate_external_storage_location(self, &location).await?;
             let snapshot = self
                 .read_snapshot(&location, &request.data_source_format(), None)
                 .await?;
@@ -317,4 +324,84 @@ fn schema_to_columns(schema: &Schema, partition_columns: &[String]) -> Result<Ve
             })
         })
         .try_collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use unitycatalog_common::models::credentials::v1::{
+        AwsIamRoleConfig, CreateCredentialRequest, Purpose,
+    };
+    use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
+    use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
+
+    use super::*;
+    use crate::api::{CredentialHandler, ExternalLocationHandler};
+    use crate::memory::InMemoryResourceStore;
+    use crate::policy::ConstantPolicy;
+    use crate::services::ServerHandler;
+
+    fn handler() -> ServerHandler<RequestContext> {
+        let encryptor =
+            EnvelopeEncryptor::local(LocalKeyProvider::single("test", vec![0x42; 32]).unwrap());
+        let store = Arc::new(InMemoryResourceStore::new(encryptor));
+        let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
+        ServerHandler::try_new_tokio(policy, store.clone(), store).unwrap()
+    }
+
+    fn ctx() -> RequestContext {
+        RequestContext {
+            recipient: crate::policy::Principal::anonymous(),
+        }
+    }
+
+    /// An external table whose storage location is not within any registered
+    /// external location is rejected *before* any cloud access is attempted
+    /// (the containment check runs ahead of `read_snapshot`).
+    #[tokio::test]
+    async fn external_table_outside_external_location_is_rejected() {
+        let h = handler();
+        h.create_credential(
+            CreateCredentialRequest {
+                name: "cred".to_string(),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: "ext".to_string(),
+                url: "s3://bucket/ext".to_string(),
+                credential_name: "cred".to_string(),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    name: "t".to_string(),
+                    schema_name: "sch".to_string(),
+                    catalog_name: "cat".to_string(),
+                    table_type: TableType::External as i32,
+                    data_source_format: DataSourceFormat::Delta as i32,
+                    storage_location: Some("s3://bucket/other/tbl".to_string()),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
 }
