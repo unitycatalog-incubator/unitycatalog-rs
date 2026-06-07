@@ -9,6 +9,7 @@ use unitycatalog_common::{Error, Result};
 use unitycatalog_server::api::catalogs::CatalogHandler;
 use unitycatalog_server::api::commits::DeltaCommitHandler;
 use unitycatalog_server::api::credentials::CredentialHandler;
+use unitycatalog_server::api::delta::DeltaApiHandler;
 use unitycatalog_server::api::entity_tag_assignments::EntityTagAssignmentHandler;
 use unitycatalog_server::api::external_locations::ExternalLocationHandler;
 use unitycatalog_server::api::functions::FunctionHandler;
@@ -23,7 +24,7 @@ use unitycatalog_server::api::tag_policies::TagPolicyHandler;
 use unitycatalog_server::api::volumes::VolumeHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
-    create_credentials_router, create_entity_tag_assignments_router,
+    create_credentials_router, create_delta_router, create_entity_tag_assignments_router,
     create_external_locations_router, create_functions_router, create_providers_router,
     create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
     create_staging_tables_router, create_tables_router, create_tag_policies_router,
@@ -51,6 +52,7 @@ where
         + RecipientHandler<Cx>
         + ProviderHandler<Cx>
         + DeltaCommitHandler<Cx>
+        + DeltaApiHandler<Cx>
         + TagPolicyHandler<Cx>
         + EntityTagAssignmentHandler<Cx>
         + Clone,
@@ -67,6 +69,16 @@ where
         api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
         title: Some("Delta Sharing API"),
     };
+    // The Delta REST API routes live at `/delta/v1/...` under the UC base path, but its
+    // Swagger UI + spec are hosted under a distinct prefix so the swagger-ui asset routes
+    // (`swagger-ui.css`, etc.) don't collide with the main UC API's, which is mounted at
+    // `/api/2.1/unity-catalog`. (The spec's own `servers` block still advertises the real
+    // base path to clients.)
+    let delta_api_def = ApiDefinition {
+        uri_prefix: "/api/2.1/unity-catalog/delta",
+        api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/delta.yaml")),
+        title: Some("UC Delta API"),
+    };
 
     let api_routes = create_catalogs_router(handler.clone())
         .merge(create_schemas_router(handler.clone()))
@@ -80,6 +92,7 @@ where
         .merge(create_providers_router(handler.clone()))
         .merge(create_shares_router(handler.clone()))
         .merge(create_commits_router(handler.clone()))
+        .merge(create_delta_router(handler.clone()))
         .merge(create_entity_tag_assignments_router(handler.clone()));
 
     let router = Router::new()
@@ -92,19 +105,24 @@ where
         );
     let server = router.layer(AuthenticationLayer::new(authenticator));
 
-    run(server, host, port, api_def, sharing_api_def).await
+    run(
+        server,
+        host,
+        port,
+        vec![api_def, sharing_api_def, delta_api_def],
+    )
+    .await
 }
 
 pub(crate) async fn run<S: Into<String> + Clone>(
     router: axum::Router,
     host: impl AsRef<str>,
     port: u16,
-    api: ApiDefinition<S>,
-    sharing_api: ApiDefinition<S>,
+    apis: Vec<ApiDefinition<S>>,
 ) -> Result<()> {
-    let router = router
-        .merge(swagger_ui_dist::generate_routes(api))
-        .merge(swagger_ui_dist::generate_routes(sharing_api));
+    let router = apis.into_iter().fold(router, |router, api| {
+        router.merge(swagger_ui_dist::generate_routes(api))
+    });
     let router = router.layer(
         TraceLayer::new_for_http()
             .make_span_with(DefaultMakeSpan::new().include_headers(true))
