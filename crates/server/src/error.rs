@@ -55,6 +55,9 @@ pub enum Error {
     #[error("Commit version conflict: {0}")]
     CommitVersionConflict(String),
 
+    #[error("Update requirement conflict: {0}")]
+    UpdateRequirementConflict(String),
+
     #[error("Resource exhausted: {0}")]
     ResourceExhausted(String),
 
@@ -101,6 +104,7 @@ impl Error {
             Error::NotFound => "RESOURCE_NOT_FOUND",
             Error::AlreadyExists => "RESOURCE_ALREADY_EXISTS",
             Error::CommitVersionConflict(_) => "COMMIT_VERSION_CONFLICT",
+            Error::UpdateRequirementConflict(_) => "UPDATE_REQUIREMENT_CONFLICT",
             Error::ResourceExhausted(_) => "RESOURCE_EXHAUSTED",
             Error::NotAllowed => "PERMISSION_DENIED",
             Error::Unauthenticated => "UNAUTHENTICATED",
@@ -191,6 +195,13 @@ impl IntoResponse for Error {
                 (
                     StatusCode::CONFLICT,
                     "The commit version was already accepted by another writer.",
+                )
+            }
+            Error::UpdateRequirementConflict(message) => {
+                error!("Update requirement conflict: {}", message);
+                (
+                    StatusCode::CONFLICT,
+                    "An update requirement (assert-table-uuid / assert-etag) was not met.",
                 )
             }
             Error::ResourceExhausted(message) => {
@@ -306,6 +317,7 @@ impl From<Error> for Status {
             // Error::InvalidPredicate(msg) => Status::invalid_argument(msg),
             Error::AlreadyExists => Status::already_exists("The resource already exists."),
             Error::CommitVersionConflict(message) => Status::aborted(message),
+            Error::UpdateRequirementConflict(message) => Status::aborted(message),
             Error::ResourceExhausted(message) => Status::resource_exhausted(message),
             Error::InvalidIdentifier(e) => Status::invalid_argument(e.to_string()),
             Error::InvalidArgument(message) => Status::invalid_argument(message),

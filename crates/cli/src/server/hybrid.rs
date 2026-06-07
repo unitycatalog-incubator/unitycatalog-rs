@@ -18,7 +18,7 @@ use unitycatalog_server::handlers::upstream::{
 use unitycatalog_server::policy::Policy;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
-    create_credentials_router, create_entity_tag_assignments_router,
+    create_credentials_router, create_delta_router, create_entity_tag_assignments_router,
     create_external_locations_router, create_functions_router, create_providers_router,
     create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
     create_staging_tables_router, create_tables_router, create_tag_policies_router,
@@ -55,6 +55,13 @@ where
         uri_prefix: "/api/v1/delta-sharing",
         api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
         title: Some("Delta Sharing API"),
+    };
+    let delta_api_def = ApiDefinition {
+        // Distinct UI prefix so its swagger-ui asset routes don't collide with the
+        // main UC API's (see run.rs for the rationale).
+        uri_prefix: "/api/2.1/unity-catalog/delta",
+        api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/delta.yaml")),
+        title: Some("UC Delta API"),
     };
 
     let catalogs = match routing.catalogs {
@@ -107,6 +114,7 @@ where
         .merge(create_providers_router(handler.clone()))
         .merge(create_shares_router(handler.clone()))
         .merge(create_commits_router(handler.clone()))
+        .merge(create_delta_router(handler.clone()))
         .merge(create_entity_tag_assignments_router(handler.clone()));
 
     let router = Router::new()
@@ -119,5 +127,11 @@ where
         );
     let server = router.layer(AuthenticationLayer::new(authenticator));
 
-    super::run::run(server, host, port, api_def, sharing_api_def).await
+    super::run::run(
+        server,
+        host,
+        port,
+        vec![api_def, sharing_api_def, delta_api_def],
+    )
+    .await
 }
