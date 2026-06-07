@@ -13,9 +13,12 @@ use axum::http::StatusCode;
 use axum::routing::{Router, get, post};
 use serde::Deserialize;
 
-use crate::Result;
 use crate::api::delta::{DeltaApiHandler, GetConfigQuery, SchemaPath, TablePath};
 use models::*;
+
+/// Handler result whose error half serializes as the Delta API envelope
+/// (`{ "error": { message, type, code } }`) via [`DeltaError`].
+type DeltaResult<T> = std::result::Result<T, DeltaError>;
 
 /// Create a [`Router`] for the Delta REST API. Routes match `openapi/delta.yaml`.
 pub fn get_router<T, Cx>(state: T) -> Router
@@ -89,7 +92,7 @@ async fn get_config<T, Cx>(
     State(handler): State<T>,
     context: Cx,
     Query(params): Query<GetConfigParams>,
-) -> Result<axum::Json<DeltaCatalogConfig>>
+) -> DeltaResult<axum::Json<DeltaCatalogConfig>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -106,7 +109,7 @@ async fn create_staging_table<T, Cx>(
     context: Cx,
     Path((catalog, schema)): Path<(String, String)>,
     axum::Json(request): axum::Json<DeltaCreateStagingTableRequest>,
-) -> Result<axum::Json<DeltaStagingTableResponse>>
+) -> DeltaResult<axum::Json<DeltaStagingTableResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -122,7 +125,7 @@ async fn create_table<T, Cx>(
     context: Cx,
     Path((catalog, schema)): Path<(String, String)>,
     axum::Json(request): axum::Json<DeltaCreateTableRequest>,
-) -> Result<axum::Json<DeltaLoadTableResponse>>
+) -> DeltaResult<axum::Json<DeltaLoadTableResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -137,7 +140,7 @@ async fn load_table<T, Cx>(
     State(handler): State<T>,
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
-) -> Result<axum::Json<DeltaLoadTableResponse>>
+) -> DeltaResult<axum::Json<DeltaLoadTableResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -155,7 +158,7 @@ async fn update_table<T, Cx>(
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
     axum::Json(request): axum::Json<DeltaUpdateTableRequest>,
-) -> Result<axum::Json<DeltaLoadTableResponse>>
+) -> DeltaResult<axum::Json<DeltaLoadTableResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -174,7 +177,7 @@ async fn delete_table<T, Cx>(
     State(handler): State<T>,
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
-) -> Result<StatusCode>
+) -> DeltaResult<StatusCode>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -192,7 +195,7 @@ async fn table_exists<T, Cx>(
     State(handler): State<T>,
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
-) -> Result<StatusCode>
+) -> DeltaResult<StatusCode>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -211,7 +214,7 @@ async fn rename_table<T, Cx>(
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
     axum::Json(request): axum::Json<DeltaRenameTableRequest>,
-) -> Result<StatusCode>
+) -> DeltaResult<StatusCode>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -230,7 +233,7 @@ async fn get_table_credentials<T, Cx>(
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
     Query(params): Query<OperationParam>,
-) -> Result<axum::Json<DeltaCredentialsResponse>>
+) -> DeltaResult<axum::Json<DeltaCredentialsResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -252,7 +255,7 @@ async fn report_metrics<T, Cx>(
     context: Cx,
     Path((catalog, schema, table)): Path<(String, String, String)>,
     axum::Json(request): axum::Json<DeltaReportMetricsRequest>,
-) -> Result<StatusCode>
+) -> DeltaResult<StatusCode>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -270,7 +273,7 @@ async fn get_staging_table_credentials<T, Cx>(
     State(handler): State<T>,
     context: Cx,
     Path(table_id): Path<String>,
-) -> Result<axum::Json<DeltaCredentialsResponse>>
+) -> DeltaResult<axum::Json<DeltaCredentialsResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,
@@ -286,7 +289,7 @@ async fn get_temporary_path_credentials<T, Cx>(
     State(handler): State<T>,
     context: Cx,
     Query(params): Query<PathCredentialParams>,
-) -> Result<axum::Json<DeltaCredentialsResponse>>
+) -> DeltaResult<axum::Json<DeltaCredentialsResponse>>
 where
     T: DeltaApiHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send,

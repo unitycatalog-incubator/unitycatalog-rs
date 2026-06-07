@@ -106,7 +106,19 @@ where
                 request.latest_backfilled_version,
             )
             .await
-            .map_err(Error::from)
+            .map_err(Error::from)?;
+
+        // Apply any metadata change carried by the commit to the stored table.
+        // The reference's `updateTableFromCommit` persists the commit's metadata
+        // (here: the configuration/property map) as the table's new desired state.
+        if let Some(metadata) = request.metadata
+            && !metadata.configuration.is_empty()
+        {
+            let mut updated = table;
+            updated.properties = metadata.configuration;
+            self.update(&table_ident, updated.into()).await?;
+        }
+        Ok(())
     }
 
     #[tracing::instrument(skip(self, context))]
