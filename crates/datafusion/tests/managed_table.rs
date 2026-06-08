@@ -19,11 +19,12 @@
 
 use std::sync::Arc;
 
+use datafusion::arrow::array::{Int64Array, RecordBatch, StringArray};
 use datafusion::arrow::datatypes::{DataType, Field, Schema};
 use datafusion::prelude::SessionContext;
 use datafusion_unitycatalog::RoutingObjectStore;
 use datafusion_unitycatalog::catalog::build_catalog_managed_snapshot;
-use datafusion_unitycatalog::managed::create_managed_table;
+use datafusion_unitycatalog::managed::{append_to_managed_table, create_managed_table};
 use deltalake_core::delta_datafusion::DeltaScanNext;
 use deltalake_core::delta_datafusion::engine::DataFusionEngine;
 use deltalake_core::logstore::{StorageConfig, default_logstore};
@@ -70,7 +71,7 @@ async fn create_managed_table_round_trip() {
         &catalog,
         &schema,
         &table,
-        arrow_schema,
+        arrow_schema.clone(),
         vec![],
         "unitycatalog-rs-itest/0.1",
     )
@@ -80,6 +81,28 @@ async fn create_managed_table_round_trip() {
         "created managed table {catalog}.{schema}.{table}: id={} location={}",
         created.table_id, created.location
     );
+
+    // === Append a batch of 3 rows (commit v1 through the catalog committer) ===
+    let batch = RecordBatch::try_new(
+        arrow_schema,
+        vec![
+            Arc::new(Int64Array::from(vec![1, 2, 3])),
+            Arc::new(StringArray::from(vec!["alice", "bob", "carol"])),
+        ],
+    )
+    .unwrap();
+    let version = append_to_managed_table(
+        factory.clone(),
+        &catalog,
+        &schema,
+        &table,
+        batch,
+        "unitycatalog-rs-itest/0.1",
+    )
+    .await
+    .expect("append_to_managed_table failed");
+    println!("appended commit version {version}");
+    assert_eq!(version, 1, "first append should be version 1");
 
     // === Read it back via loadTable + the catalog-managed snapshot ===
     let loaded = factory
@@ -141,5 +164,6 @@ async fn create_managed_table_round_trip() {
         .await
         .unwrap();
     let rows: usize = batches.iter().map(|b| b.num_rows()).sum();
-    println!("scanned {rows} rows from freshly-created managed table (expected 0)");
+    println!("scanned {rows} rows from managed table (expected 3)");
+    assert_eq!(rows, 3, "should read back the 3 appended rows");
 }

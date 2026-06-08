@@ -62,7 +62,7 @@ pub enum CreateManagedTableError {
 }
 
 impl CreateManagedTableError {
-    fn other(msg: impl Into<String>) -> Self {
+    pub(crate) fn other(msg: impl Into<String>) -> Self {
         Self::Other(msg.into())
     }
 }
