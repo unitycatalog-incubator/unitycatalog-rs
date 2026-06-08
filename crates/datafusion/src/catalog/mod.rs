@@ -32,4 +32,6 @@ mod provider;
 pub use builder::{TableProviderBuilder, TableProviderError};
 #[cfg(feature = "delta")]
 pub use delta::DeltaTableProviderBuilder;
+#[cfg(feature = "delta")]
+pub use kernel::build_catalog_managed_snapshot;
 pub use provider::{UnityCatalogProvider, UnityCatalogProviderList, UnityCatalogSchemaProvider};

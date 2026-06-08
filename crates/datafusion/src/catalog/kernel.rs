@@ -29,7 +29,7 @@ use super::builder::TableProviderError;
 /// `latest_table_version` is the highest version the catalog has ratified, used as
 /// the catalog-version cap and — when `at_version` is `None` — as the effective
 /// target version.
-pub(crate) fn build_catalog_managed_snapshot(
+pub fn build_catalog_managed_snapshot(
     engine: &dyn Engine,
     location: &Url,
     commits: &[DeltaCommit],

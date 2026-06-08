@@ -21,7 +21,7 @@ use deltalake_core::DeltaTableConfig;
 use deltalake_core::delta_datafusion::DeltaScanNext;
 use deltalake_core::delta_datafusion::engine::DataFusionEngine;
 use deltalake_core::kernel::Snapshot;
-use deltalake_core::logstore::{StorageConfig, logstore_with};
+use deltalake_core::logstore::{StorageConfig, default_logstore};
 use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::models::delta::v1::DeltaTableType;
 use unitycatalog_common::models::tables::v1::Table;
@@ -73,8 +73,17 @@ impl TableProviderBuilder for DeltaTableProviderBuilder {
             .object_store_registry
             .get_store(location)
             .map_err(|e| DataFusionError::External(Box::new(e)))?;
-        let log_store = logstore_with(root_store, location, StorageConfig::default())
+        // Build the log store directly from the resolver-registered object store
+        // rather than via `logstore_with`, which dispatches on the URL scheme to a
+        // registered logstore factory — we depend only on `deltalake-core`, so no
+        // cloud-scheme factories (`s3`/`gs`/`az`) are registered. The prefixed
+        // store roots paths at the table location; the root store stays
+        // bucket-rooted.
+        let config = StorageConfig::default();
+        let prefixed_store = config
+            .decorate_store(root_store.clone(), location)
             .map_err(|e| DataFusionError::External(Box::new(e)))?;
+        let log_store = default_logstore(Arc::from(prefixed_store), root_store, location, &config);
 
         let engine = DataFusionEngine::new_from_context(task_ctx);
 

@@ -339,6 +339,14 @@ pub struct DeltaCreateTableRequest {
     pub name: String,
     pub location: String,
     pub table_type: DeltaTableType,
+    /// Data source format — `"DELTA"` for Delta tables. Required by the running
+    /// Java UC OSS server (`ghcr.io/roeap/unitycatalog:v0.0.0-dev-3`), whose
+    /// createTable handler reads it from the request body. (Newer server code
+    /// hardcodes `DELTA` in `DeltaCreateTableMapper` and ignores this field, and
+    /// the `delta.yaml` schema omits it — a spec/impl drift; sending it satisfies
+    /// both.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data_source_format: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     pub columns: DeltaStructType,

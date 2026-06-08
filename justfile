@@ -255,3 +255,13 @@ fmt:
     cargo fmt
     buf format proto/ --write
     uvx ruff format .
+
+asd:
+    UC_ENDPOINT=http://localhost:8081/api/2.1/unity-catalog/ \
+    UC_TABLE=demo.managed_demo.events \
+    AWS_REGION=eu-central-1 \
+    cargo run -p datafusion-unitycatalog --features delta --example managed_table_snapshot
+
+fgh:
+    AWS_REGION=eu-central-1 \
+    cargo run -p datafusion-unitycatalog --features delta --example managed_table_write
