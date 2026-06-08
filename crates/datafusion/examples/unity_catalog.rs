@@ -74,8 +74,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let factory = Arc::new(builder.build().await?);
 
     // The Delta provider builder reads each table's log through whatever store
-    // the resolver registers on the runtime for that table's location.
-    let builder = Arc::new(DeltaTableProviderBuilder::new(ctx.clone()));
+    // the resolver registers on the runtime for that table's location, and calls
+    // the `/delta/v1` loadTable endpoint (via the factory's UC client) to build
+    // catalog-managed snapshots.
+    let builder = Arc::new(DeltaTableProviderBuilder::new(
+        ctx.clone(),
+        factory.unity_client().clone(),
+    ));
 
     // The provider list owns the session's runtime, so resolving a table
     // registers the credential-vended routing store on the session as a side

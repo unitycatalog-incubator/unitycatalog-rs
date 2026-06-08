@@ -345,6 +345,7 @@ impl FieldExt for StructField {
                 PrimitiveType::Timestamp => ColumnTypeName::Timestamp,
                 PrimitiveType::TimestampNtz => ColumnTypeName::TimestampNtz,
                 PrimitiveType::Decimal(_) => ColumnTypeName::Decimal,
+                PrimitiveType::Void => ColumnTypeName::Null,
             },
             DataType::Struct(_) => ColumnTypeName::Struct,
             DataType::Array(_) => ColumnTypeName::Array,

@@ -6,6 +6,9 @@ set dotenv-load
 _default:
     @just --list --justfile {{ justfile() }}
 
+run *args:
+    cargo run --bin uc {{ args }}
+
 # main code generation command. This will run all generation for unity types.
 [group('codegen')]
 generate: generate-proto generate-code fix

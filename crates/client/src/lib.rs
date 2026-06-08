@@ -11,10 +11,12 @@ pub use codegen::staging_tables::StagingTableClient;
 pub use codegen::tables::TableClient;
 pub use codegen::tag_policies::TagPolicyClient;
 pub use codegen::volumes::VolumeClient;
+pub use delta_v1::DeltaV1Client;
 pub use error::*;
 pub use temporary_credentials::*;
 
 pub mod codegen;
+mod delta_v1;
 pub mod error;
 mod temporary_credentials;
 
@@ -25,5 +27,15 @@ impl UnityCatalogClient {
     /// (`temporary_table_credential`, `temporary_volume_credential`, `temporary_path_credential`).
     pub fn temporary_credentials(&self) -> TemporaryCredentialClient {
         TemporaryCredentialClient::new(self.temporary_credentials_client())
+    }
+
+    /// Ergonomic accessor for the hand-written `/delta/v1/` Delta REST API client.
+    ///
+    /// Reuses the generated low-level `delta_commits` client's cloud client and base
+    /// URL (both carry the same auth + endpoint), so the Delta v1 client shares the
+    /// aggregate client's configuration without touching generated code.
+    pub fn delta_v1(&self) -> DeltaV1Client {
+        let base = self.delta_commits_client();
+        DeltaV1Client::new(base.client, base.base_url)
     }
 }

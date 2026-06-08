@@ -25,6 +25,8 @@
 mod builder;
 #[cfg(feature = "delta")]
 mod delta;
+#[cfg(feature = "delta")]
+mod kernel;
 mod provider;
 
 pub use builder::{TableProviderBuilder, TableProviderError};

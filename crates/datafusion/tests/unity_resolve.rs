@@ -62,7 +62,10 @@ async fn resolve_and_scan_uc_table() {
 
     let factory = Arc::new(factory_fut.build().await);
     let ctx = SessionContext::new();
-    let builder = Arc::new(DeltaTableProviderBuilder::new(ctx.clone()));
+    let builder = Arc::new(DeltaTableProviderBuilder::new(
+        ctx.clone(),
+        factory.unity_client().clone(),
+    ));
     let resolver = UnityCatalogProviderList::new(factory, ctx.runtime_env(), builder);
 
     // Drive resolution exactly as the session does at plan time.

@@ -21,10 +21,17 @@ keywords = [
 ]
 
 [workspace.dependencies]
-delta_kernel = { package = "buoyant_kernel", version = "0.22.0, <0.22.100", features = [
+# Kernel and delta-rs core share one git source so the `Snapshot` types unify when
+# `crates/datafusion` builds a catalog-managed kernel snapshot and hands it to
+# `deltalake-core::kernel::Snapshot::new`. Both are pinned here at the workspace level.
+delta_kernel = { package = "buoyant_kernel", git = "https://github.com/buoyant-data/delta-kernel-rs", branch = "buoyant/main", features = [
   "internal-api",
   "default-engine-rustls",
   "arrow-58",
+] }
+deltalake-core = { git = "https://github.com/roeap/delta-rs", rev = "6825c1823d8a04290cfe19b8cf6b518cd0e6db34", features = [
+  "datafusion",
+  "cloud",
 ] }
 
 aes-gcm = { version = "0.10" }
