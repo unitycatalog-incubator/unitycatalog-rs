@@ -27,7 +27,7 @@ use object_store::ObjectStore;
 use object_store::aws::AmazonS3Builder;
 use unitycatalog_client::DeltaV1Client;
 use unitycatalog_common::models::delta::v1::{
-    DeltaCreateStagingTableRequest, DeltaCreateTableRequest, DeltaDataType,
+    DeltaCreateStagingTableRequest, DeltaCreateTableRequest, DeltaDataSourceFormat, DeltaDataType,
     DeltaStagingTableResponse, DeltaStructField, DeltaStructType, DeltaTableType,
 };
 use url::Url;
@@ -157,7 +157,7 @@ pub async fn create_managed_table(
                 name: table.to_string(),
                 location: location.to_string(),
                 table_type: DeltaTableType::Managed,
-                data_source_format: Some("DELTA".to_string()),
+                data_source_format: Some(DeltaDataSourceFormat::Delta),
                 comment: None,
                 columns: arrow_to_delta_columns(&arrow_schema)?,
                 partition_columns: (!partition_columns.is_empty()).then_some(partition_columns),

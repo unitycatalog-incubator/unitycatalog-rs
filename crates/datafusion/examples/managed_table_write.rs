@@ -71,8 +71,8 @@ use object_store::aws::AmazonS3Builder;
 use object_store::{ObjectStore, ObjectStoreExt, PutPayload, path::Path};
 use serde_json::json;
 use unitycatalog_common::models::delta::v1::{
-    DeltaCommit, DeltaCreateStagingTableRequest, DeltaCreateTableRequest, DeltaDataType,
-    DeltaProtocol, DeltaStagingTableResponse, DeltaStructField, DeltaStructType,
+    DeltaCommit, DeltaCreateStagingTableRequest, DeltaCreateTableRequest, DeltaDataSourceFormat,
+    DeltaDataType, DeltaProtocol, DeltaStagingTableResponse, DeltaStructField, DeltaStructType,
     DeltaTableRequirement, DeltaTableType, DeltaTableUpdate, DeltaUpdateTableRequest,
 };
 use unitycatalog_object_store::UnityObjectStoreFactory;
@@ -171,7 +171,7 @@ async fn main() -> Result<(), BoxError> {
         name: table.clone(),
         location: location.to_string(),
         table_type: DeltaTableType::Managed,
-        data_source_format: Some("DELTA".into()),
+        data_source_format: Some(DeltaDataSourceFormat::Delta),
         comment: None,
         columns: managed_columns(),
         partition_columns: None,

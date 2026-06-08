@@ -28,6 +28,29 @@ pub enum DeltaTableType {
     External,
 }
 
+/// The data source format of a table, as carried on `DeltaCreateTableRequest`.
+///
+/// Mirrors the canonical Unity Catalog `DataSourceFormat` set. Serializes to the
+/// uppercase UC format strings (e.g. `"DELTA"`), matching what the Java OSS
+/// server's createTable handler expects. The Delta REST API only operates on
+/// Delta tables, so in practice this is always [`Delta`](Self::Delta); the wider
+/// set is kept so the field round-trips any value the catalog might report.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum DeltaDataSourceFormat {
+    Delta,
+    Iceberg,
+    Hudi,
+    Parquet,
+    Csv,
+    Json,
+    Orc,
+    Avro,
+    Text,
+    UnityCatalog,
+    Deltasharing,
+}
+
 /// The permission level for a storage credential.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -346,7 +369,7 @@ pub struct DeltaCreateTableRequest {
     /// the `delta.yaml` schema omits it — a spec/impl drift; sending it satisfies
     /// both.)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub data_source_format: Option<String>,
+    pub data_source_format: Option<DeltaDataSourceFormat>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
     pub columns: DeltaStructType,
