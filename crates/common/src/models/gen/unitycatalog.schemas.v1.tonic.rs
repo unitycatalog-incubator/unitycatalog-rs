@@ -1,11 +1,17 @@
 // @generated
 /// Generated server implementations.
 pub mod schemas_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with SchemasServiceServer.
     #[async_trait]
-    pub trait SchemasService: Send + Sync + 'static {
+    pub trait SchemasService: std::marker::Send + std::marker::Sync + 'static {
         /** Gets an array of schemas for a catalog in the metastore. If the caller is the metastore
  admin or the owner of the parent catalog, all schemas for the catalog will be retrieved.
  Otherwise, only schemas owned by the caller (or for which the caller has the USE_SCHEMA privilege)
@@ -56,14 +62,14 @@ pub mod schemas_service_server {
  have the SELECT permission on the table or view.
 */
     #[derive(Debug)]
-    pub struct SchemasServiceServer<T: SchemasService> {
+    pub struct SchemasServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: SchemasService> SchemasServiceServer<T> {
+    impl<T> SchemasServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -117,10 +123,10 @@ pub mod schemas_service_server {
     impl<T, B> tonic::codegen::Service<http::Request<B>> for SchemasServiceServer<T>
     where
         T: SchemasService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -161,7 +167,7 @@ pub mod schemas_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListSchemasSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -206,7 +212,7 @@ pub mod schemas_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateSchemaSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -251,7 +257,7 @@ pub mod schemas_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetSchemaSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -296,7 +302,7 @@ pub mod schemas_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateSchemaSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -341,7 +347,7 @@ pub mod schemas_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteSchemaSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -358,23 +364,27 @@ pub mod schemas_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: SchemasService> Clone for SchemasServiceServer<T> {
+    impl<T> Clone for SchemasServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -386,7 +396,9 @@ pub mod schemas_service_server {
             }
         }
     }
-    impl<T: SchemasService> tonic::server::NamedService for SchemasServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.schemas.v1.SchemasService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.schemas.v1.SchemasService";
+    impl<T> tonic::server::NamedService for SchemasServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }

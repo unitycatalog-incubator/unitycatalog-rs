@@ -65,7 +65,8 @@ strum = { version = "0.27", features = ["derive"] }
 sqlx = { version = "0.8.3" }
 thiserror = { version = "2" }
 tokio = { version = "1.40" }
-tonic = { version = "0.12.3" }
+tonic = { version = "0.14" }
+tonic-prost = { version = "0.14" }
 tower = { version = "0.5", features = ["limit", "filter", "util"] }
 tracing = { version = "0.1", features = ["log"] }
 url = { version = "2.5.2", features = [

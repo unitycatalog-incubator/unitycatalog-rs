@@ -1,11 +1,17 @@
 // @generated
 /// Generated server implementations.
 pub mod functions_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with FunctionsServiceServer.
     #[async_trait]
-    pub trait FunctionsService: Send + Sync + 'static {
+    pub trait FunctionsService: std::marker::Send + std::marker::Sync + 'static {
         /** List functions
 
  List functions within the specified parent catalog and schema. If the caller is the metastore
@@ -61,14 +67,14 @@ pub mod functions_service_server {
     /** Manage User-Defined Functions (UDFs) in the service.
 */
     #[derive(Debug)]
-    pub struct FunctionsServiceServer<T: FunctionsService> {
+    pub struct FunctionsServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: FunctionsService> FunctionsServiceServer<T> {
+    impl<T> FunctionsServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -122,10 +128,10 @@ pub mod functions_service_server {
     impl<T, B> tonic::codegen::Service<http::Request<B>> for FunctionsServiceServer<T>
     where
         T: FunctionsService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -167,7 +173,7 @@ pub mod functions_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListFunctionsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -213,7 +219,7 @@ pub mod functions_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateFunctionSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -258,7 +264,7 @@ pub mod functions_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetFunctionSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -304,7 +310,7 @@ pub mod functions_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateFunctionSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -350,7 +356,7 @@ pub mod functions_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteFunctionSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -367,23 +373,27 @@ pub mod functions_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: FunctionsService> Clone for FunctionsServiceServer<T> {
+    impl<T> Clone for FunctionsServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -395,7 +405,9 @@ pub mod functions_service_server {
             }
         }
     }
-    impl<T: FunctionsService> tonic::server::NamedService for FunctionsServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.functions.v1.FunctionsService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.functions.v1.FunctionsService";
+    impl<T> tonic::server::NamedService for FunctionsServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }

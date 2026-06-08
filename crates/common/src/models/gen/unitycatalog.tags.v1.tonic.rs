@@ -1,11 +1,17 @@
 // @generated
 /// Generated server implementations.
 pub mod tag_policies_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with TagPoliciesServiceServer.
     #[async_trait]
-    pub trait TagPoliciesService: Send + Sync + 'static {
+    pub trait TagPoliciesService: std::marker::Send + std::marker::Sync + 'static {
         async fn list_tag_policies(
             &self,
             request: tonic::Request<super::ListTagPoliciesRequest>,
@@ -31,14 +37,14 @@ pub mod tag_policies_service_server {
         ) -> std::result::Result<tonic::Response<()>, tonic::Status>;
     }
     #[derive(Debug)]
-    pub struct TagPoliciesServiceServer<T: TagPoliciesService> {
+    pub struct TagPoliciesServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: TagPoliciesService> TagPoliciesServiceServer<T> {
+    impl<T> TagPoliciesServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -92,10 +98,10 @@ pub mod tag_policies_service_server {
     impl<T, B> tonic::codegen::Service<http::Request<B>> for TagPoliciesServiceServer<T>
     where
         T: TagPoliciesService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -140,7 +146,7 @@ pub mod tag_policies_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListTagPoliciesSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -189,7 +195,7 @@ pub mod tag_policies_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateTagPolicySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -235,7 +241,7 @@ pub mod tag_policies_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetTagPolicySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -284,7 +290,7 @@ pub mod tag_policies_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateTagPolicySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -333,7 +339,7 @@ pub mod tag_policies_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteTagPolicySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -350,23 +356,27 @@ pub mod tag_policies_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: TagPoliciesService> Clone for TagPoliciesServiceServer<T> {
+    impl<T> Clone for TagPoliciesServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -378,18 +388,25 @@ pub mod tag_policies_service_server {
             }
         }
     }
-    impl<T: TagPoliciesService> tonic::server::NamedService
-    for TagPoliciesServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.tags.v1.TagPoliciesService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.tags.v1.TagPoliciesService";
+    impl<T> tonic::server::NamedService for TagPoliciesServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }
 /// Generated server implementations.
 pub mod entity_tag_assignments_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with EntityTagAssignmentsServiceServer.
     #[async_trait]
-    pub trait EntityTagAssignmentsService: Send + Sync + 'static {
+    pub trait EntityTagAssignmentsService: std::marker::Send + std::marker::Sync + 'static {
         /** List entity tag assignments
 
  Gets the tag assignments for the specified entity.
@@ -446,14 +463,14 @@ pub mod entity_tag_assignments_service_server {
     /** Manage assignments of tags to Unity Catalog entities.
 */
     #[derive(Debug)]
-    pub struct EntityTagAssignmentsServiceServer<T: EntityTagAssignmentsService> {
+    pub struct EntityTagAssignmentsServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: EntityTagAssignmentsService> EntityTagAssignmentsServiceServer<T> {
+    impl<T> EntityTagAssignmentsServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -508,10 +525,10 @@ pub mod entity_tag_assignments_service_server {
     for EntityTagAssignmentsServiceServer<T>
     where
         T: EntityTagAssignmentsService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -560,7 +577,7 @@ pub mod entity_tag_assignments_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListEntityTagAssignmentsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -614,7 +631,7 @@ pub mod entity_tag_assignments_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateEntityTagAssignmentSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -665,7 +682,7 @@ pub mod entity_tag_assignments_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetEntityTagAssignmentSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -719,7 +736,7 @@ pub mod entity_tag_assignments_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateEntityTagAssignmentSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -773,7 +790,7 @@ pub mod entity_tag_assignments_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteEntityTagAssignmentSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -790,23 +807,27 @@ pub mod entity_tag_assignments_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: EntityTagAssignmentsService> Clone for EntityTagAssignmentsServiceServer<T> {
+    impl<T> Clone for EntityTagAssignmentsServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -818,8 +839,9 @@ pub mod entity_tag_assignments_service_server {
             }
         }
     }
-    impl<T: EntityTagAssignmentsService> tonic::server::NamedService
-    for EntityTagAssignmentsServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.tags.v1.EntityTagAssignmentsService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.tags.v1.EntityTagAssignmentsService";
+    impl<T> tonic::server::NamedService for EntityTagAssignmentsServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }

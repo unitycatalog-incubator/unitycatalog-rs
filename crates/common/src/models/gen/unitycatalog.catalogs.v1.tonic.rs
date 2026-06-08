@@ -1,11 +1,17 @@
 // @generated
 /// Generated server implementations.
 pub mod catalogs_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with CatalogsServiceServer.
     #[async_trait]
-    pub trait CatalogsService: Send + Sync + 'static {
+    pub trait CatalogsService: std::marker::Send + std::marker::Sync + 'static {
         /** List catalogs
 
  Gets an array of catalogs in the metastore. If the caller is the metastore admin,
@@ -60,14 +66,14 @@ pub mod catalogs_service_server {
     /** Manage catalogs and schemas in the service.
 */
     #[derive(Debug)]
-    pub struct CatalogsServiceServer<T: CatalogsService> {
+    pub struct CatalogsServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: CatalogsService> CatalogsServiceServer<T> {
+    impl<T> CatalogsServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -121,10 +127,10 @@ pub mod catalogs_service_server {
     impl<T, B> tonic::codegen::Service<http::Request<B>> for CatalogsServiceServer<T>
     where
         T: CatalogsService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -165,7 +171,7 @@ pub mod catalogs_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListCatalogsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -211,7 +217,7 @@ pub mod catalogs_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateCatalogSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -256,7 +262,7 @@ pub mod catalogs_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetCatalogSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -302,7 +308,7 @@ pub mod catalogs_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = UpdateCatalogSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -348,7 +354,7 @@ pub mod catalogs_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteCatalogSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -365,23 +371,27 @@ pub mod catalogs_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: CatalogsService> Clone for CatalogsServiceServer<T> {
+    impl<T> Clone for CatalogsServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -393,7 +403,9 @@ pub mod catalogs_service_server {
             }
         }
     }
-    impl<T: CatalogsService> tonic::server::NamedService for CatalogsServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.catalogs.v1.CatalogsService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.catalogs.v1.CatalogsService";
+    impl<T> tonic::server::NamedService for CatalogsServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }
