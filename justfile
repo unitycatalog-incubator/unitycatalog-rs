@@ -114,6 +114,27 @@ build-py: build-py-client
 build-py-client:
     uv run maturin develop --uv --manifest-path python/client/Cargo.toml
 
+# build a release manylinux wheel for one linux arch into dist/ (arch: x86_64 | aarch64).
+# Cross-compiles with zig (`maturin build --zig`) so a single host builds both arches
+# without qemu — the C deps (aws-lc-sys, via rustls) cross-compile cleanly under zig,
+# whereas qemu emulation SIGSEGVs on them. The wheel is tagged manylinux_2_28 so it
+# installs into the python:3.13-slim-bookworm marimo container; abi3 (pyo3 abi3-py39)
+# means one wheel covers every Python >= 3.9.
+#
+# Host prereqs (one-time): `rustup target add x86_64-unknown-linux-gnu
+# aarch64-unknown-linux-gnu`, `cargo install cargo-zigbuild`, and zig on PATH
+# (`brew install zig`).
+[group('build')]
+build-py-wheel arch="x86_64":
+    uv run maturin build --release --zig \
+      --target {{ arch }}-unknown-linux-gnu \
+      --manifest-path python/client/Cargo.toml \
+      --out dist --compatibility manylinux_2_28
+
+# build release manylinux wheels for both arches (amd64 + arm64) into dist/.
+[group('build')]
+build-py-wheels: (build-py-wheel "x86_64") (build-py-wheel "aarch64")
+
 # build python server bindings
 [group('build')]
 build-py-server:
@@ -186,12 +207,12 @@ integration-oss-java:
 # Boot the Java OSS server and record fixtures into crates/acceptance/recordings/oss_java/
 [group('test')]
 record-oss-java:
-    docker compose -f dev/uc-oss.compose.yaml up -d --wait
+    # docker compose -f dev/uc-oss.compose.yaml up -d --wait
     UC_INTEGRATION_PROFILE="oss_java" \
-    UC_INTEGRATION_URL="http://localhost:8080" \
+    UC_INTEGRATION_URL="http://localhost:9080" \
     UC_INTEGRATION_RECORD="true" \
     cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
-    docker compose -f dev/uc-oss.compose.yaml down -v
+    # docker compose -f dev/uc-oss.compose.yaml down -v
 
 # Boots the local Rust server in the background (shutting it down on exit) and
 # records OssRust-compatible fixtures into crates/acceptance/recordings/oss_rust/
