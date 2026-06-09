@@ -46,11 +46,13 @@ use std::sync::Arc;
 
 use object_store::aws::AmazonS3Builder;
 use object_store::azure::MicrosoftAzureBuilder;
+use object_store::client::SpawnedReqwestConnector;
 use object_store::gcp::GoogleCloudStorageBuilder;
 use object_store::path::Path;
 use object_store::prefix::PrefixStore;
 use object_store::{ObjectStore, Result};
 use olai_http::CloudClient;
+use tokio::runtime::Handle;
 use unitycatalog_client::{TemporaryCredentialClient, UnityCatalogClient};
 use unitycatalog_common::temporary_credentials::v1::TemporaryCredential;
 use url::Url;
@@ -83,6 +85,12 @@ pub struct UnityObjectStoreFactoryBuilder {
     /// other than `us-east-1` and the server does not return region info
     /// alongside the vended credential.
     aws_region: Option<String>,
+    /// Optional dedicated tokio runtime for HTTP I/O. When set, all
+    /// object-store and credential-vending requests are spawned on this
+    /// runtime instead of the ambient one. See [`with_io_runtime`].
+    ///
+    /// [`with_io_runtime`]: UnityObjectStoreFactoryBuilder::with_io_runtime
+    io_handle: Option<Handle>,
 }
 
 impl UnityObjectStoreFactoryBuilder {
@@ -131,6 +139,29 @@ impl UnityObjectStoreFactoryBuilder {
         self
     }
 
+    /// Route all HTTP I/O onto a dedicated tokio runtime.
+    ///
+    /// In production DataFusion deployments it is common to segregate network
+    /// I/O onto a separate runtime so that CPU-bound query work on the main
+    /// runtime cannot starve object-store requests (and vice versa). When a
+    /// handle is supplied here:
+    ///
+    /// - every cloud object store ([`AmazonS3Builder`], [`MicrosoftAzureBuilder`],
+    ///   [`GoogleCloudStorageBuilder`]) is built with a
+    ///   [`SpawnedReqwestConnector`] that spawns its requests on this runtime; and
+    /// - the credential-vending [`CloudClient`] is configured with the same
+    ///   runtime via [`CloudClient::with_runtime`].
+    ///
+    /// When unset (the default), I/O runs on the ambient runtime — current
+    /// behaviour, fully backwards compatible.
+    ///
+    /// Pass `None` to clear a previously set handle (e.g. when reusing the
+    /// builder).
+    pub fn with_io_runtime(mut self, handle: impl Into<Option<Handle>>) -> Self {
+        self.io_handle = handle.into();
+        self
+    }
+
     pub async fn build(self) -> Result<UnityObjectStoreFactory> {
         let url = if let Some(uri) = self.uri {
             url::Url::parse(&uri).map_err(Error::from)?
@@ -149,12 +180,20 @@ impl UnityObjectStoreFactoryBuilder {
             .into());
         };
 
+        // Route credential-vending HTTP onto the dedicated I/O runtime when one
+        // was supplied; otherwise leave it on the ambient runtime.
+        let cloud_client = match &self.io_handle {
+            Some(handle) => cloud_client.with_runtime(handle.clone()),
+            None => cloud_client,
+        };
+
         let creds = TemporaryCredentialClient::new_with_url(cloud_client.clone(), url.clone());
         let uc = UnityCatalogClient::new(cloud_client, url);
         Ok(UnityObjectStoreFactory {
             creds,
             uc,
             aws_region: self.aws_region,
+            io_handle: self.io_handle,
         })
     }
 }
@@ -217,6 +256,9 @@ pub struct UnityObjectStoreFactory {
     creds: TemporaryCredentialClient,
     uc: UnityCatalogClient,
     aws_region: Option<String>,
+    /// Dedicated runtime for object-store HTTP I/O, if configured via
+    /// [`UnityObjectStoreFactoryBuilder::with_io_runtime`].
+    io_handle: Option<Handle>,
 }
 
 impl UnityObjectStoreFactory {
@@ -357,10 +399,13 @@ impl UnityObjectStoreFactory {
         if as_azure(&credential).is_ok() {
             let provider = new_azure(self.creds.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
-            let store = MicrosoftAzureBuilder::new()
+            let mut builder = MicrosoftAzureBuilder::new()
                 .with_url(url.to_string())
-                .with_credentials(Arc::new(provider))
-                .build()?;
+                .with_credentials(Arc::new(provider));
+            if let Some(handle) = &self.io_handle {
+                builder = builder.with_http_connector(SpawnedReqwestConnector::new(handle.clone()));
+            }
+            let store = builder.build()?;
             return Ok(Arc::new(store));
         }
 
@@ -385,6 +430,9 @@ impl UnityObjectStoreFactory {
             if let Some(ap) = access_point {
                 builder = builder.with_bucket_name(ap);
             }
+            if let Some(handle) = &self.io_handle {
+                builder = builder.with_http_connector(SpawnedReqwestConnector::new(handle.clone()));
+            }
             let store = builder.build()?;
             return Ok(Arc::new(store));
         }
@@ -392,10 +440,13 @@ impl UnityObjectStoreFactory {
         if as_gcp(&credential).is_ok() {
             let provider = new_gcp(self.creds.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
-            let store = GoogleCloudStorageBuilder::new()
+            let mut builder = GoogleCloudStorageBuilder::new()
                 .with_url(url.to_string())
-                .with_credentials(Arc::new(provider))
-                .build()?;
+                .with_credentials(Arc::new(provider));
+            if let Some(handle) = &self.io_handle {
+                builder = builder.with_http_connector(SpawnedReqwestConnector::new(handle.clone()));
+            }
+            let store = builder.build()?;
             return Ok(Arc::new(store));
         }
 
@@ -494,28 +545,100 @@ mod tests {
 
     use super::*;
 
+    /// Building a factory with a dedicated I/O runtime handle succeeds and the
+    /// handle is carried through to the factory. The `None` path (no handle) is
+    /// exercised everywhere else and must remain the default.
+    ///
+    /// A plain `#[test]` (not `#[tokio::test]`) so the dedicated I/O `Runtime`
+    /// can be dropped here — dropping a `Runtime` inside an async context panics.
+    #[test]
+    fn build_with_io_runtime_carries_handle() {
+        // A dedicated I/O runtime — the canonical segregation pattern (mirrors
+        // object_store's own spawn-connector test).
+        let io_runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let handle = io_runtime.handle().clone();
+
+        // Drive `build()` on a separate, lightweight runtime so this test owns
+        // (and can safely drop) `io_runtime` itself.
+        let driver = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+
+        driver.block_on(async {
+            let factory = UnityObjectStoreFactory::builder()
+                .with_uri("http://localhost:8080/api/2.1/unity-catalog/")
+                .with_allow_unauthenticated(true)
+                .with_io_runtime(handle.clone())
+                .build()
+                .await
+                .unwrap();
+            assert!(factory.io_handle.is_some());
+
+            // Clearing via `None` is honoured.
+            let factory = UnityObjectStoreFactory::builder()
+                .with_uri("http://localhost:8080/api/2.1/unity-catalog/")
+                .with_allow_unauthenticated(true)
+                .with_io_runtime(handle.clone())
+                .with_io_runtime(None)
+                .build()
+                .await
+                .unwrap();
+            assert!(factory.io_handle.is_none());
+        });
+    }
+
     /// Live test against a Databricks workspace. Requires
     /// `DATABRICKS_HOST` + `DATABRICKS_TOKEN` to be set. Marked `#[ignore]`
     /// because CI shouldn't hit a real workspace.
-    #[tokio::test]
+    ///
+    /// The calling runtime is a current-thread runtime with **I/O disabled**
+    /// (no `enable_all`); a successful `list` therefore proves every request
+    /// was spawned onto the separate, I/O-enabled runtime via the connector —
+    /// exactly the assertion object_store's own spawn-connector test makes.
+    #[test]
     #[ignore]
-    async fn list_store_via_temp_credential() {
+    fn list_store_via_temp_credential_on_io_runtime() {
         let databricks_host = std::env::var("DATABRICKS_HOST").unwrap();
         let databricks_token = std::env::var("DATABRICKS_TOKEN").unwrap();
-        let factory = UnityObjectStoreFactory::builder()
-            .with_uri(format!("{databricks_host}/api/2.1/unity-catalog/"))
-            .with_token(databricks_token)
-            .with_aws_region("eu-north-1".to_string())
+
+        // Dedicated, I/O-enabled runtime on its own thread.
+        let io_runtime = std::thread::spawn(|| {
+            tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()
+                .unwrap()
+        })
+        .join()
+        .unwrap();
+        let io_handle = io_runtime.handle().clone();
+
+        // Calling runtime: current-thread, no I/O driver enabled. Any request
+        // not spawned onto `io_handle` would panic ("no reactor running").
+        let main_runtime = tokio::runtime::Builder::new_current_thread()
             .build()
-            .await
             .unwrap();
 
-        let volume_path = url::Url::parse("s3://open-lakehouse-dev/volumes/").unwrap();
-        let store = factory
-            .for_path(&volume_path, PathOperation::Read)
-            .await
-            .unwrap();
-        let files: Vec<_> = store.as_dyn().list(None).try_collect().await.unwrap();
-        println!("files: {files:?}");
+        main_runtime.block_on(async move {
+            let factory = UnityObjectStoreFactory::builder()
+                .with_uri(format!("{databricks_host}/api/2.1/unity-catalog/"))
+                .with_token(databricks_token)
+                .with_aws_region("eu-north-1".to_string())
+                .with_io_runtime(io_handle)
+                .build()
+                .await
+                .unwrap();
+
+            let volume_path = url::Url::parse("s3://open-lakehouse-dev/volumes/").unwrap();
+            let store = factory
+                .for_path(&volume_path, PathOperation::Read)
+                .await
+                .unwrap();
+            let files: Vec<_> = store.as_dyn().list(None).try_collect().await.unwrap();
+            println!("files: {files:?}");
+        });
     }
 }
