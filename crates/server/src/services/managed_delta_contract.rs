@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 use unitycatalog_common::models::tables::v1::{Column, ColumnTypeName};
 
 use crate::rest::routers::delta::models::{
-    DeltaArrayType, DeltaCreateTableRequest, DeltaDataType, DeltaDecimalType,
+    DeltaArrayType, DeltaCreateTableRequest, DeltaDataSourceFormat, DeltaDataType, DeltaDecimalType,
     DeltaDomainMetadataUpdates, DeltaMapType, DeltaProtocol, DeltaStructField, DeltaStructType,
 };
 use crate::{Error, Result};
@@ -585,6 +585,7 @@ mod tests {
             domain_metadata: None,
             last_commit_timestamp_ms: 1700,
             uniform: None,
+            data_source_format: Some(DeltaDataSourceFormat::Delta),
         };
         let props = build_stored_properties(&req);
         assert_eq!(

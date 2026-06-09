@@ -37,6 +37,8 @@ olai-store = { workspace = true }
 
 # grpc server specific dependencies (in alphabetical order)
 tonic = { workspace = true, optional = true }
+# Codec used by the generated tonic service code (`tonic_prost::ProstCodec`).
+tonic-prost = { workspace = true, optional = true }
 
 # convenience for downstream crates that want to use certain types with sqlx
 sqlx = { workspace = true, optional = true, features = [
@@ -64,7 +66,7 @@ tokio = { version = "1", features = ["full"] }
 
 [features]
 default = ["rest-client"]
-grpc = ["tonic"]
+grpc = ["tonic", "tonic-prost"]
 
 # enable support for the axum framework. This will implement `FromRequest`
 # and `FromRequestParts` for request types.

@@ -1145,6 +1145,7 @@ mod tests {
             name: name.into(),
             location: location.into(),
             table_type: DeltaTableType::Managed,
+            data_source_format: Some(DeltaDataSourceFormat::Delta),
             comment: None,
             columns: DeltaStructType {
                 type_tag: Default::default(),

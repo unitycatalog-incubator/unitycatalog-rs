@@ -1,11 +1,17 @@
 // @generated
 /// Generated server implementations.
 pub mod staging_tables_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with StagingTablesServiceServer.
     #[async_trait]
-    pub trait StagingTablesService: Send + Sync + 'static {
+    pub trait StagingTablesService: std::marker::Send + std::marker::Sync + 'static {
         /** Creates a new staging table, allocating an immutable table id and a storage
  location under the parent schema/catalog managed storage root. The caller
  must have the CREATE privilege on the parent schema.
@@ -20,14 +26,14 @@ pub mod staging_tables_service_server {
  at the returned staging_location and finalizes the table via CreateTable.
 */
     #[derive(Debug)]
-    pub struct StagingTablesServiceServer<T: StagingTablesService> {
+    pub struct StagingTablesServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: StagingTablesService> StagingTablesServiceServer<T> {
+    impl<T> StagingTablesServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -82,10 +88,10 @@ pub mod staging_tables_service_server {
     for StagingTablesServiceServer<T>
     where
         T: StagingTablesService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -130,7 +136,7 @@ pub mod staging_tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateStagingTableSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -147,23 +153,27 @@ pub mod staging_tables_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: StagingTablesService> Clone for StagingTablesServiceServer<T> {
+    impl<T> Clone for StagingTablesServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -175,8 +185,9 @@ pub mod staging_tables_service_server {
             }
         }
     }
-    impl<T: StagingTablesService> tonic::server::NamedService
-    for StagingTablesServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.staging_tables.v1.StagingTablesService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.staging_tables.v1.StagingTablesService";
+    impl<T> tonic::server::NamedService for StagingTablesServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }

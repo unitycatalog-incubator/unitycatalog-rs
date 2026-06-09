@@ -12,27 +12,39 @@ dashmap = { workspace = true }
 datafusion = { workspace = true }
 futures = { workspace = true }
 object_store = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing = { workspace = true }
 url = { workspace = true }
 
 unitycatalog-common = { path = "../common" }
 unitycatalog-object-store = { path = "../object-store" }
+unitycatalog-client = { path = "../client" }
 
-deltalake-core = { version = "0.32.3", features = [
-  "datafusion",
-  "cloud",
-], optional = true }
+deltalake-core = { workspace = true, optional = true }
+# Build catalog-managed kernel snapshots (log tail + max catalog version) to hand
+# to deltalake-core's `Snapshot::new`. Shares the workspace `delta_kernel` git
+# source with `deltalake-core` so the `Snapshot` types unify.
+delta_kernel = { workspace = true, optional = true }
 
 [features]
 default = ["delta"]
 # Expose a Delta-backed `TableProviderBuilder` (pulls in delta-rs).
-delta = ["dep:deltalake-core"]
+delta = ["dep:deltalake-core", "dep:delta_kernel"]
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+serde_json = { workspace = true }
 
 [[example]]
 name = "unity_catalog"
+required-features = ["delta"]
+
+[[example]]
+name = "managed_table_snapshot"
+required-features = ["delta"]
+
+[[example]]
+name = "managed_table_write"
 required-features = ["delta"]

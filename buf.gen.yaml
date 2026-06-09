@@ -25,7 +25,7 @@ plugins:
       # useful to build reusable extractors for axum
       - ignore_unknown_fields=true
       - preserve_proto_field_names=true
-  - remote: buf.build/community/neoeinstein-tonic:v0.4.1
+  - remote: buf.build/community/neoeinstein-tonic:v0.5.0
     out: crates/common/src/models/gen
     opt:
       - no_client=true

@@ -1,11 +1,17 @@
 // @generated
 /// Generated server implementations.
 pub mod tables_service_server {
-    #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
+    #![allow(
+        unused_variables,
+        dead_code,
+        missing_docs,
+        clippy::wildcard_imports,
+        clippy::let_unit_value,
+    )]
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with TablesServiceServer.
     #[async_trait]
-    pub trait TablesService: Send + Sync + 'static {
+    pub trait TablesService: std::marker::Send + std::marker::Sync + 'static {
         /** Gets an array of summaries for tables for a schema and catalog within the metastore. The table summaries returned are either:
  - summaries for tables (within the current metastore and parent catalog and schema), when the user is a metastore admin, or:
  - summaries for tables and schemas (within the current metastore and parent catalog) for which the user has ownership or the
@@ -67,14 +73,14 @@ pub mod tables_service_server {
  Tables represent structured data stored in a schema, supporting managed and external storage formats.
 */
     #[derive(Debug)]
-    pub struct TablesServiceServer<T: TablesService> {
+    pub struct TablesServiceServer<T> {
         inner: Arc<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
         max_decoding_message_size: Option<usize>,
         max_encoding_message_size: Option<usize>,
     }
-    impl<T: TablesService> TablesServiceServer<T> {
+    impl<T> TablesServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -128,10 +134,10 @@ pub mod tables_service_server {
     impl<T, B> tonic::codegen::Service<http::Request<B>> for TablesServiceServer<T>
     where
         T: TablesService,
-        B: Body + Send + 'static,
-        B::Error: Into<StdError> + Send + 'static,
+        B: Body + std::marker::Send + 'static,
+        B::Error: Into<StdError> + std::marker::Send + 'static,
     {
-        type Response = http::Response<tonic::body::BoxBody>;
+        type Response = http::Response<tonic::body::Body>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(
@@ -173,7 +179,7 @@ pub mod tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListTableSummariesSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -218,7 +224,7 @@ pub mod tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = ListTablesSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -263,7 +269,7 @@ pub mod tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = CreateTableSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -308,7 +314,7 @@ pub mod tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetTableSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -354,7 +360,7 @@ pub mod tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetTableExistsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -399,7 +405,7 @@ pub mod tables_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = DeleteTableSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
+                        let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
                                 accept_compression_encodings,
@@ -416,23 +422,27 @@ pub mod tables_service_server {
                 }
                 _ => {
                     Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", tonic::Code::Unimplemented as i32)
-                                .header(
-                                    http::header::CONTENT_TYPE,
-                                    tonic::metadata::GRPC_CONTENT_TYPE,
-                                )
-                                .body(empty_body())
-                                .unwrap(),
-                        )
+                        let mut response = http::Response::new(
+                            tonic::body::Body::default(),
+                        );
+                        let headers = response.headers_mut();
+                        headers
+                            .insert(
+                                tonic::Status::GRPC_STATUS,
+                                (tonic::Code::Unimplemented as i32).into(),
+                            );
+                        headers
+                            .insert(
+                                http::header::CONTENT_TYPE,
+                                tonic::metadata::GRPC_CONTENT_TYPE,
+                            );
+                        Ok(response)
                     })
                 }
             }
         }
     }
-    impl<T: TablesService> Clone for TablesServiceServer<T> {
+    impl<T> Clone for TablesServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -444,7 +454,9 @@ pub mod tables_service_server {
             }
         }
     }
-    impl<T: TablesService> tonic::server::NamedService for TablesServiceServer<T> {
-        const NAME: &'static str = "unitycatalog.tables.v1.TablesService";
+    /// Generated gRPC service name
+    pub const SERVICE_NAME: &str = "unitycatalog.tables.v1.TablesService";
+    impl<T> tonic::server::NamedService for TablesServiceServer<T> {
+        const NAME: &'static str = SERVICE_NAME;
     }
 }
