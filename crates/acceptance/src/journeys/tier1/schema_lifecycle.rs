@@ -98,7 +98,7 @@ impl UserJourney for SchemaLifecycleJourney {
         );
         let schema = ctx
             .client()
-            .create_schema(&self.catalog_name, &self.schema_name)
+            .create_schema(&self.schema_name, &self.catalog_name)
             .with_comment("Schema lifecycle test".to_string())
             .await
             .map_err(|e| {

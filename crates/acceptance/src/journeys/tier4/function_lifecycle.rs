@@ -98,7 +98,7 @@ impl UserJourney for FunctionLifecycleJourney {
                 AcceptanceError::JourneyExecution(format!("Failed to create catalog: {}", e))
             })?;
         ctx.client()
-            .create_schema(&self.catalog_name, &self.schema_name)
+            .create_schema(&self.schema_name, &self.catalog_name)
             .await
             .map_err(|e| {
                 AcceptanceError::JourneyExecution(format!("Failed to create schema: {}", e))

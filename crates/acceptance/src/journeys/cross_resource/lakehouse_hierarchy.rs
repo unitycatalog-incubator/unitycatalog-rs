@@ -108,7 +108,7 @@ impl UserJourney for LakehouseHierarchyJourney {
                 self.catalog_name, schema_name
             );
             ctx.client()
-                .create_schema(&self.catalog_name, schema_name)
+                .create_schema(schema_name, &self.catalog_name)
                 .with_comment(format!("{} layer", schema_name))
                 .await
                 .map_err(|e| {
