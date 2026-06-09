@@ -125,7 +125,7 @@ impl UserJourney for GovernanceSetupJourney {
             self.catalog_name, self.schema_name
         );
         ctx.client()
-            .create_schema(&self.catalog_name, &self.schema_name)
+            .create_schema(&self.schema_name, &self.catalog_name)
             .with_comment("Governance test schema".to_string())
             .await
             .map_err(|e| {

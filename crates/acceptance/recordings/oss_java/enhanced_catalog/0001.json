@@ -7,11 +7,12 @@
   "response": {
     "status": 200,
     "headers": {
-      "date": "Sat, 30 May 2026 20:03:29 GMT",
-      "server": "Armeria/1.28.4",
+      "date": "Tue, 9 Jun 2026 09:03:56 GMT",
       "content-type": "application/json",
-      "content-length": "432"
+      "server": "envoy",
+      "x-envoy-upstream-service-time": "2",
+      "content-length": "785"
     },
-    "body": "{\"catalogs\":[{\"name\":\"enhanced_catalog_1780171408\",\"comment\":\"Enhanced test catalog with rich reporting\",\"properties\":{},\"owner\":null,\"created_at\":1780171408966,\"created_by\":null,\"updated_at\":1780171408966,\"updated_by\":null,\"id\":\"97340c07-034e-4886-a10c-7123c7204de6\",\"storage_root\":\"file:///tmp/uc-test\",\"storage_location\":\"file:///tmp/uc-test/__unitystorage/catalogs/97340c07-034e-4886-a10c-7123c7204de6\"}],\"next_page_token\":null}"
+    "body": "{\"catalogs\":[{\"name\":\"demo\",\"comment\":\"managed demo\",\"properties\":{},\"owner\":null,\"created_at\":1780779514958,\"created_by\":null,\"updated_at\":1780779514958,\"updated_by\":null,\"id\":\"4b26fbf7-c44b-4997-8846-9d64396da109\",\"storage_root\":\"s3://olai-demo-1/managed\",\"storage_location\":\"s3://olai-demo-1/managed/__unitystorage/catalogs/4b26fbf7-c44b-4997-8846-9d64396da109\"},{\"name\":\"enhanced_catalog_1780995836\",\"comment\":\"Enhanced test catalog with rich reporting\",\"properties\":{},\"owner\":null,\"created_at\":1780995836482,\"created_by\":null,\"updated_at\":1780995836482,\"updated_by\":null,\"id\":\"655f099e-8609-4376-8b8a-bff1798f5066\",\"storage_root\":\"file:///tmp/uc-test\",\"storage_location\":\"file:///tmp/uc-test/__unitystorage/catalogs/655f099e-8609-4376-8b8a-bff1798f5066\"}],\"next_page_token\":null}"
   }
 }
