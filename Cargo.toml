@@ -29,7 +29,7 @@ delta_kernel = { package = "buoyant_kernel", git = "https://github.com/buoyant-d
   "default-engine-rustls",
   "arrow-58",
 ] }
-deltalake-core = { git = "https://github.com/roeap/delta-rs", rev = "a52e341e9ec80ae2cef916364803c2fbdc2f848b", features = [
+deltalake-core = { git = "https://github.com/roeap/delta-rs", rev = "10d23f5ca992e497a331e78a03eb82d1bdbd149d", features = [
   "datafusion",
   "cloud",
 ] }
