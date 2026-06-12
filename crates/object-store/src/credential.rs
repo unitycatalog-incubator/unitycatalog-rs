@@ -193,6 +193,18 @@ pub(super) fn as_azure(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<
     })
 }
 
+/// Map an empty string to `None`, otherwise `Some(clone)`. An empty AWS session
+/// token must not be signed as `x-amz-security-token: ` — some stores reject the
+/// empty header — so credentials carrying no token (e.g. long-lived IAM keys)
+/// surface as `token: None`.
+fn non_empty(s: &str) -> Option<String> {
+    if s.is_empty() {
+        None
+    } else {
+        Some(s.to_string())
+    }
+}
+
 pub(super) fn as_aws(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<AwsCredential>>> {
     use Credentials::*;
 
@@ -204,12 +216,12 @@ pub(super) fn as_aws(cred: &TemporaryCredential) -> Result<TemporaryToken<Arc<Aw
         AwsTempCredentials(aws) => AwsCredential {
             key_id: aws.access_key_id.clone(),
             secret_key: aws.secret_access_key.clone(),
-            token: Some(aws.session_token.clone()),
+            token: non_empty(&aws.session_token),
         },
         R2TempCredentials(r2) => AwsCredential {
             key_id: r2.access_key_id.clone(),
             secret_key: r2.secret_access_key.clone(),
-            token: Some(r2.session_token.clone()),
+            token: non_empty(&r2.session_token),
         },
         _ => return Err(crate::Error::credential_mismatch("Expected AWS credential.").into()),
     };

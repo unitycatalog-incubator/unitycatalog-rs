@@ -49,7 +49,12 @@ pub async fn append_to_managed_table(
         .properties
         .get("io.unitycatalog.tableId")
         .cloned()
-        .unwrap_or_default();
+        .ok_or_else(|| {
+            CreateManagedTableError::other(format!(
+                "table {catalog}.{schema}.{table} is missing the required \
+                 io.unitycatalog.tableId property (ManagedTablesSpec §table properties)"
+            ))
+        })?;
     let location = Url::parse(&ensure_trailing_slash(&loaded.metadata.location))
         .map_err(|e| CreateManagedTableError::other(format!("invalid table location: {e}")))?;
     let commits = loaded.commits.as_deref().unwrap_or(&[]);
@@ -62,7 +67,10 @@ pub async fn append_to_managed_table(
 
     // 2. Credentialed object store (table exists now, so vend by name) + kernel engine.
     let uc_store = factory
-        .for_table(format!("{catalog}.{schema}.{table}"), TableOperation::ReadWrite)
+        .for_table(
+            format!("{catalog}.{schema}.{table}"),
+            TableOperation::ReadWrite,
+        )
         .await?;
     let engine = DefaultEngineBuilder::new(uc_store.root()).build();
 
@@ -91,15 +99,18 @@ pub async fn append_to_managed_table(
         .map_err(CreateManagedTableError::Kernel)?;
     txn.add_files(add_metadata);
 
-    match txn.commit(&engine).map_err(CreateManagedTableError::Kernel)? {
+    match txn
+        .commit(&engine)
+        .map_err(CreateManagedTableError::Kernel)?
+    {
         CommitResult::CommittedTransaction(c) => Ok(c.commit_version()),
         CommitResult::ConflictedTransaction(c) => Err(CreateManagedTableError::other(format!(
             "commit conflicted at version {}",
             c.conflict_version()
         ))),
-        CommitResult::RetryableTransaction(_) => {
-            Err(CreateManagedTableError::other("retryable error during append commit"))
-        }
+        CommitResult::RetryableTransaction(_) => Err(CreateManagedTableError::other(
+            "retryable error during append commit",
+        )),
     }
 }
 
@@ -118,8 +129,13 @@ fn to_log_tail(
                 .file_size
                 .try_into()
                 .map_err(|_| CreateManagedTableError::other("negative commit file_size"))?;
-            LogPath::staged_commit(location.clone(), &c.file_name, c.file_modification_timestamp, size)
-                .map_err(CreateManagedTableError::Kernel)
+            LogPath::staged_commit(
+                location.clone(),
+                &c.file_name,
+                c.file_modification_timestamp,
+                size,
+            )
+            .map_err(CreateManagedTableError::Kernel)
         })
         .collect()
 }
