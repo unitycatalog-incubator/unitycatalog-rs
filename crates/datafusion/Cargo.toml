@@ -36,6 +36,7 @@ delta = ["dep:deltalake-core", "dep:delta_kernel"]
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 serde_json = { workspace = true }
+olai-http = { workspace = true }
 
 [[example]]
 name = "unity_catalog"

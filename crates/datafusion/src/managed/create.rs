@@ -209,7 +209,10 @@ pub fn get_final_required_properties_for_uc(
     properties.extend(snapshot.get_protocol_derived_properties());
     // The server's MANAGED contract wants `delta.checkpointPolicy=v2` explicitly; it follows
     // from the `v2Checkpoint` feature but isn't emitted by the protocol-derived properties.
-    properties.insert(CHECKPOINT_POLICY_KEY.to_string(), CHECKPOINT_POLICY_V2.to_string());
+    properties.insert(
+        CHECKPOINT_POLICY_KEY.to_string(),
+        CHECKPOINT_POLICY_V2.to_string(),
+    );
     properties.insert(
         METASTORE_LAST_UPDATE_VERSION.to_string(),
         snapshot.version().to_string(),
