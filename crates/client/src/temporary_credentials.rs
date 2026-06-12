@@ -262,7 +262,8 @@ impl TemporaryCredentialClient {
                 )
             }
         };
-        let uuid = Uuid::parse_str(&table_id).unwrap();
+        let uuid =
+            Uuid::parse_str(&table_id).map_err(unitycatalog_common::Error::InvalidIdentifier)?;
         let mut credential = self
             .post_credential(
                 "temporary-table-credentials",
@@ -365,5 +366,20 @@ fn backfill_credential_url(credential: &mut TemporaryCredential, storage_locatio
         && !location.is_empty()
     {
         credential.url = location;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A malformed server-supplied table id must surface as an error, not panic
+    /// (the credential path previously called `Uuid::parse_str(..).unwrap()`).
+    #[test]
+    fn malformed_table_id_is_error_not_panic() {
+        let result =
+            Uuid::parse_str("not-a-uuid").map_err(unitycatalog_common::Error::InvalidIdentifier);
+        let err: crate::Error = result.unwrap_err().into();
+        assert!(matches!(err, crate::Error::Common { .. }));
     }
 }

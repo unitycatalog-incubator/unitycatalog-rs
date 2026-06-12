@@ -584,6 +584,52 @@ pub enum DeltaErrorType {
     NotImplementedException,
 }
 
+impl DeltaErrorType {
+    /// Whether this error type denotes a missing resource (404 family).
+    pub fn is_not_found(&self) -> bool {
+        matches!(
+            self,
+            DeltaErrorType::NotFoundException
+                | DeltaErrorType::NoSuchCatalogException
+                | DeltaErrorType::NoSuchSchemaException
+                | DeltaErrorType::NoSuchTableException
+        )
+    }
+
+    /// Whether this error type denotes a name collision (`AlreadyExistsException`).
+    pub fn is_already_exists(&self) -> bool {
+        matches!(self, DeltaErrorType::AlreadyExistsException)
+    }
+
+    /// Whether this error type denotes a commit-version conflict that the client
+    /// should resolve by rebuilding its snapshot and retrying.
+    pub fn is_commit_conflict(&self) -> bool {
+        matches!(self, DeltaErrorType::CommitVersionConflictException)
+    }
+
+    /// Whether this error type denotes an unmet `assert-etag`/`assert-table-uuid`
+    /// requirement; the client should reload the table and retry.
+    pub fn is_update_requirement_conflict(&self) -> bool {
+        matches!(self, DeltaErrorType::UpdateRequirementConflictException)
+    }
+
+    /// Whether the request was throttled or hit a resource limit (429 family).
+    /// The client should back off (and, for `ResourceExhaustedException`,
+    /// backfill pending commits) before retrying.
+    pub fn is_resource_exhausted(&self) -> bool {
+        matches!(
+            self,
+            DeltaErrorType::ResourceExhaustedException | DeltaErrorType::TooManyRequestsException
+        )
+    }
+
+    /// Whether the commit outcome is unknown; the client must check table state
+    /// before retrying to avoid duplicate commits.
+    pub fn is_commit_state_unknown(&self) -> bool {
+        matches!(self, DeltaErrorType::CommitStateUnknownException)
+    }
+}
+
 /// The JSON error payload (`DeltaErrorModel` in `delta.yaml`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeltaErrorModel {
@@ -592,6 +638,9 @@ pub struct DeltaErrorModel {
     pub error_type: DeltaErrorType,
     /// HTTP response code.
     pub code: u16,
+    /// Stack trace, only populated when the server runs in debug mode.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stack: Option<Vec<String>>,
 }
 
 /// The JSON wrapper for all Delta API error responses (`DeltaErrorResponse`).
@@ -851,6 +900,29 @@ mod tests {
                         "commit-version": 6
                     }
                 }
+            }
+        }));
+    }
+
+    #[test]
+    fn error_response_round_trips() {
+        round_trip::<DeltaErrorResponse>(json!({
+            "error": {
+                "message": "table not found",
+                "type": "NoSuchTableException",
+                "code": 404
+            }
+        }));
+    }
+
+    #[test]
+    fn error_response_with_stack_round_trips() {
+        round_trip::<DeltaErrorResponse>(json!({
+            "error": {
+                "message": "boom",
+                "type": "InternalServerErrorException",
+                "code": 500,
+                "stack": ["frame one", "frame two"]
             }
         }));
     }

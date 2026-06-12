@@ -79,6 +79,7 @@ impl IntoResponse for DeltaError {
                 message: self.0.to_string(),
                 error_type,
                 code: status.as_u16(),
+                stack: None,
             },
         };
         (status, Json(body)).into_response()

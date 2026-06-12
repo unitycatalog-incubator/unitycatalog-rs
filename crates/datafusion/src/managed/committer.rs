@@ -286,17 +286,25 @@ impl Committer for UnityCatalogCommitter {
     }
 }
 
-/// Whether a client error is a UC version conflict (HTTP 409). The server returns 409 for
-/// a commit-version conflict — either as a typed `AlreadyExists` or an `Other { status: 409 }`
-/// (e.g. `CommitVersionConflictException`); `http_status()` covers both.
+/// Whether a client error is a UC commit-version conflict (HTTP 409) that the
+/// committer should surface as a retryable [`CommitResponse::Conflict`].
+///
+/// The `/delta/v1` server reports this through the typed Delta envelope as
+/// `CommitVersionConflictException` (now parsed into `Error::Delta`, matched by
+/// [`Error::is_commit_conflict`]) or, for a name collision, `AlreadyExistsException`
+/// ([`Error::is_already_exists`]). The legacy `http_status() == 409` arm is kept as
+/// a fallback for servers that still return an untyped 409 envelope.
 fn is_conflict(err: &unitycatalog_client::Error) -> bool {
-    matches!(err, unitycatalog_client::Error::Api(api) if api.http_status() == 409)
+    err.is_commit_conflict()
+        || err.is_already_exists()
+        || matches!(err, unitycatalog_client::Error::Api(api) if api.http_status() == 409)
 }
 
 #[cfg(test)]
 mod tests {
     use super::is_conflict;
     use unitycatalog_client::{Error, UcApiError};
+    use unitycatalog_common::models::delta::v1::{DeltaErrorModel, DeltaErrorType};
 
     #[test]
     fn conflict_detects_already_exists_and_409_other() {
@@ -309,6 +317,32 @@ mod tests {
             status: 409,
             error_code: "CommitVersionConflictException".into(),
             message: "version conflict".into(),
+        })));
+    }
+
+    #[test]
+    fn conflict_detects_typed_delta_envelope() {
+        // The /delta/v1 server now returns a typed Delta envelope, parsed into
+        // Error::Delta — both the commit-version conflict and the name-collision
+        // variants must be treated as retryable conflicts.
+        assert!(is_conflict(&Error::Delta(DeltaErrorModel {
+            message: "concurrent commit".into(),
+            error_type: DeltaErrorType::CommitVersionConflictException,
+            code: 409,
+            stack: None,
+        })));
+        assert!(is_conflict(&Error::Delta(DeltaErrorModel {
+            message: "already exists".into(),
+            error_type: DeltaErrorType::AlreadyExistsException,
+            code: 409,
+            stack: None,
+        })));
+        // A 404 Delta envelope is not a conflict.
+        assert!(!is_conflict(&Error::Delta(DeltaErrorModel {
+            message: "no table".into(),
+            error_type: DeltaErrorType::NoSuchTableException,
+            code: 404,
+            stack: None,
         })));
     }
 

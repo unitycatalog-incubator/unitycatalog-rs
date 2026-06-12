@@ -1,3 +1,5 @@
+use unitycatalog_common::models::delta::v1::DeltaErrorModel;
+
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 #[derive(Debug, thiserror::Error)]
@@ -7,6 +9,9 @@ pub enum Error {
         #[from]
         source: unitycatalog_common::Error,
     },
+
+    #[error("Delta API error {}: [{:?}] {}", .0.code, .0.error_type, .0.message)]
+    Delta(DeltaErrorModel),
 
     #[error("Client Error: {source}")]
     ClientError {
@@ -42,19 +47,73 @@ impl Error {
     }
 
     pub fn is_not_found(&self) -> bool {
-        matches!(self, Error::Api(UcApiError::NotFound { .. }))
+        match self {
+            Error::Api(UcApiError::NotFound { .. }) => true,
+            Error::Delta(model) => model.error_type.is_not_found(),
+            _ => false,
+        }
     }
 
     pub fn is_already_exists(&self) -> bool {
-        matches!(self, Error::Api(UcApiError::AlreadyExists { .. }))
+        match self {
+            Error::Api(UcApiError::AlreadyExists { .. }) => true,
+            Error::Delta(model) => model.error_type.is_already_exists(),
+            _ => false,
+        }
     }
 
     pub fn is_permission_denied(&self) -> bool {
-        matches!(self, Error::Api(UcApiError::PermissionDenied { .. }))
+        match self {
+            Error::Api(UcApiError::PermissionDenied { .. }) => true,
+            Error::Delta(model) => {
+                matches!(
+                    model.error_type,
+                    unitycatalog_common::models::delta::v1::DeltaErrorType::PermissionDeniedException
+                )
+            }
+            _ => false,
+        }
     }
 
     pub fn is_unauthenticated(&self) -> bool {
-        matches!(self, Error::Api(UcApiError::Unauthenticated { .. }))
+        match self {
+            Error::Api(UcApiError::Unauthenticated { .. }) => true,
+            Error::Delta(model) => {
+                matches!(
+                    model.error_type,
+                    unitycatalog_common::models::delta::v1::DeltaErrorType::NotAuthorizedException
+                )
+            }
+            _ => false,
+        }
+    }
+
+    /// Whether this is a Delta `CommitVersionConflictException` (409): a
+    /// concurrent commit ratified the proposed version first. The caller should
+    /// rebuild its snapshot and retry the commit.
+    pub fn is_commit_conflict(&self) -> bool {
+        matches!(self, Error::Delta(model) if model.error_type.is_commit_conflict())
+    }
+
+    /// Whether this is a Delta `UpdateRequirementConflictException` (409): an
+    /// `assert-etag`/`assert-table-uuid` requirement was not met. The caller
+    /// should reload the table and retry.
+    pub fn is_update_requirement_conflict(&self) -> bool {
+        matches!(self, Error::Delta(model) if model.error_type.is_update_requirement_conflict())
+    }
+
+    /// Whether this is a Delta `ResourceExhaustedException` / `TooManyRequestsException`
+    /// (429): the request was throttled or hit the unbackfilled-commit limit. The
+    /// caller should back off (and backfill pending commits) before retrying.
+    pub fn is_resource_exhausted(&self) -> bool {
+        matches!(self, Error::Delta(model) if model.error_type.is_resource_exhausted())
+    }
+
+    /// Whether this is a Delta `CommitStateUnknownException` (500): the commit
+    /// outcome is unknown. The caller must check table state before retrying to
+    /// avoid duplicate commits.
+    pub fn is_commit_state_unknown(&self) -> bool {
+        matches!(self, Error::Delta(model) if model.error_type.is_commit_state_unknown())
     }
 }
 
@@ -172,6 +231,31 @@ pub(crate) async fn parse_error_response(response: reqwest::Response) -> Error {
     }
 }
 
+/// Read an error HTTP response from a `/delta/v1` endpoint, parse the Delta API
+/// error envelope (`{ "error": { message, type, code, stack? } }`), and return a
+/// typed [`Error::Delta`].
+///
+/// Falls back to [`UcApiError::Other`] when the body is not a recognizable Delta
+/// error envelope (e.g. a bare proxy 502 or a truncated body), preserving the raw
+/// bytes for diagnostics.
+pub(crate) async fn parse_delta_error_response(response: reqwest::Response) -> Error {
+    use unitycatalog_common::models::delta::v1::DeltaErrorResponse;
+
+    let status = response.status().as_u16();
+    match response.bytes().await {
+        Ok(body) => match serde_json::from_slice::<DeltaErrorResponse>(&body) {
+            Ok(envelope) => Error::Delta(envelope.error),
+            Err(_) => UcApiError::Other {
+                status,
+                error_code: String::new(),
+                message: String::from_utf8_lossy(&body).into_owned(),
+            }
+            .into(),
+        },
+        Err(e) => Error::RequestError(e),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -231,5 +315,103 @@ mod tests {
         );
         let err = parse_error_response(resp).await;
         assert!(err.is_already_exists());
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_not_found() {
+        let resp = make_response(
+            404,
+            r#"{"error":{"message":"table 'x' not found","type":"NoSuchTableException","code":404}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_not_found());
+        assert!(!err.is_already_exists());
+        assert!(matches!(
+            err,
+            Error::Delta(ref m) if m.message == "table 'x' not found" && m.code == 404
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_already_exists() {
+        let resp = make_response(
+            409,
+            r#"{"error":{"message":"exists","type":"AlreadyExistsException","code":409}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_already_exists());
+        assert!(!err.is_not_found());
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_commit_conflict() {
+        let resp = make_response(
+            409,
+            r#"{"error":{"message":"conflict","type":"CommitVersionConflictException","code":409}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_commit_conflict());
+        assert!(!err.is_update_requirement_conflict());
+        assert!(!err.is_already_exists());
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_update_requirement_conflict() {
+        let resp = make_response(
+            409,
+            r#"{"error":{"message":"etag mismatch","type":"UpdateRequirementConflictException","code":409}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_update_requirement_conflict());
+        assert!(!err.is_commit_conflict());
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_resource_exhausted() {
+        for ty in ["ResourceExhaustedException", "TooManyRequestsException"] {
+            let body = format!(r#"{{"error":{{"message":"slow down","type":"{ty}","code":429}}}}"#);
+            // make_response needs a 'static str; build the response inline instead.
+            let resp = http::Response::builder()
+                .status(429)
+                .header("content-type", "application/json")
+                .body(bytes::Bytes::from(body))
+                .map(reqwest::Response::from)
+                .unwrap();
+            let err = parse_delta_error_response(resp).await;
+            assert!(err.is_resource_exhausted(), "type {ty} should be exhausted");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_commit_state_unknown() {
+        let resp = make_response(
+            500,
+            r#"{"error":{"message":"unknown","type":"CommitStateUnknownException","code":500}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_commit_state_unknown());
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_with_stack() {
+        let resp = make_response(
+            500,
+            r#"{"error":{"message":"boom","type":"InternalServerErrorException","code":500,"stack":["a","b"]}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(matches!(
+            err,
+            Error::Delta(ref m) if m.stack.as_deref() == Some(&["a".to_string(), "b".to_string()][..])
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_non_envelope_body() {
+        let resp = make_response(502, "Bad Gateway");
+        let err = parse_delta_error_response(resp).await;
+        assert!(matches!(
+            err,
+            Error::Api(UcApiError::Other { status: 502, ref message, .. }) if message == "Bad Gateway"
+        ));
     }
 }
