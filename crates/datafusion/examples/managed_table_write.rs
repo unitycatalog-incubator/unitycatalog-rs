@@ -62,7 +62,10 @@ use datafusion::arrow::datatypes::{DataType, Field, Schema};
 use datafusion::arrow::util::pretty::print_batches;
 use datafusion::prelude::SessionContext;
 use datafusion_unitycatalog::RoutingObjectStore;
-use datafusion_unitycatalog::catalog::build_catalog_managed_snapshot;
+use datafusion_unitycatalog::catalog::{
+    ManagedReadState, build_catalog_managed_snapshot, ensure_trailing_slash,
+    resolve_managed_read_state,
+};
 use deltalake_core::delta_datafusion::DeltaScanNext;
 use deltalake_core::delta_datafusion::engine::DataFusionEngine;
 use deltalake_core::logstore::{StorageConfig, default_logstore};
@@ -251,10 +254,12 @@ async fn main() -> Result<(), BoxError> {
     // ===================================================================
     println!("== loadTable + build_catalog_managed_snapshot ==");
     let loaded = delta.load_table(&catalog, &schema, &table).await?;
-    let commits = loaded.commits.as_deref().unwrap_or(&[]);
-    let latest = loaded
-        .latest_table_version
-        .unwrap_or(loaded.metadata.last_commit_version.unwrap_or(0));
+    let (commits, latest) = match resolve_managed_read_state(&loaded)? {
+        ManagedReadState::Managed { commits, latest } => (commits, latest),
+        ManagedReadState::NotManaged => {
+            return Err("expected a catalog-managed table after createTable".into());
+        }
+    };
     println!(
         "  loadTable: latest_table_version={latest} commit_tail={}",
         commits.len()
@@ -265,7 +270,7 @@ async fn main() -> Result<(), BoxError> {
     let log_store = default_logstore(Arc::from(prefixed), root.clone(), &location, &config);
     let engine = DataFusionEngine::new_from_context(ctx.task_ctx());
     let snapshot =
-        build_catalog_managed_snapshot(engine.as_ref(), &location, commits, latest, None)?;
+        build_catalog_managed_snapshot(engine.as_ref(), &location, &commits, latest as i64, None)?;
     println!("  snapshot version = {}", snapshot.version());
 
     let provider = DeltaScanNext::builder()
@@ -518,14 +523,6 @@ fn build_staging_store(
     builder = builder.with_region(std::env::var("AWS_REGION").unwrap_or_else(|_| "us-east-1".into()));
 
     Ok(Arc::new(builder.build()?))
-}
-
-fn ensure_trailing_slash(s: &str) -> String {
-    if s.ends_with('/') {
-        s.to_string()
-    } else {
-        format!("{s}/")
-    }
 }
 
 /// `object_store::Path` for `<table>/_delta_log/<name>` (root store is bucket-rooted).

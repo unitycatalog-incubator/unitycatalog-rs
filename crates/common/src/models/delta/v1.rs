@@ -628,6 +628,20 @@ impl DeltaErrorType {
     pub fn is_commit_state_unknown(&self) -> bool {
         matches!(self, DeltaErrorType::CommitStateUnknownException)
     }
+
+    /// Whether the table is not Delta, or is a Delta table this `/delta/v1`
+    /// endpoint does not support (`UnsupportedTableFormatException`, a 400). Per
+    /// the spec the client should fall back to the legacy UC table API.
+    pub fn is_unsupported_table_format(&self) -> bool {
+        matches!(self, DeltaErrorType::UnsupportedTableFormatException)
+    }
+
+    /// Whether the requested `/delta/v1` functionality is not supported by the
+    /// server (`NotImplementedException`, a 501). The client should fall back to
+    /// the legacy UC table API.
+    pub fn is_not_implemented(&self) -> bool {
+        matches!(self, DeltaErrorType::NotImplementedException)
+    }
 }
 
 /// The JSON error payload (`DeltaErrorModel` in `delta.yaml`).

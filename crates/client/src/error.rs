@@ -115,6 +115,42 @@ impl Error {
     pub fn is_commit_state_unknown(&self) -> bool {
         matches!(self, Error::Delta(model) if model.error_type.is_commit_state_unknown())
     }
+
+    /// Whether this is a Delta `UnsupportedTableFormatException` (400): the table
+    /// is not Delta, or is a Delta table this `/delta/v1` endpoint does not
+    /// support. The caller should fall back to the legacy UC table API.
+    pub fn is_unsupported_table_format(&self) -> bool {
+        matches!(self, Error::Delta(model) if model.error_type.is_unsupported_table_format())
+    }
+
+    /// Whether this is a Delta `NotImplementedException` (501): the server does
+    /// not implement this `/delta/v1` functionality. The caller should fall back
+    /// to the legacy UC table API.
+    pub fn is_not_implemented(&self) -> bool {
+        matches!(self, Error::Delta(model) if model.error_type.is_not_implemented())
+    }
+
+    /// Whether this is a `404` that is **not** a recognizable Delta error envelope
+    /// — i.e. the `/delta/v1` route itself is absent (no `UnsupportedTableFormat`
+    /// / `NoSuchTable` envelope was returned), as on a UC deployment that does not
+    /// serve `/delta/v1` at all.
+    ///
+    /// This is deliberately distinct from [`Error::is_not_found`]: an *enveloped*
+    /// `NoSuchTableException` (a genuinely missing table) is an [`Error::Delta`]
+    /// and returns `false` here, so callers can fall back on a missing route
+    /// without masking a missing table.
+    pub fn is_route_missing(&self) -> bool {
+        matches!(self, Error::Api(UcApiError::Other { status: 404, .. }))
+    }
+
+    /// Whether the caller should react to this `/delta/v1` loadTable error by
+    /// falling back to the legacy UC table API (filesystem snapshot): an
+    /// unsupported table format, an unimplemented endpoint, or an entirely missing
+    /// route. A genuine `NoSuchTable`/auth/other error returns `false` and must be
+    /// propagated.
+    pub fn should_fall_back_to_legacy(&self) -> bool {
+        self.is_unsupported_table_format() || self.is_not_implemented() || self.is_route_missing()
+    }
 }
 
 /// Typed error variants mapped to the Databricks Unity Catalog API error code spec.
@@ -413,5 +449,52 @@ mod tests {
             err,
             Error::Api(UcApiError::Other { status: 502, ref message, .. }) if message == "Bad Gateway"
         ));
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_unsupported_table_format() {
+        // A 400 with the typed envelope: the table is not Delta / not supported by
+        // /delta/v1. Should trigger the legacy-API fallback but is not a not-found.
+        let resp = make_response(
+            400,
+            r#"{"error":{"message":"not a delta table","type":"UnsupportedTableFormatException","code":400}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_unsupported_table_format());
+        assert!(err.should_fall_back_to_legacy());
+        assert!(!err.is_not_found());
+        assert!(!err.is_route_missing());
+    }
+
+    #[tokio::test]
+    async fn test_parse_delta_error_not_implemented() {
+        let resp = make_response(
+            501,
+            r#"{"error":{"message":"nope","type":"NotImplementedException","code":501}}"#,
+        );
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_not_implemented());
+        assert!(err.should_fall_back_to_legacy());
+    }
+
+    #[tokio::test]
+    async fn test_route_missing_is_non_envelope_404() {
+        // A 404 with no Delta error envelope = the /delta/v1 route is absent. This
+        // must fall back to the legacy API, distinct from an enveloped
+        // NoSuchTableException (a genuinely missing table), which must propagate.
+        let resp = make_response(404, "Not Found");
+        let err = parse_delta_error_response(resp).await;
+        assert!(err.is_route_missing());
+        assert!(err.should_fall_back_to_legacy());
+        // is_not_found also reports true for the missing route via the Api arm, but
+        // the enveloped not-found below must NOT be treated as a missing route.
+        let enveloped = parse_delta_error_response(make_response(
+            404,
+            r#"{"error":{"message":"no table","type":"NoSuchTableException","code":404}}"#,
+        ))
+        .await;
+        assert!(enveloped.is_not_found());
+        assert!(!enveloped.is_route_missing());
+        assert!(!enveloped.should_fall_back_to_legacy());
     }
 }

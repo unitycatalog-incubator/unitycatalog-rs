@@ -13,6 +13,7 @@
 //! Delta tables keep the plain filesystem snapshot path.
 
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use datafusion::catalog::TableProvider;
 use datafusion::common::DataFusionError;
@@ -21,14 +22,14 @@ use deltalake_core::DeltaTableConfig;
 use deltalake_core::delta_datafusion::DeltaScanNext;
 use deltalake_core::delta_datafusion::engine::DataFusionEngine;
 use deltalake_core::kernel::Snapshot;
-use deltalake_core::logstore::{StorageConfig, default_logstore};
+use deltalake_core::logstore::{LogStoreRef, StorageConfig, default_logstore};
+use tracing::debug;
 use unitycatalog_client::UnityCatalogClient;
-use unitycatalog_common::models::delta::v1::DeltaTableType;
 use unitycatalog_common::models::tables::v1::Table;
 use url::Url;
 
 use super::builder::{TableProviderBuilder, TableProviderError};
-use super::kernel::build_catalog_managed_snapshot;
+use super::kernel::{ManagedReadState, build_catalog_managed_snapshot, resolve_managed_read_state};
 
 /// Builds Delta [`TableProvider`]s for Unity Catalog tables.
 ///
@@ -42,13 +43,75 @@ use super::kernel::build_catalog_managed_snapshot;
 pub struct DeltaTableProviderBuilder {
     ctx: SessionContext,
     client: UnityCatalogClient,
+    /// Set once a `/delta/v1` loadTable call shows the endpoint is unavailable on
+    /// this deployment (unsupported table format, not implemented, or route
+    /// missing — see [`unitycatalog_client::Error::should_fall_back_to_legacy`]).
+    /// Subsequent Delta tables then skip the loadTable round-trip and go straight
+    /// to the filesystem snapshot. A deferred `getConfig` probe could set this up
+    /// front instead; the reactive path is the proven mechanism (review A6).
+    delta_v1_unsupported: Arc<AtomicBool>,
 }
 
 impl DeltaTableProviderBuilder {
     /// Create a builder that resolves Delta tables through `ctx`'s runtime and
     /// loads catalog-managed metadata through `client`.
     pub fn new(ctx: SessionContext, client: UnityCatalogClient) -> Self {
-        Self { ctx, client }
+        Self {
+            ctx,
+            client,
+            delta_v1_unsupported: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
+    /// Build the log store for `location` from the resolver-registered object store.
+    ///
+    /// Built directly rather than via `logstore_with` (which dispatches on the URL
+    /// scheme to a registered logstore factory) because we depend only on
+    /// `deltalake-core`, so no cloud-scheme factories (`s3`/`gs`/`az`) are
+    /// registered. The prefixed store roots paths at the table location; the root
+    /// store stays bucket-rooted.
+    fn log_store_for(&self, location: &Url) -> Result<LogStoreRef, TableProviderError> {
+        let root_store = self
+            .ctx
+            .runtime_env()
+            .object_store_registry
+            .get_store(location)
+            .map_err(|e| DataFusionError::External(Box::new(e)))?;
+        let config = StorageConfig::default();
+        let prefixed_store = config
+            .decorate_store(root_store.clone(), location)
+            .map_err(|e| DataFusionError::External(Box::new(e)))?;
+        Ok(default_logstore(
+            Arc::from(prefixed_store),
+            root_store,
+            location,
+            &config,
+        ))
+    }
+
+    /// Build the plain filesystem snapshot for a non-catalog-managed table (external
+    /// tables, and the A6 fallback path when `/delta/v1` is unavailable). The
+    /// filesystem `_delta_log/` is authoritative here, so no catalog version is set.
+    async fn filesystem_snapshot(
+        &self,
+        location: &Url,
+    ) -> Result<Snapshot, TableProviderError> {
+        let engine = DataFusionEngine::new_from_context(self.ctx.task_ctx());
+        Snapshot::try_new_with_engine(engine, location.clone(), DeltaTableConfig::default(), None)
+            .await
+            .map_err(|e| DataFusionError::External(Box::new(e)))
+    }
+
+    /// Assemble a provider from a built snapshot and the table's log store.
+    async fn provider_from_snapshot(
+        &self,
+        snapshot: Snapshot,
+        log_store: LogStoreRef,
+    ) -> Result<Arc<dyn TableProvider>, TableProviderError> {
+        DeltaScanNext::builder()
+            .with_snapshot(Arc::new(snapshot))
+            .with_log_store(log_store)
+            .await
     }
 }
 
@@ -66,66 +129,61 @@ impl TableProviderBuilder for DeltaTableProviderBuilder {
         location: &Url,
         table: &Table,
     ) -> Result<Arc<dyn TableProvider>, TableProviderError> {
-        let task_ctx = self.ctx.task_ctx();
-        let root_store = self
-            .ctx
-            .runtime_env()
-            .object_store_registry
-            .get_store(location)
-            .map_err(|e| DataFusionError::External(Box::new(e)))?;
-        // Build the log store directly from the resolver-registered object store
-        // rather than via `logstore_with`, which dispatches on the URL scheme to a
-        // registered logstore factory — we depend only on `deltalake-core`, so no
-        // cloud-scheme factories (`s3`/`gs`/`az`) are registered. The prefixed
-        // store roots paths at the table location; the root store stays
-        // bucket-rooted.
-        let config = StorageConfig::default();
-        let prefixed_store = config
-            .decorate_store(root_store.clone(), location)
-            .map_err(|e| DataFusionError::External(Box::new(e)))?;
-        let log_store = default_logstore(Arc::from(prefixed_store), root_store, location, &config);
+        let log_store = self.log_store_for(location)?;
 
-        let engine = DataFusionEngine::new_from_context(task_ctx);
+        // A prior table already showed this deployment doesn't serve `/delta/v1`:
+        // skip the loadTable round-trip and read the filesystem log directly.
+        if self.delta_v1_unsupported.load(Ordering::Relaxed) {
+            let snapshot = self.filesystem_snapshot(location).await?;
+            return self.provider_from_snapshot(snapshot, log_store).await;
+        }
 
         // Ask the catalog whether this is a managed (coordinated-commit) table and,
         // if so, for its ratified commit tail. The `/delta/v1` loadTable response
         // carries the table type, the unbackfilled commits, and the latest ratified
         // version a reader needs to materialize the catalog's snapshot.
-        let loaded = self
+        let loaded = match self
             .client
             .delta_v1()
             .load_table(&table.catalog_name, &table.schema_name, &table.name)
             .await
-            .map_err(|e| DataFusionError::External(Box::new(e)))?;
-
-        let snapshot = match loaded.metadata.table_type {
-            DeltaTableType::Managed => {
-                // The catalog is the source of truth: build from the ratified commit
-                // tail + latest version rather than scanning `_delta_log/`.
-                let commits = loaded.commits.as_deref().unwrap_or(&[]);
-                let latest = loaded
-                    .latest_table_version
-                    .unwrap_or(loaded.metadata.last_commit_version.unwrap_or(0));
-                build_catalog_managed_snapshot(engine.as_ref(), location, commits, latest, None)?
+        {
+            Ok(loaded) => loaded,
+            // A6: the `/delta/v1` endpoint is unavailable on this deployment (older
+            // OSS / production Databricks). The legacy `tables` API already gave us
+            // the storage location, so fall back to the filesystem snapshot rather
+            // than failing every Delta read. A genuine NoSuchTable / auth / other
+            // error propagates (we must not mask a missing table).
+            Err(e) if e.should_fall_back_to_legacy() => {
+                debug!(
+                    table = %table.full_name, error = %e,
+                    "/delta/v1 loadTable unavailable; falling back to filesystem snapshot"
+                );
+                self.delta_v1_unsupported.store(true, Ordering::Relaxed);
+                let snapshot = self.filesystem_snapshot(location).await?;
+                return self.provider_from_snapshot(snapshot, log_store).await;
             }
-            DeltaTableType::External => {
-                // External tables track version on the filesystem; the legacy
-                // (non-catalog-managed) path must not set a catalog version.
-                Snapshot::try_new_with_engine(
-                    engine,
-                    location.clone(),
-                    DeltaTableConfig::default(),
-                    None,
-                )
-                .await
-                .map_err(|e| DataFusionError::External(Box::new(e)))?
-            }
+            Err(e) => return Err(DataFusionError::External(Box::new(e))),
         };
 
-        let provider = DeltaScanNext::builder()
-            .with_snapshot(Arc::new(snapshot))
-            .with_log_store(log_store)
-            .await?;
-        Ok(provider)
+        let snapshot = match resolve_managed_read_state(&loaded)? {
+            // The catalog is the source of truth: build from the ratified commit
+            // tail + latest version rather than scanning `_delta_log/`.
+            ManagedReadState::Managed { commits, latest } => {
+                let engine = DataFusionEngine::new_from_context(self.ctx.task_ctx());
+                build_catalog_managed_snapshot(
+                    engine.as_ref(),
+                    location,
+                    &commits,
+                    latest as i64,
+                    None,
+                )?
+            }
+            // External / not-catalog-managed: the filesystem `_delta_log/` is
+            // authoritative and the read must not set a catalog version.
+            ManagedReadState::NotManaged => self.filesystem_snapshot(location).await?,
+        };
+
+        self.provider_from_snapshot(snapshot, log_store).await
     }
 }

@@ -115,11 +115,20 @@ async fn create_managed_table_round_trip() {
         loaded.metadata.table_type,
         unitycatalog_common::models::delta::v1::DeltaTableType::Managed
     );
-    let commits = loaded.commits.as_deref().unwrap_or(&[]);
-    let latest = loaded
-        .latest_table_version
-        .unwrap_or(loaded.metadata.last_commit_version.unwrap_or(0));
-    println!("loadTable: latest_table_version={latest} commit_tail={}", commits.len());
+    let (commits, latest) = match datafusion_unitycatalog::catalog::resolve_managed_read_state(
+        &loaded,
+    )
+    .expect("resolve_managed_read_state failed")
+    {
+        datafusion_unitycatalog::catalog::ManagedReadState::Managed { commits, latest } => {
+            (commits, latest)
+        }
+        other => panic!("expected a managed table, got {other:?}"),
+    };
+    println!(
+        "loadTable: latest_table_version={latest} commit_tail={}",
+        commits.len()
+    );
 
     // Build a credentialed store + snapshot and scan (empty table -> 0 rows, but it must resolve).
     let ctx = SessionContext::new();
@@ -146,8 +155,9 @@ async fn create_managed_table_round_trip() {
     let prefixed = config.decorate_store(root.clone(), &location).unwrap();
     let log_store = default_logstore(Arc::from(prefixed), root, &location, &config);
     let engine = DataFusionEngine::new_from_context(ctx.task_ctx());
-    let snapshot = build_catalog_managed_snapshot(engine.as_ref(), &location, commits, latest, None)
-        .expect("build_catalog_managed_snapshot failed");
+    let snapshot =
+        build_catalog_managed_snapshot(engine.as_ref(), &location, &commits, latest as i64, None)
+            .expect("build_catalog_managed_snapshot failed");
     assert_eq!(snapshot.version(), latest as u64, "snapshot at catalog version");
 
     let provider = DeltaScanNext::builder()
