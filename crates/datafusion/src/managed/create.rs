@@ -43,6 +43,16 @@ const VACUUM_PROTOCOL_CHECK_FEATURE_KEY: &str = "delta.feature.vacuumProtocolChe
 const V2_CHECKPOINT_FEATURE_KEY: &str = "delta.feature.v2Checkpoint";
 const CHECKPOINT_POLICY_KEY: &str = "delta.checkpointPolicy";
 const CHECKPOINT_POLICY_V2: &str = "v2";
+// Since v0.5.0-20260428 the server's `UcManagedDeltaContract` further requires the
+// `deletionVectors` reader/writer feature and three fixed-value properties
+// (`delta.enableDeletionVectors`, `delta.checkpoint.writeStatsAsStruct`,
+// `delta.checkpoint.writeStatsAsJson`). The enablement property auto-enables the DV
+// protocol feature at create time (the kernel's property-driven enablement), but we keep
+// the explicit feature signal too so the protocol intent is visible in one place.
+const DELETION_VECTORS_FEATURE_KEY: &str = "delta.feature.deletionVectors";
+const ENABLE_DELETION_VECTORS_KEY: &str = "delta.enableDeletionVectors";
+const WRITE_STATS_AS_STRUCT_KEY: &str = "delta.checkpoint.writeStatsAsStruct";
+const WRITE_STATS_AS_JSON_KEY: &str = "delta.checkpoint.writeStatsAsJson";
 const FEATURE_SUPPORTED: &str = "supported";
 const UC_TABLE_ID_KEY: &str = "io.unitycatalog.tableId";
 const METASTORE_LAST_UPDATE_VERSION: &str = "delta.lastUpdateVersion";
@@ -186,6 +196,14 @@ pub fn get_required_properties_for_disk(uc_table_id: &str) -> HashMap<String, St
         (CATALOG_MANAGED_FEATURE_KEY, FEATURE_SUPPORTED),
         (VACUUM_PROTOCOL_CHECK_FEATURE_KEY, FEATURE_SUPPORTED),
         (V2_CHECKPOINT_FEATURE_KEY, FEATURE_SUPPORTED),
+        (DELETION_VECTORS_FEATURE_KEY, FEATURE_SUPPORTED),
+        // Fixed-value properties the server's MANAGED contract checks verbatim. These are
+        // real metadata properties (unlike the feature signals above, which the kernel
+        // strips into the protocol), so they flow into `snapshot.metadata_configuration()`
+        // and from there into the UC createTable request.
+        (ENABLE_DELETION_VECTORS_KEY, "true"),
+        (WRITE_STATS_AS_STRUCT_KEY, "true"),
+        (WRITE_STATS_AS_JSON_KEY, "true"),
         (UC_TABLE_ID_KEY, uc_table_id),
     ]
     .into_iter()
