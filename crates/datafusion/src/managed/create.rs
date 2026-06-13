@@ -32,6 +32,8 @@ use unitycatalog_common::models::delta::v1::{
 };
 use url::Url;
 
+use crate::catalog::ensure_trailing_slash;
+
 use super::committer::UnityCatalogCommitter;
 
 // UC catalog-managed contract identifiers (mirror the kernel's `constants`).
@@ -321,14 +323,6 @@ fn snapshot_protocol(snapshot: &Snapshot) -> unitycatalog_common::models::delta:
                 .flat_map(|fs| fs.iter().map(|f| f.to_string()))
                 .collect(),
         ),
-    }
-}
-
-fn ensure_trailing_slash(s: &str) -> String {
-    if s.ends_with('/') {
-        s.to_string()
-    } else {
-        format!("{s}/")
     }
 }
 

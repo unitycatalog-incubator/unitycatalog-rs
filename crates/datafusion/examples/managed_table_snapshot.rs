@@ -55,12 +55,13 @@ use datafusion::arrow::util::pretty::print_batches;
 use datafusion::common::TableReference;
 use datafusion::prelude::SessionContext;
 use datafusion_unitycatalog::RoutingObjectStore;
-use datafusion_unitycatalog::catalog::build_catalog_managed_snapshot;
+use datafusion_unitycatalog::catalog::{
+    ManagedReadState, build_catalog_managed_snapshot, resolve_managed_read_state,
+};
 use deltalake_core::delta_datafusion::DeltaScanNext;
 use deltalake_core::delta_datafusion::engine::DataFusionEngine;
 use deltalake_core::logstore::{StorageConfig, default_logstore};
 use object_store::path::Path;
-use unitycatalog_common::models::delta::v1::DeltaTableType;
 use unitycatalog_object_store::{TableOperation, UnityObjectStoreFactory};
 use url::Url;
 
@@ -111,24 +112,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .load_table(catalog, schema, table)
         .await?;
 
-    let commits = loaded.commits.as_deref().unwrap_or(&[]);
-    let latest = loaded
-        .latest_table_version
-        .unwrap_or(loaded.metadata.last_commit_version.unwrap_or(0));
+    // Resolve how to read the table from the loadTable response: this validates the
+    // latest ratified version (never substituting metadata.last-commit-version) and
+    // tells us whether the table is catalog-managed.
+    let (commits, latest) = match resolve_managed_read_state(&loaded)? {
+        ManagedReadState::Managed { commits, latest } => (commits, latest),
+        ManagedReadState::NotManaged => {
+            return Err(format!(
+                "{full_name} is not catalog-managed — this example demonstrates the \
+                 catalog-managed read path; point UC_TABLE at a managed table"
+            )
+            .into());
+        }
+    };
     println!(
-        "loadTable {full_name}: table_type={:?} latest_table_version={latest} commit_tail={}",
-        loaded.metadata.table_type,
+        "loadTable {full_name}: latest_table_version={latest} commit_tail={}",
         commits.len(),
     );
-
-    if loaded.metadata.table_type != DeltaTableType::Managed {
-        return Err(format!(
-            "{full_name} is {:?}, not MANAGED — this example demonstrates the catalog-managed \
-             read path; point UC_TABLE at a managed table",
-            loaded.metadata.table_type
-        )
-        .into());
-    }
 
     // Vend a credentialed object store for the table's storage location, and
     // register it on the session runtime the way the async resolver does. The
@@ -176,7 +176,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let engine = DataFusionEngine::new_from_context(ctx.task_ctx());
 
     let snapshot =
-        build_catalog_managed_snapshot(engine.as_ref(), &location, commits, latest, None)?;
+        build_catalog_managed_snapshot(engine.as_ref(), &location, &commits, latest as i64, None)?;
     println!(
         "built catalog-managed snapshot for {full_name} at version {}",
         snapshot.version()

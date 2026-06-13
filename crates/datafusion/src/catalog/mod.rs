@@ -33,5 +33,8 @@ pub use builder::{TableProviderBuilder, TableProviderError};
 #[cfg(feature = "delta")]
 pub use delta::DeltaTableProviderBuilder;
 #[cfg(feature = "delta")]
-pub use kernel::build_catalog_managed_snapshot;
+pub use kernel::{
+    ManagedReadState, build_catalog_managed_snapshot, ensure_trailing_slash,
+    resolve_managed_read_state, to_log_tail,
+};
 pub use provider::{UnityCatalogProvider, UnityCatalogProviderList, UnityCatalogSchemaProvider};

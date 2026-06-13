@@ -45,15 +45,17 @@ use delta_kernel::engine::arrow_data::ArrowEngineData;
 use delta_kernel::engine::default::DefaultEngineBuilder;
 use delta_kernel::snapshot::{Snapshot as KernelSnapshot, SnapshotRef};
 use delta_kernel::transaction::CommitResult;
-use delta_kernel::{Engine, LogPath, Version};
+use delta_kernel::{Engine, Version};
 use tracing::{debug, info, warn};
 use unitycatalog_client::DeltaV1Client;
 use unitycatalog_common::models::delta::v1::{
-    DeltaCommit, DeltaCommitReport, DeltaLoadTableResponse, DeltaReport, DeltaReportMetricsRequest,
+    DeltaCommitReport, DeltaLoadTableResponse, DeltaReport, DeltaReportMetricsRequest,
     DeltaTableRequirement, DeltaTableUpdate, DeltaUpdateTableRequest,
 };
 use unitycatalog_object_store::{TableOperation, UnityObjectStoreFactory};
 use url::Url;
+
+use crate::catalog::{ManagedReadState, ensure_trailing_slash, resolve_managed_read_state, to_log_tail};
 
 use super::committer::UnityCatalogCommitter;
 use super::create::CreateManagedTableError;
@@ -264,9 +266,10 @@ async fn commit_landed(
         .any(|c| c.version == version && c.file_name == file_name);
     // It may already have been published (and dropped from the tail) if a previous attempt's
     // best-effort publish ran; treat "latest ratified version >= our version" as landed too.
+    // Key only on `latest-table-version` (the true ratified-version field) — never
+    // `metadata.last-commit-version`, which tracks only metadata-changing commits (A5).
     let published = loaded
         .latest_table_version
-        .or(loaded.metadata.last_commit_version)
         .map(|v| v >= version)
         .unwrap_or(false);
     Ok((in_tail || published).then_some(landed_version))
@@ -407,49 +410,30 @@ fn table_id_and_location(
 
 /// Build a kernel snapshot from the catalog's ratified state (the catalog is the source of
 /// truth). A catalog-managed table always requires `max_catalog_version`.
+///
+/// Shares [`resolve_managed_read_state`] with the read path, so the latest-version
+/// resolution is identical (and never substitutes `metadata.last-commit-version` — review
+/// finding A5). The table is known managed here, so a `NotManaged` result is a hard error.
 fn build_snapshot(
     loaded: &DeltaLoadTableResponse,
     location: &Url,
     engine: &dyn Engine,
 ) -> Result<SnapshotRef, CreateManagedTableError> {
-    let commits = loaded.commits.as_deref().unwrap_or(&[]);
-    let latest = loaded
-        .latest_table_version
-        .unwrap_or(loaded.metadata.last_commit_version.unwrap_or(0));
-    let latest: Version = latest
-        .try_into()
-        .map_err(|_| CreateManagedTableError::other("negative latest_table_version"))?;
+    let (commits, latest) = match resolve_managed_read_state(loaded)
+        .map_err(|e| CreateManagedTableError::other(e.to_string()))?
+    {
+        ManagedReadState::Managed { commits, latest } => (commits, latest),
+        ManagedReadState::NotManaged => {
+            return Err(CreateManagedTableError::other(format!(
+                "table at '{location}' is not catalog-managed; cannot build a managed snapshot"
+            )));
+        }
+    };
     KernelSnapshot::builder_for(location.as_str())
-        .with_log_tail(to_log_tail(location, commits)?)
+        .with_log_tail(to_log_tail(location, &commits).map_err(|e| CreateManagedTableError::other(e.to_string()))?)
         .with_max_catalog_version(latest)
         .build(engine)
         .map_err(CreateManagedTableError::Kernel)
-}
-
-/// Map the loadTable commit tail to kernel staged-commit [`LogPath`]s (mirrors
-/// `catalog::kernel::to_log_tail`).
-fn to_log_tail(
-    location: &Url,
-    commits: &[DeltaCommit],
-) -> Result<Vec<LogPath>, CreateManagedTableError> {
-    let mut sorted: Vec<&DeltaCommit> = commits.iter().collect();
-    sorted.sort_by_key(|c| c.version);
-    sorted
-        .into_iter()
-        .map(|c| {
-            let size: u64 = c
-                .file_size
-                .try_into()
-                .map_err(|_| CreateManagedTableError::other("negative commit file_size"))?;
-            LogPath::staged_commit(
-                location.clone(),
-                &c.file_name,
-                c.file_modification_timestamp,
-                size,
-            )
-            .map_err(CreateManagedTableError::Kernel)
-        })
-        .collect()
 }
 
 /// Jittered, capped exponential backoff between commit attempts.
@@ -459,12 +443,4 @@ async fn backoff(attempt: u32) {
     // Deterministic jitter from the attempt count avoids pulling in an RNG dependency.
     let jitter = Duration::from_millis((attempt as u64 * 7) % 25);
     tokio::time::sleep(capped + jitter).await;
-}
-
-fn ensure_trailing_slash(s: &str) -> String {
-    if s.ends_with('/') {
-        s.to_string()
-    } else {
-        format!("{s}/")
-    }
 }
