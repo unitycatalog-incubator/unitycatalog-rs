@@ -26,14 +26,17 @@ FROM chef AS builder
 
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies first — this is the cached Docker layer that survives
-# source-only changes.
-RUN cargo chef cook --release --recipe-path recipe.json --bin uc
+# source-only changes. Scope to the cli package: a bare workspace build unifies
+# features across all members, which would pull pyo3 (via python/client) into
+# `uc` and force a link against libpython that isn't present in this image.
+RUN cargo chef cook --release --recipe-path recipe.json -p unitycatalog-cli --bin uc
 
 # Build the application. SQLX_OFFLINE uses the committed `.sqlx` query cache so
-# no database is required at build time.
+# no database is required at build time. `-p unitycatalog-cli` keeps feature
+# unification scoped to the cli package (see above) so pyo3 stays out.
 COPY . .
 ENV SQLX_OFFLINE=true
-RUN cargo build --release --bin uc
+RUN cargo build --release -p unitycatalog-cli --bin uc
 
 # Distroless `cc` (nonroot) gives us libgcc/libssl-free glibc + CA certs +
 # a nonroot passwd entry, without a shell or package manager.

@@ -74,6 +74,9 @@ jobs:
           # Release builds must not depend on a (potentially poisoned) shared
           # cache — build from clean for reproducible, trustworthy artifacts.
           cache: false
+          # The action defaults RUSTFLAGS to "-D warnings"; we don't want a
+          # release build to fail on (e.g. generated-code) dead_code lints.
+          rustflags: ""
 
       # musl static builds need the musl C toolchain for the linker.
       - name: Install musl tools
@@ -81,10 +84,13 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       # SQLX_OFFLINE uses the committed `.sqlx` cache — no database at build time.
+      # `-p unitycatalog-cli` scopes feature unification to the cli package; a
+      # bare workspace build would pull pyo3 (via python/client) into `uc` and
+      # require linking libpython.
       - name: Build uc
         env:
           SQLX_OFFLINE: "true"
-        run: cargo build --release --bin uc --target ${{ matrix.target }}
+        run: cargo build --release -p unitycatalog-cli --bin uc --target ${{ matrix.target }}
 
       # Package the binary + a per-archive checksum. Naming:
       #   uc-<ref>-<target>.{tar.gz,zip}
