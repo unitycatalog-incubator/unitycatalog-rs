@@ -2,7 +2,8 @@ target/
 app/
 .github/
 .venv/
-.sqlx/
 .vscode/
 .zed/
 node_modules/
+# NB: .sqlx/ must NOT be ignored — the committed offline query cache is required
+# at build time because the Dockerfile compiles with SQLX_OFFLINE=true (no DB).
