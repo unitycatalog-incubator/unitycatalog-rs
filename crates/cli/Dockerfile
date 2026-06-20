@@ -11,8 +11,8 @@
 # Base images are pinned by digest for reproducible, tamper-evident builds.
 # Refresh a digest with: docker buildx imagetools inspect <image:tag>
 
-# rust:1.89-bookworm
-FROM rust@sha256:948f9b08a66e7fe01b03a98ef1c7568292e07ec2e4fe90d88c07bb14563c84ff AS chef
+# rust:1.96-bookworm
+FROM rust@sha256:19817ead3289c8c631c73df281e18b59b172f6a31f4f563290f69cddd06c30e9 AS chef
 
 RUN cargo install cargo-chef --locked
 
