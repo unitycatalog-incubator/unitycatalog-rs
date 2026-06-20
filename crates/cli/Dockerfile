@@ -1,61 +1,78 @@
-FROM rust:1.89 AS chef
+# Multi-stage build for the `uc` Unity Catalog CLI/server binary.
+#
+# Layout:
+#   chef    -> installs cargo-chef for dependency-layer caching
+#   planner -> computes the dependency recipe from the workspace
+#   builder -> cooks deps (cached layer), then compiles the `uc` release binary
+#   cleaner -> copies a distroless rootfs into a staging dir (distroless has no
+#              shell/rm, so file surgery has to happen in a stage that does)
+#   final   -> scratch + the distroless rootfs + the `uc` binary, run as nonroot
+#
+# Base images are pinned by digest for reproducible, tamper-evident builds.
+# Refresh a digest with: docker buildx imagetools inspect <image:tag>
 
-ARG NO_CHEF=false
-ENV NO_CHEF=${NO_CHEF}
+# rust:1.89-bookworm
+FROM rust@sha256:948f9b08a66e7fe01b03a98ef1c7568292e07ec2e4fe90d88c07bb14563c84ff AS chef
 
-RUN $NO_CHEF || cargo install cargo-chef
+RUN cargo install cargo-chef --locked
 
 WORKDIR /app
 
 FROM chef AS planner
 COPY . .
-RUN ($NO_CHEF && touch recipe.json) || cargo chef prepare  --recipe-path recipe.json
+RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 
 COPY --from=planner /app/recipe.json recipe.json
-# Build dependencies - this is the caching Docker layer!
-RUN $NO_CHEF || cargo chef cook --release --recipe-path recipe.json --bin uc
-# Build application
-COPY . .
+# Build dependencies first — this is the cached Docker layer that survives
+# source-only changes.
+RUN cargo chef cook --release --recipe-path recipe.json --bin uc
 
+# Build the application. SQLX_OFFLINE uses the committed `.sqlx` query cache so
+# no database is required at build time.
+COPY . .
 ENV SQLX_OFFLINE=true
 RUN cargo build --release --bin uc
 
-# our final base
-FROM gcr.io/distroless/cc-debian12:nonroot AS base
+# Distroless `cc` (nonroot) gives us libgcc/libssl-free glibc + CA certs +
+# a nonroot passwd entry, without a shell or package manager.
+# gcr.io/distroless/cc-debian12:nonroot
+FROM gcr.io/distroless/cc-debian12@sha256:b0ae8e989418b458e0f25489bc3be523718938a2b70864cc0f6a00af1ddbd985 AS base
 
-
-FROM busybox:1.37.0 AS cleaner
-# small diversion through busybox to remove some files
-# (no rm in distroless)
+# busybox:1.37.0 — has a shell + coreutils so we can stage the distroless
+# rootfs into a plain directory before copying it into `scratch`.
+FROM busybox@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028 AS cleaner
 
 COPY --from=base / /clean
-
-# RUN rm -r /clean/usr/lib/*-linux-gnu/libgomp*  \
-#   /clean/usr/lib/*-linux-gnu/libssl*  \
-#   /clean/usr/lib/*-linux-gnu/libstdc++* \
-#   /clean/usr/lib/*-linux-gnu/engines-3 \
-#   /clean/usr/lib/*-linux-gnu/ossl-modules \
-#   /clean/usr/lib/*-linux-gnu/libcrypto.so.3 \
-#   /clean/usr/lib/*-linux-gnu/gconv \
-#   /clean/var/lib/dpkg/status.d/libgomp1*  \
-#   /clean/var/lib/dpkg/status.d/libssl3*  \
-#   /clean/var/lib/dpkg/status.d/libstdc++6* \
-#   /clean/usr/share/doc/libssl3 \
-#   /clean/usr/share/doc/libstdc++6 \
-#   /clean/usr/share/doc/libgomp1
 
 
 FROM scratch
 
-ARG EXPIRES=Never
-LABEL maintainer="robstar.pack@gmail.com" quay.expires-after=${EXPIRES}
+# OCI image labels. The release workflow layers its own via docker/metadata-action,
+# but baking them here keeps locally/`just build-docker`-built images labelled too.
+LABEL org.opencontainers.image.title="unitycatalog-rs" \
+      org.opencontainers.image.description="Unity Catalog server and CLI (uc)" \
+      org.opencontainers.image.source="https://github.com/unitycatalog-incubator/unitycatalog-rs" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.vendor="unitycatalog-incubator"
 
+# Bring in the distroless rootfs (CA certs, glibc, nonroot passwd/group).
 COPY --from=cleaner /clean /
 
-# copy the build artifact from the build stage
-COPY --from=builder /app/target/release/uc /home/nonroot/uc
+# Copy the release binary from the build stage.
+COPY --from=builder /app/target/release/uc /usr/local/bin/uc
 
-# # set the startup command to run your binary
-ENTRYPOINT ["/home/nonroot/uc"]
+# The server binds 0.0.0.0:8080 by default (`uc server`).
+EXPOSE 8080
+
+# Run unprivileged. The distroless rootfs above provides the `nonroot` (65532)
+# user/group entries this references.
+USER nonroot
+
+# No HEALTHCHECK: distroless has no shell and `uc` has no self-probe subcommand.
+# Orchestrators should health-check the REST API directly, e.g.
+#   GET /api/2.1/unity-catalog/catalogs
+# (see dev/uc-oss.compose.yaml for a compose-level healthcheck example).
+
+ENTRYPOINT ["/usr/local/bin/uc"]
