@@ -42,7 +42,7 @@ jobs:
       # seconds-fast for the quickest possible style feedback.
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: "1.85"
+          toolchain: "1.96"
           components: rustfmt
 
       - name: Format
@@ -65,11 +65,11 @@ jobs:
         with:
           persist-credentials: false
 
-      # Pinned to the workspace rust-version floor (1.85, edition 2024) so CI
-      # fails the same way a local minimum-supported build would.
+      # Pinned to a recent stable (matches local dev). The workspace
+      # rust-version floor is 1.91 (set by buoyant_kernel); this stays above it.
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: "1.85"
+          toolchain: "1.96"
           components: clippy
 
       # Caches ~/.cargo and ./target keyed on the lockfile. clippy and test share
@@ -98,7 +98,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: "1.85"
+          toolchain: "1.96"
 
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
         with:
@@ -168,10 +168,10 @@ jobs:
           components: llvm-tools-preview
 
       # llvm-tools-preview ships the profdata tooling cargo-llvm-cov needs.
-      # Installed after nightly so "1.85" remains the default toolchain.
+      # Installed after nightly so "1.96" remains the default toolchain.
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: "1.85"
+          toolchain: "1.96"
           components: llvm-tools-preview
 
       # Coverage recompiles with -C instrument-coverage, so it cannot reuse the
@@ -220,7 +220,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: "1.85"
+          toolchain: "1.96"
           components: llvm-tools-preview
 
       # Its own cache key: this job builds the instrumented acceptance binary
@@ -294,7 +294,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
-          toolchain: "1.85"
+          toolchain: "1.96"
           components: llvm-tools-preview
 
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0

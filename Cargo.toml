@@ -9,7 +9,9 @@ edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/unitycatalog-incubator/unitycatalog-rs"
 readme = "README.md"
-rust-version = "1.85"
+# Floor set by the dependency tree: buoyant_kernel requires rustc 1.91
+# (datafusion 53 / darling 0.23 need 1.88). Keep CI's toolchain pin >= this.
+rust-version = "1.91"
 version = "0.0.1"
 homepage = "https://unitycatalog.io"
 keywords = [
