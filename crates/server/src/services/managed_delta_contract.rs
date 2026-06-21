@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 use unitycatalog_common::models::tables::v1::{Column, ColumnTypeName};
 
 use crate::rest::routers::delta::models::{
-    DeltaArrayType, DeltaCreateTableRequest, DeltaDataType, DeltaDecimalType,
+    DeltaArrayType, DeltaCreateTableRequest, DeltaDataSourceFormat, DeltaDataType, DeltaDecimalType,
     DeltaDomainMetadataUpdates, DeltaMapType, DeltaProtocol, DeltaStructField, DeltaStructType,
 };
 use crate::{Error, Result};
