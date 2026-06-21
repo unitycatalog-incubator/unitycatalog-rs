@@ -40,6 +40,18 @@ pub trait ProvidesLocalStoragePolicy {
     fn local_storage_policy(&self) -> &LocalStoragePolicy;
 }
 
+/// Access to the server's metastore-level managed storage root.
+///
+/// This is the default managed storage location for the metastore as a whole.
+/// A managed catalog created without an explicit `storage_root` inherits this
+/// root, mirroring the Unity Catalog metastore → catalog → schema hierarchy
+/// ("if the metastore has no managed storage set, you must set one at the
+/// catalog level"). `None` means no metastore default is configured, in which
+/// case every managed catalog must carry its own `storage_root`.
+pub trait ProvidesManagedStorageRoot {
+    fn managed_storage_root(&self) -> Option<&str>;
+}
+
 #[derive(Clone)]
 pub struct ServerHandler<Cx> {
     handler: Arc<ServerHandlerInner<Cx>>,
@@ -158,6 +170,27 @@ impl<Cx: Send + Sync + 'static> ServerHandler<Cx> {
             secrets: prev.secrets.clone(),
             commit_coordinator: prev.commit_coordinator.clone(),
             local_storage_policy: policy.into(),
+            managed_storage_root: prev.managed_storage_root.clone(),
+        };
+        self.handler = Arc::new(inner);
+        self
+    }
+
+    /// Set the metastore-level managed storage root.
+    ///
+    /// Rebuilds the inner handler with the root attached. Call at construction
+    /// time, before the handler is cloned/shared. When unset, managed catalogs
+    /// must each supply their own `storage_root`.
+    pub fn with_managed_storage_root(mut self, root: Option<impl Into<Arc<str>>>) -> Self {
+        let prev = &self.handler;
+        let inner = ServerHandlerInner {
+            policy: prev.policy.clone(),
+            store: prev.store.clone(),
+            object_store: prev.object_store.clone(),
+            secrets: prev.secrets.clone(),
+            commit_coordinator: prev.commit_coordinator.clone(),
+            local_storage_policy: prev.local_storage_policy.clone(),
+            managed_storage_root: root.map(Into::into),
         };
         self.handler = Arc::new(inner);
         self
@@ -175,6 +208,10 @@ pub struct ServerHandlerInner<Cx> {
     /// Allowlist governing which host paths may back a `file://` storage
     /// location. Deny-all by default (see [`LocalStoragePolicy`]).
     local_storage_policy: Arc<LocalStoragePolicy>,
+    /// Metastore-level managed storage root inherited by managed catalogs that
+    /// omit `storage_root`. `None` ⇒ no metastore default (see
+    /// [`ProvidesManagedStorageRoot`]).
+    managed_storage_root: Option<Arc<str>>,
 }
 
 impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
@@ -191,6 +228,8 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
             commit_coordinator: Arc::new(InMemoryCommitCoordinator::default()),
             // Deny all local (file://) storage until a policy is configured.
             local_storage_policy: Arc::new(LocalStoragePolicy::deny_all()),
+            // No metastore-level managed storage root by default.
+            managed_storage_root: None,
         }
     }
 
@@ -199,6 +238,14 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
     /// When unset, the handler denies every local storage path.
     pub fn with_local_storage_policy(mut self, policy: impl Into<Arc<LocalStoragePolicy>>) -> Self {
         self.local_storage_policy = policy.into();
+        self
+    }
+
+    /// Set the metastore-level managed storage root.
+    ///
+    /// When unset, managed catalogs must each supply their own `storage_root`.
+    pub fn with_managed_storage_root(mut self, root: Option<impl Into<Arc<str>>>) -> Self {
+        self.managed_storage_root = root.map(Into::into);
         self
     }
 
@@ -344,6 +391,18 @@ impl<Cx: Send + Sync + 'static> ProvidesLocalStoragePolicy for ServerHandlerInne
 impl<Cx: Send + Sync + 'static> ProvidesLocalStoragePolicy for ServerHandler<Cx> {
     fn local_storage_policy(&self) -> &LocalStoragePolicy {
         self.handler.local_storage_policy.as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesManagedStorageRoot for ServerHandlerInner<Cx> {
+    fn managed_storage_root(&self) -> Option<&str> {
+        self.managed_storage_root.as_deref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesManagedStorageRoot for ServerHandler<Cx> {
+    fn managed_storage_root(&self) -> Option<&str> {
+        self.handler.managed_storage_root.as_deref()
     }
 }
 

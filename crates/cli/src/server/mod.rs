@@ -10,7 +10,7 @@ use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::{ConstantPolicy, Policy};
 use unitycatalog_server::{
     rest::AnonymousAuthenticator,
-    services::{LocalStoragePolicy, ServerHandler},
+    services::{LocalStoragePolicy, ServerHandler, location::StorageLocationUrl},
 };
 
 use crate::config::{Backend, Config, PostgresBackendConfig};
@@ -119,11 +119,29 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
     let local_storage_policy = LocalStoragePolicy::new(&config.local_storage.allowed_roots)
         .map_err(|e| Error::Generic(format!("invalid local_storage config: {e}")))?;
 
+    // A configured metastore managed storage root must parse and, if it is a
+    // local (file://) path, sit within an allowed local root — same governance
+    // as catalog/schema roots. Validate at startup so a misconfigured root is a
+    // hard error rather than surfacing later at catalog-create time.
+    if let Some(root) = config
+        .managed_storage_root
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    {
+        let url = StorageLocationUrl::parse(root)
+            .map_err(|e| Error::Generic(format!("invalid managed_storage_root '{root}': {e}")))?;
+        local_storage_policy
+            .check(&url)
+            .map_err(|e| Error::Generic(format!("invalid managed_storage_root '{root}': {e}")))?;
+    }
+
     let (handler, policy) = match &config.backend {
         Backend::InMemory => get_memory_handler(encryptor).await?,
         Backend::Postgres(pg) => get_db_handler(pg, encryptor).await?,
     };
-    let handler = handler.with_local_storage_policy(local_storage_policy);
+    let handler = handler
+        .with_local_storage_policy(local_storage_policy)
+        .with_managed_storage_root(config.managed_storage_root.clone());
 
     if config.routing.any_upstream() {
         let unsupported = config.routing.unsupported_upstream();

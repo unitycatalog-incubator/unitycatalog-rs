@@ -4,18 +4,23 @@ use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::volumes::v1::*;
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 
+use super::staging_tables::resolve_managed_storage_root;
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::volumes::VolumeHandler;
 use crate::policy::{Permission, Policy, process_resources};
-use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
 use crate::services::object_store::validate_external_storage_location;
+use crate::services::{ProvidesLocalStoragePolicy, ProvidesManagedStorageRoot};
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
-    VolumeHandler<RequestContext> for T
+impl<
+    T: ResourceStore
+        + Policy<RequestContext>
+        + ProvidesLocalStoragePolicy
+        + ProvidesManagedStorageRoot,
+> VolumeHandler<RequestContext> for T
 {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_volume(
@@ -45,12 +50,17 @@ impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
                 location
             }
             VolumeType::Managed => {
-                // Managed volumes derive their storage location from the catalog storage root.
-                //
-                // TODO: look up the parent catalog to derive:
-                //   format!("{}/{}/{}", catalog.storage_root, schema_name, name)
-                // For now accept whatever the caller provides (may be empty).
-                request.storage_location.unwrap_or_default()
+                // Managed volumes derive their storage location from the managed
+                // storage root resolved for the parent schema/catalog (schema →
+                // catalog → metastore), exactly like managed tables. The resolved
+                // root already carries the `__unitystorage` prefix; we append the
+                // standard `volumes/{name}` segment, paralleling the
+                // `tables/{uuid}` convention in `create_staging_table`. A caller
+                // cannot supply its own location for a managed volume.
+                let root =
+                    resolve_managed_storage_root(self, &request.catalog_name, &request.schema_name)
+                        .await?;
+                format!("{}/volumes/{}", root.trim_end_matches('/'), request.name)
             }
             VolumeType::Unspecified => {
                 return Err(Error::invalid_argument(
