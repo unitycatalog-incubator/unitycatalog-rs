@@ -81,6 +81,9 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Clippy
+        env:
+          # Use the committed .sqlx cache so sqlx macros don't probe a live DB.
+          SQLX_OFFLINE: "true"
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   test:
@@ -116,16 +119,25 @@ jobs:
       # services. The #[ignore]d object-store tests stay skipped by default.
       # --profile ci writes target/nextest/ci/junit.xml and runs every test
       # (fail-fast = false) so the report is complete even on failure.
+      #
+      # --all-features turns on `integration-pg`, whose #[sqlx::test] commit-
+      # coordinator tests provision a live database from DATABASE_URL — there is
+      # no Postgres here, so exclude that binary. Those tests run (with a service
+      # container) in the dedicated integration_postgres job below.
       - name: Test
         env:
           # journey replay reads this; a dummy value is fine for recorded runs.
           UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
-        run: cargo nextest run --workspace --all-features --profile ci
+          # Use the committed .sqlx cache so macros don't probe a live DB at build.
+          SQLX_OFFLINE: "true"
+        run: cargo nextest run --workspace --all-features --profile ci -E 'not binary(commit_coordinator)'
 
       # nextest does not run doctests; the old `cargo test` did, so run them here
       # to keep doctest coverage. Runs even if nextest failed above.
       - name: Doctests
         if: ${{ !cancelled() }}
+        env:
+          SQLX_OFFLINE: "true"
         run: cargo test --workspace --all-features --doc
 
       # Surface per-test pass/fail in the PR Checks tab regardless of exit code —
@@ -188,11 +200,14 @@ jobs:
       # Collect coverage from both nextest tests (incl. recorded journey replay)
       # and doctests into one report. Doctest coverage needs nightly (unstable
       # `--persist-doctests`); the nextest run stays on the pinned stable.
+      # Exclude the commit_coordinator binary (live-DB #[sqlx::test]s) — it runs
+      # under coverage in the integration_postgres job, uploaded as integration-pg.
       - name: Collect coverage
         env:
           UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
+          SQLX_OFFLINE: "true"
         run: |
-          cargo llvm-cov --no-report nextest --workspace --all-features
+          cargo llvm-cov --no-report nextest --workspace --all-features -E 'not binary(commit_coordinator)'
           cargo +nightly llvm-cov --no-report --doc --workspace --all-features
           cargo +nightly llvm-cov report --doctests --codecov --output-path codecov.json
 
@@ -243,6 +258,7 @@ jobs:
         env:
           UC_INTEGRATION_PROFILE: oss_java
           UC_INTEGRATION_URL: http://localhost:8080
+          SQLX_OFFLINE: "true"
         run: |
           cargo llvm-cov --no-report test -p unitycatalog-acceptance -- journey_tests_live --nocapture
           cargo llvm-cov report --codecov --output-path codecov.json
