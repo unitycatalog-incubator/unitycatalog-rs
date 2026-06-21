@@ -18,11 +18,13 @@ use unitycatalog_client::UnityCatalogClient;
 
 pub use self::catalogs::*;
 pub use self::exec::*;
+pub use self::functions::*;
 pub use self::schemas::*;
 pub use self::tables::*;
 
 mod catalogs;
 mod exec;
+mod functions;
 mod schemas;
 mod tables;
 
@@ -62,6 +64,8 @@ pub enum UnityCatalogStatement {
     CreateSchema(CreateSchemaStatement),
     DropSchema(DropSchemaStatement),
     CreateManagedTable(CreateManagedTableStatement),
+    CreateFunction(CreateFunctionStatement),
+    DropFunction(DropFunctionStatement),
 }
 
 impl From<CreateCatalogStatement> for UnityCatalogStatement {
@@ -94,6 +98,18 @@ impl From<CreateManagedTableStatement> for UnityCatalogStatement {
     }
 }
 
+impl From<CreateFunctionStatement> for UnityCatalogStatement {
+    fn from(value: CreateFunctionStatement) -> Self {
+        UnityCatalogStatement::CreateFunction(value)
+    }
+}
+
+impl From<DropFunctionStatement> for UnityCatalogStatement {
+    fn from(value: DropFunctionStatement) -> Self {
+        UnityCatalogStatement::DropFunction(value)
+    }
+}
+
 impl UnityCatalogStatement {
     pub fn command_name(&self) -> &str {
         use UnityCatalogStatement::*;
@@ -104,6 +120,8 @@ impl UnityCatalogStatement {
             CreateSchema(_) => "CreateSchema",
             DropSchema(_) => "DropSchema",
             CreateManagedTable(_) => "CreateManagedTable",
+            CreateFunction(_) => "CreateFunction",
+            DropFunction(_) => "DropFunction",
         }
     }
 
@@ -129,6 +147,12 @@ impl UnityCatalogStatement {
                 cmd.name,
                 cmd.columns.len(),
                 cmd.if_not_exists
+            ),
+            CreateFunction(cmd) => write!(f, "CreateFunction: name={}", cmd.name),
+            DropFunction(cmd) => write!(
+                f,
+                "DropFunction: name={} if_exists={}",
+                cmd.name, cmd.if_exists
             ),
         }
     }
@@ -175,8 +199,10 @@ impl ExecutableUnityCatalogStatement for UnityCatalogStatement {
         use UnityCatalogStatement::*;
 
         match &self {
-            CreateCatalog(_) | CreateSchema(_) | CreateManagedTable(_) => &CREATE_UC_RETURN_SCHEMA,
-            DropCatalog(_) | DropSchema(_) => &DROP_UC_RETURN_SCHEMA,
+            CreateCatalog(_) | CreateSchema(_) | CreateManagedTable(_) | CreateFunction(_) => {
+                &CREATE_UC_RETURN_SCHEMA
+            }
+            DropCatalog(_) | DropSchema(_) | DropFunction(_) => &DROP_UC_RETURN_SCHEMA,
         }
     }
 
@@ -189,6 +215,8 @@ impl ExecutableUnityCatalogStatement for UnityCatalogStatement {
             CreateSchema(cmd) => cmd.execute(client).await,
             DropSchema(cmd) => cmd.execute(client).await,
             CreateManagedTable(cmd) => cmd.execute(client).await,
+            CreateFunction(cmd) => cmd.execute(client).await,
+            DropFunction(cmd) => cmd.execute(client).await,
         }
     }
 }
@@ -236,7 +264,27 @@ mod tests {
     use datafusion::sql::sqlparser::ast::Ident;
 
     use super::*;
-    use crate::sql::{CreateCatalogStatement, DropCatalogStatement, DropSchemaStatement};
+    use crate::sql::{
+        CreateCatalogStatement, CreateFunctionStatement, DropCatalogStatement,
+        DropFunctionStatement, DropSchemaStatement, FunctionLanguage, SqlDataAccessKind,
+    };
+    use datafusion::sql::sqlparser::ast::DataType as SqlDataType;
+
+    /// A minimal scalar SQL UDF statement for the contract tests.
+    fn sample_function() -> CreateFunctionStatement {
+        CreateFunctionStatement {
+            name: name(&["c", "s", "f"]),
+            or_replace: false,
+            if_not_exists: false,
+            params: vec![],
+            returns: SqlDataType::Int(None),
+            language: FunctionLanguage::Sql,
+            deterministic: true,
+            data_access: SqlDataAccessKind::ContainsSql,
+            routine_definition: "1".to_string(),
+            comment: None,
+        }
+    }
 
     fn name(parts: &[&str]) -> datafusion::sql::sqlparser::ast::ObjectName {
         parts
@@ -266,7 +314,8 @@ mod tests {
             properties: None,
         }
         .into();
-        for stmt in [create_catalog, create_schema] {
+        let create_function: UnityCatalogStatement = sample_function().into();
+        for stmt in [create_catalog, create_schema, create_function] {
             assert_eq!(stmt.return_schema(), &*CREATE_UC_RETURN_SCHEMA);
             // The logical node mirrors the statement's return schema.
             let node = ExecuteUnityCatalogPlanNode { statement: stmt };
@@ -288,7 +337,12 @@ mod tests {
             cascade: false,
         }
         .into();
-        for stmt in [drop_catalog, drop_schema] {
+        let drop_function: UnityCatalogStatement = DropFunctionStatement {
+            name: name(&["c", "s", "f"]),
+            if_exists: false,
+        }
+        .into();
+        for stmt in [drop_catalog, drop_schema, drop_function] {
             assert_eq!(stmt.return_schema(), &*DROP_UC_RETURN_SCHEMA);
         }
     }
@@ -296,7 +350,7 @@ mod tests {
     #[test]
     fn command_names_are_stable() {
         // These names are the contract the Cedar visitor matches on.
-        let cases: [(UnityCatalogStatement, &str); 2] = [
+        let cases: [(UnityCatalogStatement, &str); 4] = [
             (
                 CreateCatalogStatement {
                     name: name(&["c"]),
@@ -319,6 +373,15 @@ mod tests {
                 .into(),
                 "DropSchema",
             ),
+            (sample_function().into(), "CreateFunction"),
+            (
+                DropFunctionStatement {
+                    name: name(&["c", "s", "f"]),
+                    if_exists: false,
+                }
+                .into(),
+                "DropFunction",
+            ),
         ];
         for (stmt, expected) in cases {
             assert_eq!(stmt.command_name(), expected);
@@ -330,7 +393,7 @@ mod tests {
         // Cedar reads the securable from the `name=<...>` token in the node's
         // `Display`/`fmt_for_explain` output — this contract must hold across the
         // cross-repo boundary.
-        let cases: [(UnityCatalogStatement, &str, &str); 4] = [
+        let cases: [(UnityCatalogStatement, &str, &str); 6] = [
             (
                 CreateCatalogStatement {
                     name: name(&["my_catalog"]),
@@ -376,6 +439,16 @@ mod tests {
                 .into(),
                 "DropSchema",
                 "c.s",
+            ),
+            (sample_function().into(), "CreateFunction", "c.s.f"),
+            (
+                DropFunctionStatement {
+                    name: name(&["c", "s", "f"]),
+                    if_exists: false,
+                }
+                .into(),
+                "DropFunction",
+                "c.s.f",
             ),
         ];
         for (stmt, expected_name, expected_securable) in cases {
