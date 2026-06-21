@@ -3,14 +3,14 @@ syntax = "proto3";
 package open_sharing.v1;
 
 import "buf/validate/validate.proto";
-import "open_sharing/v1/models.proto";
-import "open_sharing/v1/query.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
+import "open_sharing/v1/models.proto";
+import "open_sharing/v1/query.proto";
 
 option (gnostic.openapi.v3.document) = {
   info: {

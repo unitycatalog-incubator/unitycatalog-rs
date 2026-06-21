@@ -107,9 +107,12 @@ impl CreateSchemaBuilder {
             .collect();
         self
     }
-    /// Storage root URL for managed tables within the schema.
-    pub fn with_storage_location(mut self, storage_location: impl Into<Option<String>>) -> Self {
-        self.request.storage_location = storage_location.into();
+    /** Storage root URL for managed storage location of the schema.
+
+    If not set, managed securables under this schema fall back to the parent
+    catalog's storage location. Example: `s3://bucket/ucroot`.*/
+    pub fn with_storage_root(mut self, storage_root: impl Into<Option<String>>) -> Self {
+        self.request.storage_root = storage_root.into();
         self
     }
 }

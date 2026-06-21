@@ -163,6 +163,13 @@ class Catalog:
     """
     share_name: Optional[str]
     """The name of the share under the share provider."""
+    storage_location: Optional[str]
+    """
+    Storage location URL (full path) for managed storage of the catalog. A unique path under
+    `storage_root`, used as the managed-storage parent for managed tables/volumes whose
+    schema has no storage location of its own. Absent when the catalog has no `storage_root`.
+    Example: `s3://bucket/ucroot/__unitystorage/catalogs/{catalog_id}`.
+    """
     storage_root: Optional[str]
     """Storage root URL for managed tables within catalog."""
     updated_at: Optional[int]
@@ -183,6 +190,7 @@ class Catalog:
         owner: Optional[str] = None,
         provider_name: Optional[str] = None,
         share_name: Optional[str] = None,
+        storage_location: Optional[str] = None,
         storage_root: Optional[str] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
@@ -886,9 +894,16 @@ class Schema:
     """Unique identifier for the schema."""
     storage_location: Optional[str]
     """
-    Storage root URL for managed tables within the schema. When set, managed tables created in
-    this schema are rooted here; otherwise the parent catalog's storage_root is used. Already
-    includes the managed storage prefix when assigned.
+    Storage location URL (full path) for managed storage of the schema. A unique path under
+    `storage_root`. Absent when the schema has no `storage_root`, in which case managed
+    securables fall back to the parent catalog's storage location. Example: `s3://bucket/
+    ucroot/ __unitystorage/schemas/{schema_id}`.
+    """
+    storage_root: Optional[str]
+    """
+    Storage root URL for managed storage location of the schema. Can be set when creating a
+    schema. When set, managed tables/volumes created in this schema are rooted here; otherwise
+    the parent catalog's storage location is used. Example: `s3://bucket/ucroot`.
     """
     updated_at: Optional[int]
     """Time at which this schema was last updated, in epoch milliseconds."""
@@ -907,6 +922,7 @@ class Schema:
         owner: Optional[str] = None,
         schema_id: Optional[str] = None,
         storage_location: Optional[str] = None,
+        storage_root: Optional[str] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
     ) -> None: ...
@@ -1264,10 +1280,15 @@ class ColumnTypeName(enum.Enum):
     VARIANT = "VARIANT"
 
 class DataObjectType(enum.Enum):
+    AGENT_SKILL = "AGENT_SKILL"
+    """An agent skill (a directory of SKILL.md + scripts/assets) shared as a storage-backed asset on top of
+    a volume (Open Sharing)."""
     DATA_OBJECT_TYPE_UNSPECIFIED = "DATA_OBJECT_TYPE_UNSPECIFIED"
     """Unknown data object type."""
     SCHEMA = "SCHEMA"
     TABLE = "TABLE"
+    VOLUME = "VOLUME"
+    """A Unity Catalog volume shared as a storage-backed asset (Open Sharing)."""
 
 class DataSourceFormat(enum.Enum):
     AVRO = "AVRO"
@@ -2211,7 +2232,7 @@ class UnityCatalogClient:
         catalog_name: str,
         comment: Optional[str] = None,
         properties: Optional[Dict[str, str]] = None,
-        storage_location: Optional[str] = None,
+        storage_root: Optional[str] = None,
     ) -> Schema:
         """
         Creates a new schema for catalog in the Metatastore. The caller must be a metastore admin, or have
@@ -2223,7 +2244,9 @@ class UnityCatalogClient:
             catalog_name: Name of parent catalog.
             comment: User-provided free-form text description.
             properties: A map of key-value properties attached to the securable.
-            storage_location: Storage root URL for managed tables within the schema.
+            storage_root: Storage root URL for managed storage location of the schema. If not set, managed
+                          securables under this schema fall back to the parent catalog's storage location.
+                          Example: `s3://bucket/ucroot`.
 
 
         Returns:
