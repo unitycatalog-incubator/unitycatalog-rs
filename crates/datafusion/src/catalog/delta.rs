@@ -186,4 +186,26 @@ impl TableProviderBuilder for DeltaTableProviderBuilder {
 
         self.provider_from_snapshot(snapshot, log_store).await
     }
+
+    #[cfg(feature = "metric-view")]
+    async fn build_metric_view(
+        &self,
+        view: &crate::metric_view::MetricView,
+        source: Arc<dyn TableProvider>,
+        source_name: &str,
+    ) -> Result<Arc<dyn TableProvider>, TableProviderError> {
+        use datafusion::datasource::provider_as_source;
+        use datafusion::logical_expr::LogicalPlanBuilder;
+
+        use crate::metric_view::MetricViewTableProvider;
+
+        // Build a scan over the resolved source provider as the view's input
+        // plan. The metric view's dimension/measure expressions are written
+        // against this relation's columns.
+        let source_plan =
+            LogicalPlanBuilder::scan(source_name, provider_as_source(source), None)?.build()?;
+
+        let provider = MetricViewTableProvider::try_new(&self.ctx.state(), view, source_plan)?;
+        Ok(Arc::new(provider))
+    }
 }

@@ -27,4 +27,28 @@ pub trait TableProviderBuilder: Send + Sync + std::fmt::Debug {
         location: &Url,
         table: &Table,
     ) -> Result<Arc<dyn TableProvider>, TableProviderError>;
+
+    /// Build a provider for a metric view.
+    ///
+    /// `view` is the parsed metric-view definition and `source` is the
+    /// already-resolved provider for the view's source relation (the resolver
+    /// resolves it through the same Unity Catalog path, so its credentials and
+    /// object store are registered). Implementations turn `source` into a
+    /// logical plan and lower the view into a
+    /// [`MetricViewTableProvider`](crate::metric_view::MetricViewTableProvider).
+    ///
+    /// The default errors: only embedders that build a session with metric-view
+    /// support (see [`crate::metric_view::session`]) can resolve metric views.
+    #[cfg(feature = "metric-view")]
+    async fn build_metric_view(
+        &self,
+        view: &crate::metric_view::MetricView,
+        source: Arc<dyn TableProvider>,
+        source_name: &str,
+    ) -> Result<Arc<dyn TableProvider>, TableProviderError> {
+        let _ = (view, source, source_name);
+        Err(TableProviderError::NotImplemented(
+            "this TableProviderBuilder does not support metric views".to_string(),
+        ))
+    }
 }

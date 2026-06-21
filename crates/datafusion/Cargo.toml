@@ -27,10 +27,16 @@ deltalake-core = { workspace = true, optional = true }
 # source with `deltalake-core` so the `Snapshot` types unify.
 delta_kernel = { workspace = true, optional = true }
 
+# Metric-view YAML deserialization (the `metric-view` feature).
+serde = { workspace = true, optional = true }
+serde_yml = { workspace = true, optional = true }
+
 [features]
-default = ["delta"]
+default = ["delta", "metric-view"]
 # Expose a Delta-backed `TableProviderBuilder` (pulls in delta-rs).
 delta = ["dep:deltalake-core", "dep:delta_kernel"]
+# Lower Unity Catalog metric-view YAML into a DataFusion `LogicalPlan`.
+metric-view = ["dep:serde", "dep:serde_yml"]
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
@@ -49,3 +55,7 @@ required-features = ["delta"]
 [[example]]
 name = "managed_table_write"
 required-features = ["delta"]
+
+[[example]]
+name = "metric_view"
+required-features = ["metric-view"]
