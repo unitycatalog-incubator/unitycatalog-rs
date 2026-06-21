@@ -578,7 +578,7 @@ impl PyUnityCatalogClient {
             catalog_name,
             comment = None,
             properties = None,
-            storage_location = None
+            storage_root = None
         )
     )]
     pub fn create_schema(
@@ -588,14 +588,14 @@ impl PyUnityCatalogClient {
         catalog_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-        storage_location: Option<String>,
+        storage_root: Option<String>,
     ) -> PyUnityCatalogResult<Schema> {
         let mut request = self.client.create_schema(name, catalog_name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
-        request = request.with_storage_location(storage_location);
+        request = request.with_storage_root(storage_root);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

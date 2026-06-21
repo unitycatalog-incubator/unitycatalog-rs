@@ -1004,6 +1004,10 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
                 role: ::olai_store::FieldRole::Data,
             },
             ::olai_store::ResourceFieldDescriptor {
+                name: "storage_location",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
                 name: "created_at",
                 role: ::olai_store::FieldRole::Managed,
             },
@@ -1475,6 +1479,10 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
             ::olai_store::ResourceFieldDescriptor {
                 name: "schema_id",
                 role: ::olai_store::FieldRole::Identifier,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "storage_root",
+                role: ::olai_store::FieldRole::Data,
             },
             ::olai_store::ResourceFieldDescriptor {
                 name: "storage_location",

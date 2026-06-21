@@ -60,6 +60,14 @@ message Catalog {
   // The type of the catalog.
   optional CatalogType catalog_type = 9 [(google.api.field_behavior) = OPTIONAL];
 
+  // Storage location URL (full path) for managed storage of the catalog.
+  //
+  // A unique path under `storage_root`, used as the managed-storage parent for
+  // managed tables/volumes whose schema has no storage location of its own.
+  // Absent when the catalog has no `storage_root`.
+  // Example: `s3://bucket/ucroot/__unitystorage/catalogs/{catalog_id}`.
+  optional string storage_location = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // Time at which this catalog was created, in epoch milliseconds.
   optional int64 created_at = 1000 [
     (buf.validate.field).int64.gt = 0,

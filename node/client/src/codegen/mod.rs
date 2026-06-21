@@ -589,14 +589,14 @@ impl NapiUnityCatalogClient {
         catalog_name: String,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
-        storage_location: Option<String>,
+        storage_root: Option<String>,
     ) -> napi::Result<Buffer> {
         let mut request = self.client.create_schema(name, catalog_name);
         request = request.with_comment(comment);
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
-        request = request.with_storage_location(storage_location);
+        request = request.with_storage_root(storage_root);
         request
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))

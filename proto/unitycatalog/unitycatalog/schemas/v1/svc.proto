@@ -66,8 +66,11 @@ message CreateSchemaRequest {
   // A map of key-value properties attached to the securable.
   map<string, string> properties = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  // Storage root URL for managed tables within the schema.
-  optional string storage_location = 5 [(google.api.field_behavior) = OPTIONAL];
+  // Storage root URL for managed storage location of the schema.
+  //
+  // If not set, managed securables under this schema fall back to the parent
+  // catalog's storage location. Example: `s3://bucket/ucroot`.
+  optional string storage_root = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Get a Schema

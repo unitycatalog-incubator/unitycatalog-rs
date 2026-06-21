@@ -21,6 +21,7 @@ use super::ServerHandlerInner;
 use super::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::api::CredentialHandler;
 use crate::api::credentials::CredentialHandlerExt;
+use crate::api::staging_tables::MANAGED_STORAGE_PREFIX;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
@@ -137,9 +138,11 @@ pub(crate) async fn list_table_volume_locations(
 
 /// Validate the `storage_location` of an external table or volume.
 ///
-/// Enforces the two Unity Catalog rules for external securables:
-/// 1. the path must be contained within a registered external location; and
-/// 2. the path must not overlap any existing table or volume.
+/// Enforces the Unity Catalog rules for external securables:
+/// 1. the path must not lie within a reserved managed-storage (`__unitystorage`)
+///    region (those are owned by managed catalogs/schemas);
+/// 2. the path must be contained within a registered external location; and
+/// 3. the path must not overlap any existing table or volume.
 ///
 /// Returns [`Error::invalid_argument`] on a violation. The containment check
 /// reuses [`find_external_location_for_url`]; a missing enclosing location
@@ -152,7 +155,21 @@ pub(crate) async fn validate_external_storage_location(
     //    Cloud schemes pass through untouched.
     handler.local_storage_policy().check(location)?;
 
-    // 1. Must reside within a registered external location.
+    // 1. Must not define a path inside a reserved managed-storage region. The
+    //    `__unitystorage` segment is owned by managed catalogs/schemas; an
+    //    external securable here would collide with managed layout, so it is
+    //    rejected regardless of any external location that may also cover it.
+    if path_contains_managed_segment(location) {
+        return Err(Error::invalid_argument(format!(
+            "storage location '{}' lies within a reserved managed-storage \
+             ('{}') region; external tables and volumes must use a location \
+             outside managed storage",
+            location.raw(),
+            MANAGED_STORAGE_PREFIX,
+        )));
+    }
+
+    // 2. Must reside within a registered external location.
     if let Err(Error::NotFound) = find_external_location_for_url(location, handler).await {
         return Err(Error::invalid_argument(format!(
             "storage location '{}' is not contained within any registered external location",
@@ -160,7 +177,7 @@ pub(crate) async fn validate_external_storage_location(
         )));
     }
 
-    // 2. Must not overlap any existing table or volume.
+    // 3. Must not overlap any existing table or volume.
     for existing in list_table_volume_locations(handler).await? {
         if locations_overlap(location, &existing) {
             return Err(Error::invalid_argument(format!(
@@ -172,6 +189,22 @@ pub(crate) async fn validate_external_storage_location(
     }
 
     Ok(())
+}
+
+/// Whether a storage location lies within a reserved managed-storage region,
+/// i.e. any path segment equals the `__unitystorage` prefix.
+///
+/// Segment-aware (not a substring match): a directory literally named
+/// `__unitystorage` triggers it, but a name that merely contains the text — e.g.
+/// `my__unitystorage_data` — does not. Both the raw and normalized URL forms are
+/// checked so alternate spellings of the same cloud location are caught.
+pub(crate) fn path_contains_managed_segment(location: &StorageLocationUrl) -> bool {
+    let has_segment = |url: &str| {
+        object_store::path::Path::from(url)
+            .parts()
+            .any(|part| part.as_ref() == MANAGED_STORAGE_PREFIX)
+    };
+    has_segment(location.raw().as_str()) || has_segment(location.location().as_str())
 }
 
 /// Whether two storage locations overlap: one is equal to, or nested within,
@@ -398,6 +431,26 @@ mod tests {
         assert!(!paths_overlap("s3://b/data", "s3://b/other"));
         // Different buckets never overlap.
         assert!(!paths_overlap("s3://b/data", "s3://c/data"));
+    }
+
+    #[test]
+    fn managed_segment_is_detected_segment_aware() {
+        use super::path_contains_managed_segment;
+        let parse = |s| StorageLocationUrl::parse(s).unwrap();
+        // A literal __unitystorage segment is detected, anywhere in the path.
+        assert!(path_contains_managed_segment(&parse(
+            "s3://b/uc/__unitystorage/catalogs/cid"
+        )));
+        assert!(path_contains_managed_segment(&parse(
+            "s3://b/__unitystorage/tables/tid"
+        )));
+        // A name that merely contains the text is NOT a match (segment-aware).
+        assert!(!path_contains_managed_segment(&parse(
+            "s3://b/my__unitystorage_data/x"
+        )));
+        assert!(!path_contains_managed_segment(&parse(
+            "s3://b/uc/external/x"
+        )));
     }
 
     #[test]

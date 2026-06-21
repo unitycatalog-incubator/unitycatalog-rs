@@ -419,8 +419,11 @@ export interface CreateSchemaOptions {
   comment?: string;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string>;
-  /** Storage root URL for managed tables within the schema. */
-  storageLocation?: string;
+  /** Storage root URL for managed storage location of the schema.
+   * 
+   *  If not set, managed securables under this schema fall back to the parent
+   *  catalog's storage location. Example: `s3://bucket/ucroot`. */
+  storageRoot?: string;
 }
 
 export interface UpdateSchemaOptions {
@@ -1386,9 +1389,9 @@ export class UnityCatalogClient {
      * or have the CREATE_SCHEMA privilege in the parent catalog.
      */
   async createSchema(name: string, catalogName: string, options?: CreateSchemaOptions): Promise<Schema> {
-    const { comment, properties, storageLocation } = options || {};
+    const { comment, properties, storageRoot } = options || {};
     try {
-      return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties, storageLocation));
+      return fromBinary(SchemaSchema, await this.inner.createSchema(name, catalogName, comment, properties, storageRoot));
     } catch (e) { throw parseNativeError(e); }
   }
 

@@ -38,12 +38,20 @@ pub struct Schema {
     /// Unique identifier for the schema.
     #[prost(string, optional, tag="11")]
     pub schema_id: ::core::option::Option<::prost::alloc::string::String>,
-    /// Storage root URL for managed tables within the schema.
+    /// Storage root URL for managed storage location of the schema.
     ///
-    /// When set, managed tables created in this schema are rooted here; otherwise
-    /// the parent catalog's storage_root is used. Already includes the managed
-    /// storage prefix when assigned.
+    /// Can be set when creating a schema. When set, managed tables/volumes created
+    /// in this schema are rooted here; otherwise the parent catalog's storage
+    /// location is used. Example: `s3://bucket/ucroot`.
     #[prost(string, optional, tag="12")]
+    pub storage_root: ::core::option::Option<::prost::alloc::string::String>,
+    /// Storage location URL (full path) for managed storage of the schema.
+    ///
+    /// A unique path under `storage_root`. Absent when the schema has no
+    /// `storage_root`, in which case managed securables fall back to the parent
+    /// catalog's storage location.
+    /// Example: `s3://bucket/ucroot/__unitystorage/schemas/{schema_id}`.
+    #[prost(string, optional, tag="13")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List Schemas in a catalog
@@ -93,9 +101,12 @@ pub struct CreateSchemaRequest {
     /// A map of key-value properties attached to the securable.
     #[prost(map="string, string", tag="4")]
     pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
-    /// Storage root URL for managed tables within the schema.
+    /// Storage root URL for managed storage location of the schema.
+    ///
+    /// If not set, managed securables under this schema fall back to the parent
+    /// catalog's storage location. Example: `s3://bucket/ucroot`.
     #[prost(string, optional, tag="5")]
-    pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
+    pub storage_root: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a Schema
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

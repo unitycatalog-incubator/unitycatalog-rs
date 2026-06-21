@@ -83,11 +83,23 @@ impl<
             None
         };
 
+        // Pre-allocate the catalog id so the managed storage location can embed
+        // it (`<root>/__unitystorage/catalogs/<id>`), mirroring the reference's
+        // `CatalogRepository`. The store honors a pre-set id (else it mints a
+        // v7). Managed catalogs with a resolvable root get a materialized
+        // `storage_location`; sharing catalogs have no managed storage.
+        let id = uuid::Uuid::now_v7().hyphenated().to_string();
+        let storage_location = storage_root
+            .as_deref()
+            .map(|root| super::staging_tables::catalog_location(root, &id));
+
         let resource = Catalog {
+            id: Some(id),
             name: request.name,
             comment: request.comment,
             properties: request.properties,
             storage_root,
+            storage_location,
             provider_name: request.provider_name,
             share_name: request.share_name,
             catalog_type: Some(catalog_type as i32),
@@ -274,6 +286,13 @@ mod tests {
             .unwrap();
         assert_eq!(cat.storage_root.as_deref(), Some("s3://bucket/cat"));
         assert_eq!(cat.catalog_type, Some(CatalogType::ManagedCatalog as i32));
+        // The managed storage location is materialized with the catalog id:
+        // <root>/__unitystorage/catalogs/<id>.
+        let id = cat.id.as_deref().expect("catalog should have an id");
+        assert_eq!(
+            cat.storage_location.as_deref(),
+            Some(format!("s3://bucket/cat/__unitystorage/catalogs/{id}").as_str())
+        );
     }
 
     #[tokio::test]
@@ -287,8 +306,14 @@ mod tests {
     async fn managed_catalog_inherits_metastore_default() {
         let h = handler(Some("s3://bucket/meta"), None);
         let cat = h.create_catalog(create_req("cat"), ctx()).await.unwrap();
-        // The inherited metastore root is materialized onto the catalog.
+        // The inherited metastore root is materialized onto the catalog, and the
+        // storage location nests under it with the catalog id.
         assert_eq!(cat.storage_root.as_deref(), Some("s3://bucket/meta"));
+        let id = cat.id.as_deref().expect("catalog should have an id");
+        assert_eq!(
+            cat.storage_location.as_deref(),
+            Some(format!("s3://bucket/meta/__unitystorage/catalogs/{id}").as_str())
+        );
     }
 
     #[tokio::test]
@@ -322,6 +347,8 @@ mod tests {
             .await
             .unwrap();
         assert!(cat.storage_root.is_none());
+        // A sharing catalog has no managed storage, so no location is materialized.
+        assert!(cat.storage_location.is_none());
         assert_eq!(
             cat.catalog_type,
             Some(CatalogType::DeltasharingCatalog as i32)

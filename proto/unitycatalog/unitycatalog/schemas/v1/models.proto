@@ -52,10 +52,18 @@ message Schema {
     (google.api.field_behavior) = IDENTIFIER
   ];
 
-  // Storage root URL for managed tables within the schema.
+  // Storage root URL for managed storage location of the schema.
   //
-  // When set, managed tables created in this schema are rooted here; otherwise
-  // the parent catalog's storage_root is used. Already includes the managed
-  // storage prefix when assigned.
-  optional string storage_location = 12 [(google.api.field_behavior) = OPTIONAL];
+  // Can be set when creating a schema. When set, managed tables/volumes created
+  // in this schema are rooted here; otherwise the parent catalog's storage
+  // location is used. Example: `s3://bucket/ucroot`.
+  optional string storage_root = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Storage location URL (full path) for managed storage of the schema.
+  //
+  // A unique path under `storage_root`. Absent when the schema has no
+  // `storage_root`, in which case managed securables fall back to the parent
+  // catalog's storage location.
+  // Example: `s3://bucket/ucroot/__unitystorage/schemas/{schema_id}`.
+  optional string storage_location = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

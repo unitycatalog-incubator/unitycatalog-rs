@@ -4,7 +4,7 @@ use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::volumes::v1::*;
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 
-use super::staging_tables::resolve_managed_storage_root;
+use super::staging_tables::{child_location, resolve_managed_parent_location};
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::volumes::VolumeHandler;
 use crate::policy::{Permission, Policy, process_resources};
@@ -56,19 +56,23 @@ impl<
             }
             VolumeType::Managed => {
                 // Managed volumes derive their storage location from the managed
-                // storage root resolved for the parent schema/catalog (schema →
-                // catalog → metastore), exactly like managed tables. The resolved
-                // root already carries the `__unitystorage` prefix; we append a
-                // `volumes/{volume_id}` segment, mirroring the `tables/{uuid}`
-                // convention in `create_staging_table`. The id is allocated here
-                // and persisted as `volume_id` (the store honors a pre-set id), so
-                // the path segment equals the volume's id and survives renames. A
-                // caller cannot supply its own location for a managed volume.
-                let root =
-                    resolve_managed_storage_root(self, &request.catalog_name, &request.schema_name)
-                        .await?;
+                // parent location resolved for the schema/catalog (schema →
+                // catalog → metastore), exactly like managed tables. That parent
+                // already carries the `__unitystorage/{schemas,catalogs}/<id>`
+                // segment; we append a `volumes/{volume_id}` segment, mirroring
+                // the `tables/{uuid}` convention in `create_staging_table`. The id
+                // is allocated here and persisted as `volume_id` (the store honors
+                // a pre-set id), so the path segment equals the volume's id and
+                // survives renames. A caller cannot supply its own location for a
+                // managed volume.
+                let parent = resolve_managed_parent_location(
+                    self,
+                    &request.catalog_name,
+                    &request.schema_name,
+                )
+                .await?;
                 volume_id = uuid::Uuid::now_v7().hyphenated().to_string();
-                format!("{}/volumes/{}", root.trim_end_matches('/'), volume_id)
+                child_location(&parent, "volumes", &volume_id)
             }
             VolumeType::Unspecified => {
                 return Err(Error::invalid_argument(
@@ -229,7 +233,7 @@ impl SecuredAction for DeleteVolumeRequest {
 mod tests {
     use std::sync::Arc;
 
-    use unitycatalog_common::models::catalogs::v1::CreateCatalogRequest;
+    use unitycatalog_common::models::catalogs::v1::{CreateCatalogRequest, GetCatalogRequest};
     use unitycatalog_common::models::credentials::v1::{
         AwsIamRoleConfig, CreateCredentialRequest, Purpose,
     };
@@ -350,9 +354,28 @@ mod tests {
             "volume_id should be a uuid, got {}",
             v.volume_id
         );
+        // The location nests under the catalog's materialized location, which
+        // embeds the catalog id: {root}/__unitystorage/catalogs/<cid>/volumes/<vid>.
+        let catalog = h
+            .get_catalog(
+                GetCatalogRequest {
+                    name: "cat".to_string(),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await
+            .unwrap();
+        let cat_loc = catalog.storage_location.unwrap();
         assert_eq!(
             v.storage_location,
-            format!("s3://bucket/cat/__unitystorage/volumes/{}", v.volume_id),
+            format!("{cat_loc}/volumes/{}", v.volume_id)
+        );
+        assert!(
+            v.storage_location
+                .starts_with("s3://bucket/cat/__unitystorage/catalogs/"),
+            "got {}",
+            v.storage_location
         );
         assert!(
             !v.storage_location.ends_with("/volumes/vol"),
@@ -392,7 +415,7 @@ mod tests {
             CreateSchemaRequest {
                 name: "sch".to_string(),
                 catalog_name: "cat".to_string(),
-                storage_location: Some("s3://other/sch".to_string()),
+                storage_root: Some("s3://other/sch".to_string()),
                 ..Default::default()
             },
             ctx(),
@@ -404,9 +427,19 @@ mod tests {
             .create_volume(create_managed_volume("vol"), ctx())
             .await
             .unwrap();
-        assert_eq!(
-            v.storage_location,
-            format!("s3://other/sch/__unitystorage/volumes/{}", v.volume_id),
+        // Schema location embeds the schema id and roots under the schema's own
+        // storage root, not the catalog's.
+        assert!(
+            v.storage_location
+                .starts_with("s3://other/sch/__unitystorage/schemas/"),
+            "got {}",
+            v.storage_location
+        );
+        assert!(
+            v.storage_location
+                .ends_with(&format!("/volumes/{}", v.volume_id)),
+            "got {}",
+            v.storage_location
         );
     }
 
@@ -439,6 +472,27 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn managed_volume_resolved_local_location_outside_allowlist_is_rejected() {
+        // Managed volumes resolve their parent location lazily at create time and
+        // validate it against the local-storage allowlist. The default handler has
+        // an empty allowlist, so a catalog whose stored location is a file:// path
+        // (written directly, bypassing create-time validation) is rejected.
+        use unitycatalog_common::models::catalogs::v1::Catalog;
+        let h = handler();
+        setup_managed_namespace(&h, "s3://bucket/cat").await;
+        let cat_ident = ResourceIdent::catalog(ResourceName::new(["cat"]));
+        let local = Catalog {
+            name: "cat".to_string(),
+            storage_location: Some("file:///forbidden/cat/__unitystorage/catalogs/cid".to_string()),
+            ..Default::default()
+        };
+        h.update(&cat_ident, local.into()).await.unwrap();
+
+        let res = h.create_volume(create_managed_volume("vol"), ctx()).await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
     async fn managed_volume_duplicate_name_is_rejected() {
         // Uniqueness on the catalog.schema.name triplet is preserved even though
         // the store now honors a pre-allocated id.
@@ -463,6 +517,23 @@ mod tests {
         let res = h
             .create_volume(
                 create_external_volume("v", Some("s3://bucket/other/vol")),
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn external_volume_inside_managed_region_is_rejected() {
+        // An external volume whose path falls inside a reserved managed-storage
+        // (`__unitystorage`) region is rejected even though it is contained by a
+        // registered external location — managed and external storage must not
+        // be mixed.
+        let h = handler();
+        setup_external_location(&h).await;
+        let res = h
+            .create_volume(
+                create_external_volume("v", Some("s3://bucket/ext/__unitystorage/volumes/x")),
                 ctx(),
             )
             .await;

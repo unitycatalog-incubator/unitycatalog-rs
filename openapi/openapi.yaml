@@ -2451,6 +2451,16 @@ components:
           type: integer
           description: The type of the catalog.
           format: enum
+        storageLocation:
+          readOnly: true
+          type: string
+          description: |-
+            Storage location URL (full path) for managed storage of the catalog.
+
+             A unique path under `storage_root`, used as the managed-storage parent for
+             managed tables/volumes whose schema has no storage location of its own.
+             Absent when the catalog has no `storage_root`.
+             Example: `s3://bucket/ucroot/__unitystorage/catalogs/{catalog_id}`.
         createdAt:
           readOnly: true
           type: string
@@ -2900,9 +2910,13 @@ components:
           additionalProperties:
             type: string
           description: A map of key-value properties attached to the securable.
-        storageLocation:
+        storageRoot:
           type: string
-          description: Storage root URL for managed tables within the schema.
+          description: |-
+            Storage root URL for managed storage location of the schema.
+
+             If not set, managed securables under this schema fall back to the parent
+             catalog's storage location. Example: `s3://bucket/ucroot`.
       description: Create a new Schema
       additionalProperties: false
       title: Create Schema Request

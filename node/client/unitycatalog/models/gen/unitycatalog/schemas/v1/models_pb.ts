@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file unitycatalog/schemas/v1/models.proto.
  */
 export const file_unitycatalog_schemas_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIvYECgZTY2hlbWESEQoEbmFtZRgBIAEoCUID4EECEhkKDGNhdGFsb2dfbmFtZRgCIAEoCUID4EECEhYKCWZ1bGxfbmFtZRgDIAEoCUID4EEDEhkKB2NvbW1lbnQYBCABKAlCA+BBAUgAiAEBEkMKCnByb3BlcnRpZXMYBSADKAsyLy51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5TY2hlbWEuUHJvcGVydGllc0VudHJ5EhcKBW93bmVyGAYgASgJQgPgQQFIAYgBARIcCgpjcmVhdGVkX2F0GAcgASgDQgPgQQNIAogBARIcCgpjcmVhdGVkX2J5GAggASgJQgPgQQNIA4gBARIcCgp1cGRhdGVkX2F0GAkgASgDQgPgQQNIBIgBARIcCgp1cGRhdGVkX2J5GAogASgJQgPgQQNIBYgBARIeCglzY2hlbWFfaWQYCyABKAlCBuBBA+BBCEgGiAEBEiIKEHN0b3JhZ2VfbG9jYXRpb24YDCABKAlCA+BBAUgHiAEBGjEKD1Byb3BlcnRpZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOknqQUYKFnVuaXR5Y2F0YWxvZy5pby9TY2hlbWESEHNjaGVtYXMve3NjaGVtYX0aCWZ1bGxfbmFtZSoHc2NoZW1hczIGc2NoZW1hQgoKCF9jb21tZW50QggKBl9vd25lckINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUIMCgpfc2NoZW1hX2lkQhMKEV9zdG9yYWdlX2xvY2F0aW9uQvoBChtjb20udW5pdHljYXRhbG9nLnNjaGVtYXMudjFCC01vZGVsc1Byb3RvUAFaUGdpdGh1Yi5jb20vZGVsdGEtaW5jdWJhdG9yL2RlbHRhLXNoYXJpbmctcnMvZ28vdW5pdHljYXRhbG9nL3NjaGVtYXMvdjE7c2NoZW1hc3YxogIDVVNYqgIXVW5pdHljYXRhbG9nLlNjaGVtYXMuVjHKAhdVbml0eWNhdGFsb2dcU2NoZW1hc1xWMeICI1VuaXR5Y2F0YWxvZ1xTY2hlbWFzXFYxXEdQQk1ldGFkYXRh6gIZVW5pdHljYXRhbG9nOjpTY2hlbWFzOjpWMWIGcHJvdG8z", [file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
+  fileDesc("CiR1bml0eWNhdGFsb2cvc2NoZW1hcy92MS9tb2RlbHMucHJvdG8SF3VuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxIqcFCgZTY2hlbWESEQoEbmFtZRgBIAEoCUID4EECEhkKDGNhdGFsb2dfbmFtZRgCIAEoCUID4EECEhYKCWZ1bGxfbmFtZRgDIAEoCUID4EEDEhkKB2NvbW1lbnQYBCABKAlCA+BBAUgAiAEBEkMKCnByb3BlcnRpZXMYBSADKAsyLy51bml0eWNhdGFsb2cuc2NoZW1hcy52MS5TY2hlbWEuUHJvcGVydGllc0VudHJ5EhcKBW93bmVyGAYgASgJQgPgQQFIAYgBARIcCgpjcmVhdGVkX2F0GAcgASgDQgPgQQNIAogBARIcCgpjcmVhdGVkX2J5GAggASgJQgPgQQNIA4gBARIcCgp1cGRhdGVkX2F0GAkgASgDQgPgQQNIBIgBARIcCgp1cGRhdGVkX2J5GAogASgJQgPgQQNIBYgBARIeCglzY2hlbWFfaWQYCyABKAlCBuBBA+BBCEgGiAEBEh4KDHN0b3JhZ2Vfcm9vdBgMIAEoCUID4EEBSAeIAQESIgoQc3RvcmFnZV9sb2NhdGlvbhgNIAEoCUID4EEDSAiIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6SepBRgoWdW5pdHljYXRhbG9nLmlvL1NjaGVtYRIQc2NoZW1hcy97c2NoZW1hfRoJZnVsbF9uYW1lKgdzY2hlbWFzMgZzY2hlbWFCCgoIX2NvbW1lbnRCCAoGX293bmVyQg0KC19jcmVhdGVkX2F0Qg0KC19jcmVhdGVkX2J5Qg0KC191cGRhdGVkX2F0Qg0KC191cGRhdGVkX2J5QgwKCl9zY2hlbWFfaWRCDwoNX3N0b3JhZ2Vfcm9vdEITChFfc3RvcmFnZV9sb2NhdGlvbkL6AQobY29tLnVuaXR5Y2F0YWxvZy5zY2hlbWFzLnYxQgtNb2RlbHNQcm90b1ABWlBnaXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy9zY2hlbWFzL3YxO3NjaGVtYXN2MaICA1VTWKoCF1VuaXR5Y2F0YWxvZy5TY2hlbWFzLlYxygIXVW5pdHljYXRhbG9nXFNjaGVtYXNcVjHiAiNVbml0eWNhdGFsb2dcU2NoZW1hc1xWMVxHUEJNZXRhZGF0YeoCGVVuaXR5Y2F0YWxvZzo6U2NoZW1hczo6VjFiBnByb3RvMw", [file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
 
 /**
  * A schema is a namespace within a catalog that contains tables.
@@ -99,13 +99,25 @@ export type Schema = Message<"unitycatalog.schemas.v1.Schema"> & {
   schemaId?: string;
 
   /**
-   * Storage root URL for managed tables within the schema.
+   * Storage root URL for managed storage location of the schema.
    *
-   * When set, managed tables created in this schema are rooted here; otherwise
-   * the parent catalog's storage_root is used. Already includes the managed
-   * storage prefix when assigned.
+   * Can be set when creating a schema. When set, managed tables/volumes created
+   * in this schema are rooted here; otherwise the parent catalog's storage
+   * location is used. Example: `s3://bucket/ucroot`.
    *
-   * @generated from field: optional string storage_location = 12;
+   * @generated from field: optional string storage_root = 12;
+   */
+  storageRoot?: string;
+
+  /**
+   * Storage location URL (full path) for managed storage of the schema.
+   *
+   * A unique path under `storage_root`. Absent when the schema has no
+   * `storage_root`, in which case managed securables fall back to the parent
+   * catalog's storage location.
+   * Example: `s3://bucket/ucroot/__unitystorage/schemas/{schema_id}`.
+   *
+   * @generated from field: optional string storage_location = 13;
    */
   storageLocation?: string;
 };
