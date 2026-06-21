@@ -15,17 +15,30 @@ use crate::store::{ResourceStore, ResourceStoreReader};
 
 const MAX_PAGE_SIZE: usize = 10000;
 
+/// Resource rows keyed by `(label, uuid)`. The label is part of the key so two
+/// resources of different types can share one logical id — the managed-table flow
+/// does exactly this (a `Table` adopts its `StagingTable`'s id, so
+/// `table_uuid == staging.id`). A bare-uuid key would let the second create
+/// overwrite the first.
+type ResourceMap = Arc<DashMap<(ObjectLabel, Uuid), Resource>>;
+
+/// Association edges keyed by label, then by `(from_uuid, to_uuid)` so a single
+/// source resource can hold many edges of the same label (e.g. an entity with
+/// multiple tags). The value carries the target's [`ObjectLabel`] (so the row can
+/// be located in [`ResourceMap`], which is keyed by `(label, uuid)`) and the
+/// edge's optional properties (e.g. a tag assignment's value). Mirrors Postgres's
+/// `to_label`.
+type AssociationMap =
+    Arc<DashMap<AssociationLabel, DashMap<(Uuid, Uuid), (ObjectLabel, Option<PropertyMap>)>>>;
+
 /// An in-memory implementation of a resource store.
 ///
 /// This store is not intended for production use, but is useful for testing and development.
 #[derive(Debug, Clone)]
 pub struct InMemoryResourceStore {
-    resources: Arc<DashMap<Uuid, Resource>>,
+    resources: ResourceMap,
     id_map: Arc<DashMap<ObjectLabel, DashMap<ResourceName, Uuid>>>,
-    /// Association edges keyed by label, then by `(from_uuid, to_uuid)` so a single source
-    /// resource can hold many edges of the same label (e.g. an entity with multiple tags).
-    /// The value is the edge's optional properties (e.g. a tag assignment's value).
-    associations: Arc<DashMap<AssociationLabel, DashMap<(Uuid, Uuid), Option<PropertyMap>>>>,
+    associations: AssociationMap,
     /// Sealed secret blobs keyed by name. Encryption matches the production path so dev/test
     /// behaviour (and the on-disk format) is exercised here too.
     secrets: Arc<DashMap<String, bytes::Bytes>>,
@@ -56,11 +69,19 @@ impl InMemoryResourceStore {
     }
 
     fn new_uuid(&self, label: &ObjectLabel, name: &ResourceName) -> Result<Uuid> {
+        self.insert_uuid(label, name, Uuid::now_v7())
+    }
+
+    /// Register `uuid` for `(label, name)`, failing if the name is already taken.
+    ///
+    /// `new_uuid` generates a fresh v7 id; callers that pre-allocate an id (e.g.
+    /// managed volumes and staging tables, which embed the id in their storage
+    /// path) reserve that exact id here so the persisted row id matches the path.
+    fn insert_uuid(&self, label: &ObjectLabel, name: &ResourceName, uuid: Uuid) -> Result<Uuid> {
         if self.get_uuid(label, name).is_some() {
             return Err(Error::AlreadyExists);
         }
         let map = self.id_map.entry(*label).or_default();
-        let uuid = Uuid::now_v7();
         map.insert(name.clone(), uuid);
         Ok(uuid)
     }
@@ -70,15 +91,18 @@ impl InMemoryResourceStore {
 impl ResourceStoreReader for InMemoryResourceStore {
     async fn get(&self, id: &ResourceIdent) -> Result<(Resource, ResourceRef)> {
         let resource = match id.as_ref() {
-            ResourceRef::Uuid(uuid) => self.resources.get(uuid),
+            ResourceRef::Uuid(uuid) => self.resources.get(&(*id.label(), *uuid)),
             ResourceRef::Name(name) => {
                 let uuid = self.get_uuid(id.label(), name).ok_or(Error::NotFound)?;
-                self.resources.get(&uuid)
+                self.resources.get(&(*id.label(), uuid))
             }
             ResourceRef::Undefined => return Err(Error::NotFound),
         };
         match resource {
-            Some(resource) => Ok((resource.value().clone(), resource.key().into())),
+            Some(resource) => Ok((
+                resource.value().clone(),
+                ResourceRef::Uuid(resource.key().1),
+            )),
             None => Err(Error::NotFound),
         }
     }
@@ -114,7 +138,11 @@ impl ResourceStoreReader for InMemoryResourceStore {
         let mut resources = Vec::new();
         let mut last_id = &Uuid::nil();
         for uuid in resource_ids.iter().rev().take(max_page_size) {
-            let resource = self.resources.get(uuid).ok_or(Error::NotFound)?.clone();
+            let resource = self
+                .resources
+                .get(&(*label, *uuid))
+                .ok_or(Error::NotFound)?
+                .clone();
             last_id = uuid;
             resources.push(resource);
         }
@@ -126,14 +154,27 @@ impl ResourceStoreReader for InMemoryResourceStore {
 #[async_trait::async_trait]
 impl ResourceStore for InMemoryResourceStore {
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)> {
-        if self
-            .get_uuid(resource.resource_label(), &resource.resource_name())
-            .is_some()
-        {
-            return Err(Error::AlreadyExists);
-        }
-        let uuid = self.new_uuid(resource.resource_label(), &resource.resource_name())?;
-        self.resources.insert(uuid, resource.clone());
+        // Honor an id the caller pre-allocated (a resource whose id field is set
+        // resolves to `ResourceRef::Uuid`); otherwise mint a fresh v7 id. This
+        // lets managed volumes and staging tables persist under the same id they
+        // embed in their storage path. API callers cannot reach this — request
+        // types carry no id field.
+        let label = resource.resource_label();
+        let name = resource.resource_name();
+        let uuid = match resource.resource_ref() {
+            ResourceRef::Uuid(id) => {
+                // Guard the id's uniqueness within this label too; otherwise a
+                // colliding pre-set id would silently overwrite an existing row of
+                // the same type. (A different label sharing the id is allowed — see
+                // the `resources` keying.)
+                if self.resources.contains_key(&(*label, id)) {
+                    return Err(Error::AlreadyExists);
+                }
+                self.insert_uuid(label, &name, id)?
+            }
+            _ => self.new_uuid(label, &name)?,
+        };
+        self.resources.insert((*label, uuid), resource.clone());
         Ok((resource, ResourceRef::Uuid(uuid)))
     }
 
@@ -143,7 +184,7 @@ impl ResourceStore for InMemoryResourceStore {
             ResourceRef::Name(name) => self.get_uuid(id.label(), name).ok_or(Error::NotFound)?,
             ResourceRef::Undefined => return Err(Error::NotFound),
         };
-        match self.resources.remove(&uuid) {
+        match self.resources.remove(&(*id.label(), uuid)) {
             Some((_, resource)) => self.remove_uuid(id.label(), &resource.resource_name()),
             None => None,
         };
@@ -163,7 +204,7 @@ impl ResourceStore for InMemoryResourceStore {
         // Need to clone to avoid locking the map while holding a reference to the value
         let existing = self
             .resources
-            .get(&uuid)
+            .get(&(*id.label(), uuid))
             .ok_or(Error::NotFound)?
             .value()
             .clone();
@@ -183,7 +224,12 @@ impl ResourceStore for InMemoryResourceStore {
                 .get(existing.resource_label())
                 .and_then(|map| map.value().insert(resource.resource_name(), uuid));
         }
-        self.resources.insert(uuid, resource.clone());
+        // The label may have changed; drop the row at the old key and write it
+        // under the new one. When the label is unchanged these are the same key,
+        // collapsing to a plain overwrite.
+        self.resources.remove(&(*existing.resource_label(), uuid));
+        self.resources
+            .insert((*resource.resource_label(), uuid), resource.clone());
         Ok((resource, ResourceRef::Uuid(uuid)))
     }
 
@@ -204,11 +250,14 @@ impl ResourceStore for InMemoryResourceStore {
             ResourceRef::Name(name) => self.get_uuid(to.label(), name).ok_or(Error::NotFound)?,
             ResourceRef::Undefined => return Err(Error::NotFound),
         };
+        // Each edge stores the label of *its* target so the row can be located in
+        // `resources` (keyed by `(label, uuid)`). The forward edge targets `to`;
+        // the inverse edge targets `from`.
         let map = self.associations.entry(label.clone()).or_default();
-        map.insert((from_uuid, to_uuid), properties.clone());
+        map.insert((from_uuid, to_uuid), (*to.label(), properties.clone()));
         if let Some(inverse) = label.inverse() {
             let inverse_map = self.associations.entry(inverse).or_default();
-            inverse_map.insert((to_uuid, from_uuid), properties.clone());
+            inverse_map.insert((to_uuid, from_uuid), (*from.label(), properties.clone()));
         }
         Ok(())
     }
@@ -297,8 +346,10 @@ impl InMemoryResourceStore {
             })
             .transpose()?;
         let page_token = page_token.map(|t| Uuid::parse_str(&t)).transpose()?;
-        // Collect (to_uuid, properties) for every edge whose source is `resource_uuid`,
-        // applying the optional target filter and the pagination cursor.
+        // Collect (to_uuid, to_label, properties) for every edge whose source is
+        // `resource_uuid`, applying the optional target filter and the pagination
+        // cursor. The edge carries the target's label, so we can build the target
+        // ident directly without a `resources` lookup.
         let mut edges = self
             .associations
             .get(label)
@@ -307,9 +358,10 @@ impl InMemoryResourceStore {
                     .iter()
                     .filter_map(|entry| {
                         let (from, to) = *entry.key();
-                        (from == resource_uuid).then(|| (to, entry.value().clone()))
+                        let (to_label, props) = entry.value().clone();
+                        (from == resource_uuid).then_some((to, to_label, props))
                     })
-                    .filter(|(to, _)| {
+                    .filter(|(to, _, _)| {
                         target_uuid.is_none_or(|uuid| *to == uuid)
                             && page_token.is_none_or(|t| t > *to)
                     })
@@ -319,15 +371,14 @@ impl InMemoryResourceStore {
         if edges.is_empty() {
             return Ok((Vec::new(), None));
         }
-        edges.sort_unstable_by_key(|(to, _)| *to);
+        edges.sort_unstable_by_key(|(to, _, _)| *to);
 
         let max_page_size = usize::min(max_results.unwrap_or(MAX_PAGE_SIZE), MAX_PAGE_SIZE);
         let mut results = Vec::new();
         let mut last_id = Uuid::nil();
-        for (to_uuid, props) in edges.into_iter().rev().take(max_page_size) {
-            let resource = self.resources.get(&to_uuid).ok_or(Error::NotFound)?;
+        for (to_uuid, to_label, props) in edges.into_iter().rev().take(max_page_size) {
             last_id = to_uuid;
-            results.push((resource.resource_ident(), props));
+            results.push((to_label.to_ident(ResourceRef::Uuid(to_uuid)), props));
         }
         let next_page_token = (results.len() == max_page_size).then(|| last_id.to_string());
         Ok((results, next_page_token))
@@ -460,6 +511,119 @@ mod tests {
         let result = store.get(&ident).await;
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), Error::NotFound));
+    }
+
+    #[tokio::test]
+    async fn create_honors_pre_allocated_id() {
+        use unitycatalog_common::models::volumes::v1::Volume;
+
+        let store = test_store();
+        let id = Uuid::new_v4();
+        let resource: Resource = Volume {
+            name: "vol".into(),
+            catalog_name: "cat".into(),
+            schema_name: "sch".into(),
+            volume_id: id.hyphenated().to_string(),
+            ..Default::default()
+        }
+        .into();
+
+        let (_, reference) = store.create(resource).await.unwrap();
+        // The store persists under the supplied id rather than minting a new one.
+        assert_eq!(reference, ResourceRef::Uuid(id));
+    }
+
+    #[tokio::test]
+    async fn create_generates_id_when_absent() {
+        // A resource with no id set (the common case) still gets a fresh v7 id.
+        let store = test_store();
+        let resource: Resource = Catalog {
+            name: "cat".into(),
+            ..Default::default()
+        }
+        .into();
+        let (_, reference) = store.create(resource).await.unwrap();
+        let ResourceRef::Uuid(id) = reference else {
+            panic!("expected a uuid reference, got {reference:?}");
+        };
+        assert_eq!(id.get_version_num(), 7, "store should mint a v7 id");
+    }
+
+    #[tokio::test]
+    async fn staging_table_and_table_share_one_id() {
+        use unitycatalog_common::models::staging_tables::v1::StagingTable;
+        use unitycatalog_common::models::tables::v1::Table;
+
+        // The managed-table flow has a Table adopt its StagingTable's id, so both
+        // rows live at the same uuid under different labels. They must coexist.
+        let store = test_store();
+        let id = Uuid::new_v4();
+        let id_str = id.hyphenated().to_string();
+
+        store
+            .create(
+                StagingTable {
+                    name: "t".into(),
+                    catalog_name: "cat".into(),
+                    schema_name: "sch".into(),
+                    id: id_str.clone(),
+                    ..Default::default()
+                }
+                .into(),
+            )
+            .await
+            .unwrap();
+        store
+            .create(
+                Table {
+                    name: "t".into(),
+                    catalog_name: "cat".into(),
+                    schema_name: "sch".into(),
+                    table_id: Some(id_str.clone()),
+                    ..Default::default()
+                }
+                .into(),
+            )
+            .await
+            .unwrap();
+
+        // Both are retrievable by their own label-scoped uuid; neither clobbered
+        // the other.
+        let staging_ident = ObjectLabel::StagingTable.to_ident(ResourceRef::Uuid(id));
+        let table_ident = ObjectLabel::Table.to_ident(ResourceRef::Uuid(id));
+        let staging: StagingTable = store
+            .get(&staging_ident)
+            .await
+            .unwrap()
+            .0
+            .try_into()
+            .unwrap();
+        let table: Table = store.get(&table_ident).await.unwrap().0.try_into().unwrap();
+        assert_eq!(staging.id, id_str);
+        assert_eq!(table.table_id.as_deref(), Some(id_str.as_str()));
+    }
+
+    #[tokio::test]
+    async fn create_rejects_duplicate_pre_allocated_id() {
+        use unitycatalog_common::models::volumes::v1::Volume;
+
+        let store = test_store();
+        let id = Uuid::new_v4();
+        let volume = |name: &str| -> Resource {
+            Volume {
+                name: name.into(),
+                catalog_name: "cat".into(),
+                schema_name: "sch".into(),
+                volume_id: id.hyphenated().to_string(),
+                ..Default::default()
+            }
+            .into()
+        };
+        store.create(volume("a")).await.unwrap();
+        // A different name but the same pre-allocated id must not overwrite the
+        // existing row (Postgres relies on the id primary key for this).
+        let res = store.create(volume("b")).await;
+        assert!(matches!(res, Err(Error::AlreadyExists)), "{res:?}");
     }
 
     #[tokio::test]

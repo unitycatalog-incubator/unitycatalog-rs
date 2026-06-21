@@ -34,6 +34,11 @@ impl<
         let volume_type =
             VolumeType::try_from(request.volume_type).unwrap_or(VolumeType::Unspecified);
 
+        // Empty unless a managed volume allocates its id below. An empty
+        // `volume_id` leaves id assignment to the store (UUID v7), matching every
+        // other resource; a managed volume sets it so the storage path can embed
+        // it and the store persists the row under that same id.
+        let mut volume_id = String::new();
         let storage_location = match volume_type {
             VolumeType::External => {
                 // External volumes MUST have an explicit storage location that
@@ -53,14 +58,17 @@ impl<
                 // Managed volumes derive their storage location from the managed
                 // storage root resolved for the parent schema/catalog (schema →
                 // catalog → metastore), exactly like managed tables. The resolved
-                // root already carries the `__unitystorage` prefix; we append the
-                // standard `volumes/{name}` segment, paralleling the
-                // `tables/{uuid}` convention in `create_staging_table`. A caller
-                // cannot supply its own location for a managed volume.
+                // root already carries the `__unitystorage` prefix; we append a
+                // `volumes/{volume_id}` segment, mirroring the `tables/{uuid}`
+                // convention in `create_staging_table`. The id is allocated here
+                // and persisted as `volume_id` (the store honors a pre-set id), so
+                // the path segment equals the volume's id and survives renames. A
+                // caller cannot supply its own location for a managed volume.
                 let root =
                     resolve_managed_storage_root(self, &request.catalog_name, &request.schema_name)
                         .await?;
-                format!("{}/volumes/{}", root.trim_end_matches('/'), request.name)
+                volume_id = uuid::Uuid::now_v7().hyphenated().to_string();
+                format!("{}/volumes/{}", root.trim_end_matches('/'), volume_id)
             }
             VolumeType::Unspecified => {
                 return Err(Error::invalid_argument(
@@ -80,6 +88,7 @@ impl<
             schema_name: request.schema_name,
             volume_type: request.volume_type,
             storage_location,
+            volume_id,
             comment: request.comment,
             ..Default::default()
         };
@@ -220,14 +229,16 @@ impl SecuredAction for DeleteVolumeRequest {
 mod tests {
     use std::sync::Arc;
 
+    use unitycatalog_common::models::catalogs::v1::CreateCatalogRequest;
     use unitycatalog_common::models::credentials::v1::{
         AwsIamRoleConfig, CreateCredentialRequest, Purpose,
     };
     use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
+    use unitycatalog_common::models::schemas::v1::CreateSchemaRequest;
     use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
 
     use super::*;
-    use crate::api::{CredentialHandler, ExternalLocationHandler};
+    use crate::api::{CatalogHandler, CredentialHandler, ExternalLocationHandler, SchemaHandler};
     use crate::memory::InMemoryResourceStore;
     use crate::policy::ConstantPolicy;
     use crate::services::ServerHandler;
@@ -285,6 +296,163 @@ mod tests {
             storage_location: location.map(str::to_string),
             comment: None,
         }
+    }
+
+    /// Create catalog `cat` (rooted at `storage_root`) and schema `sch` so a
+    /// managed volume can resolve a managed storage root.
+    async fn setup_managed_namespace(h: &ServerHandler<RequestContext>, storage_root: &str) {
+        h.create_catalog(
+            CreateCatalogRequest {
+                name: "cat".to_string(),
+                storage_root: Some(storage_root.to_string()),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_schema(
+            CreateSchemaRequest {
+                name: "sch".to_string(),
+                catalog_name: "cat".to_string(),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+    }
+
+    fn create_managed_volume(name: &str) -> CreateVolumeRequest {
+        CreateVolumeRequest {
+            catalog_name: "cat".to_string(),
+            schema_name: "sch".to_string(),
+            name: name.to_string(),
+            volume_type: VolumeType::Managed as i32,
+            storage_location: None,
+            comment: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn managed_volume_location_uses_volume_id() {
+        let h = handler();
+        setup_managed_namespace(&h, "s3://bucket/cat").await;
+
+        let v = h
+            .create_volume(create_managed_volume("vol"), ctx())
+            .await
+            .unwrap();
+
+        // The path segment equals the persisted volume id, not the name.
+        assert!(
+            uuid::Uuid::parse_str(&v.volume_id).is_ok(),
+            "volume_id should be a uuid, got {}",
+            v.volume_id
+        );
+        assert_eq!(
+            v.storage_location,
+            format!("s3://bucket/cat/__unitystorage/volumes/{}", v.volume_id),
+        );
+        assert!(
+            !v.storage_location.ends_with("/volumes/vol"),
+            "managed volume should not use its name in the path: {}",
+            v.storage_location
+        );
+
+        // The id round-trips: a get returns the same id and location.
+        let got = h
+            .get_volume(
+                GetVolumeRequest {
+                    name: "cat.sch.vol".to_string(),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(got.volume_id, v.volume_id);
+        assert_eq!(got.storage_location, v.storage_location);
+    }
+
+    #[tokio::test]
+    async fn managed_volume_schema_location_takes_precedence() {
+        let h = handler();
+        h.create_catalog(
+            CreateCatalogRequest {
+                name: "cat".to_string(),
+                storage_root: Some("s3://bucket/cat".to_string()),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_schema(
+            CreateSchemaRequest {
+                name: "sch".to_string(),
+                catalog_name: "cat".to_string(),
+                storage_location: Some("s3://other/sch".to_string()),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+
+        let v = h
+            .create_volume(create_managed_volume("vol"), ctx())
+            .await
+            .unwrap();
+        assert_eq!(
+            v.storage_location,
+            format!("s3://other/sch/__unitystorage/volumes/{}", v.volume_id),
+        );
+    }
+
+    #[tokio::test]
+    async fn managed_volume_recreate_yields_new_path() {
+        // Dropping and recreating a managed volume with the same name yields a
+        // fresh id and therefore a distinct path — name-based collisions are gone.
+        let h = handler();
+        setup_managed_namespace(&h, "s3://bucket/cat").await;
+
+        let first = h
+            .create_volume(create_managed_volume("vol"), ctx())
+            .await
+            .unwrap();
+        h.delete_volume(
+            DeleteVolumeRequest {
+                name: "cat.sch.vol".to_string(),
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        let second = h
+            .create_volume(create_managed_volume("vol"), ctx())
+            .await
+            .unwrap();
+
+        assert_ne!(first.volume_id, second.volume_id);
+        assert_ne!(first.storage_location, second.storage_location);
+    }
+
+    #[tokio::test]
+    async fn managed_volume_duplicate_name_is_rejected() {
+        // Uniqueness on the catalog.schema.name triplet is preserved even though
+        // the store now honors a pre-allocated id.
+        let h = handler();
+        setup_managed_namespace(&h, "s3://bucket/cat").await;
+
+        h.create_volume(create_managed_volume("vol"), ctx())
+            .await
+            .unwrap();
+        let err = h
+            .create_volume(create_managed_volume("vol"), ctx())
+            .await
+            .expect_err("duplicate triplet must be rejected");
+        assert_eq!(err.error_code(), "RESOURCE_ALREADY_EXISTS", "{err:?}");
     }
 
     #[tokio::test]

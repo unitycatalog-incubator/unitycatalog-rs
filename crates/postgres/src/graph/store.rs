@@ -87,9 +87,10 @@ impl Store {
         label: &ObjectLabel,
         name: &[String],
         properties: Option<serde_json::Value>,
+        id: Option<Uuid>,
     ) -> Result<Object> {
         let mut txn = self.pool.begin().await?;
-        let obj = add_object(label, name, properties, &mut txn).await?;
+        let obj = add_object(label, name, properties, id, &mut txn).await?;
         txn.commit().await?;
         Ok(obj)
     }
@@ -345,7 +346,7 @@ impl olai_store::ObjectStore<ObjectLabel> for Store {
         name: &ResourceName,
         properties: Option<serde_json::Value>,
     ) -> olai_store::Result<olai_store::Object<ObjectLabel>> {
-        Ok(self.add_object(&label, name, properties).await?)
+        Ok(self.add_object(&label, name, properties, None).await?)
     }
 
     async fn update(
@@ -488,13 +489,17 @@ async fn add_object(
     label: &ObjectLabel,
     name: &[String],
     properties: Option<serde_json::Value>,
+    id: Option<Uuid>,
     txn: &mut sqlx::Transaction<'_, sqlx::Postgres>,
 ) -> Result<Object, crate::Error> {
+    // A caller that pre-allocates an id (e.g. a managed volume or staging table
+    // embedding the id in its storage path) passes it here; `COALESCE` falls back
+    // to the column's `uuidv7()` default for the common id-less create.
     let obj = sqlx::query_as!(
         Object,
         r#"
-                INSERT INTO objects ( label, name, properties )
-                VALUES ( $1, $2, $3 )
+                INSERT INTO objects ( id, label, name, properties )
+                VALUES ( COALESCE($1, uuidv7()), $2, $3, $4 )
                 RETURNING
                     id,
                     label AS "label: ObjectLabel",
@@ -503,6 +508,7 @@ async fn add_object(
                     created_at,
                     updated_at
                 "#,
+        id,
         label as &ObjectLabel,
         name,
         properties
