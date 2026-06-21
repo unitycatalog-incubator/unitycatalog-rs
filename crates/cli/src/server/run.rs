@@ -25,10 +25,10 @@ use unitycatalog_server::api::volumes::VolumeHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
     create_credentials_router, create_delta_router, create_entity_tag_assignments_router,
-    create_external_locations_router, create_functions_router, create_providers_router,
-    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
-    create_staging_tables_router, create_tables_router, create_tag_policies_router,
-    create_volumes_router,
+    create_external_locations_router, create_functions_router, create_open_sharing_router,
+    create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
+    create_sharing_router, create_staging_tables_router, create_tables_router,
+    create_tag_policies_router, create_volumes_router,
 };
 
 pub async fn run_server_rest<T, A, Cx>(
@@ -69,6 +69,13 @@ where
         api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
         title: Some("Delta Sharing API"),
     };
+    // Open Sharing is a superset of Delta Sharing served at its own prefix; the
+    // tabular surface is wire-compatible, so it currently reuses the same spec.
+    let open_sharing_api_def = ApiDefinition {
+        uri_prefix: "/api/v1/open-sharing",
+        api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
+        title: Some("Open Sharing API"),
+    };
     // The Delta REST API routes live at `/delta/v1/...` under the UC base path, but its
     // Swagger UI + spec are hosted under a distinct prefix so the swagger-ui asset routes
     // (`swagger-ui.css`, etc.) don't collide with the main UC API's, which is mounted at
@@ -102,6 +109,11 @@ where
         .nest(
             "/api/v1/delta-sharing",
             create_sharing_router(handler.clone()),
+        )
+        // Open Sharing: superset surface sharing the same tabular handlers.
+        .nest(
+            "/api/v1/open-sharing",
+            create_open_sharing_router(handler.clone()),
         );
     let server = router.layer(AuthenticationLayer::new(authenticator));
 
@@ -109,7 +121,12 @@ where
         server,
         host,
         port,
-        vec![api_def, sharing_api_def, delta_api_def],
+        vec![
+            api_def,
+            sharing_api_def,
+            open_sharing_api_def,
+            delta_api_def,
+        ],
     )
     .await
 }

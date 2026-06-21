@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package delta_sharing.v1;
+package open_sharing.v1;
 
 import "buf/validate/validate.proto";
-import "delta_sharing/v1/models.proto";
-import "delta_sharing/v1/query.proto";
+import "open_sharing/v1/models.proto";
+import "open_sharing/v1/query.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -14,9 +14,9 @@ import "google/protobuf/struct.proto";
 
 option (gnostic.openapi.v3.document) = {
   info: {
-    title: "Delta Sharing API"
+    title: "Open Sharing API"
     version: "1.0.0"
-    description: "An Open Protocol for Secure Data Sharing"
+    description: "An Open Protocol for Secure Data Sharing. Extends the Delta Sharing protocol; the tabular surface remains wire-compatible with Delta Sharing clients."
     license: {
       name: "Apache 2.0"
       url: "https://www.apache.org/licenses/LICENSE-2.0.html"

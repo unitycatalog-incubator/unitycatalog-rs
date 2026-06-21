@@ -8,6 +8,7 @@ use axum::routing::{delete, get, patch, post};
 
 pub use delta::get_router as create_delta_router;
 pub use sharing::get_router as create_sharing_router;
+pub use sharing::open_sharing_router as create_open_sharing_router;
 
 pub mod delta;
 mod sharing;

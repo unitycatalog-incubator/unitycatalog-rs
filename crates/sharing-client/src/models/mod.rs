@@ -8,9 +8,9 @@ use crate::error::{Error, Result};
 #[allow(clippy::empty_docs, clippy::large_enum_variant)]
 pub mod sharing {
     pub mod v1 {
-        include!("./gen/delta_sharing.v1.rs");
+        include!("./gen/open_sharing.v1.rs");
         // #[cfg(feature = "grpc")]
-        // include!("./gen/delta_sharing.v1.tonic.rs");
+        // include!("./gen/open_sharing.v1.tonic.rs");
     }
 }
 

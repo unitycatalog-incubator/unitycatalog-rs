@@ -14,10 +14,16 @@ use crate::{Error, Result};
 const DELTA_SHARING_CAPABILITIES: &str = "delta-sharing-capabilities";
 const DELTA_SHARING_CAPABILITIES_VALUE: &str = "responseformat=parquet";
 
-/// Create a new [Router] for the Delta Sharing REST API.
-pub fn get_router<T, Cx>(state: T) -> Router
+/// The tabular Delta Sharing routes (shares / schemas / tables / version /
+/// metadata / query).
+///
+/// These are shared verbatim between the Delta Sharing (`/api/v1/delta-sharing`)
+/// and Open Sharing (`/api/v1/open-sharing`) mounts — both bind to the same
+/// handler methods. The state is applied by the caller so the same routes can be
+/// merged with the Open-Sharing-only asset routes before binding.
+fn tabular_routes<T, Cx>() -> Router<T>
 where
-    T: SharingHandler<Cx> + SharingQueryHandler<Cx> + Clone,
+    T: SharingHandler<Cx> + SharingQueryHandler<Cx> + Clone + Send + Sync + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send + 'static,
 {
     Router::new()
@@ -41,6 +47,35 @@ where
             "/shares/{share}/schemas/{schema}/tables/{name}/query",
             post(get_table_query::<T, Cx>),
         )
+}
+
+/// Create a [Router] for the **Delta Sharing** REST API
+/// (mounted at `/api/v1/delta-sharing`).
+///
+/// This is the tabular surface only and is preserved for wire-compatibility with
+/// existing Delta Sharing clients.
+pub fn get_router<T, Cx>(state: T) -> Router
+where
+    T: SharingHandler<Cx> + SharingQueryHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    tabular_routes::<T, Cx>().with_state(state)
+}
+
+/// Create a [Router] for the **Open Sharing** REST API
+/// (mounted at `/api/v1/open-sharing`).
+///
+/// Open Sharing is a superset of Delta Sharing: it serves the same tabular
+/// routes (via the shared [`tabular_routes`] handlers) and additionally exposes
+/// the storage-backed asset routes (volumes, agent skills) — added in a later
+/// phase via `.merge(asset_routes())`.
+pub fn open_sharing_router<T, Cx>(state: T) -> Router
+where
+    T: SharingHandler<Cx> + SharingQueryHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    tabular_routes::<T, Cx>()
+        // .merge(asset_routes::<T, Cx>())  // volumes + agent skills (Phase 5)
         .with_state(state)
 }
 

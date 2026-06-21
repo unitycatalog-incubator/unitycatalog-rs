@@ -10,7 +10,7 @@ impl serde::Serialize for DeltaLogMessage {
         if self.entry.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.DeltaLogMessage", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.DeltaLogMessage", len)?;
         if let Some(v) = self.entry.as_ref() {
             match v {
                 delta_log_message::Entry::Protocol(v) => {
@@ -75,7 +75,7 @@ impl<'de> serde::Deserialize<'de> for DeltaLogMessage {
             type Value = DeltaLogMessage;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.DeltaLogMessage")
+                formatter.write_str("struct open_sharing.v1.DeltaLogMessage")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeltaLogMessage, V::Error>
@@ -109,7 +109,7 @@ impl<'de> serde::Deserialize<'de> for DeltaLogMessage {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.DeltaLogMessage", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.DeltaLogMessage", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for DeltaResponse {
@@ -123,7 +123,7 @@ impl serde::Serialize for DeltaResponse {
         if !self.entries.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.DeltaResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.DeltaResponse", len)?;
         if !self.entries.is_empty() {
             struct_ser.serialize_field("entries", &self.entries)?;
         }
@@ -178,7 +178,7 @@ impl<'de> serde::Deserialize<'de> for DeltaResponse {
             type Value = DeltaResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.DeltaResponse")
+                formatter.write_str("struct open_sharing.v1.DeltaResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<DeltaResponse, V::Error>
@@ -204,7 +204,7 @@ impl<'de> serde::Deserialize<'de> for DeltaResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.DeltaResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.DeltaResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Format {
@@ -221,7 +221,7 @@ impl serde::Serialize for Format {
         if !self.options.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Format", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.Format", len)?;
         if !self.provider.is_empty() {
             struct_ser.serialize_field("provider", &self.provider)?;
         }
@@ -282,7 +282,7 @@ impl<'de> serde::Deserialize<'de> for Format {
             type Value = Format;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.Format")
+                formatter.write_str("struct open_sharing.v1.Format")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Format, V::Error>
@@ -318,7 +318,7 @@ impl<'de> serde::Deserialize<'de> for Format {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.Format", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.Format", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetShareRequest {
@@ -332,7 +332,7 @@ impl serde::Serialize for GetShareRequest {
         if !self.name.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.GetShareRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GetShareRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -387,7 +387,7 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
             type Value = GetShareRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.GetShareRequest")
+                formatter.write_str("struct open_sharing.v1.GetShareRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetShareRequest, V::Error>
@@ -413,7 +413,7 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.GetShareRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.GetShareRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableMetadataRequest {
@@ -433,7 +433,7 @@ impl serde::Serialize for GetTableMetadataRequest {
         if !self.schema.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.GetTableMetadataRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GetTableMetadataRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -500,7 +500,7 @@ impl<'de> serde::Deserialize<'de> for GetTableMetadataRequest {
             type Value = GetTableMetadataRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.GetTableMetadataRequest")
+                formatter.write_str("struct open_sharing.v1.GetTableMetadataRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableMetadataRequest, V::Error>
@@ -542,7 +542,7 @@ impl<'de> serde::Deserialize<'de> for GetTableMetadataRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.GetTableMetadataRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.GetTableMetadataRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableVersionRequest {
@@ -565,7 +565,7 @@ impl serde::Serialize for GetTableVersionRequest {
         if self.starting_timestamp.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.GetTableVersionRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GetTableVersionRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -639,7 +639,7 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionRequest {
             type Value = GetTableVersionRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.GetTableVersionRequest")
+                formatter.write_str("struct open_sharing.v1.GetTableVersionRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableVersionRequest, V::Error>
@@ -689,7 +689,7 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.GetTableVersionRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.GetTableVersionRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableVersionResponse {
@@ -703,7 +703,7 @@ impl serde::Serialize for GetTableVersionResponse {
         if self.version != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.GetTableVersionResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GetTableVersionResponse", len)?;
         if self.version != 0 {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
@@ -760,7 +760,7 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
             type Value = GetTableVersionResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.GetTableVersionResponse")
+                formatter.write_str("struct open_sharing.v1.GetTableVersionResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetTableVersionResponse, V::Error>
@@ -788,7 +788,7 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.GetTableVersionResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.GetTableVersionResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for JsonPredicate {
@@ -814,7 +814,7 @@ impl serde::Serialize for JsonPredicate {
         if self.value_type.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.JsonPredicate", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.JsonPredicate", len)?;
         if !self.op.is_empty() {
             struct_ser.serialize_field("op", &self.op)?;
         }
@@ -894,7 +894,7 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
             type Value = JsonPredicate;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.JsonPredicate")
+                formatter.write_str("struct open_sharing.v1.JsonPredicate")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<JsonPredicate, V::Error>
@@ -952,7 +952,7 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.JsonPredicate", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.JsonPredicate", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListAllTablesRequest {
@@ -972,7 +972,7 @@ impl serde::Serialize for ListAllTablesRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListAllTablesRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListAllTablesRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1041,7 +1041,7 @@ impl<'de> serde::Deserialize<'de> for ListAllTablesRequest {
             type Value = ListAllTablesRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListAllTablesRequest")
+                formatter.write_str("struct open_sharing.v1.ListAllTablesRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListAllTablesRequest, V::Error>
@@ -1085,7 +1085,7 @@ impl<'de> serde::Deserialize<'de> for ListAllTablesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListAllTablesRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListAllTablesRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListAllTablesResponse {
@@ -1102,7 +1102,7 @@ impl serde::Serialize for ListAllTablesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListAllTablesResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListAllTablesResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1164,7 +1164,7 @@ impl<'de> serde::Deserialize<'de> for ListAllTablesResponse {
             type Value = ListAllTablesResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListAllTablesResponse")
+                formatter.write_str("struct open_sharing.v1.ListAllTablesResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListAllTablesResponse, V::Error>
@@ -1198,7 +1198,7 @@ impl<'de> serde::Deserialize<'de> for ListAllTablesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListAllTablesResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListAllTablesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListSchemasRequest {
@@ -1218,7 +1218,7 @@ impl serde::Serialize for ListSchemasRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListSchemasRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListSchemasRequest", len)?;
         if !self.share.is_empty() {
             struct_ser.serialize_field("share", &self.share)?;
         }
@@ -1287,7 +1287,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemasRequest {
             type Value = ListSchemasRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListSchemasRequest")
+                formatter.write_str("struct open_sharing.v1.ListSchemasRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSchemasRequest, V::Error>
@@ -1331,7 +1331,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemasRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListSchemasRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListSchemasRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListSchemasResponse {
@@ -1348,7 +1348,7 @@ impl serde::Serialize for ListSchemasResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListSchemasResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListSchemasResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1410,7 +1410,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemasResponse {
             type Value = ListSchemasResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListSchemasResponse")
+                formatter.write_str("struct open_sharing.v1.ListSchemasResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSchemasResponse, V::Error>
@@ -1444,7 +1444,7 @@ impl<'de> serde::Deserialize<'de> for ListSchemasResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListSchemasResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListSchemasResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListSharesRequest {
@@ -1461,7 +1461,7 @@ impl serde::Serialize for ListSharesRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListSharesRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListSharesRequest", len)?;
         if let Some(v) = self.max_results.as_ref() {
             struct_ser.serialize_field("max_results", v)?;
         }
@@ -1524,7 +1524,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
             type Value = ListSharesRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListSharesRequest")
+                formatter.write_str("struct open_sharing.v1.ListSharesRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSharesRequest, V::Error>
@@ -1560,7 +1560,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListSharesRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListSharesRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListSharesResponse {
@@ -1577,7 +1577,7 @@ impl serde::Serialize for ListSharesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListSharesResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListSharesResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1639,7 +1639,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
             type Value = ListSharesResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListSharesResponse")
+                formatter.write_str("struct open_sharing.v1.ListSharesResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSharesResponse, V::Error>
@@ -1673,7 +1673,7 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListSharesResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListSharesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListTablesRequest {
@@ -1696,7 +1696,7 @@ impl serde::Serialize for ListTablesRequest {
         if self.page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListTablesRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListTablesRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -1771,7 +1771,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
             type Value = ListTablesRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListTablesRequest")
+                formatter.write_str("struct open_sharing.v1.ListTablesRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListTablesRequest, V::Error>
@@ -1823,7 +1823,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListTablesRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListTablesRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListTablesResponse {
@@ -1840,7 +1840,7 @@ impl serde::Serialize for ListTablesResponse {
         if self.next_page_token.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ListTablesResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListTablesResponse", len)?;
         if !self.items.is_empty() {
             struct_ser.serialize_field("items", &self.items)?;
         }
@@ -1902,7 +1902,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
             type Value = ListTablesResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ListTablesResponse")
+                formatter.write_str("struct open_sharing.v1.ListTablesResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListTablesResponse, V::Error>
@@ -1936,7 +1936,7 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ListTablesResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ListTablesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Metadata {
@@ -1971,7 +1971,7 @@ impl serde::Serialize for Metadata {
         if !self.options.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Metadata", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.Metadata", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
         }
@@ -2073,7 +2073,7 @@ impl<'de> serde::Deserialize<'de> for Metadata {
             type Value = Metadata;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.Metadata")
+                formatter.write_str("struct open_sharing.v1.Metadata")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Metadata, V::Error>
@@ -2159,7 +2159,7 @@ impl<'de> serde::Deserialize<'de> for Metadata {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.Metadata", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.Metadata", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for MetadataDelta {
@@ -2182,7 +2182,7 @@ impl serde::Serialize for MetadataDelta {
         if self.num_files.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.MetadataDelta", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.MetadataDelta", len)?;
         if let Some(v) = self.delta_metadata.as_ref() {
             struct_ser.serialize_field("delta_metadata", v)?;
         }
@@ -2263,7 +2263,7 @@ impl<'de> serde::Deserialize<'de> for MetadataDelta {
             type Value = MetadataDelta;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.MetadataDelta")
+                formatter.write_str("struct open_sharing.v1.MetadataDelta")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<MetadataDelta, V::Error>
@@ -2319,7 +2319,7 @@ impl<'de> serde::Deserialize<'de> for MetadataDelta {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.MetadataDelta", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.MetadataDelta", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for MetadataParquet {
@@ -2348,7 +2348,7 @@ impl serde::Serialize for MetadataParquet {
         if !self.partition_columns.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.MetadataParquet", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.MetadataParquet", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
         }
@@ -2435,7 +2435,7 @@ impl<'de> serde::Deserialize<'de> for MetadataParquet {
             type Value = MetadataParquet;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.MetadataParquet")
+                formatter.write_str("struct open_sharing.v1.MetadataParquet")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<MetadataParquet, V::Error>
@@ -2501,7 +2501,7 @@ impl<'de> serde::Deserialize<'de> for MetadataParquet {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.MetadataParquet", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.MetadataParquet", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ParquetLogMessage {
@@ -2515,7 +2515,7 @@ impl serde::Serialize for ParquetLogMessage {
         if self.entry.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ParquetLogMessage", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ParquetLogMessage", len)?;
         if let Some(v) = self.entry.as_ref() {
             match v {
                 parquet_log_message::Entry::Protocol(v) => {
@@ -2580,7 +2580,7 @@ impl<'de> serde::Deserialize<'de> for ParquetLogMessage {
             type Value = ParquetLogMessage;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ParquetLogMessage")
+                formatter.write_str("struct open_sharing.v1.ParquetLogMessage")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ParquetLogMessage, V::Error>
@@ -2614,7 +2614,7 @@ impl<'de> serde::Deserialize<'de> for ParquetLogMessage {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ParquetLogMessage", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ParquetLogMessage", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ParquetResponse {
@@ -2628,7 +2628,7 @@ impl serde::Serialize for ParquetResponse {
         if !self.entries.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ParquetResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ParquetResponse", len)?;
         if !self.entries.is_empty() {
             struct_ser.serialize_field("entries", &self.entries)?;
         }
@@ -2683,7 +2683,7 @@ impl<'de> serde::Deserialize<'de> for ParquetResponse {
             type Value = ParquetResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ParquetResponse")
+                formatter.write_str("struct open_sharing.v1.ParquetResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ParquetResponse, V::Error>
@@ -2709,7 +2709,7 @@ impl<'de> serde::Deserialize<'de> for ParquetResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ParquetResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ParquetResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ProtocolDelta {
@@ -2726,7 +2726,7 @@ impl serde::Serialize for ProtocolDelta {
         if self.min_writer_version != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ProtocolDelta", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ProtocolDelta", len)?;
         if self.min_reader_version != 0 {
             struct_ser.serialize_field("min_reader_version", &self.min_reader_version)?;
         }
@@ -2789,7 +2789,7 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
             type Value = ProtocolDelta;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ProtocolDelta")
+                formatter.write_str("struct open_sharing.v1.ProtocolDelta")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProtocolDelta, V::Error>
@@ -2827,7 +2827,7 @@ impl<'de> serde::Deserialize<'de> for ProtocolDelta {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ProtocolDelta", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ProtocolDelta", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ProtocolParquet {
@@ -2841,7 +2841,7 @@ impl serde::Serialize for ProtocolParquet {
         if self.min_reader_version != 0 {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.ProtocolParquet", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ProtocolParquet", len)?;
         if self.min_reader_version != 0 {
             struct_ser.serialize_field("min_reader_version", &self.min_reader_version)?;
         }
@@ -2897,7 +2897,7 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
             type Value = ProtocolParquet;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.ProtocolParquet")
+                formatter.write_str("struct open_sharing.v1.ProtocolParquet")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<ProtocolParquet, V::Error>
@@ -2925,7 +2925,7 @@ impl<'de> serde::Deserialize<'de> for ProtocolParquet {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.ProtocolParquet", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.ProtocolParquet", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for QueryResponse {
@@ -2939,7 +2939,7 @@ impl serde::Serialize for QueryResponse {
         if self.response.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.QueryResponse", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.QueryResponse", len)?;
         if let Some(v) = self.response.as_ref() {
             match v {
                 query_response::Response::Parquet(v) => {
@@ -3004,7 +3004,7 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
             type Value = QueryResponse;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.QueryResponse")
+                formatter.write_str("struct open_sharing.v1.QueryResponse")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryResponse, V::Error>
@@ -3038,7 +3038,7 @@ impl<'de> serde::Deserialize<'de> for QueryResponse {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.QueryResponse", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.QueryResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for QueryTableRequest {
@@ -3082,7 +3082,7 @@ impl serde::Serialize for QueryTableRequest {
         if self.ending_version.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.QueryTableRequest", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.QueryTableRequest", len)?;
         if !self.share.is_empty() {
             struct_ser.serialize_field("share", &self.share)?;
         }
@@ -3209,7 +3209,7 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
             type Value = QueryTableRequest;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.QueryTableRequest")
+                formatter.write_str("struct open_sharing.v1.QueryTableRequest")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<QueryTableRequest, V::Error>
@@ -3323,7 +3323,7 @@ impl<'de> serde::Deserialize<'de> for QueryTableRequest {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.QueryTableRequest", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.QueryTableRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Schema {
@@ -3343,7 +3343,7 @@ impl serde::Serialize for Schema {
         if self.id.is_some() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Schema", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.Schema", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -3410,7 +3410,7 @@ impl<'de> serde::Deserialize<'de> for Schema {
             type Value = Schema;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.Schema")
+                formatter.write_str("struct open_sharing.v1.Schema")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Schema, V::Error>
@@ -3452,7 +3452,7 @@ impl<'de> serde::Deserialize<'de> for Schema {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.Schema", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.Schema", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Share {
@@ -3478,7 +3478,7 @@ impl serde::Serialize for Share {
         if !self.properties.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Share", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.Share", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -3558,7 +3558,7 @@ impl<'de> serde::Deserialize<'de> for Share {
             type Value = Share;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.Share")
+                formatter.write_str("struct open_sharing.v1.Share")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Share, V::Error>
@@ -3618,7 +3618,7 @@ impl<'de> serde::Deserialize<'de> for Share {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.Share", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.Share", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Table {
@@ -3653,7 +3653,7 @@ impl serde::Serialize for Table {
         if !self.access_modes.is_empty() {
             len += 1;
         }
-        let mut struct_ser = serializer.serialize_struct("delta_sharing.v1.Table", len)?;
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.Table", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
         }
@@ -3753,7 +3753,7 @@ impl<'de> serde::Deserialize<'de> for Table {
             type Value = Table;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                formatter.write_str("struct delta_sharing.v1.Table")
+                formatter.write_str("struct open_sharing.v1.Table")
             }
 
             fn visit_map<V>(self, mut map_: V) -> std::result::Result<Table, V::Error>
@@ -3835,6 +3835,6 @@ impl<'de> serde::Deserialize<'de> for Table {
                 })
             }
         }
-        deserializer.deserialize_struct("delta_sharing.v1.Table", FIELDS, GeneratedVisitor)
+        deserializer.deserialize_struct("open_sharing.v1.Table", FIELDS, GeneratedVisitor)
     }
 }

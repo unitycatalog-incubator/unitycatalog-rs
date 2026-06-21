@@ -473,5 +473,5 @@ pub struct ListAllTablesResponse {
     #[prost(string, optional, tag="2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
-include!("delta_sharing.v1.serde.rs");
+include!("open_sharing.v1.serde.rs");
 // @@protoc_insertion_point(module)
