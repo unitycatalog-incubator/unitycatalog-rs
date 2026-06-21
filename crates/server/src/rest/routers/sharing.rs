@@ -7,6 +7,7 @@ use http::header::CONTENT_TYPE;
 use unitycatalog_sharing_client::models::sharing::v1::*;
 
 use crate::api::sharing::{SharingHandler, SharingQueryHandler};
+use crate::sharing::{SharingSkillHandler, SharingVolumeHandler};
 use crate::{Error, Result};
 
 /// Response header advertising the Delta Sharing capabilities this server
@@ -62,20 +63,65 @@ where
     tabular_routes::<T, Cx>().with_state(state)
 }
 
+/// The Open-Sharing-only asset routes (volumes, agent skills): discovery plus
+/// temporary-credential vending. Bound to the per-asset handler traits.
+fn asset_routes<T, Cx>() -> Router<T>
+where
+    T: SharingVolumeHandler<Cx> + SharingSkillHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    Router::new()
+        .route(
+            "/shares/{share}/all-volumes",
+            get(list_all_volumes::<T, Cx>),
+        )
+        .route(
+            "/shares/{share}/schemas/{schema}/volumes",
+            get(list_volumes::<T, Cx>),
+        )
+        .route(
+            "/shares/{share}/schemas/{schema}/volumes/{name}",
+            get(get_volume::<T, Cx>),
+        )
+        .route(
+            "/shares/{share}/schemas/{schema}/volumes/{name}/temporary-volume-credentials",
+            post(generate_temporary_volume_credentials::<T, Cx>),
+        )
+        .route("/shares/{share}/all-skills", get(list_all_skills::<T, Cx>))
+        .route(
+            "/shares/{share}/schemas/{schema}/skills",
+            get(list_skills::<T, Cx>),
+        )
+        .route(
+            "/shares/{share}/schemas/{schema}/skills/{name}",
+            get(get_skill::<T, Cx>),
+        )
+        .route(
+            "/shares/{share}/schemas/{schema}/skills/{name}/temporary-skill-credentials",
+            post(generate_temporary_skill_credentials::<T, Cx>),
+        )
+}
+
 /// Create a [Router] for the **Open Sharing** REST API
 /// (mounted at `/api/v1/open-sharing`).
 ///
 /// Open Sharing is a superset of Delta Sharing: it serves the same tabular
 /// routes (via the shared [`tabular_routes`] handlers) and additionally exposes
-/// the storage-backed asset routes (volumes, agent skills) — added in a later
-/// phase via `.merge(asset_routes())`.
+/// the storage-backed asset routes (volumes, agent skills) via [`asset_routes`].
 pub fn open_sharing_router<T, Cx>(state: T) -> Router
 where
-    T: SharingHandler<Cx> + SharingQueryHandler<Cx> + Clone + Send + Sync + 'static,
+    T: SharingHandler<Cx>
+        + SharingQueryHandler<Cx>
+        + SharingVolumeHandler<Cx>
+        + SharingSkillHandler<Cx>
+        + Clone
+        + Send
+        + Sync
+        + 'static,
     Cx: axum::extract::FromRequestParts<T> + Send + 'static,
 {
     tabular_routes::<T, Cx>()
-        // .merge(asset_routes::<T, Cx>())  // volumes + agent skills (Phase 5)
+        .merge(asset_routes::<T, Cx>())
         .with_state(state)
 }
 
@@ -194,4 +240,118 @@ where
         .body(Body::from(result))
         .map_err(|e| Error::generic(e.to_string()))?;
     Ok(response)
+}
+
+// ---------------------------------------------------------------------------
+// Open Sharing: volume routes
+// ---------------------------------------------------------------------------
+
+async fn list_volumes<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: ListVolumesRequest,
+) -> Result<::axum::Json<ListVolumesResponse>>
+where
+    T: SharingVolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(handler.list_volumes(request, context).await?))
+}
+
+async fn list_all_volumes<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: ListAllVolumesRequest,
+) -> Result<::axum::Json<ListAllVolumesResponse>>
+where
+    T: SharingVolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(
+        handler.list_all_volumes(request, context).await?,
+    ))
+}
+
+async fn get_volume<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: GetVolumeRequest,
+) -> Result<::axum::Json<SharingVolume>>
+where
+    T: SharingVolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(handler.get_volume(request, context).await?))
+}
+
+async fn generate_temporary_volume_credentials<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: GenerateTemporaryVolumeCredentialsRequest,
+) -> Result<::axum::Json<SharingTemporaryCredentials>>
+where
+    T: SharingVolumeHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(
+        handler
+            .generate_temporary_volume_credentials(request, context)
+            .await?,
+    ))
+}
+
+// ---------------------------------------------------------------------------
+// Open Sharing: agent-skill routes
+// ---------------------------------------------------------------------------
+
+async fn list_skills<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: ListSkillsRequest,
+) -> Result<::axum::Json<ListSkillsResponse>>
+where
+    T: SharingSkillHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(handler.list_skills(request, context).await?))
+}
+
+async fn list_all_skills<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: ListAllSkillsRequest,
+) -> Result<::axum::Json<ListAllSkillsResponse>>
+where
+    T: SharingSkillHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(handler.list_all_skills(request, context).await?))
+}
+
+async fn get_skill<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: GetSkillRequest,
+) -> Result<::axum::Json<SharingSkill>>
+where
+    T: SharingSkillHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(handler.get_skill(request, context).await?))
+}
+
+async fn generate_temporary_skill_credentials<T, Cx>(
+    State(handler): State<T>,
+    context: Cx,
+    request: GenerateTemporarySkillCredentialsRequest,
+) -> Result<::axum::Json<SharingTemporaryCredentials>>
+where
+    T: SharingSkillHandler<Cx> + Clone + Send + Sync + 'static,
+    Cx: axum::extract::FromRequestParts<T> + Send,
+{
+    Ok(axum::Json(
+        handler
+            .generate_temporary_skill_credentials(request, context)
+            .await?,
+    ))
 }

@@ -30,6 +30,7 @@ use unitycatalog_server::rest::{
     create_sharing_router, create_staging_tables_router, create_tables_router,
     create_tag_policies_router, create_volumes_router,
 };
+use unitycatalog_server::sharing::{SharingSkillHandler, SharingVolumeHandler};
 
 pub async fn run_server_rest<T, A, Cx>(
     host: impl AsRef<str>,
@@ -43,6 +44,8 @@ where
         + FunctionHandler<Cx>
         + SharingHandler<Cx>
         + SharingQueryHandler<Cx>
+        + SharingVolumeHandler<Cx>
+        + SharingSkillHandler<Cx>
         + ShareHandler<Cx>
         + SchemaHandler<Cx>
         + StagingTableHandler<Cx>

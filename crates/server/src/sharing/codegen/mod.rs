@@ -1,2 +1,2 @@
-pub use handler::SharingHandler;
+pub use handler::{SharingHandler, SharingSkillHandler, SharingVolumeHandler};
 mod handler;

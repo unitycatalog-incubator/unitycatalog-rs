@@ -85,3 +85,33 @@ impl SecuredAction for GetTableMetadataRequest {
         &Permission::Read
     }
 }
+
+// Open Sharing asset requests (volumes, agent skills). All are scoped to the
+// share and require read access; the concrete asset is authorized when its
+// storage location is resolved.
+macro_rules! sharing_read_on_share {
+    ($($ty:ty),+ $(,)?) => {
+        $(
+            impl SecuredAction for $ty {
+                fn resource(&self) -> ResourceIdent {
+                    ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+                }
+
+                fn permission(&self) -> &'static Permission {
+                    &Permission::Read
+                }
+            }
+        )+
+    };
+}
+
+sharing_read_on_share! {
+    ListVolumesRequest,
+    ListAllVolumesRequest,
+    GetVolumeRequest,
+    GenerateTemporaryVolumeCredentialsRequest,
+    ListSkillsRequest,
+    ListAllSkillsRequest,
+    GetSkillRequest,
+    GenerateTemporarySkillCredentialsRequest,
+}

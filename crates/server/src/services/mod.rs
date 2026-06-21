@@ -9,6 +9,7 @@ use self::location::StorageLocationUrl;
 use self::secrets::{ProvidesSecretManager, SecretManager};
 use crate::Result;
 use crate::api::tables::{TableHandler, TableManager};
+use crate::api::volumes::VolumeHandler;
 use crate::policy::{Decision, Permission, Policy, ProvidesPolicy};
 use crate::store::{ProvidesObjectStore, ProvidesResourceStore, ResourceStore};
 use unitycatalog_common::ObjectLabel;
@@ -40,6 +41,16 @@ pub struct ServerHandler<Cx> {
     /// injects an [`UpstreamTableHandler`](crate::handlers::upstream::UpstreamTableHandler)
     /// here and resolution follows the same routing as every other surface.
     table_source: Option<Arc<dyn TableHandler<Cx>>>,
+    /// Optional source for resolving shared *volume* primitives.
+    ///
+    /// The Open Sharing volume and agent-skill surfaces resolve a shared
+    /// asset's storage location by looking up the underlying Volume primitive.
+    /// As with [`table_source`](Self::table_source), the default (`None`)
+    /// resolves it from this server's own store (self-contained topology), while
+    /// the hybrid wiring injects an
+    /// [`UpstreamVolumeHandler`](crate::handlers::upstream::UpstreamVolumeHandler)
+    /// to resolve it from an upstream Unity Catalog (side-by-side topology).
+    volume_source: Option<Arc<dyn VolumeHandler<Cx>>>,
 }
 
 impl<Cx: Send + Sync + 'static> ServerHandler<Cx>
@@ -78,6 +89,7 @@ where
             handler,
             session,
             table_source: None,
+            volume_source: None,
         })
     }
 }
@@ -97,6 +109,23 @@ impl<Cx: Send + Sync + 'static> ServerHandler<Cx> {
     /// The configured table source, if any.
     pub(crate) fn table_source(&self) -> Option<&Arc<dyn TableHandler<Cx>>> {
         self.table_source.as_ref()
+    }
+
+    /// Route shared-volume resolution through `volume_source` instead of the
+    /// local store.
+    ///
+    /// Used by the hybrid topology so that Open Sharing volume and agent-skill
+    /// reads resolve their backing Volume primitive from the same place every
+    /// other volume surface is served (e.g. an upstream Unity Catalog), rather
+    /// than the local store.
+    pub fn with_volume_source(mut self, volume_source: Arc<dyn VolumeHandler<Cx>>) -> Self {
+        self.volume_source = Some(volume_source);
+        self
+    }
+
+    /// The configured volume source, if any.
+    pub(crate) fn volume_source(&self) -> Option<&Arc<dyn VolumeHandler<Cx>>> {
+        self.volume_source.as_ref()
     }
 }
 
