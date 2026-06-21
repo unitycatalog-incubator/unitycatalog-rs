@@ -9,7 +9,7 @@ use unitycatalog_common::models::temporary_credentials::v1::{
 };
 use unitycatalog_common::models::volumes::v1::{GetVolumeRequest as UcGetVolumeRequest, Volume};
 use unitycatalog_common::{ResourceIdent, ResourceName, Share};
-use unitycatalog_sharing_client::models::sharing::v1::{
+use unitycatalog_sharing_client::models::open_sharing::v1::{
     sharing_temporary_credentials::Credentials as SharingCredentials, *,
 };
 

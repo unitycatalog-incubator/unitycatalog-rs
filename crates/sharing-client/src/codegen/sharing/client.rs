@@ -1,17 +1,14 @@
-#![allow(unused_mut)]
+// @generated — do not edit by hand.
+use crate::Result;
 use olai_http::CloudClient;
+use unitycatalog_sharing_client::models::open_sharing::v1::*;
 use url::Url;
-
-use crate::error::Result;
-use crate::models::sharing::v1::*;
-
 /// HTTP client for service operations
 #[derive(Clone)]
 pub struct SharingClient {
     pub(crate) client: CloudClient,
     pub(crate) base_url: Url,
 }
-
 impl SharingClient {
     /// Create a new client instance
     pub fn new(client: CloudClient, mut base_url: Url) -> Self {
@@ -20,7 +17,7 @@ impl SharingClient {
         }
         Self { client, base_url }
     }
-
+    /// List shares accessible to a recipient.
     pub async fn list_shares(&self, request: &ListSharesRequest) -> Result<ListSharesResponse> {
         let mut url = self.base_url.join("shares")?;
         if let Some(ref value) = request.max_results {
@@ -32,24 +29,25 @@ impl SharingClient {
                 .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-
+    /// Get the metadata for a specific share.
     pub async fn get_share(&self, request: &GetShareRequest) -> Result<Share> {
         let formatted_path = format!("shares/{}", request.name);
-        let mut url = self.base_url.join(&formatted_path)?;
+        let url = self.base_url.join(&formatted_path)?;
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-
-    pub async fn list_sharing_schemas(
-        &self,
-        request: &ListSchemasRequest,
-    ) -> Result<ListSchemasResponse> {
+    /// List the schemas in a share.
+    pub async fn list_schemas(&self, request: &ListSchemasRequest) -> Result<ListSchemasResponse> {
         let formatted_path = format!("shares/{}/schemas", request.share);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
@@ -61,15 +59,14 @@ impl SharingClient {
                 .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-
-    pub async fn list_schema_tables(
-        &self,
-        request: &ListTablesRequest,
-    ) -> Result<ListTablesResponse> {
+    /// List the tables in a given share's schema.
+    pub async fn list_tables(&self, request: &ListTablesRequest) -> Result<ListTablesResponse> {
         let formatted_path = format!("shares/{}/schemas/{}/tables", request.share, request.name);
         let mut url = self.base_url.join(&formatted_path)?;
         if let Some(ref value) = request.max_results {
@@ -81,12 +78,17 @@ impl SharingClient {
                 .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
+        }
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }
-
-    pub async fn list_share_tables(
+    /// List all the tables under a share.
+    ///
+    /// A convenience over per-schema listing: returns every table across all
+    /// schemas in the share.
+    pub async fn list_all_tables(
         &self,
         request: &ListAllTablesRequest,
     ) -> Result<ListAllTablesResponse> {
@@ -101,53 +103,9 @@ impl SharingClient {
                 .append_pair("page_token", &value.to_string());
         }
         let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
-        let result = response.bytes().await?;
-        Ok(serde_json::from_slice(&result)?)
-    }
-
-    pub async fn get_table_version(
-        &self,
-        request: &GetTableVersionRequest,
-    ) -> Result<GetTableVersionResponse> {
-        let formatted_path = format!(
-            "shares/{}/schemas/{}/tables/{}/version",
-            request.share, request.schema, request.name
-        );
-        let mut url = self.base_url.join(&formatted_path)?;
-        if let Some(ref value) = request.starting_timestamp {
-            url.query_pairs_mut()
-                .append_pair("starting_timestamp", &value.to_string());
+        if !response.status().is_success() {
+            return Err(crate::error::parse_error_response(response).await);
         }
-        let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
-        let result = response.bytes().await?;
-        Ok(serde_json::from_slice(&result)?)
-    }
-
-    pub async fn get_table_metadata(
-        &self,
-        request: &GetTableMetadataRequest,
-    ) -> Result<QueryResponse> {
-        let formatted_path = format!(
-            "shares/{}/schemas/{}/tables/{}/metadata",
-            request.share, request.schema, request.name
-        );
-        let mut url = self.base_url.join(&formatted_path)?;
-        let response = self.client.get(url).send().await?;
-        response.error_for_status_ref()?;
-        let result = response.bytes().await?;
-        Ok(serde_json::from_slice(&result)?)
-    }
-
-    pub async fn query_table(&self, request: &QueryTableRequest) -> Result<QueryResponse> {
-        let formatted_path = format!(
-            "shares/{}/schemas/{}/tables/{}/query",
-            request.share, request.schema, request.name
-        );
-        let mut url = self.base_url.join(&formatted_path)?;
-        let response = self.client.post(url).json(request).send().await?;
-        response.error_for_status_ref()?;
         let result = response.bytes().await?;
         Ok(serde_json::from_slice(&result)?)
     }

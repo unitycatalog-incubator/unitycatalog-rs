@@ -259,36 +259,12 @@ service SharingService {
     option (gnostic.openapi.v3.operation) = {operation_id: "ListAllTables"};
   }
 
-  // Get the current version for a table within a schema.
-  //
-  // The version is returned in the `Delta-Table-Version` response header. An
-  // optional `startingTimestamp` selects the earliest version at or after the
-  // timestamp.
-  rpc GetTableVersion(GetTableVersionRequest) returns (GetTableVersionResponse) {
-    option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/version"};
-    option (gnostic.openapi.v3.operation) = {operation_id: "GetTableVersion"};
-  }
-
-  // Get the Protocol and Metadata of a shared table.
-  //
-  // The response is newline-delimited JSON; the negotiated response format is
-  // advertised via the `delta-sharing-capabilities` response header.
-  rpc GetTableMetadata(GetTableMetadataRequest) returns (QueryResponse) {
-    option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/metadata"};
-    option (gnostic.openapi.v3.operation) = {operation_id: "GetTableMetadata"};
-  }
-
-  // Query the data files of a shared table.
-  //
-  // The response is newline-delimited JSON listing the table's Protocol,
-  // Metadata, and file entries (with paths, partition values, and sizes).
-  // Supports snapshot queries (version/timestamp), change-data-feed queries
-  // (startingVersion/endingVersion), and best-effort predicate/limit hints.
-  rpc QueryTable(QueryTableRequest) returns (QueryResponse) {
-    option (google.api.http) = {
-      post: "/shares/{share}/schemas/{schema}/tables/{name}/query"
-      body: "*"
-    };
-    option (gnostic.openapi.v3.operation) = {operation_id: "QueryTable"};
-  }
+  // NOTE: The table query path — GetTableVersion, GetTableMetadata, and
+  // QueryTable — is intentionally NOT part of this service definition. Those
+  // endpoints return newline-delimited JSON (`application/x-ndjson`) with the
+  // `Delta-Table-Version` / `delta-sharing-capabilities` response headers, a
+  // streaming contract the JSON-oriented code generator does not model. They
+  // are implemented by hand (see `server/src/services/sharing.rs` and the
+  // `rest/routers/sharing.rs` router). Their request/response messages remain
+  // defined below for that hand-written implementation to use.
 }
