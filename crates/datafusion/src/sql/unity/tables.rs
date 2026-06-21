@@ -97,10 +97,12 @@ pub(crate) fn sql_columns_to_arrow_schema(columns: &[ColumnDef]) -> Result<Schem
             let data_type = sql_type_to_arrow(&col.data_type, &col.name.value)?;
             // Columns are nullable unless an explicit NOT NULL option is present;
             // matching Spark/Delta defaults keeps the create schema permissive.
-            let nullable = !col
-                .options
-                .iter()
-                .any(|o| matches!(o.option, datafusion::sql::sqlparser::ast::ColumnOption::NotNull));
+            let nullable = !col.options.iter().any(|o| {
+                matches!(
+                    o.option,
+                    datafusion::sql::sqlparser::ast::ColumnOption::NotNull
+                )
+            });
             Ok(Field::new(&col.name.value, data_type, nullable))
         })
         .collect::<Result<Vec<_>>>()?;

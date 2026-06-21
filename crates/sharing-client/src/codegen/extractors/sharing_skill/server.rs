@@ -94,7 +94,7 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporarySkillCre
             .extract::<axum::extract::Path<(String, String, String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
-        let body_req = axum::extract::Request::from_parts(parts, body);
+        let _body_req = axum::extract::Request::from_parts(parts, body);
         Ok(GenerateTemporarySkillCredentialsRequest {
             share,
             schema,

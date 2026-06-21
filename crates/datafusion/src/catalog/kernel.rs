@@ -107,7 +107,10 @@ pub fn resolve_managed_read_state(
     // tail must reach exactly `latest` (otherwise we'd silently serve an older snapshot).
     if let Some(max) = commits.last().map(|c| c.version) {
         let max: Version = max.try_into().map_err(|_| {
-            DataFusionError::Plan(format!("negative commit version in tail for '{}'", loaded.metadata.location))
+            DataFusionError::Plan(format!(
+                "negative commit version in tail for '{}'",
+                loaded.metadata.location
+            ))
         })?;
         if max > latest {
             return Err(DataFusionError::Plan(format!(
@@ -367,26 +370,24 @@ mod tests {
 
     #[test]
     fn resolve_external_is_not_managed() {
-        let r = resolve_managed_read_state(&loaded(DeltaTableType::External, Some(5), None)).unwrap();
+        let r =
+            resolve_managed_read_state(&loaded(DeltaTableType::External, Some(5), None)).unwrap();
         assert!(matches!(r, ManagedReadState::NotManaged));
     }
 
     #[test]
     fn resolve_negative_latest_is_not_managed() {
         // The legacy `-1` "UC does not manage this table" signal routes to filesystem.
-        let r = resolve_managed_read_state(&loaded(DeltaTableType::Managed, Some(-1), None)).unwrap();
+        let r =
+            resolve_managed_read_state(&loaded(DeltaTableType::Managed, Some(-1), None)).unwrap();
         assert!(matches!(r, ManagedReadState::NotManaged));
     }
 
     #[test]
     fn resolve_post_create_latest_zero_empty_tail() {
         // Right after create: latest = 0, empty tail → managed, snapshot is fs 0.json.
-        let r = resolve_managed_read_state(&loaded(
-            DeltaTableType::Managed,
-            Some(0),
-            Some(vec![]),
-        ))
-        .unwrap();
+        let r = resolve_managed_read_state(&loaded(DeltaTableType::Managed, Some(0), Some(vec![])))
+            .unwrap();
         match r {
             ManagedReadState::Managed { commits, latest } => {
                 assert_eq!(latest, 0);
@@ -410,7 +411,10 @@ mod tests {
         match r {
             ManagedReadState::Managed { commits, latest } => {
                 assert_eq!(latest, 3);
-                assert_eq!(commits.iter().map(|c| c.version).collect::<Vec<_>>(), [2, 3]);
+                assert_eq!(
+                    commits.iter().map(|c| c.version).collect::<Vec<_>>(),
+                    [2, 3]
+                );
             }
             other => panic!("expected Managed, got {other:?}"),
         }
@@ -421,7 +425,10 @@ mod tests {
         let r = resolve_managed_read_state(&loaded(
             DeltaTableType::Managed,
             None,
-            Some(vec![commit(2, &staged_name(2), 20), commit(4, &staged_name(4), 40)]),
+            Some(vec![
+                commit(2, &staged_name(2), 20),
+                commit(4, &staged_name(4), 40),
+            ]),
         ))
         .unwrap();
         match r {
@@ -432,8 +439,8 @@ mod tests {
 
     #[test]
     fn resolve_absent_latest_without_tail_is_error() {
-        let err = resolve_managed_read_state(&loaded(DeltaTableType::Managed, None, None))
-            .unwrap_err();
+        let err =
+            resolve_managed_read_state(&loaded(DeltaTableType::Managed, None, None)).unwrap_err();
         assert!(
             err.to_string().contains("omitted latest-table-version"),
             "unexpected error: {err}"
@@ -450,7 +457,8 @@ mod tests {
         ))
         .unwrap_err();
         assert!(
-            err.to_string().contains("does not cover the latest version"),
+            err.to_string()
+                .contains("does not cover the latest version"),
             "unexpected error: {err}"
         );
     }
