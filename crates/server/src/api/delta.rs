@@ -375,6 +375,8 @@ where
             storage_location: Some(request.location),
             comment: request.comment,
             properties: stored_properties.into_iter().collect(),
+            // The Delta API only creates Delta tables, never view-like types.
+            view_definition: None,
         };
         // The TableHandler create_table reads the snapshot for the managed branch;
         // for the Delta API we have already validated and want to trust the request,
@@ -620,6 +622,18 @@ async fn build_load_table_response<T>(handler: &T, table: Table) -> Result<Delta
 where
     T: ProvidesCommitCoordinator,
 {
+    // View-like table types (e.g. metric views) have no Delta log and no storage
+    // of their own; the Delta API cannot serve them.
+    if !matches!(
+        TableType::try_from(table.table_type),
+        Ok(TableType::Managed | TableType::External)
+    ) {
+        return Err(Error::invalid_argument(format!(
+            "table '{}' is not a Delta table and cannot be loaded via the Delta API",
+            table.full_name
+        )));
+    }
+
     let metadata = build_table_metadata(&table);
 
     let (commits, latest_table_version) = if table.table_type == TableType::Managed as i32

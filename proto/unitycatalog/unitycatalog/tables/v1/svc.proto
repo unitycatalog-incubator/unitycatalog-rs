@@ -140,6 +140,11 @@ message CreateTableRequest {
 
   // A map of key-value properties attached to the securable.
   map<string, string> properties = 9;
+
+  // Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+  // STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+  // SQL for views, YAML for metric views. Required for METRIC_VIEW.
+  optional string view_definition = 10;
 }
 
 // Get a table

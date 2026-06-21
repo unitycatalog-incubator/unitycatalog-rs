@@ -15,17 +15,19 @@ enum TableType {
 
   EXTERNAL = 2;
 
-  // VIEW = 3;
+  VIEW = 3;
 
-  // MATERIALIZED_VIEW = 4;
+  MATERIALIZED_VIEW = 4;
 
-  // STREAMING_TABLE = 5;
+  STREAMING_TABLE = 5;
 
   // MANAGED_SHALLOW_CLONE = 6;
 
   // FOREIGN = 7;
 
   // EXTERNAL_SHALLOW_CLONE = 8;
+
+  METRIC_VIEW = 9;
 }
 
 message TableSummary {
@@ -165,8 +167,10 @@ message Table {
   // Storage root URL for table (for MANAGED, EXTERNAL tables)
   optional string storage_location = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  // View definition SQL (when table_type is VIEW, MATERIALIZED_VIEW, or STREAMING_TABLE)
-  // optional string view_definition = 8;
+  // Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+  // STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+  // SQL for views, YAML for metric views.
+  optional string view_definition = 8 [(google.api.field_behavior) = OPTIONAL];
 
   // optional string view_dependencies = 9;
 

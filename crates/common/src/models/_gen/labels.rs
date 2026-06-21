@@ -1606,6 +1606,10 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
                 role: ::olai_store::FieldRole::Data,
             },
             ::olai_store::ResourceFieldDescriptor {
+                name: "view_definition",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
                 name: "owner",
                 role: ::olai_store::FieldRole::Data,
             },

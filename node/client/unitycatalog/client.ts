@@ -517,6 +517,10 @@ export interface CreateTableOptions {
   comment?: string;
   /** A map of key-value properties attached to the securable. */
   properties?: Record<string, string>;
+  /** Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+   *  STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+   *  SQL for views, YAML for metric views. Required for METRIC_VIEW. */
+  viewDefinition?: string;
 }
 
 export interface GetTableOptions {
@@ -1483,9 +1487,9 @@ export class UnityCatalogClient {
      * Create a table
      */
   async createTable(name: string, schemaName: string, catalogName: string, tableType: number, dataSourceFormat: number, options?: CreateTableOptions): Promise<Table> {
-    const { storageLocation, comment, properties } = options || {};
+    const { storageLocation, comment, properties, viewDefinition } = options || {};
     try {
-      return fromBinary(TableSchema, await this.inner.createTable(name, schemaName, catalogName, tableType, dataSourceFormat, storageLocation, comment, properties));
+      return fromBinary(TableSchema, await this.inner.createTable(name, schemaName, catalogName, tableType, dataSourceFormat, storageLocation, comment, properties, viewDefinition));
     } catch (e) { throw parseNativeError(e); }
   }
 

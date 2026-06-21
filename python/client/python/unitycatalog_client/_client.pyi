@@ -1039,6 +1039,11 @@ class Table:
     """Time at which this table was last updated, in epoch milliseconds."""
     updated_by: Optional[str]
     """Username of user who last modified table."""
+    view_definition: Optional[str]
+    """
+    Definition text for view-like table types (VIEW, MATERIALIZED_VIEW, STREAMING_TABLE,
+    METRIC_VIEW). The format depends on the table type: SQL for views, YAML for metric views.
+    """
 
     def __init__(
         self,
@@ -1060,6 +1065,7 @@ class Table:
         table_id: Optional[str] = None,
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
+        view_definition: Optional[str] = None,
     ) -> None: ...
 
 class TableSummary:
@@ -1383,7 +1389,11 @@ class TableType(enum.Enum):
 
     EXTERNAL = "EXTERNAL"
     MANAGED = "MANAGED"
+    MATERIALIZED_VIEW = "MATERIALIZED_VIEW"
+    METRIC_VIEW = "METRIC_VIEW"
+    STREAMING_TABLE = "STREAMING_TABLE"
     TABLE_TYPE_UNSPECIFIED = "TABLE_TYPE_UNSPECIFIED"
+    VIEW = "VIEW"
 
 class VolumeType(enum.Enum):
     EXTERNAL = "EXTERNAL"
@@ -2270,6 +2280,7 @@ class UnityCatalogClient:
         storage_location: Optional[str] = None,
         comment: Optional[str] = None,
         properties: Optional[Dict[str, str]] = None,
+        view_definition: Optional[str] = None,
     ) -> Table:
         """
         Create a table
@@ -2283,6 +2294,9 @@ class UnityCatalogClient:
             storage_location: Storage root URL for external table.
             comment: User-provided free-form text description.
             properties: A map of key-value properties attached to the securable.
+            view_definition: Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+                             STREAMING_TABLE, METRIC_VIEW). The format depends on the table type: SQL for
+                             views, YAML for metric views. Required for METRIC_VIEW.
 
 
         Returns:

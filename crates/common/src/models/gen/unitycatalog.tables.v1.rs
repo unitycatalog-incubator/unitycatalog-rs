@@ -75,9 +75,11 @@ pub struct Table {
     /// Storage root URL for table (for MANAGED, EXTERNAL tables)
     #[prost(string, optional, tag="7")]
     pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
-    // View definition SQL (when table_type is VIEW, MATERIALIZED_VIEW, or STREAMING_TABLE)
-    // optional string view_definition = 8;
-
+    /// Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+    /// STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+    /// SQL for views, YAML for metric views.
+    #[prost(string, optional, tag="8")]
+    pub view_definition: ::core::option::Option<::prost::alloc::string::String>,
     // optional string view_dependencies = 9;
 
     // optional string sql_path = 10;
@@ -129,6 +131,16 @@ pub enum TableType {
     Unspecified = 0,
     Managed = 1,
     External = 2,
+    View = 3,
+    MaterializedView = 4,
+    StreamingTable = 5,
+    // MANAGED_SHALLOW_CLONE = 6;
+
+    // FOREIGN = 7;
+
+    // EXTERNAL_SHALLOW_CLONE = 8;
+
+    MetricView = 9,
 }
 impl TableType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -140,6 +152,10 @@ impl TableType {
             TableType::Unspecified => "TABLE_TYPE_UNSPECIFIED",
             TableType::Managed => "MANAGED",
             TableType::External => "EXTERNAL",
+            TableType::View => "VIEW",
+            TableType::MaterializedView => "MATERIALIZED_VIEW",
+            TableType::StreamingTable => "STREAMING_TABLE",
+            TableType::MetricView => "METRIC_VIEW",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -148,6 +164,10 @@ impl TableType {
             "TABLE_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "MANAGED" => Some(Self::Managed),
             "EXTERNAL" => Some(Self::External),
+            "VIEW" => Some(Self::View),
+            "MATERIALIZED_VIEW" => Some(Self::MaterializedView),
+            "STREAMING_TABLE" => Some(Self::StreamingTable),
+            "METRIC_VIEW" => Some(Self::MetricView),
             _ => None,
         }
     }
@@ -411,6 +431,11 @@ pub struct CreateTableRequest {
     /// A map of key-value properties attached to the securable.
     #[prost(map="string, string", tag="9")]
     pub properties: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
+    /// Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+    /// STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+    /// SQL for views, YAML for metric views. Required for METRIC_VIEW.
+    #[prost(string, optional, tag="10")]
+    pub view_definition: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a table
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
