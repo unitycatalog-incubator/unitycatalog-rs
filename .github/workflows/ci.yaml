@@ -1,70 +1,327 @@
 name: ci
 
 on:
-  pull_request:
-    branches: [main]
+  merge_group:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+# Least privilege by default; jobs opt into more if they ever need it.
+permissions: {}
 
 env:
   CARGO_TERM_COLOR: always
-  SCCACHE_GHA_ENABLED: true
-  RUSTC_WRAPPER: sccache
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: "0"
 
 jobs:
-  unit_test:
-    name: unit-tests
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-    runs-on: ${{ matrix.os }}
+  # fmt, clippy, test and coverage are independent jobs that run in parallel.
+  # Splitting them (rather than one sequential job) means a clippy or fmt failure
+  # no longer prevents the test job from running — you still get full test
+  # results on every push even when the lints are red. Wall-clock drops to the
+  # slowest single job instead of the sum of all checks.
 
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
-
-      - name: Setup Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          toolchain: stable
-          cache: true
-          # should be removed or set to "-D warnings" once the code is cleaned up
-          rustflags: ""
+          persist-credentials: false
 
-      - name: Run tests
-        run: cargo test --lib --bins --tests -- --nocapture
+      # fmt only parses source, so it needs no build cache — keep this job
+      # seconds-fast for the quickest possible style feedback.
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+          components: rustfmt
+
+      - name: Format
+        run: cargo fmt --all --check
+
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Non-blocking for now: clippy has never been gated on this repo, so the
+    # `-D warnings` run is expected to be noisy. continue-on-error keeps the
+    # check visible (and the warnings actionable) without reddening the PR.
+    # Flip this off once a cleanup pass makes the workspace clippy-clean — see
+    # the "make clippy blocking" follow-up issue.
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      # Pinned to a recent stable (matches local dev). The workspace
+      # rust-version floor is 1.91 (set by buoyant_kernel); this stays above it.
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+          components: clippy
+
+      # Caches ~/.cargo and ./target keyed on the lockfile. clippy and test share
+      # the "ci" shared-key so they reuse one warmed target/; only main writes the
+      # cache (save-if) so parallel PR jobs don't thrash each other's entry.
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Clippy
+        env:
+          # Use the committed .sqlx cache so sqlx macros don't probe a live DB.
+          SQLX_OFFLINE: "true"
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # dorny/test-reporter publishes a check run with the parsed JUnit results.
+      checks: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # Prebuilt binary (no compile); the ci profile emits JUnit XML.
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-nextest
+
+      # The recorded journey-replay suite (crates/acceptance/tests/journeys.rs
+      # `journey_tests`) runs here for free: it is a plain #[tokio::test] over the
+      # checked-in recordings under crates/acceptance/recordings/ and needs no
+      # services. The #[ignore]d object-store tests stay skipped by default.
+      # --profile ci writes target/nextest/ci/junit.xml and runs every test
+      # (fail-fast = false) so the report is complete even on failure.
+      #
+      # --all-features turns on `integration-pg`, whose #[sqlx::test] commit-
+      # coordinator tests provision a live database from DATABASE_URL — there is
+      # no Postgres here, so exclude that binary. Those tests run (with a service
+      # container) in the dedicated integration_postgres job below.
+      - name: Test
+        env:
+          # journey replay reads this; a dummy value is fine for recorded runs.
+          UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
+          # Use the committed .sqlx cache so macros don't probe a live DB at build.
+          SQLX_OFFLINE: "true"
+        run: cargo nextest run --workspace --all-features --profile ci -E 'not binary(commit_coordinator)'
+
+      # nextest does not run doctests; the old `cargo test` did, so run them here
+      # to keep doctest coverage. Runs even if nextest failed above.
+      - name: Doctests
+        if: ${{ !cancelled() }}
+        env:
+          SQLX_OFFLINE: "true"
+        run: cargo test --workspace --all-features --doc
+
+      # Surface per-test pass/fail in the PR Checks tab regardless of exit code —
+      # this is what gives you results even when clippy/fmt are failing.
+      - name: Publish test report
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        if: ${{ !cancelled() }}
+        with:
+          name: nextest results
+          path: target/nextest/ci/junit.xml
+          reporter: jest-junit
+
+      - name: Upload JUnit artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: junit-results
+          path: target/nextest/ci/junit.xml
+          if-no-files-found: warn
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      # Instrumented coverage builds the whole workspace (datafusion + arrow +
+      # delta) a second time under -C instrument-coverage; combined with the
+      # profraw data it overruns the runner's ~14 GB free disk. Reclaim the
+      # preinstalled SDKs/toolchains we don't use (~25 GB) before building.
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+          components: llvm-tools-preview
+
+      # Coverage recompiles with -C instrument-coverage, so it cannot reuse the
+      # test/clippy "ci" cache — give it its own shared-key.
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: coverage
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-llvm-cov,cargo-nextest
+
+      # Coverage from the nextest suite (incl. the recorded journey replay).
+      # Doctest coverage is collected in its own `coverage_doc` job and uploaded
+      # under a separate flag — splitting them keeps each job's single
+      # instrumented workspace build within the runner's disk budget (running
+      # both in one job overran it: "No space left on device"). Exclude the
+      # commit_coordinator binary (live-DB #[sqlx::test]s); it reports separately
+      # from integration_postgres.
+      - name: Collect coverage
+        env:
+          UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
+          SQLX_OFFLINE: "true"
+        run: |
+          cargo llvm-cov nextest --workspace --all-features -E 'not binary(commit_coordinator)' --codecov --output-path codecov.json
+
+      # Upload under the `unit` flag. codecov.yml keeps the status informational
+      # so it can't block a PR, and fail_ci_if_error stays false so a flaky
+      # upload (or a missing CODECOV_TOKEN) never reddens CI.
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: codecov.json
+          flags: unit
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Doctest coverage in its own job. It builds the workspace once under nightly
+  # (doctest coverage needs the unstable `--persist-doctests`), kept separate
+  # from the nextest coverage build so neither job has two instrumented
+  # workspaces on disk at once. Uploaded under the `doctests` flag.
+  coverage_doc:
+    name: coverage-doc
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: nightly
+          components: llvm-tools-preview
+
+      # Distinct cache key: doctest coverage builds under nightly with its own
+      # instrumentation, so it shares neither the test "ci" nor the stable
+      # "coverage" target/.
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: coverage-doc
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Collect doctest coverage
+        env:
+          UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
+          SQLX_OFFLINE: "true"
+        run: |
+          cargo +nightly llvm-cov --doc --workspace --all-features --codecov --output-path codecov-doc.json
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: codecov-doc.json
+          flags: doctests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   integration_oss_java:
     name: integration-oss-java
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
-
-      - name: Setup Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          toolchain: stable
-          cache: true
-          rustflags: ""
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+          components: llvm-tools-preview
+
+      # Its own cache key: this job builds the instrumented acceptance binary
+      # under -C instrument-coverage (via cargo-llvm-cov), like the coverage job.
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: coverage
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-llvm-cov
 
       - name: Start Unity Catalog OSS (Java) server
         run: docker compose -f dev/uc-oss.compose.yaml up -d --wait
 
+      # Run the live journeys under coverage instrumentation so the OSS-Java
+      # integration layer reports its own flag in Codecov.
       - name: Run journey tests against UC OSS (Java)
         env:
           UC_INTEGRATION_PROFILE: oss_java
           UC_INTEGRATION_URL: http://localhost:8080
-        run: cargo test -p unitycatalog-acceptance -- journey_tests_live --nocapture
+          SQLX_OFFLINE: "true"
+        run: |
+          cargo llvm-cov --no-report test -p unitycatalog-acceptance -- journey_tests_live --nocapture
+          cargo llvm-cov report --codecov --output-path codecov.json
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        if: ${{ !cancelled() }}
+        with:
+          files: codecov.json
+          flags: integration-oss-java
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Dump server logs
         if: always()
@@ -73,3 +330,72 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose -f dev/uc-oss.compose.yaml down -v
+
+  integration_postgres:
+    name: integration-postgres
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # dorny/test-reporter publishes the parsed JUnit results as a check run.
+      checks: write
+    # postgres:16 matches dev/compose.yaml; #[sqlx::test] provisions a fresh
+    # database per test from DATABASE_URL against this service container.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+          components: llvm-tools-preview
+
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: coverage
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-llvm-cov,cargo-nextest
+
+      # SQLX_OFFLINE uses the committed .sqlx query cache so the build doesn't
+      # need a live DB; the tests themselves connect via DATABASE_URL at runtime.
+      - name: Run postgres integration tests
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+          SQLX_OFFLINE: "true"
+        run: |
+          cargo llvm-cov --no-report nextest -p unitycatalog-postgres --features integration-pg --profile ci
+          cargo llvm-cov report --codecov --output-path codecov.json
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        if: ${{ !cancelled() }}
+        with:
+          files: codecov.json
+          flags: integration-pg
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish test report
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        if: ${{ !cancelled() }}
+        with:
+          name: nextest results (postgres)
+          path: target/nextest/ci/junit.xml
+          reporter: jest-junit

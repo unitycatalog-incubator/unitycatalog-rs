@@ -1,0 +1,50 @@
+# Coverage is reported but never blocks a PR while it beds in. Both project and
+# patch statuses are informational, so a coverage drop shows up in the Codecov
+# comment/status without turning the check red. Tighten (drop `informational`,
+# add a `target`) once a baseline is trusted.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+codecov:
+  require_ci_to_pass: false
+  # Four flagged reports are uploaded per run (see comment below). Wait for all
+  # of them before computing status / posting the comment, so neither shows
+  # partial numbers from whichever job uploaded first.
+  notify:
+    after_n_builds: 4
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  # Match notify.after_n_builds so the PR comment is posted once, complete.
+  after_n_builds: 4
+
+# Per-layer coverage is uploaded under distinct flags from separate CI jobs:
+#   unit                 — workspace nextest suite (coverage job)
+#   doctests             — doctest coverage (coverage_doc job)
+#   integration-oss-java — live journeys vs the Java UC server
+#   integration-pg       — postgres commit-coordinator #[sqlx::test]s
+# carryforward keeps a flag's last known coverage when a given PR's run did not
+# produce it (e.g. an integration job that was skipped), so the merged project
+# view stays complete.
+flag_management:
+  default_rules:
+    carryforward: true
+
+# Generated code is committed but never hand-written, so it must not count toward
+# coverage. These globs mirror the codegen output paths documented in CLAUDE.md
+# (anything under */codegen/**, */models/gen/**, */models/_gen/**, and the
+# bundled OpenAPI / Node model output).
+ignore:
+  - "crates/**/src/codegen/**"
+  - "crates/**/src/models/gen/**"
+  - "crates/**/src/models/_gen/**"
+  - "crates/server/src/sharing/codegen/**"
+  - "openapi/**"
+  - "node/client/unitycatalog/models/gen/**"
