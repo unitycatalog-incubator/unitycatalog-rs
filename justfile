@@ -11,14 +11,14 @@ run *args:
 
 # main code generation command. This will run all generation for unity types.
 [group('codegen')]
-generate: generate-proto generate-code fix
+generate: generate-proto generate-code generate-code-sharing fix
 
 # run all code generation for unitycatalog types.
 #
 # Generation of external types (google.api / gnostic extensions) now lives in
 # the `../trestle` codegen repo (`olai-codegen`); see `generate-proto-gen-fixtures`.
 [group('codegen')]
-generate-full: generate-proto generate-code fix
+generate-full: generate-proto generate-code generate-code-sharing fix
 
 # run code generation for proto files.
 [group('codegen')]
@@ -26,6 +26,20 @@ generate-proto:
     buf generate proto/unitycatalog
     just generate-openapi
     buf generate proto/sharing --template {{ justfile_directory() }}/buf.gen.sharing.yaml
+    just generate-openapi-sharing
+
+# Generate the Open Sharing OpenAPI spec from proto/sharing (gnostic) and merge
+# in the hand-maintained NDJSON query paths.
+[group('codegen')]
+generate-openapi-sharing:
+    mkdir -p {{ justfile_directory() }}/openapi/sharing-gen
+    buf generate proto/sharing --template {{ justfile_directory() }}/buf.gen.sharing-openapi.yaml
+    uv run --with pyyaml python3 dev/scripts/merge_sharing_openapi.py \
+      openapi/sharing-gen/openapi.yaml \
+      openapi/sharing-query-paths.yaml \
+      openapi/sharing.yaml
+    rm -rf {{ justfile_directory() }}/openapi/sharing-gen
+    npx -y @redocly/cli bundle openapi/sharing.yaml > /dev/null
 
 # Update the generated openapi spec with validation extracted from generated jsonschema.
 [group('codegen')]
@@ -65,6 +79,23 @@ generate-code:
       python/client/python/unitycatalog_client/_client.pyi
     cat python/client/_client_supplement.pyi \
       >> python/client/python/unitycatalog_client/_client.pyi
+
+# generate sharing (Open Sharing) server/client/extractor code from proto/sharing.
+#
+# The sharing surface lives in its own crate (`unitycatalog-sharing-client` for
+# models/client/extractors, `unitycatalog-server` for handler traits/routes), so
+# it has its own trestle config (`trestle.sharing.yaml`) separate from the
+# resource-oriented Unity Catalog pipeline in `generate-code`. The NDJSON table
+# query RPCs are intentionally excluded from the proto service and implemented by
+# hand (see `crates/sharing-client/src/query_extractors.rs`).
+[group('codegen')]
+generate-code-sharing:
+    buf build --output {{ justfile_directory() }}/sharing-descriptors.bin proto/sharing
+    mkdir -p crates/sharing-client/src/codegen/extractors
+    cargo run --manifest-path ../trestle/crates/trestle/Cargo.toml --bin trestle -- generate --config trestle.sharing.yaml \
+      --descriptors {{ justfile_directory() }}/sharing-descriptors.bin
+    rm {{ justfile_directory() }}/sharing-descriptors.bin
+    just fmt
 
 # CURRENTLY not used, but we may need it again come validation ...
 [group('codegen')]

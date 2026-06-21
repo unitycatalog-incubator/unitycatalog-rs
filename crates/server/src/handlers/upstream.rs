@@ -17,16 +17,19 @@ use async_trait::async_trait;
 use unitycatalog_client::codegen::catalogs::CatalogServiceClient;
 use unitycatalog_client::codegen::schemas::SchemaServiceClient;
 use unitycatalog_client::codegen::tables::TableServiceClient;
+use unitycatalog_client::codegen::volumes::VolumeServiceClient;
 use unitycatalog_common::ResourceIdent;
 use unitycatalog_common::models::ResourceName;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::volumes::v1::*;
 
 use crate::api::SecuredAction;
 use crate::api::catalogs::CatalogHandler;
 use crate::api::schemas::SchemaHandler;
 use crate::api::tables::TableHandler;
+use crate::api::volumes::VolumeHandler;
 use crate::policy::{Decision, Permission, Policy, filter_authorized};
 use crate::{Error, Result};
 
@@ -306,6 +309,86 @@ impl<Cx: Send + Sync + 'static> TableHandler<Cx> for UpstreamTableHandler<Cx> {
         check(&self.policy, &request, &context).await?;
         self.client
             .delete_table(&request)
+            .await
+            .map_err(map_upstream_err)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Volumes
+// ---------------------------------------------------------------------------
+
+/// [`VolumeHandler`] that forwards to an upstream Unity Catalog instance.
+///
+/// Used as the [`volume_source`](crate::services::ServerHandler::with_volume_source)
+/// in the side-by-side topology so Open Sharing volume and agent-skill reads
+/// resolve their backing Volume primitive from the upstream catalog.
+#[derive(Clone)]
+pub struct UpstreamVolumeHandler<Cx>
+where
+    Cx: Send + Sync + 'static,
+{
+    policy: Arc<dyn Policy<Cx>>,
+    client: VolumeServiceClient,
+}
+
+impl<Cx: Send + Sync + 'static> UpstreamVolumeHandler<Cx> {
+    pub fn new(policy: Arc<dyn Policy<Cx>>, client: VolumeServiceClient) -> Self {
+        Self { policy, client }
+    }
+}
+
+#[async_trait]
+impl<Cx: Send + Sync + 'static> VolumeHandler<Cx> for UpstreamVolumeHandler<Cx> {
+    async fn list_volumes(
+        &self,
+        request: ListVolumesRequest,
+        context: Cx,
+    ) -> Result<ListVolumesResponse> {
+        check(&self.policy, &request, &context).await?;
+        let mut resp = self
+            .client
+            .list_volumes(&request)
+            .await
+            .map_err(map_upstream_err)?;
+        filter_authorized(
+            &*self.policy,
+            &context,
+            &Permission::Read,
+            &mut resp.volumes,
+        )
+        .await?;
+        Ok(resp)
+    }
+
+    async fn create_volume(&self, request: CreateVolumeRequest, context: Cx) -> Result<Volume> {
+        check(&self.policy, &request, &context).await?;
+        self.client
+            .create_volume(&request)
+            .await
+            .map_err(map_upstream_err)
+    }
+
+    async fn get_volume(&self, request: GetVolumeRequest, context: Cx) -> Result<Volume> {
+        check(&self.policy, &request, &context).await?;
+        self.client
+            .get_volume(&request)
+            .await
+            .map_err(map_upstream_err)
+    }
+
+    async fn update_volume(&self, request: UpdateVolumeRequest, context: Cx) -> Result<Volume> {
+        check(&self.policy, &request, &context).await?;
+        self.client
+            .update_volume(&request)
+            .await
+            .map_err(map_upstream_err)
+    }
+
+    async fn delete_volume(&self, request: DeleteVolumeRequest, context: Cx) -> Result<()> {
+        check(&self.policy, &request, &context).await?;
+        self.client
+            .delete_volume(&request)
             .await
             .map_err(map_upstream_err)
     }

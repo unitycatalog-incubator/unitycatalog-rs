@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package delta_sharing.v1;
+package open_sharing.v1;
 
 import "buf/validate/validate.proto";
 
@@ -15,8 +15,7 @@ message Format {
 
 // Metadata for a table
 message Metadata {
-  // Unique identifier for this table
-  // Validate GUID
+  // Unique identifier for this table (GUID).
   string id = 1;
 
   // User-provided identifier for this table

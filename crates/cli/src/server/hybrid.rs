@@ -19,9 +19,10 @@ use unitycatalog_server::policy::Policy;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
     create_credentials_router, create_delta_router, create_entity_tag_assignments_router,
-    create_external_locations_router, create_functions_router, create_providers_router,
-    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
-    create_staging_tables_router, create_tables_router, create_tag_policies_router,
+    create_external_locations_router, create_functions_router, create_open_sharing_router,
+    create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
+    create_sharing_router, create_staging_tables_router, create_tables_router,
+    create_tag_policies_router,
 };
 use unitycatalog_server::services::ServerHandler;
 
@@ -55,6 +56,11 @@ where
         uri_prefix: "/api/v1/delta-sharing",
         api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
         title: Some("Delta Sharing API"),
+    };
+    let open_sharing_api_def = ApiDefinition {
+        uri_prefix: "/api/v1/open-sharing",
+        api_definition: OpenApiSource::Inline(include_str!("../../../../openapi/sharing.yaml")),
+        title: Some("Open Sharing API"),
     };
     let delta_api_def = ApiDefinition {
         // Distinct UI prefix so its swagger-ui asset routes don't collide with the
@@ -123,7 +129,13 @@ where
         .nest("/api/2.1", create_tag_policies_router(handler.clone()))
         .nest(
             "/api/v1/delta-sharing",
-            create_sharing_router(sharing_handler),
+            create_sharing_router(sharing_handler.clone()),
+        )
+        // Open Sharing: superset surface sharing the same tabular handlers and
+        // the same (optionally upstream-routed) table-source resolution.
+        .nest(
+            "/api/v1/open-sharing",
+            create_open_sharing_router(sharing_handler),
         );
     let server = router.layer(AuthenticationLayer::new(authenticator));
 
@@ -131,7 +143,12 @@ where
         server,
         host,
         port,
-        vec![api_def, sharing_api_def, delta_api_def],
+        vec![
+            api_def,
+            sharing_api_def,
+            open_sharing_api_def,
+            delta_api_def,
+        ],
     )
     .await
 }

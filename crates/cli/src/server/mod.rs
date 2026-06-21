@@ -189,6 +189,7 @@ fn print_startup_summary(host: &str, port: u16, config: &Config) {
         ("Routing", routing),
         ("Unity Catalog API", format!("{base}/api/2.1/unity-catalog")),
         ("Delta Sharing API", format!("{base}/api/v1/delta-sharing")),
+        ("Open Sharing API", format!("{base}/api/v1/open-sharing")),
         ("Swagger UI", format!("{base}/api/2.1/unity-catalog/")),
     ] {
         table.add_row(vec![

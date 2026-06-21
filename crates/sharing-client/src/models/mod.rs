@@ -6,13 +6,8 @@ use serde::{Deserialize, Serialize};
 use crate::error::{Error, Result};
 
 #[allow(clippy::empty_docs, clippy::large_enum_variant)]
-pub mod sharing {
-    pub mod v1 {
-        include!("./gen/delta_sharing.v1.rs");
-        // #[cfg(feature = "grpc")]
-        // include!("./gen/delta_sharing.v1.tonic.rs");
-    }
-}
+mod _gen;
+pub use _gen::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ResponseFormat {
@@ -430,7 +425,7 @@ mod tests {
 
     #[test]
     fn test_share_fields_round_trip() {
-        use sharing::v1::Share;
+        use open_sharing::v1::Share;
 
         // The generated serde accepts camelCase and snake_case; verify the new
         // spec fields (display_name/comment/properties) deserialize from
@@ -455,7 +450,7 @@ mod tests {
 
     #[test]
     fn test_table_fields_round_trip() {
-        use sharing::v1::Table;
+        use open_sharing::v1::Table;
 
         let raw = json!({
             "name": "table1",

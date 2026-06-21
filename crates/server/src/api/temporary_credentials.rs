@@ -1,6 +1,7 @@
 use unitycatalog_common::models::credentials::v1::GetCredentialRequest;
 use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_common::models::temporary_credentials::v1::*;
+use unitycatalog_common::models::volumes::v1::Volume;
 use unitycatalog_common::models::{ResourceIdent, ResourceRef};
 
 use super::RequestContext;
@@ -27,11 +28,16 @@ fn required_permission(operation: VendOperation) -> Permission {
 
 /// Map the proto `operation` integer to a `VendOperation`.
 ///
-/// - `PATH_CREATE_TABLE` and `READ_WRITE` are treated as `ReadWrite`.
-/// - `Unspecified` defaults to `Read` (least privilege).
+/// The path, table, and volume request enums all encode the same semantics with
+/// the same numeric values (read = 1, write/read-write = 2; path adds
+/// create-table = 3), so a single mapping serves all three:
+///
+/// - `PATH_CREATE_TABLE`, `READ_WRITE`, and `WRITE_VOLUME` are treated as `ReadWrite`.
+/// - `READ`, `READ_VOLUME`, and `Unspecified` default to `Read` (least privilege).
 fn to_vend_operation(operation: i32) -> VendOperation {
     use generate_temporary_path_credentials_request::Operation as PathOp;
     use generate_temporary_table_credentials_request::Operation as TableOp;
+    use generate_temporary_volume_credentials_request::Operation as VolumeOp;
 
     // Check path operations first (values 0–3 are defined for both enums,
     // but semantically we just need to distinguish read from read-write).
@@ -39,9 +45,10 @@ fn to_vend_operation(operation: i32) -> VendOperation {
         Ok(PathOp::PathReadWrite | PathOp::PathCreateTable) => return VendOperation::ReadWrite,
         Ok(PathOp::PathRead | PathOp::Unspecified) | Err(_) => {}
     }
-    // Also check the table operation enum (READ = 1, READ_WRITE = 2).
-    match TableOp::try_from(operation) {
-        Ok(TableOp::ReadWrite) => VendOperation::ReadWrite,
+    // The table (READ_WRITE = 2) and volume (WRITE_VOLUME = 2) write operations
+    // share the same value, so either enum resolves write access identically.
+    match (TableOp::try_from(operation), VolumeOp::try_from(operation)) {
+        (Ok(TableOp::ReadWrite), _) | (_, Ok(VolumeOp::WriteVolume)) => VendOperation::ReadWrite,
         _ => VendOperation::Read,
     }
 }
@@ -81,22 +88,37 @@ impl<
 
     /// Generate temporary credentials for a volume.
     ///
-    /// **Not yet implemented.** Tracking issue:
-    /// <https://github.com/unitycatalog-incubator/unitycatalog-rs/issues/119>.
-    ///
-    /// The endpoint is defined in proto and exposed through the client
-    /// SDKs so callers targeting Databricks or any other compliant
-    /// server can use it today. This server returns
-    /// [`Error::NotImplemented`] until the handler lands.
+    /// Resolves the volume by its UUID, authorizes the requested operation
+    /// against the concrete volume, then vends credentials scoped to the
+    /// volume's storage location — mirroring
+    /// [`generate_temporary_table_credentials`](Self::generate_temporary_table_credentials).
     ///
     /// See: <https://docs.databricks.com/api/workspace/temporaryvolumecredentials/generatetemporaryvolumecredentials>
-    #[tracing::instrument(skip(self, _context))]
+    #[tracing::instrument(skip(self, context))]
     async fn generate_temporary_volume_credentials(
         &self,
-        _request: GenerateTemporaryVolumeCredentialsRequest,
-        _context: RequestContext,
+        request: GenerateTemporaryVolumeCredentialsRequest,
+        context: RequestContext,
     ) -> Result<TemporaryCredential> {
-        Err(Error::NotImplemented("temporary-volume-credentials"))
+        let operation = to_vend_operation(request.operation);
+        let volume_id = uuid::Uuid::parse_str(&request.volume_id)
+            .map_err(|_| Error::invalid_argument("volume_id is not a valid UUID"))?;
+        // Authorize against the concrete volume and the operation actually
+        // requested, rather than the unscoped `SecuredAction` default.
+        let volume_ident = ResourceIdent::Volume(ResourceRef::Uuid(volume_id));
+        self.authorize_checked(&volume_ident, &required_permission(operation), &context)
+            .await?;
+        let (resource, _) = self.get(&volume_ident).await?;
+        let volume: Volume = resource.try_into()?;
+        let location = volume.storage_location;
+        let storage_url = StorageLocationUrl::parse(&location)?;
+        let ext_loc = find_external_location_for_url(&storage_url, self).await?;
+        let credential = self
+            .get_credential_internal(GetCredentialRequest {
+                name: ext_loc.credential_name.clone(),
+            })
+            .await?;
+        vend_credential(&credential, &location, operation).await
     }
 
     #[tracing::instrument(skip(self, context))]
@@ -133,3 +155,50 @@ impl<
 // resource (external location / table) and the *requested* operation
 // (read vs. read-write), which a static `SecuredAction` impl cannot express.
 // See `generate_temporary_path_credentials` / `generate_temporary_table_credentials`.
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use generate_temporary_path_credentials_request::Operation as PathOp;
+    use generate_temporary_table_credentials_request::Operation as TableOp;
+    use generate_temporary_volume_credentials_request::Operation as VolumeOp;
+
+    #[test]
+    fn vend_operation_volume_read_is_read() {
+        assert_eq!(
+            to_vend_operation(VolumeOp::ReadVolume as i32),
+            VendOperation::Read
+        );
+    }
+
+    #[test]
+    fn vend_operation_volume_write_is_read_write() {
+        assert_eq!(
+            to_vend_operation(VolumeOp::WriteVolume as i32),
+            VendOperation::ReadWrite
+        );
+    }
+
+    #[test]
+    fn vend_operation_unspecified_defaults_to_read() {
+        assert_eq!(
+            to_vend_operation(VolumeOp::Unspecified as i32),
+            VendOperation::Read
+        );
+        // Out-of-range values are treated as least-privilege read, not an error.
+        assert_eq!(to_vend_operation(99), VendOperation::Read);
+    }
+
+    #[test]
+    fn vend_operation_table_and_path_unchanged() {
+        assert_eq!(to_vend_operation(TableOp::Read as i32), VendOperation::Read);
+        assert_eq!(
+            to_vend_operation(TableOp::ReadWrite as i32),
+            VendOperation::ReadWrite
+        );
+        assert_eq!(
+            to_vend_operation(PathOp::PathCreateTable as i32),
+            VendOperation::ReadWrite
+        );
+    }
+}

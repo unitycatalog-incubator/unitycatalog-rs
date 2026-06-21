@@ -120,6 +120,25 @@ pub enum DataObjectType {
     Unspecified = 0,
     Table = 1,
     Schema = 2,
+    // VIEW = 3;
+
+    // MATERIALIZED_VIEW = 4;
+
+    // STREAMING_TABLE = 5;
+
+    // MODEL = 6;
+
+    // NOTEBOOK_FILE = 7;
+
+    // FUNCTION = 8;
+
+    // FEATURE_SPEC = 9;
+
+    /// A Unity Catalog volume shared as a storage-backed asset (Open Sharing).
+    Volume = 10,
+    /// An agent skill (a directory of SKILL.md + scripts/assets) shared as a
+    /// storage-backed asset on top of a volume (Open Sharing).
+    AgentSkill = 11,
 }
 impl DataObjectType {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -131,6 +150,8 @@ impl DataObjectType {
             DataObjectType::Unspecified => "DATA_OBJECT_TYPE_UNSPECIFIED",
             DataObjectType::Table => "TABLE",
             DataObjectType::Schema => "SCHEMA",
+            DataObjectType::Volume => "VOLUME",
+            DataObjectType::AgentSkill => "AGENT_SKILL",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -139,6 +160,8 @@ impl DataObjectType {
             "DATA_OBJECT_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
             "TABLE" => Some(Self::Table),
             "SCHEMA" => Some(Self::Schema),
+            "VOLUME" => Some(Self::Volume),
+            "AGENT_SKILL" => Some(Self::AgentSkill),
             _ => None,
         }
     }

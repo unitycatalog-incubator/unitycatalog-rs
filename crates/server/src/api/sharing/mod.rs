@@ -1,5 +1,5 @@
 use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
-use unitycatalog_sharing_client::models::sharing::v1::*;
+use unitycatalog_sharing_client::models::open_sharing::v1::*;
 pub use unitycatalog_sharing_client::models::*;
 
 pub use self::handler::*;
@@ -84,4 +84,34 @@ impl SecuredAction for GetTableMetadataRequest {
     fn permission(&self) -> &'static Permission {
         &Permission::Read
     }
+}
+
+// Open Sharing asset requests (volumes, agent skills). All are scoped to the
+// share and require read access; the concrete asset is authorized when its
+// storage location is resolved.
+macro_rules! sharing_read_on_share {
+    ($($ty:ty),+ $(,)?) => {
+        $(
+            impl SecuredAction for $ty {
+                fn resource(&self) -> ResourceIdent {
+                    ResourceIdent::share(ResourceName::new([self.share.as_str()]))
+                }
+
+                fn permission(&self) -> &'static Permission {
+                    &Permission::Read
+                }
+            }
+        )+
+    };
+}
+
+sharing_read_on_share! {
+    ListVolumesRequest,
+    ListAllVolumesRequest,
+    GetVolumeRequest,
+    GenerateTemporaryVolumeCredentialsRequest,
+    ListSkillsRequest,
+    ListAllSkillsRequest,
+    GetSkillRequest,
+    GenerateTemporarySkillCredentialsRequest,
 }

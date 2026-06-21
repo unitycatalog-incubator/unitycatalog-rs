@@ -5,13 +5,13 @@ use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::shares::v1::{
     DataObjectType, GetShareRequest as SharesGetShareRequest, Share,
 };
-use unitycatalog_sharing_client::models::sharing::v1::{Share as SharingShare, *};
+use unitycatalog_sharing_client::models::open_sharing::v1::{Share as SharingShare, *};
 
+use crate::Result;
 use crate::api::{RequestContext, SecuredAction, ShareHandler};
 use crate::policy::{Permission, Policy, process_resources};
 pub use crate::sharing::SharingHandler;
 use crate::store::ResourceStore;
-use crate::{Error, Result};
 
 #[async_trait::async_trait]
 pub trait SharingQueryHandler<Cx = RequestContext>: Send + Sync + 'static {
@@ -88,7 +88,7 @@ where
         })
     }
 
-    async fn list_sharing_schemas(
+    async fn list_schemas(
         &self,
         request: ListSchemasRequest,
         context: Cx,
@@ -192,37 +192,5 @@ where
             items,
             next_page_token: None,
         })
-    }
-
-    // The following three methods are served by `SharingQueryHandler`, not this
-    // trait — the sharing router binds them to that handler (see
-    // `rest/routers/sharing.rs`). They are unreachable in practice; return a
-    // graceful error rather than panicking should a caller invoke them directly.
-    async fn get_table_version(
-        &self,
-        _request: GetTableVersionRequest,
-        _context: Cx,
-    ) -> Result<GetTableVersionResponse> {
-        Err(Error::NotImplemented(
-            "get_table_version is served by SharingQueryHandler",
-        ))
-    }
-    async fn get_table_metadata(
-        &self,
-        _request: GetTableMetadataRequest,
-        _context: Cx,
-    ) -> Result<QueryResponse> {
-        Err(Error::NotImplemented(
-            "get_table_metadata is served by SharingQueryHandler",
-        ))
-    }
-    async fn query_table(
-        &self,
-        _request: QueryTableRequest,
-        _context: Cx,
-    ) -> Result<QueryResponse> {
-        Err(Error::NotImplemented(
-            "query_table is served by SharingQueryHandler",
-        ))
     }
 }

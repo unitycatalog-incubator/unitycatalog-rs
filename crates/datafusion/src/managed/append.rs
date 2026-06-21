@@ -55,7 +55,9 @@ use unitycatalog_common::models::delta::v1::{
 use unitycatalog_object_store::{TableOperation, UnityObjectStoreFactory};
 use url::Url;
 
-use crate::catalog::{ManagedReadState, ensure_trailing_slash, resolve_managed_read_state, to_log_tail};
+use crate::catalog::{
+    ManagedReadState, ensure_trailing_slash, resolve_managed_read_state, to_log_tail,
+};
 
 use super::committer::UnityCatalogCommitter;
 use super::create::CreateManagedTableError;
@@ -430,7 +432,10 @@ fn build_snapshot(
         }
     };
     KernelSnapshot::builder_for(location.as_str())
-        .with_log_tail(to_log_tail(location, &commits).map_err(|e| CreateManagedTableError::other(e.to_string()))?)
+        .with_log_tail(
+            to_log_tail(location, &commits)
+                .map_err(|e| CreateManagedTableError::other(e.to_string()))?,
+        )
         .with_max_catalog_version(latest)
         .build(engine)
         .map_err(CreateManagedTableError::Kernel)

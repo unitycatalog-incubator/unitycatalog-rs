@@ -6,8 +6,8 @@ use olai_http::CloudClient;
 
 use super::utils::stream_paginated;
 use crate::codegen::sharing::SharingClient;
-use crate::codegen::sharing::builders::{GetShareBuilder, QueryTableBuilder};
-use crate::models::sharing::v1::*;
+use crate::codegen::sharing::builders::GetShareBuilder;
+use crate::models::open_sharing::v1::*;
 use crate::models::{MetadataResponse, MetadataResponseData, ProtocolResponseData};
 use crate::{Error, Result};
 
@@ -91,7 +91,7 @@ impl DeltaSharingClient {
                 };
                 let res = self
                     .discovery
-                    .list_sharing_schemas(&request)
+                    .list_schemas(&request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
 
@@ -128,7 +128,7 @@ impl DeltaSharingClient {
                 };
                 let res = self
                     .discovery
-                    .list_share_tables(&request)
+                    .list_all_tables(&request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
 
@@ -168,7 +168,7 @@ impl DeltaSharingClient {
                 };
                 let res = self
                     .discovery
-                    .list_schema_tables(&request)
+                    .list_tables(&request)
                     .await
                     .map_err(|e| Error::generic(e.to_string()))?;
 
@@ -256,17 +256,26 @@ impl DeltaSharingClient {
         Ok((protocol.unwrap(), metadata.unwrap()))
     }
 
-    pub fn query_table(
+    /// Query a table's data files, returning the raw newline-delimited JSON
+    /// response (Protocol + Metadata + file entries).
+    ///
+    /// The query path is served as `application/x-ndjson`, which the generated
+    /// JSON client cannot model, so this issues the request directly.
+    pub async fn query_table(
         &self,
         share: impl Into<String>,
         schema: impl Into<String>,
         name: impl Into<String>,
-    ) -> QueryTableBuilder {
-        QueryTableBuilder::new(
-            self.discovery.clone(),
+        request: &QueryTableRequest,
+    ) -> Result<Vec<u8>> {
+        let url = self.base_url.join(&format!(
+            "shares/{}/schemas/{}/tables/{}/query",
             share.into(),
             schema.into(),
-            name.into(),
-        )
+            name.into()
+        ))?;
+        let response = self.client.post(url).json(request).send().await?;
+        response.error_for_status_ref()?;
+        Ok(response.bytes().await?.to_vec())
     }
 }

@@ -492,7 +492,11 @@ fn build_staging_store(
     let cred = staging
         .storage_credentials
         .iter()
-        .find(|c| location.as_str().starts_with(c.prefix.trim_end_matches('/')))
+        .find(|c| {
+            location
+                .as_str()
+                .starts_with(c.prefix.trim_end_matches('/'))
+        })
         .or_else(|| staging.storage_credentials.first())
         .ok_or("staging response carried no storage_credentials")?;
 
@@ -520,7 +524,8 @@ fn build_staging_store(
     if let Ok(endpoint) = std::env::var("AWS_ENDPOINT_URL") {
         builder = builder.with_endpoint(endpoint).with_allow_http(true);
     }
-    builder = builder.with_region(std::env::var("AWS_REGION").unwrap_or_else(|_| "us-east-1".into()));
+    builder =
+        builder.with_region(std::env::var("AWS_REGION").unwrap_or_else(|_| "us-east-1".into()));
 
     Ok(Arc::new(builder.build()?))
 }

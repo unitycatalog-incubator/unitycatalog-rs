@@ -45,6 +45,22 @@ pub enum Error {
     Generic(String),
 }
 
+/// Consume an error HTTP response and turn it into an [`Error`].
+///
+/// Used by the generated clients on non-success statuses. The sharing client's
+/// error type is coarse, so the status and raw body are folded into
+/// [`Error::Generic`] for diagnostics.
+pub(crate) async fn parse_error_response(response: reqwest::Response) -> Error {
+    let status = response.status();
+    match response.bytes().await {
+        Ok(body) => Error::Generic(format!(
+            "request failed with status {status}: {}",
+            String::from_utf8_lossy(&body)
+        )),
+        Err(e) => Error::RequestError(e),
+    }
+}
+
 impl Error {
     pub fn generic(message: impl ToString) -> Self {
         Error::Generic(message.to_string())

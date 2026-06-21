@@ -92,10 +92,7 @@ impl DeltaTableProviderBuilder {
     /// Build the plain filesystem snapshot for a non-catalog-managed table (external
     /// tables, and the A6 fallback path when `/delta/v1` is unavailable). The
     /// filesystem `_delta_log/` is authoritative here, so no catalog version is set.
-    async fn filesystem_snapshot(
-        &self,
-        location: &Url,
-    ) -> Result<Snapshot, TableProviderError> {
+    async fn filesystem_snapshot(&self, location: &Url) -> Result<Snapshot, TableProviderError> {
         let engine = DataFusionEngine::new_from_context(self.ctx.task_ctx());
         Snapshot::try_new_with_engine(engine, location.clone(), DeltaTableConfig::default(), None)
             .await
