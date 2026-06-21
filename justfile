@@ -26,6 +26,20 @@ generate-proto:
     buf generate proto/unitycatalog
     just generate-openapi
     buf generate proto/sharing --template {{ justfile_directory() }}/buf.gen.sharing.yaml
+    just generate-openapi-sharing
+
+# Generate the Open Sharing OpenAPI spec from proto/sharing (gnostic) and merge
+# in the hand-maintained NDJSON query paths.
+[group('codegen')]
+generate-openapi-sharing:
+    mkdir -p {{ justfile_directory() }}/openapi/sharing-gen
+    buf generate proto/sharing --template {{ justfile_directory() }}/buf.gen.sharing-openapi.yaml
+    uv run --with pyyaml python3 dev/scripts/merge_sharing_openapi.py \
+      openapi/sharing-gen/openapi.yaml \
+      openapi/sharing-query-paths.yaml \
+      openapi/sharing.yaml
+    rm -rf {{ justfile_directory() }}/openapi/sharing-gen
+    npx -y @redocly/cli bundle openapi/sharing.yaml > /dev/null
 
 # Update the generated openapi spec with validation extracted from generated jsonschema.
 [group('codegen')]
