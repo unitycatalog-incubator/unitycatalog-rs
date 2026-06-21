@@ -465,6 +465,8 @@ impl serde::Serialize for DataObjectType {
             Self::Unspecified => "DATA_OBJECT_TYPE_UNSPECIFIED",
             Self::Table => "TABLE",
             Self::Schema => "SCHEMA",
+            Self::Volume => "VOLUME",
+            Self::AgentSkill => "AGENT_SKILL",
         };
         serializer.serialize_str(variant)
     }
@@ -479,6 +481,8 @@ impl<'de> serde::Deserialize<'de> for DataObjectType {
             "DATA_OBJECT_TYPE_UNSPECIFIED",
             "TABLE",
             "SCHEMA",
+            "VOLUME",
+            "AGENT_SKILL",
         ];
 
         struct GeneratedVisitor;
@@ -522,6 +526,8 @@ impl<'de> serde::Deserialize<'de> for DataObjectType {
                     "DATA_OBJECT_TYPE_UNSPECIFIED" => Ok(DataObjectType::Unspecified),
                     "TABLE" => Ok(DataObjectType::Table),
                     "SCHEMA" => Ok(DataObjectType::Schema),
+                    "VOLUME" => Ok(DataObjectType::Volume),
+                    "AGENT_SKILL" => Ok(DataObjectType::AgentSkill),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

@@ -321,6 +321,264 @@ impl<'de> serde::Deserialize<'de> for Format {
         deserializer.deserialize_struct("open_sharing.v1.Format", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GenerateTemporarySkillCredentialsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GenerateTemporarySkillCredentialsRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenerateTemporarySkillCredentialsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "name",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            Name,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "name" => Ok(GeneratedField::Name),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenerateTemporarySkillCredentialsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.GenerateTemporarySkillCredentialsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenerateTemporarySkillCredentialsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut name__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GenerateTemporarySkillCredentialsRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.GenerateTemporarySkillCredentialsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GenerateTemporaryVolumeCredentialsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GenerateTemporaryVolumeCredentialsRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GenerateTemporaryVolumeCredentialsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "name",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            Name,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "name" => Ok(GeneratedField::Name),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GenerateTemporaryVolumeCredentialsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.GenerateTemporaryVolumeCredentialsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GenerateTemporaryVolumeCredentialsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut name__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GenerateTemporaryVolumeCredentialsRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.GenerateTemporaryVolumeCredentialsRequest", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GetShareRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -414,6 +672,135 @@ impl<'de> serde::Deserialize<'de> for GetShareRequest {
             }
         }
         deserializer.deserialize_struct("open_sharing.v1.GetShareRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GetSkillRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GetSkillRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetSkillRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "name",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            Name,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "name" => Ok(GeneratedField::Name),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetSkillRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.GetSkillRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetSkillRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut name__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetSkillRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.GetSkillRequest", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for GetTableMetadataRequest {
@@ -791,6 +1178,135 @@ impl<'de> serde::Deserialize<'de> for GetTableVersionResponse {
         deserializer.deserialize_struct("open_sharing.v1.GetTableVersionResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GetVolumeRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.GetVolumeRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetVolumeRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "name",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            Name,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "name" => Ok(GeneratedField::Name),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetVolumeRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.GetVolumeRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetVolumeRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut name__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetVolumeRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.GetVolumeRequest", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for JsonPredicate {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -953,6 +1469,252 @@ impl<'de> serde::Deserialize<'de> for JsonPredicate {
             }
         }
         deserializer.deserialize_struct("open_sharing.v1.JsonPredicate", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListAllSkillsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if self.max_results.is_some() {
+            len += 1;
+        }
+        if self.page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListAllSkillsRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if let Some(v) = self.max_results.as_ref() {
+            struct_ser.serialize_field("max_results", v)?;
+        }
+        if let Some(v) = self.page_token.as_ref() {
+            struct_ser.serialize_field("page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListAllSkillsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "max_results",
+            "maxResults",
+            "page_token",
+            "pageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            MaxResults,
+            PageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
+                            "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListAllSkillsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListAllSkillsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListAllSkillsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut max_results__ = None;
+                let mut page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::MaxResults => {
+                            if max_results__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxResults"));
+                            }
+                            max_results__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::PageToken => {
+                            if page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pageToken"));
+                            }
+                            page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListAllSkillsRequest {
+                    share: share__.unwrap_or_default(),
+                    max_results: max_results__,
+                    page_token: page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListAllSkillsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListAllSkillsResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.items.is_empty() {
+            len += 1;
+        }
+        if self.next_page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListAllSkillsResponse", len)?;
+        if !self.items.is_empty() {
+            struct_ser.serialize_field("items", &self.items)?;
+        }
+        if let Some(v) = self.next_page_token.as_ref() {
+            struct_ser.serialize_field("next_page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListAllSkillsResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "items",
+            "next_page_token",
+            "nextPageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Items,
+            NextPageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "items" => Ok(GeneratedField::Items),
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListAllSkillsResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListAllSkillsResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListAllSkillsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut items__ = None;
+                let mut next_page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Items => {
+                            if items__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("items"));
+                            }
+                            items__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPageToken => {
+                            if next_page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPageToken"));
+                            }
+                            next_page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListAllSkillsResponse {
+                    items: items__.unwrap_or_default(),
+                    next_page_token: next_page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListAllSkillsResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListAllTablesRequest {
@@ -1199,6 +1961,252 @@ impl<'de> serde::Deserialize<'de> for ListAllTablesResponse {
             }
         }
         deserializer.deserialize_struct("open_sharing.v1.ListAllTablesResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListAllVolumesRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if self.max_results.is_some() {
+            len += 1;
+        }
+        if self.page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListAllVolumesRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if let Some(v) = self.max_results.as_ref() {
+            struct_ser.serialize_field("max_results", v)?;
+        }
+        if let Some(v) = self.page_token.as_ref() {
+            struct_ser.serialize_field("page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListAllVolumesRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "max_results",
+            "maxResults",
+            "page_token",
+            "pageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            MaxResults,
+            PageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
+                            "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListAllVolumesRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListAllVolumesRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListAllVolumesRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut max_results__ = None;
+                let mut page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::MaxResults => {
+                            if max_results__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxResults"));
+                            }
+                            max_results__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::PageToken => {
+                            if page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pageToken"));
+                            }
+                            page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListAllVolumesRequest {
+                    share: share__.unwrap_or_default(),
+                    max_results: max_results__,
+                    page_token: page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListAllVolumesRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListAllVolumesResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.items.is_empty() {
+            len += 1;
+        }
+        if self.next_page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListAllVolumesResponse", len)?;
+        if !self.items.is_empty() {
+            struct_ser.serialize_field("items", &self.items)?;
+        }
+        if let Some(v) = self.next_page_token.as_ref() {
+            struct_ser.serialize_field("next_page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListAllVolumesResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "items",
+            "next_page_token",
+            "nextPageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Items,
+            NextPageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "items" => Ok(GeneratedField::Items),
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListAllVolumesResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListAllVolumesResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListAllVolumesResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut items__ = None;
+                let mut next_page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Items => {
+                            if items__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("items"));
+                            }
+                            items__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPageToken => {
+                            if next_page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPageToken"));
+                            }
+                            next_page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListAllVolumesResponse {
+                    items: items__.unwrap_or_default(),
+                    next_page_token: next_page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListAllVolumesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListSchemasRequest {
@@ -1676,6 +2684,269 @@ impl<'de> serde::Deserialize<'de> for ListSharesResponse {
         deserializer.deserialize_struct("open_sharing.v1.ListSharesResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for ListSkillsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if self.max_results.is_some() {
+            len += 1;
+        }
+        if self.page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListSkillsRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if let Some(v) = self.max_results.as_ref() {
+            struct_ser.serialize_field("max_results", v)?;
+        }
+        if let Some(v) = self.page_token.as_ref() {
+            struct_ser.serialize_field("page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListSkillsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "max_results",
+            "maxResults",
+            "page_token",
+            "pageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            MaxResults,
+            PageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
+                            "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListSkillsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListSkillsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSkillsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut max_results__ = None;
+                let mut page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::MaxResults => {
+                            if max_results__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxResults"));
+                            }
+                            max_results__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::PageToken => {
+                            if page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pageToken"));
+                            }
+                            page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListSkillsRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    max_results: max_results__,
+                    page_token: page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListSkillsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListSkillsResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.items.is_empty() {
+            len += 1;
+        }
+        if self.next_page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListSkillsResponse", len)?;
+        if !self.items.is_empty() {
+            struct_ser.serialize_field("items", &self.items)?;
+        }
+        if let Some(v) = self.next_page_token.as_ref() {
+            struct_ser.serialize_field("next_page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListSkillsResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "items",
+            "next_page_token",
+            "nextPageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Items,
+            NextPageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "items" => Ok(GeneratedField::Items),
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListSkillsResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListSkillsResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListSkillsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut items__ = None;
+                let mut next_page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Items => {
+                            if items__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("items"));
+                            }
+                            items__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPageToken => {
+                            if next_page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPageToken"));
+                            }
+                            next_page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListSkillsResponse {
+                    items: items__.unwrap_or_default(),
+                    next_page_token: next_page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListSkillsResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for ListTablesRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -1937,6 +3208,269 @@ impl<'de> serde::Deserialize<'de> for ListTablesResponse {
             }
         }
         deserializer.deserialize_struct("open_sharing.v1.ListTablesResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListVolumesRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if self.max_results.is_some() {
+            len += 1;
+        }
+        if self.page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListVolumesRequest", len)?;
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if let Some(v) = self.max_results.as_ref() {
+            struct_ser.serialize_field("max_results", v)?;
+        }
+        if let Some(v) = self.page_token.as_ref() {
+            struct_ser.serialize_field("page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListVolumesRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "share",
+            "schema",
+            "max_results",
+            "maxResults",
+            "page_token",
+            "pageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Share,
+            Schema,
+            MaxResults,
+            PageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "share" => Ok(GeneratedField::Share),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "maxResults" | "max_results" => Ok(GeneratedField::MaxResults),
+                            "pageToken" | "page_token" => Ok(GeneratedField::PageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListVolumesRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListVolumesRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListVolumesRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut share__ = None;
+                let mut schema__ = None;
+                let mut max_results__ = None;
+                let mut page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::MaxResults => {
+                            if max_results__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("maxResults"));
+                            }
+                            max_results__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::PageToken => {
+                            if page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("pageToken"));
+                            }
+                            page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListVolumesRequest {
+                    share: share__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    max_results: max_results__,
+                    page_token: page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListVolumesRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListVolumesResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.items.is_empty() {
+            len += 1;
+        }
+        if self.next_page_token.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.ListVolumesResponse", len)?;
+        if !self.items.is_empty() {
+            struct_ser.serialize_field("items", &self.items)?;
+        }
+        if let Some(v) = self.next_page_token.as_ref() {
+            struct_ser.serialize_field("next_page_token", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListVolumesResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "items",
+            "next_page_token",
+            "nextPageToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Items,
+            NextPageToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "items" => Ok(GeneratedField::Items),
+                            "nextPageToken" | "next_page_token" => Ok(GeneratedField::NextPageToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListVolumesResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.ListVolumesResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListVolumesResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut items__ = None;
+                let mut next_page_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Items => {
+                            if items__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("items"));
+                            }
+                            items__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPageToken => {
+                            if next_page_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPageToken"));
+                            }
+                            next_page_token__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListVolumesResponse {
+                    items: items__.unwrap_or_default(),
+                    next_page_token: next_page_token__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.ListVolumesResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Metadata {
@@ -3619,6 +5153,1079 @@ impl<'de> serde::Deserialize<'de> for Share {
             }
         }
         deserializer.deserialize_struct("open_sharing.v1.Share", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingAwsCredentials {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.access_key_id.is_empty() {
+            len += 1;
+        }
+        if !self.secret_access_key.is_empty() {
+            len += 1;
+        }
+        if !self.session_token.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingAwsCredentials", len)?;
+        if !self.access_key_id.is_empty() {
+            struct_ser.serialize_field("access_key_id", &self.access_key_id)?;
+        }
+        if !self.secret_access_key.is_empty() {
+            struct_ser.serialize_field("secret_access_key", &self.secret_access_key)?;
+        }
+        if !self.session_token.is_empty() {
+            struct_ser.serialize_field("session_token", &self.session_token)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingAwsCredentials {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "access_key_id",
+            "accessKeyId",
+            "secret_access_key",
+            "secretAccessKey",
+            "session_token",
+            "sessionToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            AccessKeyId,
+            SecretAccessKey,
+            SessionToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "accessKeyId" | "access_key_id" => Ok(GeneratedField::AccessKeyId),
+                            "secretAccessKey" | "secret_access_key" => Ok(GeneratedField::SecretAccessKey),
+                            "sessionToken" | "session_token" => Ok(GeneratedField::SessionToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingAwsCredentials;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingAwsCredentials")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingAwsCredentials, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut access_key_id__ = None;
+                let mut secret_access_key__ = None;
+                let mut session_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::AccessKeyId => {
+                            if access_key_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessKeyId"));
+                            }
+                            access_key_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SecretAccessKey => {
+                            if secret_access_key__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("secretAccessKey"));
+                            }
+                            secret_access_key__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SessionToken => {
+                            if session_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sessionToken"));
+                            }
+                            session_token__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingAwsCredentials {
+                    access_key_id: access_key_id__.unwrap_or_default(),
+                    secret_access_key: secret_access_key__.unwrap_or_default(),
+                    session_token: session_token__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingAwsCredentials", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingAzureUserDelegationSas {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.sas_token.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingAzureUserDelegationSas", len)?;
+        if !self.sas_token.is_empty() {
+            struct_ser.serialize_field("sas_token", &self.sas_token)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingAzureUserDelegationSas {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "sas_token",
+            "sasToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SasToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "sasToken" | "sas_token" => Ok(GeneratedField::SasToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingAzureUserDelegationSas;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingAzureUserDelegationSas")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingAzureUserDelegationSas, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut sas_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SasToken => {
+                            if sas_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sasToken"));
+                            }
+                            sas_token__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingAzureUserDelegationSas {
+                    sas_token: sas_token__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingAzureUserDelegationSas", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingGcpOauthToken {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.oauth_token.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingGcpOauthToken", len)?;
+        if !self.oauth_token.is_empty() {
+            struct_ser.serialize_field("oauth_token", &self.oauth_token)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingGcpOauthToken {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "oauth_token",
+            "oauthToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            OauthToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "oauthToken" | "oauth_token" => Ok(GeneratedField::OauthToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingGcpOauthToken;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingGcpOauthToken")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingGcpOauthToken, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut oauth_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::OauthToken => {
+                            if oauth_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("oauthToken"));
+                            }
+                            oauth_token__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingGcpOauthToken {
+                    oauth_token: oauth_token__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingGcpOauthToken", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingR2Credentials {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.access_key_id.is_empty() {
+            len += 1;
+        }
+        if !self.secret_access_key.is_empty() {
+            len += 1;
+        }
+        if !self.session_token.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingR2Credentials", len)?;
+        if !self.access_key_id.is_empty() {
+            struct_ser.serialize_field("access_key_id", &self.access_key_id)?;
+        }
+        if !self.secret_access_key.is_empty() {
+            struct_ser.serialize_field("secret_access_key", &self.secret_access_key)?;
+        }
+        if !self.session_token.is_empty() {
+            struct_ser.serialize_field("session_token", &self.session_token)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingR2Credentials {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "access_key_id",
+            "accessKeyId",
+            "secret_access_key",
+            "secretAccessKey",
+            "session_token",
+            "sessionToken",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            AccessKeyId,
+            SecretAccessKey,
+            SessionToken,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "accessKeyId" | "access_key_id" => Ok(GeneratedField::AccessKeyId),
+                            "secretAccessKey" | "secret_access_key" => Ok(GeneratedField::SecretAccessKey),
+                            "sessionToken" | "session_token" => Ok(GeneratedField::SessionToken),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingR2Credentials;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingR2Credentials")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingR2Credentials, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut access_key_id__ = None;
+                let mut secret_access_key__ = None;
+                let mut session_token__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::AccessKeyId => {
+                            if access_key_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("accessKeyId"));
+                            }
+                            access_key_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SecretAccessKey => {
+                            if secret_access_key__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("secretAccessKey"));
+                            }
+                            secret_access_key__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SessionToken => {
+                            if session_token__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sessionToken"));
+                            }
+                            session_token__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingR2Credentials {
+                    access_key_id: access_key_id__.unwrap_or_default(),
+                    secret_access_key: secret_access_key__.unwrap_or_default(),
+                    session_token: session_token__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingR2Credentials", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingSkill {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.share_id.is_some() {
+            len += 1;
+        }
+        if self.storage_location.is_some() {
+            len += 1;
+        }
+        if self.description.is_some() {
+            len += 1;
+        }
+        if self.license.is_some() {
+            len += 1;
+        }
+        if !self.allowed_tools.is_empty() {
+            len += 1;
+        }
+        if !self.metadata.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingSkill", len)?;
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if let Some(v) = self.share_id.as_ref() {
+            struct_ser.serialize_field("share_id", v)?;
+        }
+        if let Some(v) = self.storage_location.as_ref() {
+            struct_ser.serialize_field("storage_location", v)?;
+        }
+        if let Some(v) = self.description.as_ref() {
+            struct_ser.serialize_field("description", v)?;
+        }
+        if let Some(v) = self.license.as_ref() {
+            struct_ser.serialize_field("license", v)?;
+        }
+        if !self.allowed_tools.is_empty() {
+            struct_ser.serialize_field("allowed_tools", &self.allowed_tools)?;
+        }
+        if !self.metadata.is_empty() {
+            struct_ser.serialize_field("metadata", &self.metadata)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingSkill {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "name",
+            "schema",
+            "share",
+            "id",
+            "share_id",
+            "shareId",
+            "storage_location",
+            "storageLocation",
+            "description",
+            "license",
+            "allowed_tools",
+            "allowedTools",
+            "metadata",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Name,
+            Schema,
+            Share,
+            Id,
+            ShareId,
+            StorageLocation,
+            Description,
+            License,
+            AllowedTools,
+            Metadata,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "name" => Ok(GeneratedField::Name),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "share" => Ok(GeneratedField::Share),
+                            "id" => Ok(GeneratedField::Id),
+                            "shareId" | "share_id" => Ok(GeneratedField::ShareId),
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
+                            "description" => Ok(GeneratedField::Description),
+                            "license" => Ok(GeneratedField::License),
+                            "allowedTools" | "allowed_tools" => Ok(GeneratedField::AllowedTools),
+                            "metadata" => Ok(GeneratedField::Metadata),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingSkill;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingSkill")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingSkill, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut name__ = None;
+                let mut schema__ = None;
+                let mut share__ = None;
+                let mut id__ = None;
+                let mut share_id__ = None;
+                let mut storage_location__ = None;
+                let mut description__ = None;
+                let mut license__ = None;
+                let mut allowed_tools__ = None;
+                let mut metadata__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::ShareId => {
+                            if share_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("shareId"));
+                            }
+                            share_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::StorageLocation => {
+                            if storage_location__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("storageLocation"));
+                            }
+                            storage_location__ = map_.next_value()?;
+                        }
+                        GeneratedField::Description => {
+                            if description__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("description"));
+                            }
+                            description__ = map_.next_value()?;
+                        }
+                        GeneratedField::License => {
+                            if license__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("license"));
+                            }
+                            license__ = map_.next_value()?;
+                        }
+                        GeneratedField::AllowedTools => {
+                            if allowed_tools__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("allowedTools"));
+                            }
+                            allowed_tools__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Metadata => {
+                            if metadata__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("metadata"));
+                            }
+                            metadata__ = Some(
+                                map_.next_value::<std::collections::HashMap<_, _>>()?
+                            );
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingSkill {
+                    name: name__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    share: share__.unwrap_or_default(),
+                    id: id__,
+                    share_id: share_id__,
+                    storage_location: storage_location__,
+                    description: description__,
+                    license: license__,
+                    allowed_tools: allowed_tools__.unwrap_or_default(),
+                    metadata: metadata__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingSkill", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingTemporaryCredentials {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.expiration_time != 0 {
+            len += 1;
+        }
+        if self.url.is_some() {
+            len += 1;
+        }
+        if self.credentials.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingTemporaryCredentials", len)?;
+        if self.expiration_time != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("expiration_time", ToString::to_string(&self.expiration_time).as_str())?;
+        }
+        if let Some(v) = self.url.as_ref() {
+            struct_ser.serialize_field("url", v)?;
+        }
+        if let Some(v) = self.credentials.as_ref() {
+            match v {
+                sharing_temporary_credentials::Credentials::AwsTempCredentials(v) => {
+                    struct_ser.serialize_field("aws_temp_credentials", v)?;
+                }
+                sharing_temporary_credentials::Credentials::AzureUserDelegationSas(v) => {
+                    struct_ser.serialize_field("azure_user_delegation_sas", v)?;
+                }
+                sharing_temporary_credentials::Credentials::GcpOauthToken(v) => {
+                    struct_ser.serialize_field("gcp_oauth_token", v)?;
+                }
+                sharing_temporary_credentials::Credentials::R2Credentials(v) => {
+                    struct_ser.serialize_field("r2_credentials", v)?;
+                }
+            }
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingTemporaryCredentials {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "expiration_time",
+            "expirationTime",
+            "url",
+            "aws_temp_credentials",
+            "awsTempCredentials",
+            "azure_user_delegation_sas",
+            "azureUserDelegationSas",
+            "gcp_oauth_token",
+            "gcpOauthToken",
+            "r2_credentials",
+            "r2Credentials",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            ExpirationTime,
+            Url,
+            AwsTempCredentials,
+            AzureUserDelegationSas,
+            GcpOauthToken,
+            R2Credentials,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "expirationTime" | "expiration_time" => Ok(GeneratedField::ExpirationTime),
+                            "url" => Ok(GeneratedField::Url),
+                            "awsTempCredentials" | "aws_temp_credentials" => Ok(GeneratedField::AwsTempCredentials),
+                            "azureUserDelegationSas" | "azure_user_delegation_sas" => Ok(GeneratedField::AzureUserDelegationSas),
+                            "gcpOauthToken" | "gcp_oauth_token" => Ok(GeneratedField::GcpOauthToken),
+                            "r2Credentials" | "r2_credentials" => Ok(GeneratedField::R2Credentials),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingTemporaryCredentials;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingTemporaryCredentials")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingTemporaryCredentials, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut expiration_time__ = None;
+                let mut url__ = None;
+                let mut credentials__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::ExpirationTime => {
+                            if expiration_time__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("expirationTime"));
+                            }
+                            expiration_time__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Url => {
+                            if url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("url"));
+                            }
+                            url__ = map_.next_value()?;
+                        }
+                        GeneratedField::AwsTempCredentials => {
+                            if credentials__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("awsTempCredentials"));
+                            }
+                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(sharing_temporary_credentials::Credentials::AwsTempCredentials)
+;
+                        }
+                        GeneratedField::AzureUserDelegationSas => {
+                            if credentials__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("azureUserDelegationSas"));
+                            }
+                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(sharing_temporary_credentials::Credentials::AzureUserDelegationSas)
+;
+                        }
+                        GeneratedField::GcpOauthToken => {
+                            if credentials__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("gcpOauthToken"));
+                            }
+                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(sharing_temporary_credentials::Credentials::GcpOauthToken)
+;
+                        }
+                        GeneratedField::R2Credentials => {
+                            if credentials__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("r2Credentials"));
+                            }
+                            credentials__ = map_.next_value::<::std::option::Option<_>>()?.map(sharing_temporary_credentials::Credentials::R2Credentials)
+;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingTemporaryCredentials {
+                    expiration_time: expiration_time__.unwrap_or_default(),
+                    url: url__,
+                    credentials: credentials__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingTemporaryCredentials", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for SharingVolume {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.schema.is_empty() {
+            len += 1;
+        }
+        if !self.share.is_empty() {
+            len += 1;
+        }
+        if self.id.is_some() {
+            len += 1;
+        }
+        if self.share_id.is_some() {
+            len += 1;
+        }
+        if self.storage_location.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("open_sharing.v1.SharingVolume", len)?;
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.schema.is_empty() {
+            struct_ser.serialize_field("schema", &self.schema)?;
+        }
+        if !self.share.is_empty() {
+            struct_ser.serialize_field("share", &self.share)?;
+        }
+        if let Some(v) = self.id.as_ref() {
+            struct_ser.serialize_field("id", v)?;
+        }
+        if let Some(v) = self.share_id.as_ref() {
+            struct_ser.serialize_field("share_id", v)?;
+        }
+        if let Some(v) = self.storage_location.as_ref() {
+            struct_ser.serialize_field("storage_location", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for SharingVolume {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "name",
+            "schema",
+            "share",
+            "id",
+            "share_id",
+            "shareId",
+            "storage_location",
+            "storageLocation",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Name,
+            Schema,
+            Share,
+            Id,
+            ShareId,
+            StorageLocation,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "name" => Ok(GeneratedField::Name),
+                            "schema" => Ok(GeneratedField::Schema),
+                            "share" => Ok(GeneratedField::Share),
+                            "id" => Ok(GeneratedField::Id),
+                            "shareId" | "share_id" => Ok(GeneratedField::ShareId),
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = SharingVolume;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct open_sharing.v1.SharingVolume")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<SharingVolume, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut name__ = None;
+                let mut schema__ = None;
+                let mut share__ = None;
+                let mut id__ = None;
+                let mut share_id__ = None;
+                let mut storage_location__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Schema => {
+                            if schema__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("schema"));
+                            }
+                            schema__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Share => {
+                            if share__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("share"));
+                            }
+                            share__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = map_.next_value()?;
+                        }
+                        GeneratedField::ShareId => {
+                            if share_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("shareId"));
+                            }
+                            share_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::StorageLocation => {
+                            if storage_location__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("storageLocation"));
+                            }
+                            storage_location__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(SharingVolume {
+                    name: name__.unwrap_or_default(),
+                    schema: schema__.unwrap_or_default(),
+                    share: share__.unwrap_or_default(),
+                    id: id__,
+                    share_id: share_id__,
+                    storage_location: storage_location__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("open_sharing.v1.SharingVolume", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for Table {

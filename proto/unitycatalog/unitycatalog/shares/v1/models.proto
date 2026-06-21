@@ -26,6 +26,13 @@ enum DataObjectType {
   // FUNCTION = 8;
 
   // FEATURE_SPEC = 9;
+
+  // A Unity Catalog volume shared as a storage-backed asset (Open Sharing).
+  VOLUME = 10;
+
+  // An agent skill (a directory of SKILL.md + scripts/assets) shared as a
+  // storage-backed asset on top of a volume (Open Sharing).
+  AGENT_SKILL = 11;
 }
 
 enum HistoryStatus {
