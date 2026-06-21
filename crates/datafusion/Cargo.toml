@@ -27,14 +27,18 @@ deltalake-core = { workspace = true, optional = true }
 # source with `deltalake-core` so the `Snapshot` types unify.
 delta_kernel = { workspace = true, optional = true }
 
-# Metric-view YAML deserialization (the `metric-view` feature).
+# Serialize UC DDL responses into result batches (the `sql` module, `delta`
+# feature) and deserialize metric-view YAML (`metric-view` feature).
 serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
 serde_yml = { workspace = true, optional = true }
 
 [features]
 default = ["delta", "metric-view"]
-# Expose a Delta-backed `TableProviderBuilder` (pulls in delta-rs).
-delta = ["dep:deltalake-core", "dep:delta_kernel"]
+# Expose a Delta-backed `TableProviderBuilder` (pulls in delta-rs) and the Unity
+# Catalog DDL statements + planner (the `sql` module), whose managed
+# `CREATE TABLE` path serializes responses with serde/serde_json.
+delta = ["dep:deltalake-core", "dep:delta_kernel", "dep:serde", "dep:serde_json"]
 # Lower Unity Catalog metric-view YAML into a DataFusion `LogicalPlan`.
 metric-view = ["dep:serde", "dep:serde_yml"]
 
