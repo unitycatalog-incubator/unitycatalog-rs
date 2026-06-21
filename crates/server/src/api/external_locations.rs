@@ -262,7 +262,9 @@ mod tests {
         ServerHandler::try_new_tokio(policy, store.clone(), store).unwrap()
     }
 
-    /// A handler whose local-storage policy allows `root`.
+    /// A handler whose local-storage policy allows `root`. Only used by the
+    /// POSIX-only allow-under-root test.
+    #[cfg(not(windows))]
     fn handler_with_local_root(root: &std::path::Path) -> ServerHandler<RequestContext> {
         let local = crate::services::LocalStoragePolicy::new([root]).unwrap();
         handler().with_local_storage_policy(local)
@@ -318,6 +320,10 @@ mod tests {
         assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
     }
 
+    // POSIX-only: allow-under-root matching depends on canonicalized paths that
+    // don't line up on Windows (\\?\ prefix), and local file:// is gated off on
+    // Windows anyway. Deny-by-default (above) is what matters there.
+    #[cfg(not(windows))]
     #[tokio::test]
     async fn file_location_allowed_under_configured_root() {
         let dir = tempfile::tempdir().unwrap();

@@ -175,6 +175,14 @@ mod tests {
         );
     }
 
+    // The following tests construct real `file://` paths under a canonicalized
+    // root and exercise prefix matching. They are POSIX-only: on Windows,
+    // `canonicalize()` yields a `\\?\C:\…` extended-length prefix that does not
+    // match the plain `C:\…` from a URL's `to_file_path()`, and local file://
+    // storage is gated off on Windows anyway (see `local_store` /
+    // `get_local_store`). Deny-by-default and cloud pass-through (tested above)
+    // are the behaviors that still matter on Windows.
+    #[cfg(not(windows))]
     #[test]
     fn allows_paths_within_a_configured_root() {
         let dir = tempfile::tempdir().unwrap();
@@ -190,6 +198,7 @@ mod tests {
         assert!(policy.check(&loc(&at_root)).is_ok());
     }
 
+    #[cfg(not(windows))]
     #[test]
     fn rejects_paths_outside_every_root() {
         let dir = tempfile::tempdir().unwrap();
@@ -198,6 +207,7 @@ mod tests {
         assert!(policy.check(&loc("file:///etc/passwd")).is_err());
     }
 
+    #[cfg(not(windows))]
     #[test]
     fn rejects_sibling_prefix() {
         // `<root>` must not match `<root>-secret`. Build the sibling as a native
@@ -214,6 +224,7 @@ mod tests {
         assert!(policy.check(&loc(&url)).is_err());
     }
 
+    #[cfg(not(windows))]
     #[test]
     fn rejects_parent_dir_traversal() {
         let dir = tempfile::tempdir().unwrap();
