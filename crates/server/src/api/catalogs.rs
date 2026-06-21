@@ -4,16 +4,20 @@ use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::{ObjectLabel, ResourceIdent, ResourceName, ResourceRef};
 
 use super::{RequestContext, SecuredAction};
-use crate::Result;
 pub use crate::codegen::catalogs::CatalogHandler;
 use crate::policy::{Permission, Policy, process_resources};
-use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
+use crate::services::{ProvidesLocalStoragePolicy, ProvidesManagedStorageRoot};
 use crate::store::ResourceStore;
+use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
-    CatalogHandler<RequestContext> for T
+impl<
+    T: ResourceStore
+        + Policy<RequestContext>
+        + ProvidesLocalStoragePolicy
+        + ProvidesManagedStorageRoot,
+> CatalogHandler<RequestContext> for T
 {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_catalog(
@@ -23,21 +27,67 @@ impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
     ) -> Result<Catalog> {
         tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, &context).await?;
-        // A local (file://) managed root must sit within an allowed host root.
-        if let Some(root) = request.storage_root.as_deref().filter(|s| !s.is_empty()) {
-            self.local_storage_policy()
-                .check(&StorageLocationUrl::parse(root)?)?;
+
+        // A Delta Sharing catalog references a share on a remote provider; it is
+        // identified by `provider_name`/`share_name`, which must be set together
+        // and never alongside a managed `storage_root`. These cross-field rules
+        // are also expressed as protovalidate CEL on `CreateCatalogRequest` (for
+        // client-side form validation), but protovalidate has no Rust runtime —
+        // the server re-asserts them here as the authoritative check.
+        let is_sharing = request.provider_name.is_some() || request.share_name.is_some();
+        if request.provider_name.is_some() != request.share_name.is_some() {
+            return Err(Error::invalid_argument(
+                "provider_name and share_name must be set together for a Delta Sharing catalog",
+            ));
         }
-        let catalog_type = if request.provider_name.is_some() {
+        let has_root = request
+            .storage_root
+            .as_deref()
+            .is_some_and(|s| !s.is_empty());
+        if is_sharing && has_root {
+            return Err(Error::invalid_argument(
+                "a Delta Sharing catalog must not set storage_root",
+            ));
+        }
+
+        let catalog_type = if is_sharing {
             CatalogType::DeltasharingCatalog
         } else {
             CatalogType::ManagedCatalog
         };
+
+        // A managed catalog must have a resolvable managed storage root: either
+        // an explicit `storage_root` on the request, or the metastore-level
+        // default. This mirrors Unity Catalog ("if the metastore has no managed
+        // storage set, you must set one at the catalog level"). The resolved
+        // root is materialized onto the catalog so an inherited metastore root
+        // is recorded and table-time resolution finds it directly. Delta Sharing
+        // catalogs have no managed storage and are exempt.
+        let storage_root = if catalog_type == CatalogType::ManagedCatalog {
+            let root = request
+                .storage_root
+                .filter(|s| !s.is_empty())
+                .or_else(|| self.managed_storage_root().map(str::to_string))
+                .ok_or_else(|| {
+                    Error::invalid_argument(format!(
+                        "managed catalog '{}' requires a storage_root, or a metastore \
+                         managed storage root to be configured on the server",
+                        request.name
+                    ))
+                })?;
+            // A local (file://) managed root must sit within an allowed host root.
+            self.local_storage_policy()
+                .check(&StorageLocationUrl::parse(&root)?)?;
+            Some(root)
+        } else {
+            None
+        };
+
         let resource = Catalog {
             name: request.name,
             comment: request.comment,
             properties: request.properties,
-            storage_root: request.storage_root,
+            storage_root,
             provider_name: request.provider_name,
             share_name: request.share_name,
             catalog_type: Some(catalog_type as i32),
@@ -165,5 +215,164 @@ impl SecuredAction for DeleteCatalogRequest {
 
     fn permission(&self) -> &'static Permission {
         &Permission::Manage
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
+
+    use super::*;
+    use crate::memory::InMemoryResourceStore;
+    use crate::policy::{ConstantPolicy, Principal};
+    use crate::services::{LocalStoragePolicy, ServerHandler};
+
+    /// Build a handler with an optional metastore managed storage root. When
+    /// `allowed_root` is set, local (file://) storage beneath it is permitted.
+    fn handler(
+        metastore_root: Option<&str>,
+        allowed_root: Option<&std::path::Path>,
+    ) -> ServerHandler<RequestContext> {
+        let encryptor =
+            EnvelopeEncryptor::local(LocalKeyProvider::single("test", vec![0x42; 32]).unwrap());
+        let store = Arc::new(InMemoryResourceStore::new(encryptor));
+        let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
+        let mut h = ServerHandler::try_new_tokio(policy, store.clone(), store).unwrap();
+        if let Some(root) = allowed_root {
+            h = h.with_local_storage_policy(LocalStoragePolicy::new([root]).unwrap());
+        }
+        h.with_managed_storage_root(metastore_root.map(str::to_string))
+    }
+
+    fn ctx() -> RequestContext {
+        RequestContext {
+            recipient: Principal::anonymous(),
+        }
+    }
+
+    fn create_req(name: &str) -> CreateCatalogRequest {
+        CreateCatalogRequest {
+            name: name.to_string(),
+            ..Default::default()
+        }
+    }
+
+    #[tokio::test]
+    async fn managed_catalog_with_explicit_root_persists_it() {
+        let h = handler(None, None);
+        let cat = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    storage_root: Some("s3://bucket/cat".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(cat.storage_root.as_deref(), Some("s3://bucket/cat"));
+        assert_eq!(cat.catalog_type, Some(CatalogType::ManagedCatalog as i32));
+    }
+
+    #[tokio::test]
+    async fn managed_catalog_without_root_and_no_metastore_default_is_rejected() {
+        let h = handler(None, None);
+        let res = h.create_catalog(create_req("cat"), ctx()).await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn managed_catalog_inherits_metastore_default() {
+        let h = handler(Some("s3://bucket/meta"), None);
+        let cat = h.create_catalog(create_req("cat"), ctx()).await.unwrap();
+        // The inherited metastore root is materialized onto the catalog.
+        assert_eq!(cat.storage_root.as_deref(), Some("s3://bucket/meta"));
+    }
+
+    #[tokio::test]
+    async fn explicit_root_takes_precedence_over_metastore_default() {
+        let h = handler(Some("s3://bucket/meta"), None);
+        let cat = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    storage_root: Some("s3://bucket/explicit".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(cat.storage_root.as_deref(), Some("s3://bucket/explicit"));
+    }
+
+    #[tokio::test]
+    async fn sharing_catalog_without_root_is_allowed() {
+        let h = handler(None, None);
+        let cat = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    provider_name: Some("prov".to_string()),
+                    share_name: Some("shr".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await
+            .unwrap();
+        assert!(cat.storage_root.is_none());
+        assert_eq!(
+            cat.catalog_type,
+            Some(CatalogType::DeltasharingCatalog as i32)
+        );
+    }
+
+    #[tokio::test]
+    async fn sharing_catalog_with_storage_root_is_rejected() {
+        let h = handler(None, None);
+        let res = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    provider_name: Some("prov".to_string()),
+                    share_name: Some("shr".to_string()),
+                    storage_root: Some("s3://bucket/cat".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn provider_without_share_is_rejected() {
+        let h = handler(None, None);
+        let res = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    provider_name: Some("prov".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn local_root_outside_allowlist_is_rejected() {
+        // No allowed roots ⇒ deny all file://.
+        let h = handler(None, None);
+        let res = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    storage_root: Some("file:///tmp/not-allowed".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
     }
 }

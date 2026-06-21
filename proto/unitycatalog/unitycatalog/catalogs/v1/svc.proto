@@ -38,6 +38,21 @@ message ListCatalogsResponse {
 
 // Create a new catalog
 message CreateCatalogRequest {
+  // A Delta Sharing catalog is identified by `provider_name` + `share_name`,
+  // which must be set together (both or neither).
+  option (buf.validate.message).cel = {
+    id: "catalog.sharing.provider_and_share"
+    message: "provider_name and share_name must be set together"
+    expression: "has(this.provider_name) == has(this.share_name)"
+  };
+  // A Delta Sharing catalog references a remote share and has no managed
+  // storage of its own, so it must not set `storage_root`.
+  option (buf.validate.message).cel = {
+    id: "catalog.sharing.no_storage_root"
+    message: "a Delta Sharing catalog (provider_name/share_name) must not set storage_root"
+    expression: "!(has(this.provider_name) || has(this.share_name)) || !has(this.storage_root)"
+  };
+
   // Name of catalog.
   string name = 1 [
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",

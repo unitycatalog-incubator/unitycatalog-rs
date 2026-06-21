@@ -66,6 +66,17 @@ pub struct Config {
     /// storage location. Empty (the default) denies all local storage.
     #[serde(default)]
     pub local_storage: LocalStorageConfig,
+
+    /// Metastore-level managed storage root.
+    ///
+    /// The default managed storage location for the metastore as a whole. A
+    /// managed catalog created without an explicit `storage_root` inherits this
+    /// root, mirroring the Unity Catalog metastore → catalog → schema hierarchy.
+    /// When unset (the default), every managed catalog must supply its own
+    /// `storage_root`. A `file://` root must sit within an allowed
+    /// [`local_storage`](Config::local_storage) root.
+    #[serde(default)]
+    pub managed_storage_root: Option<String>,
 }
 
 /// Configuration for local (`file://`) storage locations.
@@ -97,6 +108,7 @@ impl Default for Config {
             upstream: None,
             routing: RoutingConfig::default(),
             local_storage: LocalStorageConfig::default(),
+            managed_storage_root: None,
         }
     }
 }
@@ -431,6 +443,29 @@ mod tests {
         "#;
         let config: Config = serde_yml::from_str(yaml).unwrap();
         assert!(config.encryption.unwrap().build_encryptor().is_err());
+    }
+
+    #[test]
+    fn test_managed_storage_root_roundtrips() {
+        let yaml = r#"
+            backend:
+              engine: in-memory
+            managed_storage_root: "s3://bucket/meta"
+        "#;
+        let config: Config = serde_yml::from_str(yaml).unwrap();
+        assert_eq!(
+            config.managed_storage_root.as_deref(),
+            Some("s3://bucket/meta")
+        );
+
+        // Round-trips back through YAML.
+        let reparsed: Config =
+            serde_yml::from_str(&serde_yml::to_string(&config).unwrap()).unwrap();
+        assert_eq!(reparsed.managed_storage_root, config.managed_storage_root);
+
+        // Absent ⇒ None (default).
+        let bare: Config = serde_yml::from_str("backend:\n  engine: in-memory\n").unwrap();
+        assert!(bare.managed_storage_root.is_none());
     }
 
     #[test]

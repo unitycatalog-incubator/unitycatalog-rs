@@ -8,8 +8,8 @@ use unitycatalog_common::models::{ObjectLabel, ResourceIdent};
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::staging_tables::StagingTableHandler;
 use crate::policy::{Permission, Policy, Principal};
-use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
+use crate::services::{ProvidesLocalStoragePolicy, ProvidesManagedStorageRoot};
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
@@ -33,8 +33,12 @@ impl SecuredAction for CreateStagingTableRequest {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
-    StagingTableHandler<RequestContext> for T
+impl<
+    T: ResourceStore
+        + Policy<RequestContext>
+        + ProvidesLocalStoragePolicy
+        + ProvidesManagedStorageRoot,
+> StagingTableHandler<RequestContext> for T
 {
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_staging_table(
@@ -90,7 +94,7 @@ impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
 /// appended. A catalog/schema with no configured root cannot host managed
 /// tables, so this returns `invalid_argument`.
 pub(crate) async fn resolve_managed_storage_root(
-    handler: &(impl ResourceStore + ProvidesLocalStoragePolicy + ?Sized),
+    handler: &(impl ResourceStore + ProvidesLocalStoragePolicy + ProvidesManagedStorageRoot + ?Sized),
     catalog_name: &str,
     schema_name: &str,
 ) -> Result<String> {
@@ -117,9 +121,18 @@ pub(crate) async fn resolve_managed_storage_root(
         return checked(root);
     }
 
-    // Neither schema nor catalog defines a root. When the server allows exactly
-    // one local root, use it as the implicit managed root so a purely-local dev
-    // server hosts managed tables without any storage_root configured. The
+    // Fall back to the metastore-level managed storage root. In practice a
+    // managed catalog created on this server materializes its resolved root onto
+    // `catalog.storage_root` (see `create_catalog`), so this branch mainly covers
+    // catalogs that predate that behavior or were written directly to the store.
+    if let Some(root) = handler.managed_storage_root().filter(|s| !s.is_empty()) {
+        return checked(root.to_string());
+    }
+
+    // Neither schema, catalog, nor metastore defines a root. When the server
+    // allows exactly one local root, use it as the implicit managed root so a
+    // purely-local dev server hosts managed tables without any storage_root
+    // configured. The
     // returned value is a *root*; the caller appends the standard
     // `__unitystorage/tables/{uuid}` convention (see `with_managed_prefix` and
     // the caller in `create_staging_table`), so the on-disk layout matches every
@@ -139,8 +152,8 @@ pub(crate) async fn resolve_managed_storage_root(
     }
 
     Err(Error::invalid_argument(format!(
-        "neither schema '{catalog_name}.{schema_name}' nor catalog '{catalog_name}' has a managed \
-         storage root configured; cannot create a managed table"
+        "neither schema '{catalog_name}.{schema_name}', catalog '{catalog_name}', nor the \
+         metastore has a managed storage root configured; cannot create a managed table"
     )))
 }
 
@@ -315,14 +328,50 @@ mod tests {
 
     #[tokio::test]
     async fn missing_storage_root_is_rejected() {
+        // No schema/catalog root, no metastore default, and no allowed local
+        // roots ⇒ a managed table has nowhere to live.
         let h = handler();
-        make_catalog(&h, "cat", None).await;
+        make_catalog(&h, "cat", Some("s3://bucket/cat")).await;
+        // Overwrite the catalog row with one that has no storage_root, bypassing
+        // create_catalog's requirement, to exercise the resolution fallback.
+        let cat_ident = ResourceIdent::catalog(ResourceName::new(["cat"]));
+        let bare = Catalog {
+            name: "cat".to_string(),
+            ..Default::default()
+        };
+        h.update(&cat_ident, bare.into()).await.unwrap();
         make_schema(&h, "cat", "sch", None).await;
 
         let res = h
             .create_staging_table(create_req("cat", "sch", "tbl"), ctx())
             .await;
         assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn resolves_from_metastore_default_when_catalog_has_none() {
+        // A catalog with no storage_root (e.g. created before the create-time
+        // requirement) still resolves a managed table under the metastore root.
+        let h = handler().with_managed_storage_root(Some("s3://bucket/meta"));
+        make_catalog(&h, "cat", None).await;
+        let cat_ident = ResourceIdent::catalog(ResourceName::new(["cat"]));
+        let bare = Catalog {
+            name: "cat".to_string(),
+            ..Default::default()
+        };
+        h.update(&cat_ident, bare.into()).await.unwrap();
+        make_schema(&h, "cat", "sch", None).await;
+
+        let st = h
+            .create_staging_table(create_req("cat", "sch", "tbl"), ctx())
+            .await
+            .unwrap();
+        assert!(
+            st.staging_location
+                .starts_with("s3://bucket/meta/__unitystorage/tables/"),
+            "got {}",
+            st.staging_location
+        );
     }
 
     #[tokio::test]
