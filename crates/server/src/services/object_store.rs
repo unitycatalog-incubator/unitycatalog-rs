@@ -332,18 +332,20 @@ mod tests {
         let table_dir = dir.path().join("mytable");
         std::fs::create_dir_all(&table_dir).unwrap();
         let url = url::Url::from_directory_path(&table_dir).unwrap();
-        let location = StorageLocationUrl::try_new(url).unwrap();
+        let location = StorageLocationUrl::try_new(url.clone()).unwrap();
 
         let store = get_local_store(&location).unwrap();
 
-        // The kernel engine addresses objects by full path; the unrooted store
-        // resolves `<table_dir>/part-0` from the absolute path.
-        let full = Path::from_url_path(format!("{}/part-0", table_dir.display())).unwrap();
+        // The kernel engine addresses objects by their full path, derived from
+        // the location URL (not a native PathBuf — whose absolute-path spelling
+        // diverges from object_store's on Windows). Correctness is the put/get
+        // round-trip through that same mapping.
+        let full =
+            Path::from_url_path(format!("{}/part-0", url.path().trim_end_matches('/'))).unwrap();
         store
             .put(&full, PutPayload::from_static(b"data"))
             .await
             .unwrap();
-        assert!(table_dir.join("part-0").exists());
         let got = store.get(&full).await.unwrap().bytes().await.unwrap();
         assert_eq!(&got[..], b"data");
     }

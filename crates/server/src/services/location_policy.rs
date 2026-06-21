@@ -200,12 +200,16 @@ mod tests {
 
     #[test]
     fn rejects_sibling_prefix() {
-        // `/<root>` must not match `/<root>-secret`.
+        // `<root>` must not match `<root>-secret`. Build the sibling as a native
+        // path (its file name + "-secret") so the URL is well-formed on every OS.
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path().canonicalize().unwrap();
         let policy = LocalStoragePolicy::new([&root]).unwrap();
 
-        let sibling = format!("{}-secret/data", root.display());
+        let mut sibling = root.clone();
+        let name = format!("{}-secret", root.file_name().unwrap().to_string_lossy());
+        sibling.set_file_name(name);
+        sibling.push("data");
         let url = url::Url::from_directory_path(&sibling).unwrap().to_string();
         assert!(policy.check(&loc(&url)).is_err());
     }
@@ -216,8 +220,12 @@ mod tests {
         let root = dir.path().canonicalize().unwrap();
         let policy = LocalStoragePolicy::new([&root]).unwrap();
 
-        // A crafted `..` that would textually resolve outside the root.
-        let escape = format!("file://{}/../../etc/", root.display());
+        // A crafted `..` under the root: built as a native path so the file URL
+        // is well-formed (drive letters/separators) on every OS. The `..`
+        // component is rejected outright.
+        let escape = url::Url::from_directory_path(root.join("..").join("escape"))
+            .unwrap()
+            .to_string();
         assert!(policy.check(&loc(&escape)).is_err());
     }
 

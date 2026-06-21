@@ -766,8 +766,11 @@ mod tests {
     }
 
     /// The unrooted `root()` store resolves the **full** path (the DataFusion
-    /// routing-store contract): a write addressed by absolute path lands at the
-    /// matching location on disk, and reads of that absolute path succeed.
+    /// routing-store contract): a write addressed by the full absolute path
+    /// round-trips through that same path. Correctness is the put/get round-trip
+    /// through the unrooted store — the same mapping the engine uses at scan time
+    /// — rather than a native `PathBuf::join`, whose spelling of an absolute path
+    /// (drive letters, separators) diverges from object_store's on Windows.
     #[tokio::test]
     async fn local_store_root_resolves_full_path() {
         let dir = tempfile::tempdir().unwrap();
@@ -776,8 +779,8 @@ mod tests {
 
         let store = local_store(&url, PathOperation::ReadWrite).unwrap();
 
-        // `prefix()` is the table directory (minus leading slash), matching how
-        // the routing store registers and forwards full paths.
+        // `prefix()` is the table directory; the routing store registers and
+        // forwards the full path beneath it unchanged.
         let full = Path::from(format!("{}/part-0.parquet", store.prefix()));
         store
             .root()
@@ -785,7 +788,8 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(table_dir.join("part-0.parquet").exists());
+        // Reading back the same full path proves the unrooted store resolves it
+        // consistently — exactly what the DataFusion routing store relies on.
         let got = store
             .root()
             .get(&full)
@@ -795,6 +799,16 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(&got[..], b"data");
+
+        // And the object actually exists at the prefix-scoped store, i.e. under
+        // the table directory the credential was vended for.
+        let listing: Vec<_> = store.as_dyn().list(None).try_collect().await.unwrap();
+        assert_eq!(
+            listing.len(),
+            1,
+            "expected exactly one object under the table dir"
+        );
+        assert_eq!(listing[0].location, Path::from("part-0.parquet"));
     }
 
     /// A non-`file` URL handed to the local helper is a clean error, not a panic.
