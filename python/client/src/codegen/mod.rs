@@ -700,7 +700,8 @@ impl PyUnityCatalogClient {
             columns = None,
             storage_location = None,
             comment = None,
-            properties = None
+            properties = None,
+            view_definition = None
         )
     )]
     pub fn create_table(
@@ -715,6 +716,7 @@ impl PyUnityCatalogClient {
         storage_location: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
+        view_definition: Option<String>,
     ) -> PyUnityCatalogResult<Table> {
         let mut request = self.client.create_table(
             name,
@@ -731,6 +733,7 @@ impl PyUnityCatalogClient {
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
+        request = request.with_view_definition(view_definition);
         let runtime = get_runtime(py)?;
         py.allow_threads(|| {
             let result = runtime.block_on(request.into_future())?;

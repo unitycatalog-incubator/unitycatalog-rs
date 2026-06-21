@@ -264,6 +264,26 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<Requ
                 )?,
                 ..Default::default()
             }
+        } else if request.table_type == TableType::MetricView as i32 {
+            // Metric view: a semantic layer with no storage of its own. The
+            // definition (YAML) lives in `view_definition`; there is no Delta
+            // snapshot to read and no columns to derive here.
+            let Some(view_definition) = request.view_definition.as_ref() else {
+                return Err(Error::invalid_argument(
+                    "metric views require view_definition (the YAML definition)",
+                ));
+            };
+            Table {
+                name: request.name,
+                catalog_name: request.catalog_name,
+                schema_name: request.schema_name,
+                table_type: request.table_type,
+                data_source_format: request.data_source_format,
+                properties: request.properties,
+                comment: request.comment,
+                view_definition: Some(view_definition.clone()),
+                ..Default::default()
+            }
         } else {
             return Err(Error::invalid_argument(format!(
                 "unsupported table type: {:?}",
@@ -531,6 +551,66 @@ mod tests {
                     table_type: TableType::Managed as i32,
                     data_source_format: DataSourceFormat::Delta as i32,
                     storage_location: None,
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    const METRIC_VIEW_YAML: &str = "version: \"1.1\"\nsource: cat.sch.orders\n\
+                                    measures:\n  - name: revenue\n    expr: SUM(price)\n";
+
+    /// A metric view is created with its YAML definition (no storage location,
+    /// no Delta snapshot) and round-trips through `get_table` with the
+    /// `view_definition` and `table_type` intact.
+    #[tokio::test]
+    async fn metric_view_create_get_round_trip() {
+        let h = handler();
+        let created = h
+            .create_table(
+                CreateTableRequest {
+                    name: "orders_metrics".to_string(),
+                    schema_name: "sch".to_string(),
+                    catalog_name: "cat".to_string(),
+                    table_type: TableType::MetricView as i32,
+                    view_definition: Some(METRIC_VIEW_YAML.to_string()),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await
+            .expect("create metric view");
+        assert_eq!(created.table_type, TableType::MetricView as i32);
+        assert_eq!(created.view_definition.as_deref(), Some(METRIC_VIEW_YAML));
+
+        let fetched = h
+            .get_table(
+                GetTableRequest {
+                    full_name: "cat.sch.orders_metrics".to_string(),
+                    ..Default::default()
+                },
+                ctx(),
+            )
+            .await
+            .expect("get metric view");
+        assert_eq!(fetched.table_type, TableType::MetricView as i32);
+        assert_eq!(fetched.view_definition.as_deref(), Some(METRIC_VIEW_YAML));
+    }
+
+    /// A metric view without a `view_definition` is rejected.
+    #[tokio::test]
+    async fn metric_view_without_definition_is_rejected() {
+        let h = handler();
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    name: "orders_metrics".to_string(),
+                    schema_name: "sch".to_string(),
+                    catalog_name: "cat".to_string(),
+                    table_type: TableType::MetricView as i32,
+                    view_definition: None,
                     ..Default::default()
                 },
                 ctx(),

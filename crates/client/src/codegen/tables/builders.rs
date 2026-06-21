@@ -221,6 +221,13 @@ impl CreateTableBuilder {
             .collect();
         self
     }
+    /** Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+    STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+    SQL for views, YAML for metric views. Required for METRIC_VIEW.*/
+    pub fn with_view_definition(mut self, view_definition: impl Into<Option<String>>) -> Self {
+        self.request.view_definition = view_definition.into();
+        self
+    }
 }
 impl IntoFuture for CreateTableBuilder {
     type Output = Result<Table>;

@@ -468,6 +468,9 @@ impl serde::Serialize for CreateTableRequest {
         if !self.properties.is_empty() {
             len += 1;
         }
+        if self.view_definition.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("unitycatalog.tables.v1.CreateTableRequest", len)?;
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
@@ -500,6 +503,9 @@ impl serde::Serialize for CreateTableRequest {
         if !self.properties.is_empty() {
             struct_ser.serialize_field("properties", &self.properties)?;
         }
+        if let Some(v) = self.view_definition.as_ref() {
+            struct_ser.serialize_field("view_definition", v)?;
+        }
         struct_ser.end()
     }
 }
@@ -524,6 +530,8 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
             "storageLocation",
             "comment",
             "properties",
+            "view_definition",
+            "viewDefinition",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -537,6 +545,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
             StorageLocation,
             Comment,
             Properties,
+            ViewDefinition,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -568,6 +577,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                             "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
+                            "viewDefinition" | "view_definition" => Ok(GeneratedField::ViewDefinition),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -596,6 +606,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                 let mut storage_location__ = None;
                 let mut comment__ = None;
                 let mut properties__ = None;
+                let mut view_definition__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Name => {
@@ -654,6 +665,12 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                                 map_.next_value::<std::collections::HashMap<_, _>>()?
                             );
                         }
+                        GeneratedField::ViewDefinition => {
+                            if view_definition__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("viewDefinition"));
+                            }
+                            view_definition__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -669,6 +686,7 @@ impl<'de> serde::Deserialize<'de> for CreateTableRequest {
                     storage_location: storage_location__,
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),
+                    view_definition: view_definition__,
                 })
             }
         }
@@ -1917,6 +1935,9 @@ impl serde::Serialize for Table {
         if self.storage_location.is_some() {
             len += 1;
         }
+        if self.view_definition.is_some() {
+            len += 1;
+        }
         if self.owner.is_some() {
             len += 1;
         }
@@ -1975,6 +1996,9 @@ impl serde::Serialize for Table {
         }
         if let Some(v) = self.storage_location.as_ref() {
             struct_ser.serialize_field("storage_location", v)?;
+        }
+        if let Some(v) = self.view_definition.as_ref() {
+            struct_ser.serialize_field("view_definition", v)?;
         }
         if let Some(v) = self.owner.as_ref() {
             struct_ser.serialize_field("owner", v)?;
@@ -2037,6 +2061,8 @@ impl<'de> serde::Deserialize<'de> for Table {
             "columns",
             "storage_location",
             "storageLocation",
+            "view_definition",
+            "viewDefinition",
             "owner",
             "comment",
             "properties",
@@ -2067,6 +2093,7 @@ impl<'de> serde::Deserialize<'de> for Table {
             DataSourceFormat,
             Columns,
             StorageLocation,
+            ViewDefinition,
             Owner,
             Comment,
             Properties,
@@ -2107,6 +2134,7 @@ impl<'de> serde::Deserialize<'de> for Table {
                             "dataSourceFormat" | "data_source_format" => Ok(GeneratedField::DataSourceFormat),
                             "columns" => Ok(GeneratedField::Columns),
                             "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
+                            "viewDefinition" | "view_definition" => Ok(GeneratedField::ViewDefinition),
                             "owner" => Ok(GeneratedField::Owner),
                             "comment" => Ok(GeneratedField::Comment),
                             "properties" => Ok(GeneratedField::Properties),
@@ -2144,6 +2172,7 @@ impl<'de> serde::Deserialize<'de> for Table {
                 let mut data_source_format__ = None;
                 let mut columns__ = None;
                 let mut storage_location__ = None;
+                let mut view_definition__ = None;
                 let mut owner__ = None;
                 let mut comment__ = None;
                 let mut properties__ = None;
@@ -2198,6 +2227,12 @@ impl<'de> serde::Deserialize<'de> for Table {
                                 return Err(serde::de::Error::duplicate_field("storageLocation"));
                             }
                             storage_location__ = map_.next_value()?;
+                        }
+                        GeneratedField::ViewDefinition => {
+                            if view_definition__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("viewDefinition"));
+                            }
+                            view_definition__ = map_.next_value()?;
                         }
                         GeneratedField::Owner => {
                             if owner__.is_some() {
@@ -2286,6 +2321,7 @@ impl<'de> serde::Deserialize<'de> for Table {
                     data_source_format: data_source_format__.unwrap_or_default(),
                     columns: columns__.unwrap_or_default(),
                     storage_location: storage_location__,
+                    view_definition: view_definition__,
                     owner: owner__,
                     comment: comment__,
                     properties: properties__.unwrap_or_default(),
@@ -2429,6 +2465,10 @@ impl serde::Serialize for TableType {
             Self::Unspecified => "TABLE_TYPE_UNSPECIFIED",
             Self::Managed => "MANAGED",
             Self::External => "EXTERNAL",
+            Self::View => "VIEW",
+            Self::MaterializedView => "MATERIALIZED_VIEW",
+            Self::StreamingTable => "STREAMING_TABLE",
+            Self::MetricView => "METRIC_VIEW",
         };
         serializer.serialize_str(variant)
     }
@@ -2443,6 +2483,10 @@ impl<'de> serde::Deserialize<'de> for TableType {
             "TABLE_TYPE_UNSPECIFIED",
             "MANAGED",
             "EXTERNAL",
+            "VIEW",
+            "MATERIALIZED_VIEW",
+            "STREAMING_TABLE",
+            "METRIC_VIEW",
         ];
 
         struct GeneratedVisitor;
@@ -2486,6 +2530,10 @@ impl<'de> serde::Deserialize<'de> for TableType {
                     "TABLE_TYPE_UNSPECIFIED" => Ok(TableType::Unspecified),
                     "MANAGED" => Ok(TableType::Managed),
                     "EXTERNAL" => Ok(TableType::External),
+                    "VIEW" => Ok(TableType::View),
+                    "MATERIALIZED_VIEW" => Ok(TableType::MaterializedView),
+                    "STREAMING_TABLE" => Ok(TableType::StreamingTable),
+                    "METRIC_VIEW" => Ok(TableType::MetricView),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

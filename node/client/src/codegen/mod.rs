@@ -726,6 +726,7 @@ impl NapiUnityCatalogClient {
         storage_location: Option<String>,
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
+        view_definition: Option<String>,
     ) -> napi::Result<Buffer> {
         let mut request = self.client.create_table(
             name,
@@ -743,6 +744,7 @@ impl NapiUnityCatalogClient {
         if let Some(properties) = properties {
             request = request.with_properties(properties);
         }
+        request = request.with_view_definition(view_definition);
         request
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))

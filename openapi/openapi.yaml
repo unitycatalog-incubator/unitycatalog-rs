@@ -2994,6 +2994,12 @@ components:
           additionalProperties:
             type: string
           description: A map of key-value properties attached to the securable.
+        viewDefinition:
+          type: string
+          description: |-
+            Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+             STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+             SQL for views, YAML for metric views. Required for METRIC_VIEW.
       description: "WARNING: this API is experimental and subject to change."
       additionalProperties: false
       title: Create a table
@@ -4531,6 +4537,12 @@ components:
         storageLocation:
           type: string
           description: Storage root URL for table (for MANAGED, EXTERNAL tables)
+        viewDefinition:
+          type: string
+          description: |-
+            Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
+             STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
+             SQL for views, YAML for metric views.
         owner:
           readOnly: true
           type: string
