@@ -8,14 +8,11 @@
 //! [`olai_store::AssociationStore`] traits (over the project's `ObjectLabel`),
 //! which the blanket `ObjectStoreAdapter` in `unitycatalog-common` lifts to the
 //! high-level `ResourceStore` API, plus the `SecretManager` trait for sealed
-//! secrets at rest.
+//! secrets at rest and the `CommitCoordinator` trait for durable Delta
+//! catalog-managed commits.
 //!
 //! ## Known gaps relative to the Postgres backend
 //!
-//! - **No durable Delta commit coordination.** This backend does not implement
-//!   `CommitCoordinator`; catalog-managed Delta commit state lives in the
-//!   process and is lost on restart (the same limitation the in-memory backend
-//!   has today). Catalog/schema/table/credential/secret *metadata* is durable.
 //! - **ASCII-only case-insensitivity.** Object names use SQLite's built-in
 //!   `NOCASE` collation, which folds case for ASCII only. Postgres uses an ICU
 //!   `case_insensitive` collation. Unicode-cased duplicate names that Postgres
@@ -24,6 +21,7 @@
 pub use crate::error::{Error, Result};
 pub use crate::store::SqliteStore;
 
+mod commit_coordinator;
 mod constants;
 mod error;
 mod pagination;

@@ -287,12 +287,18 @@ async fn get_sqlite_handler(
 
     let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
     // `SqliteStore` implements the generic object/association stores (lifted to
-    // `ResourceStore` by `ObjectStoreAdapter`) and `SecretManager`, but the
-    // adapter does not forward `SecretManager` — so the two roles are wired from
-    // the same shared store separately. Unlike the Postgres backend, this MVP
-    // wires the default in-memory commit coordinator (no durable Delta commits).
+    // `ResourceStore` by `ObjectStoreAdapter`), `SecretManager`, and
+    // `CommitCoordinator`, but the adapter does not forward the latter two — so
+    // those roles are wired from the same shared store separately. Like the
+    // Postgres backend, Delta catalog-managed commits are persisted in the
+    // database rather than in memory.
     let resource_store = Arc::new(ObjectStoreAdapter::new(store.clone()));
-    let handler = ServerHandler::try_new_tokio(policy.clone(), resource_store, store)?;
+    let handler = ServerHandler::try_new_tokio_with_coordinator(
+        policy.clone(),
+        resource_store,
+        store.clone(),
+        store,
+    )?;
     Ok((handler, policy))
 }
 

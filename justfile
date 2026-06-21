@@ -199,12 +199,15 @@ build-sqlx-sqlite:
     #!/usr/bin/env bash
     set -euo pipefail
     DB="$(mktemp -t uc-sqlite-prepare-XXXX.db)"
-    rm -f "$DB"
+    rm -f "$DB" "$DB"-wal "$DB"-shm
     export DATABASE_URL="sqlite://$DB"
     export SQLX_OFFLINE=false
-    # Apply the schema, then regenerate the offline cache for the sqlite crate.
+    # Create the database file, apply the schema, then regenerate the offline
+    # cache for the sqlite crate.
+    cargo sqlx database create
     cargo sqlx migrate run --source ./crates/sqlite/migrations
-    cargo sqlx prepare -p unitycatalog-sqlite -- --tests
+    # Prepare only the sqlite crate's queries (run from its directory).
+    cd crates/sqlite && cargo sqlx prepare -- --tests
     rm -f "$DB" "$DB"-wal "$DB"-shm
 
 _start_pg_sqlx:
