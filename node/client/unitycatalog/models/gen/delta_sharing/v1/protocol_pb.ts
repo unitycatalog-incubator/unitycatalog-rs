@@ -48,8 +48,7 @@ export const FormatSchema: GenMessage<Format> = /*@__PURE__*/
  */
 export type Metadata = Message<"delta_sharing.v1.Metadata"> & {
   /**
-   * Unique identifier for this table
-   * Validate GUID
+   * Unique identifier for this table (GUID).
    *
    * @generated from field: string id = 1;
    */

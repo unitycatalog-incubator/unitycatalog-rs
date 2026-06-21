@@ -6,9 +6,12 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Share {
     /// Name of the share.
+    ///
+    /// The name is case-insensitive and must be unique within the sharing server.
     #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
-    /// Unique identifier for the share.
+    /// Unique identifier for the share. Recommended to be in UUID format. Immutable
+    /// once assigned and unique within the sharing server.
     #[prost(string, optional, tag="2")]
     pub id: ::core::option::Option<::prost::alloc::string::String>,
     /// User-friendly display name of the share.
@@ -28,10 +31,10 @@ pub struct Share {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Schema {
-    /// The name of the schema
+    /// The name of the schema. It's case-insensitive and unique within a share.
     #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
-    /// The share name that the schema belongs to.
+    /// The share name that the schema belongs to. It's case-insensitive.
     #[prost(string, tag="2")]
     pub share: ::prost::alloc::string::String,
     /// Unique identifier for the schema.
@@ -84,8 +87,7 @@ pub struct Format {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Metadata {
-    /// Unique identifier for this table
-    /// Validate GUID
+    /// Unique identifier for this table (GUID).
     #[prost(string, tag="1")]
     pub id: ::prost::alloc::string::String,
     /// User-provided identifier for this table
@@ -283,6 +285,11 @@ pub struct MetadataDelta {
     #[prost(int64, optional, tag="4")]
     pub num_files: ::core::option::Option<i64>,
 }
+/// A structured predicate used as a query hint to prune files.
+///
+/// Predicates form a tree: operator nodes (`and`, `or`, `equal`, …) carry their
+/// operands in `children`, while leaf `column`/`literal` nodes carry `name`/
+/// `value`/`value_type`. Hints are best-effort and must not affect correctness.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct JsonPredicate {
@@ -412,32 +419,45 @@ pub struct ListAllTablesRequest {
     #[prost(string, optional, tag="3")]
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
-/// Request to query a table.
+/// Request to query the data files of a table.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryTableRequest {
+    /// The share name that contains the table. It's case-insensitive.
     #[prost(string, tag="1")]
     pub share: ::prost::alloc::string::String,
+    /// The schema name that contains the table. It's case-insensitive.
     #[prost(string, tag="2")]
     pub schema: ::prost::alloc::string::String,
+    /// The table name to query. It's case-insensitive.
     #[prost(string, tag="3")]
     pub name: ::prost::alloc::string::String,
-    /// The starting timestamp to query from.
+    /// The starting timestamp to query from, an ISO8601 string in the UTC timezone
+    /// (for example `2022-01-01T00:00:00Z`).
     #[prost(string, optional, tag="4")]
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// SQL-like predicate hints on the partition columns; the server may use these
+    /// to prune files. Hints are best-effort and must not affect correctness.
     #[prost(string, repeated, tag="5")]
     pub predicate_hints: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    /// The predicate to apply to the table.
+    /// Structured predicate, applied to partition columns, used to prune files.
+    /// Best-effort; must not affect correctness.
     #[prost(message, optional, tag="6")]
     pub json_predicate_hints: ::core::option::Option<JsonPredicate>,
+    /// A hint on the maximum number of rows the client intends to read; the server
+    /// may use it to limit the number of files returned. Best-effort.
     #[prost(int32, optional, tag="7")]
     pub limit_hint: ::core::option::Option<i32>,
+    /// Query the table at this specific Delta version (snapshot query).
     #[prost(int64, optional, tag="8")]
     pub version: ::core::option::Option<i64>,
+    /// Query the table as of this timestamp, an ISO8601 string in the UTC timezone.
     #[prost(string, optional, tag="9")]
     pub timestamp: ::core::option::Option<::prost::alloc::string::String>,
+    /// The starting version (inclusive) for a change-data-feed query.
     #[prost(int64, optional, tag="10")]
     pub starting_version: ::core::option::Option<i64>,
+    /// The ending version (inclusive) for a change-data-feed query.
     #[prost(int64, optional, tag="11")]
     pub ending_version: ::core::option::Option<i64>,
 }

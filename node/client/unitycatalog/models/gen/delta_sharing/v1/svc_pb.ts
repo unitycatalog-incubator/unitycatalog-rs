@@ -20,7 +20,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file delta_sharing/v1/svc.proto.
  */
 export const file_delta_sharing_v1_svc: GenFile = /*@__PURE__*/
-  fileDesc("ChpkZWx0YV9zaGFyaW5nL3YxL3N2Yy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJuChJMaXN0U2hhcmVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrEBChJMaXN0U2NoZW1hc1JlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInAKE0xpc3RTY2hlbWFzUmVzcG9uc2USJwoFaXRlbXMYASADKAsyGC5kZWx0YV9zaGFyaW5nLnYxLlNjaGVtYRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIuMBChFMaXN0VGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgVzaGFyZRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJAoLbWF4X3Jlc3VsdHMYAyABKAVCCuBBAbpIBBoCIABIAIgBARIcCgpwYWdlX3Rva2VuGAQgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4ibgoSTGlzdFRhYmxlc1Jlc3BvbnNlEiYKBWl0ZW1zGAEgAygLMhcuZGVsdGFfc2hhcmluZy52MS5UYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrIBChRMaXN0QWxsVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiK6BAoRUXVlcnlUYWJsZVJlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjYKBnNjaGVtYRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNAoEbmFtZRgDIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSHwoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJSACIAQESFwoPcHJlZGljYXRlX2hpbnRzGAUgAygJEkIKFGpzb25fcHJlZGljYXRlX2hpbnRzGAYgASgLMh8uZGVsdGFfc2hhcmluZy52MS5Kc29uUHJlZGljYXRlSAGIAQESFwoKbGltaXRfaGludBgHIAEoBUgCiAEBEhQKB3ZlcnNpb24YCCABKANIA4gBARIWCgl0aW1lc3RhbXAYCSABKAlIBIgBARIdChBzdGFydGluZ192ZXJzaW9uGAogASgDSAWIAQESGwoOZW5kaW5nX3ZlcnNpb24YCyABKANIBogBAUIVChNfc3RhcnRpbmdfdGltZXN0YW1wQhcKFV9qc29uX3ByZWRpY2F0ZV9oaW50c0INCgtfbGltaXRfaGludEIKCghfdmVyc2lvbkIMCgpfdGltZXN0YW1wQhMKEV9zdGFydGluZ192ZXJzaW9uQhEKD19lbmRpbmdfdmVyc2lvbiJxChVMaXN0QWxsVGFibGVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlRhYmxlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4yzQkKDlNoYXJpbmdTZXJ2aWNlEncKCkxpc3RTaGFyZXMSIy5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTaGFyZXNSZXF1ZXN0GiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2hhcmVzUmVzcG9uc2UiHrpHDCoKTGlzdFNoYXJlc4LT5JMCCRIHL3NoYXJlcxJrCghHZXRTaGFyZRIhLmRlbHRhX3NoYXJpbmcudjEuR2V0U2hhcmVSZXF1ZXN0GhcuZGVsdGFfc2hhcmluZy52MS5TaGFyZSIjukcKKghHZXRTaGFyZYLT5JMCEBIOL3NoYXJlcy97bmFtZX0SiwEKC0xpc3RTY2hlbWFzEiQuZGVsdGFfc2hhcmluZy52MS5MaXN0U2NoZW1hc1JlcXVlc3QaJS5kZWx0YV9zaGFyaW5nLnYxLkxpc3RTY2hlbWFzUmVzcG9uc2UiL7pHDSoLTGlzdFNjaGVtYXOC0+STAhkSFy9zaGFyZXMve3NoYXJlfS9zY2hlbWFzEpUBCgpMaXN0VGFibGVzEiMuZGVsdGFfc2hhcmluZy52MS5MaXN0VGFibGVzUmVxdWVzdBokLmRlbHRhX3NoYXJpbmcudjEuTGlzdFRhYmxlc1Jlc3BvbnNlIjy6RwwqCkxpc3RUYWJsZXOC0+STAicSJS9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tuYW1lfS90YWJsZXMSlQEKDUxpc3RBbGxUYWJsZXMSJi5kZWx0YV9zaGFyaW5nLnYxLkxpc3RBbGxUYWJsZXNSZXF1ZXN0GicuZGVsdGFfc2hhcmluZy52MS5MaXN0QWxsVGFibGVzUmVzcG9uc2UiM7pHDyoNTGlzdEFsbFRhYmxlc4LT5JMCGxIZL3NoYXJlcy97bmFtZX0vYWxsLXRhYmxlcxK6AQoPR2V0VGFibGVWZXJzaW9uEiguZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXF1ZXN0GikuZGVsdGFfc2hhcmluZy52MS5HZXRUYWJsZVZlcnNpb25SZXNwb25zZSJSukcRKg9HZXRUYWJsZVZlcnNpb26C0+STAjgSNi9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vdmVyc2lvbhK0AQoQR2V0VGFibGVNZXRhZGF0YRIpLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVNZXRhZGF0YVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiVLpHEioQR2V0VGFibGVNZXRhZGF0YYLT5JMCORI3L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9tZXRhZGF0YRKiAQoKUXVlcnlUYWJsZRIjLmRlbHRhX3NoYXJpbmcudjEuUXVlcnlUYWJsZVJlcXVlc3QaHy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5UmVzcG9uc2UiTrpHDCoKUXVlcnlUYWJsZYLT5JMCOToBKiI0L3NoYXJlcy97c2hhcmV9L3NjaGVtYXMve3NjaGVtYX0vdGFibGVzL3tuYW1lfS9xdWVyeUKeAgoUY29tLmRlbHRhX3NoYXJpbmcudjFCCFN2Y1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxukedARKEAQoRRGVsdGEgU2hhcmluZyBBUEkSKEFuIE9wZW4gUHJvdG9jb2wgZm9yIFNlY3VyZSBEYXRhIFNoYXJpbmcqPgoKQXBhY2hlIDIuMBIwaHR0cHM6Ly93d3cuYXBhY2hlLm9yZy9saWNlbnNlcy9MSUNFTlNFLTIuMC5odG1sMgUxLjAuMBoUChJ7c2NoZW1lfTovL3tob3N0fS9iBnByb3RvMw", [file_buf_validate_validate, file_delta_sharing_v1_models, file_delta_sharing_v1_query, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct]);
+  fileDesc("ChpkZWx0YV9zaGFyaW5nL3YxL3N2Yy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSJ5ChFMaXN0U2hhcmVzUmVxdWVzdBInCgttYXhfcmVzdWx0cxgBIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAiABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiJuChJMaXN0U2hhcmVzUmVzcG9uc2USJgoFaXRlbXMYASADKAsyFy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlEhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4iRwoPR2V0U2hhcmVSZXF1ZXN0EjQKBG5hbWUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kIrEBChJMaXN0U2NoZW1hc1JlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEicKC21heF9yZXN1bHRzGAIgASgFQg3gQQG6SAcaBRDoByAASACIAQESHAoKcGFnZV90b2tlbhgDIAEoCUID4EEBSAGIAQFCDgoMX21heF9yZXN1bHRzQg0KC19wYWdlX3Rva2VuInAKE0xpc3RTY2hlbWFzUmVzcG9uc2USJwoFaXRlbXMYASADKAsyGC5kZWx0YV9zaGFyaW5nLnYxLlNjaGVtYRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIuYBChFMaXN0VGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgVzaGFyZRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJwoLbWF4X3Jlc3VsdHMYAyABKAVCDeBBAbpIBxoFEOgHIABIAIgBARIcCgpwYWdlX3Rva2VuGAQgASgJQgPgQQFIAYgBAUIOCgxfbWF4X3Jlc3VsdHNCDQoLX3BhZ2VfdG9rZW4ibgoSTGlzdFRhYmxlc1Jlc3BvbnNlEiYKBWl0ZW1zGAEgAygLMhcuZGVsdGFfc2hhcmluZy52MS5UYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIrIBChRMaXN0QWxsVGFibGVzUmVxdWVzdBI0CgRuYW1lGAEgASgJQibgQQK6SCByHhABMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBInCgttYXhfcmVzdWx0cxgCIAEoBUIN4EEBukgHGgUQ6AcgAEgAiAEBEhwKCnBhZ2VfdG9rZW4YAyABKAlCA+BBAUgBiAEBQg4KDF9tYXhfcmVzdWx0c0INCgtfcGFnZV90b2tlbiLiBAoRUXVlcnlUYWJsZVJlcXVlc3QSNQoFc2hhcmUYASABKAlCJuBBArpIIHIeEAEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEjYKBnNjaGVtYRgCIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNAoEbmFtZRgDIAEoCUIm4EECukggch4QATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSJAoSc3RhcnRpbmdfdGltZXN0YW1wGAQgASgJQgPgQQFIAIgBARIcCg9wcmVkaWNhdGVfaGludHMYBSADKAlCA+BBARJHChRqc29uX3ByZWRpY2F0ZV9oaW50cxgGIAEoCzIfLmRlbHRhX3NoYXJpbmcudjEuSnNvblByZWRpY2F0ZUID4EEBSAGIAQESHAoKbGltaXRfaGludBgHIAEoBUID4EEBSAKIAQESGQoHdmVyc2lvbhgIIAEoA0ID4EEBSAOIAQESGwoJdGltZXN0YW1wGAkgASgJQgPgQQFIBIgBARIiChBzdGFydGluZ192ZXJzaW9uGAogASgDQgPgQQFIBYgBARIgCg5lbmRpbmdfdmVyc2lvbhgLIAEoA0ID4EEBSAaIAQFCFQoTX3N0YXJ0aW5nX3RpbWVzdGFtcEIXChVfanNvbl9wcmVkaWNhdGVfaGludHNCDQoLX2xpbWl0X2hpbnRCCgoIX3ZlcnNpb25CDAoKX3RpbWVzdGFtcEITChFfc3RhcnRpbmdfdmVyc2lvbkIRCg9fZW5kaW5nX3ZlcnNpb24icQoVTGlzdEFsbFRhYmxlc1Jlc3BvbnNlEiYKBWl0ZW1zGAEgAygLMhcuZGVsdGFfc2hhcmluZy52MS5UYWJsZRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuMs0JCg5TaGFyaW5nU2VydmljZRJ3CgpMaXN0U2hhcmVzEiMuZGVsdGFfc2hhcmluZy52MS5MaXN0U2hhcmVzUmVxdWVzdBokLmRlbHRhX3NoYXJpbmcudjEuTGlzdFNoYXJlc1Jlc3BvbnNlIh66RwwqCkxpc3RTaGFyZXOC0+STAgkSBy9zaGFyZXMSawoIR2V0U2hhcmUSIS5kZWx0YV9zaGFyaW5nLnYxLkdldFNoYXJlUmVxdWVzdBoXLmRlbHRhX3NoYXJpbmcudjEuU2hhcmUiI7pHCioIR2V0U2hhcmWC0+STAhASDi9zaGFyZXMve25hbWV9EosBCgtMaXN0U2NoZW1hcxIkLmRlbHRhX3NoYXJpbmcudjEuTGlzdFNjaGVtYXNSZXF1ZXN0GiUuZGVsdGFfc2hhcmluZy52MS5MaXN0U2NoZW1hc1Jlc3BvbnNlIi+6Rw0qC0xpc3RTY2hlbWFzgtPkkwIZEhcvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcxKVAQoKTGlzdFRhYmxlcxIjLmRlbHRhX3NoYXJpbmcudjEuTGlzdFRhYmxlc1JlcXVlc3QaJC5kZWx0YV9zaGFyaW5nLnYxLkxpc3RUYWJsZXNSZXNwb25zZSI8ukcMKgpMaXN0VGFibGVzgtPkkwInEiUvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcy97bmFtZX0vdGFibGVzEpUBCg1MaXN0QWxsVGFibGVzEiYuZGVsdGFfc2hhcmluZy52MS5MaXN0QWxsVGFibGVzUmVxdWVzdBonLmRlbHRhX3NoYXJpbmcudjEuTGlzdEFsbFRhYmxlc1Jlc3BvbnNlIjO6Rw8qDUxpc3RBbGxUYWJsZXOC0+STAhsSGS9zaGFyZXMve25hbWV9L2FsbC10YWJsZXMSugEKD0dldFRhYmxlVmVyc2lvbhIoLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVWZXJzaW9uUmVxdWVzdBopLmRlbHRhX3NoYXJpbmcudjEuR2V0VGFibGVWZXJzaW9uUmVzcG9uc2UiUrpHESoPR2V0VGFibGVWZXJzaW9ugtPkkwI4EjYvc2hhcmVzL3tzaGFyZX0vc2NoZW1hcy97c2NoZW1hfS90YWJsZXMve25hbWV9L3ZlcnNpb24StAEKEEdldFRhYmxlTWV0YWRhdGESKS5kZWx0YV9zaGFyaW5nLnYxLkdldFRhYmxlTWV0YWRhdGFSZXF1ZXN0Gh8uZGVsdGFfc2hhcmluZy52MS5RdWVyeVJlc3BvbnNlIlS6RxIqEEdldFRhYmxlTWV0YWRhdGGC0+STAjkSNy9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vbWV0YWRhdGESogEKClF1ZXJ5VGFibGUSIy5kZWx0YV9zaGFyaW5nLnYxLlF1ZXJ5VGFibGVSZXF1ZXN0Gh8uZGVsdGFfc2hhcmluZy52MS5RdWVyeVJlc3BvbnNlIk66RwwqClF1ZXJ5VGFibGWC0+STAjk6ASoiNC9zaGFyZXMve3NoYXJlfS9zY2hlbWFzL3tzY2hlbWF9L3RhYmxlcy97bmFtZX0vcXVlcnlCngIKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQghTdmNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMbpHnQEShAEKEURlbHRhIFNoYXJpbmcgQVBJEihBbiBPcGVuIFByb3RvY29sIGZvciBTZWN1cmUgRGF0YSBTaGFyaW5nKj4KCkFwYWNoZSAyLjASMGh0dHBzOi8vd3d3LmFwYWNoZS5vcmcvbGljZW5zZXMvTElDRU5TRS0yLjAuaHRtbDIFMS4wLjAaFAoSe3NjaGVtZX06Ly97aG9zdH0vYgZwcm90bzM", [file_buf_validate_validate, file_delta_sharing_v1_models, file_delta_sharing_v1_query, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_empty, file_google_protobuf_struct]);
 
 /**
  * Request to list shares.
@@ -275,66 +275,88 @@ export const ListAllTablesRequestSchema: GenMessage<ListAllTablesRequest> = /*@_
   messageDesc(file_delta_sharing_v1_svc, 7);
 
 /**
- * Request to query a table.
+ * Request to query the data files of a table.
  *
  * @generated from message delta_sharing.v1.QueryTableRequest
  */
 export type QueryTableRequest = Message<"delta_sharing.v1.QueryTableRequest"> & {
   /**
+   * The share name that contains the table. It's case-insensitive.
+   *
    * @generated from field: string share = 1;
    */
   share: string;
 
   /**
+   * The schema name that contains the table. It's case-insensitive.
+   *
    * @generated from field: string schema = 2;
    */
   schema: string;
 
   /**
+   * The table name to query. It's case-insensitive.
+   *
    * @generated from field: string name = 3;
    */
   name: string;
 
   /**
-   * The starting timestamp to query from.
+   * The starting timestamp to query from, an ISO8601 string in the UTC timezone
+   * (for example `2022-01-01T00:00:00Z`).
    *
    * @generated from field: optional string starting_timestamp = 4;
    */
   startingTimestamp?: string;
 
   /**
+   * SQL-like predicate hints on the partition columns; the server may use these
+   * to prune files. Hints are best-effort and must not affect correctness.
+   *
    * @generated from field: repeated string predicate_hints = 5;
    */
   predicateHints: string[];
 
   /**
-   * The predicate to apply to the table.
+   * Structured predicate, applied to partition columns, used to prune files.
+   * Best-effort; must not affect correctness.
    *
    * @generated from field: optional delta_sharing.v1.JsonPredicate json_predicate_hints = 6;
    */
   jsonPredicateHints?: JsonPredicate;
 
   /**
+   * A hint on the maximum number of rows the client intends to read; the server
+   * may use it to limit the number of files returned. Best-effort.
+   *
    * @generated from field: optional int32 limit_hint = 7;
    */
   limitHint?: number;
 
   /**
+   * Query the table at this specific Delta version (snapshot query).
+   *
    * @generated from field: optional int64 version = 8;
    */
   version?: bigint;
 
   /**
+   * Query the table as of this timestamp, an ISO8601 string in the UTC timezone.
+   *
    * @generated from field: optional string timestamp = 9;
    */
   timestamp?: string;
 
   /**
+   * The starting version (inclusive) for a change-data-feed query.
+   *
    * @generated from field: optional int64 starting_version = 10;
    */
   startingVersion?: bigint;
 
   /**
+   * The ending version (inclusive) for a change-data-feed query.
+   *
    * @generated from field: optional int64 ending_version = 11;
    */
   endingVersion?: bigint;
@@ -425,6 +447,9 @@ export const SharingService: GenService<{
   /**
    * List all the tables under a share.
    *
+   * A convenience over per-schema listing: returns every table across all
+   * schemas in the share.
+   *
    * @generated from rpc delta_sharing.v1.SharingService.ListAllTables
    */
   listAllTables: {
@@ -435,6 +460,10 @@ export const SharingService: GenService<{
   /**
    * Get the current version for a table within a schema.
    *
+   * The version is returned in the `Delta-Table-Version` response header. An
+   * optional `startingTimestamp` selects the earliest version at or after the
+   * timestamp.
+   *
    * @generated from rpc delta_sharing.v1.SharingService.GetTableVersion
    */
   getTableVersion: {
@@ -443,6 +472,11 @@ export const SharingService: GenService<{
     output: typeof GetTableVersionResponseSchema;
   },
   /**
+   * Get the Protocol and Metadata of a shared table.
+   *
+   * The response is newline-delimited JSON; the negotiated response format is
+   * advertised via the `delta-sharing-capabilities` response header.
+   *
    * @generated from rpc delta_sharing.v1.SharingService.GetTableMetadata
    */
   getTableMetadata: {
@@ -451,6 +485,13 @@ export const SharingService: GenService<{
     output: typeof QueryResponseSchema;
   },
   /**
+   * Query the data files of a shared table.
+   *
+   * The response is newline-delimited JSON listing the table's Protocol,
+   * Metadata, and file entries (with paths, partition values, and sizes).
+   * Supports snapshot queries (version/timestamp), change-data-feed queries
+   * (startingVersion/endingVersion), and best-effort predicate/limit hints.
+   *
    * @generated from rpc delta_sharing.v1.SharingService.QueryTable
    */
   queryTable: {

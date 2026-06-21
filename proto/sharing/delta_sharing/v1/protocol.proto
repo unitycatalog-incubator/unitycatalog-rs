@@ -15,8 +15,7 @@ message Format {
 
 // Metadata for a table
 message Metadata {
-  // Unique identifier for this table
-  // Validate GUID
+  // Unique identifier for this table (GUID).
   string id = 1;
 
   // User-provided identifier for this table

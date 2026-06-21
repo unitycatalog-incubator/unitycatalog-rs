@@ -401,6 +401,12 @@ export const MetadataDeltaSchema: GenMessage<MetadataDelta> = /*@__PURE__*/
   messageDesc(file_delta_sharing_v1_query, 11);
 
 /**
+ * A structured predicate used as a query hint to prune files.
+ *
+ * Predicates form a tree: operator nodes (`and`, `or`, `equal`, …) carry their
+ * operands in `children`, while leaf `column`/`literal` nodes carry `name`/
+ * `value`/`value_type`. Hints are best-effort and must not affect correctness.
+ *
  * @generated from message delta_sharing.v1.JsonPredicate
  */
 export type JsonPredicate = Message<"delta_sharing.v1.JsonPredicate"> & {

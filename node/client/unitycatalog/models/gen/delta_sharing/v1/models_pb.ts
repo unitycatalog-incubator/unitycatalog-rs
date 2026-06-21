@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file delta_sharing/v1/models.proto.
  */
 export const file_delta_sharing_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSL8AQoFU2hhcmUSGAoEbmFtZRgBIAEoCUIK4EEIukgEcgIQARIUCgJpZBgCIAEoCUID4EEDSACIAQESGQoMZGlzcGxheV9uYW1lGAMgASgJSAGIAQESFAoHY29tbWVudBgEIAEoCUgCiAEBEjsKCnByb3BlcnRpZXMYBSADKAsyJy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlLlByb3BlcnRpZXNFbnRyeRoxCg9Qcm9wZXJ0aWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4AUIFCgNfaWRCDwoNX2Rpc3BsYXlfbmFtZUIKCghfY29tbWVudCJCCgZTY2hlbWESDAoEbmFtZRgBIAEoCRINCgVzaGFyZRgCIAEoCRIUCgJpZBgDIAEoCUID4EEDSACIAQFCBQoDX2lkItoCCgVUYWJsZRI3CgRuYW1lGAEgASgJQingQQi6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBI1CgZzY2hlbWEYAiABKAlCJbpIInIgEAEY/wEyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSNQoFc2hhcmUYAyABKAlCJrpII3IhEAEY/wEyGl5bYS16XVswLTlhLXouX10qWzAtOWEtel0kEhQKAmlkGAQgASgJQgPgQQNIAIgBARIaCghzaGFyZV9pZBgFIAEoCUID4EEDSAGIAQESGgoIbG9jYXRpb24YBiABKAlCA+BBA0gCiAEBEiAKE2F1eGlsaWFyeV9sb2NhdGlvbnMYByADKAlCA+BBAxIZCgxhY2Nlc3NfbW9kZXMYCCADKAlCA+BBA0IFCgNfaWRCCwoJX3NoYXJlX2lkQgsKCV9sb2NhdGlvbkKAAQoUY29tLmRlbHRhX3NoYXJpbmcudjFCC01vZGVsc1Byb3RvUAGiAgNEWFiqAg9EZWx0YVNoYXJpbmcuVjHKAg9EZWx0YVNoYXJpbmdcVjHiAhtEZWx0YVNoYXJpbmdcVjFcR1BCTWV0YWRhdGHqAhBEZWx0YVNoYXJpbmc6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior]);
+  fileDesc("Ch1kZWx0YV9zaGFyaW5nL3YxL21vZGVscy5wcm90bxIQZGVsdGFfc2hhcmluZy52MSKqAgoFU2hhcmUSHgoEbmFtZRgBIAEoCUIQ4EEC4EEIukgHcgUQARj/ARIUCgJpZBgCIAEoCUID4EEDSACIAQESJgoMZGlzcGxheV9uYW1lGAMgASgJQgvgQQG6SAVyAxj/AUgBiAEBEiIKB2NvbW1lbnQYBCABKAlCDOBBAbpIBnIEGICABEgCiAEBEkgKCnByb3BlcnRpZXMYBSADKAsyJy5kZWx0YV9zaGFyaW5nLnYxLlNoYXJlLlByb3BlcnRpZXNFbnRyeUIL4EEBukgFmgECEDIaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBQoDX2lkQg8KDV9kaXNwbGF5X25hbWVCCgoIX2NvbW1lbnQiYwoGU2NoZW1hEh4KBG5hbWUYASABKAlCEOBBAuBBCLpIB3IFEAEY/wESHAoFc2hhcmUYAiABKAlCDeBBArpIB3IFEAEY/wESFAoCaWQYAyABKAlCA+BBA0gAiAEBQgUKA19pZCLaAgoFVGFibGUSNwoEbmFtZRgBIAEoCUIp4EEIukgjciEQARj/ATIaXlthLXpdWzAtOWEtei5fXSpbMC05YS16XSQSNQoGc2NoZW1hGAIgASgJQiW6SCJyIBABGP8BMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjUKBXNoYXJlGAMgASgJQia6SCNyIRABGP8BMhpeW2Etel1bMC05YS16Ll9dKlswLTlhLXpdJBIUCgJpZBgEIAEoCUID4EEDSACIAQESGgoIc2hhcmVfaWQYBSABKAlCA+BBA0gBiAEBEhoKCGxvY2F0aW9uGAYgASgJQgPgQQNIAogBARIgChNhdXhpbGlhcnlfbG9jYXRpb25zGAcgAygJQgPgQQMSGQoMYWNjZXNzX21vZGVzGAggAygJQgPgQQNCBQoDX2lkQgsKCV9zaGFyZV9pZEILCglfbG9jYXRpb25CgAEKFGNvbS5kZWx0YV9zaGFyaW5nLnYxQgtNb2RlbHNQcm90b1ABogIDRFhYqgIPRGVsdGFTaGFyaW5nLlYxygIPRGVsdGFTaGFyaW5nXFYx4gIbRGVsdGFTaGFyaW5nXFYxXEdQQk1ldGFkYXRh6gIQRGVsdGFTaGFyaW5nOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior]);
 
 /**
  * A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.
@@ -24,12 +24,15 @@ export type Share = Message<"delta_sharing.v1.Share"> & {
   /**
    * Name of the share.
    *
+   * The name is case-insensitive and must be unique within the sharing server.
+   *
    * @generated from field: string name = 1;
    */
   name: string;
 
   /**
-   * Unique identifier for the share.
+   * Unique identifier for the share. Recommended to be in UUID format. Immutable
+   * once assigned and unique within the sharing server.
    *
    * @generated from field: optional string id = 2;
    */
@@ -74,14 +77,14 @@ export const ShareSchema: GenMessage<Share> = /*@__PURE__*/
  */
 export type Schema = Message<"delta_sharing.v1.Schema"> & {
   /**
-   * The name of the schema
+   * The name of the schema. It's case-insensitive and unique within a share.
    *
    * @generated from field: string name = 1;
    */
   name: string;
 
   /**
-   * The share name that the schema belongs to.
+   * The share name that the schema belongs to. It's case-insensitive.
    *
    * @generated from field: string share = 2;
    */

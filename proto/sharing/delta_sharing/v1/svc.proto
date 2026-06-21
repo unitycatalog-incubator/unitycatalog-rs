@@ -123,6 +123,7 @@ message ListTablesRequest {
   // The maximum number of results per page that should be returned.
   optional int32 max_results = 3 [
     (buf.validate.field).int32.gt = 0,
+    (buf.validate.field).int32.lt = 1000,
     (google.api.field_behavior) = OPTIONAL
   ];
 
@@ -161,43 +162,56 @@ message ListAllTablesRequest {
   optional string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// Request to query a table.
+// Request to query the data files of a table.
 message QueryTableRequest {
+  // The share name that contains the table. It's case-insensitive.
   string share = 1 [
     (buf.validate.field).string.min_len = 1,
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z._]*[0-9a-z]$",
     (google.api.field_behavior) = REQUIRED
   ];
 
+  // The schema name that contains the table. It's case-insensitive.
   string schema = 2 [
     (buf.validate.field).string.min_len = 1,
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z._]*[0-9a-z]$",
     (google.api.field_behavior) = REQUIRED
   ];
 
+  // The table name to query. It's case-insensitive.
   string name = 3 [
     (buf.validate.field).string.min_len = 1,
     (buf.validate.field).string.pattern = "^[a-z][0-9a-z._]*[0-9a-z]$",
     (google.api.field_behavior) = REQUIRED
   ];
 
-  // The starting timestamp to query from.
-  optional string starting_timestamp = 4;
+  // The starting timestamp to query from, an ISO8601 string in the UTC timezone
+  // (for example `2022-01-01T00:00:00Z`).
+  optional string starting_timestamp = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated string predicate_hints = 5;
+  // SQL-like predicate hints on the partition columns; the server may use these
+  // to prune files. Hints are best-effort and must not affect correctness.
+  repeated string predicate_hints = 5 [(google.api.field_behavior) = OPTIONAL];
 
-  // The predicate to apply to the table.
-  optional JsonPredicate json_predicate_hints = 6;
+  // Structured predicate, applied to partition columns, used to prune files.
+  // Best-effort; must not affect correctness.
+  optional JsonPredicate json_predicate_hints = 6 [(google.api.field_behavior) = OPTIONAL];
 
-  optional int32 limit_hint = 7;
+  // A hint on the maximum number of rows the client intends to read; the server
+  // may use it to limit the number of files returned. Best-effort.
+  optional int32 limit_hint = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  optional int64 version = 8;
+  // Query the table at this specific Delta version (snapshot query).
+  optional int64 version = 8 [(google.api.field_behavior) = OPTIONAL];
 
-  optional string timestamp = 9;
+  // Query the table as of this timestamp, an ISO8601 string in the UTC timezone.
+  optional string timestamp = 9 [(google.api.field_behavior) = OPTIONAL];
 
-  optional int64 starting_version = 10;
+  // The starting version (inclusive) for a change-data-feed query.
+  optional int64 starting_version = 10 [(google.api.field_behavior) = OPTIONAL];
 
-  optional int64 ending_version = 11;
+  // The ending version (inclusive) for a change-data-feed query.
+  optional int64 ending_version = 11 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Response for ListAllTablesRequest.
@@ -237,22 +251,39 @@ service SharingService {
   }
 
   // List all the tables under a share.
+  //
+  // A convenience over per-schema listing: returns every table across all
+  // schemas in the share.
   rpc ListAllTables(ListAllTablesRequest) returns (ListAllTablesResponse) {
     option (google.api.http) = {get: "/shares/{name}/all-tables"};
     option (gnostic.openapi.v3.operation) = {operation_id: "ListAllTables"};
   }
 
   // Get the current version for a table within a schema.
+  //
+  // The version is returned in the `Delta-Table-Version` response header. An
+  // optional `startingTimestamp` selects the earliest version at or after the
+  // timestamp.
   rpc GetTableVersion(GetTableVersionRequest) returns (GetTableVersionResponse) {
     option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/version"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetTableVersion"};
   }
 
+  // Get the Protocol and Metadata of a shared table.
+  //
+  // The response is newline-delimited JSON; the negotiated response format is
+  // advertised via the `delta-sharing-capabilities` response header.
   rpc GetTableMetadata(GetTableMetadataRequest) returns (QueryResponse) {
     option (google.api.http) = {get: "/shares/{share}/schemas/{schema}/tables/{name}/metadata"};
     option (gnostic.openapi.v3.operation) = {operation_id: "GetTableMetadata"};
   }
 
+  // Query the data files of a shared table.
+  //
+  // The response is newline-delimited JSON listing the table's Protocol,
+  // Metadata, and file entries (with paths, partition values, and sizes).
+  // Supports snapshot queries (version/timestamp), change-data-feed queries
+  // (startingVersion/endingVersion), and best-effort predicate/limit hints.
   rpc QueryTable(QueryTableRequest) returns (QueryResponse) {
     option (google.api.http) = {
       post: "/shares/{share}/schemas/{schema}/tables/{name}/query"

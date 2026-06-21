@@ -4369,6 +4369,8 @@ components:
           type: string
           description: Name of the share.
           minLength: 1
+          maxLength: 255
+          title: Name of the share.
         objects:
           type: array
           items:
@@ -4385,6 +4387,7 @@ components:
         comment:
           type: string
           description: User-provided free-form text description.
+          maxLength: 65536
         storageLocation:
           readOnly: true
           type: string
