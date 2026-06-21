@@ -233,10 +233,10 @@ impl JourneyReporter {
                 };
                 self.term.write_line(&msg)?;
 
-                if let Some(details) = &step.details {
-                    if self.config.verbosity > 1 {
-                        self.term.write_line(&format!("    └─ {}", details))?;
-                    }
+                if let Some(details) = &step.details
+                    && self.config.verbosity > 1
+                {
+                    self.term.write_line(&format!("    └─ {}", details))?;
                 }
             }
         }

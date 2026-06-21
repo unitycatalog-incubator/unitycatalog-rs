@@ -338,18 +338,16 @@ impl UnityObjectStoreFactory {
         // This resolution is only possible for name references; a caller that
         // holds only the table UUID still vends (and a local-fs table addressed
         // by UUID is an unsupported edge case — use the three-level name).
-        if let TableReference::Name(name) = &table {
-            if let Some(location) = self.table_storage_location(name).await? {
-                if let Ok(url) = Url::parse(&location) {
-                    if url.scheme() == "file" {
-                        let path_op = match operation {
-                            TableOperation::Read => PathOperation::Read,
-                            TableOperation::ReadWrite => PathOperation::ReadWrite,
-                        };
-                        return local_store(&url, path_op);
-                    }
-                }
-            }
+        if let TableReference::Name(name) = &table
+            && let Some(location) = self.table_storage_location(name).await?
+            && let Ok(url) = Url::parse(&location)
+            && url.scheme() == "file"
+        {
+            let path_op = match operation {
+                TableOperation::Read => PathOperation::Read,
+                TableOperation::ReadWrite => PathOperation::ReadWrite,
+            };
+            return local_store(&url, path_op);
         }
         let (credential, table_id) = self
             .creds
@@ -400,18 +398,16 @@ impl UnityObjectStoreFactory {
         // Only possible for name references; a caller holding only the volume
         // UUID still vends (a local-fs volume addressed by UUID is unsupported —
         // use the three-level name).
-        if let VolumeReference::Name(name) = &volume {
-            if let Some(location) = self.volume_storage_location(name).await? {
-                if let Ok(url) = Url::parse(&location) {
-                    if url.scheme() == "file" {
-                        let path_op = match operation {
-                            VolumeOperation::Read => PathOperation::Read,
-                            VolumeOperation::ReadWrite => PathOperation::ReadWrite,
-                        };
-                        return local_store(&url, path_op);
-                    }
-                }
-            }
+        if let VolumeReference::Name(name) = &volume
+            && let Some(location) = self.volume_storage_location(name).await?
+            && let Ok(url) = Url::parse(&location)
+            && url.scheme() == "file"
+        {
+            let path_op = match operation {
+                VolumeOperation::Read => PathOperation::Read,
+                VolumeOperation::ReadWrite => PathOperation::ReadWrite,
+            };
+            return local_store(&url, path_op);
         }
         let (credential, volume_id) = self
             .creds

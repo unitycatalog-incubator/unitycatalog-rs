@@ -173,10 +173,10 @@ impl JourneyFilter {
             return false;
         }
 
-        if let Some(ref max_tier) = self.max_tier {
-            if meta.tier > *max_tier {
-                return false;
-            }
+        if let Some(ref max_tier) = self.max_tier
+            && meta.tier > *max_tier
+        {
+            return false;
         }
 
         if let Some(ref impl_tag) = self.implementation {

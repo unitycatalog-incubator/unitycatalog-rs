@@ -83,8 +83,13 @@ impl ResourceStore for GraphStore {
     /// The created resource.
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)> {
         let object: Object = resource.try_into()?;
+        // A non-nil id means the caller pre-allocated it (e.g. a managed volume or
+        // staging table that embeds the id in its storage path); a nil id lets the
+        // store mint a fresh v7. API request types carry no id field, so callers
+        // cannot force an id through this path.
+        let supplied_id = (!object.id.is_nil()).then_some(object.id);
         let object = self
-            .add_object(&object.label, &object.name, object.properties)
+            .add_object(&object.label, &object.name, object.properties, supplied_id)
             .await?;
         let id = ResourceRef::Uuid(object.id);
         Ok((object.try_into()?, id))

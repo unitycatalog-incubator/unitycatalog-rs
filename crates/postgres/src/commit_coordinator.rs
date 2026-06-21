@@ -39,15 +39,14 @@ fn parse_table_id(table_id: &str) -> CommitResult<Uuid> {
 /// Map a sqlx error to a [`CommitError`], translating a unique violation on the
 /// `(table_id, commit_version)` constraint into a version conflict.
 fn map_sqlx_err(e: sqlx::Error) -> CommitError {
-    if let sqlx::Error::Database(db_err) = &e {
-        if db_err
+    if let sqlx::Error::Database(db_err) = &e
+        && db_err
             .try_downcast_ref::<sqlx::postgres::PgDatabaseError>()
             .is_some_and(|pg| pg.code() == "23505")
-        {
-            return CommitError::VersionConflict(
-                "commit version was already accepted by another writer".to_string(),
-            );
-        }
+    {
+        return CommitError::VersionConflict(
+            "commit version was already accepted by another writer".to_string(),
+        );
     }
     CommitError::Backend(e.to_string())
 }
@@ -201,13 +200,13 @@ impl CommitCoordinator for GraphStore {
                         b.last
                     )));
                 }
-                if let Some(lbv) = latest_backfilled_version {
-                    if lbv > b.last {
-                        return Err(CommitError::InvalidArgument(format!(
-                            "latest_backfilled_version {lbv} is greater than the latest commit {}",
-                            b.last
-                        )));
-                    }
+                if let Some(lbv) = latest_backfilled_version
+                    && lbv > b.last
+                {
+                    return Err(CommitError::InvalidArgument(format!(
+                        "latest_backfilled_version {lbv} is greater than the latest commit {}",
+                        b.last
+                    )));
                 }
 
                 // Enforce the unbackfilled-commit cap. The effective backfilled
@@ -247,12 +246,12 @@ impl CommitCoordinator for GraphStore {
                 "start_version must be non-negative".to_string(),
             ));
         }
-        if let Some(end) = end_version {
-            if end < start_version {
-                return Err(CommitError::InvalidArgument(format!(
-                    "end_version {end} must be >= start_version {start_version}"
-                )));
-            }
+        if let Some(end) = end_version
+            && end < start_version
+        {
+            return Err(CommitError::InvalidArgument(format!(
+                "end_version {end} must be >= start_version {start_version}"
+            )));
         }
         let table_id = parse_table_id(table_id)?;
 

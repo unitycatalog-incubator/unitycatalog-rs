@@ -156,13 +156,13 @@ pub fn build_catalog_managed_snapshot(
         ))
     })?;
 
-    if let Some(version) = at_version {
-        if version > latest_table_version {
-            return Err(DataFusionError::Plan(format!(
-                "requested version {version} for '{location}' exceeds latest ratified \
+    if let Some(version) = at_version
+        && version > latest_table_version
+    {
+        return Err(DataFusionError::Plan(format!(
+            "requested version {version} for '{location}' exceeds latest ratified \
                  version {latest_table_version}"
-            )));
-        }
+        )));
     }
 
     // The kernel joins log paths onto the table root via `Url::join`, which drops the
