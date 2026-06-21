@@ -169,18 +169,16 @@ jobs:
         with:
           persist-credentials: false
 
-      # Doctest coverage (`--doc` / `report --doctests`) relies on
-      # `-Z unstable-options --persist-doctests`, which only the nightly compiler
-      # accepts. Install nightly so the doctest coverage step can run via
-      # `cargo +nightly`. Stable is installed last so it stays the default
-      # toolchain for the nextest run.
-      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
-        with:
-          toolchain: nightly
-          components: llvm-tools-preview
+      # Instrumented coverage builds the whole workspace (datafusion + arrow +
+      # delta) a second time under -C instrument-coverage; combined with the
+      # profraw data it overruns the runner's ~14 GB free disk. Reclaim the
+      # preinstalled SDKs/toolchains we don't use (~25 GB) before building.
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
 
-      # llvm-tools-preview ships the profdata tooling cargo-llvm-cov needs.
-      # Installed after nightly so "1.96" remains the default toolchain.
       - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: "1.96"
@@ -197,19 +195,19 @@ jobs:
         with:
           tool: cargo-llvm-cov,cargo-nextest
 
-      # Collect coverage from both nextest tests (incl. recorded journey replay)
-      # and doctests into one report. Doctest coverage needs nightly (unstable
-      # `--persist-doctests`); the nextest run stays on the pinned stable.
-      # Exclude the commit_coordinator binary (live-DB #[sqlx::test]s) — it runs
-      # under coverage in the integration_postgres job, uploaded as integration-pg.
+      # Coverage from the nextest suite (incl. the recorded journey replay).
+      # Doctest coverage is collected in its own `coverage_doc` job and uploaded
+      # under a separate flag — splitting them keeps each job's single
+      # instrumented workspace build within the runner's disk budget (running
+      # both in one job overran it: "No space left on device"). Exclude the
+      # commit_coordinator binary (live-DB #[sqlx::test]s); it reports separately
+      # from integration_postgres.
       - name: Collect coverage
         env:
           UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
           SQLX_OFFLINE: "true"
         run: |
-          cargo llvm-cov --no-report nextest --workspace --all-features -E 'not binary(commit_coordinator)'
-          cargo +nightly llvm-cov --no-report --doc --workspace --all-features
-          cargo +nightly llvm-cov report --doctests --codecov --output-path codecov.json
+          cargo llvm-cov nextest --workspace --all-features -E 'not binary(commit_coordinator)' --codecov --output-path codecov.json
 
       # Upload under the `unit` flag. codecov.yml keeps the status informational
       # so it can't block a PR, and fail_ci_if_error stays false so a flaky
@@ -219,6 +217,59 @@ jobs:
         with:
           files: codecov.json
           flags: unit
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Doctest coverage in its own job. It builds the workspace once under nightly
+  # (doctest coverage needs the unstable `--persist-doctests`), kept separate
+  # from the nextest coverage build so neither job has two instrumented
+  # workspaces on disk at once. Uploaded under the `doctests` flag.
+  coverage_doc:
+    name: coverage-doc
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: nightly
+          components: llvm-tools-preview
+
+      # Distinct cache key: doctest coverage builds under nightly with its own
+      # instrumentation, so it shares neither the test "ci" nor the stable
+      # "coverage" target/.
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: coverage-doc
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Collect doctest coverage
+        env:
+          UC_INTEGRATION_STORAGE_ROOT: "s3://dummy"
+          SQLX_OFFLINE: "true"
+        run: |
+          cargo +nightly llvm-cov --doc --workspace --all-features --codecov --output-path codecov-doc.json
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: codecov-doc.json
+          flags: doctests
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
