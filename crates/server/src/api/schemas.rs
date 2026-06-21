@@ -7,11 +7,15 @@ use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::schemas::SchemaHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::services::ProvidesLocalStoragePolicy;
+use crate::services::location::StorageLocationUrl;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext>> SchemaHandler<RequestContext> for T {
+impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
+    SchemaHandler<RequestContext> for T
+{
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_schema(
         &self,
@@ -20,6 +24,15 @@ impl<T: ResourceStore + Policy<RequestContext>> SchemaHandler<RequestContext> fo
     ) -> Result<Schema> {
         tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, &context).await?;
+        // A local (file://) schema storage location must sit within an allowed root.
+        if let Some(loc) = request
+            .storage_location
+            .as_deref()
+            .filter(|s| !s.is_empty())
+        {
+            self.local_storage_policy()
+                .check(&StorageLocationUrl::parse(loc)?)?;
+        }
         let resource = Schema {
             full_name: format!("{}.{}", request.catalog_name, request.name),
             name: request.name,

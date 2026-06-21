@@ -21,11 +21,24 @@ use unitycatalog_common::services::commit_coordinator::{
 pub mod credential_vending;
 pub(crate) mod kernel;
 pub mod location;
+pub mod location_policy;
 pub mod managed_delta_contract;
 pub(crate) mod object_store;
 pub mod secrets;
 mod session;
 mod sharing;
+
+pub use location_policy::LocalStoragePolicy;
+
+/// Access to the server's [`LocalStoragePolicy`].
+///
+/// Implemented by the server handler so request handlers (defined as blanket
+/// impls over a generic `T`) can reach the server-wide allowlist that governs
+/// which host paths may back a `file://` storage location. Mirrors
+/// [`ProvidesCommitCoordinator`].
+pub trait ProvidesLocalStoragePolicy {
+    fn local_storage_policy(&self) -> &LocalStoragePolicy;
+}
 
 #[derive(Clone)]
 pub struct ServerHandler<Cx> {
@@ -127,6 +140,28 @@ impl<Cx: Send + Sync + 'static> ServerHandler<Cx> {
     pub(crate) fn volume_source(&self) -> Option<&Arc<dyn VolumeHandler<Cx>>> {
         self.volume_source.as_ref()
     }
+
+    /// Set the allowlist governing `file://` storage locations.
+    ///
+    /// Rebuilds the inner handler with the policy attached. Call at construction
+    /// time, before the handler is cloned/shared. When unset, all local storage
+    /// is denied.
+    pub fn with_local_storage_policy(mut self, policy: impl Into<Arc<LocalStoragePolicy>>) -> Self {
+        // Rebuild the inner handler with the policy attached. All inner fields
+        // are `Arc`s, so this is a cheap reconstruction (the derived `Clone`
+        // would require `Cx: Clone`, which we don't impose).
+        let prev = &self.handler;
+        let inner = ServerHandlerInner {
+            policy: prev.policy.clone(),
+            store: prev.store.clone(),
+            object_store: prev.object_store.clone(),
+            secrets: prev.secrets.clone(),
+            commit_coordinator: prev.commit_coordinator.clone(),
+            local_storage_policy: policy.into(),
+        };
+        self.handler = Arc::new(inner);
+        self
+    }
 }
 
 #[derive(Clone)]
@@ -137,6 +172,9 @@ pub struct ServerHandlerInner<Cx> {
     secrets: Arc<dyn SecretManager>,
     /// Delta catalog-managed commit coordinator (in-memory by default).
     commit_coordinator: Arc<dyn CommitCoordinator>,
+    /// Allowlist governing which host paths may back a `file://` storage
+    /// location. Deny-all by default (see [`LocalStoragePolicy`]).
+    local_storage_policy: Arc<LocalStoragePolicy>,
 }
 
 impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
@@ -151,7 +189,17 @@ impl<Cx: Send + Sync + 'static> ServerHandlerInner<Cx> {
             object_store: None,
             secrets,
             commit_coordinator: Arc::new(InMemoryCommitCoordinator::default()),
+            // Deny all local (file://) storage until a policy is configured.
+            local_storage_policy: Arc::new(LocalStoragePolicy::deny_all()),
         }
+    }
+
+    /// Set the allowlist governing `file://` storage locations.
+    ///
+    /// When unset, the handler denies every local storage path.
+    pub fn with_local_storage_policy(mut self, policy: impl Into<Arc<LocalStoragePolicy>>) -> Self {
+        self.local_storage_policy = policy.into();
+        self
     }
 
     /// Override the Delta commit coordinator (e.g. a Postgres-backed one, or a
@@ -284,6 +332,18 @@ impl<Cx: Send + Sync + 'static> ProvidesCommitCoordinator for ServerHandlerInner
 impl<Cx: Send + Sync + 'static> ProvidesCommitCoordinator for ServerHandler<Cx> {
     fn commit_coordinator(&self) -> &dyn CommitCoordinator {
         self.handler.commit_coordinator.as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesLocalStoragePolicy for ServerHandlerInner<Cx> {
+    fn local_storage_policy(&self) -> &LocalStoragePolicy {
+        self.local_storage_policy.as_ref()
+    }
+}
+
+impl<Cx: Send + Sync + 'static> ProvidesLocalStoragePolicy for ServerHandler<Cx> {
+    fn local_storage_policy(&self) -> &LocalStoragePolicy {
+        self.handler.local_storage_policy.as_ref()
     }
 }
 

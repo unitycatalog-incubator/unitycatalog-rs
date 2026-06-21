@@ -61,6 +61,27 @@ pub struct Config {
     /// Defaults to all-local, so existing configs behave exactly as before.
     #[serde(default)]
     pub routing: RoutingConfig,
+
+    /// Allowlist governing which host filesystem paths may back a `file://`
+    /// storage location. Empty (the default) denies all local storage.
+    #[serde(default)]
+    pub local_storage: LocalStorageConfig,
+}
+
+/// Configuration for local (`file://`) storage locations.
+///
+/// Deny-by-default: with no allowed roots, the server rejects every `file://`
+/// storage location (external locations, external tables/volumes, and managed
+/// catalog/schema roots). List one or more absolute host paths to permit local
+/// storage beneath them — typically a single dev data directory.
+#[derive(Debug, Deserialize, Serialize, Default, PartialEq)]
+#[serde(rename_all = "kebab-case")]
+pub struct LocalStorageConfig {
+    /// Absolute host paths under which `file://` storage locations are allowed.
+    /// Each must exist at startup; paths are matched on whole-component
+    /// boundaries after resolving symlinks.
+    #[serde(default)]
+    pub allowed_roots: Vec<String>,
 }
 
 impl Default for Config {
@@ -75,6 +96,7 @@ impl Default for Config {
             encryption: Some(EncryptionConfig::dev_default()),
             upstream: None,
             routing: RoutingConfig::default(),
+            local_storage: LocalStorageConfig::default(),
         }
     }
 }

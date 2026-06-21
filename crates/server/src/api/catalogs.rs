@@ -7,10 +7,14 @@ use super::{RequestContext, SecuredAction};
 use crate::Result;
 pub use crate::codegen::catalogs::CatalogHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::services::ProvidesLocalStoragePolicy;
+use crate::services::location::StorageLocationUrl;
 use crate::store::ResourceStore;
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext>> CatalogHandler<RequestContext> for T {
+impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
+    CatalogHandler<RequestContext> for T
+{
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_catalog(
         &self,
@@ -19,6 +23,11 @@ impl<T: ResourceStore + Policy<RequestContext>> CatalogHandler<RequestContext> f
     ) -> Result<Catalog> {
         tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, &context).await?;
+        // A local (file://) managed root must sit within an allowed host root.
+        if let Some(root) = request.storage_root.as_deref().filter(|s| !s.is_empty()) {
+            self.local_storage_policy()
+                .check(&StorageLocationUrl::parse(root)?)?;
+        }
         let catalog_type = if request.provider_name.is_some() {
             CatalogType::DeltasharingCatalog
         } else {

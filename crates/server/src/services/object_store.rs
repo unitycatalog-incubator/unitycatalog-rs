@@ -16,6 +16,7 @@ use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_common::models::volumes::v1::Volume;
 use url::Url;
 
+use super::ProvidesLocalStoragePolicy;
 use super::ServerHandlerInner;
 use super::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::api::CredentialHandler;
@@ -144,9 +145,13 @@ pub(crate) async fn list_table_volume_locations(
 /// reuses [`find_external_location_for_url`]; a missing enclosing location
 /// surfaces as a clear argument error rather than the raw `NotFound`.
 pub(crate) async fn validate_external_storage_location(
-    handler: &(impl ResourceStore + ?Sized),
+    handler: &(impl ResourceStore + ProvidesLocalStoragePolicy + ?Sized),
     location: &StorageLocationUrl,
 ) -> Result<()> {
+    // 0. Local (file://) locations must sit within an allowed host root.
+    //    Cloud schemes pass through untouched.
+    handler.local_storage_policy().check(location)?;
+
     // 1. Must reside within a registered external location.
     if let Err(Error::NotFound) = find_external_location_for_url(location, handler).await {
         return Err(Error::invalid_argument(format!(

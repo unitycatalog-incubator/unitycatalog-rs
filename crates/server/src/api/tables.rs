@@ -14,6 +14,7 @@ use super::staging_tables::find_staging_table_by_location;
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::tables::TableHandler;
 use crate::policy::{Permission, Policy, Principal, process_resources};
+use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
 use crate::services::object_store::validate_external_storage_location;
 use crate::store::ResourceStore;
@@ -99,7 +100,9 @@ pub trait TableManager: Send + Sync + 'static {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext> + TableManager> TableHandler<RequestContext> for T {
+impl<T: ResourceStore + Policy<RequestContext> + TableManager + ProvidesLocalStoragePolicy>
+    TableHandler<RequestContext> for T
+{
     #[tracing::instrument(skip(self, context))]
     async fn list_table_summaries(
         &self,

@@ -8,7 +8,10 @@ use unitycatalog_postgres::GraphStore;
 use unitycatalog_server::api::RequestContext;
 use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::{ConstantPolicy, Policy};
-use unitycatalog_server::{rest::AnonymousAuthenticator, services::ServerHandler};
+use unitycatalog_server::{
+    rest::AnonymousAuthenticator,
+    services::{LocalStoragePolicy, ServerHandler},
+};
 
 use crate::config::{Backend, Config, PostgresBackendConfig};
 use crate::error::{Error, Result};
@@ -111,10 +114,16 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
         .build_encryptor()
         .map_err(Error::Generic)?;
 
+    // Build the local-storage allowlist from config. Empty ⇒ deny all file://.
+    // A configured root that does not exist is a hard startup error.
+    let local_storage_policy = LocalStoragePolicy::new(&config.local_storage.allowed_roots)
+        .map_err(|e| Error::Generic(format!("invalid local_storage config: {e}")))?;
+
     let (handler, policy) = match &config.backend {
         Backend::InMemory => get_memory_handler(encryptor).await?,
         Backend::Postgres(pg) => get_db_handler(pg, encryptor).await?,
     };
+    let handler = handler.with_local_storage_policy(local_storage_policy);
 
     if config.routing.any_upstream() {
         let unsupported = config.routing.unsupported_upstream();
