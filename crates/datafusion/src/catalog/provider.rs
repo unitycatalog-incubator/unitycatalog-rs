@@ -190,7 +190,31 @@ impl AsyncSchemaProvider for UnityCatalogSchemaProvider {
             }
         };
 
-        // 2. Only Delta is supported for now.
+        // 2a. Metric views are resolved before the Delta-only check: they have
+        //     no storage location of their own, only a definition referencing a
+        //     source relation.
+        #[cfg(feature = "metric-view")]
+        if let Some(provider) = self.try_resolve_metric_view(&table).await? {
+            return Ok(Some(provider));
+        }
+
+        // 2. Otherwise resolve as a (Delta) base table.
+        let provider = self.build_base_table(&full_name, &table).await?;
+        Ok(Some(provider))
+    }
+}
+
+impl UnityCatalogSchemaProvider {
+    /// Resolve a base (non-view) Unity Catalog table to a [`TableProvider`].
+    ///
+    /// Vends credentials, registers the per-table object store, and delegates
+    /// provider construction to the host session's builder. Only Delta is
+    /// supported for now.
+    async fn build_base_table(
+        &self,
+        full_name: &str,
+        table: &unitycatalog_common::models::tables::v1::Table,
+    ) -> Result<Arc<dyn TableProvider>> {
         let format = DataSourceFormat::try_from(table.data_source_format)
             .unwrap_or(DataSourceFormat::Unspecified);
         if format != DataSourceFormat::Delta {
@@ -208,12 +232,12 @@ impl AsyncSchemaProvider for UnityCatalogSchemaProvider {
             plan_datafusion_err!("invalid storage location '{location}' for '{full_name}': {e}")
         })?;
 
-        // 3. Vend credentials and build the per-table object store, then route
-        //    it under the bucket's routing store so the engine can read it.
+        // Vend credentials and build the per-table object store, then route it
+        // under the bucket's routing store so the engine can read it.
         let uc_store = self
             .ctx
             .factory
-            .for_table(full_name.clone(), TableOperation::Read)
+            .for_table(full_name.to_string(), TableOperation::Read)
             .await
             .map_err(|e| {
                 plan_datafusion_err!("failed to vend credentials for '{full_name}': {e}")
@@ -223,8 +247,56 @@ impl AsyncSchemaProvider for UnityCatalogSchemaProvider {
         self.ctx
             .register_table_store(uc_store.url(), uc_store.root());
 
-        // 4. Delegate provider construction to the host session.
-        let provider = self.ctx.builder.build_delta(&location, &table).await?;
+        // Delegate provider construction to the host session.
+        self.ctx.builder.build_delta(&location, table).await
+    }
+
+    /// If `table` is a metric view, resolve it: parse the definition, resolve
+    /// the source relation through the same Unity Catalog path, and build a
+    /// metric-view provider. Returns `Ok(None)` for non-metric-view tables.
+    #[cfg(feature = "metric-view")]
+    async fn try_resolve_metric_view(
+        &self,
+        table: &unitycatalog_common::models::tables::v1::Table,
+    ) -> Result<Option<Arc<dyn TableProvider>>> {
+        let view = match crate::metric_view::detect::metric_view_of(table) {
+            Ok(Some(view)) => view,
+            Ok(None) => return Ok(None),
+            Err(e) => {
+                return Err(plan_datafusion_err!(
+                    "metric view '{}': {e}",
+                    table.full_name
+                ));
+            }
+        };
+
+        // Resolve the source relation (a three-part `catalog.schema.table` name).
+        let source_name = view.source.trim();
+        let parts: Vec<&str> = source_name.split('.').collect();
+        let [catalog, schema, table_name] = parts.as_slice() else {
+            return Err(DataFusionError::NotImplemented(format!(
+                "metric-view source '{source_name}' must be a three-part \
+                 catalog.schema.table name (inline SQL sources are not yet supported)"
+            )));
+        };
+
+        let source_table = self
+            .ctx
+            .factory
+            .unity_client()
+            .table(*catalog, *schema, *table_name)
+            .get()
+            .await
+            .map_err(|e| {
+                plan_datafusion_err!("metric-view source '{source_name}' not found: {e}")
+            })?;
+        let source_provider = self.build_base_table(source_name, &source_table).await?;
+
+        let provider = self
+            .ctx
+            .builder
+            .build_metric_view(&view, source_provider, source_name)
+            .await?;
         Ok(Some(provider))
     }
 }
