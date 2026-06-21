@@ -4,6 +4,7 @@ use std::sync::{Arc, LazyLock};
 use clap::Parser;
 use comfy_table::{Cell, ContentArrangement, Table, presets::UTF8_FULL};
 use unitycatalog_client::UnityCatalogClient;
+use unitycatalog_common::store::ObjectStoreAdapter;
 use unitycatalog_postgres::GraphStore;
 use unitycatalog_server::api::RequestContext;
 use unitycatalog_server::memory::InMemoryResourceStore;
@@ -12,8 +13,9 @@ use unitycatalog_server::{
     rest::AnonymousAuthenticator,
     services::{LocalStoragePolicy, ServerHandler, location::StorageLocationUrl},
 };
+use unitycatalog_sqlite::SqliteStore;
 
-use crate::config::{Backend, Config, PostgresBackendConfig};
+use crate::config::{Backend, Config, PostgresBackendConfig, SqliteBackendConfig};
 use crate::error::{Error, Result};
 use unitycatalog_common::services::encryption::EnvelopeEncryptor;
 
@@ -138,6 +140,7 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
     let (handler, policy) = match &config.backend {
         Backend::InMemory => get_memory_handler(encryptor).await?,
         Backend::Postgres(pg) => get_db_handler(pg, encryptor).await?,
+        Backend::Sqlite(cfg) => get_sqlite_handler(cfg, encryptor).await?,
     };
     let handler = handler
         .with_local_storage_policy(local_storage_policy)
@@ -195,6 +198,7 @@ fn print_startup_summary(host: &str, port: u16, config: &Config) {
     let backend = match &config.backend {
         Backend::InMemory => "in-memory".to_string(),
         Backend::Postgres(_) => "postgres".to_string(),
+        Backend::Sqlite(_) => "sqlite".to_string(),
     };
 
     let routing = if config.routing.any_upstream() {
@@ -260,6 +264,35 @@ async fn get_memory_handler(encryptor: EnvelopeEncryptor) -> Result<LocalHandler
     let store = Arc::new(InMemoryResourceStore::new(encryptor));
     let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
     let handler = ServerHandler::try_new_tokio(policy.clone(), store.clone(), store)?;
+    Ok((handler, policy))
+}
+
+async fn get_sqlite_handler(
+    cfg: &SqliteBackendConfig,
+    encryptor: EnvelopeEncryptor,
+) -> Result<LocalHandler> {
+    let path = cfg
+        .database_path()
+        .ok_or_else(|| Error::Generic("incomplete sqlite backend configuration".into()))?;
+
+    let store = Arc::new(
+        SqliteStore::connect(&path, encryptor)
+            .await
+            .map_err(|e| Error::Generic(format!("opening sqlite database: {e}")))?,
+    );
+    store
+        .migrate()
+        .await
+        .map_err(|e| Error::Generic(format!("running migrations: {e}")))?;
+
+    let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
+    // `SqliteStore` implements the generic object/association stores (lifted to
+    // `ResourceStore` by `ObjectStoreAdapter`) and `SecretManager`, but the
+    // adapter does not forward `SecretManager` — so the two roles are wired from
+    // the same shared store separately. Unlike the Postgres backend, this MVP
+    // wires the default in-memory commit coordinator (no durable Delta commits).
+    let resource_store = Arc::new(ObjectStoreAdapter::new(store.clone()));
+    let handler = ServerHandler::try_new_tokio(policy.clone(), resource_store, store)?;
     Ok((handler, policy))
 }
 

@@ -221,12 +221,37 @@ pub enum Backend {
     /// Postgres backend configuration.
     Postgres(PostgresBackendConfig),
 
+    /// Embedded SQLite backend configuration.
+    ///
+    /// Durable, file-based storage that runs in-process — no external database
+    /// to operate. Suitable for a capable local single-binary server. Delta
+    /// catalog-managed commits are not durably coordinated by this backend (see
+    /// the `unitycatalog-sqlite` crate docs).
+    Sqlite(SqliteBackendConfig),
+
     /// In-memory backend configuration.
     ///
     /// This is useful for testing and development purposes
     /// but should not be used in production.
     #[default]
     InMemory,
+}
+
+/// SQLite backend configuration.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SqliteBackendConfig {
+    /// Filesystem path to the SQLite database file.
+    ///
+    /// The file (and any missing schema) is created on first use. The special
+    /// value `:memory:` opens an ephemeral in-memory database.
+    pub path: ConfigValue,
+}
+
+impl SqliteBackendConfig {
+    /// Resolve the configured database path.
+    pub fn database_path(&self) -> Option<String> {
+        self.path.value()
+    }
 }
 
 /// Postgres backend configuration.
@@ -376,6 +401,24 @@ mod tests {
             ConfigValue::Environment(EnvValue {
                 env: "PG_PASSWORD".to_string()
             })
+        );
+    }
+
+    #[test]
+    fn test_deserialize_sqlite_config() {
+        let config = r#"
+            backend:
+              engine: sqlite
+              path: /var/lib/unitycatalog/catalog.db
+        "#;
+        let config: Config = serde_yml::from_str(config).unwrap();
+        let backend = match config.backend {
+            Backend::Sqlite(backend) => backend,
+            other => panic!("expected sqlite backend, got {other:?}"),
+        };
+        assert_eq!(
+            backend.database_path().as_deref(),
+            Some("/var/lib/unitycatalog/catalog.db")
         );
     }
 
