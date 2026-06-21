@@ -57,6 +57,7 @@ use tokio::runtime::Handle;
 use unitycatalog_client::{TemporaryCredentialClient, UnityCatalogClient};
 use unitycatalog_common::tables::v1::GetTableRequest;
 use unitycatalog_common::temporary_credentials::v1::TemporaryCredential;
+use unitycatalog_common::volumes::v1::GetVolumeRequest;
 use url::Url;
 
 use crate::credential::{
@@ -381,11 +382,37 @@ impl UnityObjectStoreFactory {
 
     /// Vend credentials for a volume and return a prefixed store rooted at
     /// the volume's storage location.
+    ///
+    /// A volume whose storage location is a `file://` path is served by a local
+    /// [`LocalFileSystem`] store and never hits the credential-vending API. See
+    /// [`local_store`].
     pub async fn for_volume(
         &self,
         volume: impl Into<VolumeReference>,
         operation: VolumeOperation,
     ) -> Result<UCStore> {
+        let volume = volume.into();
+        // As with `for_table`: a volume backed by local filesystem storage has
+        // no cloud credential to vend. Resolve its storage location up front
+        // (the same `GetVolume` lookup name-based vending makes) and, when it is
+        // `file://`, build a local store directly — skipping vending.
+        //
+        // Only possible for name references; a caller holding only the volume
+        // UUID still vends (a local-fs volume addressed by UUID is unsupported —
+        // use the three-level name).
+        if let VolumeReference::Name(name) = &volume {
+            if let Some(location) = self.volume_storage_location(name).await? {
+                if let Ok(url) = Url::parse(&location) {
+                    if url.scheme() == "file" {
+                        let path_op = match operation {
+                            VolumeOperation::Read => PathOperation::Read,
+                            VolumeOperation::ReadWrite => PathOperation::ReadWrite,
+                        };
+                        return local_store(&url, path_op);
+                    }
+                }
+            }
+        }
         let (credential, volume_id) = self
             .creds
             .temporary_volume_credential(volume, operation)
@@ -393,6 +420,24 @@ impl UnityObjectStoreFactory {
             .map_err(Error::from)?;
         let securable = SecurableRef::Volume(volume_id, operation);
         self.build_store(credential, securable).await
+    }
+
+    /// Look up a volume's `storage_location` by its three-level name.
+    ///
+    /// Returns `None` when the volume has no storage location set. Used by
+    /// [`for_volume`](Self::for_volume) to detect `file://`-backed volumes
+    /// before vending.
+    async fn volume_storage_location(&self, name: &str) -> Result<Option<String>> {
+        let volume = self
+            .uc
+            .volumes_client()
+            .get_volume(&GetVolumeRequest {
+                name: name.to_string(),
+                include_browse: Some(false),
+            })
+            .await
+            .map_err(Error::from)?;
+        Ok(Some(volume.storage_location).filter(|s| !s.is_empty()))
     }
 
     /// Vend credentials for a raw cloud URL (`s3://`, `gs://`, `abfss://`,
@@ -741,7 +786,14 @@ mod tests {
             .unwrap();
 
         assert!(table_dir.join("part-0.parquet").exists());
-        let got = store.root().get(&full).await.unwrap().bytes().await.unwrap();
+        let got = store
+            .root()
+            .get(&full)
+            .await
+            .unwrap()
+            .bytes()
+            .await
+            .unwrap();
         assert_eq!(&got[..], b"data");
     }
 
