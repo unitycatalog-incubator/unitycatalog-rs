@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 use unitycatalog_common::models::tables::v1::{Column, ColumnTypeName};
 
 use crate::rest::routers::delta::models::{
-    DeltaArrayType, DeltaCreateTableRequest, DeltaDataSourceFormat, DeltaDataType, DeltaDecimalType,
+    DeltaArrayType, DeltaCreateTableRequest, DeltaDataType, DeltaDecimalType,
     DeltaDomainMetadataUpdates, DeltaMapType, DeltaProtocol, DeltaStructField, DeltaStructType,
 };
 use crate::{Error, Result};
@@ -493,7 +493,7 @@ fn catalog_string(data_type: &DeltaDataType) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rest::routers::delta::models::DeltaProtocol;
+    use crate::rest::routers::delta::models::{DeltaDataSourceFormat, DeltaProtocol};
 
     fn compliant_protocol() -> DeltaProtocol {
         DeltaProtocol {
