@@ -7,13 +7,16 @@ use unitycatalog_common::models::{ResourceIdent, ResourceName, ResourceRef};
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::volumes::VolumeHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
 use crate::services::object_store::validate_external_storage_location;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext>> VolumeHandler<RequestContext> for T {
+impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
+    VolumeHandler<RequestContext> for T
+{
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_volume(
         &self,

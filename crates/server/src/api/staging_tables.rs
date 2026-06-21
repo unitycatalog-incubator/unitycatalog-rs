@@ -8,6 +8,8 @@ use unitycatalog_common::models::{ObjectLabel, ResourceIdent};
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::staging_tables::StagingTableHandler;
 use crate::policy::{Permission, Policy, Principal};
+use crate::services::ProvidesLocalStoragePolicy;
+use crate::services::location::StorageLocationUrl;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
@@ -31,7 +33,9 @@ impl SecuredAction for CreateStagingTableRequest {
 }
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext>> StagingTableHandler<RequestContext> for T {
+impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
+    StagingTableHandler<RequestContext> for T
+{
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_staging_table(
         &self,
@@ -86,20 +90,52 @@ impl<T: ResourceStore + Policy<RequestContext>> StagingTableHandler<RequestConte
 /// appended. A catalog/schema with no configured root cannot host managed
 /// tables, so this returns `invalid_argument`.
 pub(crate) async fn resolve_managed_storage_root(
-    handler: &(impl ResourceStore + ?Sized),
+    handler: &(impl ResourceStore + ProvidesLocalStoragePolicy + ?Sized),
     catalog_name: &str,
     schema_name: &str,
 ) -> Result<String> {
+    // Validate a resolved root against the local-storage allowlist before
+    // handing out a managed sub-path. Defense-in-depth: even a root that
+    // predates the policy (or a cloud root, which passes through) is checked at
+    // use time. Cloud schemes are unaffected.
+    let checked = |root: String| -> Result<String> {
+        handler
+            .local_storage_policy()
+            .check(&StorageLocationUrl::parse(&root)?)?;
+        Ok(with_managed_prefix(&root))
+    };
+
     let schema_ident = ResourceIdent::schema(ResourceName::new([catalog_name, schema_name]));
     let schema: Schema = handler.get(&schema_ident).await?.0.try_into()?;
     if let Some(loc) = schema.storage_location.filter(|s| !s.is_empty()) {
-        return Ok(with_managed_prefix(&loc));
+        return checked(loc);
     }
 
     let catalog_ident = ResourceIdent::catalog(ResourceName::new([catalog_name]));
     let catalog: Catalog = handler.get(&catalog_ident).await?.0.try_into()?;
     if let Some(root) = catalog.storage_root.filter(|s| !s.is_empty()) {
-        return Ok(with_managed_prefix(&root));
+        return checked(root);
+    }
+
+    // Neither schema nor catalog defines a root. When the server allows exactly
+    // one local root, use it as the implicit managed root so a purely-local dev
+    // server hosts managed tables without any storage_root configured. The
+    // returned value is a *root*; the caller appends the standard
+    // `__unitystorage/tables/{uuid}` convention (see `with_managed_prefix` and
+    // the caller in `create_staging_table`), so the on-disk layout matches every
+    // other managed table. More than one allowed root is ambiguous → keep the
+    // original error.
+    let allowed = handler.local_storage_policy().allowed_roots();
+    if let [sole_root] = allowed {
+        let root = url::Url::from_directory_path(sole_root)
+            .map_err(|_| {
+                Error::invalid_argument(format!(
+                    "allowed local storage root '{}' is not an absolute path",
+                    sole_root.display()
+                ))
+            })?
+            .to_string();
+        return checked(root);
     }
 
     Err(Error::invalid_argument(format!(

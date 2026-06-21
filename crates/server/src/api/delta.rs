@@ -36,6 +36,7 @@ use crate::api::temporary_credentials::TemporaryCredentialHandler;
 use crate::codegen::staging_tables::StagingTableHandler;
 use crate::policy::{Permission, Policy, Principal};
 use crate::rest::routers::delta::models::*;
+use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
 use crate::services::managed_delta_contract as contract;
 use crate::services::object_store::validate_external_storage_location;
@@ -183,7 +184,8 @@ where
         + TemporaryCredentialHandler<RequestContext>
         + CredentialHandlerExt
         + TableManager
-        + ProvidesCommitCoordinator,
+        + ProvidesCommitCoordinator
+        + ProvidesLocalStoragePolicy,
 {
     async fn get_config(
         &self,

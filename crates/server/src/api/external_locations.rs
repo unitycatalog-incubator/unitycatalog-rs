@@ -8,13 +8,16 @@ use unitycatalog_common::models::{
 use super::{RequestContext, SecuredAction};
 pub use crate::codegen::external_locations::ExternalLocationHandler;
 use crate::policy::{Permission, Policy, process_resources};
+use crate::services::ProvidesLocalStoragePolicy;
 use crate::services::location::StorageLocationUrl;
 use crate::services::object_store::{list_external_locations, locations_overlap};
 use crate::store::ResourceStore;
 use crate::{Error, Result};
 
 #[async_trait::async_trait]
-impl<T: ResourceStore + Policy<RequestContext>> ExternalLocationHandler<RequestContext> for T {
+impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
+    ExternalLocationHandler<RequestContext> for T
+{
     #[tracing::instrument(skip(self, context), fields(resource_name))]
     async fn create_external_location(
         &self,
@@ -23,6 +26,12 @@ impl<T: ResourceStore + Policy<RequestContext>> ExternalLocationHandler<RequestC
     ) -> Result<ExternalLocation> {
         tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, &context).await?;
+
+        // Local (file://) locations must sit within an allowed host root;
+        // deny-by-default unless the server is configured otherwise. Cloud
+        // schemes pass through.
+        self.local_storage_policy()
+            .check(&StorageLocationUrl::parse(&request.url)?)?;
 
         // Reject locations that overlap an existing external location: Unity
         // Catalog forbids one external location from nesting inside another (in
@@ -120,6 +129,9 @@ impl<T: ResourceStore + Policy<RequestContext>> ExternalLocationHandler<RequestC
             // Re-validate overlap when the URL changes, excluding this
             // location's own record (matched by name) from the comparison.
             if url != current.url {
+                // A new local (file://) URL must sit within an allowed root.
+                self.local_storage_policy()
+                    .check(&StorageLocationUrl::parse(&url)?)?;
                 check_no_overlap(self, &url, &current.name).await?;
             }
             current.url = url;
@@ -250,6 +262,14 @@ mod tests {
         ServerHandler::try_new_tokio(policy, store.clone(), store).unwrap()
     }
 
+    /// A handler whose local-storage policy allows `root`. Only used by the
+    /// POSIX-only allow-under-root test.
+    #[cfg(not(windows))]
+    fn handler_with_local_root(root: &std::path::Path) -> ServerHandler<RequestContext> {
+        let local = crate::services::LocalStoragePolicy::new([root]).unwrap();
+        handler().with_local_storage_policy(local)
+    }
+
     fn ctx() -> RequestContext {
         RequestContext {
             recipient: crate::policy::Principal::anonymous(),
@@ -288,6 +308,43 @@ mod tests {
             ctx(),
         )
         .await
+    }
+
+    #[tokio::test]
+    async fn file_location_denied_by_default() {
+        // No local-storage policy configured ⇒ every file:// is rejected, even
+        // though a cloud location at the same name would be accepted.
+        let h = handler();
+        create_credential(&h, "cred").await;
+        let res = create_location(&h, "local", "file:///tmp/uc-denied").await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    // POSIX-only: allow-under-root matching depends on canonicalized paths that
+    // don't line up on Windows (\\?\ prefix), and local file:// is gated off on
+    // Windows anyway. Deny-by-default (above) is what matters there.
+    #[cfg(not(windows))]
+    #[tokio::test]
+    async fn file_location_allowed_under_configured_root() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let h = handler_with_local_root(&root);
+        create_credential(&h, "cred").await;
+
+        // Under the allowed root: accepted.
+        let inside = url::Url::from_directory_path(root.join("ext"))
+            .unwrap()
+            .to_string();
+        create_location(&h, "ok", &inside).await.unwrap();
+
+        // Outside the allowed root: rejected.
+        let res = create_location(&h, "bad", "file:///etc/uc").await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+
+        // Cloud schemes are unaffected by the local policy.
+        create_location(&h, "cloud", "s3://bucket/data")
+            .await
+            .unwrap();
     }
 
     #[tokio::test]

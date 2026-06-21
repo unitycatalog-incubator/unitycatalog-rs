@@ -3,8 +3,9 @@ use std::sync::Arc;
 use super::kernel::ObjectStoreFactory;
 use datafusion::common::{DataFusionError, Result as DFResult};
 use itertools::Itertools;
-use object_store::DynObjectStore;
 use object_store::azure::MicrosoftAzureBuilder;
+use object_store::local::LocalFileSystem;
+use object_store::{DynObjectStore, ObjectStoreScheme};
 use unitycatalog_common::credentials::v1::AzureManagedIdentity;
 use unitycatalog_common::models::credentials::v1::{
     AzureServicePrincipal, AzureStorageKey, GetCredentialRequest,
@@ -15,6 +16,7 @@ use unitycatalog_common::models::tables::v1::Table;
 use unitycatalog_common::models::volumes::v1::Volume;
 use url::Url;
 
+use super::ProvidesLocalStoragePolicy;
 use super::ServerHandlerInner;
 use super::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::api::CredentialHandler;
@@ -143,9 +145,13 @@ pub(crate) async fn list_table_volume_locations(
 /// reuses [`find_external_location_for_url`]; a missing enclosing location
 /// surfaces as a clear argument error rather than the raw `NotFound`.
 pub(crate) async fn validate_external_storage_location(
-    handler: &(impl ResourceStore + ?Sized),
+    handler: &(impl ResourceStore + ProvidesLocalStoragePolicy + ?Sized),
     location: &StorageLocationUrl,
 ) -> Result<()> {
+    // 0. Local (file://) locations must sit within an allowed host root.
+    //    Cloud schemes pass through untouched.
+    handler.local_storage_policy().check(location)?;
+
     // 1. Must reside within a registered external location.
     if let Err(Error::NotFound) = find_external_location_for_url(location, handler).await {
         return Err(Error::invalid_argument(format!(
@@ -202,6 +208,15 @@ pub(crate) async fn get_object_store(
     handler: &dyn RegistryHandler,
 ) -> Result<Arc<DynObjectStore>> {
     tracing::debug!("get_object_store: {:?}", location.location());
+    // Local filesystem storage needs neither an external location nor a vended
+    // credential — short-circuit before the lookup and build a LocalFileSystem
+    // directly, mirroring the client-side object-store factory.
+    if matches!(
+        location.scheme(),
+        StorageLocationScheme::ObjectStore(ObjectStoreScheme::Local)
+    ) {
+        return get_local_store(location);
+    }
     let ext_loc = find_external_location_for_url(location, handler).await?;
     let credential = handler
         .get_credential_internal(GetCredentialRequest {
@@ -214,6 +229,31 @@ pub(crate) async fn get_object_store(
         credential.azure_service_principal,
         credential.azure_storage_key,
     )
+}
+
+/// Build an unrooted [`LocalFileSystem`] store for a `file://` location.
+///
+/// The delta_kernel engine addresses objects by their full path, so the store
+/// is left unrooted (paths are relative to the filesystem root) rather than
+/// prefixed at the table directory.
+///
+/// Local `file://` storage is **POSIX-only** for now and errors on Windows:
+/// `object_store::path::Path` cannot represent a Windows absolute path (the
+/// drive-letter colon is percent-encoded), so an unrooted store addressed by
+/// full path does not resolve to the real on-disk location. Mirrors the
+/// client-side `local_store` in `unitycatalog-object-store`.
+fn get_local_store(location: &StorageLocationUrl) -> Result<Arc<DynObjectStore>> {
+    tracing::debug!("get_local_store: {:?}", location.location());
+    if cfg!(windows) {
+        return Err(Error::invalid_argument(format!(
+            "local (file://) storage is not supported on Windows: {}",
+            location.raw()
+        )));
+    }
+    location.raw().to_file_path().map_err(|_| {
+        Error::invalid_argument(format!("not a valid local file path: {}", location.raw()))
+    })?;
+    Ok(Arc::new(LocalFileSystem::new()))
 }
 
 fn get_azure_store(
@@ -291,8 +331,38 @@ fn get_azure_store(
 
 #[cfg(test)]
 mod tests {
-    use super::{is_path_prefix, locations_overlap, paths_overlap};
+    use super::{get_local_store, is_path_prefix, locations_overlap, paths_overlap};
     use crate::services::location::StorageLocationUrl;
+
+    /// A `file://` location resolves to a local store with no external-location
+    /// lookup or credential — and the resulting store can read what it writes.
+    /// POSIX-only: local file:// is gated off on Windows (see `get_local_store`).
+    #[cfg(not(windows))]
+    #[tokio::test]
+    async fn local_store_roundtrips_full_path() {
+        use object_store::{ObjectStoreExt, PutPayload, path::Path};
+
+        let dir = tempfile::tempdir().unwrap();
+        let table_dir = dir.path().join("mytable");
+        std::fs::create_dir_all(&table_dir).unwrap();
+        let url = url::Url::from_directory_path(&table_dir).unwrap();
+        let location = StorageLocationUrl::try_new(url.clone()).unwrap();
+
+        let store = get_local_store(&location).unwrap();
+
+        // The kernel engine addresses objects by their full path, derived from
+        // the location URL (not a native PathBuf — whose absolute-path spelling
+        // diverges from object_store's on Windows). Correctness is the put/get
+        // round-trip through that same mapping.
+        let full =
+            Path::from_url_path(format!("{}/part-0", url.path().trim_end_matches('/'))).unwrap();
+        store
+            .put(&full, PutPayload::from_static(b"data"))
+            .await
+            .unwrap();
+        let got = store.get(&full).await.unwrap().bytes().await.unwrap();
+        assert_eq!(&got[..], b"data");
+    }
 
     #[test]
     fn path_prefix_matches_exact_and_subpaths() {

@@ -48,13 +48,16 @@ use object_store::aws::AmazonS3Builder;
 use object_store::azure::MicrosoftAzureBuilder;
 use object_store::client::SpawnedReqwestConnector;
 use object_store::gcp::GoogleCloudStorageBuilder;
+use object_store::local::LocalFileSystem;
 use object_store::path::Path;
 use object_store::prefix::PrefixStore;
 use object_store::{ObjectStore, Result};
 use olai_http::CloudClient;
 use tokio::runtime::Handle;
 use unitycatalog_client::{TemporaryCredentialClient, UnityCatalogClient};
+use unitycatalog_common::tables::v1::GetTableRequest;
 use unitycatalog_common::temporary_credentials::v1::TemporaryCredential;
+use unitycatalog_common::volumes::v1::GetVolumeRequest;
 use url::Url;
 
 use crate::credential::{
@@ -326,6 +329,28 @@ impl UnityObjectStoreFactory {
         table: impl Into<TableReference>,
         operation: TableOperation,
     ) -> Result<UCStore> {
+        let table = table.into();
+        // A table backed by local filesystem storage has no cloud credential
+        // to vend. Resolve its storage location up front (a name lookup, the
+        // same call name-based vending makes) and, when it is `file://`, build
+        // a local store directly — skipping the credential-vending round-trip.
+        //
+        // This resolution is only possible for name references; a caller that
+        // holds only the table UUID still vends (and a local-fs table addressed
+        // by UUID is an unsupported edge case — use the three-level name).
+        if let TableReference::Name(name) = &table {
+            if let Some(location) = self.table_storage_location(name).await? {
+                if let Ok(url) = Url::parse(&location) {
+                    if url.scheme() == "file" {
+                        let path_op = match operation {
+                            TableOperation::Read => PathOperation::Read,
+                            TableOperation::ReadWrite => PathOperation::ReadWrite,
+                        };
+                        return local_store(&url, path_op);
+                    }
+                }
+            }
+        }
         let (credential, table_id) = self
             .creds
             .temporary_table_credential(table, operation)
@@ -335,13 +360,59 @@ impl UnityObjectStoreFactory {
         self.build_store(credential, securable).await
     }
 
+    /// Look up a table's `storage_location` by its three-level name.
+    ///
+    /// Returns `None` when the table has no storage location set. Used by
+    /// [`for_table`](Self::for_table) to detect `file://`-backed tables before
+    /// vending.
+    async fn table_storage_location(&self, full_name: &str) -> Result<Option<String>> {
+        let table = self
+            .uc
+            .tables_client()
+            .get_table(&GetTableRequest {
+                full_name: full_name.to_string(),
+                include_browse: Some(false),
+                include_delta_metadata: Some(false),
+                include_manifest_capabilities: Some(false),
+            })
+            .await
+            .map_err(Error::from)?;
+        Ok(table.storage_location.filter(|s| !s.is_empty()))
+    }
+
     /// Vend credentials for a volume and return a prefixed store rooted at
     /// the volume's storage location.
+    ///
+    /// A volume whose storage location is a `file://` path is served by a local
+    /// [`LocalFileSystem`] store and never hits the credential-vending API. See
+    /// [`local_store`].
     pub async fn for_volume(
         &self,
         volume: impl Into<VolumeReference>,
         operation: VolumeOperation,
     ) -> Result<UCStore> {
+        let volume = volume.into();
+        // As with `for_table`: a volume backed by local filesystem storage has
+        // no cloud credential to vend. Resolve its storage location up front
+        // (the same `GetVolume` lookup name-based vending makes) and, when it is
+        // `file://`, build a local store directly — skipping vending.
+        //
+        // Only possible for name references; a caller holding only the volume
+        // UUID still vends (a local-fs volume addressed by UUID is unsupported —
+        // use the three-level name).
+        if let VolumeReference::Name(name) = &volume {
+            if let Some(location) = self.volume_storage_location(name).await? {
+                if let Ok(url) = Url::parse(&location) {
+                    if url.scheme() == "file" {
+                        let path_op = match operation {
+                            VolumeOperation::Read => PathOperation::Read,
+                            VolumeOperation::ReadWrite => PathOperation::ReadWrite,
+                        };
+                        return local_store(&url, path_op);
+                    }
+                }
+            }
+        }
         let (credential, volume_id) = self
             .creds
             .temporary_volume_credential(volume, operation)
@@ -351,9 +422,34 @@ impl UnityObjectStoreFactory {
         self.build_store(credential, securable).await
     }
 
+    /// Look up a volume's `storage_location` by its three-level name.
+    ///
+    /// Returns `None` when the volume has no storage location set. Used by
+    /// [`for_volume`](Self::for_volume) to detect `file://`-backed volumes
+    /// before vending.
+    async fn volume_storage_location(&self, name: &str) -> Result<Option<String>> {
+        let volume = self
+            .uc
+            .volumes_client()
+            .get_volume(&GetVolumeRequest {
+                name: name.to_string(),
+                include_browse: Some(false),
+            })
+            .await
+            .map_err(Error::from)?;
+        Ok(Some(volume.storage_location).filter(|s| !s.is_empty()))
+    }
+
     /// Vend credentials for a raw cloud URL (`s3://`, `gs://`, `abfss://`,
     /// …). Uses `temporary-path-credentials` under the hood.
+    ///
+    /// `file://` URLs are served by a local [`LocalFileSystem`] store and
+    /// **never** hit the credential-vending API — local storage has no cloud
+    /// credential to vend. See [`local_store`].
     pub async fn for_path(&self, path: &Url, operation: PathOperation) -> Result<UCStore> {
+        if path.scheme() == "file" {
+            return local_store(path, operation);
+        }
         let (credential, _resolved) = self
             .creds
             .temporary_path_credential(path.clone(), operation, false)
@@ -366,7 +462,13 @@ impl UnityObjectStoreFactory {
     /// Vend credentials for a raw cloud URL with `dry_run` set to true.
     /// The server validates that credentials *could* be issued but the
     /// returned token is not usable for IO; useful for permission probes.
+    ///
+    /// For `file://` URLs there is nothing to probe — a local store is
+    /// returned directly, identical to [`for_path`](Self::for_path).
     pub async fn dry_run_path(&self, path: &Url, operation: PathOperation) -> Result<UCStore> {
+        if path.scheme() == "file" {
+            return local_store(path, operation);
+        }
         let (credential, _resolved) = self
             .creds
             .temporary_path_credential(path.clone(), operation, true)
@@ -513,6 +615,63 @@ impl From<Operation> for PathOperation {
     }
 }
 
+/// Build a [`UCStore`] backed by the local filesystem for a `file://` URL,
+/// bypassing credential vending entirely.
+///
+/// Mirrors the bucket-root + prefix model of vended cloud stores: `root` is an
+/// unrooted [`LocalFileSystem`] (paths are absolute, relative to the filesystem
+/// root) and `path` is the URL's directory. This keeps both consumption modes
+/// correct:
+///
+/// - [`UCStore::as_dyn`] wraps `root` in a `PrefixStore` at the directory, so
+///   callers address paths *relative* to the `file://` directory; and
+/// - [`UCStore::root`] is the unrooted store, so the DataFusion routing store
+///   — which forwards the full request path unchanged — resolves absolute
+///   table paths.
+///
+/// For [`PathOperation::ReadWrite`] / [`PathOperation::CreateTable`] the target
+/// directory is created if missing, so writes to a fresh local root succeed.
+///
+/// # Platform support
+///
+/// Local `file://` storage is **POSIX-only** for now. On Windows it returns an
+/// error: `object_store::path::Path` cannot represent a Windows absolute path
+/// (the drive-letter colon is percent-encoded), so an unrooted
+/// [`LocalFileSystem`] addressed by full path does not resolve back to the real
+/// on-disk location. Tracked for a follow-up; cloud schemes are unaffected.
+fn local_store(url: &Url, operation: PathOperation) -> Result<UCStore> {
+    if cfg!(windows) {
+        return Err(Error::invalid_config(format!(
+            "local (file://) storage is not supported on Windows: {url}"
+        ))
+        .into());
+    }
+
+    let dir = url
+        .to_file_path()
+        .map_err(|_| Error::invalid_url(format!("not a valid local file path: {url}")))?;
+
+    if matches!(
+        operation,
+        PathOperation::ReadWrite | PathOperation::CreateTable
+    ) {
+        std::fs::create_dir_all(&dir).map_err(|e| {
+            Error::invalid_config(format!("failed to create local directory {dir:?}: {e}"))
+        })?;
+    }
+
+    // Unrooted: object_store `Path`s are relative to the filesystem root, so a
+    // full path like `tmp/data/part-0` resolves to `/tmp/data/part-0`. The
+    // directory is carried as the `UCStore` prefix instead (see `build_store`).
+    let store = LocalFileSystem::new();
+    let path = Path::from_url_path(url.path())?;
+    Ok(UCStore {
+        root: Arc::new(store),
+        url: url.clone(),
+        path,
+    })
+}
+
 /// Returns a [`UCStore`] whose prefix is `store.prefix() + extra`, leaving
 /// the underlying bucket-rooted store untouched.
 fn extend_prefix(store: UCStore, extra: &str) -> UCStore {
@@ -542,8 +701,155 @@ fn extend_prefix(store: UCStore, extra: &str) -> UCStore {
 #[cfg(test)]
 mod tests {
     use futures::TryStreamExt;
+    // `put`/`PutPayload` are only used by the POSIX-only local-storage tests.
+    #[cfg(not(windows))]
+    use object_store::{ObjectStoreExt, PutPayload};
 
     use super::*;
+
+    /// A factory whose UC endpoint points nowhere reachable. Any code path that
+    /// tries to vend a credential will fail to connect — so a successful local
+    /// operation proves vending was skipped entirely.
+    async fn offline_factory() -> UnityObjectStoreFactory {
+        UnityObjectStoreFactory::builder()
+            // An unroutable, non-listening endpoint: a vend attempt cannot succeed.
+            .with_uri("http://127.0.0.1:0/api/2.1/unity-catalog/")
+            .with_allow_unauthenticated(true)
+            .build()
+            .await
+            .unwrap()
+    }
+
+    /// `file://` URLs are served by a local store and round-trip read/write/list
+    /// without any credential-vending call (the factory points at a dead endpoint).
+    // Local file:// storage is POSIX-only for now (see `local_store`).
+    #[cfg(not(windows))]
+    #[tokio::test]
+    async fn for_url_file_roundtrips_without_vending() {
+        let dir = tempfile::tempdir().unwrap();
+        let url = Url::from_directory_path(dir.path()).unwrap();
+
+        let factory = offline_factory().await;
+        let store = factory
+            .for_url(url.as_str(), Operation::ReadWrite)
+            .await
+            .unwrap();
+
+        let dyn_store = store.as_dyn();
+        let path = object_store::path::Path::from("hello.txt");
+        dyn_store
+            .put(&path, PutPayload::from_static(b"world"))
+            .await
+            .unwrap();
+
+        let listing: Vec<_> = dyn_store.list(None).try_collect().await.unwrap();
+        assert_eq!(listing.len(), 1, "expected exactly one object");
+        assert_eq!(listing[0].location, path);
+
+        let got = dyn_store.get(&path).await.unwrap().bytes().await.unwrap();
+        assert_eq!(&got[..], b"world");
+    }
+
+    /// `for_path` with a `file://` URL returns a usable store with no network call.
+    #[cfg(not(windows))]
+    #[tokio::test]
+    async fn for_path_file_skips_vending() {
+        let dir = tempfile::tempdir().unwrap();
+        let url = Url::from_directory_path(dir.path()).unwrap();
+
+        let factory = offline_factory().await;
+        // Read-only: the directory already exists, nothing is created.
+        let store = factory.for_path(&url, PathOperation::Read).await.unwrap();
+        // Empty directory lists to nothing — and crucially, no vend was attempted.
+        let listing: Vec<_> = store.as_dyn().list(None).try_collect().await.unwrap();
+        assert!(listing.is_empty());
+        assert_eq!(store.url(), &url);
+    }
+
+    /// A read-write local store auto-creates a missing target directory.
+    #[cfg(not(windows))]
+    #[tokio::test]
+    async fn local_store_read_write_creates_dir() {
+        let dir = tempfile::tempdir().unwrap();
+        let missing = dir.path().join("not-yet-here");
+        let url = Url::from_directory_path(&missing).unwrap();
+
+        let store = local_store(&url, PathOperation::ReadWrite).unwrap();
+        assert!(missing.exists(), "ReadWrite must create the root directory");
+
+        let path = object_store::path::Path::from("a.bin");
+        store
+            .as_dyn()
+            .put(&path, PutPayload::from_static(b"x"))
+            .await
+            .unwrap();
+        assert!(missing.join("a.bin").exists());
+    }
+
+    /// The unrooted `root()` store resolves the **full** path (the DataFusion
+    /// routing-store contract): a write addressed by the full absolute path
+    /// round-trips through that same path, and lands on disk under the table
+    /// directory.
+    ///
+    /// On-disk placement is checked with a real `read_dir` of the table
+    /// directory, not a native `PathBuf::join` against an object_store `Path`.
+    /// POSIX-only: local file:// is gated off on Windows (see `local_store`),
+    /// where an unrooted store cannot round-trip a drive-letter absolute path.
+    #[cfg(not(windows))]
+    #[tokio::test]
+    async fn local_store_root_resolves_full_path() {
+        let dir = tempfile::tempdir().unwrap();
+        let table_dir = dir.path().join("mytable");
+        let url = Url::from_directory_path(&table_dir).unwrap();
+
+        let store = local_store(&url, PathOperation::ReadWrite).unwrap();
+
+        // `prefix()` is the table directory; the routing store registers and
+        // forwards the full path beneath it unchanged.
+        let full = Path::from(format!("{}/part-0.parquet", store.prefix()));
+        store
+            .root()
+            .put(&full, PutPayload::from_static(b"data"))
+            .await
+            .unwrap();
+
+        // Reading back the same full path proves the unrooted store resolves it
+        // consistently — exactly what the DataFusion routing store relies on.
+        let got = store
+            .root()
+            .get(&full)
+            .await
+            .unwrap()
+            .bytes()
+            .await
+            .unwrap();
+        assert_eq!(&got[..], b"data");
+
+        // And it landed on disk under the table directory. Check the real
+        // filesystem directly (not via an object_store `Path`) so the assertion
+        // is OS-agnostic.
+        let entries: Vec<_> = std::fs::read_dir(&table_dir)
+            .unwrap()
+            .map(|e| e.unwrap().file_name())
+            .collect();
+        assert_eq!(entries, vec![std::ffi::OsString::from("part-0.parquet")]);
+    }
+
+    /// A non-`file` URL handed to the local helper is a clean error, not a panic.
+    /// POSIX-only: on Windows `local_store` rejects every call up front, so the
+    /// specific "not a valid local file path" message does not apply.
+    #[cfg(not(windows))]
+    #[test]
+    fn local_store_rejects_non_file_url() {
+        let url = Url::parse("s3://bucket/prefix/").unwrap();
+        match local_store(&url, PathOperation::Read) {
+            Ok(_) => panic!("expected an error for a non-file URL"),
+            Err(e) => assert!(
+                e.to_string().contains("not a valid local file path"),
+                "unexpected error: {e}"
+            ),
+        }
+    }
 
     /// Building a factory with a dedicated I/O runtime handle succeeds and the
     /// handle is carried through to the factory. The `None` path (no handle) is
