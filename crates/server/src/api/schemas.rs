@@ -24,22 +24,37 @@ impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
     ) -> Result<Schema> {
         tracing::Span::current().record("resource_name", &request.name);
         self.check_required(&request, &context).await?;
-        // A local (file://) schema storage location must sit within an allowed root.
-        if let Some(loc) = request
-            .storage_location
-            .as_deref()
-            .filter(|s| !s.is_empty())
-        {
-            self.local_storage_policy()
-                .check(&StorageLocationUrl::parse(loc)?)?;
-        }
+
+        // When the schema is created with its own storage root, echo the root
+        // back on the schema (`storage_root`) and materialize a managed storage
+        // location that embeds the schema id (`storage_location` =
+        // `<root>/__unitystorage/schemas/<schema_id>`), mirroring the reference's
+        // `SchemaRepository`/`SchemaInfo`. The location is built from the schema's
+        // own root, independent of the parent catalog. The id is pre-allocated so
+        // the store persists the row under it (else a v7 is minted). When no root
+        // is provided, both fields stay empty and managed securables fall back to
+        // the parent catalog's storage location.
+        let schema_id = uuid::Uuid::now_v7().hyphenated().to_string();
+        let storage_root = request.storage_root.filter(|s| !s.is_empty());
+        let storage_location = match storage_root.as_deref() {
+            Some(root) => {
+                // A local (file://) schema storage root must sit within an allowed root.
+                self.local_storage_policy()
+                    .check(&StorageLocationUrl::parse(root)?)?;
+                Some(super::staging_tables::schema_location(root, &schema_id))
+            }
+            None => None,
+        };
+
         let resource = Schema {
+            schema_id: Some(schema_id),
             full_name: format!("{}.{}", request.catalog_name, request.name),
             name: request.name,
             catalog_name: request.catalog_name,
             comment: request.comment,
             properties: request.properties,
-            storage_location: request.storage_location,
+            storage_root,
+            storage_location,
             ..Default::default()
         };
         // TODO:

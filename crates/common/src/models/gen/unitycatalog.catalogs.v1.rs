@@ -34,6 +34,14 @@ pub struct Catalog {
     /// The type of the catalog.
     #[prost(enumeration="CatalogType", optional, tag="9")]
     pub catalog_type: ::core::option::Option<i32>,
+    /// Storage location URL (full path) for managed storage of the catalog.
+    ///
+    /// A unique path under `storage_root`, used as the managed-storage parent for
+    /// managed tables/volumes whose schema has no storage location of its own.
+    /// Absent when the catalog has no `storage_root`.
+    /// Example: `s3://bucket/ucroot/__unitystorage/catalogs/{catalog_id}`.
+    #[prost(string, optional, tag="10")]
+    pub storage_location: ::core::option::Option<::prost::alloc::string::String>,
     /// Time at which this catalog was created, in epoch milliseconds.
     #[prost(int64, optional, tag="1000")]
     pub created_at: ::core::option::Option<i64>,

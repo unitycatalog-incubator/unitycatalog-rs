@@ -34,6 +34,9 @@ impl serde::Serialize for Catalog {
         if self.catalog_type.is_some() {
             len += 1;
         }
+        if self.storage_location.is_some() {
+            len += 1;
+        }
         if self.created_at.is_some() {
             len += 1;
         }
@@ -79,6 +82,9 @@ impl serde::Serialize for Catalog {
                 .map_err(|_| serde::ser::Error::custom(format!("Invalid variant {}", *v)))?;
             struct_ser.serialize_field("catalog_type", &v)?;
         }
+        if let Some(v) = self.storage_location.as_ref() {
+            struct_ser.serialize_field("storage_location", v)?;
+        }
         if let Some(v) = self.created_at.as_ref() {
             #[allow(clippy::needless_borrow)]
             #[allow(clippy::needless_borrows_for_generic_args)]
@@ -121,6 +127,8 @@ impl<'de> serde::Deserialize<'de> for Catalog {
             "shareName",
             "catalog_type",
             "catalogType",
+            "storage_location",
+            "storageLocation",
             "created_at",
             "createdAt",
             "created_by",
@@ -144,6 +152,7 @@ impl<'de> serde::Deserialize<'de> for Catalog {
             ProviderName,
             ShareName,
             CatalogType,
+            StorageLocation,
             CreatedAt,
             CreatedBy,
             UpdatedAt,
@@ -180,6 +189,7 @@ impl<'de> serde::Deserialize<'de> for Catalog {
                             "providerName" | "provider_name" => Ok(GeneratedField::ProviderName),
                             "shareName" | "share_name" => Ok(GeneratedField::ShareName),
                             "catalogType" | "catalog_type" => Ok(GeneratedField::CatalogType),
+                            "storageLocation" | "storage_location" => Ok(GeneratedField::StorageLocation),
                             "createdAt" | "created_at" => Ok(GeneratedField::CreatedAt),
                             "createdBy" | "created_by" => Ok(GeneratedField::CreatedBy),
                             "updatedAt" | "updated_at" => Ok(GeneratedField::UpdatedAt),
@@ -213,6 +223,7 @@ impl<'de> serde::Deserialize<'de> for Catalog {
                 let mut provider_name__ = None;
                 let mut share_name__ = None;
                 let mut catalog_type__ = None;
+                let mut storage_location__ = None;
                 let mut created_at__ = None;
                 let mut created_by__ = None;
                 let mut updated_at__ = None;
@@ -276,6 +287,12 @@ impl<'de> serde::Deserialize<'de> for Catalog {
                             }
                             catalog_type__ = map_.next_value::<::std::option::Option<CatalogType>>()?.map(|x| x as i32);
                         }
+                        GeneratedField::StorageLocation => {
+                            if storage_location__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("storageLocation"));
+                            }
+                            storage_location__ = map_.next_value()?;
+                        }
                         GeneratedField::CreatedAt => {
                             if created_at__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("createdAt"));
@@ -325,6 +342,7 @@ impl<'de> serde::Deserialize<'de> for Catalog {
                     provider_name: provider_name__,
                     share_name: share_name__,
                     catalog_type: catalog_type__,
+                    storage_location: storage_location__,
                     created_at: created_at__,
                     created_by: created_by__,
                     updated_at: updated_at__,
