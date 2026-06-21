@@ -236,8 +236,20 @@ pub(crate) async fn get_object_store(
 /// The delta_kernel engine addresses objects by their full path, so the store
 /// is left unrooted (paths are relative to the filesystem root) rather than
 /// prefixed at the table directory.
+///
+/// Local `file://` storage is **POSIX-only** for now and errors on Windows:
+/// `object_store::path::Path` cannot represent a Windows absolute path (the
+/// drive-letter colon is percent-encoded), so an unrooted store addressed by
+/// full path does not resolve to the real on-disk location. Mirrors the
+/// client-side `local_store` in `unitycatalog-object-store`.
 fn get_local_store(location: &StorageLocationUrl) -> Result<Arc<DynObjectStore>> {
     tracing::debug!("get_local_store: {:?}", location.location());
+    if cfg!(windows) {
+        return Err(Error::invalid_argument(format!(
+            "local (file://) storage is not supported on Windows: {}",
+            location.raw()
+        )));
+    }
     location.raw().to_file_path().map_err(|_| {
         Error::invalid_argument(format!("not a valid local file path: {}", location.raw()))
     })?;
@@ -324,6 +336,8 @@ mod tests {
 
     /// A `file://` location resolves to a local store with no external-location
     /// lookup or credential — and the resulting store can read what it writes.
+    /// POSIX-only: local file:// is gated off on Windows (see `get_local_store`).
+    #[cfg(not(windows))]
     #[tokio::test]
     async fn local_store_roundtrips_full_path() {
         use object_store::{ObjectStoreExt, PutPayload, path::Path};

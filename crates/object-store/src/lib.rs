@@ -631,7 +631,22 @@ impl From<Operation> for PathOperation {
 ///
 /// For [`PathOperation::ReadWrite`] / [`PathOperation::CreateTable`] the target
 /// directory is created if missing, so writes to a fresh local root succeed.
+///
+/// # Platform support
+///
+/// Local `file://` storage is **POSIX-only** for now. On Windows it returns an
+/// error: `object_store::path::Path` cannot represent a Windows absolute path
+/// (the drive-letter colon is percent-encoded), so an unrooted
+/// [`LocalFileSystem`] addressed by full path does not resolve back to the real
+/// on-disk location. Tracked for a follow-up; cloud schemes are unaffected.
 fn local_store(url: &Url, operation: PathOperation) -> Result<UCStore> {
+    if cfg!(windows) {
+        return Err(Error::invalid_config(format!(
+            "local (file://) storage is not supported on Windows: {url}"
+        ))
+        .into());
+    }
+
     let dir = url
         .to_file_path()
         .map_err(|_| Error::invalid_url(format!("not a valid local file path: {url}")))?;
@@ -686,6 +701,8 @@ fn extend_prefix(store: UCStore, extra: &str) -> UCStore {
 #[cfg(test)]
 mod tests {
     use futures::TryStreamExt;
+    // `put`/`PutPayload` are only used by the POSIX-only local-storage tests.
+    #[cfg(not(windows))]
     use object_store::{ObjectStoreExt, PutPayload};
 
     use super::*;
@@ -705,6 +722,8 @@ mod tests {
 
     /// `file://` URLs are served by a local store and round-trip read/write/list
     /// without any credential-vending call (the factory points at a dead endpoint).
+    // Local file:// storage is POSIX-only for now (see `local_store`).
+    #[cfg(not(windows))]
     #[tokio::test]
     async fn for_url_file_roundtrips_without_vending() {
         let dir = tempfile::tempdir().unwrap();
@@ -732,6 +751,7 @@ mod tests {
     }
 
     /// `for_path` with a `file://` URL returns a usable store with no network call.
+    #[cfg(not(windows))]
     #[tokio::test]
     async fn for_path_file_skips_vending() {
         let dir = tempfile::tempdir().unwrap();
@@ -747,6 +767,7 @@ mod tests {
     }
 
     /// A read-write local store auto-creates a missing target directory.
+    #[cfg(not(windows))]
     #[tokio::test]
     async fn local_store_read_write_creates_dir() {
         let dir = tempfile::tempdir().unwrap();
@@ -770,15 +791,11 @@ mod tests {
     /// round-trips through that same path, and lands on disk under the table
     /// directory.
     ///
-    /// Both checks go through paths object_store itself produces (the `root()`
-    /// put/get round-trip, and a real `read_dir` of the table directory) — never
-    /// a native `PathBuf::join` against an object_store `Path`, whose absolute-
-    /// path spelling (drive letters, colon encoding) diverges on Windows. The
-    /// `root()` and `as_dyn()` views are deliberately *not* crossed here: in
-    /// production DataFusion uses `root()` with full paths throughout, while
-    /// direct callers use `as_dyn()` with relative paths throughout, and
-    /// object_store cannot represent a Windows absolute path as a `Path` prefix
-    /// consistently enough to mix the two.
+    /// On-disk placement is checked with a real `read_dir` of the table
+    /// directory, not a native `PathBuf::join` against an object_store `Path`.
+    /// POSIX-only: local file:// is gated off on Windows (see `local_store`),
+    /// where an unrooted store cannot round-trip a drive-letter absolute path.
+    #[cfg(not(windows))]
     #[tokio::test]
     async fn local_store_root_resolves_full_path() {
         let dir = tempfile::tempdir().unwrap();
@@ -819,6 +836,9 @@ mod tests {
     }
 
     /// A non-`file` URL handed to the local helper is a clean error, not a panic.
+    /// POSIX-only: on Windows `local_store` rejects every call up front, so the
+    /// specific "not a valid local file path" message does not apply.
+    #[cfg(not(windows))]
     #[test]
     fn local_store_rejects_non_file_url() {
         let url = Url::parse("s3://bucket/prefix/").unwrap();
