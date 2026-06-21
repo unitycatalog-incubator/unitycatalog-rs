@@ -767,10 +767,18 @@ mod tests {
 
     /// The unrooted `root()` store resolves the **full** path (the DataFusion
     /// routing-store contract): a write addressed by the full absolute path
-    /// round-trips through that same path. Correctness is the put/get round-trip
-    /// through the unrooted store — the same mapping the engine uses at scan time
-    /// — rather than a native `PathBuf::join`, whose spelling of an absolute path
-    /// (drive letters, separators) diverges from object_store's on Windows.
+    /// round-trips through that same path, and lands on disk under the table
+    /// directory.
+    ///
+    /// Both checks go through paths object_store itself produces (the `root()`
+    /// put/get round-trip, and a real `read_dir` of the table directory) — never
+    /// a native `PathBuf::join` against an object_store `Path`, whose absolute-
+    /// path spelling (drive letters, colon encoding) diverges on Windows. The
+    /// `root()` and `as_dyn()` views are deliberately *not* crossed here: in
+    /// production DataFusion uses `root()` with full paths throughout, while
+    /// direct callers use `as_dyn()` with relative paths throughout, and
+    /// object_store cannot represent a Windows absolute path as a `Path` prefix
+    /// consistently enough to mix the two.
     #[tokio::test]
     async fn local_store_root_resolves_full_path() {
         let dir = tempfile::tempdir().unwrap();
@@ -800,15 +808,14 @@ mod tests {
             .unwrap();
         assert_eq!(&got[..], b"data");
 
-        // And the object actually exists at the prefix-scoped store, i.e. under
-        // the table directory the credential was vended for.
-        let listing: Vec<_> = store.as_dyn().list(None).try_collect().await.unwrap();
-        assert_eq!(
-            listing.len(),
-            1,
-            "expected exactly one object under the table dir"
-        );
-        assert_eq!(listing[0].location, Path::from("part-0.parquet"));
+        // And it landed on disk under the table directory. Check the real
+        // filesystem directly (not via an object_store `Path`) so the assertion
+        // is OS-agnostic.
+        let entries: Vec<_> = std::fs::read_dir(&table_dir)
+            .unwrap()
+            .map(|e| e.unwrap().file_name())
+            .collect();
+        assert_eq!(entries, vec![std::ffi::OsString::from("part-0.parquet")]);
     }
 
     /// A non-`file` URL handed to the local helper is a clean error, not a panic.
