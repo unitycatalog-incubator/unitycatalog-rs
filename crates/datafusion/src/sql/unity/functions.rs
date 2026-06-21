@@ -13,7 +13,7 @@ use crate::sql::unity::{create_response_to_batch, drop_response_to_batch};
 ///
 /// Only [`FunctionLanguage::Sql`] is executable today; the other variants exist
 /// so the host parser can faithfully carry what the user wrote and this crate
-/// can reject it with a precise error rather than silently mis-creating it.
+/// can reject it with a precise error rather than creating it incorrectly.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Hash)]
 pub enum FunctionLanguage {
     Sql,
