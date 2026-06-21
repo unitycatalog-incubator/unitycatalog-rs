@@ -34,7 +34,9 @@ Journeys are grouped into tiers based on complexity and external dependencies:
 
 ### Tier 1 — Basic CRUD
 
-All Tier 1 journeys are compatible with **all implementations** (`ImplementationTag::All`).
+Most Tier 1 journeys are compatible with **all implementations**
+(`ImplementationTag::All`); the table/metric-view journeys are the exceptions
+noted below (OSS Java limitations).
 
 | Journey Name | File | Resources | Steps | Recording Status |
 |---|---|---|---|---|
@@ -42,6 +44,7 @@ All Tier 1 journeys are compatible with **all implementations** (`Implementation
 | `catalog_hierarchy` | `tier1/catalog_hierarchy.rs` | Catalogs, Schemas | catalog + 3 schemas → list → verify → delete all | ✅ Recorded (databricks, oss_rust, oss_java) |
 | `schema_lifecycle` | `tier1/schema_lifecycle.rs` | Catalogs, Schemas | create catalog → update catalog comment → create schema → get → list → update comment → delete | ✅ Recorded (databricks, oss_rust, oss_java) |
 | `table_managed_lifecycle` | `tier1/table_managed_lifecycle.rs` | Catalogs, Schemas, Tables | catalog + schema → create MANAGED DELTA table → get → list → list summaries → exists → delete | ⏳ Pending recording |
+| `metric_view_lifecycle` | `tier1/metric_view_lifecycle.rs` | Catalogs, Schemas, Tables | catalog + schema → create METRIC_VIEW (YAML `view_definition`) → get → list → delete | ✅ Recorded (oss_rust). OssRust + ManagedDatabricks only — OSS Java v0.4.1 lacks the `METRIC_VIEW` type and `view_definition` field (added upstream in v0.5.0); add `OssJava` once a v0.5.0+ image is available. |
 
 ### Tier 2 — Governance
 

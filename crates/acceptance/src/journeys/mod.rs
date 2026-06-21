@@ -27,6 +27,7 @@ pub fn all_journeys() -> Vec<Box<dyn UserJourney>> {
         Box::new(tier1::CatalogHierarchyJourney::new()),
         Box::new(tier1::SchemaLifecycleJourney::new()),
         Box::new(tier1::TableManagedLifecycleJourney::new()),
+        Box::new(tier1::MetricViewLifecycleJourney::new()),
         // ── Tier 2: Governance ──────────────────────────────────────────────
         Box::new(tier2::CredentialLifecycleJourney::new()),
         Box::new(tier2::VolumeManagedLifecycleJourney::new()),
