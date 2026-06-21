@@ -75,18 +75,17 @@ where
             .get(axum::http::header::CONTENT_LENGTH)
             .and_then(|v| v.to_str().ok())
             .and_then(|s| s.parse::<usize>().ok())
+            && content_length > MAX_BODY_SIZE
         {
-            if content_length > MAX_BODY_SIZE {
-                let response = (
-                    StatusCode::PAYLOAD_TOO_LARGE,
-                    format!(
-                        "Request body too large: {} bytes (limit: {} bytes)",
-                        content_length, MAX_BODY_SIZE
-                    ),
-                )
-                    .into_response();
-                return async { Ok(response) }.boxed();
-            }
+            let response = (
+                StatusCode::PAYLOAD_TOO_LARGE,
+                format!(
+                    "Request body too large: {} bytes (limit: {} bytes)",
+                    content_length, MAX_BODY_SIZE
+                ),
+            )
+                .into_response();
+            return async { Ok(response) }.boxed();
         }
 
         self.inner.call(req).boxed()

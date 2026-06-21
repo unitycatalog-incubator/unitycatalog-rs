@@ -292,12 +292,12 @@ impl CommitCoordinator for InMemoryCommitCoordinator {
                         "commit version must be the next version after {last}, but got {version}"
                     )));
                 }
-                if let Some(lbv) = latest_backfilled_version {
-                    if lbv > last {
-                        return Err(CommitError::InvalidArgument(format!(
-                            "latest_backfilled_version {lbv} is greater than the latest commit {last}"
-                        )));
-                    }
+                if let Some(lbv) = latest_backfilled_version
+                    && lbv > last
+                {
+                    return Err(CommitError::InvalidArgument(format!(
+                        "latest_backfilled_version {lbv} is greater than the latest commit {last}"
+                    )));
                 }
 
                 // Enforce the unbackfilled-commit cap. The effective backfilled
@@ -337,12 +337,12 @@ impl CommitCoordinator for InMemoryCommitCoordinator {
                 "start_version must be non-negative".to_string(),
             ));
         }
-        if let Some(end) = end_version {
-            if end < start_version {
-                return Err(CommitError::InvalidArgument(format!(
-                    "end_version {end} must be >= start_version {start_version}"
-                )));
-            }
+        if let Some(end) = end_version
+            && end < start_version
+        {
+            return Err(CommitError::InvalidArgument(format!(
+                "end_version {end} must be >= start_version {start_version}"
+            )));
         }
 
         let Some(entry) = self
@@ -404,10 +404,10 @@ fn backfill(state: &mut TableCommitState, up_to: i64) {
     for v in to_remove {
         state.commits.remove(&v);
     }
-    if up_to >= last {
-        if let Some(c) = state.commits.get_mut(&last) {
-            c.is_backfilled_latest = true;
-        }
+    if up_to >= last
+        && let Some(c) = state.commits.get_mut(&last)
+    {
+        c.is_backfilled_latest = true;
     }
 }
 

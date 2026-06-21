@@ -113,10 +113,10 @@ pub(crate) async fn list_table_volume_locations(
         .await?;
     for resource in tables {
         let table: Table = resource.try_into()?;
-        if let Some(loc) = table.storage_location.filter(|s| !s.is_empty()) {
-            if let Ok(url) = StorageLocationUrl::parse(&loc) {
-                out.push(url);
-            }
+        if let Some(loc) = table.storage_location.filter(|s| !s.is_empty())
+            && let Ok(url) = StorageLocationUrl::parse(&loc)
+        {
+            out.push(url);
         }
     }
 
@@ -125,10 +125,10 @@ pub(crate) async fn list_table_volume_locations(
         .await?;
     for resource in volumes {
         let volume: Volume = resource.try_into()?;
-        if !volume.storage_location.is_empty() {
-            if let Ok(url) = StorageLocationUrl::parse(&volume.storage_location) {
-                out.push(url);
-            }
+        if !volume.storage_location.is_empty()
+            && let Ok(url) = StorageLocationUrl::parse(&volume.storage_location)
+        {
+            out.push(url);
         }
     }
 

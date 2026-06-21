@@ -172,20 +172,20 @@ impl UserJourney for CatalogSimpleJourney {
                 }
 
                 // Validate storage root if provided
-                if let Some(storage_root) = &catalog_info.storage_root {
-                    if storage_root != &ctx.storage_root {
-                        logger.warn(&format!(
-                            "Storage root mismatch: expected '{}', got '{}'",
-                            ctx.storage_root, storage_root
-                        ))?;
-                    }
+                if let Some(storage_root) = &catalog_info.storage_root
+                    && storage_root != &ctx.storage_root
+                {
+                    logger.warn(&format!(
+                        "Storage root mismatch: expected '{}', got '{}'",
+                        ctx.storage_root, storage_root
+                    ))?;
                 }
 
                 // Validate comment
-                if let Some(comment) = &catalog_info.comment {
-                    if !comment.contains("Enhanced test catalog") {
-                        logger.warn("Catalog comment doesn't match expected content")?;
-                    }
+                if let Some(comment) = &catalog_info.comment
+                    && !comment.contains("Enhanced test catalog")
+                {
+                    logger.warn("Catalog comment doesn't match expected content")?;
                 }
 
                 // Log detailed information

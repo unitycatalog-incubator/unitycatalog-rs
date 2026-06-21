@@ -203,10 +203,10 @@ impl<T: ResourceStore + Policy<RequestContext>> EntityTagAssignmentHandler<Reque
 /// looks the TagPolicy up in the store and returns its `tag_key`.
 async fn tag_key_for<S: ResourceStore>(store: &S, tag_ref: &ResourceIdent) -> Result<String> {
     // Fast path: the ident already carries the single-segment name.
-    if let ResourceRef::Name(name) = tag_ref.as_ref() {
-        if let Some(last) = name.iter().last() {
-            return Ok(last.clone());
-        }
+    if let ResourceRef::Name(name) = tag_ref.as_ref()
+        && let Some(last) = name.iter().last()
+    {
+        return Ok(last.clone());
     }
     let (resource, _) = store.get(tag_ref).await?;
     let policy: TagPolicy = resource.try_into()?;
