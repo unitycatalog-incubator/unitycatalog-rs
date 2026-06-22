@@ -286,9 +286,15 @@ where
 {
     async fn create(&self, resource: Resource) -> Result<(Resource, ResourceRef)> {
         let object: Object = resource.try_into()?;
+        // A non-nil id means the caller pre-allocated it (e.g. a managed table
+        // adopting its staging reservation's id, or a managed volume embedding
+        // the id in its storage path); a nil id lets the store mint a fresh v7.
+        // API request types carry no id field, so callers cannot force an id
+        // through this path. Mirrors the Postgres backend's `create`.
+        let supplied_id = (!object.id.is_nil()).then_some(object.id);
         let created = self
             .store
-            .create(object.label, &object.name, object.properties)
+            .create(object.label, &object.name, object.properties, supplied_id)
             .await?;
         let id = ResourceRef::Uuid(created.id);
         Ok((created.try_into()?, id))

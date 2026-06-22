@@ -345,8 +345,9 @@ impl olai_store::ObjectStore<ObjectLabel> for Store {
         label: ObjectLabel,
         name: &ResourceName,
         properties: Option<serde_json::Value>,
+        id: Option<Uuid>,
     ) -> olai_store::Result<olai_store::Object<ObjectLabel>> {
-        Ok(self.add_object(&label, name, properties, None).await?)
+        Ok(self.add_object(&label, name, properties, id).await?)
     }
 
     async fn update(

@@ -76,6 +76,7 @@ async fn create_get_by_id_and_name() {
         ObjectLabel::Catalog,
         &name(&["main"]),
         Some(props.clone()),
+        None,
     )
     .await
     .unwrap();
@@ -97,10 +98,10 @@ async fn duplicate_name_is_already_exists() {
     let temp = TempDb::new("dup");
     let s = store(&temp).await;
 
-    ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None)
+    ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None, None)
         .await
         .unwrap();
-    let err = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None)
+    let err = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None, None)
         .await
         .unwrap_err();
     assert!(
@@ -114,7 +115,7 @@ async fn update_and_delete() {
     let temp = TempDb::new("update");
     let s = store(&temp).await;
 
-    let created = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None)
+    let created = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None, None)
         .await
         .unwrap();
     let updated = ObjectStore::update(&s, &created.id, Some(serde_json::json!({"k": "v"})))
@@ -135,11 +136,11 @@ async fn list_by_namespace_with_pagination() {
 
     // Two schemas in catalog `main`, one in catalog `other`.
     for ns_schema in ["a", "b"] {
-        ObjectStore::create(&s, ObjectLabel::Schema, &name(&["main", ns_schema]), None)
+        ObjectStore::create(&s, ObjectLabel::Schema, &name(&["main", ns_schema]), None, None)
             .await
             .unwrap();
     }
-    ObjectStore::create(&s, ObjectLabel::Schema, &name(&["other", "c"]), None)
+    ObjectStore::create(&s, ObjectLabel::Schema, &name(&["other", "c"]), None, None)
         .await
         .unwrap();
 
@@ -184,10 +185,10 @@ async fn associations_create_inverse_and_cascade() {
     let temp = TempDb::new("assoc");
     let s = store(&temp).await;
 
-    let catalog = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None)
+    let catalog = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None, None)
         .await
         .unwrap();
-    let schema = ObjectStore::create(&s, ObjectLabel::Schema, &name(&["main", "s"]), None)
+    let schema = ObjectStore::create(&s, ObjectLabel::Schema, &name(&["main", "s"]), None, None)
         .await
         .unwrap();
 
@@ -235,10 +236,10 @@ async fn remove_association_removes_inverse() {
     let temp = TempDb::new("assoc-remove");
     let s = store(&temp).await;
 
-    let a = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["a"]), None)
+    let a = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["a"]), None, None)
         .await
         .unwrap();
-    let b = ObjectStore::create(&s, ObjectLabel::Schema, &name(&["a", "b"]), None)
+    let b = ObjectStore::create(&s, ObjectLabel::Schema, &name(&["a", "b"]), None, None)
         .await
         .unwrap();
     AssociationStore::add(&s, a.id, b.id, "parent_of", None)
@@ -288,7 +289,7 @@ async fn data_persists_across_reopen() {
     let temp = TempDb::new("persist");
     let created_id = {
         let s = store(&temp).await;
-        let c = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None)
+        let c = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None, None)
             .await
             .unwrap();
         s.put_secret("k", Bytes::from_static(b"v")).await.unwrap();
@@ -309,10 +310,10 @@ async fn name_matching_is_ascii_case_insensitive() {
     let temp = TempDb::new("nocase");
     let s = store(&temp).await;
 
-    ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None)
+    ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["main"]), None, None)
         .await
         .unwrap();
-    let err = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["MAIN"]), None)
+    let err = ObjectStore::create(&s, ObjectLabel::Catalog, &name(&["MAIN"]), None, None)
         .await
         .unwrap_err();
     assert!(

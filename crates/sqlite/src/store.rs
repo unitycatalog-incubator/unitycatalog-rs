@@ -601,8 +601,9 @@ impl olai_store::ObjectStore<ObjectLabel> for SqliteStore {
         label: ObjectLabel,
         name: &ResourceName,
         properties: Option<serde_json::Value>,
+        id: Option<Uuid>,
     ) -> olai_store::Result<Object> {
-        Ok(self.add_object(&label, name, properties, None).await?)
+        Ok(self.add_object(&label, name, properties, id).await?)
     }
 
     async fn update(
