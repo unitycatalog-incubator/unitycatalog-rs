@@ -441,3 +441,94 @@ jobs:
           name: nextest results (postgres)
           path: target/nextest/ci/junit.xml
           reporter: jest-junit
+
+  integration_azurite:
+    name: integration-azurite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # dorny/test-reporter publishes the parsed JUnit results as a check run.
+      checks: write
+    # Azurite (Azure Blob emulator) matches dev/compose.yaml. The credential
+    # vending test signs a SAS from the well-known emulator account key and
+    # uses it to read/write blobs against this service container.
+    services:
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite
+        # `--blobHost 0.0.0.0` makes the blob endpoint reachable through the
+        # mapped host port (the default 127.0.0.1 bind is container-local and
+        # the port mapping would not connect).
+        command: azurite-blob --blobHost 0.0.0.0
+        ports:
+          - 10000:10000
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: "1.96"
+          components: llvm-tools-preview
+
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+        with:
+          shared-key: coverage
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
+        with:
+          tool: cargo-llvm-cov,cargo-nextest
+
+      # Azurite has no health endpoint; wait for the blob port to accept a
+      # connection, then create the container the test expects (the vended SAS
+      # is scoped to a blob prefix and cannot create containers itself). The
+      # account/key are Azurite's published well-known emulator credentials.
+      #
+      # Use a pinned `azure-cli` image rather than the runner's preinstalled
+      # `az`: the latter defaults to a Storage API version no released Azurite
+      # supports (e.g. 2026-04-06 → "API version ... not supported by Azurite"),
+      # while 2.64.0's default version is one Azurite accepts. Our actual test
+      # path is unaffected — the vended SAS pins sv=2020-12-06 and object_store
+      # sends 2023-11-03, both supported.
+      - name: Provision Azurite container
+        env:
+          AZURITE_CONN: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+        run: |
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null "http://127.0.0.1:10000/devstoreaccount1?comp=list"; then
+              echo "azurite is up"; break
+            fi
+            echo "waiting for azurite ($i)"; sleep 1
+          done
+          docker run --rm --network host \
+            -e AZURITE_CONN \
+            mcr.microsoft.com/azure-cli:2.64.0 \
+            az storage container create --name lakehouse --connection-string "$AZURITE_CONN"
+
+      - name: Run credential-vending Azurite integration tests
+        env:
+          UC_AZURITE_BLOB_ENDPOINT: "http://127.0.0.1:10000"
+          UC_AZURITE_CONTAINER: "lakehouse"
+          SQLX_OFFLINE: "true"
+        run: |
+          cargo llvm-cov --no-report nextest -p unitycatalog-server --features integration-azurite --profile ci --run-ignored all -E 'binary(credential_vending_azurite)'
+          cargo llvm-cov report --codecov --output-path codecov.json
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        if: ${{ !cancelled() }}
+        with:
+          files: codecov.json
+          flags: integration-azurite
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish test report
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
+        if: ${{ !cancelled() }}
+        with:
+          name: nextest results (azurite)
+          path: target/nextest/ci/junit.xml
+          reporter: jest-junit

@@ -13,23 +13,24 @@ coverage:
 
 codecov:
   require_ci_to_pass: false
-  # Four flagged reports are uploaded per run (see comment below). Wait for all
+  # Five flagged reports are uploaded per run (see comment below). Wait for all
   # of them before computing status / posting the comment, so neither shows
   # partial numbers from whichever job uploaded first.
   notify:
-    after_n_builds: 4
+    after_n_builds: 5
 
 comment:
   layout: "reach, diff, flags, files"
   behavior: default
   # Match notify.after_n_builds so the PR comment is posted once, complete.
-  after_n_builds: 4
+  after_n_builds: 5
 
 # Per-layer coverage is uploaded under distinct flags from separate CI jobs:
 #   unit                 — workspace nextest suite (coverage job)
 #   doctests             — doctest coverage (coverage_doc job)
 #   integration-oss-java — live journeys vs the Java UC server
 #   integration-pg       — postgres commit-coordinator #[sqlx::test]s
+#   integration-azurite  — credential-vending SAS path vs an Azurite emulator
 # carryforward keeps a flag's last known coverage when a given PR's run did not
 # produce it (e.g. an integration job that was skipped), so the merged project
 # view stays complete.
