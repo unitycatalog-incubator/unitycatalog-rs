@@ -480,7 +480,13 @@ impl UnityObjectStoreFactory {
         securable: SecurableRef,
     ) -> Result<UCStore> {
         let url = Url::parse(&credential.url).map_err(Error::from)?;
-        let path = Path::from_url_path(url.path())?;
+        // The emulator store is rooted at the container, so the prefix is the
+        // blob path *within* the container — not the full URL path (which for
+        // path-style Azurite also carries `/<account>/<container>`).
+        let path = match parse_azurite(&url) {
+            Some(loc) => Path::from(loc.prefix),
+            None => Path::from_url_path(url.path())?,
+        };
         let store = self.to_store(credential, securable).await?;
         Ok(UCStore {
             root: store,
@@ -495,8 +501,33 @@ impl UnityObjectStoreFactory {
         securable: SecurableRef,
     ) -> Result<Arc<dyn ObjectStore>> {
         if as_azure(&credential).is_ok() {
-            let provider = new_azure(self.creds.clone(), &credential, securable).await?;
             let url = Url::parse(&credential.url).map_err(Error::from)?;
+
+            // Azurite (local Blob emulator): the URL is path-style and
+            // `with_url` does not understand it, and in emulator mode the
+            // builder ignores a `with_credentials` provider — it only honours
+            // an explicit access key / bearer / SAS. So set account + container
+            // explicitly and pass the vended SAS via `SasKey`.
+            if let Some(loc) = parse_azurite(&url) {
+                let sas = azure_sas_token(&credential).ok_or_else(|| {
+                    Error::invalid_config(
+                        "Azurite store requires a SAS-token credential".to_string(),
+                    )
+                })?;
+                let mut builder = MicrosoftAzureBuilder::new()
+                    .with_use_emulator(true)
+                    .with_account(loc.account)
+                    .with_container_name(loc.container)
+                    .with_config(object_store::azure::AzureConfigKey::SasKey, sas);
+                if let Some(handle) = &self.io_handle {
+                    builder =
+                        builder.with_http_connector(SpawnedReqwestConnector::new(handle.clone()));
+                }
+                let store = builder.build()?;
+                return Ok(Arc::new(store));
+            }
+
+            let provider = new_azure(self.creds.clone(), &credential, securable).await?;
             let mut builder = MicrosoftAzureBuilder::new()
                 .with_url(url.to_string())
                 .with_credentials(Arc::new(provider));
@@ -666,6 +697,70 @@ fn local_store(url: &Url, operation: PathOperation) -> Result<UCStore> {
         url: url.clone(),
         path,
     })
+}
+
+/// Parsed components of an Azurite (Azure Blob emulator) storage URL.
+///
+/// Azurite is path-style — the account, container, and blob prefix are all
+/// segments of the path rather than the host (real Azure encodes the account in
+/// the host: `https://<account>.blob.core.windows.net/<container>/<prefix>`).
+struct AzuriteLocation {
+    account: String,
+    container: String,
+    prefix: String,
+}
+
+/// Detect and parse an Azurite endpoint from a storage URL.
+///
+/// Recognised forms (mirroring the server's `is_azurite` / `StorageLocationUrl`):
+/// - `http://127.0.0.1:10000/<account>/<container>/<prefix>` (default Azurite
+///   blob endpoint on localhost / 127.0.0.1, port 10000), and
+/// - `azurite://<container>/<prefix>` (custom scheme; the account is implicit,
+///   defaulting to the well-known emulator account).
+///
+/// Returns `None` for any non-Azurite URL so the caller falls through to the
+/// real-Azure path. `object_store`'s `MicrosoftAzureBuilder::with_url` does not
+/// understand either form, so the Azurite branch must set account/container
+/// explicitly rather than going through `with_url`.
+fn parse_azurite(url: &Url) -> Option<AzuriteLocation> {
+    const EMULATOR_ACCOUNT: &str = "devstoreaccount1";
+
+    if url.scheme() == "azurite" {
+        // azurite://<container>/<prefix>
+        let container = url.host_str().filter(|s| !s.is_empty())?.to_owned();
+        let prefix = url.path().trim_start_matches('/').to_owned();
+        return Some(AzuriteLocation {
+            account: EMULATOR_ACCOUNT.to_owned(),
+            container,
+            prefix,
+        });
+    }
+
+    let is_localhost = matches!(url.host_str(), Some("localhost") | Some("127.0.0.1"));
+    if url.scheme() == "http" && is_localhost && url.port() == Some(10000) {
+        // http://127.0.0.1:10000/<account>/<container>/<prefix>
+        let mut segments = url.path_segments()?;
+        let account = segments.next().filter(|s| !s.is_empty())?.to_owned();
+        let container = segments.next().filter(|s| !s.is_empty())?.to_owned();
+        let prefix = segments.collect::<Vec<_>>().join("/");
+        return Some(AzuriteLocation {
+            account,
+            container,
+            prefix,
+        });
+    }
+
+    None
+}
+
+/// Extract the raw SAS query string (`k1=v1&k2=v2&…`) from a vended credential,
+/// if it carries an Azure User Delegation / service SAS.
+fn azure_sas_token(credential: &TemporaryCredential) -> Option<String> {
+    use unitycatalog_common::temporary_credentials::v1::temporary_credential::Credentials;
+    match credential.credentials.as_ref()? {
+        Credentials::AzureUserDelegationSas(sas) => Some(sas.sas_token.clone()),
+        _ => None,
+    }
 }
 
 /// Returns a [`UCStore`] whose prefix is `store.prefix() + extra`, leaving
@@ -942,5 +1037,90 @@ mod tests {
             let files: Vec<_> = store.as_dyn().list(None).try_collect().await.unwrap();
             println!("files: {files:?}");
         });
+    }
+
+    #[test]
+    fn parse_azurite_path_style() {
+        let url =
+            Url::parse("http://127.0.0.1:10000/devstoreaccount1/mycontainer/some/prefix").unwrap();
+        let loc = parse_azurite(&url).expect("should parse path-style azurite URL");
+        assert_eq!(loc.account, "devstoreaccount1");
+        assert_eq!(loc.container, "mycontainer");
+        assert_eq!(loc.prefix, "some/prefix");
+    }
+
+    #[test]
+    fn parse_azurite_custom_scheme() {
+        let url = Url::parse("azurite://mycontainer/some/prefix").unwrap();
+        let loc = parse_azurite(&url).expect("should parse azurite:// URL");
+        assert_eq!(loc.account, "devstoreaccount1");
+        assert_eq!(loc.container, "mycontainer");
+        assert_eq!(loc.prefix, "some/prefix");
+    }
+
+    #[test]
+    fn parse_azurite_localhost_alias() {
+        let url = Url::parse("http://localhost:10000/acct/cont/p").unwrap();
+        let loc = parse_azurite(&url).expect("localhost is also an azurite host");
+        assert_eq!(loc.account, "acct");
+        assert_eq!(loc.container, "cont");
+        assert_eq!(loc.prefix, "p");
+    }
+
+    #[test]
+    fn parse_azurite_rejects_real_cloud_urls() {
+        // Real Azure, S3, and a non-Azurite localhost port must all be `None`.
+        for raw in [
+            "https://acct.blob.core.windows.net/container/path",
+            "s3://bucket/prefix",
+            "http://127.0.0.1:9000/acct/cont/p", // not the Azurite port
+        ] {
+            let url = Url::parse(raw).unwrap();
+            assert!(parse_azurite(&url).is_none(), "should not match: {raw}");
+        }
+    }
+
+    /// Building a store from an Azurite SAS credential targets the emulator and
+    /// roots the prefix at the blob path within the container (not the full URL
+    /// path, which also carries `/<account>/<container>`).
+    #[tokio::test]
+    async fn azurite_store_targets_emulator_and_roots_prefix() {
+        use unitycatalog_common::temporary_credentials::v1::{
+            AzureUserDelegationSas, temporary_credential::Credentials,
+        };
+
+        let url = "http://127.0.0.1:10000/devstoreaccount1/mycontainer/tbl/data";
+        let credential = TemporaryCredential {
+            expiration_time: now_epoch_millis() + 3_600_000,
+            url: url.to_string(),
+            credentials: Some(Credentials::AzureUserDelegationSas(
+                AzureUserDelegationSas {
+                    // A minimal, well-formed SAS query string. `split_sas` parses it
+                    // into query pairs; the emulator never sees it in this test.
+                    sas_token: "sv=2021-08-06&ss=b&srt=co&sp=rl&se=2999-01-01T00:00:00Z&sig=AAAA"
+                        .to_string(),
+                },
+            )),
+        };
+
+        let factory = offline_factory().await;
+        let securable =
+            SecurableRef::Path(Url::parse(url).unwrap(), PathOperation::Read, Some(false));
+        // `build_store` does no network I/O — it only constructs the emulator
+        // store and computes the prefix — so the dead-endpoint factory is fine.
+        let store = factory.build_store(credential, securable).await.unwrap();
+
+        // The container-relative blob prefix, with `/<account>/<container>` stripped.
+        assert_eq!(store.prefix(), &Path::from("tbl/data"));
+    }
+
+    /// `now_epoch_millis` is defined in the credential-vending crate, not here;
+    /// the store crate just needs a future timestamp for the test credential.
+    fn now_epoch_millis() -> i64 {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as i64
     }
 }

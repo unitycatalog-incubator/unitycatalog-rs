@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO delta_commits (id, table_id, commit_version, commit_filename, commit_filesize, commit_file_modification_timestamp, commit_timestamp, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": []
+  },
+  "hash": "731b5508dfe5b313930d1c9acf39e350a88ac5ed1d578a76252854d41c32621a"
+}

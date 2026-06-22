@@ -240,6 +240,39 @@ impl SecuredAction for ListEntityTagAssignmentsRequest {
     }
 }
 
+impl SecuredAction for GetEntityTagAssignmentRequest {
+    fn resource(&self) -> ResourceIdent {
+        entity_ident(&self.entity_type, &self.entity_name)
+            .unwrap_or_else(|_| ResourceIdent::catalog(ResourceRef::Undefined))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Read
+    }
+}
+
+impl SecuredAction for UpdateEntityTagAssignmentRequest {
+    fn resource(&self) -> ResourceIdent {
+        entity_ident(&self.entity_type, &self.entity_name)
+            .unwrap_or_else(|_| ResourceIdent::catalog(ResourceRef::Undefined))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
+impl SecuredAction for DeleteEntityTagAssignmentRequest {
+    fn resource(&self) -> ResourceIdent {
+        entity_ident(&self.entity_type, &self.entity_name)
+            .unwrap_or_else(|_| ResourceIdent::catalog(ResourceRef::Undefined))
+    }
+
+    fn permission(&self) -> &'static Permission {
+        &Permission::Manage
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;
@@ -443,38 +476,5 @@ mod tests {
             )
             .await;
         assert!(result.is_err(), "unsupported entity_type must be rejected");
-    }
-}
-
-impl SecuredAction for GetEntityTagAssignmentRequest {
-    fn resource(&self) -> ResourceIdent {
-        entity_ident(&self.entity_type, &self.entity_name)
-            .unwrap_or_else(|_| ResourceIdent::catalog(ResourceRef::Undefined))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Read
-    }
-}
-
-impl SecuredAction for UpdateEntityTagAssignmentRequest {
-    fn resource(&self) -> ResourceIdent {
-        entity_ident(&self.entity_type, &self.entity_name)
-            .unwrap_or_else(|_| ResourceIdent::catalog(ResourceRef::Undefined))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
-    }
-}
-
-impl SecuredAction for DeleteEntityTagAssignmentRequest {
-    fn resource(&self) -> ResourceIdent {
-        entity_ident(&self.entity_type, &self.entity_name)
-            .unwrap_or_else(|_| ResourceIdent::catalog(ResourceRef::Undefined))
-    }
-
-    fn permission(&self) -> &'static Permission {
-        &Permission::Manage
     }
 }

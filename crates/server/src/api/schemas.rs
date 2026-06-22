@@ -37,10 +37,16 @@ impl<T: ResourceStore + Policy<RequestContext> + ProvidesLocalStoragePolicy>
         let schema_id = uuid::Uuid::now_v7().hyphenated().to_string();
         let storage_root = request.storage_root.filter(|s| !s.is_empty());
         let storage_location = match storage_root.as_deref() {
+            // A client-supplied schema root must pass the local-storage policy, lie
+            // outside any reserved `__unitystorage` region, and be covered by a
+            // registered external location — mirroring the reference's
+            // `SchemaService` `AuthorizeExpression`.
+            // TODO(auth): also authorize CREATE_MANAGED_STORAGE/OWNER on the
+            // covering external location once the policy layer exists
+            // (feedback_auth_pattern).
             Some(root) => {
-                // A local (file://) schema storage root must sit within an allowed root.
-                self.local_storage_policy()
-                    .check(&StorageLocationUrl::parse(root)?)?;
+                let url = StorageLocationUrl::parse(root)?;
+                crate::services::object_store::validate_managed_storage_root(self, &url).await?;
                 Some(super::staging_tables::schema_location(root, &schema_id))
             }
             None => None,
@@ -188,5 +194,132 @@ impl SecuredAction for DeleteSchemaRequest {
 
     fn permission(&self) -> &'static Permission {
         &Permission::Manage
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use unitycatalog_common::models::credentials::v1::{
+        AwsIamRoleConfig, CreateCredentialRequest, Purpose,
+    };
+    use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
+    use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
+
+    use super::*;
+    use crate::api::{CredentialHandler, ExternalLocationHandler};
+    use crate::memory::InMemoryResourceStore;
+    use crate::policy::{ConstantPolicy, Principal};
+    use crate::services::ServerHandler;
+
+    fn handler() -> ServerHandler<RequestContext> {
+        let encryptor =
+            EnvelopeEncryptor::local(LocalKeyProvider::single("test", vec![0x42; 32]).unwrap());
+        let store = Arc::new(InMemoryResourceStore::new(encryptor));
+        let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
+        ServerHandler::try_new_tokio(policy, store.clone(), store).unwrap()
+    }
+
+    fn ctx() -> RequestContext {
+        RequestContext {
+            recipient: Principal::anonymous(),
+        }
+    }
+
+    /// Register a credential + external location at `url` so a managed schema
+    /// `storage_root` under it passes the coverage check. (`create_schema` does
+    /// not look up the parent catalog, so no catalog needs to exist.)
+    async fn make_covering_location(h: &ServerHandler<RequestContext>, name: &str, url: &str) {
+        h.create_credential(
+            CreateCredentialRequest {
+                name: format!("{name}-cred"),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: name.to_string(),
+                url: url.to_string(),
+                credential_name: format!("{name}-cred"),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+    }
+
+    fn create_req(catalog: &str, name: &str, storage_root: Option<&str>) -> CreateSchemaRequest {
+        CreateSchemaRequest {
+            name: name.to_string(),
+            catalog_name: catalog.to_string(),
+            storage_root: storage_root.map(str::to_string),
+            ..Default::default()
+        }
+    }
+
+    #[tokio::test]
+    async fn schema_without_root_has_no_storage_fields() {
+        // No storage_root ⇒ no coverage check, no materialized location; managed
+        // securables fall back to the catalog at table-create time.
+        let h = handler();
+        let schema = h
+            .create_schema(create_req("cat", "sch", None), ctx())
+            .await
+            .unwrap();
+        assert!(schema.storage_root.is_none());
+        assert!(schema.storage_location.is_none());
+    }
+
+    #[tokio::test]
+    async fn schema_with_covered_root_succeeds() {
+        // A client-supplied root under a registered external location is accepted;
+        // the location is materialized under the schema id.
+        let h = handler();
+        make_covering_location(&h, "el", "s3://bucket").await;
+        let schema = h
+            .create_schema(create_req("cat", "sch", Some("s3://bucket/sch")), ctx())
+            .await
+            .unwrap();
+        assert_eq!(schema.storage_root.as_deref(), Some("s3://bucket/sch"));
+        let id = schema.schema_id.as_deref().expect("schema id");
+        assert_eq!(
+            schema.storage_location.as_deref(),
+            Some(format!("s3://bucket/sch/__unitystorage/schemas/{id}").as_str())
+        );
+    }
+
+    #[tokio::test]
+    async fn schema_with_uncovered_root_is_rejected() {
+        // No registered external location covers the root ⇒ reject.
+        let h = handler();
+        let res = h
+            .create_schema(create_req("cat", "sch", Some("s3://bucket/sch")), ctx())
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn schema_root_under_managed_prefix_is_rejected() {
+        // A root inside a reserved `__unitystorage` region is rejected even when an
+        // external location covers it.
+        let h = handler();
+        make_covering_location(&h, "el", "s3://bucket").await;
+        let res = h
+            .create_schema(
+                create_req("cat", "sch", Some("s3://bucket/__unitystorage/sch")),
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
     }
 }

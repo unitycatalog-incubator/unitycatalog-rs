@@ -1063,11 +1063,15 @@ mod tests {
     use std::sync::Arc;
 
     use unitycatalog_common::models::catalogs::v1::CreateCatalogRequest;
+    use unitycatalog_common::models::credentials::v1::{
+        AwsIamRoleConfig, CreateCredentialRequest, Purpose,
+    };
+    use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
     use unitycatalog_common::models::schemas::v1::CreateSchemaRequest;
     use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
 
     use super::*;
-    use crate::api::{CatalogHandler, SchemaHandler};
+    use crate::api::{CatalogHandler, CredentialHandler, ExternalLocationHandler, SchemaHandler};
     use crate::memory::InMemoryResourceStore;
     use crate::policy::ConstantPolicy;
     use crate::services::ServerHandler;
@@ -1087,6 +1091,33 @@ mod tests {
     }
 
     async fn setup(h: &ServerHandler<RequestContext>) {
+        // The catalog's client-supplied root must be covered by a registered
+        // external location.
+        h.create_credential(
+            CreateCredentialRequest {
+                name: "cred".into(),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".into(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: "el".into(),
+                url: "s3://bucket/cat".into(),
+                credential_name: "cred".into(),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
         h.create_catalog(
             CreateCatalogRequest {
                 name: "cat".into(),

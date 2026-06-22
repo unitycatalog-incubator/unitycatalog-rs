@@ -64,21 +64,42 @@ impl<
         // is recorded and table-time resolution finds it directly. Delta Sharing
         // catalogs have no managed storage and are exempt.
         let storage_root = if catalog_type == CatalogType::ManagedCatalog {
-            let root = request
-                .storage_root
-                .filter(|s| !s.is_empty())
-                .or_else(|| self.managed_storage_root().map(str::to_string))
-                .ok_or_else(|| {
-                    Error::invalid_argument(format!(
-                        "managed catalog '{}' requires a storage_root, or a metastore \
-                         managed storage root to be configured on the server",
-                        request.name
-                    ))
-                })?;
-            // A local (file://) managed root must sit within an allowed host root.
-            self.local_storage_policy()
-                .check(&StorageLocationUrl::parse(&root)?)?;
-            Some(root)
+            match request.storage_root.filter(|s| !s.is_empty()) {
+                // Client-supplied root: it must pass the local-storage policy, lie
+                // outside any reserved `__unitystorage` region, and be covered by a
+                // registered external location — mirroring the reference's
+                // `CatalogService` `AuthorizeExpression`, which requires external
+                // location coverage only for a client-supplied root.
+                // TODO(auth): also authorize CREATE_MANAGED_STORAGE/OWNER on the
+                // covering external location once the policy layer exists
+                // (feedback_auth_pattern).
+                Some(root) => {
+                    let url = StorageLocationUrl::parse(&root)?;
+                    crate::services::object_store::validate_managed_storage_root(self, &url)
+                        .await?;
+                    Some(root)
+                }
+                // No client root: fall back to the metastore-level managed storage
+                // root. That is server configuration, so it is only checked against
+                // the local-storage allowlist — it is not required to be covered by
+                // a registered external location.
+                None => {
+                    let root =
+                        self.managed_storage_root()
+                            .map(str::to_string)
+                            .ok_or_else(|| {
+                                Error::invalid_argument(format!(
+                                    "managed catalog '{}' requires a storage_root, or a metastore \
+                                 managed storage root to be configured on the server",
+                                    request.name
+                                ))
+                            })?;
+                    // A local (file://) managed root must sit within an allowed host root.
+                    self.local_storage_policy()
+                        .check(&StorageLocationUrl::parse(&root)?)?;
+                    Some(root)
+                }
+            }
         } else {
             None
         };
@@ -236,7 +257,13 @@ mod tests {
 
     use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
 
+    use unitycatalog_common::models::credentials::v1::{
+        AwsIamRoleConfig, CreateCredentialRequest, Purpose,
+    };
+    use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
+
     use super::*;
+    use crate::api::{CredentialHandler, ExternalLocationHandler};
     use crate::memory::InMemoryResourceStore;
     use crate::policy::{ConstantPolicy, Principal};
     use crate::services::{LocalStoragePolicy, ServerHandler};
@@ -271,9 +298,42 @@ mod tests {
         }
     }
 
+    /// Register a credential and an external location at `url` so a managed
+    /// `storage_root` under it passes the external-location coverage check. The
+    /// credential name is derived from `name` (external-location create resolves
+    /// `credential_name` → `credential_id`, so the credential must exist first).
+    async fn make_covering_location(h: &ServerHandler<RequestContext>, name: &str, url: &str) {
+        h.create_credential(
+            CreateCredentialRequest {
+                name: format!("{name}-cred"),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: name.to_string(),
+                url: url.to_string(),
+                credential_name: format!("{name}-cred"),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+    }
+
     #[tokio::test]
     async fn managed_catalog_with_explicit_root_persists_it() {
         let h = handler(None, None);
+        make_covering_location(&h, "el", "s3://bucket/cat").await;
         let cat = h
             .create_catalog(
                 CreateCatalogRequest {
@@ -319,6 +379,7 @@ mod tests {
     #[tokio::test]
     async fn explicit_root_takes_precedence_over_metastore_default() {
         let h = handler(Some("s3://bucket/meta"), None);
+        make_covering_location(&h, "el", "s3://bucket/explicit").await;
         let cat = h
             .create_catalog(
                 CreateCatalogRequest {
@@ -385,6 +446,72 @@ mod tests {
             )
             .await;
         assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn explicit_root_covered_by_external_location_succeeds() {
+        // A client-supplied root nested under a registered external location is
+        // accepted; the location is materialized under the catalog id.
+        let h = handler(None, None);
+        make_covering_location(&h, "el", "s3://bucket").await;
+        let cat = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    storage_root: Some("s3://bucket/cat".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await
+            .unwrap();
+        let id = cat.id.as_deref().expect("catalog should have an id");
+        assert_eq!(
+            cat.storage_location.as_deref(),
+            Some(format!("s3://bucket/cat/__unitystorage/catalogs/{id}").as_str())
+        );
+    }
+
+    #[tokio::test]
+    async fn explicit_root_without_external_location_is_rejected() {
+        // No registered external location covers the client-supplied root ⇒ reject.
+        let h = handler(None, None);
+        let res = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    storage_root: Some("s3://bucket/cat".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn explicit_root_under_managed_prefix_is_rejected() {
+        // A client root inside a reserved `__unitystorage` region is rejected even
+        // when an external location covers it — the server owns that layout.
+        let h = handler(None, None);
+        make_covering_location(&h, "el", "s3://bucket").await;
+        let res = h
+            .create_catalog(
+                CreateCatalogRequest {
+                    storage_root: Some("s3://bucket/__unitystorage/cat".to_string()),
+                    ..create_req("cat")
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    #[tokio::test]
+    async fn metastore_default_root_without_external_location_succeeds() {
+        // The metastore-level default is server config and is exempt from the
+        // external-location coverage requirement — no EL registered, still works.
+        let h = handler(Some("s3://bucket/meta"), None);
+        let cat = h.create_catalog(create_req("cat"), ctx()).await.unwrap();
+        assert_eq!(cat.storage_root.as_deref(), Some("s3://bucket/meta"));
     }
 
     #[tokio::test]

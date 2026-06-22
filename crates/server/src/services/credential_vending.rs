@@ -15,7 +15,7 @@ use unitycatalog_common::models::temporary_credentials::v1::{
     temporary_credential::Credentials,
 };
 
-use crate::services::location::StorageLocationUrl;
+use crate::services::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::{Error, Result};
 
 /// Default credential TTL when the cloud provider does not supply an expiry.
@@ -320,6 +320,9 @@ async fn vend_azure_storage_key(
         })?;
     let (container, prefix) = storage_url.bucket_and_prefix()?;
     let read_only = operation == VendOperation::Read;
+    // Azurite is served over http and uses a flat namespace; the SAS must permit
+    // http and omit `sdd=` (see olai-http::generate_storage_key_sas).
+    let emulator = matches!(storage_url.scheme(), StorageLocationScheme::Azurite);
     let sas_token = olai_http::azure::generate_storage_key_sas(
         &account,
         &container,
@@ -327,6 +330,7 @@ async fn vend_azure_storage_key(
         &key.account_key,
         read_only,
         DEFAULT_TTL_SECS,
+        emulator,
     )?;
     Ok(azure_sas_to_temporary_credential(url, sas_token))
 }

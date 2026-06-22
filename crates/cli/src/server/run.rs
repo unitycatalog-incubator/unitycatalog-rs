@@ -21,6 +21,7 @@ use unitycatalog_server::api::sharing::{SharingHandler, SharingQueryHandler};
 use unitycatalog_server::api::staging_tables::StagingTableHandler;
 use unitycatalog_server::api::tables::TableHandler;
 use unitycatalog_server::api::tag_policies::TagPolicyHandler;
+use unitycatalog_server::api::temporary_credentials::TemporaryCredentialHandler;
 use unitycatalog_server::api::volumes::VolumeHandler;
 use unitycatalog_server::rest::{
     AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
@@ -28,7 +29,7 @@ use unitycatalog_server::rest::{
     create_external_locations_router, create_functions_router, create_open_sharing_router,
     create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
     create_sharing_router, create_staging_tables_router, create_tables_router,
-    create_tag_policies_router, create_volumes_router,
+    create_tag_policies_router, create_temporary_credentials_router, create_volumes_router,
 };
 use unitycatalog_server::sharing::{SharingSkillHandler, SharingVolumeHandler};
 
@@ -58,6 +59,7 @@ where
         + DeltaApiHandler<Cx>
         + TagPolicyHandler<Cx>
         + EntityTagAssignmentHandler<Cx>
+        + TemporaryCredentialHandler<Cx>
         + Clone,
     A: Authenticator<unitycatalog_server::policy::Principal> + Clone,
     Cx: axum::extract::FromRequestParts<T> + Send + 'static,
@@ -97,6 +99,7 @@ where
         .merge(create_volumes_router(handler.clone()))
         .merge(create_credentials_router(handler.clone()))
         .merge(create_external_locations_router(handler.clone()))
+        .merge(create_temporary_credentials_router(handler.clone()))
         .merge(create_functions_router(handler.clone()))
         .merge(create_recipients_router(handler.clone()))
         .merge(create_providers_router(handler.clone()))

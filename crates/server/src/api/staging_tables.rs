@@ -183,10 +183,14 @@ pub(crate) async fn find_staging_table_by_location(
     let (resources, _) = handler
         .list(&ObjectLabel::StagingTable, None, None, None)
         .await?;
+    // Match slash-insensitively: the createTable client sends the location with
+    // a trailing slash (kernel/Url normalization in create_managed_table) while
+    // the staging reservation stored it without one.
+    let needle = staging_location.trim_end_matches('/');
     resources
         .into_iter()
         .map(StagingTable::try_from)
-        .filter_ok(|st| st.staging_location == staging_location)
+        .filter_ok(|st| st.staging_location.trim_end_matches('/') == needle)
         .next()
         .ok_or(Error::NotFound)?
         .map_err(Error::from)
@@ -233,11 +237,15 @@ mod tests {
     use std::sync::Arc;
 
     use unitycatalog_common::models::catalogs::v1::CreateCatalogRequest;
+    use unitycatalog_common::models::credentials::v1::{
+        AwsIamRoleConfig, CreateCredentialRequest, Purpose,
+    };
+    use unitycatalog_common::models::external_locations::v1::CreateExternalLocationRequest;
     use unitycatalog_common::models::schemas::v1::CreateSchemaRequest;
     use unitycatalog_common::services::encryption::{EnvelopeEncryptor, LocalKeyProvider};
 
     use super::*;
-    use crate::api::{CatalogHandler, SchemaHandler};
+    use crate::api::{CatalogHandler, CredentialHandler, ExternalLocationHandler, SchemaHandler};
     use crate::memory::InMemoryResourceStore;
     use crate::policy::ConstantPolicy;
     use crate::services::ServerHandler;
@@ -256,11 +264,47 @@ mod tests {
         }
     }
 
+    /// Register a credential + external location at `url` so a managed
+    /// `storage_root` under it passes the coverage check. `tag` keeps the
+    /// credential/location names unique across multiple roots in one test.
+    async fn make_covering_location(h: &ServerHandler<RequestContext>, tag: &str, url: &str) {
+        h.create_credential(
+            CreateCredentialRequest {
+                name: format!("{tag}-cred"),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: format!("{tag}-el"),
+                url: url.to_string(),
+                credential_name: format!("{tag}-cred"),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+    }
+
     async fn make_catalog(
         h: &ServerHandler<RequestContext>,
         name: &str,
         storage_root: Option<&str>,
     ) {
+        // A client-supplied root must be covered by a registered external
+        // location; register one so create_catalog's coverage check passes.
+        if let Some(root) = storage_root {
+            make_covering_location(h, &format!("cat-{name}"), root).await;
+        }
         h.create_catalog(
             CreateCatalogRequest {
                 name: name.to_string(),
@@ -279,6 +323,9 @@ mod tests {
         name: &str,
         storage_root: Option<&str>,
     ) {
+        if let Some(root) = storage_root {
+            make_covering_location(h, &format!("sch-{catalog}-{name}"), root).await;
+        }
         h.create_schema(
             CreateSchemaRequest {
                 name: name.to_string(),

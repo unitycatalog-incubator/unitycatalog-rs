@@ -193,6 +193,23 @@ build-sqlx: _start_pg_sqlx
     # Clean up
     @just _stop_pg_sqlx
 
+# build sqlx queries for the embedded SQLite backend (no Docker required)
+[group('build')]
+build-sqlx-sqlite:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    DB="$(mktemp -t uc-sqlite-prepare-XXXX.db)"
+    rm -f "$DB" "$DB"-wal "$DB"-shm
+    export DATABASE_URL="sqlite://$DB"
+    export SQLX_OFFLINE=false
+    # Create the database file, apply the schema, then regenerate the offline
+    # cache for the sqlite crate.
+    cargo sqlx database create
+    cargo sqlx migrate run --source ./crates/sqlite/migrations
+    # Prepare only the sqlite crate's queries (run from its directory).
+    cd crates/sqlite && cargo sqlx prepare -- --tests
+    rm -f "$DB" "$DB"-wal "$DB"-shm
+
 _start_pg_sqlx:
     docker run -d \
         --name unitycatalog-sqlx-pg \
