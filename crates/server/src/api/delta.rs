@@ -344,19 +344,17 @@ where
             }
             contract::validate_table_id_property(&request.properties, &staging.id)?;
 
-            // Mark the staging reservation committed. Address it by the same
-            // identity the store keys it under — `StagingTable::resource_name()` is
-            // a bare `[name]`, so use that (a constructed three-part name or the
-            // logical id would not resolve).
+            // Consume the staging reservation: the table adopts its id, and the
+            // backing object store keys objects by id (a single PRIMARY KEY), so
+            // the staging object must be removed before the table claims that id —
+            // otherwise the table insert collides ("Entity already exists").
+            // Address it by the identity the store keys it under —
+            // `StagingTable::resource_name()` is a bare `[name]`.
             let staging_ident =
                 ResourceIdent::staging_table(unitycatalog_common::models::ResourceName::new([
                     staging.name.as_str(),
                 ]));
-            let committed = unitycatalog_common::models::staging_tables::v1::StagingTable {
-                stage_committed: true,
-                ..staging.clone()
-            };
-            self.update(&staging_ident, committed.into()).await?;
+            self.delete(&staging_ident).await?;
             Some(staging.id)
         } else {
             // EXTERNAL: the location must live inside a registered external location.
@@ -1272,11 +1270,13 @@ mod tests {
         // Newly created managed table has no commits yet.
         assert_eq!(resp.latest_table_version, Some(0));
 
-        // The staging reservation is now committed.
-        let staged = find_staging_table_by_location(&h, &st.staging_location)
+        // The staging reservation is consumed on create: the table adopts its
+        // id (objects are keyed by a single id PRIMARY KEY, so the staging
+        // object must be removed to free that id), so it is no longer findable.
+        let err = find_staging_table_by_location(&h, &st.staging_location)
             .await
-            .unwrap();
-        assert!(staged.stage_committed);
+            .unwrap_err();
+        assert!(matches!(err, Error::NotFound), "{err:?}");
     }
 
     #[tokio::test]

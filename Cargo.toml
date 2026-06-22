@@ -54,12 +54,11 @@ napi = { version = "3.5", default-features = false, features = [
 ] }
 napi-derive = "3.5"
 object_store = { version = "0.13.2", features = ["azure", "aws", "gcp"] }
-# Git ref pinned to trestle main, which carries the Azurite SAS fix
-# (https,http protocol + corrected service-SAS string-to-sign). Bump the rev
-# when trestle main advances; switch to the published crate once available
-# (the company proxy can't serve it for now).
-olai-http = { git = "https://github.com/open-lakehouse/trestle", rev = "29ec6f3cd8136c1731fdd260465e10ebdf4bc889" }
-olai-store = { git = "https://github.com/open-lakehouse/trestle", rev = "29ec6f3cd8136c1731fdd260465e10ebdf4bc889" }
+# Git ref pinned to trestle main, which carries the Azurite SAS fix + the
+# ObjectStore::create(id) change (external resource-id adoption). Bump the rev
+# as trestle main advances; published crate isn't usable yet (proxy offset).
+olai-http = { git = "https://github.com/open-lakehouse/trestle", rev = "173ef0013a3ef8f9f525fcbbfd7e5c1243fe027d" }
+olai-store = { git = "https://github.com/open-lakehouse/trestle", rev = "173ef0013a3ef8f9f525fcbbfd7e5c1243fe027d" }
 pbjson = { version = "0.9" }
 pbjson-types = "0.9"
 prost = { version = "0.14.1" }
