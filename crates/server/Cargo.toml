@@ -64,3 +64,8 @@ grpc = ["tonic"]
 # reusable handler patterns: proxy leaves + UC-client connector
 proxy = ["dep:unitycatalog-client"]
 federation = ["proxy"]
+
+# Gates the Azurite credential-vending integration test
+# (`tests/credential_vending_azurite.rs`). Requires a running Azurite blob
+# emulator; run with `just integration-azurite`.
+integration-azurite = ["memory"]

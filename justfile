@@ -293,6 +293,23 @@ integration-object-store:
     UC_INTEGRATION_URL="http://localhost:8080/api/2.1/unity-catalog/" \
     cargo test -p unitycatalog-object-store --test integration -- --ignored --test-threads=1
 
+# run the credential-vending integration test against an Azurite sidecar.
+# Boots the `azurite` compose profile (blob on localhost:10000), creates the
+# `lakehouse` container the test expects (the vended SAS cannot create
+# containers itself), then runs the `#[ignore]`d test under its feature gate.
+[group('test')]
+integration-azurite:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    docker compose -f dev/compose.yaml --profile azurite up -d --wait
+    conn="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;"
+    docker run --rm mcr.microsoft.com/azure-cli \
+        az storage container create --name lakehouse --connection-string "$conn"
+    UC_AZURITE_BLOB_ENDPOINT="http://127.0.0.1:10000" \
+    UC_AZURITE_CONTAINER="lakehouse" \
+    cargo test -p unitycatalog-server --features integration-azurite \
+        --test credential_vending_azurite -- --ignored --test-threads=1 --nocapture
+
 [group('test')]
 record-managed:
     UC_INTEGRATION_URL="$DATABRICKS_HOST" \
