@@ -100,10 +100,10 @@ impl Default for Config {
         Self {
             host: None,
             port: None,
-            backend: Backend::InMemory,
-            // No config file: fall back to a dev KEK so the in-memory server
-            // runs out of the box. Real deployments supply their own
-            // `encryption` config (see `EncryptionConfig::dev_default`).
+            backend: Backend::default(),
+            // No config file: fall back to a dev KEK so the default ephemeral
+            // SQLite server runs out of the box. Real deployments supply their
+            // own `encryption` config (see `EncryptionConfig::dev_default`).
             encryption: Some(EncryptionConfig::dev_default()),
             upstream: None,
             routing: RoutingConfig::default(),
@@ -215,7 +215,7 @@ impl RoutingConfig {
 }
 
 /// Backend configuration for the unity catalog server.
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case", tag = "engine")]
 pub enum Backend {
     /// Postgres backend configuration.
@@ -224,17 +224,26 @@ pub enum Backend {
     /// Embedded SQLite backend configuration.
     ///
     /// Durable, file-based storage that runs in-process — no external database
-    /// to operate. Suitable for a capable local single-binary server. Delta
-    /// catalog-managed commits are not durably coordinated by this backend (see
-    /// the `unitycatalog-sqlite` crate docs).
+    /// to operate. Suitable for a capable local single-binary server. The
+    /// special path `:memory:` opens an ephemeral in-process database, which is
+    /// the default when no config file is supplied — a feature-complete,
+    /// non-persistent dev backend (it coordinates Delta commits like the
+    /// file/Postgres backends, unlike the former bespoke in-memory store).
     Sqlite(SqliteBackendConfig),
+}
 
-    /// In-memory backend configuration.
+impl Default for Backend {
+    /// Default to an ephemeral in-process SQLite database (`:memory:`).
     ///
-    /// This is useful for testing and development purposes
-    /// but should not be used in production.
-    #[default]
-    InMemory,
+    /// This replaces the former bespoke in-memory store: it exercises the same
+    /// store and commit-coordinator code paths as the file and Postgres
+    /// backends, so a config-less `uc server` behaves like a real deployment
+    /// minus persistence.
+    fn default() -> Self {
+        Backend::Sqlite(SqliteBackendConfig {
+            path: ConfigValue::Value(":memory:".to_string()),
+        })
+    }
 }
 
 /// SQLite backend configuration.
@@ -308,8 +317,9 @@ impl EncryptionConfig {
     /// A fixed, well-known KEK for local development only.
     ///
     /// Used by [`Config::default`] so `uc server` runs without a config file
-    /// against the in-memory backend, where secrets do not survive a restart.
-    /// **Never use this in production** — supply a real KEK via a config file.
+    /// against the default ephemeral SQLite backend, where secrets do not
+    /// survive a restart. **Never use this in production** — supply a real KEK
+    /// via a config file.
     pub fn dev_default() -> Self {
         // 32 zero-derived bytes (`0..32`), base64-encoded. Deliberately not secret.
         const DEV_KEK: &str = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=";
@@ -427,7 +437,12 @@ mod tests {
         let config = Config::default();
         assert!(config.host.is_none());
         assert!(config.port.is_none());
-        assert!(matches!(config.backend, Backend::InMemory));
+        // The config-less default is an ephemeral in-process SQLite database.
+        let backend = match config.backend {
+            Backend::Sqlite(ref b) => b,
+            ref other => panic!("expected sqlite backend, got {other:?}"),
+        };
+        assert_eq!(backend.database_path().as_deref(), Some(":memory:"));
         assert!(config.upstream.is_none());
         assert_eq!(config.routing, RoutingConfig::default());
         assert!(!config.routing.any_upstream());
@@ -441,7 +456,8 @@ mod tests {
     fn test_minimal_config() {
         let config = r#"{}"#;
         let config: Config = serde_json::from_str(config).unwrap();
-        assert!(matches!(config.backend, Backend::InMemory));
+        // An empty config gets the default ephemeral SQLite backend.
+        assert!(matches!(config.backend, Backend::Sqlite(_)));
         assert!(!config.routing.any_upstream());
     }
 
@@ -453,7 +469,8 @@ mod tests {
         let yaml = format!(
             r#"
             backend:
-              engine: in-memory
+              engine: sqlite
+              path: ":memory:"
             encryption:
               active:
                 id: v2
@@ -492,7 +509,8 @@ mod tests {
     fn test_managed_storage_root_roundtrips() {
         let yaml = r#"
             backend:
-              engine: in-memory
+              engine: sqlite
+              path: ":memory:"
             managed_storage_root: "s3://bucket/meta"
         "#;
         let config: Config = serde_yml::from_str(yaml).unwrap();
@@ -507,7 +525,8 @@ mod tests {
         assert_eq!(reparsed.managed_storage_root, config.managed_storage_root);
 
         // Absent ⇒ None (default).
-        let bare: Config = serde_yml::from_str("backend:\n  engine: in-memory\n").unwrap();
+        let bare: Config =
+            serde_yml::from_str("backend:\n  engine: sqlite\n  path: \":memory:\"\n").unwrap();
         assert!(bare.managed_storage_root.is_none());
     }
 
@@ -523,7 +542,8 @@ mod tests {
     fn test_hybrid_config_roundtrip() {
         let yaml = r#"
             backend:
-              engine: in-memory
+              engine: sqlite
+              path: ":memory:"
             upstream:
               url: "http://uc-java:8080/api/2.1/unity-catalog"
             routing:

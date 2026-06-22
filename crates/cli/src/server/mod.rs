@@ -7,7 +7,6 @@ use unitycatalog_client::UnityCatalogClient;
 use unitycatalog_common::store::ObjectStoreAdapter;
 use unitycatalog_postgres::GraphStore;
 use unitycatalog_server::api::RequestContext;
-use unitycatalog_server::memory::InMemoryResourceStore;
 use unitycatalog_server::policy::{ConstantPolicy, Policy};
 use unitycatalog_server::{
     rest::AnonymousAuthenticator,
@@ -138,7 +137,6 @@ async fn handle_rest(args: &ServerArgs) -> Result<()> {
     }
 
     let (handler, policy) = match &config.backend {
-        Backend::InMemory => get_memory_handler(encryptor).await?,
         Backend::Postgres(pg) => get_db_handler(pg, encryptor).await?,
         Backend::Sqlite(cfg) => get_sqlite_handler(cfg, encryptor).await?,
     };
@@ -196,9 +194,11 @@ fn print_startup_summary(host: &str, port: u16, config: &Config) {
     let base = format!("http://{host}:{port}");
 
     let backend = match &config.backend {
-        Backend::InMemory => "in-memory".to_string(),
         Backend::Postgres(_) => "postgres".to_string(),
-        Backend::Sqlite(_) => "sqlite".to_string(),
+        Backend::Sqlite(cfg) => match cfg.database_path().as_deref() {
+            Some(":memory:") => "sqlite (:memory:)".to_string(),
+            _ => "sqlite".to_string(),
+        },
     };
 
     let routing = if config.routing.any_upstream() {
@@ -257,13 +257,6 @@ async fn get_db_handler(
         store.clone(),
         store,
     )?;
-    Ok((handler, policy))
-}
-
-async fn get_memory_handler(encryptor: EnvelopeEncryptor) -> Result<LocalHandler> {
-    let store = Arc::new(InMemoryResourceStore::new(encryptor));
-    let policy: Arc<dyn Policy<RequestContext>> = Arc::new(ConstantPolicy::default());
-    let handler = ServerHandler::try_new_tokio(policy.clone(), store.clone(), store)?;
     Ok((handler, policy))
 }
 
