@@ -326,9 +326,12 @@ fn snapshot_protocol(snapshot: &Snapshot) -> unitycatalog_common::models::delta:
     }
 }
 
-/// Build a bucket-rooted S3 object store from the credentials the `createStagingTable` response
+/// Build a credentialed object store from the credentials the `createStagingTable` response
 /// returned. (Vending by table name 404s during staging — the table isn't real yet — so we use
 /// the staging response's own `storage_credentials`.)
+///
+/// Dispatches on the credential the response carried: an `azure.sas-token` builds an Azure Blob
+/// store (Azurite emulator when the location is `azurite://…`), otherwise an S3 store.
 pub(crate) fn build_staging_store(
     staging: &DeltaStagingTableResponse,
     location: &Url,
@@ -346,6 +349,12 @@ pub(crate) fn build_staging_store(
             CreateManagedTableError::other("staging response carried no storage_credentials")
         })?;
     let cfg = &cred.config;
+
+    // Azure: the staging credential carries a SAS token.
+    if let Some(sas) = cfg.azure_sas_token.clone() {
+        return build_staging_store_azure(location, sas);
+    }
+
     let bucket = location
         .host_str()
         .ok_or_else(|| CreateManagedTableError::other("staging location has no bucket/host"))?;
@@ -366,5 +375,67 @@ pub(crate) fn build_staging_store(
     }
     builder =
         builder.with_region(std::env::var("AWS_REGION").unwrap_or_else(|_| "us-east-1".into()));
+    Ok(Arc::new(builder.build()?))
+}
+
+/// Build an Azure Blob staging store from a vended SAS token.
+///
+/// For the Azurite emulator (`azurite://<container>/…`, or path-style localhost:10000) the
+/// container is the URL host/first path segment and the store runs in emulator mode (http,
+/// well-known account). Mirrors `unitycatalog-object-store`'s `to_store` Azurite branch: the
+/// builder cannot parse `azurite://` via `with_url`, and in emulator mode it ignores a
+/// credential provider — so the SAS is passed via `SasKey` and account/container set explicitly.
+fn build_staging_store_azure(
+    location: &Url,
+    sas: String,
+) -> Result<Arc<dyn ObjectStore>, CreateManagedTableError> {
+    use object_store::azure::{AzureConfigKey, MicrosoftAzureBuilder};
+
+    const EMULATOR_ACCOUNT: &str = "devstoreaccount1";
+
+    let is_azurite_localhost = location.scheme() == "http"
+        && matches!(location.host_str(), Some("localhost") | Some("127.0.0.1"))
+        && location.port() == Some(10000);
+
+    if location.scheme() == "azurite" || is_azurite_localhost {
+        // azurite://<container>/…  → container is the host
+        // http://localhost:10000/<account>/<container>/…  → container is the 2nd path segment
+        let (account, container) = if location.scheme() == "azurite" {
+            (
+                EMULATOR_ACCOUNT.to_owned(),
+                location
+                    .host_str()
+                    .ok_or_else(|| {
+                        CreateManagedTableError::other("azurite location has no container")
+                    })?
+                    .to_owned(),
+            )
+        } else {
+            let mut segs = location
+                .path_segments()
+                .ok_or_else(|| CreateManagedTableError::other("azurite location has no path"))?;
+            let account = segs.next().unwrap_or("").to_owned();
+            let container = segs
+                .next()
+                .filter(|s| !s.is_empty())
+                .ok_or_else(|| {
+                    CreateManagedTableError::other("azurite location missing container")
+                })?
+                .to_owned();
+            (account, container)
+        };
+        let builder = MicrosoftAzureBuilder::new()
+            .with_use_emulator(true)
+            .with_account(account)
+            .with_container_name(container)
+            .with_config(AzureConfigKey::SasKey, sas);
+        return Ok(Arc::new(builder.build()?));
+    }
+
+    // Real Azure: container is the first path segment of
+    // https://<account>.blob.core.windows.net/<container>/…
+    let builder = MicrosoftAzureBuilder::new()
+        .with_url(location.as_str())
+        .with_config(AzureConfigKey::SasKey, sas);
     Ok(Arc::new(builder.build()?))
 }

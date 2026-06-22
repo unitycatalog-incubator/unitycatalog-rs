@@ -1041,8 +1041,8 @@ mod tests {
 
     #[test]
     fn parse_azurite_path_style() {
-        let url = Url::parse("http://127.0.0.1:10000/devstoreaccount1/mycontainer/some/prefix")
-            .unwrap();
+        let url =
+            Url::parse("http://127.0.0.1:10000/devstoreaccount1/mycontainer/some/prefix").unwrap();
         let loc = parse_azurite(&url).expect("should parse path-style azurite URL");
         assert_eq!(loc.account, "devstoreaccount1");
         assert_eq!(loc.container, "mycontainer");
@@ -1093,20 +1093,19 @@ mod tests {
         let credential = TemporaryCredential {
             expiration_time: now_epoch_millis() + 3_600_000,
             url: url.to_string(),
-            credentials: Some(Credentials::AzureUserDelegationSas(AzureUserDelegationSas {
-                // A minimal, well-formed SAS query string. `split_sas` parses it
-                // into query pairs; the emulator never sees it in this test.
-                sas_token: "sv=2021-08-06&ss=b&srt=co&sp=rl&se=2999-01-01T00:00:00Z&sig=AAAA"
-                    .to_string(),
-            })),
+            credentials: Some(Credentials::AzureUserDelegationSas(
+                AzureUserDelegationSas {
+                    // A minimal, well-formed SAS query string. `split_sas` parses it
+                    // into query pairs; the emulator never sees it in this test.
+                    sas_token: "sv=2021-08-06&ss=b&srt=co&sp=rl&se=2999-01-01T00:00:00Z&sig=AAAA"
+                        .to_string(),
+                },
+            )),
         };
 
         let factory = offline_factory().await;
-        let securable = SecurableRef::Path(
-            Url::parse(url).unwrap(),
-            PathOperation::Read,
-            Some(false),
-        );
+        let securable =
+            SecurableRef::Path(Url::parse(url).unwrap(), PathOperation::Read, Some(false));
         // `build_store` does no network I/O — it only constructs the emulator
         // store and computes the prefix — so the dead-endpoint factory is fine.
         let store = factory.build_store(credential, securable).await.unwrap();
