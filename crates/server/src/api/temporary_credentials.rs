@@ -9,11 +9,13 @@ use crate::api::CredentialHandler;
 use crate::api::credentials::CredentialHandlerExt;
 pub use crate::codegen::temporary_credentials::TemporaryCredentialHandler;
 use crate::policy::{Permission, Policy};
-use crate::services::credential_vending::{VendOperation, vend_credential};
-use crate::services::location::StorageLocationUrl;
+use crate::services::credential_vending::{VendOperation, local_path_credential, vend_credential};
+use crate::services::location::{StorageLocationScheme, StorageLocationUrl};
 use crate::services::object_store::find_external_location_for_url;
 use crate::store::ResourceStore;
 use crate::{Error, Result};
+
+use object_store::ObjectStoreScheme;
 
 /// The permission a vend operation requires from the policy.
 ///
@@ -69,6 +71,20 @@ impl<
     ) -> Result<TemporaryCredential> {
         let operation = to_vend_operation(request.operation);
         let storage_url = StorageLocationUrl::parse(&request.url)?;
+
+        // Local (`file://`) storage needs neither an external location nor a vended
+        // cloud credential: the client builds a `LocalFileSystem` addressed by full
+        // path, exactly as the server's own `get_object_store` short-circuits local
+        // storage. Without this, vending for a local managed root 404s
+        // (`find_external_location_for_url` finds no covering external location),
+        // which breaks managed-table creation on a purely-local dev server.
+        if matches!(
+            storage_url.scheme(),
+            StorageLocationScheme::ObjectStore(ObjectStoreScheme::Local)
+        ) {
+            return Ok(local_path_credential(&request.url));
+        }
+
         let ext_loc = find_external_location_for_url(&storage_url, self).await?;
         // Authorize against the concrete external location and the operation
         // actually requested, rather than the unscoped `SecuredAction` default.

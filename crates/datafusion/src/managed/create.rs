@@ -25,6 +25,7 @@ use delta_kernel::transaction::create_table::create_table;
 use delta_kernel::transaction::data_layout::DataLayout;
 use object_store::ObjectStore;
 use object_store::aws::AmazonS3Builder;
+use object_store::local::LocalFileSystem;
 use unitycatalog_client::DeltaV1Client;
 use unitycatalog_common::models::delta::v1::{
     DeltaCreateStagingTableRequest, DeltaCreateTableRequest, DeltaDataSourceFormat, DeltaDataType,
@@ -336,6 +337,27 @@ pub(crate) fn build_staging_store(
     staging: &DeltaStagingTableResponse,
     location: &Url,
 ) -> Result<Arc<dyn ObjectStore>, CreateManagedTableError> {
+    // Local (`file://`) staging needs no credential: the server vends a
+    // credential-less response for local managed storage, and the kernel engine
+    // addresses objects by full path, so an unrooted `LocalFileSystem` resolves
+    // them. Mirrors the server's `get_local_store` and the `unitycatalog-object-store`
+    // local branch. Short-circuit before the credential lookup, which would
+    // otherwise fail ("staging response carried no storage_credentials").
+    if location.scheme() == "file" {
+        // The table's managed directory does not exist yet (cloud stores create
+        // prefixes implicitly on first write, but a local filesystem does not, and
+        // the delta-rs table builder validates the local path exists before use).
+        // Create it so the kernel can write `0.json` and the snapshot read-back can
+        // open the location.
+        let dir = location.to_file_path().map_err(|_| {
+            CreateManagedTableError::other(format!("invalid local staging location: {location}"))
+        })?;
+        std::fs::create_dir_all(&dir).map_err(|e| {
+            CreateManagedTableError::other(format!("failed to create local table dir {dir:?}: {e}"))
+        })?;
+        return Ok(Arc::new(LocalFileSystem::new()));
+    }
+
     let cred = staging
         .storage_credentials
         .iter()
