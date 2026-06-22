@@ -303,7 +303,9 @@ integration-azurite:
     set -euo pipefail
     docker compose -f dev/compose.yaml --profile azurite up -d --wait
     conn="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;"
-    docker run --rm mcr.microsoft.com/azure-cli \
+    # Pinned azure-cli: newer `az` defaults to a Storage API version no released
+    # Azurite supports. 2.64.0's default is one Azurite accepts.
+    docker run --rm mcr.microsoft.com/azure-cli:2.64.0 \
         az storage container create --name lakehouse --connection-string "$conn"
     UC_AZURITE_BLOB_ENDPOINT="http://127.0.0.1:10000" \
     UC_AZURITE_CONTAINER="lakehouse" \

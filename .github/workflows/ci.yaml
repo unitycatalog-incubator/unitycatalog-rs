@@ -456,6 +456,10 @@ jobs:
     services:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
+        # `--blobHost 0.0.0.0` makes the blob endpoint reachable through the
+        # mapped host port (the default 127.0.0.1 bind is container-local and
+        # the port mapping would not connect).
+        command: azurite-blob --blobHost 0.0.0.0
         ports:
           - 10000:10000
     steps:
@@ -481,6 +485,13 @@ jobs:
       # connection, then create the container the test expects (the vended SAS
       # is scoped to a blob prefix and cannot create containers itself). The
       # account/key are Azurite's published well-known emulator credentials.
+      #
+      # Use a pinned `azure-cli` image rather than the runner's preinstalled
+      # `az`: the latter defaults to a Storage API version no released Azurite
+      # supports (e.g. 2026-04-06 → "API version ... not supported by Azurite"),
+      # while 2.64.0's default version is one Azurite accepts. Our actual test
+      # path is unaffected — the vended SAS pins sv=2020-12-06 and object_store
+      # sends 2023-11-03, both supported.
       - name: Provision Azurite container
         env:
           AZURITE_CONN: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
@@ -491,7 +502,10 @@ jobs:
             fi
             echo "waiting for azurite ($i)"; sleep 1
           done
-          az storage container create --name lakehouse --connection-string "$AZURITE_CONN"
+          docker run --rm --network host \
+            -e AZURITE_CONN \
+            mcr.microsoft.com/azure-cli:2.64.0 \
+            az storage container create --name lakehouse --connection-string "$AZURITE_CONN"
 
       - name: Run credential-vending Azurite integration tests
         env:
