@@ -302,9 +302,43 @@ mod tests {
         }
     }
 
+    /// Register a credential + external location at `url` so a managed
+    /// `storage_root` under it passes the coverage check. `tag` keeps the
+    /// credential/location names unique across multiple roots in one test.
+    async fn make_covering_location(h: &ServerHandler<RequestContext>, tag: &str, url: &str) {
+        h.create_credential(
+            CreateCredentialRequest {
+                name: format!("{tag}-cred"),
+                purpose: Purpose::Storage as i32,
+                aws_iam_role: Some(AwsIamRoleConfig {
+                    role_arn: "arn:aws:iam::123456789012:role/test".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+        h.create_external_location(
+            CreateExternalLocationRequest {
+                name: format!("{tag}-el"),
+                url: url.to_string(),
+                credential_name: format!("{tag}-cred"),
+                ..Default::default()
+            },
+            ctx(),
+        )
+        .await
+        .unwrap();
+    }
+
     /// Create catalog `cat` (rooted at `storage_root`) and schema `sch` so a
-    /// managed volume can resolve a managed storage root.
+    /// managed volume can resolve a managed storage root. Registers a covering
+    /// external location for the catalog root so create_catalog's coverage check
+    /// passes.
     async fn setup_managed_namespace(h: &ServerHandler<RequestContext>, storage_root: &str) {
+        make_covering_location(h, "cat", storage_root).await;
         h.create_catalog(
             CreateCatalogRequest {
                 name: "cat".to_string(),
@@ -401,6 +435,10 @@ mod tests {
     #[tokio::test]
     async fn managed_volume_schema_location_takes_precedence() {
         let h = handler();
+        // Both the catalog and schema roots must be covered by registered external
+        // locations (they are disjoint, so two distinct locations).
+        make_covering_location(&h, "cat", "s3://bucket/cat").await;
+        make_covering_location(&h, "sch", "s3://other/sch").await;
         h.create_catalog(
             CreateCatalogRequest {
                 name: "cat".to_string(),

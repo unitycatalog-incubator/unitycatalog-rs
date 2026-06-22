@@ -191,6 +191,55 @@ pub(crate) async fn validate_external_storage_location(
     Ok(())
 }
 
+/// Validate a client-provided managed `storage_root` for a catalog or schema.
+///
+/// Mirrors the Unity Catalog reference (`CatalogService`/`SchemaService`
+/// `AuthorizeExpression`): a managed storage root set by the client must
+/// 1. pass the local-storage policy (a `file://` root must sit within an
+///    allowed host root; cloud schemes pass through);
+/// 2. NOT lie within a reserved `__unitystorage` region — the server appends
+///    that segment itself when materializing the storage location, so a client
+///    root already inside one is a layout collision; and
+/// 3. be contained within a registered external location.
+///
+/// Unlike [`validate_external_storage_location`] this does **not** check overlap
+/// with existing table/volume locations: the managed root is a *parent prefix*
+/// under which managed leaves (`__unitystorage/.../tables/<id>`) are later
+/// minted, so a prefix-overlap with an existing managed leaf is expected, not a
+/// violation.
+///
+/// Applies only to a client-supplied root. The metastore-level default root and
+/// the dev-server single-local-root fallback are server configuration and are
+/// not required to be covered by an external location.
+pub(crate) async fn validate_managed_storage_root(
+    handler: &(impl ResourceStore + ProvidesLocalStoragePolicy + ?Sized),
+    location: &StorageLocationUrl,
+) -> Result<()> {
+    // 1. Local (file://) roots must sit within an allowed host root.
+    handler.local_storage_policy().check(location)?;
+
+    // 2. Must not already lie within a reserved managed-storage region; the
+    //    server owns the `__unitystorage` layout and appends it itself.
+    if path_contains_managed_segment(location) {
+        return Err(Error::invalid_argument(format!(
+            "managed storage_root '{}' must not lie within a reserved \
+             managed-storage ('{}') region",
+            location.raw(),
+            MANAGED_STORAGE_PREFIX,
+        )));
+    }
+
+    // 3. Must be contained within a registered external location.
+    if let Err(Error::NotFound) = find_external_location_for_url(location, handler).await {
+        return Err(Error::invalid_argument(format!(
+            "managed storage_root '{}' is not contained within any registered external location",
+            location.raw()
+        )));
+    }
+
+    Ok(())
+}
+
 /// Whether a storage location lies within a reserved managed-storage region,
 /// i.e. any path segment equals the `__unitystorage` prefix.
 ///
