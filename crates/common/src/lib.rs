@@ -4,6 +4,8 @@ pub use reference::UCReference;
 
 pub(crate) mod codegen;
 pub mod error;
+#[cfg(feature = "metric-view")]
+pub mod metric_view;
 pub mod models;
 #[cfg(feature = "python")]
 pub mod python;

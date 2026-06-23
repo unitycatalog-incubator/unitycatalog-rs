@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file unitycatalog/tables/v1/models.proto.
  */
 export const file_unitycatalog_tables_v1_models: GenFile = /*@__PURE__*/
-  fileDesc("CiN1bml0eWNhdGFsb2cvdGFibGVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnRhYmxlcy52MSJYCgxUYWJsZVN1bW1hcnkSEQoJZnVsbF9uYW1lGAEgASgJEjUKCnRhYmxlX3R5cGUYAiABKA4yIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlVHlwZSLXBAoGQ29sdW1uEhEKBG5hbWUYASABKAlCA+BBAhIWCgl0eXBlX3RleHQYAiABKAlCA+BBAhIWCgl0eXBlX2pzb24YAyABKAlCA+BBAhIaCghwb3NpdGlvbhgEIAEoBUID4EEBSACIAQESPgoJdHlwZV9uYW1lGAUgASgOMiYudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5UeXBlTmFtZUID4EECEiAKDnR5cGVfcHJlY2lzaW9uGAYgASgFQgPgQQFIAYgBARIcCgp0eXBlX3NjYWxlGAcgASgFQgPgQQFIAogBARIkChJ0eXBlX2ludGVydmFsX3R5cGUYCCABKAlCA+BBAUgDiAEBEhkKB2NvbW1lbnQYCSABKAlCA+BBAUgEiAEBEhoKCG51bGxhYmxlGAogASgIQgPgQQFIBYgBARIhCg9wYXJ0aXRpb25faW5kZXgYCyABKAVCA+BBAUgGiAEBEh4KCWNvbHVtbl9pZBgMIAEoCUIG4EED4EEISAeIAQE6TepBSgoWdW5pdHljYXRhbG9nLmlvL0NvbHVtbhIfdGFibGVzL3t0YWJsZX0vY29sdW1ucy97Y29sdW1ufSoHY29sdW1uczIGY29sdW1uQgsKCV9wb3NpdGlvbkIRCg9fdHlwZV9wcmVjaXNpb25CDQoLX3R5cGVfc2NhbGVCFQoTX3R5cGVfaW50ZXJ2YWxfdHlwZUIKCghfY29tbWVudEILCglfbnVsbGFibGVCEgoQX3BhcnRpdGlvbl9pbmRleEIMCgpfY29sdW1uX2lkIqYJCgVUYWJsZRIzCgRuYW1lGAEgASgJQiXgQQK6SB9yHRADMhleW2Etel1bMC05YS16X10qWzAtOWEtel0kEjsKDGNhdGFsb2dfbmFtZRgCIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6CgtzY2hlbWFfbmFtZRgDIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI6Cgp0YWJsZV90eXBlGAQgASgOMiEudW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZVR5cGVCA+BBAhJJChJkYXRhX3NvdXJjZV9mb3JtYXQYBSABKA4yKC51bml0eWNhdGFsb2cudGFibGVzLnYxLkRhdGFTb3VyY2VGb3JtYXRCA+BBAhI0Cgdjb2x1bW5zGAYgAygLMh4udW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5CA+BBARIiChBzdG9yYWdlX2xvY2F0aW9uGAcgASgJQgPgQQFIAIgBARIhCg92aWV3X2RlZmluaXRpb24YCCABKAlCA+BBAUgBiAEBEhcKBW93bmVyGAsgASgJQgPgQQNIAogBARIZCgdjb21tZW50GAwgASgJQgPgQQFIA4gBARJBCgpwcm9wZXJ0aWVzGA0gAygLMi0udW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZS5Qcm9wZXJ0aWVzRW50cnkSKQoXc3RvcmFnZV9jcmVkZW50aWFsX25hbWUYDiABKAlCA+BBAUgEiAEBEmgKCWZ1bGxfbmFtZRgRIAEoCUJV4EEDukhPck0yS15bYS16XVswLTlhLXpfXSpbMC05YS16XVwuW2Etel1bMC05YS16X10qWzAtOWEtel1cLlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIcCgpjcmVhdGVkX2F0GBIgASgDQgPgQQNIBYgBARIcCgpjcmVhdGVkX2J5GBMgASgJQgPgQQNIBogBARIcCgp1cGRhdGVkX2F0GBQgASgDQgPgQQNIB4gBARIcCgp1cGRhdGVkX2J5GBUgASgJQgPgQQNICIgBARIcCgpkZWxldGVkX2F0GBYgASgDQgPgQQNICYgBARIdCgh0YWJsZV9pZBgXIAEoCUIG4EED4EEISAqIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6ROpBQQoVdW5pdHljYXRhbG9nLmlvL1RhYmxlEg50YWJsZXMve3RhYmxlfRoJZnVsbF9uYW1lKgZ0YWJsZXMyBXRhYmxlQhMKEV9zdG9yYWdlX2xvY2F0aW9uQhIKEF92aWV3X2RlZmluaXRpb25CCAoGX293bmVyQgoKCF9jb21tZW50QhoKGF9zdG9yYWdlX2NyZWRlbnRpYWxfbmFtZUINCgtfY3JlYXRlZF9hdEINCgtfY3JlYXRlZF9ieUINCgtfdXBkYXRlZF9hdEINCgtfdXBkYXRlZF9ieUINCgtfZGVsZXRlZF9hdEILCglfdGFibGVfaWQqiQEKCVRhYmxlVHlwZRIaChZUQUJMRV9UWVBFX1VOU1BFQ0lGSUVEEAASCwoHTUFOQUdFRBABEgwKCEVYVEVSTkFMEAISCAoEVklFVxADEhUKEU1BVEVSSUFMSVpFRF9WSUVXEAQSEwoPU1RSRUFNSU5HX1RBQkxFEAUSDwoLTUVUUklDX1ZJRVcQCSq6AQoQRGF0YVNvdXJjZUZvcm1hdBIiCh5EQVRBX1NPVVJDRV9GT1JNQVRfVU5TUEVDSUZJRUQQABIJCgVERUxUQRABEgsKB0lDRUJFUkcQAhIICgRIVURJEAMSCwoHUEFSUVVFVBAEEgcKA0NTVhAFEggKBEpTT04QBhIHCgNPUkMQBxIICgRBVlJPEAgSCAoEVEVYVBAJEhEKDVVOSVRZX0NBVEFMT0cQChIQCgxERUxUQVNIQVJJTkcQCyrFAgoOQ29sdW1uVHlwZU5hbWUSIAocQ09MVU1OX1RZUEVfTkFNRV9VTlNQRUNJRklFRBAAEgsKB0JPT0xFQU4QARIICgRCWVRFEAISCQoFU0hPUlQQAxIHCgNJTlQQBBIICgRMT05HEAUSCQoFRkxPQVQQBhIKCgZET1VCTEUQBxIICgREQVRFEAgSDQoJVElNRVNUQU1QEAkSCgoGU1RSSU5HEAoSCgoGQklOQVJZEAsSCwoHREVDSU1BTBAMEgwKCElOVEVSVkFMEA0SCQoFQVJSQVkQDhIKCgZTVFJVQ1QQDxIHCgNNQVAQEBIICgRDSEFSEBESCAoETlVMTBASEhUKEVVTRVJfREVGSU5FRF9UWVBFEBMSEQoNVElNRVNUQU1QX05UWhAUEgsKB1ZBUklBTlQQFRIOCgpUQUJMRV9UWVBFEBZC8wEKGmNvbS51bml0eWNhdGFsb2cudGFibGVzLnYxQgtNb2RlbHNQcm90b1ABWk5naXRodWIuY29tL2RlbHRhLWluY3ViYXRvci9kZWx0YS1zaGFyaW5nLXJzL2dvL3VuaXR5Y2F0YWxvZy90YWJsZXMvdjE7dGFibGVzdjGiAgNVVFiqAhZVbml0eWNhdGFsb2cuVGFibGVzLlYxygIWVW5pdHljYXRhbG9nXFRhYmxlc1xWMeICIlVuaXR5Y2F0YWxvZ1xUYWJsZXNcVjFcR1BCTWV0YWRhdGHqAhhVbml0eWNhdGFsb2c6OlRhYmxlczo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
+  fileDesc("CiN1bml0eWNhdGFsb2cvdGFibGVzL3YxL21vZGVscy5wcm90bxIWdW5pdHljYXRhbG9nLnRhYmxlcy52MSJYCgxUYWJsZVN1bW1hcnkSEQoJZnVsbF9uYW1lGAEgASgJEjUKCnRhYmxlX3R5cGUYAiABKA4yIS51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlVHlwZSLXBAoGQ29sdW1uEhEKBG5hbWUYASABKAlCA+BBAhIWCgl0eXBlX3RleHQYAiABKAlCA+BBAhIWCgl0eXBlX2pzb24YAyABKAlCA+BBAhIaCghwb3NpdGlvbhgEIAEoBUID4EEBSACIAQESPgoJdHlwZV9uYW1lGAUgASgOMiYudW5pdHljYXRhbG9nLnRhYmxlcy52MS5Db2x1bW5UeXBlTmFtZUID4EECEiAKDnR5cGVfcHJlY2lzaW9uGAYgASgFQgPgQQFIAYgBARIcCgp0eXBlX3NjYWxlGAcgASgFQgPgQQFIAogBARIkChJ0eXBlX2ludGVydmFsX3R5cGUYCCABKAlCA+BBAUgDiAEBEhkKB2NvbW1lbnQYCSABKAlCA+BBAUgEiAEBEhoKCG51bGxhYmxlGAogASgIQgPgQQFIBYgBARIhCg9wYXJ0aXRpb25faW5kZXgYCyABKAVCA+BBAUgGiAEBEh4KCWNvbHVtbl9pZBgMIAEoCUIG4EED4EEISAeIAQE6TepBSgoWdW5pdHljYXRhbG9nLmlvL0NvbHVtbhIfdGFibGVzL3t0YWJsZX0vY29sdW1ucy97Y29sdW1ufSoHY29sdW1uczIGY29sdW1uQgsKCV9wb3NpdGlvbkIRCg9fdHlwZV9wcmVjaXNpb25CDQoLX3R5cGVfc2NhbGVCFQoTX3R5cGVfaW50ZXJ2YWxfdHlwZUIKCghfY29tbWVudEILCglfbnVsbGFibGVCEgoQX3BhcnRpdGlvbl9pbmRleEIMCgpfY29sdW1uX2lkIi8KD1RhYmxlRGVwZW5kZW5jeRIcCg90YWJsZV9mdWxsX25hbWUYASABKAlCA+BBAiI1ChJGdW5jdGlvbkRlcGVuZGVuY3kSHwoSZnVuY3Rpb25fZnVsbF9uYW1lGAEgASgJQgPgQQIilAEKCkRlcGVuZGVuY3kSOAoFdGFibGUYASABKAsyJy51bml0eWNhdGFsb2cudGFibGVzLnYxLlRhYmxlRGVwZW5kZW5jeUgAEj4KCGZ1bmN0aW9uGAIgASgLMioudW5pdHljYXRhbG9nLnRhYmxlcy52MS5GdW5jdGlvbkRlcGVuZGVuY3lIAEIMCgpkZXBlbmRlbmN5IkoKDkRlcGVuZGVuY3lMaXN0EjgKDGRlcGVuZGVuY2llcxgBIAMoCzIiLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuRGVwZW5kZW5jeSKJCgoFVGFibGUSMwoEbmFtZRgBIAEoCUIl4EECukgfch0QAzIZXlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBI7CgxjYXRhbG9nX25hbWUYAiABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSOgoLc2NoZW1hX25hbWUYAyABKAlCJeBBArpIH3IdEAMyGV5bYS16XVswLTlhLXpfXSpbMC05YS16XSQSOgoKdGFibGVfdHlwZRgEIAEoDjIhLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuVGFibGVUeXBlQgPgQQISSQoSZGF0YV9zb3VyY2VfZm9ybWF0GAUgASgOMigudW5pdHljYXRhbG9nLnRhYmxlcy52MS5EYXRhU291cmNlRm9ybWF0QgPgQQISNAoHY29sdW1ucxgGIAMoCzIeLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuQ29sdW1uQgPgQQESIgoQc3RvcmFnZV9sb2NhdGlvbhgHIAEoCUID4EEBSACIAQESIQoPdmlld19kZWZpbml0aW9uGAggASgJQgPgQQFIAYgBARJLChF2aWV3X2RlcGVuZGVuY2llcxgJIAEoCzImLnVuaXR5Y2F0YWxvZy50YWJsZXMudjEuRGVwZW5kZW5jeUxpc3RCA+BBAUgCiAEBEhcKBW93bmVyGAsgASgJQgPgQQNIA4gBARIZCgdjb21tZW50GAwgASgJQgPgQQFIBIgBARJBCgpwcm9wZXJ0aWVzGA0gAygLMi0udW5pdHljYXRhbG9nLnRhYmxlcy52MS5UYWJsZS5Qcm9wZXJ0aWVzRW50cnkSKQoXc3RvcmFnZV9jcmVkZW50aWFsX25hbWUYDiABKAlCA+BBAUgFiAEBEmgKCWZ1bGxfbmFtZRgRIAEoCUJV4EEDukhPck0yS15bYS16XVswLTlhLXpfXSpbMC05YS16XVwuW2Etel1bMC05YS16X10qWzAtOWEtel1cLlthLXpdWzAtOWEtel9dKlswLTlhLXpdJBIcCgpjcmVhdGVkX2F0GBIgASgDQgPgQQNIBogBARIcCgpjcmVhdGVkX2J5GBMgASgJQgPgQQNIB4gBARIcCgp1cGRhdGVkX2F0GBQgASgDQgPgQQNICIgBARIcCgp1cGRhdGVkX2J5GBUgASgJQgPgQQNICYgBARIcCgpkZWxldGVkX2F0GBYgASgDQgPgQQNICogBARIdCgh0YWJsZV9pZBgXIAEoCUIG4EED4EEISAuIAQEaMQoPUHJvcGVydGllc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6ROpBQQoVdW5pdHljYXRhbG9nLmlvL1RhYmxlEg50YWJsZXMve3RhYmxlfRoJZnVsbF9uYW1lKgZ0YWJsZXMyBXRhYmxlQhMKEV9zdG9yYWdlX2xvY2F0aW9uQhIKEF92aWV3X2RlZmluaXRpb25CFAoSX3ZpZXdfZGVwZW5kZW5jaWVzQggKBl9vd25lckIKCghfY29tbWVudEIaChhfc3RvcmFnZV9jcmVkZW50aWFsX25hbWVCDQoLX2NyZWF0ZWRfYXRCDQoLX2NyZWF0ZWRfYnlCDQoLX3VwZGF0ZWRfYXRCDQoLX3VwZGF0ZWRfYnlCDQoLX2RlbGV0ZWRfYXRCCwoJX3RhYmxlX2lkKokBCglUYWJsZVR5cGUSGgoWVEFCTEVfVFlQRV9VTlNQRUNJRklFRBAAEgsKB01BTkFHRUQQARIMCghFWFRFUk5BTBACEggKBFZJRVcQAxIVChFNQVRFUklBTElaRURfVklFVxAEEhMKD1NUUkVBTUlOR19UQUJMRRAFEg8KC01FVFJJQ19WSUVXEAkqugEKEERhdGFTb3VyY2VGb3JtYXQSIgoeREFUQV9TT1VSQ0VfRk9STUFUX1VOU1BFQ0lGSUVEEAASCQoFREVMVEEQARILCgdJQ0VCRVJHEAISCAoESFVESRADEgsKB1BBUlFVRVQQBBIHCgNDU1YQBRIICgRKU09OEAYSBwoDT1JDEAcSCAoEQVZSTxAIEggKBFRFWFQQCRIRCg1VTklUWV9DQVRBTE9HEAoSEAoMREVMVEFTSEFSSU5HEAsqxQIKDkNvbHVtblR5cGVOYW1lEiAKHENPTFVNTl9UWVBFX05BTUVfVU5TUEVDSUZJRUQQABILCgdCT09MRUFOEAESCAoEQllURRACEgkKBVNIT1JUEAMSBwoDSU5UEAQSCAoETE9ORxAFEgkKBUZMT0FUEAYSCgoGRE9VQkxFEAcSCAoEREFURRAIEg0KCVRJTUVTVEFNUBAJEgoKBlNUUklORxAKEgoKBkJJTkFSWRALEgsKB0RFQ0lNQUwQDBIMCghJTlRFUlZBTBANEgkKBUFSUkFZEA4SCgoGU1RSVUNUEA8SBwoDTUFQEBASCAoEQ0hBUhAREggKBE5VTEwQEhIVChFVU0VSX0RFRklORURfVFlQRRATEhEKDVRJTUVTVEFNUF9OVFoQFBILCgdWQVJJQU5UEBUSDgoKVEFCTEVfVFlQRRAWQvMBChpjb20udW5pdHljYXRhbG9nLnRhYmxlcy52MUILTW9kZWxzUHJvdG9QAVpOZ2l0aHViLmNvbS9kZWx0YS1pbmN1YmF0b3IvZGVsdGEtc2hhcmluZy1ycy9nby91bml0eWNhdGFsb2cvdGFibGVzL3YxO3RhYmxlc3YxogIDVVRYqgIWVW5pdHljYXRhbG9nLlRhYmxlcy5WMcoCFlVuaXR5Y2F0YWxvZ1xUYWJsZXNcVjHiAiJVbml0eWNhdGFsb2dcVGFibGVzXFYxXEdQQk1ldGFkYXRh6gIYVW5pdHljYXRhbG9nOjpUYWJsZXM6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior, file_google_api_resource, file_google_protobuf_struct]);
 
 /**
  * @generated from message unitycatalog.tables.v1.TableSummary
@@ -137,6 +137,102 @@ export const ColumnSchema: GenMessage<Column> = /*@__PURE__*/
   messageDesc(file_unitycatalog_tables_v1_models, 1);
 
 /**
+ * A table that a SQL object (such as a view or metric view) depends on.
+ *
+ * @generated from message unitycatalog.tables.v1.TableDependency
+ */
+export type TableDependency = Message<"unitycatalog.tables.v1.TableDependency"> & {
+  /**
+   * Full name of the dependent table, in the form of
+   * catalog_name.schema_name.table_name.
+   *
+   * @generated from field: string table_full_name = 1;
+   */
+  tableFullName: string;
+};
+
+/**
+ * Describes the message unitycatalog.tables.v1.TableDependency.
+ * Use `create(TableDependencySchema)` to create a new message.
+ */
+export const TableDependencySchema: GenMessage<TableDependency> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_tables_v1_models, 2);
+
+/**
+ * A function that a SQL object (such as a view or metric view) depends on.
+ *
+ * @generated from message unitycatalog.tables.v1.FunctionDependency
+ */
+export type FunctionDependency = Message<"unitycatalog.tables.v1.FunctionDependency"> & {
+  /**
+   * Full name of the dependent function, in the form of
+   * catalog_name.schema_name.function_name.
+   *
+   * @generated from field: string function_full_name = 1;
+   */
+  functionFullName: string;
+};
+
+/**
+ * Describes the message unitycatalog.tables.v1.FunctionDependency.
+ * Use `create(FunctionDependencySchema)` to create a new message.
+ */
+export const FunctionDependencySchema: GenMessage<FunctionDependency> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_tables_v1_models, 3);
+
+/**
+ * A dependency of a SQL object. Exactly one of the fields must be set.
+ *
+ * @generated from message unitycatalog.tables.v1.Dependency
+ */
+export type Dependency = Message<"unitycatalog.tables.v1.Dependency"> & {
+  /**
+   * @generated from oneof unitycatalog.tables.v1.Dependency.dependency
+   */
+  dependency: {
+    /**
+     * @generated from field: unitycatalog.tables.v1.TableDependency table = 1;
+     */
+    value: TableDependency;
+    case: "table";
+  } | {
+    /**
+     * @generated from field: unitycatalog.tables.v1.FunctionDependency function = 2;
+     */
+    value: FunctionDependency;
+    case: "function";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message unitycatalog.tables.v1.Dependency.
+ * Use `create(DependencySchema)` to create a new message.
+ */
+export const DependencySchema: GenMessage<Dependency> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_tables_v1_models, 4);
+
+/**
+ * A list of dependencies referenced by a view-like table.
+ *
+ * @generated from message unitycatalog.tables.v1.DependencyList
+ */
+export type DependencyList = Message<"unitycatalog.tables.v1.DependencyList"> & {
+  /**
+   * Array of dependencies.
+   *
+   * @generated from field: repeated unitycatalog.tables.v1.Dependency dependencies = 1;
+   */
+  dependencies: Dependency[];
+};
+
+/**
+ * Describes the message unitycatalog.tables.v1.DependencyList.
+ * Use `create(DependencyListSchema)` to create a new message.
+ */
+export const DependencyListSchema: GenMessage<DependencyList> = /*@__PURE__*/
+  messageDesc(file_unitycatalog_tables_v1_models, 5);
+
+/**
  * @generated from message unitycatalog.tables.v1.Table
  */
 export type Table = Message<"unitycatalog.tables.v1.Table"> & {
@@ -195,6 +291,15 @@ export type Table = Message<"unitycatalog.tables.v1.Table"> & {
    * @generated from field: optional string view_definition = 8;
    */
   viewDefinition?: string;
+
+  /**
+   * Tables and functions the view-like table reads. For metric views this is
+   * derived from the view_definition by the server (the definition is the
+   * single source of truth).
+   *
+   * @generated from field: optional unitycatalog.tables.v1.DependencyList view_dependencies = 9;
+   */
+  viewDependencies?: DependencyList;
 
   /**
    * Username of current owner of table.
@@ -279,7 +384,7 @@ export type Table = Message<"unitycatalog.tables.v1.Table"> & {
  * Use `create(TableSchema)` to create a new message.
  */
 export const TableSchema: GenMessage<Table> = /*@__PURE__*/
-  messageDesc(file_unitycatalog_tables_v1_models, 2);
+  messageDesc(file_unitycatalog_tables_v1_models, 6);
 
 /**
  * The type of the table.

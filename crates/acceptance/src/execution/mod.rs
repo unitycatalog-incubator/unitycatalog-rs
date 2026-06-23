@@ -13,7 +13,7 @@ use olai_http::{CloudClient, RequestResponseInfo};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use unitycatalog_client::UnityCatalogClient;
 use url::Url;
 
@@ -553,7 +553,7 @@ impl JourneyExecutor {
     }
 
     /// Save journey state to the recordings directory
-    fn save_journey_state(recordings_dir: &PathBuf, state: &JourneyState) -> AcceptanceResult<()> {
+    fn save_journey_state(recordings_dir: &Path, state: &JourneyState) -> AcceptanceResult<()> {
         if state.is_empty() {
             return Ok(());
         }
@@ -575,7 +575,7 @@ impl JourneyExecutor {
     }
 
     /// Load journey state from the recordings directory
-    async fn load_journey_state(recordings_dir: &PathBuf) -> AcceptanceResult<JourneyState> {
+    async fn load_journey_state(recordings_dir: &Path) -> AcceptanceResult<JourneyState> {
         let state_file = recordings_dir.join("journey_state.json");
 
         if !state_file.exists() {

@@ -145,6 +145,11 @@ message CreateTableRequest {
   // STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
   // SQL for views, YAML for metric views. Required for METRIC_VIEW.
   optional string view_definition = 10;
+
+  // Tables and functions the view-like table reads. For metric views the server
+  // derives this from view_definition and rejects a supplied list that diverges
+  // from the derived set (the definition is the single source of truth).
+  optional DependencyList view_dependencies = 11;
 }
 
 // Get a table

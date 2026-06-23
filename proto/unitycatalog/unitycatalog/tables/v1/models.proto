@@ -126,6 +126,34 @@ message Column {
   ];
 }
 
+// A table that a SQL object (such as a view or metric view) depends on.
+message TableDependency {
+  // Full name of the dependent table, in the form of
+  // catalog_name.schema_name.table_name.
+  string table_full_name = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// A function that a SQL object (such as a view or metric view) depends on.
+message FunctionDependency {
+  // Full name of the dependent function, in the form of
+  // catalog_name.schema_name.function_name.
+  string function_full_name = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// A dependency of a SQL object. Exactly one of the fields must be set.
+message Dependency {
+  oneof dependency {
+    TableDependency table = 1;
+    FunctionDependency function = 2;
+  }
+}
+
+// A list of dependencies referenced by a view-like table.
+message DependencyList {
+  // Array of dependencies.
+  repeated Dependency dependencies = 1;
+}
+
 message Table {
   option (google.api.resource) = {
     type: "unitycatalog.io/Table"
@@ -172,7 +200,10 @@ message Table {
   // SQL for views, YAML for metric views.
   optional string view_definition = 8 [(google.api.field_behavior) = OPTIONAL];
 
-  // optional string view_dependencies = 9;
+  // Tables and functions the view-like table reads. For metric views this is
+  // derived from the view_definition by the server (the definition is the
+  // single source of truth).
+  optional DependencyList view_dependencies = 9 [(google.api.field_behavior) = OPTIONAL];
 
   // optional string sql_path = 10;
 

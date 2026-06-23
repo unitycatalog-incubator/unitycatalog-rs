@@ -10,7 +10,11 @@ homepage.workspace = true
 keywords.workspace = true
 
 [dependencies]
-unitycatalog-common = { path = "../common", features = ["axum", "store"] }
+unitycatalog-common = { path = "../common", features = [
+  "axum",
+  "store",
+  "metric-view",
+] }
 unitycatalog-sharing-client = { path = "../sharing-client", features = [
   "server",
 ] }

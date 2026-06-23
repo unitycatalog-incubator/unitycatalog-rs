@@ -5,11 +5,12 @@
 //! create catalog → create schema → create metric view → get → list → delete.
 //!
 //! The core assertion is that `table_type` and `view_definition` round-trip
-//! through create and get.
+//! through create and get. When the server derives `view_dependencies` from the
+//! definition (uc-rs), the journey also checks the derived dependency list.
 
 use async_trait::async_trait;
 use futures::StreamExt;
-use unitycatalog_common::tables::v1::{DataSourceFormat, TableType};
+use unitycatalog_common::tables::v1::{DataSourceFormat, TableType, dependency};
 
 use crate::execution::{
     ImplementationTag, JourneyContext, JourneyMetadata, JourneyState, JourneyTier, ResourceTag,
@@ -176,6 +177,24 @@ impl UserJourney for MetricViewLifecycleJourney {
             Some(METRIC_VIEW_YAML),
             "view_definition not preserved through get"
         );
+        // A server that derives dependencies (uc-rs) populates `view_dependencies`
+        // from the definition's `source`. Recordings predating that derivation may
+        // omit the field, so assert only when it is present.
+        if let Some(deps) = fetched.view_dependencies.as_ref() {
+            let names: Vec<_> = deps
+                .dependencies
+                .iter()
+                .filter_map(|d| match &d.dependency {
+                    Some(dependency::Dependency::Table(t)) => Some(t.table_full_name.as_str()),
+                    _ => None,
+                })
+                .collect();
+            assert_eq!(
+                names,
+                vec!["cat.sch.orders"],
+                "view_dependencies not derived from the definition's source"
+            );
+        }
         println!("  ✓ Metric view fetched with view_definition intact");
 
         // Step 5: List tables — the metric view must appear.
