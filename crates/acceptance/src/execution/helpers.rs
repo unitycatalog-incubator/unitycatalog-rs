@@ -201,7 +201,7 @@ impl ProgressTracker {
     }
 }
 
-/// Convenience macros for common journey operations
+// Convenience macros for common journey operations
 
 /// Log a step with automatic emoji selection
 #[macro_export]

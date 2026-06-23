@@ -432,8 +432,8 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_millis() as i64;
-        assert!(millis > now_millis + 3590_000, "expiry too soon: {millis}");
-        assert!(millis < now_millis + 3610_000, "expiry too far: {millis}");
+        assert!(millis > now_millis + 3_590_000, "expiry too soon: {millis}");
+        assert!(millis < now_millis + 3_610_000, "expiry too far: {millis}");
     }
 
     #[test]
@@ -443,8 +443,8 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_millis() as i64;
-        assert!(millis > now_millis + 3590_000, "expiry too soon: {millis}");
-        assert!(millis < now_millis + 3610_000, "expiry too far: {millis}");
+        assert!(millis > now_millis + 3_590_000, "expiry too soon: {millis}");
+        assert!(millis < now_millis + 3_610_000, "expiry too far: {millis}");
     }
 
     #[test]

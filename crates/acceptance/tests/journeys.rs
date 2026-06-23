@@ -31,10 +31,10 @@ async fn journey_tests() -> Result<(), Box<dyn std::error::Error>> {
     let env_impl = std::env::var("UC_JOURNEY_IMPL").ok();
 
     for (profile_name, impl_tag) in REPLAY_PROFILES {
-        if let Some(ref wanted) = env_impl {
-            if wanted != profile_name {
-                continue;
-            }
+        if let Some(ref wanted) = env_impl
+            && wanted != profile_name
+        {
+            continue;
         }
 
         let config = JourneyConfig::default()

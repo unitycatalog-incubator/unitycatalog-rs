@@ -163,11 +163,7 @@ async fn create_managed_table_round_trip() {
     let snapshot =
         build_catalog_managed_snapshot(engine.as_ref(), &location, &commits, latest as i64, None)
             .expect("build_catalog_managed_snapshot failed");
-    assert_eq!(
-        snapshot.version(),
-        latest as u64,
-        "snapshot at catalog version"
-    );
+    assert_eq!(snapshot.version(), latest, "snapshot at catalog version");
 
     let provider = DeltaScanNext::builder()
         .with_snapshot(Arc::new(snapshot))

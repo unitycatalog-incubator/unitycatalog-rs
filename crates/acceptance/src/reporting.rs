@@ -210,10 +210,11 @@ impl JourneyReporter {
             step.details = details;
 
             if self.config.verbosity > 0 {
-                let timing_info = if self.config.show_timing && step.duration.is_some() {
-                    format!(" ({}ms)", step.duration.unwrap().as_millis())
-                } else {
-                    String::new()
+                let timing_info = match step.duration {
+                    Some(duration) if self.config.show_timing => {
+                        format!(" ({}ms)", duration.as_millis())
+                    }
+                    _ => String::new(),
                 };
 
                 let msg = if self.config.use_colors {

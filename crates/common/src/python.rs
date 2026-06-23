@@ -124,6 +124,14 @@ impl DataObject {
     }
 
     pub fn __repr__(&self) -> String {
+        let partitions = format!(
+            "[{}]",
+            self.partitions
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
         format!(
             "DataObject(name={}, data_object_type={}, added_at={}, added_by={}, comment={}, shared_as={}, partitions={}, enable_cdf={}, history_data_sharing_status={}, start_version={})",
             self.name,
@@ -134,14 +142,7 @@ impl DataObject {
             self.added_by.as_ref().unwrap_or(&"None".to_owned()),
             self.comment.as_ref().unwrap_or(&"None".to_owned()),
             self.shared_as.as_ref().unwrap_or(&"None".to_owned()),
-            format!(
-                "[{}]",
-                self.partitions
-                    .iter()
-                    .map(|p| p.to_string())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
+            partitions,
             self.enable_cdf
                 .as_ref()
                 .map_or("None".to_owned(), |n| n.to_string()),
@@ -308,6 +309,14 @@ impl Share {
 #[pymethods]
 impl Recipient {
     pub fn __repr__(&self) -> String {
+        let tokens = format!(
+            "[{}]",
+            self.tokens
+                .iter()
+                .map(|t| t.__repr__())
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
         format!(
             "Recipient(id={}, name={}, authentication_type={}, owner={}, comment={}, created_at={}, created_by={}, updated_at={}, updated_by={}, tokens={})",
             self.id.as_ref().unwrap_or(&"None".to_owned()),
@@ -323,14 +332,7 @@ impl Recipient {
                 .as_ref()
                 .map_or("None".to_owned(), |n| n.to_string()),
             self.updated_by.as_ref().unwrap_or(&"None".to_owned()),
-            format!(
-                "[{}]",
-                self.tokens
-                    .iter()
-                    .map(|t| t.__repr__())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
+            tokens
         )
     }
 }

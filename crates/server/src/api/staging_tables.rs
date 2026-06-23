@@ -426,7 +426,6 @@ mod tests {
             .get_schema(
                 GetSchemaRequest {
                     full_name: "cat.sch".to_string(),
-                    ..Default::default()
                 },
                 ctx(),
             )
@@ -453,7 +452,6 @@ mod tests {
             .get_schema(
                 GetSchemaRequest {
                     full_name: "cat.sch".to_string(),
-                    ..Default::default()
                 },
                 ctx(),
             )
