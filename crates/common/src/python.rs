@@ -83,6 +83,7 @@ impl DatabricksGcpServiceAccount {
 
 #[pymethods]
 impl DataObject {
+    #[allow(clippy::too_many_arguments)]
     #[new]
     #[pyo3(signature = (
         name,
