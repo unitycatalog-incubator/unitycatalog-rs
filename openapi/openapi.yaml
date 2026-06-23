@@ -3014,6 +3014,13 @@ components:
             Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
              STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
              SQL for views, YAML for metric views. Required for METRIC_VIEW.
+        viewDependencies:
+          allOf:
+            - $ref: "#/components/schemas/DependencyList"
+          description: |-
+            Tables and functions the view-like table reads. For metric views the server
+             derives this from view_definition and rejects a supplied list that diverges
+             from the derived set (the definition is the single source of truth).
       description: "WARNING: this API is experimental and subject to change."
       additionalProperties: false
       title: Create a table
@@ -3259,6 +3266,40 @@ components:
           type: boolean
         string:
           type: string
+    Dependency:
+      type: object
+      properties:
+        table:
+          $ref: "#/components/schemas/TableDependency"
+          additionalProperties: false
+          required:
+            - table_full_name
+          description: A table that a SQL object (such as a view or metric view) depends on.
+          title: Table Dependency
+        function:
+          $ref: "#/components/schemas/FunctionDependency"
+          additionalProperties: false
+          required:
+            - function_full_name
+          description: A function that a SQL object (such as a view or metric view) depends on.
+          title: Function Dependency
+      description: A dependency of a SQL object. Exactly one of the fields must be set.
+      additionalProperties: false
+      title: Dependency
+    DependencyList:
+      type: object
+      properties:
+        dependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dependency"
+            additionalProperties: false
+            description: A dependency of a SQL object. Exactly one of the fields must be set.
+            title: Dependency
+          description: Array of dependencies.
+      description: A list of dependencies referenced by a view-like table.
+      additionalProperties: false
+      title: Dependency List
     Discriminator:
       type: object
       properties:
@@ -3486,6 +3527,19 @@ components:
       description: A User-Defined Function (UDF) registered under a catalog + schema hierarchy.
       additionalProperties: false
       title: Function
+    FunctionDependency:
+      required:
+        - function_full_name
+      type: object
+      properties:
+        functionFullName:
+          type: string
+          description: |-
+            Full name of the dependent function, in the form of
+             catalog_name.schema_name.function_name.
+      description: A function that a SQL object (such as a view or metric view) depends on.
+      additionalProperties: false
+      title: Function Dependency
     FunctionParameterInfo:
       required:
         - name
@@ -4560,6 +4614,13 @@ components:
             Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
              STREAMING_TABLE, METRIC_VIEW). The format depends on the table type:
              SQL for views, YAML for metric views.
+        viewDependencies:
+          allOf:
+            - $ref: "#/components/schemas/DependencyList"
+          description: |-
+            Tables and functions the view-like table reads. For metric views this is
+             derived from the view_definition by the server (the definition is the
+             single source of truth).
         owner:
           readOnly: true
           type: string
@@ -4606,6 +4667,19 @@ components:
       additionalProperties: false
       description: A table is a Delta Lake table or a view on top of a Delta Lake table.
       title: Table
+    TableDependency:
+      required:
+        - table_full_name
+      type: object
+      properties:
+        tableFullName:
+          type: string
+          description: |-
+            Full name of the dependent table, in the form of
+             catalog_name.schema_name.table_name.
+      description: A table that a SQL object (such as a view or metric view) depends on.
+      additionalProperties: false
+      title: Table Dependency
     TableSummary:
       type: object
       properties:

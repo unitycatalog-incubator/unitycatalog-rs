@@ -31,7 +31,6 @@ delta_kernel = { workspace = true, optional = true }
 # feature) and deserialize metric-view YAML (`metric-view` feature).
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
-serde_yml = { workspace = true, optional = true }
 
 [features]
 default = ["delta", "metric-view"]
@@ -39,8 +38,10 @@ default = ["delta", "metric-view"]
 # Catalog DDL statements + planner (the `sql` module), whose managed
 # `CREATE TABLE` path serializes responses with serde/serde_json.
 delta = ["dep:deltalake-core", "dep:delta_kernel", "dep:serde", "dep:serde_json"]
-# Lower Unity Catalog metric-view YAML into a DataFusion `LogicalPlan`.
-metric-view = ["dep:serde", "dep:serde_yml"]
+# Lower Unity Catalog metric-view YAML into a DataFusion `LogicalPlan`. The YAML
+# model + dependency extraction live in `unitycatalog-common` (single source of
+# truth); this crate re-exports them and adds the DataFusion lowering.
+metric-view = ["unitycatalog-common/metric-view"]
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

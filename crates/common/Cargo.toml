@@ -22,6 +22,9 @@ pbjson-types = { workspace = true }
 prost = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+# metric-view definition parsing (YAML model + sqlparser-based dependency extraction)
+serde_yml = { workspace = true, optional = true }
+sqlparser = { workspace = true, optional = true }
 strum = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
@@ -67,6 +70,11 @@ tokio = { version = "1", features = ["full"] }
 [features]
 default = ["rest-client"]
 grpc = ["tonic", "tonic-prost"]
+
+# metric-view definition parsing: YAML model + sqlparser-based dependency extraction.
+# Single source of truth shared by the server (derives view_dependencies on create)
+# and the datafusion crate (re-exports for query-time lowering).
+metric-view = ["dep:serde_yml", "dep:sqlparser"]
 
 # enable support for the axum framework. This will implement `FromRequest`
 # and `FromRequestParts` for request types.

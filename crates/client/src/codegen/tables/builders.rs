@@ -228,6 +228,16 @@ impl CreateTableBuilder {
         self.request.view_definition = view_definition.into();
         self
     }
+    /** Tables and functions the view-like table reads. For metric views the server
+    derives this from view_definition and rejects a supplied list that diverges
+    from the derived set (the definition is the single source of truth).*/
+    pub fn with_view_dependencies(
+        mut self,
+        view_dependencies: impl Into<Option<DependencyList>>,
+    ) -> Self {
+        self.request.view_dependencies = view_dependencies.into();
+        self
+    }
 }
 impl IntoFuture for CreateTableBuilder {
     type Output = Result<Table>;

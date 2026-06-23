@@ -51,6 +51,55 @@ pub struct Column {
     #[prost(string, optional, tag="12")]
     pub column_id: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// A table that a SQL object (such as a view or metric view) depends on.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TableDependency {
+    /// Full name of the dependent table, in the form of
+    /// catalog_name.schema_name.table_name.
+    #[prost(string, tag="1")]
+    pub table_full_name: ::prost::alloc::string::String,
+}
+/// A function that a SQL object (such as a view or metric view) depends on.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FunctionDependency {
+    /// Full name of the dependent function, in the form of
+    /// catalog_name.schema_name.function_name.
+    #[prost(string, tag="1")]
+    pub function_full_name: ::prost::alloc::string::String,
+}
+/// A dependency of a SQL object. Exactly one of the fields must be set.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Dependency {
+    #[prost(oneof="dependency::Dependency", tags="1, 2")]
+    pub dependency: ::core::option::Option<dependency::Dependency>,
+}
+/// Nested message and enum types in `Dependency`.
+pub mod dependency {
+    #[cfg_attr(feature = "python", ::pyo3::pyclass)]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Dependency {
+        #[prost(message, tag="1")]
+        Table(super::TableDependency),
+        #[prost(message, tag="2")]
+        Function(super::FunctionDependency),
+    }
+}
+/// A list of dependencies referenced by a view-like table.
+#[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DependencyList {
+    /// Array of dependencies.
+    #[prost(message, repeated, tag="1")]
+    pub dependencies: ::prost::alloc::vec::Vec<Dependency>,
+}
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -80,8 +129,11 @@ pub struct Table {
     /// SQL for views, YAML for metric views.
     #[prost(string, optional, tag="8")]
     pub view_definition: ::core::option::Option<::prost::alloc::string::String>,
-    // optional string view_dependencies = 9;
-
+    /// Tables and functions the view-like table reads. For metric views this is
+    /// derived from the view_definition by the server (the definition is the
+    /// single source of truth).
+    #[prost(message, optional, tag="9")]
+    pub view_dependencies: ::core::option::Option<DependencyList>,
     // optional string sql_path = 10;
 
     /// Username of current owner of table.
@@ -436,6 +488,11 @@ pub struct CreateTableRequest {
     /// SQL for views, YAML for metric views. Required for METRIC_VIEW.
     #[prost(string, optional, tag="10")]
     pub view_definition: ::core::option::Option<::prost::alloc::string::String>,
+    /// Tables and functions the view-like table reads. For metric views the server
+    /// derives this from view_definition and rejects a supplied list that diverges
+    /// from the derived set (the definition is the single source of truth).
+    #[prost(message, optional, tag="11")]
+    pub view_dependencies: ::core::option::Option<DependencyList>,
 }
 /// Get a table
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]

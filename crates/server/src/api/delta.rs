@@ -377,6 +377,7 @@ where
             properties: stored_properties.into_iter().collect(),
             // The Delta API only creates Delta tables, never view-like types.
             view_definition: None,
+            view_dependencies: None,
         };
         // The TableHandler create_table reads the snapshot for the managed branch;
         // for the Delta API we have already validated and want to trust the request,

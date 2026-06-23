@@ -55,6 +55,9 @@ pub use detect::metric_view_of;
 pub use lower::build_placeholder;
 pub use measure::{MEASURE_UDF_NAME, measure_udf};
 pub use model::{Dimension, Join, Measure, MetricView};
+// Dependency derivation is owned by `unitycatalog-common`; re-export so the
+// DataFusion path can validate the relations it resolves against the same logic.
 pub use placeholder::{MetricViewPlaceholder, NamedExpr};
 pub use provider::MetricViewTableProvider;
 pub use session::{metric_view_context, metric_view_session_state};
+pub use unitycatalog_common::metric_view::{DependencyError, dependencies};

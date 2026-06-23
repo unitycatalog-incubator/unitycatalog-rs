@@ -5,6 +5,7 @@ use delta_kernel::{Snapshot, Version};
 use itertools::Itertools;
 
 use unitycatalog_common::ResourceIdent;
+use unitycatalog_common::metric_view::{MetricView, dependencies as metric_view_dependencies};
 use unitycatalog_common::models::ObjectLabel;
 use unitycatalog_common::models::ResourceName;
 use unitycatalog_common::models::staging_tables::v1::StagingTable;
@@ -276,6 +277,24 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager + ProvidesLocalSto
                     "metric views require view_definition (the YAML definition)",
                 ));
             };
+
+            // The definition is the single source of truth: parse it and derive
+            // the dependency list. A client-supplied `view_dependencies` is only
+            // accepted if it matches what we derive (the definition wins).
+            let view = MetricView::from_yaml(view_definition)
+                .map_err(|e| Error::invalid_argument(format!("invalid metric-view YAML: {e}")))?;
+            let view_dependencies = metric_view_dependencies(&view).map_err(|e| {
+                Error::invalid_argument(format!("cannot derive metric-view dependencies: {e}"))
+            })?;
+            if let Some(supplied) = request.view_dependencies.as_ref()
+                && supplied != &view_dependencies
+            {
+                return Err(Error::invalid_argument(
+                    "supplied view_dependencies diverges from the definition; \
+                     omit it (the server derives dependencies from view_definition)",
+                ));
+            }
+
             Table {
                 name: request.name,
                 catalog_name: request.catalog_name,
@@ -285,6 +304,7 @@ impl<T: ResourceStore + Policy<RequestContext> + TableManager + ProvidesLocalSto
                 properties: request.properties,
                 comment: request.comment,
                 view_definition: Some(view_definition.clone()),
+                view_dependencies: Some(view_dependencies),
                 ..Default::default()
             }
         } else {
@@ -587,6 +607,11 @@ mod tests {
             .expect("create metric view");
         assert_eq!(created.table_type, TableType::MetricView as i32);
         assert_eq!(created.view_definition.as_deref(), Some(METRIC_VIEW_YAML));
+        // Dependencies are derived from the definition's `source`.
+        assert_eq!(
+            dep_names(created.view_dependencies.as_ref()),
+            vec!["cat.sch.orders"]
+        );
 
         let fetched = h
             .get_table(
@@ -600,6 +625,105 @@ mod tests {
             .expect("get metric view");
         assert_eq!(fetched.table_type, TableType::MetricView as i32);
         assert_eq!(fetched.view_definition.as_deref(), Some(METRIC_VIEW_YAML));
+        // The derived dependencies round-trip through get.
+        assert_eq!(
+            dep_names(fetched.view_dependencies.as_ref()),
+            vec!["cat.sch.orders"]
+        );
+    }
+
+    /// Extract the `table_full_name`s from a [`DependencyList`] for assertions.
+    fn dep_names(deps: Option<&DependencyList>) -> Vec<String> {
+        deps.map(|d| {
+            d.dependencies
+                .iter()
+                .filter_map(|dep| match &dep.dependency {
+                    Some(dependency::Dependency::Table(t)) => Some(t.table_full_name.clone()),
+                    _ => None,
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+    }
+
+    fn metric_view_request() -> CreateTableRequest {
+        CreateTableRequest {
+            name: "orders_metrics".to_string(),
+            schema_name: "sch".to_string(),
+            catalog_name: "cat".to_string(),
+            table_type: TableType::MetricView as i32,
+            view_definition: Some(METRIC_VIEW_YAML.to_string()),
+            ..Default::default()
+        }
+    }
+
+    fn table_dep(full_name: &str) -> Dependency {
+        Dependency {
+            dependency: Some(dependency::Dependency::Table(TableDependency {
+                table_full_name: full_name.to_string(),
+            })),
+        }
+    }
+
+    /// A client-supplied `view_dependencies` that matches the derived set is
+    /// accepted.
+    #[tokio::test]
+    async fn metric_view_matching_dependencies_accepted() {
+        let h = handler();
+        let created = h
+            .create_table(
+                CreateTableRequest {
+                    view_dependencies: Some(DependencyList {
+                        dependencies: vec![table_dep("cat.sch.orders")],
+                    }),
+                    ..metric_view_request()
+                },
+                ctx(),
+            )
+            .await
+            .expect("create metric view with matching deps");
+        assert_eq!(
+            dep_names(created.view_dependencies.as_ref()),
+            vec!["cat.sch.orders"]
+        );
+    }
+
+    /// A client-supplied `view_dependencies` that diverges from the definition
+    /// is rejected.
+    #[tokio::test]
+    async fn metric_view_diverging_dependencies_rejected() {
+        let h = handler();
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    view_dependencies: Some(DependencyList {
+                        dependencies: vec![table_dep("cat.sch.something_else")],
+                    }),
+                    ..metric_view_request()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
+    }
+
+    /// A metric view whose source cannot be resolved to a three-part name is
+    /// rejected (strict derivation).
+    #[tokio::test]
+    async fn metric_view_unresolvable_source_rejected() {
+        let h = handler();
+        let yaml = "version: \"1.1\"\nsource: orders\n\
+                    measures:\n  - name: revenue\n    expr: SUM(price)\n";
+        let res = h
+            .create_table(
+                CreateTableRequest {
+                    view_definition: Some(yaml.to_string()),
+                    ..metric_view_request()
+                },
+                ctx(),
+            )
+            .await;
+        assert!(matches!(res, Err(Error::InvalidArgument(_))), "{res:?}");
     }
 
     /// A metric view without a `view_definition` is rejected.
