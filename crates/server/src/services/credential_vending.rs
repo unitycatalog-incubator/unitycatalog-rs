@@ -45,6 +45,21 @@ fn expiry_to_epoch_millis(expiry: Option<Instant>) -> i64 {
         .as_millis() as i64
 }
 
+/// A credential-less [`TemporaryCredential`] for a local (`file://`) location.
+///
+/// Local storage carries no secret: the client builds an unrooted
+/// `LocalFileSystem` addressed by full path (mirroring the server's
+/// `get_local_store`). The response still carries the `url` and an expiry so the
+/// shape matches a cloud vend, but `credentials` is `None` — the signal the
+/// client uses to take its local-store branch.
+pub(crate) fn local_path_credential(url: &str) -> TemporaryCredential {
+    TemporaryCredential {
+        expiration_time: expiry_to_epoch_millis(None),
+        url: url.to_owned(),
+        credentials: None,
+    }
+}
+
 fn aws_token_to_temporary_credential(
     url: &str,
     token: TemporaryToken<Arc<AwsCredential>>,
