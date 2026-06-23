@@ -136,9 +136,15 @@ async fn list_by_namespace_with_pagination() {
 
     // Two schemas in catalog `main`, one in catalog `other`.
     for ns_schema in ["a", "b"] {
-        ObjectStore::create(&s, ObjectLabel::Schema, &name(&["main", ns_schema]), None, None)
-            .await
-            .unwrap();
+        ObjectStore::create(
+            &s,
+            ObjectLabel::Schema,
+            &name(&["main", ns_schema]),
+            None,
+            None,
+        )
+        .await
+        .unwrap();
     }
     ObjectStore::create(&s, ObjectLabel::Schema, &name(&["other", "c"]), None, None)
         .await
