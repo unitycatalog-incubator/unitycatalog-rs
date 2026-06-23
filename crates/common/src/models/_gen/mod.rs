@@ -1,4 +1,5 @@
 // @generated — do not edit by hand.
+#![allow(clippy::empty_docs)]
 use std::collections::HashMap;
 pub mod labels;
 pub use catalogs::v1::Catalog;
