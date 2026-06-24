@@ -2,6 +2,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::TableClient;
 use unitycatalog_common::models::tables::v1::*;
 #[pyclass(name = "TableClient")]
@@ -29,18 +30,12 @@ impl PyTableClient {
         request = request.with_include_browse(include_browse);
         request = request.with_include_manifest_capabilities(include_manifest_capabilities);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn get_table_exists(&self, py: Python) -> PyUnityCatalogResult<GetTableExistsResponse> {
         let request = self.client.get_table_exists();
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();

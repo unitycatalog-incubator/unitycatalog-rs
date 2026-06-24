@@ -16,10 +16,7 @@ impl PyCatalogClient {
         let mut request = self.client.get();
         request = request.with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (owner = None, comment = None, properties = None, new_name = None)
@@ -40,10 +37,7 @@ impl PyCatalogClient {
         }
         request = request.with_new_name(new_name);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (force = None))]
     pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {

@@ -1,8 +1,8 @@
 use crate::api::{
-    CatalogHandler, CredentialHandler, DeltaCommitHandler, EntityTagAssignmentHandler,
-    ExternalLocationHandler, FunctionHandler, ProviderHandler, RecipientHandler, SchemaHandler,
-    ShareHandler, StagingTableHandler, TableHandler, TagPolicyHandler, TemporaryCredentialHandler,
-    VolumeHandler,
+    AgentHandler, AgentSkillHandler, CatalogHandler, CredentialHandler, DeltaCommitHandler,
+    EntityTagAssignmentHandler, ExternalLocationHandler, FunctionHandler, ProviderHandler,
+    RecipientHandler, SchemaHandler, ShareHandler, StagingTableHandler, TableHandler,
+    TagPolicyHandler, TemporaryCredentialHandler, VolumeHandler,
 };
 use axum::routing::{delete, get, patch, post};
 
@@ -222,6 +222,38 @@ where
         .route("/volumes/{name}", get(get_volume::<T, Cx>))
         .route("/volumes/{name}", patch(update_volume::<T, Cx>))
         .route("/volumes/{name}", delete(delete_volume::<T, Cx>))
+        .with_state(handler)
+}
+
+pub fn create_agent_skills_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: AgentSkillHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::agent_skills::server::*;
+
+    axum::Router::new()
+        .route("/agent-skills", get(list_agent_skills::<T, Cx>))
+        .route("/agent-skills", post(create_agent_skill::<T, Cx>))
+        .route("/agent-skills/{name}", get(get_agent_skill::<T, Cx>))
+        .route("/agent-skills/{name}", patch(update_agent_skill::<T, Cx>))
+        .route("/agent-skills/{name}", delete(delete_agent_skill::<T, Cx>))
+        .with_state(handler)
+}
+
+pub fn create_agents_router<T, Cx>(handler: T) -> axum::Router
+where
+    T: AgentHandler<Cx> + Clone,
+    Cx: axum::extract::FromRequestParts<T> + Send + 'static,
+{
+    use crate::codegen::agents::server::*;
+
+    axum::Router::new()
+        .route("/agents", get(list_agents::<T, Cx>))
+        .route("/agents", post(create_agent::<T, Cx>))
+        .route("/agents/{name}", get(get_agent::<T, Cx>))
+        .route("/agents/{name}", patch(update_agent::<T, Cx>))
+        .route("/agents/{name}", delete(delete_agent::<T, Cx>))
         .with_state(handler)
 }
 

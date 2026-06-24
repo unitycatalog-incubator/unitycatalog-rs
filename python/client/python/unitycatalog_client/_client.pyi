@@ -3,6 +3,141 @@ from __future__ import annotations
 from typing import Optional, List, Dict
 import enum
 
+class Agent:
+    """An agent registered in Unity Catalog."""
+
+    agent_id: str
+    """The unique identifier of the agent."""
+    capabilities: List[str]
+    """
+    Capability identifiers advertised by the agent (e.g. `sql_query`, `document_search`,
+    `code_execution`).
+    """
+    catalog_name: str
+    """Name of parent catalog."""
+    comment: Optional[str]
+    """User-provided free-form text description."""
+    created_at: Optional[int]
+    """Time at which this agent was created, in epoch milliseconds."""
+    created_by: Optional[str]
+    """Username of agent creator."""
+    description: Optional[str]
+    """An LLM-readable description of what the agent does and the inputs it expects."""
+    endpoint: str
+    """The agent's invocation endpoint URL."""
+    full_name: str
+    """The three-level (fully qualified) name of the agent."""
+    input_schema: Optional[str]
+    """
+    A JSON Schema (encoded as a JSON string) describing the agent's expected input payload.
+    Kept as an opaque string so the schema can evolve without changing this message.
+    """
+    invocation_protocol: InvocationProtocol
+    """The protocol a recipient uses to invoke the agent."""
+    metastore_id: Optional[str]
+    """The unique identifier of the metastore."""
+    name: str
+    """Name of the agent, relative to parent schema."""
+    owner: Optional[str]
+    """Username of current owner of the agent."""
+    schema_name: str
+    """Name of parent schema."""
+    updated_at: Optional[int]
+    """Time at which this agent was last updated, in epoch milliseconds."""
+    updated_by: Optional[str]
+    """Username of user who last modified the agent."""
+
+    def __init__(
+        self,
+        agent_id: str,
+        catalog_name: str,
+        endpoint: str,
+        full_name: str,
+        invocation_protocol: InvocationProtocol,
+        name: str,
+        schema_name: str,
+        capabilities: Optional[List[str]] = None,
+        comment: Optional[str] = None,
+        created_at: Optional[int] = None,
+        created_by: Optional[str] = None,
+        description: Optional[str] = None,
+        input_schema: Optional[str] = None,
+        metastore_id: Optional[str] = None,
+        owner: Optional[str] = None,
+        updated_at: Optional[int] = None,
+        updated_by: Optional[str] = None,
+    ) -> None: ...
+
+class AgentSkill:
+    """An agent skill registered in Unity Catalog."""
+
+    agent_skill_id: str
+    """The unique identifier of the agent skill."""
+    agent_skill_type: AgentSkillType
+    """How the storage location is provisioned (external or managed)."""
+    allowed_tools: List[str]
+    """The tools the skill is permitted to use, as declared in its SKILL.md."""
+    catalog_name: str
+    """Name of parent catalog."""
+    comment: Optional[str]
+    """User-provided free-form text description."""
+    created_at: Optional[int]
+    """Time at which this agent skill was created, in epoch milliseconds."""
+    created_by: Optional[str]
+    """Username of agent skill creator."""
+    description: Optional[str]
+    """
+    A human-readable description of what the skill does and when to use it. Mirrors the Agent
+    Skills spec `description` frontmatter field.
+    """
+    full_name: str
+    """The three-level (fully qualified) name of the agent skill."""
+    license: Optional[str]
+    """SPDX license identifier or free-form license text for the skill."""
+    metadata: Dict[str, str]
+    """Arbitrary additional metadata declared by the skill."""
+    metastore_id: Optional[str]
+    """The unique identifier of the metastore."""
+    name: str
+    """
+    Name of the agent skill, relative to parent schema. Per the Agent Skills spec a skill
+    name is lowercase letters, numbers, and hyphens, but Unity Catalog object names disallow
+    hyphens, so UC stores the catalog object name with underscores; the spec- shaped name
+    lives in the skill's own SKILL.md.
+    """
+    owner: Optional[str]
+    """Username of current owner of the agent skill."""
+    schema_name: str
+    """Name of parent schema."""
+    storage_location: str
+    """The storage location of the skill's directory (the root that holds `SKILL.md`)."""
+    updated_at: Optional[int]
+    """Time at which this agent skill was last updated, in epoch milliseconds."""
+    updated_by: Optional[str]
+    """Username of user who last modified the agent skill."""
+
+    def __init__(
+        self,
+        agent_skill_id: str,
+        agent_skill_type: AgentSkillType,
+        catalog_name: str,
+        full_name: str,
+        metadata: Dict[str, str],
+        name: str,
+        schema_name: str,
+        storage_location: str,
+        allowed_tools: Optional[List[str]] = None,
+        comment: Optional[str] = None,
+        created_at: Optional[int] = None,
+        created_by: Optional[str] = None,
+        description: Optional[str] = None,
+        license: Optional[str] = None,
+        metastore_id: Optional[str] = None,
+        owner: Optional[str] = None,
+        updated_at: Optional[int] = None,
+        updated_by: Optional[str] = None,
+    ) -> None: ...
+
 class AwsIamRoleConfig:
     """The AWS IAM role configuration used server-side to call STS AssumeRole.
 
@@ -424,6 +559,24 @@ class DatabricksGcpServiceAccount:
         private_key_id: Optional[str] = None,
     ) -> None: ...
 
+class Dependency:
+    """A dependency of a SQL object. Exactly one of the fields must be set."""
+
+    function: Optional[FunctionDependency]
+    table: Optional[TableDependency]
+
+    def __init__(
+        self, function: Optional[FunctionDependency] = None, table: Optional[TableDependency] = None
+    ) -> None: ...
+
+class DependencyList:
+    """A list of dependencies referenced by a view-like table."""
+
+    dependencies: List[Dependency]
+    """Array of dependencies."""
+
+    def __init__(self, dependencies: Optional[List[Dependency]] = None) -> None: ...
+
 class EntityTagAssignment:
     """The assignment of a tag to a Unity Catalog entity.
 
@@ -583,6 +736,16 @@ class Function:
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
     ) -> None: ...
+
+class FunctionDependency:
+    """A function that a SQL object (such as a view or metric view) depends on."""
+
+    function_full_name: str
+    """
+    Full name of the dependent function, in the form of catalog_name.schema_name.function_name.
+    """
+
+    def __init__(self, function_full_name: str) -> None: ...
 
 class FunctionParameterInfo:
     """Information about a single function parameter."""
@@ -1060,6 +1223,11 @@ class Table:
     Definition text for view-like table types (VIEW, MATERIALIZED_VIEW, STREAMING_TABLE,
     METRIC_VIEW). The format depends on the table type: SQL for views, YAML for metric views.
     """
+    view_dependencies: Optional[DependencyList]
+    """
+    Tables and functions the view-like table reads. For metric views this is derived from the
+    view_definition by the server (the definition is the single source of truth).
+    """
 
     def __init__(
         self,
@@ -1082,7 +1250,16 @@ class Table:
         updated_at: Optional[int] = None,
         updated_by: Optional[str] = None,
         view_definition: Optional[str] = None,
+        view_dependencies: Optional[DependencyList] = None,
     ) -> None: ...
+
+class TableDependency:
+    """A table that a SQL object (such as a view or metric view) depends on."""
+
+    table_full_name: str
+    """Full name of the dependent table, in the form of catalog_name.schema_name.table_name."""
+
+    def __init__(self, table_full_name: str) -> None: ...
 
 class TableSummary:
     full_name: str
@@ -1237,6 +1414,16 @@ class Action(enum.Enum):
     REMOVE = "REMOVE"
     UPDATE = "UPDATE"
 
+class AgentSkillType(enum.Enum):
+    """How an agent skill's storage location is provisioned."""
+
+    AGENT_SKILL_TYPE_UNSPECIFIED = "AGENT_SKILL_TYPE_UNSPECIFIED"
+    EXTERNAL = "EXTERNAL"
+    """The skill directory lives at a caller-supplied location within a registered external location."""
+    MANAGED = "MANAGED"
+    """The skill directory lives at a server-derived location under the parent schema/catalog managed
+    storage root."""
+
 class AuthenticationType(enum.Enum):
     AUTHENTICATION_TYPE_UNSPECIFIED = "AUTHENTICATION_TYPE_UNSPECIFIED"
     """No authentication is required."""
@@ -1345,6 +1532,21 @@ class HistoryStatus(enum.Enum):
     ENABLED = "ENABLED"
     """Data history sharing is enabled."""
 
+class InvocationProtocol(enum.Enum):
+    """The protocol a recipient uses to invoke an agent."""
+
+    A2A = "A2A"
+    """Agent-to-Agent protocol (Google A2A spec)."""
+    ANTHROPIC = "ANTHROPIC"
+    """Anthropic-compatible messages endpoint."""
+    INVOCATION_PROTOCOL_UNSPECIFIED = "INVOCATION_PROTOCOL_UNSPECIFIED"
+    MCP = "MCP"
+    """Model Context Protocol server."""
+    OPENAI = "OPENAI"
+    """OpenAI-compatible chat completions endpoint."""
+    REST = "REST"
+    """Minimal REST baseline (`POST {endpoint}/invoke`)."""
+
 class ParameterMode(enum.Enum):
     """The mode of the function parameter."""
 
@@ -1421,6 +1623,92 @@ class VolumeType(enum.Enum):
     MANAGED = "MANAGED"
     VOLUME_TYPE_UNSPECIFIED = "VOLUME_TYPE_UNSPECIFIED"
 
+class AgentSkillClient:
+    def delete(self) -> None:
+        """
+        Returns:
+            None
+        """
+        ...
+    def get(self, include_browse: Optional[bool] = None) -> AgentSkill:
+        """
+        Args:
+            include_browse: Whether to include agent skills in the response for which the principal can only
+                            access selective metadata for.
+
+
+        Returns:
+            An agent skill registered in Unity Catalog.
+        """
+        ...
+    def update(
+        self,
+        new_name: Optional[str] = None,
+        description: Optional[str] = None,
+        allowed_tools: Optional[List[str]] = None,
+        comment: Optional[str] = None,
+        owner: Optional[str] = None,
+    ) -> AgentSkill:
+        """
+        Args:
+            new_name: New name for the agent skill.
+            description: Updated description of what the skill does and when to use it.
+            allowed_tools: Updated tools the skill is permitted to use.
+            comment: The comment attached to the agent skill.
+            owner: The identifier of the user who owns the agent skill.
+
+
+        Returns:
+            An agent skill registered in Unity Catalog.
+        """
+        ...
+
+class AgentClient:
+    def delete(self) -> None:
+        """
+        Returns:
+            None
+        """
+        ...
+    def get(self, include_browse: Optional[bool] = None) -> Agent:
+        """
+        Args:
+            include_browse: Whether to include agents in the response for which the principal can only
+                            access selective metadata for.
+
+
+        Returns:
+            An agent registered in Unity Catalog.
+        """
+        ...
+    def update(
+        self,
+        new_name: Optional[str] = None,
+        invocation_protocol: Optional[InvocationProtocol] = None,
+        endpoint: Optional[str] = None,
+        description: Optional[str] = None,
+        capabilities: Optional[List[str]] = None,
+        input_schema: Optional[str] = None,
+        comment: Optional[str] = None,
+        owner: Optional[str] = None,
+    ) -> Agent:
+        """
+        Args:
+            new_name: New name for the agent.
+            invocation_protocol: The protocol a recipient uses to invoke the agent.
+            endpoint: The agent's invocation endpoint URL.
+            description: Updated LLM-readable description.
+            capabilities: Updated capability identifiers advertised by the agent.
+            input_schema: Updated JSON Schema (encoded as a JSON string) describing the expected input.
+            comment: The comment attached to the agent.
+            owner: The identifier of the user who owns the agent.
+
+
+        Returns:
+            An agent registered in Unity Catalog.
+        """
+        ...
+
 class CatalogClient:
     def delete(self, force: Optional[bool] = None) -> None:
         """
@@ -1482,6 +1770,10 @@ class CatalogClient:
             A catalog is a root-level namespace that contains schemas.
         """
         ...
+    def agent_skill(
+        self, catalog_name: str, schema_name: str, agent_skill_name: str
+    ) -> AgentSkillClient: ...
+    def agent(self, catalog_name: str, schema_name: str, agent_name: str) -> AgentClient: ...
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
@@ -1787,6 +2079,10 @@ class SchemaClient:
             A schema is a namespace within a catalog that contains tables.
         """
         ...
+    def agent_skill(
+        self, catalog_name: str, schema_name: str, agent_skill_name: str
+    ) -> AgentSkillClient: ...
+    def agent(self, catalog_name: str, schema_name: str, agent_name: str) -> AgentClient: ...
     def function(
         self, catalog_name: str, schema_name: str, function_name: str
     ) -> FunctionClient: ...
@@ -2003,6 +2299,67 @@ class UnityCatalogClient:
 
         Returns:
             The requested resource
+        """
+        ...
+    def create_agent(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        name: str,
+        invocation_protocol: InvocationProtocol,
+        endpoint: str,
+        description: Optional[str] = None,
+        capabilities: Optional[List[str]] = None,
+        input_schema: Optional[str] = None,
+        comment: Optional[str] = None,
+    ) -> Agent:
+        """
+        Args:
+            catalog_name: The identifier of the catalog.
+            schema_name: The identifier of the schema.
+            name: The identifier of the agent.
+            invocation_protocol: The protocol a recipient uses to invoke the agent.
+            endpoint: The agent's invocation endpoint URL.
+            description: An LLM-readable description of what the agent does and the inputs it expects.
+            capabilities: Capability identifiers advertised by the agent.
+            input_schema: A JSON Schema (encoded as a JSON string) describing the expected input.
+            comment: User-provided free-form text description.
+
+
+        Returns:
+            An agent registered in Unity Catalog.
+        """
+        ...
+    def create_agent_skill(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        name: str,
+        agent_skill_type: AgentSkillType,
+        storage_location: Optional[str] = None,
+        description: Optional[str] = None,
+        license: Optional[str] = None,
+        allowed_tools: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, str]] = None,
+        comment: Optional[str] = None,
+    ) -> AgentSkill:
+        """
+        Args:
+            catalog_name: The identifier of the catalog.
+            schema_name: The identifier of the schema.
+            name: The identifier of the agent skill.
+            agent_skill_type: How the storage location is provisioned (external or managed).
+            storage_location: The storage location of the skill directory on the cloud. Required for
+                              EXTERNAL skills; ignored (server-derived) for MANAGED skills.
+            description: A human-readable description of what the skill does and when to use it.
+            license: SPDX license identifier or free-form license text for the skill.
+            allowed_tools: The tools the skill is permitted to use.
+            metadata: Arbitrary additional metadata declared by the skill.
+            comment: User-provided free-form text description.
+
+
+        Returns:
+            An agent skill registered in Unity Catalog.
         """
         ...
     def create_catalog(
@@ -2304,6 +2661,7 @@ class UnityCatalogClient:
         comment: Optional[str] = None,
         properties: Optional[Dict[str, str]] = None,
         view_definition: Optional[str] = None,
+        view_dependencies: Optional[DependencyList] = None,
     ) -> Table:
         """
         Create a table
@@ -2320,6 +2678,9 @@ class UnityCatalogClient:
             view_definition: Definition text for view-like table types (VIEW, MATERIALIZED_VIEW,
                              STREAMING_TABLE, METRIC_VIEW). The format depends on the table type: SQL for
                              views, YAML for metric views. Required for METRIC_VIEW.
+            view_dependencies: Tables and functions the view-like table reads. For metric views the server
+                               derives this from view_definition and rejects a supplied list that diverges
+                               from the derived set (the definition is the single source of truth).
 
 
         Returns:
@@ -2479,6 +2840,52 @@ class UnityCatalogClient:
             is intentionally NOT a `google.api.resource`: assignments are stored as associations between
             the
             entity and its tag, not as standalone objects.
+        """
+        ...
+    def list_agent_skills(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        max_results: Optional[int] = None,
+        include_browse: Optional[bool] = None,
+    ) -> List[AgentSkill]:
+        """
+        Lists agent skills.
+
+
+        Args:
+            catalog_name: The identifier of the catalog.
+            schema_name: The identifier of the schema.
+            max_results: The maximum number of results per page that should be returned.
+            include_browse: Whether to include agent skills in the response for which the principal can only
+                            access selective metadata for.
+
+
+        Returns:
+            List of The agent skills returned.
+        """
+        ...
+    def list_agents(
+        self,
+        catalog_name: str,
+        schema_name: str,
+        max_results: Optional[int] = None,
+        include_browse: Optional[bool] = None,
+    ) -> List[Agent]:
+        """
+        Lists agents.
+
+
+        Args:
+            catalog_name: The identifier of the catalog.
+            schema_name: The identifier of the schema.
+            max_results: The maximum number of results per page that should be returned.
+            include_browse: Whether to include agents in the response for which the principal can only
+                            access selective metadata for.
+
+
+        Returns:
+            List of The agents returned.
         """
         ...
     def list_catalogs(self, max_results: Optional[int] = None) -> List[Catalog]:
@@ -2750,6 +3157,10 @@ class UnityCatalogClient:
             entity and its tag, not as standalone objects.
         """
         ...
+    def agent(self, catalog_name: str, schema_name: str, agent_name: str) -> AgentClient: ...
+    def agent_skill(
+        self, catalog_name: str, schema_name: str, agent_skill_name: str
+    ) -> AgentSkillClient: ...
     def catalog(self, catalog_name: str) -> CatalogClient: ...
     def credential(self, credential_name: str) -> CredentialClient: ...
     def external_location(self, external_location_name: str) -> ExternalLocationClient: ...

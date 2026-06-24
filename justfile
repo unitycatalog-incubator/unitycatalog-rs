@@ -44,7 +44,7 @@ generate-openapi-sharing:
 # Update the generated openapi spec with validation extracted from generated jsonschema.
 [group('codegen')]
 generate-openapi:
-    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.5.2","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
+    buf generate --template '{"version":"v2","plugins":[{"remote":"buf.build/bufbuild/protoschema-jsonschema:v0.6.0","opt": ["target=proto-strict-bundle"], "out":"openapi/jsonschema"}]}' proto
     buf build --output {{ justfile_directory() }}/descriptors.bin proto/unitycatalog
     cargo run --manifest-path ../trestle/crates/trestle/Cargo.toml --bin trestle -- enrich-openapi \
       --jsonschema-dir openapi/jsonschema \

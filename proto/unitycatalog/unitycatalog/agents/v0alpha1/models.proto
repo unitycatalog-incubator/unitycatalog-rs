@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+// Owner-side Unity Catalog management surface for **agents**.
+//
+// An agent is a remote invocable service: a recipient sends a request and the
+// agent executes on the provider's infrastructure and returns a result (unlike
+// an agent *skill*, which is downloaded and run locally). It is therefore
+// metadata-only — it has no storage location and vends no storage credentials;
+// it records an invocation endpoint and protocol.
+//
+// This package is **v0alpha1**, not v1: it tracks an early-stage Open Sharing
+// community proposal that has no stable Unity Catalog backing yet, so its shape
+// may change before it stabilizes.
+package unitycatalog.agents.v0alpha1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+
+// The protocol a recipient uses to invoke an agent.
+enum InvocationProtocol {
+  INVOCATION_PROTOCOL_UNSPECIFIED = 0;
+
+  // Model Context Protocol server.
+  MCP = 1;
+
+  // Agent-to-Agent protocol (Google A2A spec).
+  A2A = 2;
+
+  // OpenAI-compatible chat completions endpoint.
+  OPENAI = 3;
+
+  // Anthropic-compatible messages endpoint.
+  ANTHROPIC = 4;
+
+  // Minimal REST baseline (`POST {endpoint}/invoke`).
+  REST = 5;
+}
+
+// An agent registered in Unity Catalog.
+message Agent {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/Agent"
+    pattern: "agent/{agent}"
+    plural: "agents"
+    singular: "agent"
+    name_field: "full_name"
+  };
+
+  // Name of the agent, relative to parent schema.
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Name of parent catalog.
+  string catalog_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Name of parent schema.
+  string schema_name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The three-level (fully qualified) name of the agent.
+  string full_name = 4 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The unique identifier of the agent.
+  string agent_id = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
+
+  // The protocol a recipient uses to invoke the agent.
+  InvocationProtocol invocation_protocol = 6 [(google.api.field_behavior) = REQUIRED];
+
+  // The agent's invocation endpoint URL.
+  string endpoint = 7 [
+    (buf.validate.field).string.uri = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // An LLM-readable description of what the agent does and the inputs it
+  // expects.
+  optional string description = 8 [
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Capability identifiers advertised by the agent (e.g. `sql_query`,
+  // `document_search`, `code_execution`).
+  repeated string capabilities = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // A JSON Schema (encoded as a JSON string) describing the agent's expected
+  // input payload. Kept as an opaque string so the schema can evolve without
+  // changing this message.
+  optional string input_schema = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Username of current owner of the agent.
+  optional string owner = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // User-provided free-form text description.
+  optional string comment = 12 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Time at which this agent was created, in epoch milliseconds.
+  optional int64 created_at = 1000 [
+    (buf.validate.field).int64.gt = 0,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Username of agent creator.
+  optional string created_by = 1001 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time at which this agent was last updated, in epoch milliseconds.
+  optional int64 updated_at = 1002 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Username of user who last modified the agent.
+  optional string updated_by = 1003 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The unique identifier of the metastore.
+  optional string metastore_id = 1004 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

@@ -1,4 +1,6 @@
 // @generated — do not edit by hand.
+pub mod agent_skills;
+pub mod agents;
 pub mod catalogs;
 pub mod credentials;
 pub mod delta_commits;

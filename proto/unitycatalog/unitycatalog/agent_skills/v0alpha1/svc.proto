@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+package unitycatalog.agent_skills.v0alpha1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "unitycatalog/agent_skills/v0alpha1/models.proto";
+
+// List agent skills.
+message ListAgentSkillsRequest {
+  // The identifier of the catalog.
+  string catalog_name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "unitycatalog.io/AgentSkill"}
+  ];
+
+  // The identifier of the schema.
+  string schema_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "unitycatalog.io/AgentSkill"}
+  ];
+
+  // The maximum number of results per page that should be returned.
+  optional int32 max_results = 3 [
+    (buf.validate.field).int32.gt = 0,
+    (buf.validate.field).int32.lt = 1000,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Opaque pagination token to go to next page based on previous query.
+  optional string page_token = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Whether to include agent skills in the response for which the principal can
+  // only access selective metadata for.
+  optional bool include_browse = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// List agent skills response.
+message ListAgentSkillsResponse {
+  // The agent skills returned.
+  repeated AgentSkill agent_skills = 1;
+
+  // Opaque token to retrieve the next page of results.
+  //
+  // Absent if there are no more pages. page_token should be set to
+  // this value for the next request to retrieve the next page of results.
+  optional string next_page_token = 2;
+}
+
+// Create a new agent skill.
+message CreateAgentSkillRequest {
+  // The identifier of the catalog.
+  string catalog_name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The identifier of the schema.
+  string schema_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The identifier of the agent skill.
+  string name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 64,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // How the storage location is provisioned (external or managed).
+  AgentSkillType agent_skill_type = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The storage location of the skill directory on the cloud.
+  //
+  // Required for EXTERNAL skills; ignored (server-derived) for MANAGED skills.
+  optional string storage_location = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // A human-readable description of what the skill does and when to use it.
+  optional string description = 6 [
+    (buf.validate.field).string.max_len = 1024,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // SPDX license identifier or free-form license text for the skill.
+  optional string license = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // The tools the skill is permitted to use.
+  repeated string allowed_tools = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // Arbitrary additional metadata declared by the skill.
+  map<string, string> metadata = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // User-provided free-form text description.
+  optional string comment = 10 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+message GetAgentSkillRequest {
+  // The three-level (fully qualified) name of the agent skill.
+  string name = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "unitycatalog.io/AgentSkill"}
+  ];
+
+  // Whether to include agent skills in the response for which the principal can
+  // only access selective metadata for.
+  optional bool include_browse = 1005 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message UpdateAgentSkillRequest {
+  // The three-level (fully qualified) name of the agent skill.
+  string name = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "unitycatalog.io/AgentSkill"}
+  ];
+
+  // New name for the agent skill.
+  optional string new_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 64,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Updated description of what the skill does and when to use it.
+  optional string description = 3 [
+    (buf.validate.field).string.max_len = 1024,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Updated tools the skill is permitted to use.
+  repeated string allowed_tools = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // The comment attached to the agent skill.
+  optional string comment = 5 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // The identifier of the user who owns the agent skill.
+  optional string owner = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message DeleteAgentSkillRequest {
+  // The three-level (fully qualified) name of the agent skill.
+  string name = 1 [
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "unitycatalog.io/AgentSkill"}
+  ];
+}
+
+// Service for managing agent skills in Unity Catalog.
+//
+// Agent skills are storage-backed directories (SKILL.md + optional resources)
+// within a schema. This is an early-stage (v0alpha1) surface aligned with the
+// Open Sharing agent-skill community proposal.
+service AgentSkillsService {
+  // Lists agent skills.
+  rpc ListAgentSkills(ListAgentSkillsRequest) returns (ListAgentSkillsResponse) {
+    option (google.api.http) = {get: "/agent-skills"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "ListAgentSkills"};
+  }
+
+  rpc CreateAgentSkill(CreateAgentSkillRequest) returns (AgentSkill) {
+    option (google.api.http) = {
+      post: "/agent-skills"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "CreateAgentSkill"};
+  }
+
+  rpc GetAgentSkill(GetAgentSkillRequest) returns (AgentSkill) {
+    option (google.api.http) = {get: "/agent-skills/{name}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "GetAgentSkill"};
+  }
+
+  rpc UpdateAgentSkill(UpdateAgentSkillRequest) returns (AgentSkill) {
+    option (google.api.http) = {
+      patch: "/agent-skills/{name}"
+      body: "*"
+    };
+    option (gnostic.openapi.v3.operation) = {operation_id: "UpdateAgentSkill"};
+  }
+
+  rpc DeleteAgentSkill(DeleteAgentSkillRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/agent-skills/{name}"};
+    option (gnostic.openapi.v3.operation) = {operation_id: "DeleteAgentSkill"};
+  }
+}

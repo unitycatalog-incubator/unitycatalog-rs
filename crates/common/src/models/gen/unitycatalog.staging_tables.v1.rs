@@ -10,8 +10,7 @@
 /// row. A staging table is not yet a usable table and is not returned by the
 /// table APIs.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct StagingTable {
     /// Unique identifier generated for the staging table. Becomes the managed
     /// table's id once finalized.
@@ -43,8 +42,7 @@ pub struct StagingTable {
 }
 /// Create a new staging table.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateStagingTableRequest {
     /// Name of the staging table, relative to the parent schema.
     #[prost(string, tag="1")]

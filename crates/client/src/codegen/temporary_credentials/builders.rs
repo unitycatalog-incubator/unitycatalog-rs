@@ -1,8 +1,8 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
 use super::client::*;
 use crate::Result;
-use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 /// Builder for temporary table credentials
@@ -21,14 +21,13 @@ impl GenerateTemporaryTableCredentialsBuilder {
         let request = GenerateTemporaryTableCredentialsRequest {
             table_id: table_id.into(),
             operation: operation as i32,
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for GenerateTemporaryTableCredentialsBuilder {
     type Output = Result<TemporaryCredential>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -65,7 +64,7 @@ impl GenerateTemporaryPathCredentialsBuilder {
 }
 impl IntoFuture for GenerateTemporaryPathCredentialsBuilder {
     type Output = Result<TemporaryCredential>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -88,14 +87,13 @@ impl GenerateTemporaryVolumeCredentialsBuilder {
         let request = GenerateTemporaryVolumeCredentialsRequest {
             volume_id: volume_id.into(),
             operation: operation as i32,
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for GenerateTemporaryVolumeCredentialsBuilder {
     type Output = Result<TemporaryCredential>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

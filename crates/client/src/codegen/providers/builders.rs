@@ -1,9 +1,11 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
+type BoxStr<'a, T> = ::futures::stream::BoxStream<'a, T>;
 use super::super::stream_paginated;
 use super::client::*;
 use crate::Result;
-use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
+use futures::{StreamExt, TryStreamExt};
 use std::future::IntoFuture;
 use unitycatalog_common::models::providers::v1::*;
 /// Builder for listing providers
@@ -31,9 +33,9 @@ impl ListProvidersBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<Provider>> {
+    pub fn into_stream(self) -> BoxStr<'static, Result<Provider>> {
         let remaining = self.request.max_results;
-        stream_paginated(
+        let stream = stream_paginated(
             (self, remaining),
             move |(mut builder, mut remaining), page_token| async move {
                 builder.request.page_token = page_token;
@@ -50,13 +52,13 @@ impl ListProvidersBuilder {
             },
         )
         .map_ok(|resp| futures::stream::iter(resp.providers.into_iter().map(Ok)))
-        .try_flatten()
-        .boxed()
+        .try_flatten();
+        stream.boxed()
     }
 }
 impl IntoFuture for ListProvidersBuilder {
     type Output = Result<ListProvidersResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -118,7 +120,7 @@ impl CreateProviderBuilder {
 }
 impl IntoFuture for CreateProviderBuilder {
     type Output = Result<Provider>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -134,16 +136,13 @@ impl GetProviderBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `ProviderServiceClient`.
     pub(crate) fn new(client: ProviderServiceClient, name: impl Into<String>) -> Self {
-        let request = GetProviderRequest {
-            name: name.into(),
-            ..Default::default()
-        };
+        let request = GetProviderRequest { name: name.into() };
         Self { client, request }
     }
 }
 impl IntoFuture for GetProviderBuilder {
     type Output = Result<Provider>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -208,7 +207,7 @@ impl UpdateProviderBuilder {
 }
 impl IntoFuture for UpdateProviderBuilder {
     type Output = Result<Provider>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -224,16 +223,13 @@ impl DeleteProviderBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `ProviderServiceClient`.
     pub(crate) fn new(client: ProviderServiceClient, name: impl Into<String>) -> Self {
-        let request = DeleteProviderRequest {
-            name: name.into(),
-            ..Default::default()
-        };
+        let request = DeleteProviderRequest { name: name.into() };
         Self { client, request }
     }
 }
 impl IntoFuture for DeleteProviderBuilder {
     type Output = Result<()>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

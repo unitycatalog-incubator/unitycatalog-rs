@@ -1,6 +1,8 @@
 // @generated — do not edit by hand.
 use super::builders::*;
 use super::client::SchemaServiceClient;
+use unitycatalog_common::models::agent_skills::v0alpha1::*;
+use unitycatalog_common::models::agents::v0alpha1::*;
 use unitycatalog_common::models::functions::v1::*;
 use unitycatalog_common::models::tables::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
@@ -69,6 +71,91 @@ impl SchemaClient {
         DeleteSchemaBuilder::new(
             self.client.clone(),
             format!("{}.{}", self.catalog_name, self.schema_name),
+        )
+    }
+    /// Access a `agent` within this resource.
+    pub fn agent(&self, agent_name: impl Into<String>) -> crate::codegen::agents::AgentClient {
+        crate::codegen::agents::AgentClient::new(
+            &self.catalog_name,
+            &self.schema_name,
+            agent_name,
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.client.clone(),
+                self.client.base_url.clone(),
+            ),
+        )
+    }
+    /// Create a `agent` within this resource.
+    pub fn create_agent(
+        &self,
+        name: impl Into<String>,
+        invocation_protocol: InvocationProtocol,
+        endpoint: impl Into<String>,
+    ) -> crate::codegen::agents::CreateAgentBuilder {
+        crate::codegen::agents::CreateAgentBuilder::new(
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.client.clone(),
+                self.client.base_url.clone(),
+            ),
+            &self.catalog_name,
+            &self.schema_name,
+            name,
+            invocation_protocol,
+            endpoint,
+        )
+    }
+    /// List `agent` resources within this resource.
+    pub fn list_agents(&self) -> crate::codegen::agents::ListAgentsBuilder {
+        crate::codegen::agents::ListAgentsBuilder::new(
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.client.clone(),
+                self.client.base_url.clone(),
+            ),
+            &self.catalog_name,
+            &self.schema_name,
+        )
+    }
+    /// Access a `agent_skill` within this resource.
+    pub fn agent_skill(
+        &self,
+        agent_skill_name: impl Into<String>,
+    ) -> crate::codegen::agent_skills::AgentSkillClient {
+        crate::codegen::agent_skills::AgentSkillClient::new(
+            &self.catalog_name,
+            &self.schema_name,
+            agent_skill_name,
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.client.clone(),
+                self.client.base_url.clone(),
+            ),
+        )
+    }
+    /// Create a `agent_skill` within this resource.
+    pub fn create_agent_skill(
+        &self,
+        name: impl Into<String>,
+        agent_skill_type: AgentSkillType,
+    ) -> crate::codegen::agent_skills::CreateAgentSkillBuilder {
+        crate::codegen::agent_skills::CreateAgentSkillBuilder::new(
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.client.clone(),
+                self.client.base_url.clone(),
+            ),
+            &self.catalog_name,
+            &self.schema_name,
+            name,
+            agent_skill_type,
+        )
+    }
+    /// List `agent_skill` resources within this resource.
+    pub fn list_agent_skills(&self) -> crate::codegen::agent_skills::ListAgentSkillsBuilder {
+        crate::codegen::agent_skills::ListAgentSkillsBuilder::new(
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.client.clone(),
+                self.client.base_url.clone(),
+            ),
+            &self.catalog_name,
+            &self.schema_name,
         )
     }
     /// Access a `function` within this resource.

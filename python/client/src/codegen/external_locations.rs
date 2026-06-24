@@ -2,6 +2,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::ExternalLocationClient;
 use unitycatalog_common::models::external_locations::v1::*;
 #[pyclass(name = "ExternalLocationClient")]
@@ -13,10 +14,7 @@ impl PyExternalLocationClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<ExternalLocation> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -52,10 +50,7 @@ impl PyExternalLocationClient {
         request = request.with_force(force);
         request = request.with_skip_validation(skip_validation);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (force = None))]
     pub fn delete(&self, py: Python, force: Option<bool>) -> PyUnityCatalogResult<()> {

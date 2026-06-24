@@ -1,4 +1,6 @@
 // @generated — do not edit by hand.
+#![allow(unexpected_cfgs)]
+#![allow(clippy::empty_docs)]
 use std::collections::HashMap;
 pub type PropertyMap = HashMap<String, serde_json::Value>;
 pub mod open_sharing {

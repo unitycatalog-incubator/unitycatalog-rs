@@ -1,6 +1,5 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
-use crate::Result;
+#![allow(unused_mut, unused_imports)]
 use crate::models::temporary_credentials::v1::*;
 use axum::RequestExt;
 impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporaryTableCredentialsRequest {

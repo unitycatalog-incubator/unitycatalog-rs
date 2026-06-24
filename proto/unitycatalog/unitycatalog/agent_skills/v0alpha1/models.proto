@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+// Owner-side Unity Catalog management surface for **agent skills**.
+//
+// An agent skill is a storage-backed directory of files (a required `SKILL.md`
+// plus optional `scripts/`, `references/`, and `assets/`) following the Claude
+// Agent Skills spec (https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
+// It is the owner-side counterpart of the recipient-side `open_sharing.v1`
+// `SharingSkill` discovery surface, and is modeled on `Volume` since both are
+// backed by a single managed-or-external storage location.
+//
+// This package is **v0alpha1**, not v1: it tracks an early-stage Open Sharing
+// community proposal that has no stable Unity Catalog backing yet, so its shape
+// may change before it stabilizes.
+package unitycatalog.agent_skills.v0alpha1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+
+// How an agent skill's storage location is provisioned.
+enum AgentSkillType {
+  AGENT_SKILL_TYPE_UNSPECIFIED = 0;
+
+  // The skill directory lives at a caller-supplied location within a
+  // registered external location.
+  EXTERNAL = 1;
+
+  // The skill directory lives at a server-derived location under the parent
+  // schema/catalog managed storage root.
+  MANAGED = 2;
+}
+
+// An agent skill registered in Unity Catalog.
+message AgentSkill {
+  option (google.api.resource) = {
+    type: "unitycatalog.io/AgentSkill"
+    pattern: "agent_skill/{agent_skill}"
+    plural: "agent_skills"
+    singular: "agent_skill"
+    name_field: "full_name"
+  };
+
+  // Name of the agent skill, relative to parent schema.
+  //
+  // Per the Agent Skills spec a skill name is lowercase letters, numbers, and
+  // hyphens, but Unity Catalog object names disallow hyphens, so UC stores the
+  // catalog object name with underscores; the spec-shaped name lives in the
+  // skill's own SKILL.md.
+  string name = 1 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 64,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Name of parent catalog.
+  string catalog_name = 2 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Name of parent schema.
+  string schema_name = 3 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]$",
+    (buf.validate.field).string.min_len = 3,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The three-level (fully qualified) name of the agent skill.
+  string full_name = 4 [
+    (buf.validate.field).string.pattern = "^[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]\\.[a-z][0-9a-z_]*[0-9a-z]$",
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The storage location of the skill's directory (the root that holds
+  // `SKILL.md`).
+  string storage_location = 5 [
+    (buf.validate.field).string.uri = true,
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The unique identifier of the agent skill.
+  string agent_skill_id = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IDENTIFIER
+  ];
+
+  // How the storage location is provisioned (external or managed).
+  AgentSkillType agent_skill_type = 7 [(google.api.field_behavior) = REQUIRED];
+
+  // A human-readable description of what the skill does and when to use it.
+  //
+  // Mirrors the Agent Skills spec `description` frontmatter field.
+  optional string description = 8 [
+    (buf.validate.field).string.max_len = 1024,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // SPDX license identifier or free-form license text for the skill.
+  optional string license = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // The tools the skill is permitted to use, as declared in its SKILL.md.
+  repeated string allowed_tools = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Arbitrary additional metadata declared by the skill.
+  map<string, string> metadata = 11 [(google.api.field_behavior) = OPTIONAL];
+
+  // Username of current owner of the agent skill.
+  optional string owner = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // User-provided free-form text description.
+  optional string comment = 13 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 65536,
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Time at which this agent skill was created, in epoch milliseconds.
+  optional int64 created_at = 1000 [
+    (buf.validate.field).int64.gt = 0,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Username of agent skill creator.
+  optional string created_by = 1001 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time at which this agent skill was last updated, in epoch milliseconds.
+  optional int64 updated_at = 1002 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Username of user who last modified the agent skill.
+  optional string updated_by = 1003 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The unique identifier of the metastore.
+  optional string metastore_id = 1004 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

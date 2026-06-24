@@ -9,6 +9,8 @@ mod name;
 /// Resource that a policy can authorize.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ResourceIdent {
+    Agent(ResourceRef),
+    AgentSkill(ResourceRef),
     Share(ResourceRef),
     Credential(ResourceRef),
     ExternalLocation(ResourceRef),
@@ -31,6 +33,14 @@ impl ResourceIdent {
 
     pub fn reference(&self) -> &ResourceRef {
         self.as_ref()
+    }
+
+    pub fn agent(name: impl Into<ResourceRef>) -> Self {
+        Self::Agent(name.into())
+    }
+
+    pub fn agent_skill(name: impl Into<ResourceRef>) -> Self {
+        Self::AgentSkill(name.into())
     }
 
     pub fn share(name: impl Into<ResourceRef>) -> Self {
@@ -89,6 +99,8 @@ impl ResourceIdent {
 impl std::fmt::Display for ResourceIdent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ResourceIdent::Agent(r) => write!(f, "agent:{}", r),
+            ResourceIdent::AgentSkill(r) => write!(f, "agent_skill:{}", r),
             ResourceIdent::Share(r) => write!(f, "share:{}", r),
             ResourceIdent::Credential(r) => write!(f, "credential:{}", r),
             ResourceIdent::ExternalLocation(r) => write!(f, "external_location:{}", r),
@@ -109,6 +121,8 @@ impl std::fmt::Display for ResourceIdent {
 impl AsRef<ResourceRef> for ResourceIdent {
     fn as_ref(&self) -> &ResourceRef {
         match self {
+            ResourceIdent::Agent(r) => r,
+            ResourceIdent::AgentSkill(r) => r,
             ResourceIdent::Share(r) => r,
             ResourceIdent::Credential(r) => r,
             ResourceIdent::ExternalLocation(r) => r,
@@ -129,6 +143,8 @@ impl AsRef<ResourceRef> for ResourceIdent {
 impl AsRef<ObjectLabel> for ResourceIdent {
     fn as_ref(&self) -> &ObjectLabel {
         match self {
+            ResourceIdent::Agent(_) => &ObjectLabel::Agent,
+            ResourceIdent::AgentSkill(_) => &ObjectLabel::AgentSkill,
             ResourceIdent::Share(_) => &ObjectLabel::Share,
             ResourceIdent::Credential(_) => &ObjectLabel::Credential,
             ResourceIdent::ExternalLocation(_) => &ObjectLabel::ExternalLocation,
@@ -149,6 +165,8 @@ impl AsRef<ObjectLabel> for ResourceIdent {
 impl From<ResourceIdent> for ResourceRef {
     fn from(ident: ResourceIdent) -> Self {
         match ident {
+            ResourceIdent::Agent(r) => r,
+            ResourceIdent::AgentSkill(r) => r,
             ResourceIdent::Share(r) => r,
             ResourceIdent::Credential(r) => r,
             ResourceIdent::ExternalLocation(r) => r,
@@ -209,6 +227,8 @@ impl<T: ResourceExt> From<&T> for ResourceIdent {
 impl ObjectLabel {
     pub fn to_ident(&self, id: impl Into<ResourceRef>) -> ResourceIdent {
         match self {
+            ObjectLabel::Agent => ResourceIdent::agent(id),
+            ObjectLabel::AgentSkill => ResourceIdent::agent_skill(id),
             ObjectLabel::Share => ResourceIdent::share(id),
             ObjectLabel::Credential => ResourceIdent::credential(id),
             ObjectLabel::Catalog => ResourceIdent::catalog(id),

@@ -1,6 +1,8 @@
 // @generated — do not edit by hand.
 import { fromBinary, toBinary } from "@bufbuild/protobuf";
 import {
+  type Agent,
+  type AgentSkill,
   type Catalog,
   type Credential,
   type EntityTagAssignment,
@@ -21,6 +23,8 @@ import {
   type TemporaryCredential,
   type UpdatePermissionsResponse,
   type Volume,
+  AgentSchema,
+  AgentSkillSchema,
   CatalogSchema,
   CredentialSchema,
   EntityTagAssignmentSchema,
@@ -43,6 +47,8 @@ import {
   VolumeSchema,
 } from "./models";
 import {
+  NapiAgentClient as NativeAgentClient,
+  NapiAgentSkillClient as NativeAgentSkillClient,
   NapiCatalogClient as NativeCatalogClient,
   NapiCredentialClient as NativeCredentialClient,
   NapiExternalLocationClient as NativeExternalLocationClient,
@@ -156,6 +162,98 @@ function parseNativeError(e: unknown): never {
 }
 
 // ── end UnityCatalogError error hierarchy ─────────────────────────────────────────────────────
+
+export interface ListAgentSkillsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include agent skills in the response for which the principal can
+   *  only access selective metadata for. */
+  includeBrowse?: boolean;
+}
+
+export interface CreateAgentSkillOptions {
+  /** The storage location of the skill directory on the cloud.
+   * 
+   *  Required for EXTERNAL skills; ignored (server-derived) for MANAGED skills. */
+  storageLocation?: string;
+  /** A human-readable description of what the skill does and when to use it. */
+  description?: string;
+  /** SPDX license identifier or free-form license text for the skill. */
+  license?: string;
+  /** The tools the skill is permitted to use. */
+  allowedTools?: string[];
+  /** Arbitrary additional metadata declared by the skill. */
+  metadata?: Record<string, string>;
+  /** User-provided free-form text description. */
+  comment?: string;
+}
+
+export interface GetAgentSkillOptions {
+  /** Whether to include agent skills in the response for which the principal can
+   *  only access selective metadata for. */
+  includeBrowse?: boolean;
+}
+
+export interface UpdateAgentSkillOptions {
+  /** New name for the agent skill. */
+  newName?: string;
+  /** Updated description of what the skill does and when to use it. */
+  description?: string;
+  /** Updated tools the skill is permitted to use. */
+  allowedTools?: string[];
+  /** The comment attached to the agent skill. */
+  comment?: string;
+  /** The identifier of the user who owns the agent skill. */
+  owner?: string;
+}
+
+export interface ListAgentsOptions {
+  /** The maximum number of results per page that should be returned. */
+  maxResults?: number;
+  /** Opaque pagination token to go to next page based on previous query. */
+  pageToken?: string;
+  /** Whether to include agents in the response for which the principal can only
+   *  access selective metadata for. */
+  includeBrowse?: boolean;
+}
+
+export interface CreateAgentOptions {
+  /** An LLM-readable description of what the agent does and the inputs it expects. */
+  description?: string;
+  /** Capability identifiers advertised by the agent. */
+  capabilities?: string[];
+  /** A JSON Schema (encoded as a JSON string) describing the expected input. */
+  inputSchema?: string;
+  /** User-provided free-form text description. */
+  comment?: string;
+}
+
+export interface GetAgentOptions {
+  /** Whether to include agents in the response for which the principal can only
+   *  access selective metadata for. */
+  includeBrowse?: boolean;
+}
+
+export interface UpdateAgentOptions {
+  /** New name for the agent. */
+  newName?: string;
+  /** The protocol a recipient uses to invoke the agent. */
+  invocationProtocol?: number;
+  /** The agent's invocation endpoint URL. */
+  endpoint?: string;
+  /** Updated LLM-readable description. */
+  description?: string;
+  /** Updated capability identifiers advertised by the agent. */
+  capabilities?: string[];
+  /** Updated JSON Schema (encoded as a JSON string) describing the expected input. */
+  inputSchema?: string;
+  /** The comment attached to the agent. */
+  comment?: string;
+  /** The identifier of the user who owns the agent. */
+  owner?: string;
+}
 
 export interface ListCatalogsOptions {
   /** The maximum number of results per page that should be returned. */
@@ -582,6 +680,66 @@ export interface UpdateVolumeOptions {
   comment?: string;
   /** The identifier of the user who owns the volume */
   owner?: string;
+}
+
+export class AgentSkillClient {
+  private readonly inner: NativeAgentSkillClient;
+
+  /** @internal */
+  constructor(inner: NativeAgentSkillClient) {
+    this.inner = inner;
+  }
+
+  async get(options?: GetAgentSkillOptions): Promise<AgentSkill> {
+    const { includeBrowse } = options || {};
+    try {
+      return fromBinary(AgentSkillSchema, await this.inner.get(includeBrowse));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async update(options?: UpdateAgentSkillOptions): Promise<AgentSkill> {
+    const { newName, description, allowedTools, comment, owner } = options || {};
+    try {
+      return fromBinary(AgentSkillSchema, await this.inner.update(newName, description, allowedTools, comment, owner));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+}
+
+export class AgentClient {
+  private readonly inner: NativeAgentClient;
+
+  /** @internal */
+  constructor(inner: NativeAgentClient) {
+    this.inner = inner;
+  }
+
+  async get(options?: GetAgentOptions): Promise<Agent> {
+    const { includeBrowse } = options || {};
+    try {
+      return fromBinary(AgentSchema, await this.inner.get(includeBrowse));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async update(options?: UpdateAgentOptions): Promise<Agent> {
+    const { newName, invocationProtocol, endpoint, description, capabilities, inputSchema, comment, owner } = options || {};
+    try {
+      return fromBinary(AgentSchema, await this.inner.update(newName, invocationProtocol, endpoint, description, capabilities, inputSchema, comment, owner));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async delete(): Promise<void> {
+    try {
+      await this.inner.delete();
+    } catch (e) { throw parseNativeError(e); }
+  }
+
 }
 
 export class CatalogClient {
@@ -1028,6 +1186,76 @@ export class UnityCatalogClient {
 
   constructor(url: string, token?: string) {
     this.inner = NativeClient.fromUrl(url, token);
+  }
+
+  /**
+     * Lists agent skills.
+     */
+  async listAgentSkills(catalogName: string, schemaName: string, options?: ListAgentSkillsOptions): Promise<AgentSkill[]> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      return (await this.inner.listAgentSkills(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
+        fromBinary(AgentSkillSchema, data),
+      );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Lists agent skills.
+     */
+  async *listAgentSkillsStream(catalogName: string, schemaName: string, options?: ListAgentSkillsOptions): AsyncIterable<AgentSkill> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      for await (const data of this.inner.listAgentSkillsStream(catalogName, schemaName, maxResults, includeBrowse)) {
+        yield fromBinary(AgentSkillSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async createAgentSkill(catalogName: string, schemaName: string, name: string, agentSkillType: number, options?: CreateAgentSkillOptions): Promise<AgentSkill> {
+    const { storageLocation, description, license, allowedTools, metadata, comment } = options || {};
+    try {
+      return fromBinary(AgentSkillSchema, await this.inner.createAgentSkill(catalogName, schemaName, name, agentSkillType, storageLocation, description, license, allowedTools, metadata, comment));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  agentSkill(catalogName: string, schemaName: string, agentSkillName: string): AgentSkillClient {
+    return new AgentSkillClient(this.inner.agentSkill(catalogName, schemaName, agentSkillName));
+  }
+
+  /**
+     * Lists agents.
+     */
+  async listAgents(catalogName: string, schemaName: string, options?: ListAgentsOptions): Promise<Agent[]> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      return (await this.inner.listAgents(catalogName, schemaName, maxResults, includeBrowse)).map((data) =>
+        fromBinary(AgentSchema, data),
+      );
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  /**
+     * Lists agents.
+     */
+  async *listAgentsStream(catalogName: string, schemaName: string, options?: ListAgentsOptions): AsyncIterable<Agent> {
+    const { maxResults, includeBrowse } = options || {};
+    try {
+      for await (const data of this.inner.listAgentsStream(catalogName, schemaName, maxResults, includeBrowse)) {
+        yield fromBinary(AgentSchema, data);
+      }
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  async createAgent(catalogName: string, schemaName: string, name: string, invocationProtocol: number, endpoint: string, options?: CreateAgentOptions): Promise<Agent> {
+    const { description, capabilities, inputSchema, comment } = options || {};
+    try {
+      return fromBinary(AgentSchema, await this.inner.createAgent(catalogName, schemaName, name, invocationProtocol, endpoint, description, capabilities, inputSchema, comment));
+    } catch (e) { throw parseNativeError(e); }
+  }
+
+  agent(catalogName: string, schemaName: string, agentName: string): AgentClient {
+    return new AgentClient(this.inner.agent(catalogName, schemaName, agentName));
   }
 
   /**

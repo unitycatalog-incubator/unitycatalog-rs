@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{Error, Result};
 
-#[allow(clippy::empty_docs, clippy::large_enum_variant)]
+// `empty_docs` is now suppressed inside the generated `_gen/mod.rs` itself.
+#[allow(clippy::large_enum_variant)]
 mod _gen;
 pub use _gen::*;
 
@@ -332,6 +333,7 @@ impl MetadataResponseData {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum MetadataResponse {

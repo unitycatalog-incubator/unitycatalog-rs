@@ -6,6 +6,8 @@ use tower_http::LatencyUnit;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tracing::Level;
 use unitycatalog_common::{Error, Result};
+use unitycatalog_server::api::agent_skills::AgentSkillHandler;
+use unitycatalog_server::api::agents::AgentHandler;
 use unitycatalog_server::api::catalogs::CatalogHandler;
 use unitycatalog_server::api::commits::DeltaCommitHandler;
 use unitycatalog_server::api::credentials::CredentialHandler;
@@ -24,12 +26,13 @@ use unitycatalog_server::api::tag_policies::TagPolicyHandler;
 use unitycatalog_server::api::temporary_credentials::TemporaryCredentialHandler;
 use unitycatalog_server::api::volumes::VolumeHandler;
 use unitycatalog_server::rest::{
-    AuthenticationLayer, Authenticator, create_catalogs_router, create_commits_router,
-    create_credentials_router, create_delta_router, create_entity_tag_assignments_router,
-    create_external_locations_router, create_functions_router, create_open_sharing_router,
-    create_providers_router, create_recipients_router, create_schemas_router, create_shares_router,
-    create_sharing_router, create_staging_tables_router, create_tables_router,
-    create_tag_policies_router, create_temporary_credentials_router, create_volumes_router,
+    AuthenticationLayer, Authenticator, create_agent_skills_router, create_agents_router,
+    create_catalogs_router, create_commits_router, create_credentials_router, create_delta_router,
+    create_entity_tag_assignments_router, create_external_locations_router,
+    create_functions_router, create_open_sharing_router, create_providers_router,
+    create_recipients_router, create_schemas_router, create_shares_router, create_sharing_router,
+    create_staging_tables_router, create_tables_router, create_tag_policies_router,
+    create_temporary_credentials_router, create_volumes_router,
 };
 use unitycatalog_server::sharing::{SharingSkillHandler, SharingVolumeHandler};
 
@@ -52,6 +55,8 @@ where
         + StagingTableHandler<Cx>
         + TableHandler<Cx>
         + VolumeHandler<Cx>
+        + AgentSkillHandler<Cx>
+        + AgentHandler<Cx>
         + ExternalLocationHandler<Cx>
         + RecipientHandler<Cx>
         + ProviderHandler<Cx>
@@ -97,6 +102,8 @@ where
         .merge(create_staging_tables_router(handler.clone()))
         .merge(create_tables_router(handler.clone()))
         .merge(create_volumes_router(handler.clone()))
+        .merge(create_agent_skills_router(handler.clone()))
+        .merge(create_agents_router(handler.clone()))
         .merge(create_credentials_router(handler.clone()))
         .merge(create_external_locations_router(handler.clone()))
         .merge(create_temporary_credentials_router(handler.clone()))

@@ -1,7 +1,10 @@
 // @generated — do not edit by hand.
+#![allow(unexpected_cfgs)]
 #![allow(clippy::empty_docs)]
 use std::collections::HashMap;
 pub mod labels;
+pub use agent_skills::v0alpha1::AgentSkill;
+pub use agents::v0alpha1::Agent;
 pub use catalogs::v1::Catalog;
 pub use credentials::v1::Credential;
 pub use external_locations::v1::ExternalLocation;
@@ -17,6 +20,20 @@ pub use tables::v1::Table;
 pub use tags::v1::TagPolicy;
 pub use volumes::v1::Volume;
 pub type PropertyMap = HashMap<String, serde_json::Value>;
+pub mod agent_skills {
+    pub mod v0alpha1 {
+        include!("./../gen/unitycatalog.agent_skills.v0alpha1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./../gen/unitycatalog.agent_skills.v0alpha1.tonic.rs");
+    }
+}
+pub mod agents {
+    pub mod v0alpha1 {
+        include!("./../gen/unitycatalog.agents.v0alpha1.rs");
+        #[cfg(feature = "grpc")]
+        include!("./../gen/unitycatalog.agents.v0alpha1.tonic.rs");
+    }
+}
 pub mod catalogs {
     pub mod v1 {
         include!("./../gen/unitycatalog.catalogs.v1.rs");

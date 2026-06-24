@@ -1,4 +1,6 @@
 pub use codegen::UnityCatalogClient;
+pub use codegen::agent_skills::AgentSkillClient;
+pub use codegen::agents::AgentClient;
 pub use codegen::catalogs::CatalogClient;
 pub use codegen::credentials::CredentialClient;
 pub use codegen::external_locations::ExternalLocationClient;
