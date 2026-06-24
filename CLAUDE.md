@@ -126,7 +126,7 @@ Tabs are synced across the entire site via Starlight's built-in `localStorage` p
 
 **Rust**: Follow standard Rust conventions with 4-space indentation.
 Use `cargo fmt` for formatting and `cargo clippy` for linting.
-Requires Rust **1.85+** with Edition **2024** (configured in workspace `Cargo.toml`).
+Edition and MSRV are pinned in the workspace `Cargo.toml` — read them there.
 
 **JavaScript/TypeScript**: 2-space indentation, managed by Biome formatter/linter.
 
@@ -165,28 +165,40 @@ Pre-commit hooks enforce formatting with Biome, Ruff, and typos checking.
 
 ## Commit & Pull Request Guidelines
 
-GPG commit signing is required. **Never run `git commit` directly** — the GPG PIN prompt needs an interactive terminal and will time out.
+The commit-message contract and signing flow are machine-wide — see
+`~/.claude/CLAUDE.md`. In short: commit **unsigned** as you go via the `/commit`
+skill (`.claude/skills/commit/SKILL.md`); **sign the whole branch once before
+opening a PR**. Prefer small, well-scoped commits — release-plz reads them.
 
-Use the `/commit` skill (`.claude/skills/commit/SKILL.md`) for the full pre-commit workflow: clippy → fmt → stage → commit message file → paste command.
+Repo-specific rules:
+- **Generated code in the same commit** as the change that produced it (run
+  `just generate` after proto changes) so reviewers trace generation to output
+  in one diff. Stage by name; never `git add -A`.
 
-**Code Generation**: Many files are auto-generated. Run `just generate` after proto changes and commit generated code in the same commit as the changes that produced them — this keeps generation logic and its output traceable together.
+### Quick pre-push check (mimics CI)
+
+```bash
+cargo fmt --all --check \
+  && cargo clippy --workspace --all-targets --all-features -- -D warnings \
+  && cargo nextest run --workspace --all-features --profile ci -E 'not binary(commit_coordinator)' \
+  && cargo test --workspace --all-features --doc
+```
 
 ### Pull Request workflow
 
-1. **Create a feature branch** before starting any implementation — never work on `main`:
-   ```bash
-   git checkout -b feat/<short-description>
-   ```
-
-2. **Create follow-up issues** (via `gh issue create`) *before* opening the PR so they can be referenced in the PR body. Common follow-up patterns:
-   - Migrations deferred to keep the PR focused
-   - Related work in sibling crates not touched by this PR
-
-3. **Open the PR** with `gh pr create` targeting `main`:
-   - Title format: `<type>: <description> (#<issue>)` — reference the issue being closed
-   - Body: bullet-point summary, test plan checklist, `Closes #N` line, follow-up issue references, and the `AI-assisted by Isaac` attribution line
-
-4. **Commit generated code together** with the changes that produced them. Stage hand-written changes and their generated output in the same commit so reviewers can trace generation logic to its output in one diff.
+1. **Create a feature branch** before any implementation — never work on `main`
+   (`git checkout -b feat/<short-description>`).
+2. **Create follow-up issues** (`gh issue create`) *before* opening the PR so the
+   body can reference them — e.g. deferred migrations, sibling-crate work.
+3. **Commit (unsigned) → push → open the PR in one pass** — don't wait on
+   signing mid-flow (signatures aren't required to merge). `gh pr create`, target
+   `main`:
+   - Title: `<type>: <description> (#<issue>)` — reference the closed issue.
+   - Body: bullet summary, test-plan checklist, `Closes #N`, follow-up refs, and
+     the `This pull request was AI-assisted by Isaac.` line.
+4. **Sign once at the end** — surface the combined sign + `--force-with-lease`
+   command from `~/.claude` for the user to run (one PIN); can happen any time
+   before merge. See the `/commit` skill.
 
 ### GitHub Issues workflow
 

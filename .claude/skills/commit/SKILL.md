@@ -1,84 +1,92 @@
 ---
 name: commit
-description: This skill should be used when the user asks to "commit", "prepare a commit", "stage and commit", "commit my changes", or says the work is done and changes should be committed. Handles repos where git commit cannot be run directly by the agent (e.g. GPG signing, 2FA prompts) by preparing everything so the user pastes one command.
-version: 0.1.0
+description: This skill should be used when the user asks to "commit", "prepare a commit", "stage and commit", "commit my changes", or says the work is done and changes should be committed. Commits unsigned (no interactive GPG PIN) and defers signing to a single bulk step before opening a PR.
+version: 0.2.0
 ---
 
 # Commit Workflow
 
-For repos where `git commit` cannot be run directly by the agent (e.g. GPG PIN
-requires an interactive terminal), prepare everything so the user pastes one command.
+The commit-message contract (types, `AI-assisted-by: Isaac` trailer, granularity)
+lives in `~/.claude/CLAUDE.md` — follow it; this skill covers the mechanics.
+
+Commits here are GPG-signed, and the PIN needs an interactive terminal. The agent
+**commits unsigned** (`git commit --no-gpg-sign`, which needs no PIN), and the
+user **signs once before pushing / opening a PR**. No per-commit paste.
 
 ## Workflow
 
 ### Step 1 — Auto-fix lint
-Run the project's lint auto-fix command per CLAUDE.md
-(e.g. `cargo clippy --workspace --fix --allow-dirty` for Rust).
-
-Lint may rewrite code files. Always run this before formatting.
+`cargo clippy --workspace --fix --allow-dirty` (and `just fix-node` / `just fix-py`
+if those files changed). Lint may rewrite code; always run before formatting.
 
 ### Step 2 — Format all code
-Run the project's formatter per CLAUDE.md (e.g. `cargo fmt --all` for Rust).
+`cargo fmt --all` (plus the relevant language formatter if you touched node/py).
+Always after lint — lint rewrites may need reformatting.
 
-Always run after lint — lint rewrites may need reformatting.
+### Step 3 — Stage specific files (and split commits)
+Stage only relevant files by name — never `git add -A` / `git add .` (avoids
+generated files, `.env`, large binaries).
 
-### Step 3 — Update project documentation (if needed)
-Before staging, check whether any project documentation files need updating
-(e.g. CLAUDE.md, README) if commands, rules, or public APIs have changed.
-
-### Step 4 — Stage specific files
 ```bash
 git add <file1> <file2> ...
 ```
-Stage only relevant files by name. Never use `git add -A` or `git add .` — this can
-accidentally include generated files, `.env`, or large binaries.
 
-### Step 5 — Write commit message to file
-Derive the filename from the repo name and current branch to avoid collisions across
-sessions or worktrees:
+When the working tree spans **multiple logical changes**, make **multiple small,
+well-scoped commits** (one type/scope each) rather than one mixed commit — signing
+is a single bulk step per branch, so small commits cost nothing and give
+release-plz a richer per-crate history. Don't over-fragment. Commit generated
+output in the **same commit** as the change that produced it (see CLAUDE.md
+codegen rules).
+
+### Step 4 — Write the message, then commit unsigned
+Derive a temp filename from repo + branch to avoid collisions across worktrees:
 
 ```bash
-# Determine the path (run via Bash tool to get live values)
 REPO=$(basename $(git rev-parse --show-toplevel))
 BRANCH=$(git rev-parse --abbrev-ref HEAD | tr '/' '-')
 MSG_FILE="/tmp/commit_msg_${REPO}_${BRANCH}.txt"
 ```
 
-Write the commit message to that path using the Write tool (not echo/heredoc).
-
-**Format:**
-```
-<type>: <subject ≤72 chars, imperative mood>
-
-<body: what changed and why>
-
-AI-assisted-by: Isaac
-```
-
-**Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
-
-The `AI-assisted-by: Isaac` trailer is required on every commit.
-
-### Step 6 — Print message and provide command
-1. Print the full commit message in a code block so the user can review it
-2. Print the commit command in its own code block (substituting the actual resolved path):
+Write the message to that path with the **Write tool** (not echo/heredoc — on
+macOS/zsh a pasted multiline heredoc leaves the shell in incomplete-input state).
+Format per `~/.claude/CLAUDE.md` (`<type>: <subject>` / body / `AI-assisted-by:
+Isaac`). Then commit directly — no PIN needed:
 
 ```bash
-git commit -F /tmp/commit_msg_<repo>_<branch>.txt && rm /tmp/commit_msg_<repo>_<branch>.txt
+git commit --no-gpg-sign -F "$MSG_FILE" && rm "$MSG_FILE"
 ```
 
-3. Tell the user: "Run `/copy` to copy the command to your clipboard, then paste and run it."
+**Pre-commit hook:** this repo has an active `.pre-commit-config.yaml` (Biome,
+typos, Ruff, cargo fmt + cargo-check) that runs on every commit, signed or not,
+and can rewrite files or abort. If it rewrites files, re-stage them and retry the
+commit once. If it still fails, surface the hook output and stop — don't loop.
+The `&& rm` only runs on success, so a failed commit preserves the message file.
 
-The `&& rm` cleans up the temp file automatically after a successful commit.
-If the commit fails (e.g. hook rejection), the file is preserved for inspection.
+### Step 5 — Push and open the PR (don't wait on signing)
+Commit unsigned, then **push and open the PR in the same pass** — don't stop to
+wait for the GPG PIN mid-flow. Tell the user the commits are unsigned and will be
+signed in one bulk step at the end. Don't offer a re-sign after each commit.
 
-**Never use heredocs or `\n`-escaped strings** — on macOS/zsh, pasting multiline
-heredocs leaves the shell in an incomplete input state.
+## Signing — one bulk step at the end (after the PR is open)
+
+Signing rewrites the commits (amend), so the already-pushed branch needs a
+`--force-with-lease` re-push. That's safe on a solo feature branch and is
+preferred over splitting work across handoffs. Surface ONE combined command for
+the user to run (one GPG PIN); signatures aren't required to merge, so this can
+happen any time before merge:
+
+- One commit (HEAD):
+  ```bash
+  git commit --amend --no-edit -S && git push --force-with-lease
+  ```
+- Range (the normal case):
+  ```bash
+  git rebase --exec 'git commit --amend --no-edit -S' "$(git merge-base main HEAD)" && git push --force-with-lease
+  ```
+- Verify: `git log --format='%h %G? %s' main..HEAD` — every commit shows `G`.
 
 ## Notes
 
-- Steps 1 and 2 must run in order — lint first, then format
-- Do not skip lint even for small changes; it may catch issues
-- If lint or format changes files, include them in the staged set
-- If the project uses code generation, commit generated files separately per
-  CLAUDE.md conventions to keep review diffs readable
+- Steps 1 and 2 run in order — lint first, then format.
+- Don't skip lint even for small changes.
+- If lint or format changes files, include them in the staged set.
