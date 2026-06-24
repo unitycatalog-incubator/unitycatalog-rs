@@ -1,3 +1,5 @@
+pub use agent_skills::AgentSkillHandler;
+pub use agents::AgentHandler;
 pub use catalogs::CatalogHandler;
 pub use commits::DeltaCommitHandler;
 pub use credentials::CredentialHandler;
@@ -31,6 +33,8 @@ use unitycatalog_common::models::ResourceIdent;
 //     action: &str, // "created" | "updated"
 // ) -> Result<()>
 
+pub mod agent_skills;
+pub mod agents;
 pub mod catalogs;
 pub mod commits;
 pub mod credentials;

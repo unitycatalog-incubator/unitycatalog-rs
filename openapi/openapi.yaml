@@ -3,6 +3,20 @@ info:
   title: ""
   version: 0.0.1
 tags:
+  - name: AgentSkillsService
+    description: |-
+      Service for managing agent skills in Unity Catalog.
+
+       Agent skills are storage-backed directories (SKILL.md + optional resources)
+       within a schema. This is an early-stage (v0alpha1) surface aligned with the
+       Open Sharing agent-skill community proposal.
+  - name: AgentsService
+    description: |-
+      Service for managing agents in Unity Catalog.
+
+       Agents are remote invocable services (endpoint + invocation protocol) within a
+       schema. This is an early-stage (v0alpha1) surface aligned with the Open
+       Sharing agent community proposal.
   - name: CatalogsService
     description: Manage catalogs and schemas in the service.
   - name: CredentialsService
@@ -67,6 +81,314 @@ tags:
       Service for managing volumes in Unity Catalog.
        Volumes represent logical storage locations (managed or external) within a schema.
 paths:
+  /agent-skills:
+    get:
+      tags:
+        - AgentSkillsService
+      description: Lists agent skills.
+      operationId: ListAgentSkills
+      parameters:
+        - name: catalogName
+          in: query
+          description: The identifier of the catalog.
+          schema:
+            type: string
+        - name: schemaName
+          in: query
+          description: The identifier of the schema.
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Opaque pagination token to go to next page based on previous query.
+          schema:
+            type: string
+        - name: includeBrowse
+          in: query
+          description: |-
+            Whether to include agent skills in the response for which the principal can
+             only access selective metadata for.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListAgentSkillsResponse"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    post:
+      tags:
+        - AgentSkillsService
+      operationId: CreateAgentSkill
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAgentSkillRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSkill"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /agent-skills/{name}:
+    get:
+      tags:
+        - AgentSkillsService
+      operationId: GetAgentSkill
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the agent skill.
+          required: true
+          schema:
+            type: string
+        - name: includeBrowse
+          in: query
+          description: |-
+            Whether to include agent skills in the response for which the principal can
+             only access selective metadata for.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSkill"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    delete:
+      tags:
+        - AgentSkillsService
+      operationId: DeleteAgentSkill
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the agent skill.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content: {}
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    patch:
+      tags:
+        - AgentSkillsService
+      operationId: UpdateAgentSkill
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the agent skill.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAgentSkillRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentSkill"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /agents:
+    get:
+      tags:
+        - AgentsService
+      description: Lists agents.
+      operationId: ListAgents
+      parameters:
+        - name: catalogName
+          in: query
+          description: The identifier of the catalog.
+          schema:
+            type: string
+        - name: schemaName
+          in: query
+          description: The identifier of the schema.
+          schema:
+            type: string
+        - name: maxResults
+          in: query
+          description: The maximum number of results per page that should be returned.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Opaque pagination token to go to next page based on previous query.
+          schema:
+            type: string
+        - name: includeBrowse
+          in: query
+          description: |-
+            Whether to include agents in the response for which the principal can only
+             access selective metadata for.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListAgentsResponse"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    post:
+      tags:
+        - AgentsService
+      operationId: CreateAgent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAgentRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /agents/{name}:
+    get:
+      tags:
+        - AgentsService
+      operationId: GetAgent
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the agent.
+          required: true
+          schema:
+            type: string
+        - name: includeBrowse
+          in: query
+          description: |-
+            Whether to include agents in the response for which the principal can only
+             access selective metadata for.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    delete:
+      tags:
+        - AgentsService
+      operationId: DeleteAgent
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the agent.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content: {}
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+    patch:
+      tags:
+        - AgentsService
+      operationId: UpdateAgent
+      parameters:
+        - name: name
+          in: path
+          description: The three-level (fully qualified) name of the agent.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAgentRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        default:
+          description: Default error response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
   /catalogs:
     get:
       tags:
@@ -2264,6 +2586,190 @@ components:
           $ref: "#/components/schemas/SchemaOrReference"
         boolean:
           type: boolean
+    Agent:
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - full_name
+        - agent_id
+        - invocation_protocol
+        - endpoint
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the agent, relative to parent schema.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+        catalogName:
+          type: string
+          description: Name of parent catalog.
+        schemaName:
+          type: string
+          description: Name of parent schema.
+        fullName:
+          readOnly: true
+          type: string
+          description: The three-level (fully qualified) name of the agent.
+        agentId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the agent.
+        invocationProtocol:
+          type: integer
+          description: The protocol a recipient uses to invoke the agent.
+          format: enum
+        endpoint:
+          type: string
+          description: The agent's invocation endpoint URL.
+          pattern: ^(?:(?:[a-zA-Z][a-zA-Z\d+\-.]*):)?(?://(?:[A-Za-z0-9\-\.]+(?::\d+)?))?(/[^\?#]*)?(?:\?([^\#]*))?(?:\#(.*))?$
+        description:
+          type: string
+          description: |-
+            An LLM-readable description of what the agent does and the inputs it
+             expects.
+          maxLength: 65536
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: |-
+            Capability identifiers advertised by the agent (e.g. `sql_query`,
+             `document_search`, `code_execution`).
+        inputSchema:
+          type: string
+          description: |-
+            A JSON Schema (encoded as a JSON string) describing the agent's expected
+             input payload. Kept as an opaque string so the schema can evolve without
+             changing this message.
+        owner:
+          readOnly: true
+          type: string
+          description: Username of current owner of the agent.
+        comment:
+          type: string
+          description: User-provided free-form text description.
+          minLength: 1
+          maxLength: 65536
+        createdAt:
+          readOnly: true
+          type: string
+          description: Time at which this agent was created, in epoch milliseconds.
+        createdBy:
+          readOnly: true
+          type: string
+          description: Username of agent creator.
+        updatedAt:
+          readOnly: true
+          type: string
+          description: Time at which this agent was last updated, in epoch milliseconds.
+        updatedBy:
+          readOnly: true
+          type: string
+          description: Username of user who last modified the agent.
+        metastoreId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the metastore.
+      description: An agent registered in Unity Catalog.
+      additionalProperties: false
+      title: Agent
+    AgentSkill:
+      required:
+        - name
+        - catalog_name
+        - schema_name
+        - full_name
+        - storage_location
+        - agent_skill_id
+        - agent_skill_type
+      type: object
+      properties:
+        name:
+          type: string
+          description: |-
+            Per the Agent Skills spec a skill name is lowercase letters, numbers, and
+             hyphens, but Unity Catalog object names disallow hyphens, so UC stores the
+             catalog object name with underscores; the spec-shaped name lives in the
+             skill's own SKILL.md.
+          minLength: 3
+          maxLength: 64
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+          title: Name of the agent skill, relative to parent schema.
+        catalogName:
+          type: string
+          description: Name of parent catalog.
+        schemaName:
+          type: string
+          description: Name of parent schema.
+        fullName:
+          readOnly: true
+          type: string
+          description: The three-level (fully qualified) name of the agent skill.
+        storageLocation:
+          type: string
+          description: |-
+            The storage location of the skill's directory (the root that holds
+             `SKILL.md`).
+        agentSkillId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the agent skill.
+        agentSkillType:
+          type: integer
+          description: How the storage location is provisioned (external or managed).
+          format: enum
+        description:
+          type: string
+          description: Mirrors the Agent Skills spec `description` frontmatter field.
+          maxLength: 1024
+          title: A human-readable description of what the skill does and when to use it.
+        license:
+          type: string
+          description: SPDX license identifier or free-form license text for the skill.
+        allowedTools:
+          type: array
+          items:
+            type: string
+          description: The tools the skill is permitted to use, as declared in its SKILL.md.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Arbitrary additional metadata declared by the skill.
+        owner:
+          readOnly: true
+          type: string
+          description: Username of current owner of the agent skill.
+        comment:
+          type: string
+          description: User-provided free-form text description.
+          minLength: 1
+          maxLength: 65536
+        createdAt:
+          readOnly: true
+          type: string
+          description: Time at which this agent skill was created, in epoch milliseconds.
+        createdBy:
+          readOnly: true
+          type: string
+          description: Username of agent skill creator.
+        updatedAt:
+          readOnly: true
+          type: string
+          description: Time at which this agent skill was last updated, in epoch milliseconds.
+        updatedBy:
+          readOnly: true
+          type: string
+          description: Username of user who last modified the agent skill.
+        metastoreId:
+          readOnly: true
+          type: string
+          description: The unique identifier of the metastore.
+      description: An agent skill registered in Unity Catalog.
+      additionalProperties: false
+      title: Agent Skill
     Any:
       type: object
       properties:
@@ -2618,6 +3124,109 @@ components:
       description: At least one of `commit_info` or `latest_backfilled_version` must be set.
       additionalProperties: false
       title: Request to ratify a Delta commit and/or notify the catalog of backfill.
+    CreateAgentRequest:
+      required:
+        - catalog_name
+        - schema_name
+        - name
+        - invocation_protocol
+        - endpoint
+      type: object
+      properties:
+        catalogName:
+          type: string
+          description: The identifier of the catalog.
+        schemaName:
+          type: string
+          description: The identifier of the schema.
+        name:
+          type: string
+          description: The identifier of the agent.
+          minLength: 3
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+        invocationProtocol:
+          type: integer
+          description: The protocol a recipient uses to invoke the agent.
+          format: enum
+        endpoint:
+          type: string
+          description: The agent's invocation endpoint URL.
+          pattern: ^(?:(?:[a-zA-Z][a-zA-Z\d+\-.]*):)?(?://(?:[A-Za-z0-9\-\.]+(?::\d+)?))?(/[^\?#]*)?(?:\?([^\#]*))?(?:\#(.*))?$
+        description:
+          type: string
+          description: An LLM-readable description of what the agent does and the inputs it expects.
+          maxLength: 65536
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Capability identifiers advertised by the agent.
+        inputSchema:
+          type: string
+          description: A JSON Schema (encoded as a JSON string) describing the expected input.
+        comment:
+          type: string
+          description: User-provided free-form text description.
+          minLength: 1
+          maxLength: 65536
+      description: Create a new agent.
+      additionalProperties: false
+      title: Create Agent Request
+    CreateAgentSkillRequest:
+      required:
+        - catalog_name
+        - schema_name
+        - name
+        - agent_skill_type
+      type: object
+      properties:
+        catalogName:
+          type: string
+          description: The identifier of the catalog.
+        schemaName:
+          type: string
+          description: The identifier of the schema.
+        name:
+          type: string
+          description: The identifier of the agent skill.
+          minLength: 3
+          maxLength: 64
+          pattern: ^[a-z][0-9a-z_]*[0-9a-z]$
+        agentSkillType:
+          type: integer
+          description: How the storage location is provisioned (external or managed).
+          format: enum
+        storageLocation:
+          type: string
+          description: |-
+            The storage location of the skill directory on the cloud.
+
+             Required for EXTERNAL skills; ignored (server-derived) for MANAGED skills.
+        description:
+          type: string
+          description: A human-readable description of what the skill does and when to use it.
+          maxLength: 1024
+        license:
+          type: string
+          description: SPDX license identifier or free-form license text for the skill.
+        allowedTools:
+          type: array
+          items:
+            type: string
+          description: The tools the skill is permitted to use.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Arbitrary additional metadata declared by the skill.
+        comment:
+          type: string
+          description: User-provided free-form text description.
+          minLength: 1
+          maxLength: 65536
+      description: Create a new agent skill.
+      additionalProperties: false
+      title: Create Agent Skill Request
     CreateCatalogRequest:
       required:
         - name
@@ -3773,6 +4382,53 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SchemaOrReference"
+    ListAgentSkillsResponse:
+      type: object
+      properties:
+        agentSkills:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentSkill"
+          description: The agent skills returned.
+        nextPageToken:
+          type: string
+          description: |-
+            Opaque token to retrieve the next page of results.
+
+             Absent if there are no more pages. page_token should be set to
+             this value for the next request to retrieve the next page of results.
+      description: List agent skills response.
+      additionalProperties: false
+      title: List Agent Skills Response
+    ListAgentsResponse:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Agent"
+            additionalProperties: false
+            required:
+              - name
+              - catalog_name
+              - schema_name
+              - full_name
+              - agent_id
+              - invocation_protocol
+              - endpoint
+            description: An agent registered in Unity Catalog.
+            title: Agent
+          description: The agents returned.
+        nextPageToken:
+          type: string
+          description: |-
+            Opaque token to retrieve the next page of results.
+
+             Absent if there are no more pages. page_token should be set to
+             this value for the next request to retrieve the next page of results.
+      description: List agents response.
+      additionalProperties: false
+      title: List Agents Response
     ListCatalogsResponse:
       type: object
       properties:
@@ -4772,6 +5428,69 @@ components:
         - expiration_time
         - url
       title: Temporary Credential
+    UpdateAgentRequest:
+      required: []
+      type: object
+      properties:
+        newName:
+          type: string
+          description: New name for the agent.
+        invocationProtocol:
+          type: integer
+          description: The protocol a recipient uses to invoke the agent.
+          format: enum
+        endpoint:
+          type: string
+          description: The agent's invocation endpoint URL.
+          pattern: ^(?:(?:[a-zA-Z][a-zA-Z\d+\-.]*):)?(?://(?:[A-Za-z0-9\-\.]+(?::\d+)?))?(/[^\?#]*)?(?:\?([^\#]*))?(?:\#(.*))?$
+        description:
+          type: string
+          description: Updated LLM-readable description.
+          maxLength: 65536
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Updated capability identifiers advertised by the agent.
+        inputSchema:
+          type: string
+          description: Updated JSON Schema (encoded as a JSON string) describing the expected input.
+        comment:
+          type: string
+          description: The comment attached to the agent.
+          minLength: 1
+          maxLength: 65536
+        owner:
+          type: string
+          description: The identifier of the user who owns the agent.
+      additionalProperties: false
+      title: Update Agent Request
+    UpdateAgentSkillRequest:
+      required: []
+      type: object
+      properties:
+        newName:
+          type: string
+          description: New name for the agent skill.
+        description:
+          type: string
+          description: Updated description of what the skill does and when to use it.
+          maxLength: 1024
+        allowedTools:
+          type: array
+          items:
+            type: string
+          description: Updated tools the skill is permitted to use.
+        comment:
+          type: string
+          description: The comment attached to the agent skill.
+          minLength: 1
+          maxLength: 65536
+        owner:
+          type: string
+          description: The identifier of the user who owns the agent skill.
+      additionalProperties: false
+      title: Update Agent Skill Request
     UpdateCatalogRequest:
       required: []
       type: object

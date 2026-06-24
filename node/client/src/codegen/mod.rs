@@ -1,5 +1,7 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut, unused_imports, dead_code, clippy::all)]
+pub mod agent_skills;
+pub mod agents;
 pub mod catalogs;
 pub mod credentials;
 pub mod external_locations;
@@ -12,6 +14,8 @@ pub mod staging_tables;
 pub mod tables;
 pub mod tag_policies;
 pub mod volumes;
+use crate::codegen::agent_skills::NapiAgentSkillClient;
+use crate::codegen::agents::NapiAgentClient;
 use crate::codegen::catalogs::NapiCatalogClient;
 use crate::codegen::credentials::NapiCredentialClient;
 use crate::codegen::external_locations::NapiExternalLocationClient;
@@ -33,6 +37,8 @@ use napi_derive::napi;
 use prost::Message;
 use std::collections::HashMap;
 use unitycatalog_client::UnityCatalogClient;
+use unitycatalog_common::models::agent_skills::v0alpha1::*;
+use unitycatalog_common::models::agents::v0alpha1::*;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::delta_commits::v1::*;
@@ -67,6 +73,152 @@ impl NapiUnityCatalogClient {
         Ok(Self {
             client: UnityCatalogClient::new(client, base_url),
         })
+    }
+    #[napi(catch_unwind)]
+    pub async fn list_agent_skills(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<Vec<Buffer>> {
+        let mut request = self.client.list_agent_skills(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        request
+            .into_stream()
+            .map_ok(|item| Buffer::from(item.encode_to_vec()))
+            .try_collect::<Vec<_>>()
+            .await
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_agent_skills_stream(
+        &self,
+        env: Env,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_agent_skills(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_agent_skill(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        name: String,
+        agent_skill_type: i32,
+        storage_location: Option<String>,
+        description: Option<String>,
+        license: Option<String>,
+        allowed_tools: Option<Vec<String>>,
+        metadata: Option<HashMap<String, String>>,
+        comment: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.create_agent_skill(
+            catalog_name,
+            schema_name,
+            name,
+            agent_skill_type.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+        );
+        request = request.with_storage_location(storage_location);
+        request = request.with_description(description);
+        request = request.with_license(license);
+        if let Some(allowed_tools) = allowed_tools {
+            request = request.with_allowed_tools(allowed_tools);
+        }
+        if let Some(metadata) = metadata {
+            request = request.with_metadata(metadata);
+        }
+        request = request.with_comment(comment);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub async fn list_agents(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<Vec<Buffer>> {
+        let mut request = self.client.list_agents(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        request
+            .into_stream()
+            .map_ok(|item| Buffer::from(item.encode_to_vec()))
+            .try_collect::<Vec<_>>()
+            .await
+            .default_error()
+    }
+    #[napi(catch_unwind)]
+    pub fn list_agents_stream(
+        &self,
+        env: Env,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> napi::Result<ReadableStream<'_, Buffer>> {
+        let mut request = self.client.list_agents(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        ReadableStream::new(
+            &env,
+            request.into_stream().map(|item| {
+                item.map(|v| Buffer::from(v.encode_to_vec()))
+                    .map_err(|e| crate::error::convert_error(&e))
+            }),
+        )
+    }
+    #[napi(catch_unwind)]
+    pub async fn create_agent(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        name: String,
+        invocation_protocol: i32,
+        endpoint: String,
+        description: Option<String>,
+        capabilities: Option<Vec<String>>,
+        input_schema: Option<String>,
+        comment: Option<String>,
+    ) -> napi::Result<Buffer> {
+        let mut request = self.client.create_agent(
+            catalog_name,
+            schema_name,
+            name,
+            invocation_protocol.try_into().map_err(|_| {
+                napi::Error::new(napi::Status::GenericFailure, "invalid enum value")
+            })?,
+            endpoint,
+        );
+        request = request.with_description(description);
+        if let Some(capabilities) = capabilities {
+            request = request.with_capabilities(capabilities);
+        }
+        request = request.with_input_schema(input_schema);
+        request = request.with_comment(comment);
+        request
+            .await
+            .map(|item| Buffer::from(item.encode_to_vec()))
+            .default_error()
     }
     #[napi(catch_unwind)]
     pub async fn list_catalogs(&self, max_results: Option<i32>) -> napi::Result<Vec<Buffer>> {
@@ -910,6 +1062,30 @@ impl NapiUnityCatalogClient {
             .await
             .map(|item| Buffer::from(item.encode_to_vec()))
             .default_error()
+    }
+    #[napi]
+    pub fn agent_skill(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        agent_skill_name: String,
+    ) -> NapiAgentSkillClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, agent_skill_name);
+        NapiAgentSkillClient {
+            client: self.client.agent_skill_from_full_name(full_name),
+        }
+    }
+    #[napi]
+    pub fn agent(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        agent_name: String,
+    ) -> NapiAgentClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, agent_name);
+        NapiAgentClient {
+            client: self.client.agent_from_full_name(full_name),
+        }
     }
     #[napi]
     pub fn catalog(&self, catalog_name: String) -> NapiCatalogClient {

@@ -1,16 +1,35 @@
 // @generated — do not edit by hand.
+#![allow(dead_code, unused_imports, clippy::too_many_arguments)]
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
+pub mod agent_skills;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
+pub mod agents;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod catalogs;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod credentials;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod external_locations;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod functions;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod providers;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod recipients;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod schemas;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod shares;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod staging_tables;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod tables;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod tag_policies;
+#[allow(dead_code, unused_imports, clippy::too_many_arguments)]
 pub mod volumes;
+use crate::codegen::agent_skills::PyAgentSkillClient;
+use crate::codegen::agents::PyAgentClient;
 use crate::codegen::catalogs::PyCatalogClient;
 use crate::codegen::credentials::PyCredentialClient;
 use crate::codegen::external_locations::PyExternalLocationClient;
@@ -29,6 +48,8 @@ use futures::stream::TryStreamExt;
 use pyo3::prelude::*;
 use std::collections::HashMap;
 use unitycatalog_client::UnityCatalogClient;
+use unitycatalog_common::models::agent_skills::v0alpha1::*;
+use unitycatalog_common::models::agents::v0alpha1::*;
 use unitycatalog_common::models::catalogs::v1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::delta_commits::v1::*;
@@ -40,6 +61,7 @@ use unitycatalog_common::models::schemas::v1::*;
 use unitycatalog_common::models::shares::v1::*;
 use unitycatalog_common::models::staging_tables::v1::*;
 use unitycatalog_common::models::tables::v1::*;
+use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::tags::v1::*;
 use unitycatalog_common::models::temporary_credentials::v1::*;
 use unitycatalog_common::models::volumes::v1::*;
@@ -61,6 +83,144 @@ impl PyUnityCatalogClient {
         Ok(Self {
             client: UnityCatalogClient::new(client, base_url),
         })
+    }
+    #[pyo3(
+        signature = (
+            catalog_name,
+            schema_name,
+            max_results = None,
+            include_browse = None
+        )
+    )]
+    pub fn list_agent_skills(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<Vec<AgentSkill>> {
+        let mut request = self.client.list_agent_skills(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            catalog_name,
+            schema_name,
+            name,
+            agent_skill_type,
+            storage_location = None,
+            description = None,
+            license = None,
+            allowed_tools = None,
+            metadata = None,
+            comment = None
+        )
+    )]
+    pub fn create_agent_skill(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        name: String,
+        agent_skill_type: AgentSkillType,
+        storage_location: Option<String>,
+        description: Option<String>,
+        license: Option<String>,
+        allowed_tools: Option<Vec<String>>,
+        metadata: Option<HashMap<String, String>>,
+        comment: Option<String>,
+    ) -> PyUnityCatalogResult<AgentSkill> {
+        let mut request =
+            self.client
+                .create_agent_skill(catalog_name, schema_name, name, agent_skill_type);
+        request = request.with_storage_location(storage_location);
+        request = request.with_description(description);
+        request = request.with_license(license);
+        if let Some(allowed_tools) = allowed_tools {
+            request = request.with_allowed_tools(allowed_tools);
+        }
+        if let Some(metadata) = metadata {
+            request = request.with_metadata(metadata);
+        }
+        request = request.with_comment(comment);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
+    }
+    #[pyo3(
+        signature = (
+            catalog_name,
+            schema_name,
+            max_results = None,
+            include_browse = None
+        )
+    )]
+    pub fn list_agents(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        max_results: Option<i32>,
+        include_browse: Option<bool>,
+    ) -> PyUnityCatalogResult<Vec<Agent>> {
+        let mut request = self.client.list_agents(catalog_name, schema_name);
+        request = request.with_max_results(max_results);
+        request = request.with_include_browse(include_browse);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| {
+            let result =
+                runtime.block_on(async move { request.into_stream().try_collect().await })?;
+            Ok::<_, PyUnityCatalogError>(result)
+        })
+    }
+    #[pyo3(
+        signature = (
+            catalog_name,
+            schema_name,
+            name,
+            invocation_protocol,
+            endpoint,
+            description = None,
+            capabilities = None,
+            input_schema = None,
+            comment = None
+        )
+    )]
+    pub fn create_agent(
+        &self,
+        py: Python,
+        catalog_name: String,
+        schema_name: String,
+        name: String,
+        invocation_protocol: InvocationProtocol,
+        endpoint: String,
+        description: Option<String>,
+        capabilities: Option<Vec<String>>,
+        input_schema: Option<String>,
+        comment: Option<String>,
+    ) -> PyUnityCatalogResult<Agent> {
+        let mut request = self.client.create_agent(
+            catalog_name,
+            schema_name,
+            name,
+            invocation_protocol,
+            endpoint,
+        );
+        request = request.with_description(description);
+        if let Some(capabilities) = capabilities {
+            request = request.with_capabilities(capabilities);
+        }
+        request = request.with_input_schema(input_schema);
+        request = request.with_comment(comment);
+        let runtime = get_runtime(py)?;
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (max_results = None))]
     pub fn list_catalogs(
@@ -106,10 +266,7 @@ impl PyUnityCatalogClient {
         request = request.with_provider_name(provider_name);
         request = request.with_share_name(share_name);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (purpose = None, max_results = None))]
     pub fn list_credentials(
@@ -166,10 +323,7 @@ impl PyUnityCatalogClient {
         request = request.with_aws_iam_role(aws_iam_role);
         request = request.with_databricks_gcp_service_account(databricks_gcp_service_account);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -194,10 +348,7 @@ impl PyUnityCatalogClient {
         request = request.with_latest_backfilled_version(latest_backfilled_version);
         request = request.with_metadata(metadata);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (table_id, table_uri, start_version, end_version = None))]
     pub fn get_commits(
@@ -211,10 +362,7 @@ impl PyUnityCatalogClient {
         let mut request = self.client.get_commits(table_id, table_uri, start_version);
         request = request.with_end_version(end_version);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (entity_type, entity_name, max_results = None, page_token = None)
@@ -233,10 +381,7 @@ impl PyUnityCatalogClient {
         request = request.with_max_results(max_results);
         request = request.with_page_token(page_token);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (tag_assignment))]
     pub fn create_entity_tag_assignment(
@@ -246,10 +391,7 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<EntityTagAssignment> {
         let request = self.client.create_entity_tag_assignment(tag_assignment);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (entity_type, entity_name, tag_key))]
     pub fn get_entity_tag_assignment(
@@ -263,10 +405,7 @@ impl PyUnityCatalogClient {
             .client
             .get_entity_tag_assignment(entity_type, entity_name, tag_key);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -294,10 +433,7 @@ impl PyUnityCatalogClient {
         );
         request = request.with_update_mask(update_mask);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (entity_type, entity_name, tag_key))]
     pub fn delete_entity_tag_assignment(
@@ -311,10 +447,7 @@ impl PyUnityCatalogClient {
             .client
             .delete_entity_tag_assignment(entity_type, entity_name, tag_key);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(())
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (max_results = None, include_browse = None))]
     pub fn list_external_locations(
@@ -360,10 +493,7 @@ impl PyUnityCatalogClient {
         request = request.with_comment(comment);
         request = request.with_skip_validation(skip_validation);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -452,10 +582,7 @@ impl PyUnityCatalogClient {
             request = request.with_properties(properties);
         }
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (max_results = None))]
     pub fn list_providers(
@@ -500,10 +627,7 @@ impl PyUnityCatalogClient {
             request = request.with_properties(properties);
         }
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (max_results = None))]
     pub fn list_recipients(
@@ -549,10 +673,7 @@ impl PyUnityCatalogClient {
         }
         request = request.with_expiration_time(expiration_time);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (catalog_name, max_results = None, include_browse = None))]
     pub fn list_schemas(
@@ -597,10 +718,7 @@ impl PyUnityCatalogClient {
         }
         request = request.with_storage_root(storage_root);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (max_results = None))]
     pub fn list_shares(
@@ -627,10 +745,7 @@ impl PyUnityCatalogClient {
         let mut request = self.client.create_share(name);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (name, catalog_name, schema_name))]
     pub fn create_staging_table(
@@ -644,10 +759,7 @@ impl PyUnityCatalogClient {
             .client
             .create_staging_table(name, catalog_name, schema_name);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -701,7 +813,8 @@ impl PyUnityCatalogClient {
             storage_location = None,
             comment = None,
             properties = None,
-            view_definition = None
+            view_definition = None,
+            view_dependencies = None
         )
     )]
     pub fn create_table(
@@ -717,6 +830,7 @@ impl PyUnityCatalogClient {
         comment: Option<String>,
         properties: Option<HashMap<String, String>>,
         view_definition: Option<String>,
+        view_dependencies: Option<DependencyList>,
     ) -> PyUnityCatalogResult<Table> {
         let mut request = self.client.create_table(
             name,
@@ -734,11 +848,9 @@ impl PyUnityCatalogClient {
             request = request.with_properties(properties);
         }
         request = request.with_view_definition(view_definition);
+        request = request.with_view_dependencies(view_dependencies);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (max_results = None))]
     pub fn list_tag_policies(
@@ -763,10 +875,7 @@ impl PyUnityCatalogClient {
     ) -> PyUnityCatalogResult<TagPolicy> {
         let request = self.client.create_tag_policy(tag_policy);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (table_id, operation))]
     pub fn generate_temporary_table_credentials(
@@ -779,10 +888,7 @@ impl PyUnityCatalogClient {
             .client
             .generate_temporary_table_credentials(table_id, operation);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (url, operation, dry_run = None))]
     pub fn generate_temporary_path_credentials(
@@ -797,10 +903,7 @@ impl PyUnityCatalogClient {
             .generate_temporary_path_credentials(url, operation);
         request = request.with_dry_run(dry_run);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (volume_id, operation))]
     pub fn generate_temporary_volume_credentials(
@@ -813,10 +916,7 @@ impl PyUnityCatalogClient {
             .client
             .generate_temporary_volume_credentials(volume_id, operation);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -870,10 +970,29 @@ impl PyUnityCatalogClient {
         request = request.with_storage_location(storage_location);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
+    }
+    pub fn agent_skill(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        agent_skill_name: String,
+    ) -> PyAgentSkillClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, agent_skill_name);
+        PyAgentSkillClient {
+            client: self.client.agent_skill_from_full_name(full_name),
+        }
+    }
+    pub fn agent(
+        &self,
+        catalog_name: String,
+        schema_name: String,
+        agent_name: String,
+    ) -> PyAgentClient {
+        let full_name = format!("{}.{}.{}", catalog_name, schema_name, agent_name);
+        PyAgentClient {
+            client: self.client.agent_from_full_name(full_name),
+        }
     }
     pub fn catalog(&self, catalog_name: String) -> PyCatalogClient {
         PyCatalogClient {

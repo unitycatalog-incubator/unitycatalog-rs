@@ -3,6 +3,8 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Resource {
+    Agent(super::agents::v0alpha1::Agent),
+    AgentSkill(super::agent_skills::v0alpha1::AgentSkill),
     Catalog(super::catalogs::v1::Catalog),
     Column(super::tables::v1::Column),
     Credential(super::credentials::v1::Credential),
@@ -42,6 +44,8 @@ pub enum Resource {
     sqlx(type_name = "object_label", rename_all = "snake_case")
 )]
 pub enum ObjectLabel {
+    Agent,
+    AgentSkill,
     Catalog,
     Column,
     Credential,
@@ -60,6 +64,8 @@ impl Resource {
     /// Return the discriminant label for this resource.
     pub fn resource_label(&self) -> &ObjectLabel {
         match self {
+            Resource::Agent(_) => &ObjectLabel::Agent,
+            Resource::AgentSkill(_) => &ObjectLabel::AgentSkill,
             Resource::Catalog(_) => &ObjectLabel::Catalog,
             Resource::Column(_) => &ObjectLabel::Column,
             Resource::Credential(_) => &ObjectLabel::Credential,
@@ -73,6 +79,40 @@ impl Resource {
             Resource::Table(_) => &ObjectLabel::Table,
             Resource::TagPolicy(_) => &ObjectLabel::TagPolicy,
             Resource::Volume(_) => &ObjectLabel::Volume,
+        }
+    }
+}
+impl From<super::agents::v0alpha1::Agent> for Resource {
+    fn from(v: super::agents::v0alpha1::Agent) -> Self {
+        Resource::Agent(v)
+    }
+}
+impl TryFrom<Resource> for super::agents::v0alpha1::Agent {
+    type Error = crate::Error;
+    fn try_from(r: Resource) -> Result<Self, Self::Error> {
+        match r {
+            Resource::Agent(v) => Ok(v),
+            _ => Err(<crate::Error>::generic(concat!(
+                "Resource is not a ",
+                stringify!(Agent)
+            ))),
+        }
+    }
+}
+impl From<super::agent_skills::v0alpha1::AgentSkill> for Resource {
+    fn from(v: super::agent_skills::v0alpha1::AgentSkill) -> Self {
+        Resource::AgentSkill(v)
+    }
+}
+impl TryFrom<Resource> for super::agent_skills::v0alpha1::AgentSkill {
+    type Error = crate::Error;
+    fn try_from(r: Resource) -> Result<Self, Self::Error> {
+        match r {
+            Resource::AgentSkill(v) => Ok(v),
+            _ => Err(<crate::Error>::generic(concat!(
+                "Resource is not a ",
+                stringify!(AgentSkill)
+            ))),
         }
     }
 }
@@ -300,6 +340,85 @@ impl TryFrom<Resource> for super::volumes::v1::Volume {
 use crate::Error;
 use crate::models::object::Object;
 use crate::models::resources::{ResourceExt, ResourceIdent, ResourceName, ResourceRef};
+impl TryFrom<Object> for super::agents::v0alpha1::Agent {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::agents::v0alpha1::Agent = ::serde_json::from_value(props)?;
+        res.agent_id = object.id.hyphenated().to_string();
+        Ok(res)
+    }
+}
+impl TryFrom<super::agents::v0alpha1::Agent> for Object {
+    type Error = Error;
+    fn try_from(obj: super::agents::v0alpha1::Agent) -> Result<Self, Self::Error> {
+        let id = ::uuid::Uuid::parse_str(&obj.agent_id).unwrap_or_else(|_| ::uuid::Uuid::nil());
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::Agent,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::agents::v0alpha1::Agent {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.catalog_name, &self.schema_name, &self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        ::uuid::Uuid::parse_str(&self.agent_id)
+            .ok()
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::Agent).to_ident(self.resource_ref())
+    }
+}
+impl TryFrom<Object> for super::agent_skills::v0alpha1::AgentSkill {
+    type Error = Error;
+    fn try_from(object: Object) -> Result<Self, Self::Error> {
+        let props = object
+            .properties
+            .ok_or_else(|| Error::generic("expected properties"))?;
+        let mut res: super::agent_skills::v0alpha1::AgentSkill = ::serde_json::from_value(props)?;
+        res.agent_skill_id = object.id.hyphenated().to_string();
+        Ok(res)
+    }
+}
+impl TryFrom<super::agent_skills::v0alpha1::AgentSkill> for Object {
+    type Error = Error;
+    fn try_from(obj: super::agent_skills::v0alpha1::AgentSkill) -> Result<Self, Self::Error> {
+        let id =
+            ::uuid::Uuid::parse_str(&obj.agent_skill_id).unwrap_or_else(|_| ::uuid::Uuid::nil());
+        Ok(Object {
+            id,
+            name: obj.resource_name(),
+            label: ObjectLabel::AgentSkill,
+            properties: Some(::serde_json::to_value(obj)?),
+            updated_at: None,
+            created_at: chrono::Utc::now(),
+        })
+    }
+}
+impl ResourceExt for super::agent_skills::v0alpha1::AgentSkill {
+    fn resource_name(&self) -> ResourceName {
+        ResourceName::new([&self.catalog_name, &self.schema_name, &self.name])
+    }
+    fn resource_ref(&self) -> ResourceRef {
+        ::uuid::Uuid::parse_str(&self.agent_skill_id)
+            .ok()
+            .map(ResourceRef::Uuid)
+            .unwrap_or_else(|| ResourceRef::Name(self.resource_name()))
+    }
+    fn resource_ident(&self) -> ResourceIdent {
+        (ObjectLabel::AgentSkill).to_ident(self.resource_ref())
+    }
+}
 impl TryFrom<Object> for super::catalogs::v1::Catalog {
     type Error = Error;
     fn try_from(object: Object) -> Result<Self, Self::Error> {
@@ -874,6 +993,18 @@ impl ResourceExt for super::volumes::v1::Volume {
         (ObjectLabel::Volume).to_ident(self.resource_ref())
     }
 }
+impl super::agents::v0alpha1::Agent {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
+    }
+}
+impl super::agent_skills::v0alpha1::AgentSkill {
+    /// Returns the fully-qualified dot-separated name computed from component fields.
+    pub fn qualified_name(&self) -> String {
+        format!("{}.{}.{}", self.catalog_name, self.schema_name, self.name)
+    }
+}
 impl super::catalogs::v1::Catalog {
     /// Returns the fully-qualified dot-separated name computed from component fields.
     pub fn qualified_name(&self) -> String {
@@ -964,6 +1095,160 @@ impl ::olai_store::Label for ObjectLabel {
 ///
 /// Use `ResourceRegistry::from_static` to build a runtime registry from this data.
 pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLabel>] = &[
+    ::olai_store::ResourceTypeDescriptor {
+        label: ObjectLabel::Agent,
+        fields: &[
+            ::olai_store::ResourceFieldDescriptor {
+                name: "name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "catalog_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "schema_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "full_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "agent_id",
+                role: ::olai_store::FieldRole::Identifier,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "invocation_protocol",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "endpoint",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "description",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "capabilities",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "input_schema",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "owner",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "comment",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_at",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_by",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "updated_at",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "updated_by",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "metastore_id",
+                role: ::olai_store::FieldRole::Data,
+            },
+        ],
+        path_names: &["catalog_name", "schema_name", "name"],
+        parent_label: Some(ObjectLabel::Catalog),
+    },
+    ::olai_store::ResourceTypeDescriptor {
+        label: ObjectLabel::AgentSkill,
+        fields: &[
+            ::olai_store::ResourceFieldDescriptor {
+                name: "name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "catalog_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "schema_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "full_name",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "storage_location",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "agent_skill_id",
+                role: ::olai_store::FieldRole::Identifier,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "agent_skill_type",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "description",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "license",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "allowed_tools",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "metadata",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "owner",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "comment",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_at",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "created_by",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "updated_at",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "updated_by",
+                role: ::olai_store::FieldRole::Managed,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "metastore_id",
+                role: ::olai_store::FieldRole::Data,
+            },
+        ],
+        path_names: &["catalog_name", "schema_name", "name"],
+        parent_label: Some(ObjectLabel::Catalog),
+    },
     ::olai_store::ResourceTypeDescriptor {
         label: ObjectLabel::Catalog,
         fields: &[
@@ -1615,6 +1900,10 @@ pub static RESOURCE_DESCRIPTORS: &[::olai_store::ResourceTypeDescriptor<ObjectLa
             },
             ::olai_store::ResourceFieldDescriptor {
                 name: "view_definition",
+                role: ::olai_store::FieldRole::Data,
+            },
+            ::olai_store::ResourceFieldDescriptor {
+                name: "view_dependencies",
                 role: ::olai_store::FieldRole::Data,
             },
             ::olai_store::ResourceFieldDescriptor {

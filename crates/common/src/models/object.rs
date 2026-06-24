@@ -25,6 +25,8 @@ impl ResourceExt for Object {
 impl ResourceExt for Resource {
     fn resource_name(&self) -> ResourceName {
         match self {
+            Resource::Agent(obj) => obj.resource_name(),
+            Resource::AgentSkill(obj) => obj.resource_name(),
             Resource::Share(obj) => obj.resource_name(),
             Resource::Credential(obj) => obj.resource_name(),
             Resource::Catalog(obj) => obj.resource_name(),
@@ -43,6 +45,8 @@ impl ResourceExt for Resource {
 
     fn resource_ref(&self) -> ResourceRef {
         match self {
+            Resource::Agent(obj) => obj.resource_ref(),
+            Resource::AgentSkill(obj) => obj.resource_ref(),
             Resource::Share(obj) => obj.resource_ref(),
             Resource::Credential(obj) => obj.resource_ref(),
             Resource::Catalog(obj) => obj.resource_ref(),
@@ -61,6 +65,8 @@ impl ResourceExt for Resource {
 
     fn resource_ident(&self) -> ResourceIdent {
         match self {
+            Resource::Agent(obj) => obj.resource_ident(),
+            Resource::AgentSkill(obj) => obj.resource_ident(),
             Resource::Share(obj) => obj.resource_ident(),
             Resource::Credential(obj) => obj.resource_ident(),
             Resource::Catalog(obj) => obj.resource_ident(),
@@ -83,6 +89,8 @@ impl TryFrom<Resource> for Object {
 
     fn try_from(resource: Resource) -> Result<Self, Self::Error> {
         match resource {
+            Resource::Agent(obj) => obj.try_into(),
+            Resource::AgentSkill(obj) => obj.try_into(),
             Resource::Share(obj) => obj.try_into(),
             Resource::Credential(obj) => obj.try_into(),
             Resource::Catalog(obj) => obj.try_into(),
@@ -105,6 +113,8 @@ impl TryFrom<Object> for Resource {
 
     fn try_from(obj: Object) -> Result<Self, Self::Error> {
         match obj.label {
+            ObjectLabel::Agent => Ok(Resource::Agent(obj.try_into()?)),
+            ObjectLabel::AgentSkill => Ok(Resource::AgentSkill(obj.try_into()?)),
             ObjectLabel::Share => Ok(Resource::Share(obj.try_into()?)),
             ObjectLabel::Credential => Ok(Resource::Credential(obj.try_into()?)),
             ObjectLabel::Catalog => Ok(Resource::Catalog(obj.try_into()?)),

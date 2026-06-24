@@ -1,4 +1,6 @@
 // @generated — do not edit by hand.
+use crate::codegen::agent_skills::*;
+use crate::codegen::agents::*;
 use crate::codegen::catalogs::*;
 use crate::codegen::credentials::*;
 use crate::codegen::delta_commits::*;
@@ -15,6 +17,8 @@ use crate::codegen::tag_policies::*;
 use crate::codegen::temporary_credentials::*;
 use crate::codegen::volumes::*;
 use olai_http::CloudClient;
+use unitycatalog_common::models::agent_skills::v0alpha1::*;
+use unitycatalog_common::models::agents::v0alpha1::*;
 use unitycatalog_common::models::credentials::v1::*;
 use unitycatalog_common::models::functions::v1::*;
 use unitycatalog_common::models::providers::v1::*;
@@ -47,6 +51,17 @@ impl UnityCatalogClient {
     /// Create a new aggregate client authenticating with a bearer token.
     pub fn new_with_token(base_url: Url, token: impl ToString) -> Self {
         Self::new(CloudClient::new_with_token(token), base_url)
+    }
+    ///Low-level `agent_skills` client exposing request/response passthrough methods.
+    pub fn agent_skills_client(&self) -> crate::codegen::agent_skills::AgentSkillServiceClient {
+        crate::codegen::agent_skills::AgentSkillServiceClient::new(
+            self.client.clone(),
+            self.base_url.clone(),
+        )
+    }
+    ///Low-level `agents` client exposing request/response passthrough methods.
+    pub fn agents_client(&self) -> crate::codegen::agents::AgentServiceClient {
+        crate::codegen::agents::AgentServiceClient::new(self.client.clone(), self.base_url.clone())
     }
     ///Low-level `catalogs` client exposing request/response passthrough methods.
     pub fn catalogs_client(&self) -> crate::codegen::catalogs::CatalogServiceClient {
@@ -153,6 +168,151 @@ impl UnityCatalogClient {
         crate::codegen::volumes::VolumeServiceClient::new(
             self.client.clone(),
             self.base_url.clone(),
+        )
+    }
+    /// Lists agent skills.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - The identifier of the catalog.
+    /// * `schema_name` - The identifier of the schema.
+    pub fn list_agent_skills(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+    ) -> ListAgentSkillsBuilder {
+        ListAgentSkillsBuilder::new(
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+        )
+    }
+    /// # Arguments
+    ///
+    /// * `catalog_name` - The identifier of the catalog.
+    /// * `schema_name` - The identifier of the schema.
+    /// * `name` - The identifier of the agent skill.
+    /// * `agent_skill_type` - How the storage location is provisioned (external or managed).
+    pub fn create_agent_skill(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        name: impl Into<String>,
+        agent_skill_type: AgentSkillType,
+    ) -> CreateAgentSkillBuilder {
+        CreateAgentSkillBuilder::new(
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+            name,
+            agent_skill_type,
+        )
+    }
+    /// Access the `agent_skill` resource scoped to the given name.
+    pub fn agent_skill(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        agent_skill_name: impl Into<String>,
+    ) -> AgentSkillClient {
+        AgentSkillClient::new(
+            catalog_name,
+            schema_name,
+            agent_skill_name,
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
+    }
+    /// Access the `agent_skill` resource from its dot-joined full name.
+    pub fn agent_skill_from_full_name(&self, full_name: impl Into<String>) -> AgentSkillClient {
+        AgentSkillClient::from_full_name(
+            full_name,
+            crate::codegen::agent_skills::AgentSkillServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
+    }
+    /// Lists agents.
+    ///
+    /// # Arguments
+    ///
+    /// * `catalog_name` - The identifier of the catalog.
+    /// * `schema_name` - The identifier of the schema.
+    pub fn list_agents(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+    ) -> ListAgentsBuilder {
+        ListAgentsBuilder::new(
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+        )
+    }
+    /// # Arguments
+    ///
+    /// * `catalog_name` - The identifier of the catalog.
+    /// * `schema_name` - The identifier of the schema.
+    /// * `name` - The identifier of the agent.
+    /// * `invocation_protocol` - The protocol a recipient uses to invoke the agent.
+    /// * `endpoint` - The agent's invocation endpoint URL.
+    pub fn create_agent(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        name: impl Into<String>,
+        invocation_protocol: InvocationProtocol,
+        endpoint: impl Into<String>,
+    ) -> CreateAgentBuilder {
+        CreateAgentBuilder::new(
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+            catalog_name,
+            schema_name,
+            name,
+            invocation_protocol,
+            endpoint,
+        )
+    }
+    /// Access the `agent` resource scoped to the given name.
+    pub fn agent(
+        &self,
+        catalog_name: impl Into<String>,
+        schema_name: impl Into<String>,
+        agent_name: impl Into<String>,
+    ) -> AgentClient {
+        AgentClient::new(
+            catalog_name,
+            schema_name,
+            agent_name,
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
+        )
+    }
+    /// Access the `agent` resource from its dot-joined full name.
+    pub fn agent_from_full_name(&self, full_name: impl Into<String>) -> AgentClient {
+        AgentClient::from_full_name(
+            full_name,
+            crate::codegen::agents::AgentServiceClient::new(
+                self.client.clone(),
+                self.base_url.clone(),
+            ),
         )
     }
     /// List catalogs

@@ -1,5 +1,8 @@
 // @generated — do not edit by hand.
+pub mod agent_skills;
+pub mod agents;
 pub mod catalogs;
+#[allow(clippy::too_many_arguments, clippy::doc_lazy_continuation)]
 pub mod client;
 pub mod credentials;
 pub mod delta_commits;
