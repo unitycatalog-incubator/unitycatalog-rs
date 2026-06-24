@@ -333,6 +333,7 @@ impl MetadataResponseData {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum MetadataResponse {
