@@ -1,6 +1,5 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
-use crate::Result;
+#![allow(unused_mut, unused_imports)]
 use crate::models::open_sharing::v1::*;
 use axum::{RequestExt, RequestPartsExt};
 impl<S: Send + Sync> axum::extract::FromRequestParts<S> for ListSkillsRequest {
@@ -89,12 +88,11 @@ impl<S: Send + Sync> axum::extract::FromRequest<S> for GenerateTemporarySkillCre
         mut req: axum::extract::Request<axum::body::Body>,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let (mut parts, body) = req.into_parts();
+        let (mut parts, _body) = req.into_parts();
         let axum::extract::Path((share, schema, name)) = parts
             .extract::<axum::extract::Path<(String, String, String)>>()
             .await
             .map_err(axum::response::IntoResponse::into_response)?;
-        let _body_req = axum::extract::Request::from_parts(parts, body);
         Ok(GenerateTemporarySkillCredentialsRequest {
             share,
             schema,

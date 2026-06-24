@@ -1,8 +1,8 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
 use super::client::*;
 use crate::Result;
-use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::tags::v1::*;
 /// Builder for entity tag assignments
@@ -38,7 +38,7 @@ impl ListEntityTagAssignmentsBuilder {
 }
 impl IntoFuture for ListEntityTagAssignmentsBuilder {
     type Output = Result<ListEntityTagAssignmentsResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -59,14 +59,13 @@ impl CreateEntityTagAssignmentBuilder {
     ) -> Self {
         let request = CreateEntityTagAssignmentRequest {
             tag_assignment: Some(tag_assignment),
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for CreateEntityTagAssignmentBuilder {
     type Output = Result<EntityTagAssignment>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -91,14 +90,13 @@ impl GetEntityTagAssignmentBuilder {
             entity_type: entity_type.into(),
             entity_name: entity_name.into(),
             tag_key: tag_key.into(),
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for GetEntityTagAssignmentBuilder {
     type Output = Result<EntityTagAssignment>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -137,7 +135,7 @@ impl UpdateEntityTagAssignmentBuilder {
 }
 impl IntoFuture for UpdateEntityTagAssignmentBuilder {
     type Output = Result<EntityTagAssignment>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -162,14 +160,13 @@ impl DeleteEntityTagAssignmentBuilder {
             entity_type: entity_type.into(),
             entity_name: entity_name.into(),
             tag_key: tag_key.into(),
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for DeleteEntityTagAssignmentBuilder {
     type Output = Result<()>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

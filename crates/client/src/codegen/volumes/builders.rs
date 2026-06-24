@@ -1,9 +1,11 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
+type BoxStr<'a, T> = ::futures::stream::BoxStream<'a, T>;
 use super::super::stream_paginated;
 use super::client::*;
 use crate::Result;
-use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
+use futures::{StreamExt, TryStreamExt};
 use std::future::IntoFuture;
 use unitycatalog_common::models::volumes::v1::*;
 /// Builder for listing volumes
@@ -42,9 +44,9 @@ impl ListVolumesBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<Volume>> {
+    pub fn into_stream(self) -> BoxStr<'static, Result<Volume>> {
         let remaining = self.request.max_results;
-        stream_paginated(
+        let stream = stream_paginated(
             (self, remaining),
             move |(mut builder, mut remaining), page_token| async move {
                 builder.request.page_token = page_token;
@@ -61,13 +63,13 @@ impl ListVolumesBuilder {
             },
         )
         .map_ok(|resp| futures::stream::iter(resp.volumes.into_iter().map(Ok)))
-        .try_flatten()
-        .boxed()
+        .try_flatten();
+        stream.boxed()
     }
 }
 impl IntoFuture for ListVolumesBuilder {
     type Output = Result<ListVolumesResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -111,7 +113,7 @@ impl CreateVolumeBuilder {
 }
 impl IntoFuture for CreateVolumeBuilder {
     type Output = Result<Volume>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -141,7 +143,7 @@ impl GetVolumeBuilder {
 }
 impl IntoFuture for GetVolumeBuilder {
     type Output = Result<Volume>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -181,7 +183,7 @@ impl UpdateVolumeBuilder {
 }
 impl IntoFuture for UpdateVolumeBuilder {
     type Output = Result<Volume>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -197,16 +199,13 @@ impl DeleteVolumeBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `VolumeServiceClient`.
     pub(crate) fn new(client: VolumeServiceClient, name: impl Into<String>) -> Self {
-        let request = DeleteVolumeRequest {
-            name: name.into(),
-            ..Default::default()
-        };
+        let request = DeleteVolumeRequest { name: name.into() };
         Self { client, request }
     }
 }
 impl IntoFuture for DeleteVolumeBuilder {
     type Output = Result<()>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

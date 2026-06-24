@@ -14,10 +14,7 @@ impl PyRecipientClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<Recipient> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -46,10 +43,7 @@ impl PyRecipientClient {
         }
         request = request.with_expiration_time(expiration_time);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();

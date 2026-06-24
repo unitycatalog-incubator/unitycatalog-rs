@@ -1,9 +1,11 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
+type BoxStr<'a, T> = ::futures::stream::BoxStream<'a, T>;
 use super::super::stream_paginated;
 use super::client::*;
 use crate::Result;
-use futures::{StreamExt, TryStreamExt, future::BoxFuture, stream::BoxStream};
+use futures::{StreamExt, TryStreamExt};
 use std::future::IntoFuture;
 use unitycatalog_common::models::tables::v1::*;
 /// Builder for table summaries
@@ -58,7 +60,7 @@ impl ListTableSummariesBuilder {
 }
 impl IntoFuture for ListTableSummariesBuilder {
     type Output = Result<ListTableSummariesResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -132,9 +134,9 @@ impl ListTablesBuilder {
         self
     }
     /// Convert paginated request into stream of results
-    pub fn into_stream(self) -> BoxStream<'static, Result<Table>> {
+    pub fn into_stream(self) -> BoxStr<'static, Result<Table>> {
         let remaining = self.request.max_results;
-        stream_paginated(
+        let stream = stream_paginated(
             (self, remaining),
             move |(mut builder, mut remaining), page_token| async move {
                 builder.request.page_token = page_token;
@@ -151,13 +153,13 @@ impl ListTablesBuilder {
             },
         )
         .map_ok(|resp| futures::stream::iter(resp.tables.into_iter().map(Ok)))
-        .try_flatten()
-        .boxed()
+        .try_flatten();
+        stream.boxed()
     }
 }
 impl IntoFuture for ListTablesBuilder {
     type Output = Result<ListTablesResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -241,7 +243,7 @@ impl CreateTableBuilder {
 }
 impl IntoFuture for CreateTableBuilder {
     type Output = Result<Table>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -287,7 +289,7 @@ impl GetTableBuilder {
 }
 impl IntoFuture for GetTableBuilder {
     type Output = Result<Table>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -305,14 +307,13 @@ impl GetTableExistsBuilder {
     pub(crate) fn new(client: TableServiceClient, full_name: impl Into<String>) -> Self {
         let request = GetTableExistsRequest {
             full_name: full_name.into(),
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for GetTableExistsBuilder {
     type Output = Result<GetTableExistsResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -330,14 +331,13 @@ impl DeleteTableBuilder {
     pub(crate) fn new(client: TableServiceClient, full_name: impl Into<String>) -> Self {
         let request = DeleteTableRequest {
             full_name: full_name.into(),
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for DeleteTableBuilder {
     type Output = Result<()>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

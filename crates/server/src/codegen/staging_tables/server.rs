@@ -1,5 +1,5 @@
 // @generated — do not edit by hand.
-#![allow(unused_mut)]
+#![allow(unused_mut, clippy::too_many_arguments)]
 use super::handler::StagingTableHandler;
 use crate::Result;
 use axum::extract::State;

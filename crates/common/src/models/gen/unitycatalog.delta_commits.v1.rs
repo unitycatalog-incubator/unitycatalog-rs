@@ -6,8 +6,7 @@
 /// coordinator (`uc_delta_commits` rows). All fields are required and must be
 /// positive / non-empty (see the `commit` RPC).
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CommitInfo {
     /// The table version this commit produces. Posted commits are >= 1; version 0
     /// is established out-of-band by create-table.
@@ -32,7 +31,6 @@ pub struct CommitInfo {
 /// A Delta metadata change accompanying a commit. Modeled minimally; the
 /// coordinator stores it opaquely and does not interpret it.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Metadata {
     /// The Delta metadata `id`.
@@ -47,7 +45,6 @@ pub struct Metadata {
 }
 /// Response listing ratified-but-unpublished commits for a table.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetCommitsResponse {
     /// Ratified commits in `\[start_version, end_version\]`, contiguous and ordered
@@ -63,7 +60,6 @@ pub struct GetCommitsResponse {
 ///
 /// At least one of `commit_info` or `latest_backfilled_version` must be set.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CommitRequest {
     /// UUID of the catalog-managed table being committed to.
@@ -87,8 +83,7 @@ pub struct CommitRequest {
 }
 /// Request to read ratified-but-unpublished commits for a table.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetCommitsRequest {
     /// UUID of the catalog-managed table.
     #[prost(string, tag="1")]

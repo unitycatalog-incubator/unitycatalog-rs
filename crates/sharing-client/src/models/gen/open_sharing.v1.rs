@@ -9,8 +9,7 @@
 ///
 /// Names are prefixed with `Sharing` to avoid colliding with the Unity Catalog
 /// `TemporaryCredential` schema in the shared OpenAPI document.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SharingTemporaryCredentials {
     /// Server time when the credential expires, in epoch milliseconds.
     #[prost(int64, tag="1")]
@@ -25,8 +24,7 @@ pub struct SharingTemporaryCredentials {
 /// Nested message and enum types in `SharingTemporaryCredentials`.
 pub mod sharing_temporary_credentials {
     /// Exactly one provider-specific credential.
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Oneof)]
     pub enum Credentials {
         /// Temporary credentials for AWS S3.
         #[prost(message, tag="100")]
@@ -43,8 +41,7 @@ pub mod sharing_temporary_credentials {
     }
 }
 /// Temporary credentials for AWS S3.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SharingAwsCredentials {
     /// The access key ID that identifies the temporary credentials.
     #[prost(string, tag="1")]
@@ -57,24 +54,21 @@ pub struct SharingAwsCredentials {
     pub session_token: ::prost::alloc::string::String,
 }
 /// User delegation SAS token for Azure Blob Storage.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SharingAzureUserDelegationSas {
     /// The SAS token granting read access to the asset's storage location.
     #[prost(string, tag="1")]
     pub sas_token: ::prost::alloc::string::String,
 }
 /// OAuth token for Google Cloud Storage.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SharingGcpOauthToken {
     /// The OAuth token granting read access to the asset's storage location.
     #[prost(string, tag="1")]
     pub oauth_token: ::prost::alloc::string::String,
 }
 /// Temporary credentials for Cloudflare R2.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SharingR2Credentials {
     /// The access key ID that identifies the temporary credentials.
     #[prost(string, tag="1")]
@@ -91,8 +85,7 @@ pub struct SharingR2Credentials {
 /// A volume groups unstructured files under a single storage location; the
 /// recipient lists and reads its files directly via the cloud storage API using
 /// credentials from the `temporary-volume-credentials` endpoint.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SharingVolume {
     /// The name of the volume. It's case-insensitive and unique within a schema.
     #[prost(string, tag="1")]
@@ -119,7 +112,6 @@ pub struct SharingVolume {
 /// `scripts/`, `references/`, and `assets/`) that an agent loads and executes.
 /// It is backed by its own storage location; the recipient reads its files via
 /// credentials from the `temporary-skill-credentials` endpoint.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SharingSkill {
     /// The name of the skill. It's case-insensitive and unique within a schema.
@@ -155,7 +147,6 @@ pub struct SharingSkill {
 }
 /// A share is a logical grouping to share with recipients. A share can be shared with one or multiple recipients.
 /// A recipient can access all resources in a share. A share may contain multiple schemas.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Share {
     /// Name of the share.
@@ -181,8 +172,7 @@ pub struct Share {
 ///
 /// A schema is a logical grouping of tables.
 /// A schema may contain multiple tables.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Schema {
     /// The name of the schema. It's case-insensitive and unique within a share.
     #[prost(string, tag="1")]
@@ -195,8 +185,7 @@ pub struct Schema {
     pub id: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// A table is a Delta Lake table or a view on top of a Delta Lake table.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Table {
     /// The name of the table.
     #[prost(string, tag="1")]
@@ -226,7 +215,6 @@ pub struct Table {
     pub access_modes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// File format for data files in a table
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Format {
     /// Name of the encoding for files in this table
@@ -237,7 +225,6 @@ pub struct Format {
     pub options: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Metadata for a table
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Metadata {
     /// Unique identifier for this table (GUID).
@@ -266,8 +253,7 @@ pub struct Metadata {
     pub options: ::std::collections::HashMap<::prost::alloc::string::String, ::prost::alloc::string::String>,
 }
 /// Get the version of a table.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetTableVersionRequest {
     /// The table name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -285,16 +271,14 @@ pub struct GetTableVersionRequest {
     pub starting_timestamp: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for GetTableVersionRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetTableVersionResponse {
     /// The table version that was requested.
     #[prost(int64, tag="1")]
     pub version: i64,
 }
 /// Get metadata of a table.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetTableMetadataRequest {
     /// The table name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -307,7 +291,6 @@ pub struct GetTableMetadataRequest {
     pub schema: ::prost::alloc::string::String,
 }
 /// Response for a query against a table.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryResponse {
     #[prost(oneof="query_response::Response", tags="1, 2")]
@@ -315,8 +298,7 @@ pub struct QueryResponse {
 }
 /// Nested message and enum types in `QueryResponse`.
 pub mod query_response {
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Response {
         /// Parquet response format
         #[prost(message, tag="1")]
@@ -327,14 +309,12 @@ pub mod query_response {
     }
 }
 /// Response for a query against a table in Parquet format.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ParquetResponse {
     #[prost(message, repeated, tag="1")]
     pub entries: ::prost::alloc::vec::Vec<ParquetLogMessage>,
 }
 /// Log message for Parquet response.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ParquetLogMessage {
     #[prost(oneof="parquet_log_message::Entry", tags="1, 2")]
@@ -342,8 +322,7 @@ pub struct ParquetLogMessage {
 }
 /// Nested message and enum types in `ParquetLogMessage`.
 pub mod parquet_log_message {
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Entry {
         #[prost(message, tag="1")]
         Protocol(super::ProtocolParquet),
@@ -352,8 +331,7 @@ pub mod parquet_log_message {
     }
 }
 /// Protocol for Parquet response.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ProtocolParquet {
     /// The minimum version of the protocol that a client must implement
     /// in order to correctly read a Delta Lake table.
@@ -361,7 +339,6 @@ pub struct ProtocolParquet {
     pub min_reader_version: i32,
 }
 /// Metadata for Parquet response.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MetadataParquet {
     /// Unique identifier for this table
@@ -384,14 +361,12 @@ pub struct MetadataParquet {
     pub partition_columns: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// Response for a query against a table in Delta format.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeltaResponse {
     #[prost(message, repeated, tag="1")]
     pub entries: ::prost::alloc::vec::Vec<DeltaLogMessage>,
 }
 /// Log message for Delta response.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeltaLogMessage {
     #[prost(oneof="delta_log_message::Entry", tags="1, 2")]
@@ -399,8 +374,7 @@ pub struct DeltaLogMessage {
 }
 /// Nested message and enum types in `DeltaLogMessage`.
 pub mod delta_log_message {
-    #[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Oneof)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Entry {
         #[prost(message, tag="1")]
         Protocol(super::ProtocolDelta),
@@ -409,8 +383,7 @@ pub mod delta_log_message {
     }
 }
 /// Protocol for Delta response.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ProtocolDelta {
     /// The minimum version of the protocol that a client must implement
     /// in order to correctly read a Delta Lake table.
@@ -420,7 +393,6 @@ pub struct ProtocolDelta {
     pub min_writer_version: i32,
 }
 /// Metadata for Delta response.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MetadataDelta {
     /// Metadata from Delta protocol
@@ -443,7 +415,6 @@ pub struct MetadataDelta {
 /// Predicates form a tree: operator nodes (`and`, `or`, `equal`, …) carry their
 /// operands in `children`, while leaf `column`/`literal` nodes carry `name`/
 /// `value`/`value_type`. Hints are best-effort and must not affect correctness.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct JsonPredicate {
     /// The operation to perform.
@@ -469,8 +440,7 @@ pub struct JsonPredicate {
     pub value_type: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List the agent skills in a schema.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListSkillsRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -486,7 +456,6 @@ pub struct ListSkillsRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListSkillsRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSkillsResponse {
     /// The skills that were requested.
@@ -497,8 +466,7 @@ pub struct ListSkillsResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List all the agent skills under a share, across all schemas.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListAllSkillsRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -511,7 +479,6 @@ pub struct ListAllSkillsRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListAllSkillsRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAllSkillsResponse {
     /// The skills that were requested.
@@ -522,8 +489,7 @@ pub struct ListAllSkillsResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a single agent skill by name.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetSkillRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -536,8 +502,7 @@ pub struct GetSkillRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request temporary credentials scoped to a shared skill's storage location.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GenerateTemporarySkillCredentialsRequest {
     /// The share name. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -550,8 +515,7 @@ pub struct GenerateTemporarySkillCredentialsRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request to list shares.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListSharesRequest {
     /// The maximum number of results per page that should be returned.
     #[prost(int32, optional, tag="1")]
@@ -562,7 +526,6 @@ pub struct ListSharesRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListSharesRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSharesResponse {
     /// The shares that were requested.
@@ -574,16 +537,14 @@ pub struct ListSharesResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a share by name.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetShareRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
     pub name: ::prost::alloc::string::String,
 }
 /// List schemas in a share.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListSchemasRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -597,7 +558,6 @@ pub struct ListSchemasRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListSchemasRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListSchemasResponse {
     /// The schemas that were requested.
@@ -609,8 +569,7 @@ pub struct ListSchemasResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List tables in a schema.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListTablesRequest {
     /// The schema name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -627,7 +586,6 @@ pub struct ListTablesRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListTablesRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTablesResponse {
     /// The tables that were requested.
@@ -639,8 +597,7 @@ pub struct ListTablesResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List tables in a share.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListAllTablesRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -654,7 +611,6 @@ pub struct ListAllTablesRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Request to query the data files of a table.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct QueryTableRequest {
     /// The share name that contains the table. It's case-insensitive.
@@ -696,7 +652,6 @@ pub struct QueryTableRequest {
     pub ending_version: ::core::option::Option<i64>,
 }
 /// Response for ListAllTablesRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAllTablesResponse {
     /// The tables that were requested.
@@ -708,8 +663,7 @@ pub struct ListAllTablesResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List the volumes in a schema.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListVolumesRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -725,7 +679,6 @@ pub struct ListVolumesRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListVolumesRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListVolumesResponse {
     /// The volumes that were requested.
@@ -736,8 +689,7 @@ pub struct ListVolumesResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// List all the volumes under a share, across all schemas.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListAllVolumesRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -750,7 +702,6 @@ pub struct ListAllVolumesRequest {
     pub page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Response for ListAllVolumesRequest.
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListAllVolumesResponse {
     /// The volumes that were requested.
@@ -761,8 +712,7 @@ pub struct ListAllVolumesResponse {
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// Get a single volume by name.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetVolumeRequest {
     /// The share name to query. It's case-insensitive.
     #[prost(string, tag="1")]
@@ -775,8 +725,7 @@ pub struct GetVolumeRequest {
     pub name: ::prost::alloc::string::String,
 }
 /// Request temporary credentials scoped to a shared volume's storage location.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GenerateTemporaryVolumeCredentialsRequest {
     /// The share name. It's case-insensitive.
     #[prost(string, tag="1")]

@@ -2,6 +2,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::ShareClient;
 use unitycatalog_common::models::shares::v1::*;
 #[pyclass(name = "ShareClient")]
@@ -19,10 +20,7 @@ impl PyShareClient {
         let mut request = self.client.get();
         request = request.with_include_shared_data(include_shared_data);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (updates = None, new_name = None, owner = None, comment = None))]
     pub fn update(
@@ -41,10 +39,7 @@ impl PyShareClient {
         request = request.with_owner(owner);
         request = request.with_comment(comment);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();
@@ -65,10 +60,7 @@ impl PyShareClient {
         request = request.with_max_results(max_results);
         request = request.with_page_token(page_token);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (changes = None, omit_permissions_list = None))]
     pub fn update_permissions(
@@ -83,10 +75,7 @@ impl PyShareClient {
         }
         request = request.with_omit_permissions_list(omit_permissions_list);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
 }
 impl PyShareClient {

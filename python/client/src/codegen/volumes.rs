@@ -2,6 +2,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::VolumeClient;
 use unitycatalog_common::models::volumes::v1::*;
 #[pyclass(name = "VolumeClient")]
@@ -15,10 +16,7 @@ impl PyVolumeClient {
         let mut request = self.client.get();
         request = request.with_include_browse(include_browse);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (new_name = None, comment = None, owner = None))]
     pub fn update(
@@ -33,10 +31,7 @@ impl PyVolumeClient {
         request = request.with_comment(comment);
         request = request.with_owner(owner);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();

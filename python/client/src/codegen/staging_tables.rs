@@ -1,6 +1,10 @@
 // @generated — do not edit by hand.
+use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
+use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::StagingTableClient;
+use unitycatalog_common::models::staging_tables::v1::*;
 #[pyclass(name = "StagingTableClient")]
 pub struct PyStagingTableClient {
     pub(crate) client: StagingTableClient,

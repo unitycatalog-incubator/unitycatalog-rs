@@ -2,6 +2,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::CredentialClient;
 use unitycatalog_common::models::credentials::v1::*;
 #[pyclass(name = "CredentialClient")]
@@ -13,10 +14,7 @@ impl PyCredentialClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<Credential> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(
         signature = (
@@ -61,10 +59,7 @@ impl PyCredentialClient {
         request = request.with_aws_iam_role(aws_iam_role);
         request = request.with_databricks_gcp_service_account(databricks_gcp_service_account);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();

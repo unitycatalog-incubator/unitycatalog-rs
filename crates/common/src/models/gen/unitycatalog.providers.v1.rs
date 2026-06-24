@@ -6,7 +6,6 @@
 /// share activation/credential file and is used to access shares offered by an
 /// upstream Delta Sharing server.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Provider {
     /// Unique ID of the provider.
@@ -63,9 +62,9 @@ impl ProviderAuthenticationType {
     /// (if the ProtoBuf definition does not change) and safe for programmatic use.
     pub fn as_str_name(&self) -> &'static str {
         match self {
-            ProviderAuthenticationType::Unspecified => "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED",
-            ProviderAuthenticationType::Token => "TOKEN",
-            ProviderAuthenticationType::OauthClientCredentials => "OAUTH_CLIENT_CREDENTIALS",
+            Self::Unspecified => "PROVIDER_AUTHENTICATION_TYPE_UNSPECIFIED",
+            Self::Token => "TOKEN",
+            Self::OauthClientCredentials => "OAUTH_CLIENT_CREDENTIALS",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -80,8 +79,7 @@ impl ProviderAuthenticationType {
 }
 /// Request to list providers.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListProvidersRequest {
     /// The maximum number of results per page that should be returned.
     #[prost(int32, optional, tag="1")]
@@ -92,7 +90,6 @@ pub struct ListProvidersRequest {
 }
 /// Response to list providers.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListProvidersResponse {
     /// List of providers.
@@ -104,7 +101,6 @@ pub struct ListProvidersResponse {
 }
 /// Creates a new provider
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateProviderRequest {
     /// Name of the provider.
@@ -129,8 +125,7 @@ pub struct CreateProviderRequest {
 }
 /// Get a provider by name.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetProviderRequest {
     /// Name of the provider.
     #[prost(string, tag="1")]
@@ -138,7 +133,6 @@ pub struct GetProviderRequest {
 }
 /// Update a provider
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateProviderRequest {
     /// Name of the provider.
@@ -166,8 +160,7 @@ pub struct UpdateProviderRequest {
 }
 /// Delete a provider
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteProviderRequest {
     /// Name of the provider.
     #[prost(string, tag="1")]

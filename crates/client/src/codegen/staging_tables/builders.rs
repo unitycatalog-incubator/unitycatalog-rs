@@ -1,8 +1,8 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
 use super::client::*;
 use crate::Result;
-use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_common::models::staging_tables::v1::*;
 /// Builder for creating a staging table
@@ -23,14 +23,13 @@ impl CreateStagingTableBuilder {
             name: name.into(),
             catalog_name: catalog_name.into(),
             schema_name: schema_name.into(),
-            ..Default::default()
         };
         Self { client, request }
     }
 }
 impl IntoFuture for CreateStagingTableBuilder {
     type Output = Result<StagingTable>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

@@ -8,8 +8,7 @@
 /// `google.api.resource`: assignments are stored as associations between the entity and
 /// its tag, not as standalone objects.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct EntityTagAssignment {
     /// The type of the entity to which the tag is assigned.
     ///
@@ -28,8 +27,7 @@ pub struct EntityTagAssignment {
 }
 /// An allowed value for a governed tag.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Value {
     /// The name of the allowed value.
     #[prost(string, tag="1")]
@@ -41,7 +39,6 @@ pub struct Value {
 /// be used, including the optional set of allowed values. Assigning a governed
 /// tag to an entity is done through the Entity Tag Assignments API.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TagPolicy {
     /// The key of the governed tag.
@@ -67,8 +64,7 @@ pub struct TagPolicy {
 }
 /// List tag policies
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListTagPoliciesRequest {
     /// The maximum number of results per page that should be returned.
     #[prost(int32, optional, tag="1")]
@@ -79,7 +75,6 @@ pub struct ListTagPoliciesRequest {
 }
 /// List tag policies response.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListTagPoliciesResponse {
     /// The tag policies returned.
@@ -91,7 +86,6 @@ pub struct ListTagPoliciesResponse {
 }
 /// Create a new tag policy
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateTagPolicyRequest {
     /// The tag policy to create.
@@ -100,8 +94,7 @@ pub struct CreateTagPolicyRequest {
 }
 /// Get a tag policy
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetTagPolicyRequest {
     /// The key of the governed tag.
     #[prost(string, tag="1")]
@@ -109,7 +102,6 @@ pub struct GetTagPolicyRequest {
 }
 /// Update a tag policy
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateTagPolicyRequest {
     /// The key of the governed tag to update.
@@ -124,8 +116,7 @@ pub struct UpdateTagPolicyRequest {
 }
 /// Delete a tag policy
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteTagPolicyRequest {
     /// The key of the governed tag to delete.
     #[prost(string, tag="1")]
@@ -133,8 +124,7 @@ pub struct DeleteTagPolicyRequest {
 }
 /// List entity tag assignments
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ListEntityTagAssignmentsRequest {
     /// The type of the entity whose tag assignments to list.
     #[prost(string, tag="1")]
@@ -151,7 +141,6 @@ pub struct ListEntityTagAssignmentsRequest {
 }
 /// List entity tag assignments response.
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ListEntityTagAssignmentsResponse {
     /// The tag assignments returned.
@@ -163,8 +152,7 @@ pub struct ListEntityTagAssignmentsResponse {
 }
 /// Create an entity tag assignment
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CreateEntityTagAssignmentRequest {
     /// The tag assignment to create.
     #[prost(message, optional, tag="1")]
@@ -172,8 +160,7 @@ pub struct CreateEntityTagAssignmentRequest {
 }
 /// Get an entity tag assignment
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetEntityTagAssignmentRequest {
     /// The type of the entity to which the tag is assigned.
     #[prost(string, tag="1")]
@@ -187,8 +174,7 @@ pub struct GetEntityTagAssignmentRequest {
 }
 /// Update an entity tag assignment
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct UpdateEntityTagAssignmentRequest {
     /// The type of the entity to which the tag is assigned.
     #[prost(string, tag="1")]
@@ -208,8 +194,7 @@ pub struct UpdateEntityTagAssignmentRequest {
 }
 /// Delete an entity tag assignment
 #[cfg_attr(feature = "python", ::pyo3::pyclass(get_all, set_all))]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct DeleteEntityTagAssignmentRequest {
     /// The type of the entity to which the tag is assigned.
     #[prost(string, tag="1")]

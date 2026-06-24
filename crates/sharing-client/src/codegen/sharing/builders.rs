@@ -1,8 +1,8 @@
 // @generated — do not edit by hand.
 #![allow(unused_mut)]
+type BoxFut<'a, T> = ::futures::future::BoxFuture<'a, T>;
 use super::client::*;
 use crate::Result;
-use futures::future::BoxFuture;
 use std::future::IntoFuture;
 use unitycatalog_sharing_client::models::open_sharing::v1::*;
 /// Builder for shares
@@ -33,7 +33,7 @@ impl ListSharesBuilder {
 }
 impl IntoFuture for ListSharesBuilder {
     type Output = Result<ListSharesResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -49,16 +49,13 @@ impl GetShareBuilder {
     /// Create a new builder instance.
     /// Obtain via the corresponding method on `SharingClient`.
     pub(crate) fn new(client: SharingClient, name: impl Into<String>) -> Self {
-        let request = GetShareRequest {
-            name: name.into(),
-            ..Default::default()
-        };
+        let request = GetShareRequest { name: name.into() };
         Self { client, request }
     }
 }
 impl IntoFuture for GetShareBuilder {
     type Output = Result<Share>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -94,7 +91,7 @@ impl ListSchemasBuilder {
 }
 impl IntoFuture for ListSchemasBuilder {
     type Output = Result<ListSchemasResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -135,7 +132,7 @@ impl ListTablesBuilder {
 }
 impl IntoFuture for ListTablesBuilder {
     type Output = Result<ListTablesResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;
@@ -171,7 +168,7 @@ impl ListAllTablesBuilder {
 }
 impl IntoFuture for ListAllTablesBuilder {
     type Output = Result<ListAllTablesResponse>;
-    type IntoFuture = BoxFuture<'static, Self::Output>;
+    type IntoFuture = BoxFut<'static, Self::Output>;
     fn into_future(self) -> Self::IntoFuture {
         let client = self.client;
         let request = self.request;

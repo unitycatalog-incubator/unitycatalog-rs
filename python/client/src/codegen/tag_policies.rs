@@ -2,6 +2,7 @@
 use crate::error::{PyUnityCatalogError, PyUnityCatalogResult};
 use crate::runtime::get_runtime;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use unitycatalog_client::TagPolicyClient;
 use unitycatalog_common::models::tags::v1::*;
 #[pyclass(name = "TagPolicyClient")]
@@ -13,10 +14,7 @@ impl PyTagPolicyClient {
     pub fn get(&self, py: Python) -> PyUnityCatalogResult<TagPolicy> {
         let request = self.client.get();
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     #[pyo3(signature = (tag_policy, update_mask = None))]
     pub fn update(
@@ -28,10 +26,7 @@ impl PyTagPolicyClient {
         let mut request = self.client.update(tag_policy);
         request = request.with_update_mask(update_mask);
         let runtime = get_runtime(py)?;
-        py.allow_threads(|| {
-            let result = runtime.block_on(request.into_future())?;
-            Ok::<_, PyUnityCatalogError>(result)
-        })
+        py.allow_threads(|| Ok::<_, PyUnityCatalogError>(runtime.block_on(request.into_future())?))
     }
     pub fn delete(&self, py: Python) -> PyUnityCatalogResult<()> {
         let request = self.client.delete();
